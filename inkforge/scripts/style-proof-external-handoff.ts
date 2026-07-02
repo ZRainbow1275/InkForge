@@ -4,6 +4,7 @@ import {
   type CommittedStyleProofExternalHandoffNextRowKind,
   type CommittedStyleProofExternalHandoffNextRowRef,
   type CommittedStyleProofExternalHandoffPacket,
+  type CommittedStyleProofExternalProofChecklistBlockerKind,
   type CommittedStyleProofExternalProofChecklistGroup,
   type CommittedStyleProofExternalProofChecklistRow,
   type StyleProofAcceptanceAuditStatus,
@@ -12,8 +13,10 @@ import {
 } from '../src/services/export/style-catalog.ts'
 import type { Platform } from '../src/services/export/types.ts'
 
-type ExternalHandoffOutputMode = 'markdown' | 'json'
+type ExternalHandoffOutputMode = 'markdown' | 'json' | 'template'
 type ExternalHandoffIssueFilter = CommittedStyleProofExternalProofChecklistRow['issueIds'][number]
+type ExternalHandoffArtifactTemplate =
+  CommittedStyleProofExternalProofChecklistRow['artifactTemplate']
 
 interface ExternalHandoffCliFilters {
   platform: Platform | null
@@ -48,6 +51,67 @@ interface ExternalHandoffFilteredSummary {
   issueIds: readonly ExternalHandoffIssueFilter[]
 }
 
+interface ExternalHandoffTemplateNextRowRef {
+  kind: CommittedStyleProofExternalHandoffNextRowKind
+  rowId: string
+}
+
+interface ExternalHandoffTemplateInstructions {
+  requiredChannels: ExternalHandoffArtifactTemplate['requiredChannels']
+  requiredActions: ExternalHandoffArtifactTemplate['requiredActions']
+  requiredReadbacks: ExternalHandoffArtifactTemplate['requiredReadbacks']
+  requiredFields: ExternalHandoffArtifactTemplate['requiredFields']
+  forbiddenFields: ExternalHandoffArtifactTemplate['forbiddenFields']
+  acceptedHostStatuses: ExternalHandoffArtifactTemplate['acceptedHostStatuses']
+  maxFreshnessDays: number | null
+  fillOnlyAfterExternalProof: true
+  doNotInclude: readonly string[]
+  blankFields: {
+    collectedAt: null
+    channel: null
+    action: null
+    readback: null
+    artifactRef: null
+    notes: readonly []
+  }
+}
+
+interface ExternalHandoffTemplateRow {
+  id: string
+  templateOnly: true
+  notProof: true
+  platform: Platform
+  choiceIds: readonly string[]
+  requirementId: CommittedStyleProofExternalProofChecklistRow['requirementId']
+  requirementLabel: string
+  gate: CommittedStyleProofExternalProofChecklistRow['gate']
+  boundary: CommittedStyleProofExternalProofChecklistRow['boundary']
+  status: StyleProofAcceptanceAuditStatus
+  blockerKinds: readonly CommittedStyleProofExternalProofChecklistBlockerKind[]
+  issueIds: readonly ExternalHandoffIssueFilter[]
+  freshnessIssueIds: readonly ExternalHandoffIssueFilter[]
+  cannotClaim: true
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  artifactTemplate: ExternalHandoffArtifactTemplate
+  operatorWorksheet: ExternalHandoffTemplateInstructions
+}
+
+interface ExternalHandoffTemplatePacket {
+  templateOnly: true
+  notProof: true
+  status: CommittedStyleProofExternalHandoffPacket['status']
+  canClaimComplete: false
+  committedCanClaimComplete: boolean
+  filters: ExternalHandoffCliFilters
+  committedSummary: CommittedStyleProofExternalHandoffPacket['summary']
+  filteredSummary: ExternalHandoffFilteredSummary
+  recommendedNextAction: string | null
+  rows: readonly ExternalHandoffTemplateRow[]
+  nextRowRefs: readonly ExternalHandoffTemplateNextRowRef[]
+  nextRows: readonly string[]
+}
+
 const PLATFORM_FILTERS: readonly Platform[] = ['wechat', 'xiaohongshu', 'zhihu']
 
 const KIND_FILTERS: readonly CommittedStyleProofExternalHandoffNextRowKind[] = [
@@ -73,7 +137,7 @@ const ISSUE_ID_FILTER_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 function printHelp(): void {
   console.log([
-    'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]',
+    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]',
     '',
     'Prints the committed InkForge style-proof external handoff packet for',
     'operator-run phone, account, public-host, sync, scheduled-send, upload,',
@@ -86,6 +150,8 @@ function printHelp(): void {
     'Options:',
     '  --markdown   Print the human handoff packet. This is the default.',
     '  --json       Print the raw handoff packet JSON.',
+    '  --template   Print a JSON operator worksheet for the visible rows.',
+    '               This is not proof and contains no completed artifact rows.',
     '  --platform   Limit rows to one platform: wechat, xiaohongshu, zhihu.',
     '  --kind       Limit rows to one gate kind: phone-preview, external-account,',
     '               public-host, unsafe-to-automate, mutating-platform.',
@@ -153,6 +219,7 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
   let outputMode: ExternalHandoffOutputMode = 'markdown'
   let sawMarkdown = false
   let sawJson = false
+  let sawTemplate = false
   let platform: Platform | null = null
   let kind: CommittedStyleProofExternalHandoffNextRowKind | null = null
   let status: StyleProofAcceptanceAuditStatus | null = null
@@ -168,6 +235,9 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     } else if (arg === '--json') {
       sawJson = true
       outputMode = 'json'
+    } else if (arg === '--template') {
+      sawTemplate = true
+      outputMode = 'template'
     } else if (arg === '--next-only') {
       nextOnly = true
     } else if (arg === '--freshness-only') {
@@ -197,8 +267,9 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     }
   }
 
-  if (sawMarkdown && sawJson) {
-    exitWithUsageError('Choose only one output mode: --markdown or --json')
+  const selectedOutputModeCount = [sawMarkdown, sawJson, sawTemplate].filter(Boolean).length
+  if (selectedOutputModeCount > 1) {
+    exitWithUsageError('Choose only one output mode: --markdown, --json, or --template')
   }
 
   return {
@@ -534,6 +605,94 @@ function formatFilteredPacketMarkdown(
   return `${filterHeader}${formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)}`
 }
 
+const TEMPLATE_DO_NOT_INCLUDE: readonly string[] = [
+  'raw account session material',
+  'credential browser storage',
+  'local browser-runtime directories',
+  'network archive files',
+  'QR payload contents',
+  'third-party material URLs',
+  'unredacted draft or publish URLs',
+  'local capture file references',
+]
+
+function buildTemplateInstructions(
+  row: CommittedStyleProofExternalProofChecklistRow,
+): ExternalHandoffTemplateInstructions {
+  const template = row.artifactTemplate
+
+  return {
+    requiredChannels: template.requiredChannels,
+    requiredActions: template.requiredActions,
+    requiredReadbacks: template.requiredReadbacks,
+    requiredFields: template.requiredFields,
+    forbiddenFields: template.forbiddenFields,
+    acceptedHostStatuses: template.acceptedHostStatuses,
+    maxFreshnessDays: template.maxFreshnessDays,
+    fillOnlyAfterExternalProof: true,
+    doNotInclude: TEMPLATE_DO_NOT_INCLUDE,
+    blankFields: {
+      collectedAt: null,
+      channel: null,
+      action: null,
+      readback: null,
+      artifactRef: null,
+      notes: [],
+    },
+  }
+}
+
+function buildTemplateRow(
+  row: CommittedStyleProofExternalProofChecklistRow,
+): ExternalHandoffTemplateRow {
+  return {
+    id: row.id,
+    templateOnly: true,
+    notProof: true,
+    platform: row.platform,
+    choiceIds: row.choiceIds,
+    requirementId: row.requirementId,
+    requirementLabel: row.requirementLabel,
+    gate: row.gate,
+    boundary: row.boundary,
+    status: row.status,
+    blockerKinds: row.blockerKinds,
+    issueIds: row.issueIds,
+    freshnessIssueIds: row.freshnessIssueIds,
+    cannotClaim: true,
+    cannotClaimReason: row.cannotClaimReason,
+    nextOperatorAction: row.nextOperatorAction,
+    artifactTemplate: row.artifactTemplate,
+    operatorWorksheet: buildTemplateInstructions(row),
+  }
+}
+
+function buildTemplatePacket(
+  packet: CommittedStyleProofExternalHandoffPacket,
+  filters: ExternalHandoffCliFilters,
+): ExternalHandoffTemplatePacket {
+  const visiblePacket = hasActiveFilters(filters) ? buildFilteredPacket(packet, filters) : packet
+  const filteredSummary = buildFilteredSummary(packet, visiblePacket)
+
+  return {
+    templateOnly: true,
+    notProof: true,
+    status: packet.status,
+    canClaimComplete: false,
+    committedCanClaimComplete: packet.canClaimComplete,
+    filters,
+    committedSummary: packet.summary,
+    filteredSummary,
+    recommendedNextAction: visiblePacket.recommendedNextAction,
+    rows: visiblePacket.rows.map(buildTemplateRow),
+    nextRowRefs: visiblePacket.nextRowRefs.map(ref => ({
+      kind: ref.kind,
+      rowId: ref.row.id,
+    })),
+    nextRows: visiblePacket.nextRows.map(row => row.id),
+  }
+}
+
 function main(): void {
   const rawArgs = process.argv.slice(2)
   if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
@@ -543,6 +702,11 @@ function main(): void {
 
   const { outputMode, filters } = parseArgs(rawArgs)
   const packet = getCommittedStyleProofExternalHandoffPacket()
+  if (outputMode === 'template') {
+    console.log(JSON.stringify(buildTemplatePacket(packet, filters)))
+    process.exit(packet.canClaimComplete ? 0 : 1)
+  }
+
   if (!hasActiveFilters(filters)) {
     if (outputMode === 'json') {
       console.log(JSON.stringify(packet))

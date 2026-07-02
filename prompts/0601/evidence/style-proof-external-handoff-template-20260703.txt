@@ -1,0 +1,59 @@
+Style Proof External Handoff Template - 2026-07-03
+
+Scope:
+- Local read-only operator worksheet output for committed style-proof external handoff rows.
+- No browser action, no platform action, no phone preview, no sync, no upload, no scheduled send,
+  no publish, no manifest write, and no proof artifact creation.
+
+Implemented:
+- Added `--template` to `pnpm -C inkforge style-proof:external-handoff`.
+- `--template` is mutually exclusive with `--markdown` and `--json`.
+- `--template` composes with `--platform`, `--kind`, `--status`, `--issue`,
+  `--freshness-only`, and `--next-only`.
+
+Template behavior:
+- Prints one-line JSON for the currently visible handoff rows.
+- Top-level output uses `templateOnly:true`, `notProof:true`, and `canClaimComplete:false`.
+- Includes applied filters, committed summary, filtered summary, recommended next action,
+  next-row ids, and worksheet rows.
+- Each worksheet row includes the original required artifact template and an
+  `operatorWorksheet` with required channels, actions, readbacks, fields, host-status
+  constraints, freshness window, redaction boundary, success criteria, failure signals, and
+  blank nullable fields for later redacted collection.
+- Worksheet rows keep `cannotClaim:true` and do not include accepted artifact rows.
+
+Focused command check:
+- Command:
+  pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only
+- Result:
+  Expected exit 1.
+  Returned one stale authenticated-editor worksheet row.
+  Returned `templateOnly:true`, `notProof:true`, `canClaimComplete:false`,
+  `filteredRows=1`, `filteredNextRowRefs=1`, `filteredNextRows=1`,
+  `freshnessIssueRows=1`, and `issueIds=["style-proof-manifest-proof-stale"]`.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 10 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 32 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1350 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 30.59s
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=19, safeExternalRows=0, actionableLocalRows=0
+
+Boundary:
+- This proves local operator worksheet generation only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

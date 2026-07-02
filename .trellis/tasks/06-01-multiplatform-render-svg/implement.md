@@ -8,6 +8,68 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Style Proof External Handoff Template Slice
+
+Source:
+- The committed release gate remains `canClaimComplete=false` and `status=blocked-by-external`.
+- The external handoff CLI can already filter by platform, kind, status, issue id, freshness, and
+  next-row priority, but operators still needed a redacted worksheet that turns the visible rows
+  into blank collection guidance without creating proof artifacts.
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffPacket -r InkForge --depth 3`
+  reported LOW risk with 3 direct dependents and 0 affected processes.
+- `npx gitnexus impact formatCommittedStyleProofExternalHandoffPacketMarkdown -r InkForge --depth 3`
+  reported LOW risk with 1 direct dependent and 0 affected processes.
+- The new code is limited to the CLI wrapper and test file; script-local helpers are not reliable
+  GitNexus targets, so validation relies on focused CLI tests, scripts suite, export suite,
+  type-check, build, release preflight, and final `detect-changes`.
+
+Implementation:
+- Added `--template` to `pnpm -C inkforge style-proof:external-handoff`.
+- `--template` is mutually exclusive with `--markdown` and `--json`, and composes with every
+  existing filter: `--platform`, `--kind`, `--status`, `--issue`, `--freshness-only`, and
+  `--next-only`.
+- Template output is one-line JSON with `templateOnly:true`, `notProof:true`,
+  `canClaimComplete:false`, the applied filters, committed and filtered summaries, next-row ids,
+  and one worksheet row per visible handoff row.
+- Each worksheet row keeps the original artifact template plus blank nullable fields for later
+  operator collection. It does not create accepted artifacts, write manifests, open a browser,
+  upload, sync, schedule, publish, or change release-gate accounting.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 10 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 32 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 30.59s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`
+  exited 1 as expected and returned one stale authenticated-editor worksheet row with blank
+  artifact fields.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-external-handoff-template-20260703.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Scope:
+- This is local operator worksheet generation only. It does not prove WeChat authenticated editor
+  access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-07-03 Style Proof External Handoff Status/Freshness Filter Slice
 
 Source:

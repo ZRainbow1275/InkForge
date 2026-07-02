@@ -69,6 +69,81 @@ interface ExternalHandoffFilteredSummary {
   issueIds: string[]
 }
 
+interface ExternalHandoffArtifactTemplate {
+  requirementId: string
+  requiredChannels: string[]
+  requiredActions: string[]
+  requiredReadbacks: string[]
+  requiredFields: string[]
+  forbiddenFields: string[]
+  acceptedHostStatuses: string[]
+  maxFreshnessDays: number | null
+  redactionBoundary: string
+  successCriteria: string[]
+  failureSignals: string[]
+}
+
+interface ExternalHandoffTemplateInstructions {
+  requiredChannels: string[]
+  requiredActions: string[]
+  requiredReadbacks: string[]
+  requiredFields: string[]
+  forbiddenFields: string[]
+  acceptedHostStatuses: string[]
+  maxFreshnessDays: number | null
+  fillOnlyAfterExternalProof: true
+  doNotInclude: string[]
+  blankFields: {
+    collectedAt: null
+    channel: null
+    action: null
+    readback: null
+    artifactRef: null
+    notes: unknown[]
+  }
+}
+
+interface ExternalHandoffTemplateRow {
+  id: string
+  templateOnly: true
+  notProof: true
+  platform: string
+  choiceIds: string[]
+  requirementId: string
+  requirementLabel: string
+  gate: string
+  boundary: string
+  status: string
+  blockerKinds: string[]
+  issueIds: string[]
+  freshnessIssueIds: string[]
+  cannotClaim: true
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  artifactTemplate: ExternalHandoffArtifactTemplate
+  operatorWorksheet: ExternalHandoffTemplateInstructions
+}
+
+interface ExternalHandoffTemplateNextRowRef {
+  kind: string
+  rowId: string
+}
+
+interface ExternalHandoffTemplatePacket {
+  templateOnly: true
+  notProof: true
+  status: string
+  canClaimComplete: false
+  committedCanClaimComplete: boolean
+  filters: ExternalHandoffCliFilters
+  committedSummary: ExternalHandoffSummary
+  filteredSummary: ExternalHandoffFilteredSummary
+  recommendedNextAction: string | null
+  rows: ExternalHandoffTemplateRow[]
+  nextRowRefs: ExternalHandoffTemplateNextRowRef[]
+  nextRows: string[]
+}
+
 interface ExternalHandoffJsonPacket {
   canClaimComplete: boolean
   status: string
@@ -225,7 +300,10 @@ function isExternalHandoffCliFilters(value: unknown): value is ExternalHandoffCl
   return isRecord(value) &&
     (typeof value.platform === 'string' || value.platform === null) &&
     (typeof value.kind === 'string' || value.kind === null) &&
-    typeof value.nextOnly === 'boolean'
+    (typeof value.status === 'string' || value.status === null) &&
+    (typeof value.issueId === 'string' || value.issueId === null) &&
+    typeof value.nextOnly === 'boolean' &&
+    typeof value.freshnessOnly === 'boolean'
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -283,6 +361,92 @@ function isFilteredExternalHandoffJsonPacket(value: unknown): value is FilteredE
     isExternalHandoffFilteredSummary(value.filteredSummary)
 }
 
+function isExternalHandoffArtifactTemplate(value: unknown): value is ExternalHandoffArtifactTemplate {
+  return isRecord(value) &&
+    typeof value.requirementId === 'string' &&
+    isStringArray(value.requiredChannels) &&
+    isStringArray(value.requiredActions) &&
+    isStringArray(value.requiredReadbacks) &&
+    isStringArray(value.requiredFields) &&
+    isStringArray(value.forbiddenFields) &&
+    isStringArray(value.acceptedHostStatuses) &&
+    (typeof value.maxFreshnessDays === 'number' || value.maxFreshnessDays === null) &&
+    typeof value.redactionBoundary === 'string' &&
+    isStringArray(value.successCriteria) &&
+    isStringArray(value.failureSignals)
+}
+
+function isExternalHandoffTemplateInstructions(
+  value: unknown,
+): value is ExternalHandoffTemplateInstructions {
+  return isRecord(value) &&
+    isStringArray(value.requiredChannels) &&
+    isStringArray(value.requiredActions) &&
+    isStringArray(value.requiredReadbacks) &&
+    isStringArray(value.requiredFields) &&
+    isStringArray(value.forbiddenFields) &&
+    isStringArray(value.acceptedHostStatuses) &&
+    (typeof value.maxFreshnessDays === 'number' || value.maxFreshnessDays === null) &&
+    value.fillOnlyAfterExternalProof === true &&
+    isStringArray(value.doNotInclude) &&
+    isRecord(value.blankFields) &&
+    value.blankFields.collectedAt === null &&
+    value.blankFields.channel === null &&
+    value.blankFields.action === null &&
+    value.blankFields.readback === null &&
+    value.blankFields.artifactRef === null &&
+    Array.isArray(value.blankFields.notes) &&
+    value.blankFields.notes.length === 0
+}
+
+function isExternalHandoffTemplateRow(value: unknown): value is ExternalHandoffTemplateRow {
+  return isRecord(value) &&
+    typeof value.id === 'string' &&
+    value.templateOnly === true &&
+    value.notProof === true &&
+    typeof value.platform === 'string' &&
+    isStringArray(value.choiceIds) &&
+    typeof value.requirementId === 'string' &&
+    typeof value.requirementLabel === 'string' &&
+    typeof value.gate === 'string' &&
+    typeof value.boundary === 'string' &&
+    typeof value.status === 'string' &&
+    isStringArray(value.blockerKinds) &&
+    isStringArray(value.issueIds) &&
+    isStringArray(value.freshnessIssueIds) &&
+    value.cannotClaim === true &&
+    (typeof value.cannotClaimReason === 'string' || value.cannotClaimReason === null) &&
+    typeof value.nextOperatorAction === 'string' &&
+    isExternalHandoffArtifactTemplate(value.artifactTemplate) &&
+    isExternalHandoffTemplateInstructions(value.operatorWorksheet)
+}
+
+function isExternalHandoffTemplateNextRowRef(
+  value: unknown,
+): value is ExternalHandoffTemplateNextRowRef {
+  return isRecord(value) &&
+    typeof value.kind === 'string' &&
+    typeof value.rowId === 'string'
+}
+
+function isExternalHandoffTemplatePacket(value: unknown): value is ExternalHandoffTemplatePacket {
+  return isRecord(value) &&
+    value.templateOnly === true &&
+    value.notProof === true &&
+    typeof value.status === 'string' &&
+    value.canClaimComplete === false &&
+    typeof value.committedCanClaimComplete === 'boolean' &&
+    isExternalHandoffCliFilters(value.filters) &&
+    isExternalHandoffSummary(value.committedSummary) &&
+    isExternalHandoffFilteredSummary(value.filteredSummary) &&
+    (typeof value.recommendedNextAction === 'string' || value.recommendedNextAction === null) &&
+    Array.isArray(value.rows) &&
+    value.rows.every(isExternalHandoffTemplateRow) &&
+    Array.isArray(value.nextRowRefs) &&
+    value.nextRowRefs.every(isExternalHandoffTemplateNextRowRef) &&
+    isStringArray(value.nextRows)
+}
+
 function parseExternalHandoffJson(stdout: string): ExternalHandoffJsonPacket {
   const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
   if (!isExternalHandoffJsonPacket(parsed)) {
@@ -296,6 +460,15 @@ function parseFilteredExternalHandoffJson(stdout: string): FilteredExternalHando
   const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
   if (!isFilteredExternalHandoffJsonPacket(parsed)) {
     throw new Error('filtered style-proof external handoff JSON shape is invalid')
+  }
+
+  return parsed
+}
+
+function parseExternalHandoffTemplateJson(stdout: string): ExternalHandoffTemplatePacket {
+  const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
+  if (!isExternalHandoffTemplatePacket(parsed)) {
+    throw new Error('style-proof external handoff template JSON shape is invalid')
   }
 
   return parsed
@@ -384,10 +557,12 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.exitCode).toBe(0)
     expect(result.stderr.trim()).toBe('')
     expect(result.stdout).toContain(
-      'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
+      'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
     )
     expect(result.stdout).toContain('--markdown')
     expect(result.stdout).toContain('--json')
+    expect(result.stdout).toContain('--template')
+    expect(result.stdout).toContain('This is not proof and contains no completed artifact rows.')
     expect(result.stdout).toContain('--platform')
     expect(result.stdout).toContain('--kind')
     expect(result.stdout).toContain('--status')
@@ -401,12 +576,18 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
 
   it('rejects invalid output modes before reading or claiming proof success', async () => {
     const result = await runExternalHandoffCli(['--markdown', '--json'])
+    const templateConflict = await runExternalHandoffCli(['--json', '--template'])
 
     expect(result.exitCode).toBe(2)
-    expect(result.stderr).toContain('Choose only one output mode: --markdown or --json')
+    expect(result.stderr).toContain('Choose only one output mode: --markdown, --json, or --template')
     expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(result.stdout).not.toContain('Can claim complete')
-    expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}`)
+
+    expect(templateConflict.exitCode).toBe(2)
+    expect(templateConflict.stderr).toContain('Choose only one output mode: --markdown, --json, or --template')
+    expect(templateConflict.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(templateConflict.stdout).not.toContain('Can claim complete')
+    expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}\n${templateConflict.stdout}\n${templateConflict.stderr}`)
   })
 
   it('rejects unknown arguments before reading or claiming proof success', async () => {
@@ -543,6 +724,78 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(packet.rows[0]?.freshnessIssueIds).toContain('style-proof-manifest-proof-stale')
     expect(packet.rows[0]?.cannotClaim).toBe(true)
     expect(packet.rows[0]?.safeToAutomate).toBe(false)
+  })
+
+  it('prints a redacted operator worksheet template for filtered stale proof rows without creating proof', async () => {
+    const result = await runExternalHandoffCli([
+      '--template',
+      '--platform=wechat',
+      '--kind=external-account',
+      '--status=invalid',
+      '--issue=style-proof-manifest-proof-stale',
+      '--freshness-only',
+      '--next-only',
+    ])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout.trim()).not.toContain('\n')
+    expectNoSensitiveFragments(result.stdout)
+
+    const template = parseExternalHandoffTemplateJson(result.stdout)
+    expect(template.templateOnly).toBe(true)
+    expect(template.notProof).toBe(true)
+    expect(template.canClaimComplete).toBe(false)
+    expect(template.committedCanClaimComplete).toBe(false)
+    expect(template.filters).toEqual({
+      platform: 'wechat',
+      kind: 'external-account',
+      status: 'invalid',
+      issueId: 'style-proof-manifest-proof-stale',
+      nextOnly: true,
+      freshnessOnly: true,
+    })
+    expect(template.filteredSummary).toMatchObject({
+      committedExternalHandoffRows: 19,
+      filteredRows: 1,
+      filteredNextRowRefs: 1,
+      filteredNextRows: 1,
+      externalAccountRows: 1,
+      freshnessIssueRows: 1,
+      cannotClaimRows: 1,
+    })
+    expect(template.rows).toHaveLength(1)
+    expect(template.nextRowRefs).toEqual([{
+      kind: 'external-account',
+      rowId: template.rows[0]?.id,
+    }])
+    expect(template.nextRows).toEqual([template.rows[0]?.id])
+
+    const row = template.rows[0]
+    expect(row?.templateOnly).toBe(true)
+    expect(row?.notProof).toBe(true)
+    expect(row?.cannotClaim).toBe(true)
+    expect(row?.platform).toBe('wechat')
+    expect(row?.requirementId).toBe('authenticated-editor-url')
+    expect(row?.status).toBe('invalid')
+    expect(row?.issueIds).toContain('style-proof-manifest-proof-stale')
+    expect(row?.freshnessIssueIds).toContain('style-proof-manifest-proof-stale')
+    expect(row?.artifactTemplate.requirementId).toBe('authenticated-editor-url')
+    expect(row?.operatorWorksheet.requiredFields).toContain('collectedAt')
+    expect(row?.operatorWorksheet.requiredChannels).toEqual(row?.artifactTemplate.requiredChannels)
+    expect(row?.operatorWorksheet.requiredActions).toEqual(row?.artifactTemplate.requiredActions)
+    expect(row?.operatorWorksheet.requiredReadbacks).toEqual(row?.artifactTemplate.requiredReadbacks)
+    expect(row?.operatorWorksheet.fillOnlyAfterExternalProof).toBe(true)
+    expect(row?.operatorWorksheet.blankFields).toEqual({
+      collectedAt: null,
+      channel: null,
+      action: null,
+      readback: null,
+      artifactRef: null,
+      notes: [],
+    })
+    expect(result.stdout).not.toContain('"canClaimComplete":true')
+    expect(result.stdout).not.toContain('"acceptedArtifactCount"')
   })
 
   it('rejects invalid filter values before reading or claiming proof success', async () => {

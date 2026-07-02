@@ -13201,3 +13201,50 @@ const ruleFamilies = [
 - Run `vue-tsc`, production build, and `style-proof:release-preflight --json`.
 - Evidence docs must state that this is CLI guidance only and does not prove WeChat phone preview,
   account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish success.
+
+## 271. Style Proof External Handoff Template Output - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: external handoff rows can now be filtered precisely, but operators still need a
+  redacted worksheet that shows which fields must be collected without creating a proof artifact
+  or implying that a row was completed.
+- The template mode belongs only to the local `style-proof:external-handoff` CLI. It must not
+  open a browser, read browser state, create artifacts, write manifests, upload content, sync
+  drafts, schedule sends, publish articles, or change release-gate accounting.
+- A template row is a collection worksheet, not proof. It must keep `templateOnly:true`,
+  `notProof:true`, and top-level `canClaimComplete:false` even when it mirrors a committed
+  handoff row.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:external-handoff --template` prints a one-line JSON operator
+  worksheet for the visible handoff rows.
+- `--template` is mutually exclusive with `--markdown` and `--json`.
+- Template output must compose with all handoff filters: `--platform`, `--kind`, `--status`,
+  `--issue`, `--freshness-only`, and `--next-only`.
+- The packet must include `filters`, `committedSummary`, `filteredSummary`,
+  `recommendedNextAction`, row ids for next-row references, and one worksheet row per visible
+  checklist row.
+- Each worksheet row must include the original `artifactTemplate` plus an `operatorWorksheet`
+  that repeats required channels, actions, readbacks, required fields, forbidden fields,
+  accepted host statuses, freshness window, and blank nullable fields for later redacted proof
+  collection. It must not include completed artifact rows, raw external evidence, local file
+  locations, draft/publish links, account images, credential storage, local browser-runtime
+  directories, network archives, QR contents, or raw account/runtime material.
+- The command exit code continues to follow the committed packet. While the committed packet has
+  `canClaimComplete=false`, `--template` must exit `1` and must not be treated as proof
+  completion.
+
+### 3. Required Checks
+
+- Add a focused script regression proving a filtered stale row can be rendered as a template
+  with `templateOnly:true`, `notProof:true`, blank artifact fields, required field guidance, and
+  `canClaimComplete:false`.
+- Regression coverage must prove `--template` appears in help, conflicts with other output modes,
+  preserves sensitive-fragment hygiene, and keeps cannot-claim exit behavior.
+- Run the focused external-handoff CLI test, serial scripts suite, export-service regression
+  suite, focused ESLint, `vue-tsc`, production build, and release preflight.
+- Evidence docs must state that template output is operator worksheet generation only and does
+  not prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload,
+  or publish success.
