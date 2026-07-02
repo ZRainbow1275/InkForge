@@ -1,0 +1,71 @@
+Market Editor CloakBrowser Recheck - 2026-07-03
+
+Scope:
+- CloakBrowser-only browser inspection of already open 135 SVG editor, Xiumi v5 paper editor,
+  and WeChat public platform tabs.
+- No Playwright direct tool use, no screenshot commit, no browser-runtime file commit, no platform
+  publish, no sync, no upload, no scheduled send, no phone preview, and no proof manifest write.
+
+135 SVG editor:
+- Current tab title: `在线SVG编辑器_微信公众号SVG互动效果制作-135编辑器`.
+- Current page text still exposed `登录/注册`.
+- Visible taxonomy included:
+  `SVG效果`, `SVG模板`, `最近`, `全部`, `推荐`, `基础款`, `图片`, `点击`, `轮播`,
+  `滑动`, `自动`, `音视频`, `展开`, `长按`, `布局`, `公众号`, `超链接/小程序`, `其它`.
+- First visible SVG effect rows included `免费试用` controls and ids such as 76, 13, 243, 272,
+  336, 677, 241, 256, 136, 233.
+- Clicking the first visible `免费试用` control did not populate the center canvas in the current
+  account state. Center digest after click:
+  `hash=1416860819`, `htmlLength=116`, `svg=0`, `img=0`, `sections=0`,
+  `contenteditable=0`, visible center classes `content-background` and `content-inner`.
+- Visible popover text was limited to effect metadata such as `ID: 13 查看效果教程 扫码预览效果`.
+- Classification: taxonomy and account-gate evidence only. It is not applied-editor-element
+  proof because the center canvas remained empty.
+
+Xiumi v5 paper editor:
+- Current tab title: `图文: (无标题) | 秀米XIUMI`.
+- Page text still exposed `登录`, so account/publish features remain blocked for proof claims.
+- Before clicking the visible SVG sample, center `.tn-editing-panel` digest was:
+  `hash=198004283`, `htmlLength=566067`, `tnComp=21`, `tnCell=9`, `tnUuid=7`,
+  `ngAttr=4507`, `contenteditable=1`, `svg=0`, `img=78`.
+- The active left category was SVG, with visible first card text:
+  `SVG图集丨点击右下角颜色，对图片填色（填色游戏）`,
+  `使用组件丨SVG图集`,
+  `使用功能丨图集切换→单步点击，不可交互`.
+- After clicking the first visible SVG sample card, center `.tn-editing-panel` changed to:
+  `hash=1425256598`, `htmlLength=602709`, `tnComp=63`, `tnCell=30`, `tnUuid=28`,
+  `ngAttr=4617`, `operaAttr=58`, `contenteditable=2`, `svg=0`, `img=90`,
+  `hostedImages=18`.
+- Center text now included SVG-gallery guidance and transfer constraints:
+  `点击序列中一项`, `点击左边模板以更新内容`, `统一设置`, `该模板需用同步/插件方式上传到公众号后台`.
+- Classification: applied-editor-element authoring evidence for Xiumi SVG/gallery structure,
+  image slots, sequence/action parameters, Angular/runtime residue, hosted-image fallback needs,
+  and plugin/sync boundary language. It is not WeChat mobile proof, not Dark Mode proof, not
+  cover proof, not sync proof, and not publish proof.
+
+WeChat public platform:
+- Current tab title: `微信公众平台`.
+- Current page was the login panel, with text including `立即注册`, `使用账号登录`, `登录`,
+  `二维码已过期`, and `微信扫一扫`.
+- Editor candidates were absent:
+  `hasEditor=false`, `contentEditable=0`, `iframes=2`.
+- Classification: account-gate evidence only. It cannot satisfy authenticated editor, PC paste,
+  phone preview, credentialed channel, scheduled send, or publish gates.
+
+Rules reinforced for InkForge:
+- 135 SVG categories remain useful taxonomy inputs, but a failed or gated trial click cannot
+  justify a runtime module or proof row.
+- Xiumi SVG gallery samples can insert a center document structure without literal inline SVG.
+  Treat `tn-*`, `ng-*`, `opera-*`, contenteditable editor state, hosted image references,
+  sequence/action controls, and plugin/sync language as authoring residue or fallback-manifest
+  inputs, not reusable runtime source.
+- Market-editor applied evidence still requires a visible center digest change plus DOM readback.
+  That condition was met for the Xiumi SVG sample in this recheck and not met for the 135 SVG
+  editor in the current account state.
+
+Boundary:
+- This evidence is market-editor learning and account-gate classification only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

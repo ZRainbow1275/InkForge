@@ -13248,3 +13248,45 @@ const ruleFamilies = [
 - Evidence docs must state that template output is operator worksheet generation only and does
   not prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload,
   or publish success.
+
+## 272. CloakBrowser Market Editor Recheck Evidence - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: market-editor rules must continue to be grounded in live center-editor/canvas DOM
+  behavior, not just copied source, library thumbnails, or listing text.
+- Use CloakBrowser only for this probing path. Do not use direct Playwright tools while the user
+  has forbidden them for platform/editor work.
+- The recheck is evidence classification only. It must not mutate WeChat/XHS/Zhihu publish state,
+  upload content, sync drafts, schedule sends, publish, or write proof manifests.
+
+### 2. Contract
+
+- A 135/Xiumi click is `applied-editor-element` only when:
+  - the center editor/canvas digest changes after a concrete style/effect/card click; and
+  - the after-state DOM is read and summarized.
+- If the center digest does not change, classify the result as taxonomy, account-gate, popover,
+  listing, or no-center-delta evidence.
+- 135 SVG editor recheck on 2026-07-03 showed taxonomy and `免费试用` controls, but the current
+  page still exposed `登录/注册` and the center canvas stayed empty after the first trial click:
+  `htmlLength=116`, `svg=0`, `img=0`, `sections=0`, `contenteditable=0`.
+- Xiumi v5 SVG sample recheck on 2026-07-03 did meet the applied-center-change bar:
+  `.tn-editing-panel` changed from `hash=198004283`, `htmlLength=566067`, `tnComp=21`,
+  `tnCell=9`, `tnUuid=7`, `contenteditable=1`, `svg=0`, `img=78` to `hash=1425256598`,
+  `htmlLength=602709`, `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`,
+  `operaAttr=58`, `contenteditable=2`, `svg=0`, `img=90`.
+- Xiumi applied evidence remains authoring-structure evidence only. `tn-*`, `ng-*`,
+  `opera-*`, editor-state wrappers, hosted image references, sequence/action controls, and
+  plugin/sync wording must map to InkForge-owned image-slot manifests, layout reports,
+  fallback/raster contracts, and residue detectors.
+- WeChat public platform recheck on 2026-07-03 remained login-panel/account-gate evidence:
+  `hasEditor=false`, `contentEditable=0`, and no authenticated editor DOM.
+
+### 3. Required Checks
+
+- Commit only sanitized text evidence. Do not commit browser-runtime files, screenshots,
+  account images, local capture references, credential storage, request captures, or raw
+  platform material.
+- Evidence docs must explicitly state that market-editor learning does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

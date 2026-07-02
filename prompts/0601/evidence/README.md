@@ -8082,6 +8082,37 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-07-03 CloakBrowser Market Editor Recheck
+
+- [x] market-editor-cloakbrowser-recheck-20260703.txt
+- Used CloakBrowser only against the already open 135 SVG editor, Xiumi v5 paper editor, and
+  WeChat public platform tabs.
+- 135 SVG editor:
+  - Visible categories and effect rows were readable, including `SVG效果`, `SVG模板`, `基础款`,
+    `图片`, `点击`, `轮播`, `滑动`, `自动`, `音视频`, `展开`, `长按`, `布局`, `公众号`,
+    `超链接/小程序`, `其它`, and multiple `免费试用` controls.
+  - The page still showed `登录/注册`.
+  - Clicking the first visible trial control left the center canvas empty:
+    `htmlLength=116`, `svg=0`, `img=0`, `sections=0`, `contenteditable=0`.
+  - Classification: taxonomy/account-gate evidence only.
+- Xiumi v5 paper editor:
+  - The page still showed `登录`, so account/publish proof remains blocked.
+  - Clicking the first visible SVG sample changed the center `.tn-editing-panel` from
+    `hash=198004283`, `htmlLength=566067`, `tnComp=21`, `tnCell=9`, `tnUuid=7`,
+    `contenteditable=1`, `svg=0`, `img=78` to `hash=1425256598`, `htmlLength=602709`,
+    `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`,
+    `contenteditable=2`, `svg=0`, `img=90`, `hostedImages=18`.
+  - Classification: applied-editor-element authoring evidence only; it informs InkForge-owned
+    image slots, sequence/action schemas, fallback manifests, and residue gates.
+- WeChat public platform:
+  - Current page was the login panel with `hasEditor=false`, `contentEditable=0`, and no
+    authenticated editor DOM.
+  - Classification: account-gate evidence only.
+- Boundary: this is market-editor learning and account-gate classification only. It does not
+  prove WeChat authenticated editor access, ordinary rich paste retention, phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-07-03 Style Proof CLI Silent JSON Guidance
 
 - [x] style-proof-cli-silent-json-guidance-20260703.txt

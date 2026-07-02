@@ -11217,3 +11217,37 @@ Boundary:
   editor access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark
   Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 CloakBrowser Market Editor Recheck Addendum
+
+- Used CloakBrowser only to inspect already open 135 SVG editor, Xiumi v5 paper editor, and
+  WeChat public platform tabs.
+- No source code, renderer output, proof manifest, platform publish, sync, upload, scheduled send,
+  phone preview, screenshot evidence, browser-runtime files, or account artifacts were changed.
+- 135 SVG editor:
+  - Visible taxonomy included `SVG效果`, `SVG模板`, `基础款`, `图片`, `点击`, `轮播`, `滑动`,
+    `自动`, `音视频`, `展开`, `长按`, `布局`, `公众号`, `超链接/小程序`, and `其它`.
+  - Current page still showed `登录/注册`.
+  - Clicking the first visible `免费试用` control did not populate the center canvas:
+    `htmlLength=116`, `svg=0`, `img=0`, `sections=0`, `contenteditable=0`.
+  - Classification: taxonomy/account-gate only, not applied-editor-element proof.
+- Xiumi v5 paper editor:
+  - Current page still showed `登录`, so account and publish proof remain blocked.
+  - The active SVG sample changed center `.tn-editing-panel` from `hash=198004283`,
+    `htmlLength=566067`, `tnComp=21`, `tnCell=9`, `tnUuid=7`, `contenteditable=1`, `svg=0`,
+    `img=78` to `hash=1425256598`, `htmlLength=602709`, `tnComp=63`, `tnCell=30`,
+    `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`, `contenteditable=2`, `svg=0`, `img=90`.
+  - Classification: applied-editor-element authoring evidence only. The observed structures map
+    to InkForge-owned image slots, action/sequence schemas, fallback manifests, and residue gates.
+- WeChat public platform:
+  - Current page was the login panel with `hasEditor=false` and `contentEditable=0`.
+  - Classification: account-gate only.
+- Added evidence file:
+  `prompts/0601/evidence/market-editor-cloakbrowser-recheck-20260703.txt`.
+- Boundary: this is market-editor learning and account-gate classification only. It does not
+  prove WeChat authenticated editor access, ordinary rich paste retention, phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled
+  send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
+  publish success.

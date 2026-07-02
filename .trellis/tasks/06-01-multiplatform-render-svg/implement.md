@@ -70,6 +70,44 @@ Scope:
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-07-03 CloakBrowser Market Editor Recheck Slice
+
+Scope:
+- CloakBrowser-only inspection of already open 135 SVG editor, Xiumi v5 paper editor, and WeChat
+  public platform tabs.
+- No source code, renderer output, proof manifest, platform publish, sync, upload, scheduled send,
+  phone preview, screenshot evidence, browser-runtime files, or account artifacts were changed.
+
+Observed:
+- 135 SVG editor was visible with taxonomy categories and `免费试用` controls, but the current page
+  still exposed `登录/注册`. Clicking the first visible trial control did not populate the center
+  canvas. After the click the center canvas remained `htmlLength=116`, `svg=0`, `img=0`,
+  `sections=0`, `contenteditable=0`, with visible classes `content-background` and
+  `content-inner`.
+- Xiumi v5 paper editor was also showing `登录`, so account/publish proof remains blocked. Its SVG
+  category was active, and clicking the first visible SVG sample changed the center
+  `.tn-editing-panel` from `hash=198004283`, `htmlLength=566067`, `tnComp=21`, `tnCell=9`,
+  `tnUuid=7`, `contenteditable=1`, `svg=0`, `img=78` to `hash=1425256598`,
+  `htmlLength=602709`, `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`,
+  `contenteditable=2`, `svg=0`, `img=90`, and `hostedImages=18`.
+- WeChat public platform remained on the login panel with `hasEditor=false`, `contentEditable=0`,
+  and no authenticated editor DOM.
+
+Evidence:
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-recheck-20260703.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- 135 is taxonomy/account-gate evidence only in this run.
+- Xiumi is applied-editor-element authoring evidence only. Its `tn-*`, `ng-*`, `opera-*`, hosted
+  image, sequence/action, and plugin/sync structures must become InkForge-owned manifests,
+  fallback reports, or residue blockers, not runtime source.
+- This slice does not prove WeChat authenticated editor access, ordinary rich paste retention,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload,
+  or publish success.
+
 ## 2026-07-03 Style Proof External Handoff Status/Freshness Filter Slice
 
 Source:
