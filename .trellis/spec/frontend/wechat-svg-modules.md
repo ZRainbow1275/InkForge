@@ -13121,3 +13121,38 @@ const ruleFamilies = [
   WeChat authenticated editor access, ordinary rich paste retention, phone preview, mobile
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 269. Style Proof CLI Machine-Readable JSON Guidance - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: style-proof commands intentionally exit non-zero when release proof is incomplete.
+  Normal `pnpm` script invocation may append lifecycle diagnostics around stdout when a command
+  exits non-zero, which can make `--json` output unsuitable for direct piping unless the caller
+  uses `pnpm --silent`.
+- This is operator guidance only. It must not change the exit-code contract, release-gate logic,
+  proof validation, renderer output, or external proof boundaries.
+
+### 2. Contract
+
+- Every style-proof CLI help surface that supports `--json` must mention the corresponding
+  `pnpm --silent -C inkforge ... --json` form for machine-readable output.
+- The guidance applies to:
+  - `style-proof:release-preflight --json`
+  - `style-proof:external-handoff --json`
+  - `style-proof:manifest-intake --file <redacted-manifest.json> --json`
+  - `style-proof:manifest-merge --file <redacted-manifest.json> --json`
+- Commands must keep existing exit codes:
+  - `0` only for successful/claimable/clean states as already defined;
+  - `1` for parsed but incomplete/blocked states;
+  - `2` for usage, read, schema, or write errors according to each CLI contract.
+- Help text and docs must not advise callers to suppress or ignore the blocked status; `--silent`
+  is only for keeping stdout/stderr machine readable through `pnpm`.
+
+### 3. Required Checks
+
+- Add or update help-output tests proving the `pnpm --silent` JSON guidance is visible.
+- Run the serial scripts suite and focused ESLint for all style-proof scripts/tests.
+- Run `vue-tsc`, production build, and `style-proof:release-preflight --json`.
+- Evidence docs must state that this is CLI guidance only and does not prove WeChat phone preview,
+  account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish success.

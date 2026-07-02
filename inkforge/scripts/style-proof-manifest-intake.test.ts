@@ -408,6 +408,9 @@ describe('style-proof manifest intake CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('--file')
     expect(result.stdout).toContain('--json')
     expect(result.stdout).toContain('--help')
+    expect(result.stdout).toContain(
+      'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json'
+    )
     expectNoSensitiveFragments(result.stdout)
   })
 

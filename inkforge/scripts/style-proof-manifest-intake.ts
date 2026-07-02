@@ -102,6 +102,9 @@ function printHelp(): void {
     '  --text         Print a sanitized human summary. This is the default.',
     '  --json         Print a sanitized JSON summary.',
     '  --help         Print this help.',
+    '',
+    'Tip: use `pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json`',
+    'when piping JSON from a command that may intentionally exit non-zero.',
   ].join('\n'))
 }
 

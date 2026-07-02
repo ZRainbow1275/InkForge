@@ -1,0 +1,50 @@
+Style Proof CLI Silent JSON Guidance - 2026-07-03
+
+Scope:
+- Help-text and documentation update for machine-readable JSON usage through pnpm.
+- No release-gate logic, manifest validation, renderer output, account action, browser action,
+  upload, sync, scheduled send, public-host check, phone preview, or publish operation changed.
+
+Problem:
+- The style-proof CLIs intentionally exit non-zero while proof remains incomplete.
+- Normal pnpm script invocation can append lifecycle diagnostics around stdout when a script exits
+  non-zero.
+- Operators who pipe `--json` output should use `pnpm --silent` so stdout remains parseable while
+  the real exit code is preserved.
+
+Implemented help guidance:
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+- `pnpm --silent -C inkforge style-proof:external-handoff --json`
+- `pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json`
+- `pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json`
+
+Behavior:
+- No exit-code contract changed.
+- Blocked release proof still exits 1.
+- Usage, read, schema, or write errors still exit 2 according to each CLI contract.
+- `pnpm --silent` is documented only to keep machine-readable stdout clean; it is not a release
+  bypass and does not imply proof completion.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 4 files / 30 tests
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  PASS: 4653 modules transformed; Vite built in 28.68s
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  EXPECTED BLOCKED EXIT: 1
+  Status: blocked-by-external
+  canClaimComplete: false
+  externalHandoffRows: 19
+  safeExternalRows: 0
+  actionableLocalRows: 0
+
+Boundary:
+- This proves only CLI help visibility and operator guidance.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public article rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

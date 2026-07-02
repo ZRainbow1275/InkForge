@@ -383,6 +383,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('--kind')
     expect(result.stdout).toContain('--next-only')
     expect(result.stdout).toContain('--help')
+    expect(result.stdout).toContain('pnpm --silent -C inkforge style-proof:external-handoff --json')
     expectNoSensitiveFragments(result.stdout)
   })
 

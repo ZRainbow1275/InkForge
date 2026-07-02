@@ -73,6 +73,9 @@ function printHelp(): void {
     '               public-host, unsafe-to-automate, mutating-platform.',
     '  --next-only  Print only the deduplicated next operator rows.',
     '  --help       Print this help.',
+    '',
+    'Tip: use `pnpm --silent -C inkforge style-proof:external-handoff --json`',
+    'when piping JSON from a command that may intentionally exit non-zero.',
   ].join('\n'))
 }
 

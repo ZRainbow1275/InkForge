@@ -417,6 +417,21 @@ describe('style-proof manifest merge CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}`)
   })
 
+  it('prints help with machine-readable JSON guidance', async () => {
+    const result = await runManifestMergeCli(['--help'])
+
+    expect(result.exitCode).toBe(0)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout).toContain('Usage: pnpm style-proof:manifest-merge')
+    expect(result.stdout).toContain('--file')
+    expect(result.stdout).toContain('--json')
+    expect(result.stdout).toContain('--help')
+    expect(result.stdout).toContain(
+      'pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json'
+    )
+    expectNoSensitiveFragments(result.stdout)
+  })
+
   it('rejects conflicting output modes and unknown arguments', async () => {
     const dir = await createTempDir()
     const input = join(dir, 'input.json')

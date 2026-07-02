@@ -11108,3 +11108,34 @@ Boundary:
   editor access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark
   Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof CLI Silent JSON Guidance Addendum
+
+- Added machine-readable JSON guidance to all style-proof CLIs that expose `--json`:
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  - `pnpm --silent -C inkforge style-proof:external-handoff --json`
+  - `pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json`
+  - `pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json`
+- Rationale: these commands intentionally exit non-zero when proof remains incomplete, and normal
+  `pnpm` script invocation can add lifecycle diagnostics around stdout. `pnpm --silent` keeps JSON
+  suitable for piping while preserving the real exit code.
+- No exit-code contract changed. Blocked proof still exits 1, usage/read/write errors still exit
+  2, and successful/clean states keep their prior exit semantics.
+- Verification:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 30 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 28.68s, then `inkforge/tsconfig.tsbuildinfo` was restored;
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-cli-silent-json-guidance-20260703.txt`.
+- Boundary: this is CLI help and operator guidance only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark
+  Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

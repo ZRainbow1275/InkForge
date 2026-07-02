@@ -284,6 +284,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('Usage: pnpm style-proof:release-preflight [--json]')
     expect(result.stdout).toContain('--json')
     expect(result.stdout).toContain('--help')
+    expect(result.stdout).toContain('pnpm --silent -C inkforge style-proof:release-preflight --json')
     expectNoSensitiveFragments(result.stdout)
   })
 

@@ -8013,3 +8013,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof CLI Silent JSON Guidance
+
+- [x] style-proof-cli-silent-json-guidance-20260703.txt
+- Added help text guidance for machine-readable JSON through `pnpm --silent`:
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  - `pnpm --silent -C inkforge style-proof:external-handoff --json`
+  - `pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json`
+  - `pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json`
+- This guidance keeps stdout JSON suitable for piping when the command intentionally exits
+  non-zero because proof remains incomplete. It does not suppress or weaken the blocked exit code.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  and
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`,
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`, and
+  `pnpm --silent -C inkforge style-proof:release-preflight --json`.
+  Script coverage passed with 4 files and 30 tests; production build transformed 4653 modules
+  and built in 28.68s.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is CLI help and operator guidance only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

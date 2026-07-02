@@ -22508,3 +22508,49 @@ Scope:
   access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof CLI Silent JSON Guidance Slice
+
+Source:
+- The style-proof CLIs intentionally exit 1 when proof is incomplete or release gates remain
+  blocked. Plain `pnpm` script invocation may print lifecycle diagnostics around stdout when a
+  command exits non-zero, while `pnpm --silent` preserves machine-readable JSON plus the real exit
+  code.
+- Operators need this guidance in CLI help so JSON output can be piped without weakening blocked
+  release semantics.
+
+Impact:
+- `npx gitnexus impact printHelp -r InkForge --depth 2` reported LOW risk with 1 direct
+  dependent and 0 affected processes for the release-preflight help surface.
+- The slice only changes style-proof CLI help text, help-output tests, docs, and evidence. It does
+  not modify release-gate logic, manifest validation, renderer output, upload, sync, schedule, or
+  publish behavior.
+
+Implementation:
+- Added `pnpm --silent -C inkforge ... --json` guidance to:
+  - `style-proof:release-preflight`
+  - `style-proof:external-handoff`
+  - `style-proof:manifest-intake`
+  - `style-proof:manifest-merge`
+- Preserved all existing exit-code contracts. The guidance is only for clean machine-readable
+  stdout/stderr through `pnpm`, not for suppressing blocked proof status.
+- Added or updated help-output regression assertions for all affected CLIs.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 30 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 28.68s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This is CLI machine-readable output guidance only. It does not prove WeChat authenticated editor
+  access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

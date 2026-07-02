@@ -73,6 +73,9 @@ function printHelp(): void {
     'Options:',
     '  --json   Print a compact JSON report.',
     '  --help   Print this help.',
+    '',
+    'Tip: use `pnpm --silent -C inkforge style-proof:release-preflight --json`',
+    'when piping JSON from a command that may intentionally exit non-zero.',
   ].join('\n'))
 }
 
