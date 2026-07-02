@@ -12935,3 +12935,52 @@ const ruleFamilies = [
   editor access, ordinary rich paste retention, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, public-host
   acceptance, XHS/Zhihu upload, or publish success.
+
+## 265. Style Proof Manifest Intake CLI - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: an operator collects a redacted external `StyleProofManifest` JSON pack and needs to
+  verify locally whether it satisfies the same manifest intake, acceptance audit, and execution
+  runbook contracts used by the export service.
+- The CLI is an intake/audit surface only. It must not create artifacts, import proof into
+  committed manifests, mutate source state, open a browser, upload content, sync drafts, schedule
+  sends, publish articles, or convert external proof into a local claim.
+- The CLI must treat the JSON file as untrusted input and avoid printing the input path, raw
+  artifact references, raw account-state fields, browser profile paths, cookies, tokens, HAR
+  references, QR payloads, account screenshots, draft URLs, or publish URLs.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:manifest-intake --file <redacted-manifest.json>` must read a
+  local UTF-8 JSON file and pass its contents to `getStyleProofManifestJsonIntakeReport()`.
+- Default `--text` output and explicit `--json` output must be sanitized summaries, not raw
+  manifest echoes. They may include status, counts, issue-id counts, platform summaries, and
+  cannot-claim rows by platform/requirement/gate/status.
+- Exit codes are part of the contract:
+  - `0`: supplied manifest pack can claim complete.
+  - `1`: JSON parsed, but proof is still incomplete or cannot be claimed.
+  - `2`: CLI usage, file-read, or schema/JSON intake error.
+- `--help` exits 0; missing `--file`, unreadable files, conflicting `--text`/`--json`, and
+  unknown arguments exit 2 before claiming proof state.
+- Schema-invalid JSON intake must still print a sanitized report with
+  `style-proof-manifest-intake-json-invalid` and must not throw, dump stack traces, or print the
+  local file path.
+
+### 3. Required Checks
+
+- Add a script regression that writes temporary redacted JSON files, invokes the CLI through the
+  package-local `tsx` entrypoint, and verifies exit codes 1 and 2 without claiming external proof.
+- Regression coverage must include text mode, JSON mode, malformed JSON, help, missing `--file`,
+  conflicting output modes, unreadable files, unknown arguments, issue-id visibility, and
+  sensitive-fragment hygiene.
+- Run the scripts regression surface serially:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`.
+- Run ESLint on the CLI and CLI test.
+- Re-run `style-proof:release-preflight --json` and confirm it remains blocked when committed
+  external proof rows are still open. Manifest-intake validation of a caller-supplied file must
+  not be treated as proof of phone preview, account upload, sync, schedule, or publish success.
+- Evidence docs must explicitly state that the manifest-intake CLI does not prove WeChat
+  authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

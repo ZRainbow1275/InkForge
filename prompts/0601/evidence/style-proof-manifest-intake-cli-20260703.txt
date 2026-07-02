@@ -1,0 +1,79 @@
+Style Proof Manifest Intake CLI - 2026-07-03
+
+Scope:
+- Local, read-only intake and audit command for caller-supplied redacted StyleProofManifest JSON
+  packs.
+- No browser launch, upload, sync, scheduled send, publish, phone preview, clipboard write,
+  committed manifest mutation, or proof artifact creation is performed by this CLI.
+
+Implemented:
+- Added package script:
+  pnpm -C inkforge style-proof:manifest-intake --file <redacted-manifest.json>
+- Added script:
+  inkforge/scripts/style-proof-manifest-intake.ts
+- Added regression suite:
+  inkforge/scripts/style-proof-manifest-intake.test.ts
+- Reused the existing intake service:
+  getStyleProofManifestJsonIntakeReport()
+
+Behavior:
+- Reads a local UTF-8 JSON file from --file.
+- Default output is sanitized text; --text is explicit default.
+- --json prints a sanitized JSON summary.
+- --help exits 0.
+- Missing --file, unreadable files, unknown arguments, and conflicting --text/--json modes exit 2
+  before claiming proof state.
+- Malformed JSON produces a schema-invalid sanitized report and exits 2.
+- Parsed but incomplete or cannot-claim proof exits 1.
+- A supplied manifest pack can exit 0 only when the existing intake, acceptance audit, and
+  execution runbook report canClaimComplete=true.
+
+Sanitized output includes:
+- source=file
+- status
+- canClaimComplete
+- exitCode
+- intake summary counts
+- schema issue-id counts
+- semantic issue-id counts
+- per-platform requirement summaries
+- cannot-claim rows by platform, requirement id, gate, status, issue ids, and counters
+
+Sensitive material policy:
+- The command does not print the input path.
+- The command does not print raw manifest bodies or raw artifact references.
+- Regression fixtures include a redacted private-reference-like artifactRef and assert it never
+  appears in text or JSON output.
+- Committed evidence records only sanitized command behavior, counts, row ids, issue ids, and
+  proof requirements.
+- No browser profile path, cookie, token, HAR, QR payload, account screenshot, local screenshot
+  path, raw account-state capture, private material URL, sync response, upload response, draft id,
+  scheduled-send id, or publish URL is included.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 8 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 3 files / 16 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1349 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 32.09s; inkforge/tsconfig.tsbuildinfo was restored afterward
+- pnpm -C inkforge style-proof:manifest-intake --help
+  PASS: exit 0, help output includes read-only boundary and exit-code contract
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=19, safeExternalRows=0, actionableLocalRows=0
+
+Boundary:
+- This proves local manifest intake CLI behavior only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

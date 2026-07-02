@@ -10942,3 +10942,45 @@ Boundary:
   editor access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark
   Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Manifest Intake CLI Addendum
+
+- Added a read-only manifest intake CLI:
+  `pnpm -C inkforge style-proof:manifest-intake --file <redacted-manifest.json>`.
+- The command reads a caller-supplied UTF-8 JSON file and passes the contents through
+  `getStyleProofManifestJsonIntakeReport()`. It does not import proof, mutate committed manifests,
+  create artifacts, open a browser, upload, sync, schedule, or publish.
+- Text and JSON outputs are sanitized summaries. They include status, counts, issue-id counts,
+  per-platform summaries, and cannot-claim rows by platform/requirement/gate/status. They do not
+  print the local input path, raw manifest body, raw artifact references, browser profile paths,
+  cookies, tokens, HAR references, QR payloads, draft URLs, or publish URLs.
+- Exit-code contract:
+  `0` only when the supplied manifest pack can claim complete;
+  `1` when JSON parsed but proof remains incomplete or cannot-claim;
+  `2` for CLI usage, unreadable files, or schema/JSON intake errors.
+- Verification:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 8 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 3 files and 16 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1349 tests;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 32.09s, then `inkforge/tsconfig.tsbuildinfo` was restored;
+  `pnpm -C inkforge style-proof:manifest-intake --help` exited 0 and printed the read-only
+  boundary plus exit-code contract;
+  `pnpm -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-manifest-intake-cli-20260703.txt`.
+- Boundary: this is local manifest intake validation only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark
+  Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

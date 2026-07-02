@@ -22291,3 +22291,57 @@ Scope:
   ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Intake CLI Slice
+
+Source:
+- The committed release gate still reports `canClaimComplete=false`,
+  `status=blocked-by-external`, `safeExternalRows=0`, and `actionableLocalRows=0`.
+- The previous handoff CLI tells an operator what proof to collect, but the local workflow still
+  needed a safe command for checking a caller-supplied redacted proof manifest without importing it
+  into committed evidence.
+
+Impact:
+- `npx gitnexus impact getStyleProofManifestJsonIntakeReport -r InkForge --depth 3` reported LOW
+  risk with 0 direct dependents and 0 affected processes.
+- The slice adds a script around the existing intake service and does not modify manifest
+  validation, acceptance audit, release-gate, renderer, availability, upload, sync, schedule, or
+  publish logic.
+
+Implementation:
+- Added `pnpm -C inkforge style-proof:manifest-intake --file <redacted-manifest.json>`.
+- The CLI reads a local UTF-8 JSON file and calls `getStyleProofManifestJsonIntakeReport()`.
+- Text and JSON outputs are sanitized summaries: source type, status, exit code, counts, issue-id
+  counts, platform summaries, and cannot-claim rows by platform/requirement/gate/status.
+- The CLI intentionally does not echo the input path, raw artifact references, account-state
+  fields, browser profile paths, cookies, tokens, HAR references, QR payloads, draft URLs, or
+  publish URLs.
+- Exit codes are explicit: 0 when the supplied manifest can claim complete, 1 when parsed proof is
+  still incomplete/cannot-claim, and 2 for usage, unreadable file, or schema/JSON intake errors.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 8 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 3 files and 16 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1349 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 32.09s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm -C inkforge style-proof:manifest-intake --help` exited 0 and printed the read-only
+  boundary and exit-code contract.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This is local manifest intake and cannot-claim validation only. It does not prove WeChat
+  authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
