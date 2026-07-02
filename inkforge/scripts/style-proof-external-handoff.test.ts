@@ -44,7 +44,10 @@ interface ExternalHandoffNextRowRef {
 interface ExternalHandoffCliFilters {
   platform: string | null
   kind: string | null
+  status: string | null
+  issueId: string | null
   nextOnly: boolean
+  freshnessOnly: boolean
 }
 
 interface ExternalHandoffFilteredSummary {
@@ -59,8 +62,11 @@ interface ExternalHandoffFilteredSummary {
   mutatingRows: number
   safeExternalRows: number
   cannotClaimRows: number
+  freshnessIssueRows: number
   platforms: string[]
   kinds: string[]
+  statuses: string[]
+  issueIds: string[]
 }
 
 interface ExternalHandoffJsonPacket {
@@ -240,9 +246,12 @@ function isExternalHandoffFilteredSummary(value: unknown): value is ExternalHand
       'mutatingRows',
       'safeExternalRows',
       'cannotClaimRows',
+      'freshnessIssueRows',
     ]) &&
     isStringArray(value.platforms) &&
-    isStringArray(value.kinds)
+    isStringArray(value.kinds) &&
+    isStringArray(value.statuses) &&
+    isStringArray(value.issueIds)
 }
 
 function isExternalHandoffJsonPacket(value: unknown): value is ExternalHandoffJsonPacket {
@@ -375,12 +384,15 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.exitCode).toBe(0)
     expect(result.stderr.trim()).toBe('')
     expect(result.stdout).toContain(
-      'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--next-only]'
+      'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
     )
     expect(result.stdout).toContain('--markdown')
     expect(result.stdout).toContain('--json')
     expect(result.stdout).toContain('--platform')
     expect(result.stdout).toContain('--kind')
+    expect(result.stdout).toContain('--status')
+    expect(result.stdout).toContain('--issue')
+    expect(result.stdout).toContain('--freshness-only')
     expect(result.stdout).toContain('--next-only')
     expect(result.stdout).toContain('--help')
     expect(result.stdout).toContain('pnpm --silent -C inkforge style-proof:external-handoff --json')
@@ -428,7 +440,10 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(packet.filters).toEqual({
       platform: 'wechat',
       kind: 'phone-preview',
+      status: null,
+      issueId: null,
       nextOnly: true,
+      freshnessOnly: false,
     })
     expect(packet.committedSummary.externalHandoffRows).toBe(19)
     expect(packet.filteredSummary).toMatchObject({
@@ -440,9 +455,12 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       externalAccountRows: 0,
       publicHostRows: 0,
       cannotClaimRows: 1,
+      freshnessIssueRows: 0,
     })
     expect(packet.filteredSummary.platforms).toEqual(['wechat'])
     expect(packet.filteredSummary.kinds).toEqual(['phone-preview'])
+    expect(packet.filteredSummary.statuses).toEqual(['blocked-by-external'])
+    expect(packet.filteredSummary.issueIds).toEqual(['style-proof-manifest-requirement-missing'])
     expect(packet.rows).toHaveLength(1)
     expect(packet.nextRowRefs).toHaveLength(1)
     expect(packet.nextRows).toHaveLength(1)
@@ -465,6 +483,9 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('# Committed Style Proof External Handoff Filtered View')
     expect(result.stdout).toContain('- Platform: wechat')
     expect(result.stdout).toContain('- Kind: phone-preview')
+    expect(result.stdout).toContain('- Status: all')
+    expect(result.stdout).toContain('- Issue id: all')
+    expect(result.stdout).toContain('- Freshness only: no')
     expect(result.stdout).toContain('- Next only: yes')
     expect(result.stdout).toContain('- Committed external handoff rows: 19')
     expect(result.stdout).toContain('- Filtered rows: 1')
@@ -475,9 +496,60 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(result.stdout)
   })
 
+  it('filters stale proof rows by status, issue id, and freshness without treating stale proof as complete', async () => {
+    const result = await runExternalHandoffCli([
+      '--json',
+      '--platform=wechat',
+      '--kind=external-account',
+      '--status',
+      'invalid',
+      '--issue',
+      'style-proof-manifest-proof-stale',
+      '--freshness-only',
+      '--next-only',
+    ])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout.trim()).not.toContain('\n')
+    expectNoSensitiveFragments(result.stdout)
+
+    const packet = parseFilteredExternalHandoffJson(result.stdout)
+    expect(packet.canClaimComplete).toBe(false)
+    expect(packet.filters).toEqual({
+      platform: 'wechat',
+      kind: 'external-account',
+      status: 'invalid',
+      issueId: 'style-proof-manifest-proof-stale',
+      nextOnly: true,
+      freshnessOnly: true,
+    })
+    expect(packet.filteredSummary).toMatchObject({
+      committedExternalHandoffRows: 19,
+      filteredRows: 1,
+      filteredNextRowRefs: 1,
+      filteredNextRows: 1,
+      externalAccountRows: 1,
+      freshnessIssueRows: 1,
+      cannotClaimRows: 1,
+    })
+    expect(packet.filteredSummary.platforms).toEqual(['wechat'])
+    expect(packet.filteredSummary.kinds).toEqual(['external-account', 'mutating-platform'])
+    expect(packet.filteredSummary.statuses).toEqual(['invalid'])
+    expect(packet.filteredSummary.issueIds).toEqual(['style-proof-manifest-proof-stale'])
+    expect(packet.rows).toHaveLength(1)
+    expect(packet.rows[0]?.status).toBe('invalid')
+    expect(packet.rows[0]?.issueIds).toContain('style-proof-manifest-proof-stale')
+    expect(packet.rows[0]?.freshnessIssueIds).toContain('style-proof-manifest-proof-stale')
+    expect(packet.rows[0]?.cannotClaim).toBe(true)
+    expect(packet.rows[0]?.safeToAutomate).toBe(false)
+  })
+
   it('rejects invalid filter values before reading or claiming proof success', async () => {
     const invalidPlatform = await runExternalHandoffCli(['--platform', 'unknown-platform'])
     const invalidKind = await runExternalHandoffCli(['--kind=unknown-kind'])
+    const invalidStatus = await runExternalHandoffCli(['--status', 'unknown-status'])
+    const invalidIssue = await runExternalHandoffCli(['--issue', '../secret'])
     const missingPlatform = await runExternalHandoffCli(['--platform'])
 
     expect(invalidPlatform.exitCode).toBe(2)
@@ -490,6 +562,16 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(invalidKind.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(invalidKind.stdout).not.toContain('Can claim complete')
 
+    expect(invalidStatus.exitCode).toBe(2)
+    expect(invalidStatus.stderr).toContain('Invalid status filter: unknown-status')
+    expect(invalidStatus.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(invalidStatus.stdout).not.toContain('Can claim complete')
+
+    expect(invalidIssue.exitCode).toBe(2)
+    expect(invalidIssue.stderr).toContain('Invalid issue filter: ../secret')
+    expect(invalidIssue.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(invalidIssue.stdout).not.toContain('Can claim complete')
+
     expect(missingPlatform.exitCode).toBe(2)
     expect(missingPlatform.stderr).toContain('Missing value for --platform')
     expect(missingPlatform.stdout).toContain('Usage: pnpm style-proof:external-handoff')
@@ -499,6 +581,10 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       invalidPlatform.stderr,
       invalidKind.stdout,
       invalidKind.stderr,
+      invalidStatus.stdout,
+      invalidStatus.stderr,
+      invalidIssue.stdout,
+      invalidIssue.stderr,
       missingPlatform.stdout,
       missingPlatform.stderr,
     ].join('\n'))

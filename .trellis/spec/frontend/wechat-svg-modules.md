@@ -13122,7 +13122,52 @@ const ruleFamilies = [
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
 
-## 269. Style Proof CLI Machine-Readable JSON Guidance - 2026-07-03
+## 269. Style Proof External Handoff Status/Freshness Filters - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the committed release gate can contain both missing proof rows and stale/invalid proof
+  rows. Operators need a precise local handoff view that isolates proof state, issue ids, and
+  freshness failures without changing release-gate accounting.
+- Filtering remains a read-only CLI concern. It must not alter manifest validation,
+  acceptance-audit status computation, renderer output, style availability, upload, sync,
+  schedule, publish, phone preview, or committed proof artifacts.
+- A status or issue filtered row list is not proof completion. The command must keep exit code `1`
+  while `canClaimComplete=false`, even when the filtered subset contains only one stale row.
+
+### 2. Contract
+
+- `--status <completed|missing|invalid|blocked-by-external|unsafe-to-automate>` limits visible
+  rows to one acceptance-audit status.
+- `--issue <issue-id>` limits visible rows to issue ids that appear in `issueIds` or
+  `freshnessIssueIds`.
+- `--freshness-only` limits visible rows to rows with non-empty `freshnessIssueIds`.
+- These filters may be combined with `--platform`, `--kind`, `--next-only`, `--markdown`, and
+  `--json`.
+- Filtered JSON must add `statuses`, `issueIds`, and `freshnessIssueRows` to `filteredSummary`
+  while preserving `filters`, `committedSummary`, and cannot-claim row semantics.
+- Filtered markdown must show status, issue id, freshness-only, next-only, and freshness-row
+  counters in the filter header.
+- Invalid status values, invalid issue-id syntax, missing filter values, conflicting output modes,
+  and unknown arguments exit `2` before claiming proof success.
+- The CLI must not print local browser-runtime directories, credential browser storage, auth
+  secret strings, network archive references, QR payloads, account images, draft URLs,
+  publish URLs, local input/output paths, or raw
+  account/runtime material.
+
+### 3. Required Checks
+
+- Add script regressions for status/issue/freshness filters, stale-proof row isolation, invalid
+  status and issue filters, sanitized output, and preserved cannot-claim exit behavior.
+- Run the focused external-handoff CLI test, serial scripts suite, export-service regression
+  suite, focused ESLint, `vue-tsc`, and production build.
+- Re-run `style-proof:release-preflight --json` and confirm the committed release gate remains
+  `blocked-by-external` with `canClaimComplete=false`.
+- Evidence docs must state that stale-proof filtering is operator triage only and does not prove
+  WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish
+  success.
+
+## 270. Style Proof CLI Machine-Readable JSON Guidance - 2026-07-03
 
 ### 1. Scope / Trigger
 

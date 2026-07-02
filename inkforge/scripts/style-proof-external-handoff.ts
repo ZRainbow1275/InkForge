@@ -6,17 +6,22 @@ import {
   type CommittedStyleProofExternalHandoffPacket,
   type CommittedStyleProofExternalProofChecklistGroup,
   type CommittedStyleProofExternalProofChecklistRow,
+  type StyleProofAcceptanceAuditStatus,
   formatCommittedStyleProofExternalHandoffPacketMarkdown,
   getCommittedStyleProofExternalHandoffPacket,
 } from '../src/services/export/style-catalog.ts'
 import type { Platform } from '../src/services/export/types.ts'
 
 type ExternalHandoffOutputMode = 'markdown' | 'json'
+type ExternalHandoffIssueFilter = CommittedStyleProofExternalProofChecklistRow['issueIds'][number]
 
 interface ExternalHandoffCliFilters {
   platform: Platform | null
   kind: CommittedStyleProofExternalHandoffNextRowKind | null
+  status: StyleProofAcceptanceAuditStatus | null
+  issueId: ExternalHandoffIssueFilter | null
   nextOnly: boolean
+  freshnessOnly: boolean
 }
 
 interface ExternalHandoffCliArgs {
@@ -36,8 +41,11 @@ interface ExternalHandoffFilteredSummary {
   mutatingRows: number
   safeExternalRows: number
   cannotClaimRows: number
+  freshnessIssueRows: number
   platforms: readonly Platform[]
   kinds: readonly CommittedStyleProofExternalHandoffNextRowKind[]
+  statuses: readonly StyleProofAcceptanceAuditStatus[]
+  issueIds: readonly ExternalHandoffIssueFilter[]
 }
 
 const PLATFORM_FILTERS: readonly Platform[] = ['wechat', 'xiaohongshu', 'zhihu']
@@ -50,12 +58,22 @@ const KIND_FILTERS: readonly CommittedStyleProofExternalHandoffNextRowKind[] = [
   'mutating-platform',
 ]
 
+const STATUS_FILTERS: readonly StyleProofAcceptanceAuditStatus[] = [
+  'completed',
+  'missing',
+  'invalid',
+  'blocked-by-external',
+  'unsafe-to-automate',
+]
+
 const VALID_PLATFORM_FILTERS = new Set<string>(PLATFORM_FILTERS)
 const VALID_KIND_FILTERS = new Set<string>(KIND_FILTERS)
+const VALID_STATUS_FILTERS = new Set<string>(STATUS_FILTERS)
+const ISSUE_ID_FILTER_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 function printHelp(): void {
   console.log([
-    'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--next-only]',
+    'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]',
     '',
     'Prints the committed InkForge style-proof external handoff packet for',
     'operator-run phone, account, public-host, sync, scheduled-send, upload,',
@@ -71,6 +89,11 @@ function printHelp(): void {
     '  --platform   Limit rows to one platform: wechat, xiaohongshu, zhihu.',
     '  --kind       Limit rows to one gate kind: phone-preview, external-account,',
     '               public-host, unsafe-to-automate, mutating-platform.',
+    '  --status     Limit rows to one proof status: completed, missing, invalid,',
+    '               blocked-by-external, unsafe-to-automate.',
+    '  --issue      Limit rows to one issue id, including freshness issue ids.',
+    '  --freshness-only',
+    '               Print only rows with freshness issues such as stale proof.',
     '  --next-only  Print only the deduplicated next operator rows.',
     '  --help       Print this help.',
     '',
@@ -101,6 +124,22 @@ function parseKindFilter(value: string): CommittedStyleProofExternalHandoffNextR
   return value as CommittedStyleProofExternalHandoffNextRowKind
 }
 
+function parseStatusFilter(value: string): StyleProofAcceptanceAuditStatus {
+  if (!VALID_STATUS_FILTERS.has(value)) {
+    exitWithUsageError(`Invalid status filter: ${value}`)
+  }
+
+  return value as StyleProofAcceptanceAuditStatus
+}
+
+function parseIssueFilter(value: string): ExternalHandoffIssueFilter {
+  if (!ISSUE_ID_FILTER_PATTERN.test(value)) {
+    exitWithUsageError(`Invalid issue filter: ${value}`)
+  }
+
+  return value as ExternalHandoffIssueFilter
+}
+
 function readOptionValue(args: readonly string[], index: number, optionName: string): string {
   const value = args[index + 1]
   if (!value || value.startsWith('--')) {
@@ -116,7 +155,10 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
   let sawJson = false
   let platform: Platform | null = null
   let kind: CommittedStyleProofExternalHandoffNextRowKind | null = null
+  let status: StyleProofAcceptanceAuditStatus | null = null
+  let issueId: ExternalHandoffIssueFilter | null = null
   let nextOnly = false
+  let freshnessOnly = false
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]
@@ -128,6 +170,8 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
       outputMode = 'json'
     } else if (arg === '--next-only') {
       nextOnly = true
+    } else if (arg === '--freshness-only') {
+      freshnessOnly = true
     } else if (arg === '--platform') {
       platform = parsePlatformFilter(readOptionValue(args, index, '--platform'))
       index += 1
@@ -138,6 +182,16 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
       index += 1
     } else if (arg.startsWith('--kind=')) {
       kind = parseKindFilter(arg.slice('--kind='.length))
+    } else if (arg === '--status') {
+      status = parseStatusFilter(readOptionValue(args, index, '--status'))
+      index += 1
+    } else if (arg.startsWith('--status=')) {
+      status = parseStatusFilter(arg.slice('--status='.length))
+    } else if (arg === '--issue') {
+      issueId = parseIssueFilter(readOptionValue(args, index, '--issue'))
+      index += 1
+    } else if (arg.startsWith('--issue=')) {
+      issueId = parseIssueFilter(arg.slice('--issue='.length))
     } else {
       exitWithUsageError(`Unknown option: ${arg}`)
     }
@@ -152,13 +206,23 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     filters: {
       platform,
       kind,
+      status,
+      issueId,
       nextOnly,
+      freshnessOnly,
     },
   }
 }
 
 function hasActiveFilters(filters: ExternalHandoffCliFilters): boolean {
-  return Boolean(filters.platform || filters.kind || filters.nextOnly)
+  return Boolean(
+    filters.platform ||
+    filters.kind ||
+    filters.status ||
+    filters.issueId ||
+    filters.nextOnly ||
+    filters.freshnessOnly,
+  )
 }
 
 function rowMatchesKind(
@@ -188,6 +252,22 @@ function rowMatchesFilters(
   }
 
   if (filters.kind && !rowMatchesKind(row, filters.kind)) {
+    return false
+  }
+
+  if (filters.status && row.status !== filters.status) {
+    return false
+  }
+
+  if (
+    filters.issueId &&
+    !row.issueIds.includes(filters.issueId) &&
+    !row.freshnessIssueIds.includes(filters.issueId)
+  ) {
+    return false
+  }
+
+  if (filters.freshnessOnly && row.freshnessIssueIds.length === 0) {
     return false
   }
 
@@ -242,6 +322,23 @@ function getUniqueKinds(
   }
 
   return KIND_FILTERS.filter(kind => kinds.has(kind))
+}
+
+function getUniqueStatuses(
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[],
+): StyleProofAcceptanceAuditStatus[] {
+  const statuses = new Set(rows.map(row => row.status))
+
+  return STATUS_FILTERS.filter(status => statuses.has(status))
+}
+
+function getUniqueChecklistIssueIds(
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[],
+): ExternalHandoffIssueFilter[] {
+  return Array.from(new Set(rows.flatMap(row => [
+    ...row.issueIds,
+    ...row.freshnessIssueIds,
+  ]))).sort()
 }
 
 function getUniqueRequirementIds(
@@ -353,8 +450,11 @@ function buildFilteredSummary(
     mutatingRows: rows.filter(row => row.mutatesPlatform).length,
     safeExternalRows: rows.filter(row => row.safeToAutomate).length,
     cannotClaimRows: rows.filter(row => row.cannotClaim).length,
+    freshnessIssueRows: rows.filter(row => row.freshnessIssueIds.length > 0).length,
     platforms: getUniquePlatforms(rows),
     kinds: getUniqueKinds(rows),
+    statuses: getUniqueStatuses(rows),
+    issueIds: getUniqueChecklistIssueIds(rows),
   }
 }
 
@@ -419,11 +519,15 @@ function formatFilteredPacketMarkdown(
     '## CLI Filters',
     `- Platform: ${formatFilterValue(filters.platform)}`,
     `- Kind: ${formatFilterValue(filters.kind)}`,
+    `- Status: ${formatFilterValue(filters.status)}`,
+    `- Issue id: ${formatFilterValue(filters.issueId)}`,
+    `- Freshness only: ${formatBoolean(filters.freshnessOnly)}`,
     `- Next only: ${formatBoolean(filters.nextOnly)}`,
     `- Committed external handoff rows: ${filteredSummary.committedExternalHandoffRows}`,
     `- Filtered rows: ${filteredSummary.filteredRows}`,
     `- Filtered next row refs: ${filteredSummary.filteredNextRowRefs}`,
     `- Filtered next rows: ${filteredSummary.filteredNextRows}`,
+    `- Filtered freshness issue rows: ${filteredSummary.freshnessIssueRows}`,
     '',
   ].join('\n')
 

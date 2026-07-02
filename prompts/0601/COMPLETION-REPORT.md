@@ -11139,3 +11139,42 @@ Boundary:
   editor access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark
   Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof External Handoff Status/Freshness Filter Addendum
+
+- Extended the read-only external handoff command:
+  `pnpm -C inkforge style-proof:external-handoff`.
+- Added CLI filters:
+  `--status <completed|missing|invalid|blocked-by-external|unsafe-to-automate>`,
+  `--issue <issue-id>`, and `--freshness-only`.
+- The new filters compose with existing `--platform`, `--kind`, and `--next-only` filters.
+- Filtered JSON now includes `statuses`, `issueIds`, and `freshnessIssueRows` inside
+  `filteredSummary` while preserving the original `committedSummary`.
+- Filtered markdown now prints status, issue id, freshness-only, next-only, and freshness issue
+  row counts in the filter header.
+- Verification:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 9 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed;
+  `pnpm --silent -C inkforge style-proof:external-handoff --json --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`
+  exited 1 as expected and isolated one stale authenticated-editor row;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 31 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 32.13s, then `inkforge/tsconfig.tsbuildinfo` was restored;
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-external-handoff-status-filters-20260703.txt`.
+- Boundary: this is local operator triage only. It does not prove WeChat authenticated editor
+  access, ordinary rich paste retention, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

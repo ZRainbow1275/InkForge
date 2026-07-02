@@ -1,0 +1,49 @@
+Style Proof External Handoff Status/Freshness Filters - 2026-07-03
+
+Scope:
+- Local read-only enhancement to `pnpm -C inkforge style-proof:external-handoff`.
+- No browser action, platform action, phone preview, upload, sync, scheduled send, publish,
+  clipboard write, manifest import, proof artifact creation, or renderer output change.
+
+Implemented:
+- Added `--status <completed|missing|invalid|blocked-by-external|unsafe-to-automate>`.
+- Added `--issue <issue-id>` for issue ids and freshness issue ids.
+- Added `--freshness-only` for rows with stale/future/missing freshness proof issues.
+- Filtered JSON now carries `statuses`, `issueIds`, and `freshnessIssueRows` in
+  `filteredSummary`.
+- Filtered markdown now prints the status, issue, freshness-only, and freshness-row counters in
+  the CLI filter header.
+
+Observed command:
+- `pnpm --silent -C inkforge style-proof:external-handoff --json --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`
+- Exit: 1 as expected because `canClaimComplete=false`.
+- Filtered result: 1 row, 1 next row ref, 1 next row, `statuses=["invalid"]`,
+  `issueIds=["style-proof-manifest-proof-stale"]`, `freshnessIssueRows=1`.
+- The selected row remains cannot-claim and unsafe to automate; it instructs the operator to
+  recapture authenticated editor URL proof with a fresh `collectedAt` value.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  PASS: 1 file / 9 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 4 files / 31 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  PASS: 36 files / 1350 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  PASS: 4653 modules transformed, Vite built in 32.13s.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  EXPECTED BLOCKED: exit 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=19`, `safeExternalRows=0`, `actionableLocalRows=0`.
+
+Boundary:
+- This is operator triage tooling only. It does not prove WeChat authenticated editor access,
+  ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+- It intentionally makes stale proof visible without converting stale proof into accepted proof.
