@@ -10876,3 +10876,27 @@ Boundary:
   authenticated editor access, ordinary rich paste retention, phone preview, mobile SMIL/click,
   mobile Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public
   article rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Platform Account Gate Recheck Addendum
+
+- Rechecked the currently open WeChat, 135 SVG editor, and Xiumi paper editor tabs with
+  CloakBrowser only.
+- WeChat public platform remained on the login panel. No authenticated backend/editor DOM was
+  visible, so authenticated editor, PC editor DOM, paste, safe disposable draft, credentialed
+  sync, scheduled-send, phone-preview, and publish proof could not be refreshed.
+- 135 SVG editor was a public/listing shell with `登录/注册`, 183 item-card-like nodes,
+  1 `svg-types` node, 1 `content-wrapper`, 1 `content-background`, and 60 buy/free-trial
+  controls. This remains public-shell/listing evidence, not applied free-trial SVG proof.
+- Xiumi v5 paper editor showed the editor and SVG category, but a visible `登录` link remained.
+  The center/editor digest was unchanged after clicking the visible `SVG` category and the first
+  visible SVG card: `hash=689c3dd4`, `htmlLength=566103`, `tnComp=82`, `tnCell=49`,
+  `tnUuid=7`, `contenteditable=1`, `svg=0`, and `img=78`.
+- Added evidence file:
+  `prompts/0601/evidence/platform-account-gate-recheck-20260703.txt`.
+- Boundary: this is platform account-gate, taxonomy, list-card, and no-center-delta evidence only.
+  It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed
+  sync, scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

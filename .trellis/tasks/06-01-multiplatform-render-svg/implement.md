@@ -8,6 +8,37 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Platform Account Gate Recheck Slice
+
+Scope:
+- CloakBrowser-only recheck of currently open WeChat, 135 SVG editor, and Xiumi paper editor
+  tabs.
+- No source code, renderer output, proof manifest, platform publish, sync, upload, scheduled
+  send, phone preview, QR capture, account screenshot, clipboard write, or artifact creation was
+  changed.
+
+Observed:
+- WeChat public platform remained on the login panel with no authenticated backend/editor DOM.
+- 135 SVG editor exposed public/listing shell state with `登录/注册`, 183 item-card-like nodes,
+  1 `svg-types` node, 1 `content-wrapper`, 1 `content-background`, and 60 buy/free-trial
+  controls.
+- Xiumi v5 paper editor exposed the editor and SVG category while a visible `登录` link remained.
+  Clicking the `SVG` category and the first visible SVG card did not mutate the center/editor
+  digest: `hash=689c3dd4`, `htmlLength=566103`, `tnComp=82`, `tnCell=49`, `tnUuid=7`,
+  `contenteditable=1`, `svg=0`, and `img=78`.
+
+Evidence:
+- Added `prompts/0601/evidence/platform-account-gate-recheck-20260703.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This slice is account-gate, taxonomy, listing, and no-center-delta evidence only. It does not
+  prove WeChat authenticated editor access, ordinary rich paste retention, phone preview, mobile
+  SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.
+
 ## 2026-07-03 Style Proof E2E and Typewriter Cleanup Slice
 
 Scope:

@@ -1,0 +1,88 @@
+Platform Account Gate Recheck - 2026-07-03
+
+Scope:
+- CloakBrowser-only recheck of the currently open WeChat, 135 SVG editor, and Xiumi paper editor
+  tabs after the local validation slice.
+- No platform publish, sync, upload, scheduled send, phone preview, QR capture, account screenshot,
+  clipboard write, or artifact creation was performed.
+- No local browser profile path, cookies, tokens, HAR, QR payload, raw screenshot path, account
+  screenshot, or account-state artifact is part of this evidence.
+
+WeChat public platform:
+- URL category: WeChat public platform home/login route.
+- Visible state: login panel with account-login link and QR/login area.
+- No backend-home marker, material editor marker, draft editor marker, ProseMirror/UEditor body,
+  or authenticated editor DOM was visible.
+- Result: login-gate evidence only. It cannot refresh authenticated-editor-url,
+  pc-editor-dom-readback, pc-editor-paste-event, safe-disposable-draft, credentialed-sync,
+  scheduled-send, phone-preview, or publish proof.
+
+135 SVG editor:
+- URL category: 135 SVG editor.
+- Visible state: SVG effect/category/library shell with `登录/注册` in the page text.
+- Sanitized observed shell counts:
+  - `item-element` / item-element-like cards: 183
+  - `svg-types`: 1
+  - `content-wrapper`: 1
+  - `content-background`: 1
+  - `btn-buy` / btn-buy-like controls: 60
+  - visible login/register links: 1
+- Sanitized visible taxonomy included `SVG效果`, `SVG模板`, `最新`, `已购买`, `已收藏`,
+  `最近`, `推荐`, `基础款`, `图片`, `点击`, `轮播`, `滑动`, `自动`, `音视频`, `展开`,
+  `长按`, `布局`, `公众号`, and `超链接/小程序`.
+- Result: public/listing and login-gate evidence only. It does not prove a free-trial SVG effect
+  was applied to the authenticated center canvas.
+
+Xiumi paper editor:
+- URL category: Xiumi v5 paper editor.
+- Visible state: editor shell and left categories were reachable, while a visible top-bar `登录`
+  link remained present.
+- Before SVG-category click, center/editor digest:
+  - `hash=689c3dd4`
+  - `htmlLength=566103`
+  - `tnComp=82`
+  - `tnCell=49`
+  - `tnUuid=7`
+  - `contenteditable=1`
+  - `svg=0`
+  - `img=78`
+- Visible left categories included `标题`, `卡片`, `图片`, `布局`, `SVG`, and `组件`.
+- After clicking the visible `SVG` category, the center/editor digest stayed unchanged:
+  - `hash=689c3dd4`
+  - `htmlLength=566103`
+  - `tnComp=82`
+  - `tnCell=49`
+  - `tnUuid=7`
+  - `contenteditable=1`
+  - `svg=0`
+  - `img=78`
+- The SVG category list exposed a visible card:
+  `SVG互动效果丨游戏机屏幕自动向左平滑滚动多张图片使用组件丨SVG图集使用功能丨图集滚动图片比例丨1080x720`
+  with sanitized class tokens `tn-tpl-item`, `tn-lighting-box`, `comp-feature-matched`,
+  `tn-tpl-comp`, `tn-scene-paper`, and `tn-tpl-categ-paper-cp`.
+- After clicking that first visible SVG card, the center/editor digest still stayed unchanged:
+  - `hash=689c3dd4`
+  - `htmlLength=566103`
+  - `tnComp=82`
+  - `tnCell=49`
+  - `tnUuid=7`
+  - `contenteditable=1`
+  - `svg=0`
+  - `img=78`
+  - center-local `ng-*` attributes counted in the digest: 4507
+  - center-local `statics.xiumi.us` references counted in the digest: 16
+- Sanitized center class samples included `tn-paper-document-root`, `tn-cube-inst`,
+  `tn-ground-slot`, `tn-group-usage-normal`, `tn-group-sortable-box`, `tn-sortable-pin`,
+  `tn-ground-inst`, `tn-layer-slot`, `tn-layer-inst`, `tn-page-slot`, `tn-page-piece`, and
+  `tn-page-container`.
+- Result: visible category/list-card learning and no-center-delta evidence only. It cannot be
+  counted as applied-editor-element proof for the clicked card.
+
+Boundary:
+- This evidence supports the existing local rules that market editor shells, category cards,
+  authoring DOM, Angular/TN runtime attributes, hosted media references, and plugin/sync controls
+  are taxonomy or residue inputs unless the center editor/canvas changes and is read back.
+- This does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

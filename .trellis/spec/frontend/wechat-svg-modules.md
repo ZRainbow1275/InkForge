@@ -12844,3 +12844,50 @@ const ruleFamilies = [
   interaction, mobile Dark Mode, cover thumbnail acceptance, authenticated editor proof,
   credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload,
   or publish success.
+
+## 263. Platform Account-Gate and No-Center-Delta Rechecks - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: a post-reboot or resumed CloakBrowser platform pass reaches WeChat, 135, or Xiumi but
+  the visible state is login-gated, public/listing-only, or center-editor unchanged after a market
+  category/card click.
+- These passes are valid taxonomy, residue, and blocker evidence. They are not success evidence
+  for authenticated editor access, paste, phone preview, sync, scheduled-send, or publish.
+
+### 2. Contract
+
+- A WeChat public-platform login panel with no backend/editor DOM must remain login-gate evidence
+  only. It cannot satisfy `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `pc-editor-paste-event`, `safe-disposable-draft`, `credentialed-channel-response`,
+  `sync-readback`, `scheduled-send-readback`, or `published-url-or-platform-preview`.
+- A 135 SVG editor page that still exposes `登录/注册` may refresh public shell/listing taxonomy and
+  static residue coverage, but it cannot prove authenticated free-trial application or center
+  canvas output unless the authenticated center canvas changes and is read back.
+- A Xiumi editor page with visible `登录` may refresh taxonomy only unless the current account state
+  is independently proven and redacted. If clicking the SVG category or a visible SVG card leaves
+  the center digest unchanged, the result must be recorded as `no-center-delta`, not
+  `applied-editor-element`.
+- A Xiumi no-center-delta digest should record sanitized counts only: center hash, HTML length,
+  `tnComp`, `tnCell`, `tnUuid`, `contenteditable`, `svg`, and `img`. It must not commit page
+  screenshots, local snapshot paths, profile paths, cookies, tokens, QR payloads, account images,
+  HAR files, or private material URLs.
+- Sanitized market tokens such as `tn-tpl-item`, `tn-lighting-box`, `tn-scene-paper`,
+  `tn-paper-document-root`, `tn-cube-inst`, `tn-ground-slot`, `tn-group-usage-normal`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-ground-inst`, `tn-layer-slot`, `tn-layer-inst`,
+  `tn-page-slot`, `tn-page-piece`, and `tn-page-container` remain residue/taxonomy inputs, not
+  reusable runtime source.
+
+### 3. Required Checks
+
+- Use CloakBrowser for platform inspection when the user has disallowed direct Playwright tools.
+- Before and after a market-category or card click, record the center digest and compare it. If
+  `hash`, `htmlLength`, `tnComp`, `tnCell`, `tnUuid`, `contenteditable`, `svg`, and `img` are
+  unchanged, the proof row remains no-center-delta.
+- Commit only sanitized text evidence. Do not commit screenshots, generated snapshot files, local
+  CloakBrowser artifact paths, profile paths, cookies, tokens, HAR files, QR payloads, account
+  screenshots, or private material URLs.
+- Evidence docs must explicitly state that account-gate/no-center-delta rechecks do not prove
+  WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload,
+  or publish success.

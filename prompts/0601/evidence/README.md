@@ -7837,3 +7837,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Platform Account Gate Recheck
+
+- [x] platform-account-gate-recheck-20260703.txt
+- CloakBrowser-only recheck of the currently open WeChat, 135 SVG editor, and Xiumi paper editor
+  tabs. No Playwright direct tools, publish, sync, upload, scheduled send, phone preview, QR
+  capture, account screenshot, clipboard write, or artifact creation was used.
+- WeChat public platform remained on the login panel with no authenticated backend/editor DOM.
+- 135 SVG editor showed a public/listing shell with `登录/注册`, 183 item-card-like nodes,
+  1 `svg-types` node, 1 `content-wrapper`, 1 `content-background`, and 60 buy/free-trial controls.
+- Xiumi showed a visible editor and SVG category, but a visible `登录` link remained. Clicking the
+  `SVG` category and the first visible SVG card left the center digest unchanged:
+  `hash=689c3dd4`, `htmlLength=566103`, `tnComp=82`, `tnCell=49`, `tnUuid=7`,
+  `contenteditable=1`, `svg=0`, and `img=78`.
+- Boundary: this is login-gate, taxonomy, list-card, and no-center-delta evidence only. It does
+  not prove WeChat authenticated editor access, ordinary rich paste retention, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish
+  success.
