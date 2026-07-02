@@ -1,5 +1,7 @@
 import { execFile, type ExecFileException } from 'node:child_process'
-import { dirname, resolve } from 'node:path'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
@@ -201,6 +203,7 @@ const currentFilePath = fileURLToPath(import.meta.url)
 const projectRoot = resolve(dirname(currentFilePath), '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
 const externalHandoffScriptPath = resolve(projectRoot, 'scripts', 'style-proof-external-handoff.ts')
+const manifestIntakeScriptPath = resolve(projectRoot, 'scripts', 'style-proof-manifest-intake.ts')
 
 const externalHandoffSensitiveFragments = [
   ['C:/Users', 'HP'].join('/'),
@@ -276,6 +279,43 @@ function runExternalHandoffCli(args: readonly string[]): Promise<ExternalHandoff
       },
     )
   })
+}
+
+function runManifestIntakeCli(args: readonly string[]): Promise<ExternalHandoffCliResult> {
+  return new Promise(resolveCliRun => {
+    execFile(
+      process.execPath,
+      [tsxCliPath, manifestIntakeScriptPath, ...args],
+      {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        env: getCliEnvironment(),
+        maxBuffer: 2 * 1024 * 1024,
+        timeout: 30_000,
+      },
+      (error, stdout, stderr) => {
+        resolveCliRun({
+          exitCode: getExitCode(error),
+          stdout: toCliText(stdout),
+          stderr: toCliText(stderr),
+        })
+      },
+    )
+  })
+}
+
+async function withRedactedManifestFile<T>(
+  jsonText: string,
+  run: (filePath: string) => Promise<T>,
+): Promise<T> {
+  const directory = await mkdtemp(join(tmpdir(), 'inkforge-style-proof-handoff-intake-'))
+  const filePath = join(directory, 'redacted-manifest.json')
+  try {
+    await writeFile(filePath, jsonText, 'utf8')
+    return await run(filePath)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -894,6 +934,54 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     }
     expect(result.stdout).not.toContain('"canClaimComplete":true')
     expect(result.stdout).not.toContain('"acceptedArtifactCount"')
+    expect(result.stdout).not.toContain('"artifacts":[{')
+  })
+
+  it('feeds template manifest draft skeletons into manifest-intake without schema errors or proof claims', async () => {
+    const templateResult = await runExternalHandoffCli([
+      '--template',
+      '--platform=wechat',
+      '--kind=external-account',
+      '--status=invalid',
+      '--issue=style-proof-manifest-proof-stale',
+      '--freshness-only',
+      '--next-only',
+    ])
+    const template = parseExternalHandoffTemplateJson(templateResult.stdout)
+    const manifests = template.rows.flatMap(row => row.manifestDraftTemplate.drafts)
+
+    expect(manifests).toHaveLength(2)
+    expect(manifests.every(manifest => manifest.artifacts.length === 0)).toBe(true)
+
+    const result = await withRedactedManifestFile(
+      JSON.stringify({ manifests }),
+      filePath => runManifestIntakeCli(['--file', filePath, '--json']),
+    )
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(result.stdout)
+
+    const report = JSON.parse(result.stdout) as unknown
+    if (!isRecord(report) || !isRecord(report.summary) || !isRecord(report.issueIds)) {
+      throw new Error('style-proof manifest intake JSON shape is invalid')
+    }
+    const schemaIssues = report.issueIds.schema
+    const semanticIssues = report.issueIds.semantic
+    if (!Array.isArray(schemaIssues) || !Array.isArray(semanticIssues)) {
+      throw new Error('style-proof manifest intake issue arrays are invalid')
+    }
+
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.status).not.toBe('schema-invalid')
+    expect(report.summary.inputManifestCount).toBe(2)
+    expect(report.summary.acceptedManifestCount).toBe(2)
+    expect(report.summary.schemaErrorCount).toBe(0)
+    expect(report.summary.schemaWarningCount).toBe(0)
+    expect(report.summary.artifactCount).toBe(0)
+    expect(schemaIssues).toHaveLength(0)
+    expect(semanticIssues.length).toBeGreaterThan(0)
+    expect(result.stdout).not.toContain('"canClaimComplete":true')
     expect(result.stdout).not.toContain('"artifacts":[{')
   })
 

@@ -17,8 +17,9 @@ Verified command:
 
 Regression coverage:
 - Focused CLI test verifies the template remains non-proof, keeps blank artifact fields, preserves `canClaimComplete:false`, includes empty `StyleProofManifest` drafts, mirrors required/forbidden field guidance, and keeps artifacts empty.
+- Focused cross-CLI test writes the emitted empty drafts into a temporary redacted manifest pack and runs `style-proof:manifest-intake --json`; schema validation accepts the drafts, `artifactCount=0`, and the command still exits 1 with `canClaimComplete:false` because real proof is missing.
 - Focused ESLint passed for the changed CLI and test files.
-- Serial scripts suite passed with 4 files and 32 tests.
+- Serial scripts suite passed with 4 files and 33 tests.
 - Export service suite passed with 36 files and 1350 tests.
 - Style-proof script ESLint passed for all style-proof CLIs and tests.
 - `vue-tsc --noEmit --pretty false` passed.

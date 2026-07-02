@@ -39,11 +39,13 @@ Implementation:
 
 Verification:
 - `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
-  passed with 1 file and 10 tests.
+  passed with 1 file and 11 tests, including cross-CLI proof that the empty template drafts can
+  be passed to `style-proof:manifest-intake --json` without schema errors while still exiting 1
+  with `canClaimComplete=false`, `artifactCount=0`, and semantic missing-proof issues.
 - `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
   passed.
 - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
-  passed with 4 files and 32 tests.
+  passed with 4 files and 33 tests.
 - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
   passed with 36 files and 1350 tests.
 - `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`

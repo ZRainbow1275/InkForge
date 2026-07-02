@@ -13327,6 +13327,9 @@ const ruleFamilies = [
 - Add a focused script regression proving the stale WeChat authenticated-editor worksheet includes
   empty style-choice manifest drafts, mirrors required/forbidden artifact guidance, preserves
   `canClaimComplete:false`, and does not include artifact rows.
+- Add a cross-CLI regression that writes those template draft skeletons into a temporary redacted
+  manifest pack and runs `style-proof:manifest-intake --json`. It must pass schema validation,
+  accept the empty drafts, keep `artifactCount=0`, and still exit 1 with `canClaimComplete:false`.
 - Run focused external-handoff tests, focused ESLint, the serial scripts suite, export-service
   regression, `vue-tsc`, production build, and release preflight before committing.
 - Evidence docs must state that manifest draft templates are collection guidance only and do not

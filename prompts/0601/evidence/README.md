@@ -8094,10 +8094,13 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   It exited 1 as expected and returned empty WeChat style-choice draft skeletons for
   `wechat-flagship-amber` and `wechat-flagship-tempera`, not proof completion.
 - Verification passed:
-  focused external-handoff CLI test (1 file / 10 tests), serial scripts suite (4 files / 32
+  focused external-handoff CLI test (1 file / 11 tests), serial scripts suite (4 files / 33
   tests), export service suite (36 files / 1350 tests), focused style-proof ESLint,
   `vue-tsc --noEmit --pretty false`, production build (4653 modules / 28.91s), and release
   preflight JSON.
+- The focused test also pipes the emitted empty draft skeletons into `style-proof:manifest-intake
+  --json`; the intake layer accepts the draft schema, keeps `artifactCount=0`, and still exits 1
+  with `canClaimComplete=false`.
 - `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
   `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
   `safeExternalRows=0`, and `actionableLocalRows=0`.
