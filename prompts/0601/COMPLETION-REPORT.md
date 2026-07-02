@@ -10817,3 +10817,25 @@ Boundary:
   WeChat authenticated editor access, WeChat PC paste, phone preview, mobile SMIL/click, mobile
   Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Post-Commit Local Validation Addendum
+
+- Re-ran the current release preflight in both JSON and text modes after commit `6d0b855`.
+- Both preflight modes exited 1 as expected and kept the release claim blocked:
+  `canClaimComplete=false`, `status=blocked-by-external`, `blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform`,
+  `combinedIssueCount=15`, `cannotClaimSteps=30`, `externalHandoffRows=19`, `nextRowRefs=5`, and
+  `uniqueNextRows=4`.
+- Re-ran the script regression suite:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`.
+  Result: 1 file passed and 3 tests passed.
+- Re-ran the full export service suite serially:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+  Result: 36 files passed and 1349 tests passed.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-postcommit-local-validation-20260703.txt`.
+- Boundary: this is post-commit local validation only. It does not prove WeChat authenticated
+  editor access, WeChat ordinary rich paste retention, phone preview, mobile SMIL/click, mobile
+  Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

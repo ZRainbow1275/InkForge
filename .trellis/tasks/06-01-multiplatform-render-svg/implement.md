@@ -8,6 +8,40 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Style Proof Post-Commit Local Validation Slice
+
+Scope:
+- Local post-commit validation evidence for the latest release-preflight traceability slice.
+- No runtime code, renderer output, proof manifest, platform action, browser state read,
+  account action, clipboard write, upload, sync, scheduled send, phone preview, or publish
+  behavior was changed.
+
+Validation:
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Current preflight summary remains `blockerCount=4`, `combinedIssueCount=15`,
+  `cannotClaimSteps=30`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=15`,
+  `unsafeToAutomateOpenSteps=10`, `mutatingOpenSteps=14`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=4`.
+- `pnpm -C inkforge style-proof:release-preflight` also exited 1 as expected and printed
+  next operator rows with issue ids, cannot-claim reasons, and next operator actions.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 3 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1349 tests.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-postcommit-local-validation-20260703.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This slice proves local preflight observability and export-service regression health only.
+  It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public article rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 135 Style Library Operation Chrome Residue Slice
 
 Source:

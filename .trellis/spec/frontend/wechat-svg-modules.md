@@ -12763,3 +12763,37 @@ const ruleFamilies = [
 - Running the CLI directly in both JSON and text modes must remain a blocking preflight when
   external proof rows are open; this command must not be reinterpreted as a publish, sync, upload,
   phone, or public-host proof.
+
+## 261. Style Proof Post-Commit Local Validation Snapshot - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: after a release-preflight or style-proof observability change is committed, local
+  validation evidence may be refreshed without changing renderer logic.
+- A post-commit validation snapshot is support evidence only. It must never be used to complete
+  phone preview, authenticated editor, credentialed-channel, public-host, platform upload, sync,
+  scheduled-send, or publish gates.
+
+### 2. Contract
+
+- The snapshot may record the current `style-proof:release-preflight` JSON/text exit status and
+  summary counts, but `exitCode=1` with `canClaimComplete=false` is the expected result while
+  external gates remain open.
+- The snapshot may record local regression suites such as `scripts` and `src/services/export`.
+  These suites prove local CLI/service health only; they do not replace real platform readback.
+- Evidence must keep next-row issue ids visible when they explain why a release claim is blocked.
+  Stale external proof must remain visible as `style-proof-manifest-proof-stale`.
+- Evidence must not include browser profile paths, cookies, tokens, HAR references, QR payloads,
+  account screenshots, local screenshot paths, raw platform captures, or account-state material.
+
+### 3. Required Checks
+
+- Run the release preflight in JSON and text modes and record that both remain blocking when
+  `canClaimComplete=false`.
+- Run the focused script regression surface for the preflight CLI.
+- Run the export service regression suite serially when local memory pressure is a concern.
+- Record expected non-fatal diagnostics separately from failures so future agents do not misread
+  KaTeX quirks-mode or hard-limit safety warnings as regressions.
+- Evidence docs must explicitly state that the snapshot does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

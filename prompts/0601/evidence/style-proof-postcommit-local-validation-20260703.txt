@@ -1,0 +1,68 @@
+Style Proof Post-Commit Local Validation - 2026-07-03
+
+Scope:
+- Local post-commit validation for the current style-proof release preflight and export service
+  test surface.
+- No platform action, no browser profile material, no phone preview, no account sync, no upload,
+  no scheduled send, and no publish attempt.
+
+Commands and results:
+- pnpm -C inkforge style-proof:release-preflight --json
+  Result: expected exit code 1.
+  Summary:
+  - canClaimComplete=false
+  - status=blocked-by-external
+  - blockerKinds=phone-preview, external-dependency, unsafe-to-automate, mutating-platform
+  - blockerCount=4
+  - combinedIssueCount=15
+  - cannotClaimSteps=30
+  - phoneOpenSteps=4
+  - externalDependencyOpenSteps=15
+  - unsafeToAutomateOpenSteps=10
+  - mutatingOpenSteps=14
+  - externalHandoffRows=19
+  - safeExternalRows=0
+  - actionableLocalRows=0
+  - nextRowRefs=5
+  - uniqueNextRows=4
+
+- pnpm -C inkforge style-proof:release-preflight
+  Result: expected exit code 1.
+  The human output listed next operator rows with issue ids, cannot-claim reasons, and next
+  operator actions for phone-preview, external-account, public-host, unsafe-to-automate, and
+  mutating-platform categories.
+
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  Result: PASS.
+  - 1 test file passed
+  - 3 tests passed
+
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  Result: PASS.
+  - 36 test files passed
+  - 1349 tests passed
+
+Expected non-fatal diagnostics during the export suite:
+- KaTeX warned about quirks mode in formula export tests.
+- Oversize hard-limit tests logged normalizeImageAttributes and fixNestedLists safety warnings for
+  a 510641-character input over the configured 500000-character limit.
+- These warnings are part of tested boundary behavior and did not fail the suite.
+
+Current next-row blocker visibility:
+- phone-preview / wechat / cover-thumbnail-check:
+  style-proof-manifest-requirement-missing
+- external-account / wechat / authenticated-editor-url:
+  style-proof-manifest-proof-stale
+- public-host / zhihu / public-image-host:
+  style-proof-manifest-requirement-missing
+- unsafe-to-automate / wechat / credentialed-channel-response:
+  style-proof-manifest-requirement-missing
+- mutating-platform / wechat / authenticated-editor-url:
+  style-proof-manifest-proof-stale
+
+Boundary:
+- This evidence proves local preflight observability and export-service regression health only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

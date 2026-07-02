@@ -7789,3 +7789,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor access, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, XHS/Zhihu upload, public-host acceptance,
   or publish success.
+
+## 2026-07-03 Style Proof Post-Commit Local Validation
+
+- [x] style-proof-postcommit-local-validation-20260703.txt
+- Re-ran the local release preflight in JSON and human text modes after the latest preflight
+  traceability commit. Both modes exited 1 as expected while preserving
+  `canClaimComplete=false`, `status=blocked-by-external`, `combinedIssueCount=15`,
+  `cannotClaimSteps=30`, `externalHandoffRows=19`, `nextRowRefs=5`, and `uniqueNextRows=4`.
+- Re-ran the script regression surface:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 3 tests.
+- Re-ran the full export service suite serially:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1349 tests.
+- Recorded expected non-fatal diagnostics: KaTeX quirks-mode warnings and hard-limit safety
+  warnings for the oversize 510641-character input test.
+- Boundary: this is local validation evidence only. It does not prove authenticated WeChat editor
+  access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
