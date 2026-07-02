@@ -2386,6 +2386,40 @@ describe('platform native export rendering rules', () => {
     expect(report.canClaimComplete).toBe(false)
   })
 
+  it('accepts UTF-8 BOM-prefixed JSON style proof manifest intake for Windows-authored files', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'style-proof-json-intake-bom-unit-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'platform-export-rendering.test.ts BOM JSON intake assertion log',
+          evidenceLabel: 'unit-tested',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          artifactRef: 'prompts/0601/evidence/style-proof-manifest-json-intake-bom-20260703.txt',
+          committed: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestJsonIntakeReport(`\uFEFF${JSON.stringify({ manifests: [manifest] })}`)
+
+    expect(report.status).toBe('ready-for-review')
+    expect(report.summary.acceptedManifestCount).toBe(1)
+    expect(report.summary.rejectedManifestCount).toBe(0)
+    expect(report.summary.schemaErrorCount).toBe(0)
+    expect(report.schemaIssues).toEqual([])
+    expect(report.manifests).toEqual([manifest])
+  })
+
   it('returns a schema-invalid report for malformed JSON style proof manifest intake', () => {
     const report = getStyleProofManifestJsonIntakeReport('{ "manifests": [')
 

@@ -1,0 +1,51 @@
+Style Proof JSON Intake BOM Compatibility - 2026-07-03
+
+Scope:
+- Compatibility fix for redacted StyleProofManifest JSON packs authored on Windows or in editors
+  that may write a leading UTF-8 BOM.
+- No platform action, no phone preview, no sync, no upload, no schedule, no publish.
+
+Implemented:
+- getStyleProofManifestJsonIntakeReport(jsonText) now strips leading U+FEFF characters before
+  size checks, empty checks, and JSON.parse().
+
+Behavior:
+- Valid BOM-prefixed JSON now reaches normal schema and semantic validation.
+- BOM-only or whitespace/BOM-only input remains schema-invalid.
+- Malformed JSON after BOM removal still returns style-proof-manifest-intake-json-invalid.
+- Oversized checks apply to the normalized JSON text after leading BOM removal.
+- No manifest schema, semantic proof, sensitive-artifact, freshness, cannot-claim, release-gate,
+  upload, sync, schedule, or publish logic was relaxed.
+
+Regression coverage:
+- Export-service JSON intake accepts a BOM-prefixed valid manifest pack.
+- Manifest-intake CLI accepts a BOM-prefixed temp JSON file and exits by cannot-claim state, not
+  parse failure.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 373 tests
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 9 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-manifest-intake.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 26 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1350 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 32.26s
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exits 1 with canClaimComplete=false, status=blocked-by-external,
+  externalHandoffRows=19, safeExternalRows=0, actionableLocalRows=0
+
+Boundary:
+- This proves JSON parse-boundary compatibility only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

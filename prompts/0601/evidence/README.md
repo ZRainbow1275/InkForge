@@ -7950,3 +7950,34 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof JSON Intake BOM Compatibility
+
+- [x] style-proof-json-intake-bom-compat-20260703.txt
+- Updated `getStyleProofManifestJsonIntakeReport()` so leading UTF-8 BOM characters are removed
+  before size, empty, and JSON parse checks. This keeps Windows-authored redacted manifest packs
+  from failing before schema validation.
+- The compatibility change does not relax schema validation, semantic validation,
+  sensitive-artifact detection, freshness checks, cannot-claim logic, release-gate logic, or
+  external proof gates.
+- Regression coverage was added to both the export-service JSON intake tests and the
+  `style-proof:manifest-intake` CLI tests.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`,
+  `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`,
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-manifest-intake.test.ts --quiet`,
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`,
+  `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`, and
+  `pnpm -C inkforge style-proof:release-preflight --json`.
+  Export service coverage passed with 36 files and 1350 tests; script coverage passed with 4 files
+  and 26 tests; production build transformed 4653 modules and built in 32.26s.
+- `pnpm -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is parse-boundary compatibility only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

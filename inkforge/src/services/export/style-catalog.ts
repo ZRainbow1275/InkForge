@@ -8205,17 +8205,19 @@ export function getStyleProofManifestJsonIntakeReport(jsonText: string): StylePr
     })
   }
 
-  if (jsonText.length > STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH) {
+  const normalizedJsonText = jsonText.replace(/^\uFEFF+/, '')
+
+  if (normalizedJsonText.length > STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH) {
     return buildRejectedStyleProofManifestIntakeReport('json', {
       id: 'style-proof-manifest-intake-json-too-large',
       severity: 'error',
       message: `Style proof manifest JSON intake is limited to ${STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH} characters.`,
       suggestion: 'Reduce the payload to a redacted manifest pack; keep raw browser dumps, screenshots, media blobs, and account artifacts outside this intake boundary.',
-      location: `json:length:${jsonText.length}`,
+      location: `json:length:${normalizedJsonText.length}`,
     })
   }
 
-  if (jsonText.trim().length === 0) {
+  if (normalizedJsonText.trim().length === 0) {
     return buildRejectedStyleProofManifestIntakeReport('json', {
       id: 'style-proof-manifest-intake-json-invalid',
       severity: 'error',
@@ -8226,7 +8228,7 @@ export function getStyleProofManifestJsonIntakeReport(jsonText: string): StylePr
   }
 
   try {
-    return getStyleProofManifestIntakeReport(JSON.parse(jsonText) as unknown)
+    return getStyleProofManifestIntakeReport(JSON.parse(normalizedJsonText) as unknown)
   } catch (error) {
     return buildRejectedStyleProofManifestIntakeReport('json', {
       id: 'style-proof-manifest-intake-json-invalid',

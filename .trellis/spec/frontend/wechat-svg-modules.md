@@ -13039,3 +13039,37 @@ const ruleFamilies = [
   authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 267. Style Proof JSON Intake BOM Compatibility - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: Windows-authored UTF-8 JSON files may include a leading byte-order mark (BOM), and
+  local proof-intake commands must not reject otherwise valid redacted proof packs on that basis.
+- Compatibility handling belongs at `getStyleProofManifestJsonIntakeReport()` so every caller,
+  including manifest-intake and manifest-merge CLIs, shares the same parse boundary.
+- The compatibility layer must strip only leading `\uFEFF` characters before size, empty, and
+  JSON parse checks. It must not relax schema validation, semantic validation, sensitive-artifact
+  detection, freshness checks, cannot-claim logic, release-gate logic, or external proof gates.
+
+### 2. Contract
+
+- `getStyleProofManifestJsonIntakeReport("\uFEFF" + validJson)` must return the same accepted
+  manifest intake report shape as `getStyleProofManifestJsonIntakeReport(validJson)`.
+- BOM-only or whitespace/BOM-only input remains `schema-invalid`.
+- Oversized checks apply to the normalized JSON text after leading BOM removal.
+- Malformed JSON after BOM removal still returns
+  `style-proof-manifest-intake-json-invalid` without throwing.
+- CLI output remains sanitized and must not print input paths, raw artifact references, browser
+  profile paths, cookies, tokens, HAR references, QR payloads, account screenshots, draft URLs,
+  publish URLs, or account/runtime material.
+
+### 3. Required Checks
+
+- Add export-service regression coverage proving BOM-prefixed valid JSON is accepted.
+- Add manifest-intake CLI regression coverage proving a BOM-prefixed temp JSON file is accepted
+  and still exits according to cannot-claim state, not parse failure.
+- Re-run the export service suite, scripts suite, focused ESLint, `vue-tsc`, and production build.
+- Evidence docs must state that BOM compatibility is parse-boundary compatibility only and does
+  not prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload,
+  or publish success.

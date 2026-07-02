@@ -365,6 +365,26 @@ describe('style-proof manifest intake CLI', { timeout: 60_000 }, () => {
     })
   })
 
+  it('accepts UTF-8 BOM-prefixed JSON files produced by Windows editors', async () => {
+    await withManifestFile(`\uFEFF${getRedactedFixtureManifestJson()}`, async filePath => {
+      const result = await runManifestIntakeCli(['--file', filePath, '--json'])
+
+      expect(result.exitCode).toBe(1)
+      expect(result.stderr.trim()).toBe('')
+      expectNoSensitiveFragments(result.stdout)
+
+      const report = parseManifestIntakeJson(result.stdout)
+      expect(report.status).toBe('ready-for-review')
+      expect(report.summary).toMatchObject({
+        inputManifestCount: 1,
+        acceptedManifestCount: 1,
+        rejectedManifestCount: 0,
+        schemaErrorCount: 0,
+      })
+      expect(report.issueIds.schema).toEqual([])
+    })
+  })
+
   it('returns schema-invalid output and exit code 2 for malformed JSON files', async () => {
     await withManifestFile('{ "manifests": [', async filePath => {
       const result = await runManifestIntakeCli(['--file', filePath])

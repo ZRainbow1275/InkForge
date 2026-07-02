@@ -22401,3 +22401,52 @@ Scope:
   editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof JSON Intake BOM Compatibility Slice
+
+Source:
+- While validating the manifest-intake workflow on Windows, a UTF-8 JSON file written with a
+  leading BOM was rejected before schema validation as `style-proof-manifest-intake-json-invalid`.
+- This is a compatibility defect for Windows-authored redacted proof packs and contradicts the
+  project requirement that different machines and editors can run the proof intake workflow
+  smoothly.
+
+Impact:
+- `npx gitnexus impact getStyleProofManifestJsonIntakeReport -r InkForge --depth 3` reported LOW
+  risk with 0 direct dependents and 0 affected processes before this service change.
+
+Implementation:
+- Updated `getStyleProofManifestJsonIntakeReport()` to remove leading `\uFEFF` characters before
+  size, empty, and `JSON.parse()` checks.
+- The change is limited to the JSON parse boundary. It does not alter manifest schema validation,
+  semantic proof validation, sensitive-artifact detection, freshness checks, cannot-claim logic,
+  release-gate logic, or any platform proof gate.
+- Added export-service regression coverage for BOM-prefixed JSON.
+- Added manifest-intake CLI regression coverage for a BOM-prefixed temp JSON file.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 373 tests.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 9 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-manifest-intake.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 26 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 32.26s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This is JSON intake compatibility only. It does not prove WeChat authenticated editor access,
+  ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
