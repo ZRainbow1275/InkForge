@@ -1,0 +1,73 @@
+Style Proof E2E and Typewriter Cleanup - 2026-07-03
+
+Scope:
+- Remove direct TypewriterMode debug logging from production source.
+- Synchronize the real Tauri/WebView2 e2e style-proof gate assertions with the current committed
+  release-preflight counts.
+- No renderer output, style manifest, platform proof artifact, account action, clipboard write,
+  upload, sync, scheduled send, phone preview, or publish behavior was changed.
+
+Impact:
+- npx gitnexus impact TypewriterMode -r InkForge --depth 3
+  Result: LOW risk, 0 impacted symbols, 0 affected processes.
+- npx gitnexus impact svg-render.spec.cjs -r InkForge --depth 3
+  Result: LOW risk, 0 impacted symbols, 0 affected processes.
+
+Implementation:
+- Removed the DEV-only direct console.debug probes:
+  - [typewriter] plugin1 update
+  - [typewriter] decorations call
+- Updated the real ExportModal e2e assertions to the current release-gate contract:
+  - external proof checklist rows: 19
+  - external handoff rows: 19
+  - external account rows: 14
+  - unsafe-to-automate rows: 10
+  - mutating platform rows: 14
+  - external dependency group: 15 rows, with WeChat 8, Xiaohongshu 2, and Zhihu 5.
+
+Red / Green:
+- Initial real e2e run failed after the first 18->19 update because the same test still carried
+  stale account/unsafe/mutating group counts from the older 18-row gate state.
+- After synchronizing those assertions to the committed release-preflight and service-test
+  contract, the same real e2e suite passed.
+
+Verification:
+- pnpm -C inkforge style-proof:release-preflight --json
+  Expected blocker exit: 1
+  Summary: canClaimComplete=false, status=blocked-by-external, blockerCount=4,
+  combinedIssueCount=15, cannotClaimSteps=30, phoneOpenSteps=4,
+  externalDependencyOpenSteps=15, unsafeToAutomateOpenSteps=10, mutatingOpenSteps=14,
+  externalHandoffRows=19, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=4.
+- pnpm -C inkforge exec vitest run src/extensions/__tests__/TypewriterMode.decorations.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 6 tests.
+- pnpm -C inkforge exec eslint src/extensions/TypewriterMode.ts tests/e2e/specs/svg-render.spec.cjs --quiet
+  PASS.
+- rg -n "\[typewriter\] plugin1 update|\[typewriter\] decorations call|console\.debug" inkforge/src/extensions/TypewriterMode.ts
+  PASS: no matches.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=120000
+  PASS: 89 files / 1692 tests.
+- pnpm -C inkforge test:e2e
+  PASS: 2 spec files / 17 tests.
+  Details: svg-render.spec.cjs passed 6 tests; visual.spec.cjs passed 11 tests.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 29.24s. The generated
+  inkforge/tsconfig.tsbuildinfo diff was restored afterward.
+
+Expected non-fatal diagnostics:
+- KaTeX quirks-mode warnings in export pipeline tests.
+- Hard-limit safety warnings for the oversize 510641-character input test.
+- WebView2 e2e warning that the installed Edge WebDriver has not been tested with the detected
+  WebView2 version. The real e2e suite still passed.
+- Sync/audit tests intentionally log missing IndexedDB/keychain/no-provider diagnostics while
+  asserting defensive failure behavior.
+
+Boundary:
+- This proves local source cleanliness, local unit/regression/type/build health, and real
+  Tauri/WebView2 e2e coverage for the ExportModal style-proof gate UI.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public article rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

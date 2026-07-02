@@ -12797,3 +12797,50 @@ const ruleFamilies = [
 - Evidence docs must explicitly state that the snapshot does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 262. Style Proof E2E Count Synchronization and Debug-Log Hygiene - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: committed style-proof release-gate counts change and the real ExportModal e2e suite
+  asserts visible summary text, external checklist rows, external handoff rows, or blocker flag
+  counts.
+- Trigger: editor extensions emit direct `console.debug` / `console.log` probes that are not routed
+  through the project logger and become visible in full-suite test output.
+- This rule is local verification hygiene only. It must not change style availability, renderer
+  output, manifest status, platform proof, phone proof, sync, scheduled-send, or publish behavior.
+
+### 2. Contract
+
+- E2E assertions for ExportModal style-proof counts must track the same committed contract covered
+  by `platform-export-rendering.test.ts` and `style-proof:release-preflight --json`.
+- When the release gate reports 19 external proof rows, the e2e suite must assert the visible
+  checklist/handoff text and blocker flag counts consistently:
+  `externalHandoffRows=19`, `externalAccountRows=14`, `publicHostRows=1`,
+  `unsafeToAutomateRows=10`, `mutatingRows=14`, and external-dependency rows 15
+  (`wechat=8`, `xiaohongshu=2`, `zhihu=5`).
+- E2E count updates are test-contract synchronization, not local proof creation. They must not be
+  used to claim that external phone/account/public-host/platform gates are complete.
+- Product/editor source must not leave one-off Typewriter debug probes such as
+  `[typewriter] plugin1 update` or `[typewriter] decorations call`. If runtime diagnostics are
+  needed, route them through the existing logger/audit layer or keep them in tests.
+- The Typewriter dimming behavior remains covered by `TypewriterMode.decorations.test.ts`; removing
+  debug logging must not change decoration state or cursor/paragraph behavior.
+
+### 3. Required Checks
+
+- Run the focused Typewriter regression:
+  `pnpm -C inkforge exec vitest run src/extensions/__tests__/TypewriterMode.decorations.test.ts --reporter=default --test-timeout=90000`.
+- Run ESLint on the touched extension/e2e files:
+  `pnpm -C inkforge exec eslint src/extensions/TypewriterMode.ts tests/e2e/specs/svg-render.spec.cjs --quiet`.
+- Scan `inkforge/src/extensions/TypewriterMode.ts` for the removed debug markers and direct
+  `console.debug`.
+- Run the real e2e suite:
+  `pnpm -C inkforge test:e2e`.
+- For release-gate count changes, run the local preflight JSON and verify it remains blocked while
+  external proof rows are open:
+  `pnpm -C inkforge style-proof:release-preflight --json`.
+- Evidence docs must record that green local/e2e checks do not prove WeChat phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, authenticated editor proof,
+  credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload,
+  or publish success.

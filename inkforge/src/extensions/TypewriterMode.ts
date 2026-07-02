@@ -262,10 +262,6 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
 
                     return {
                         update(view, prevState) {
-                            if (import.meta.env.DEV) {
-                                // eslint-disable-next-line no-console
-                                console.debug('[typewriter] plugin1 update', { enabled: extensionOptions.enabled })
-                            }
                             // 关闭打字机时清理一切痕迹
                             if (!extensionOptions.enabled) {
                                 clearIdle()
@@ -330,17 +326,6 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                 props: {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prosemirror-transform 版本冲突导致 DecorationSet 与 DecorationSource 不兼容
                     decorations(state): any {
-                        if (import.meta.env.DEV) {
-                            // eslint-disable-next-line no-console
-                            console.debug('[typewriter] decorations call', {
-                                enabled: extensionOptions.enabled,
-                                dimInactive: extensionOptions.dimInactiveParagraphs,
-                                cursorPos: extensionOptions.cursorPosition,
-                                docChildCount: state.doc.childCount,
-                                selectionFrom: state.selection.from,
-                            })
-                        }
-
                         if (!extensionOptions.enabled || !extensionOptions.dimInactiveParagraphs) {
                             return DecorationSet.empty
                         }

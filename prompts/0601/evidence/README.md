@@ -7813,3 +7813,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof E2E and Typewriter Cleanup
+
+- [x] style-proof-e2e-typewriter-cleanup-20260703.txt
+- Removed the remaining direct TypewriterMode debug probes for `[typewriter] plugin1 update` and
+  `[typewriter] decorations call`; `rg` now returns no Typewriter debug-console matches.
+- Real Tauri/WebView2 e2e first exposed stale ExportModal style-proof assertions after the
+  release gate moved from 18 to 19 external rows. The e2e contract now matches the committed
+  release-preflight/service-test counts: external rows 19, account rows 14, unsafe rows 10,
+  mutating rows 14, and external dependency rows 15.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/extensions/__tests__/TypewriterMode.decorations.test.ts --reporter=default --test-timeout=90000`,
+  `pnpm -C inkforge exec eslint src/extensions/TypewriterMode.ts tests/e2e/specs/svg-render.spec.cjs --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`,
+  `pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=120000`,
+  `pnpm -C inkforge test:e2e`, and
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`.
+- Results: focused Typewriter regression 1 file / 6 tests passed; full Vitest 89 files / 1692
+  tests passed; real e2e 2 spec files / 17 tests passed; production build transformed 4653
+  modules and built in 29.24s.
+- Boundary: this is local/e2e validation and debug-log cleanup only. It does not prove WeChat
+  authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

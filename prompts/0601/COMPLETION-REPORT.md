@@ -10844,3 +10844,35 @@ Boundary:
   editor access, WeChat ordinary rich paste retention, phone preview, mobile SMIL/click, mobile
   Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof E2E and Typewriter Cleanup Addendum
+
+- Removed the remaining direct `console.debug` TypewriterMode probes:
+  `[typewriter] plugin1 update` and `[typewriter] decorations call`.
+- Real Tauri/WebView2 e2e exposed stale style-proof gate assertions after the committed
+  release-gate accounting moved to 19 external rows. The test now asserts the current service
+  contract: external proof checklist rows 19, external handoff rows 19, external account rows 14,
+  unsafe-to-automate rows 10, mutating platform rows 14, and external dependency rows 15
+  (`微信公众号 8`, `小红书 2`, `知乎 5`).
+- Verification:
+  `pnpm -C inkforge style-proof:release-preflight --json` still exits 1 as the expected release
+  blocker with `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `unsafeToAutomateOpenSteps=10`, and `mutatingOpenSteps=14`;
+  `pnpm -C inkforge exec vitest run src/extensions/__tests__/TypewriterMode.decorations.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 6 tests;
+  `pnpm -C inkforge exec eslint src/extensions/TypewriterMode.ts tests/e2e/specs/svg-render.spec.cjs --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=120000`
+  passed with 89 files and 1692 tests;
+  `pnpm -C inkforge test:e2e` passed with 2 spec files and 17 tests;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 29.24s, then `inkforge/tsconfig.tsbuildinfo` was restored.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-e2e-typewriter-cleanup-20260703.txt`.
+- Boundary: this is local source cleanup plus local/e2e verification. It does not prove WeChat
+  authenticated editor access, ordinary rich paste retention, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public
+  article rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

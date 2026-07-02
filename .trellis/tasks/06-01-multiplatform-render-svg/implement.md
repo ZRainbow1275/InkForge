@@ -8,6 +8,59 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Style Proof E2E and Typewriter Cleanup Slice
+
+Scope:
+- Remove remaining direct TypewriterMode debug logging.
+- Refresh the real Tauri/WebView2 ExportModal e2e style-proof assertions to match the current
+  committed release-preflight/service-test contract.
+- No renderer output, style proof manifests, platform evidence, account action, clipboard write,
+  upload, sync, scheduled send, phone preview, or publish behavior was changed.
+
+Implementation:
+- Removed DEV-only `console.debug` probes for `[typewriter] plugin1 update` and
+  `[typewriter] decorations call` from `inkforge/src/extensions/TypewriterMode.ts`.
+- Updated `inkforge/tests/e2e/specs/svg-render.spec.cjs` from the older 18-row/13-row gate
+  assertions to the current committed release accounting:
+  `externalHandoffRows=19`, `externalAccountRows=14`, `unsafeToAutomateRows=10`,
+  `mutatingRows=14`, and external-dependency group rows 15 with WeChat 8, XHS 2, Zhihu 5.
+
+Verification:
+- `npx gitnexus impact TypewriterMode -r InkForge --depth 3` returned LOW risk with 0 impacted
+  symbols and 0 affected processes.
+- `npx gitnexus impact svg-render.spec.cjs -r InkForge --depth 3` returned LOW risk with
+  0 impacted symbols and 0 affected processes.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `unsafeToAutomateOpenSteps=10`, and `mutatingOpenSteps=14`.
+- `pnpm -C inkforge exec vitest run src/extensions/__tests__/TypewriterMode.decorations.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 6 tests.
+- `pnpm -C inkforge exec eslint src/extensions/TypewriterMode.ts tests/e2e/specs/svg-render.spec.cjs --quiet`
+  passed.
+- `rg -n "\[typewriter\] plugin1 update|\[typewriter\] decorations call|console\.debug" inkforge/src/extensions/TypewriterMode.ts`
+  returned no matches.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=120000`
+  passed with 89 files and 1692 tests.
+- `pnpm -C inkforge test:e2e` passed with 2 spec files and 17 tests after the stale e2e
+  count assertions were synchronized.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 29.24s. The generated `inkforge/tsconfig.tsbuildinfo`
+  diff was restored afterward.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-e2e-typewriter-cleanup-20260703.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This slice proves local source cleanliness, local regression health, production build health,
+  and real Tauri/WebView2 e2e coverage for the current ExportModal style-proof gate counts.
+  It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public article rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-07-03 Style Proof Post-Commit Local Validation Slice
 
 Scope:
