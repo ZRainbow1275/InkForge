@@ -3324,6 +3324,39 @@ Scope:
   scheduled send, platform preview, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
 
+## 2026-07-03 WeChat Paste Raw Platform Capture Ignore Guard Slice
+
+Source:
+- Real WeChat verification left local raw platform PNGs under
+  `prompts/0601/evidence/wechat-paste/`:
+  `wechat-preview-scan-qr.png`, `wechat-cover-crop-vessel.png`, and
+  `wechat-cover-vessel-mark-set.png`.
+- The previous manifest-hygiene slice rejects these filenames as committed proof, but Git still
+  listed the files as untracked, leaving room for accidental broad staging.
+- This slice does not delete local evidence and does not commit raw platform screenshots.
+
+Implementation:
+- Added `prompts/0601/evidence/wechat-paste/.gitignore`.
+- The directory-level ignore guard covers raw WeChat platform capture PNG names containing
+  preview QR, QR-scan, account, backend, vessel, and cover-crop patterns.
+- Text and HTML evidence remains committable. Any future intentionally redacted PNG must be staged
+  explicitly with `git add -f` after evidence hygiene review.
+
+Verification:
+- `git status --short -- prompts/0601/evidence/wechat-paste` now shows only the new `.gitignore`.
+- `git status --ignored --short -- prompts/0601/evidence/wechat-paste` shows the three raw WeChat
+  PNGs as ignored.
+- `git check-ignore -v prompts/0601/evidence/wechat-paste/wechat-cover-crop-vessel.png prompts/0601/evidence/wechat-paste/wechat-cover-vessel-mark-set.png prompts/0601/evidence/wechat-paste/wechat-preview-scan-qr.png`
+  reports the matching `.gitignore` patterns for all three local raw captures.
+- `test -f ...` checks confirmed all three local raw PNGs still exist; the guard only prevents
+  accidental staging.
+
+Scope:
+- This is repository hygiene for local raw platform captures only. It does not prove WeChat paste,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 135 Helper Iframe Chrome Residue Slice
 
 Source:

@@ -1,0 +1,38 @@
+WeChat Paste Raw Platform Capture Ignore Guard - 2026-07-03
+
+Scope:
+- Repository hygiene for local raw WeChat platform captures under
+  prompts/0601/evidence/wechat-paste/.
+- No platform action, no phone preview, no upload, no sync, no scheduled send, no publish.
+- No raw WeChat backend screenshot, QR payload, account screenshot, browser profile, HAR, cookie,
+  token, or local screenshot path is part of this committed evidence.
+
+Problem:
+- Real WeChat verification left local raw platform PNGs beside redacted text/HTML proof evidence.
+- These files are useful only as local operator context and must not be committed by broad staging.
+- Manifest hygiene now rejects these filenames as proof artifacts, but Git still needed a default
+  ignore guard at the evidence directory boundary.
+
+Implemented:
+- Added prompts/0601/evidence/wechat-paste/.gitignore.
+- The guard ignores raw WeChat platform capture PNG names containing preview QR, QR-scan, account,
+  backend, vessel, and cover-crop patterns.
+- The guard does not delete local files.
+- The guard does not ignore text or HTML evidence such as flagship-amber.html.
+- A future intentionally redacted PNG must be staged explicitly with git add -f after evidence
+  hygiene review.
+
+Verification:
+- git status --short -- prompts/0601/evidence/wechat-paste
+  PASS: only .gitignore is shown as untracked for the directory.
+- git status --ignored --short -- prompts/0601/evidence/wechat-paste
+  PASS: the three local raw WeChat PNGs are shown as ignored.
+- git check-ignore -v prompts/0601/evidence/wechat-paste/wechat-cover-crop-vessel.png prompts/0601/evidence/wechat-paste/wechat-cover-vessel-mark-set.png prompts/0601/evidence/wechat-paste/wechat-preview-scan-qr.png
+  PASS: all three local raw captures match the new .gitignore rules.
+- test -f checks confirmed the three local PNGs still exist after the guard was added.
+
+Boundary:
+- This proves default Git hygiene for local raw WeChat platform captures only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public preview, public article rendering, XHS/Zhihu upload,
+  public-host acceptance, or publish success.

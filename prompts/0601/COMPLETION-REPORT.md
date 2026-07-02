@@ -10704,3 +10704,27 @@ Boundary:
   paste, phone preview, modal interaction fidelity, mobile interaction fidelity, mobile Dark Mode,
   cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
   article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 WeChat Paste Raw Platform Capture Ignore Guard Addendum
+
+- Added a repository hygiene guard for raw authenticated WeChat platform captures left by real
+  verification under `prompts/0601/evidence/wechat-paste/`.
+- Added `prompts/0601/evidence/wechat-paste/.gitignore` to ignore raw WeChat preview QR,
+  QR-scan, account, backend, vessel, and cover-crop PNG names by default.
+- The guard preserves local operator artifacts and does not delete the existing PNGs.
+- The guard does not ignore committed text or HTML evidence such as `flagship-*.html`; a future
+  intentionally redacted PNG still requires explicit `git add -f` after evidence hygiene review.
+- Verification:
+  `git status --short -- prompts/0601/evidence/wechat-paste` showed only `.gitignore`;
+  `git status --ignored --short -- prompts/0601/evidence/wechat-paste` showed the three raw PNGs
+  as ignored; `git check-ignore -v` matched `wechat-preview-scan-qr.png`,
+  `wechat-cover-crop-vessel.png`, and `wechat-cover-vessel-mark-set.png`; `test -f` confirmed the
+  local PNGs still exist.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-paste-raw-platform-capture-ignore-guard-20260703.txt`.
+- Boundary: this is Git hygiene for local raw platform captures only. It does not prove WeChat PC
+  paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

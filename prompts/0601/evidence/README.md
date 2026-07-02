@@ -7717,3 +7717,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is a coverage audit only. It does not prove paste, phone preview, SVG interaction
   fidelity, upload, sync, public rendering, public-host acceptance, scheduled send, or publish
   success.
+
+## 2026-07-03 WeChat Paste Raw Platform Capture Ignore Guard
+
+- [x] wechat-paste-raw-platform-capture-ignore-guard-20260703.txt
+- Added `prompts/0601/evidence/wechat-paste/.gitignore` so raw WeChat backend,
+  preview QR, cover dialog, vessel, and account-state PNG captures stay local-only by default.
+- Verified `git check-ignore -v` matches `wechat-preview-scan-qr.png`,
+  `wechat-cover-crop-vessel.png`, and `wechat-cover-vessel-mark-set.png`.
+- The guard does not delete the local files and does not ignore text or HTML evidence.
+- Boundary: this is repository hygiene only. It does not prove paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.

@@ -1,0 +1,9 @@
+# Raw authenticated WeChat backend screenshots and QR captures must remain local-only.
+# Commit redacted text/HTML proof reports instead. If a PNG is intentionally redacted,
+# stage it explicitly with `git add -f` after evidence hygiene review.
+wechat-*scan*qr*.png
+wechat-*qr*scan*.png
+wechat-*account*.png
+wechat-*backend*.png
+wechat-*vessel*.png
+wechat-*cover*crop*.png

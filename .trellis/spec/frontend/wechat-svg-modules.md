@@ -12560,6 +12560,37 @@ const ruleFamilies = [
 - Commit hygiene must continue to exclude local browser profiles, account screenshots, QR captures,
   HAR files, tokens, cookies, authorization headers, and local screenshot paths from staged diffs.
 
+## 257. WeChat Paste Raw Platform Capture Ignore Guard - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: real WeChat editor validation may leave raw authenticated backend screenshots, preview
+  QR captures, cover crop dialogs, or account-state PNGs under
+  `prompts/0601/evidence/wechat-paste/`.
+- These files may be useful as local operator notes, but they are not committed proof artifacts.
+  They must not appear in default `git status` output after the guard is installed.
+
+### 2. Contract
+
+- `prompts/0601/evidence/wechat-paste/.gitignore` must ignore raw WeChat platform capture PNGs
+  with names matching preview QR, QR-scan, account, backend, vessel, and cover-crop patterns.
+- The ignore file must not hide committed text or HTML evidence such as `flagship-*.html`.
+- Raw platform images are not deleted by this rule. They remain local-only and can be inspected
+  outside repository history when needed.
+- If a future PNG is intentionally redacted and safe for commit, it must be staged explicitly
+  with `git add -f` only after evidence hygiene review.
+
+### 3. Required Checks
+
+- `git check-ignore -v` must identify the ignore rule for known local raw captures:
+  `wechat-preview-scan-qr.png`, `wechat-cover-crop-vessel.png`, and
+  `wechat-cover-vessel-mark-set.png`.
+- `git status --short -- prompts/0601/evidence/wechat-paste` must show the `.gitignore` only,
+  not the ignored raw PNGs.
+- Sensitive staged-diff scans may mention the deny-list words in the `.gitignore` or docs, but
+  must not include the actual PNG contents, local browser profile paths, account screenshots,
+  QR payloads, cookies, tokens, HAR files, or screenshot filesystem paths.
+
 ## 252. Xiumi Modal Runtime Directive Residue - 2026-06-29
 
 ### 1. Scope / Trigger
