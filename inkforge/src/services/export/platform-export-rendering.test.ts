@@ -7488,6 +7488,93 @@ describe('platform native export rendering rules', () => {
     expect(report.requirements[0]?.status).toBe('invalid')
   })
 
+  it('rejects committed platform account screenshots and WeChat QR capture filenames even when marked safe', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['doc-only'],
+      artifacts: [
+        {
+          id: 'wechat-cover-vessel-mark-set-png',
+          requirementId: 'catalog-source',
+          kind: 'screenshot',
+          label: 'redacted filename still points at live WeChat cover vessel PNG',
+          evidenceLabel: 'doc-only',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'docs',
+          action: 'catalog-source',
+          readback: 'none',
+          artifactRef: 'prompts/0601/evidence/wechat-paste/wechat-cover-vessel-mark-set.png',
+          committed: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'wechat-backend-account-redaction-missing',
+          requirementId: 'catalog-source',
+          kind: 'screenshot',
+          label: 'WeChat backend account screenshot redaction missing',
+          evidenceLabel: 'doc-only',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'docs',
+          action: 'catalog-source',
+          readback: 'none',
+          artifactRef: 'prompts/0601/evidence/redacted-wechat-editor-note.txt',
+          committed: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(issueIds).toContain('style-proof-manifest-sensitive-artifact')
+    expect(issueIds).toContain('style-proof-manifest-unsafe-commit-artifact')
+    expect(report.summary.sensitiveArtifactCount).toBe(2)
+    expect(report.summary.unsafeCommitArtifactCount).toBe(2)
+    expect(report.summary.acceptedArtifactCount).toBe(0)
+    expect(report.artifacts.map(artifact => artifact.status)).toEqual([
+      'unsafe-commit',
+      'unsafe-commit',
+    ])
+  })
+
+  it('keeps redacted WeChat paste HTML proof references committable', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['doc-only'],
+      artifacts: [
+        {
+          id: 'wechat-redacted-paste-html-report',
+          requirementId: 'catalog-source',
+          kind: 'doc-reference',
+          label: 'redacted local WeChat paste HTML proof report',
+          evidenceLabel: 'doc-only',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'docs',
+          action: 'catalog-source',
+          readback: 'none',
+          artifactRef: 'prompts/0601/evidence/wechat-paste/flagship-amber.html',
+          committed: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(issueIds).not.toContain('style-proof-manifest-sensitive-artifact')
+    expect(issueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
+    expect(report.summary.sensitiveArtifactCount).toBe(0)
+    expect(report.summary.unsafeCommitArtifactCount).toBe(0)
+    expect(report.artifacts[0]?.status).toBe('accepted')
+  })
+
   it('requires fresh collectedAt timestamps for external proof rows', () => {
     const artifactFingerprint = 'sha256:redacted-external-proof-freshness'
     const manifest: StyleProofManifest = {

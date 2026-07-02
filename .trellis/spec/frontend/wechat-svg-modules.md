@@ -12523,6 +12523,43 @@ const ruleFamilies = [
 - Release preflight must continue to return `canClaimComplete=false`; this routing fix must never
   convert stale proof into a completion claim.
 
+## 256. Sensitive Platform Artifact Reference Hygiene - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: real platform verification may leave local screenshots, QR captures, browser-profile
+  material, or account-state images near committed evidence directories.
+- `StyleProofManifest` artifacts are allowed to reference committed proof only when the reference
+  is redacted and safe for repository history. A manifest-provided `safeForCommit:true` flag is not
+  trusted when the artifact id, label, or `artifactRef` itself still reveals sensitive material.
+- Known unsafe examples include WeChat preview QR captures, WeChat backend/account screenshots,
+  creator/editor logged-in captures, raw HAR files, browser profile paths, account screenshots,
+  and local authenticated runtime paths.
+
+### 2. Contract
+
+- `isSensitiveStyleProofArtifact()` must inspect `artifact.id`, `artifact.label`, and
+  `artifact.artifactRef`, not only `artifactRef`.
+- Account/backend/creator/editor/logged-in screenshot wording must emit
+  `style-proof-manifest-sensitive-artifact` and, when `committed:true`, also
+  `style-proof-manifest-unsafe-commit-artifact`.
+- Known local WeChat paste evidence names for raw platform UI PNGs such as
+  `wechat-preview-scan-qr.png`, `wechat-cover-crop-vessel.png`, and
+  `wechat-cover-vessel-mark-set.png` must be rejected even if a manifest marks them
+  `safeForCommit:true`.
+- Redacted non-image proof references, including committed local paste HTML fixtures such as
+  `prompts/0601/evidence/wechat-paste/flagship-amber.html`, must remain committable and must not
+  be caught by the platform screenshot rule.
+
+### 3. Required Checks
+
+- Regression tests must include unsafe platform-account screenshot labels and unsafe WeChat QR or
+  cover PNG filenames marked `committed:true` and `safeForCommit:true`.
+- Regression tests must also prove redacted local WeChat paste HTML report references remain
+  accepted.
+- Commit hygiene must continue to exclude local browser profiles, account screenshots, QR captures,
+  HAR files, tokens, cookies, authorization headers, and local screenshot paths from staged diffs.
+
 ## 252. Xiumi Modal Runtime Directive Residue - 2026-06-29
 
 ### 1. Scope / Trigger

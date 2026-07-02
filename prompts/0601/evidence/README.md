@@ -3116,6 +3116,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled
   send, public preview, XHS/Zhihu upload, public-host acceptance, or publish success.
 
+## 2026-07-03 Sensitive Platform Artifact Reference Hygiene
+
+- [x] sensitive-platform-artifact-reference-hygiene-20260703.txt
+- Extended `StyleProofManifest` proof hygiene so sensitive artifact detection checks artifact id,
+  label, and `artifactRef`, not just `artifactRef`.
+- Raw local WeChat backend/account-state PNG evidence such as preview QR, cover crop, cover
+  vessel, account, backend, or vessel captures remains uncommittable even if a manifest marks the
+  row `safeForCommit:true`.
+- Redacted local paste HTML reports under `prompts/0601/evidence/wechat-paste/` remain
+  committable; the rule intentionally does not block safe `.html` proof fixtures.
+- Boundary: this is committed-proof hygiene only. It does not prove paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview, XHS/Zhihu upload,
+  public-host acceptance, or publish success.
+
 ## 2026-06-21 135 SVG Free Trial CloakBrowser Recheck
 
 - [x] 135-svg-free-trial-cloakbrowser-recheck-20260621.txt

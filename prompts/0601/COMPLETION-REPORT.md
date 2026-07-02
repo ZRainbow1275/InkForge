@@ -10504,6 +10504,39 @@ Boundary:
 
 ---
 
+## 2026-07-03 Sensitive Platform Artifact Reference Hygiene Addendum
+
+- Hardened local `StyleProofManifest` proof hygiene for real-platform evidence collection.
+- Sensitive artifact detection now checks artifact id, label, and `artifactRef`, not only
+  `artifactRef`.
+- Added guards for account/backend/creator/editor/logged-in screenshot wording and local WeChat
+  paste PNG filenames for preview QR, cover crop, cover vessel, account, backend, and vessel
+  captures.
+- Preserved redacted local paste HTML proof references such as
+  `prompts/0601/evidence/wechat-paste/flagship-amber.html`; these remain accepted.
+- Added regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`:
+  - unsafe committed WeChat cover vessel PNG reference marked `safeForCommit:true`;
+  - unsafe committed WeChat backend account screenshot label marked `safeForCommit:true`;
+  - safe redacted WeChat paste HTML reference under the same evidence tree.
+- Verification:
+  focused proof-hygiene regression passed with 3 selected tests and 369 skipped tests;
+  full `platform-export-rendering.test.ts` passed with 372 tests;
+  full export suite passed with 36 files and 1349 tests;
+  targeted ESLint and `vue-tsc --noEmit --pretty false` passed;
+  production build transformed 4653 modules and completed in 32.95 seconds;
+  release preflight remained correctly unclaimable with `canClaimComplete=false`,
+  `status=blocked-by-external`, `blockerCount=4`, `combinedIssueCount=15`,
+  `externalHandoffRows=19`, `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Added evidence file:
+  `prompts/0601/evidence/sensitive-platform-artifact-reference-hygiene-20260703.txt`.
+- Boundary: this is committed-proof hygiene only. It does not prove WeChat PC paste, phone
+  preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail acceptance, upload,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-07-03 Xiumi Context Menu Directive Residue and Stale External Proof Routing Addendum
 
 - Extended local static publishability protection for live Xiumi v5 context-menu directive residue

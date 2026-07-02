@@ -1565,7 +1565,7 @@ const EVIDENCE_PROOF_REQUIREMENT_IDS = {
   ],
 } as const satisfies Record<StyleEvidenceLabel, readonly StyleProofRequirementId[]>
 
-const SENSITIVE_ARTIFACT_REF_PATTERNS = [
+const SENSITIVE_ARTIFACT_TEXT_PATTERNS = [
   /\baccessToken\b/i,
   /\brefreshToken\b/i,
   /\bauthorization\b/i,
@@ -1580,11 +1580,15 @@ const SENSITIVE_ARTIFACT_REF_PATTERNS = [
   /\bhar\b/i,
   /\bqr(?:code)?\b/i,
   /\bscan-qr\b/i,
+  /\b(?:account|backend|creator|editor|logged[-_\s]*in)[-_\s]*(?:screenshot|screen|capture|avatar|name|ui)\b/i,
+  /\b(?:screenshot|screen|capture|ui)[-_\s]*(?:with[-_\s]*)?(?:account|backend|creator|editor|logged[-_\s]*in)\b/i,
   /\bprofileDir\b/i,
   /\buserDataDir\b/i,
   /[a-z]:\\users\\/i,
   /[a-z]:\/users\//i,
   /cloakbrowser.*profiles/i,
+  /(?:^|[/\\])wechat-paste[/\\][^/\\]*(?:scan|qr|cover|account|backend|vessel)[^/\\]*(?:\.png|\.jpe?g|\.webp)$/i,
+  /(?:^|[/\\])wechat-(?:preview|cover)[^/\\]*(?:scan|qr|vessel|account|backend)[^/\\]*(?:\.png|\.jpe?g|\.webp)$/i,
 ] as const
 
 const STYLE_PROOF_COLLECTION_GATE_BY_REQUIREMENT = {
@@ -4620,6 +4624,8 @@ function getStyleProofArtifactIssues(
 
 function isSensitiveStyleProofArtifact(artifact: StyleProofArtifact): boolean {
   return artifact.sensitive === true
+    || isSensitiveStyleProofReference(artifact.id)
+    || isSensitiveStyleProofReference(artifact.label)
     || (typeof artifact.artifactRef === 'string' && isSensitiveStyleProofReference(artifact.artifactRef))
 }
 
@@ -5956,7 +5962,7 @@ function isVisualReadback(readback: StyleProofReadback): boolean {
 }
 
 function isSensitiveStyleProofReference(value: string): boolean {
-  return SENSITIVE_ARTIFACT_REF_PATTERNS.some(pattern => pattern.test(value))
+  return SENSITIVE_ARTIFACT_TEXT_PATTERNS.some(pattern => pattern.test(value))
 }
 
 function addStyleProofIssue(

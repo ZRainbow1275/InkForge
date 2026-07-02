@@ -1,0 +1,53 @@
+Sensitive Platform Artifact Reference Hygiene - 2026-07-03
+
+Scope:
+- Local committed-proof hygiene for StyleProofManifest artifact references.
+- No platform action, no phone preview, no upload, no sync, no scheduled send, no publish.
+- No local browser profile, QR payload, account screenshot, HAR, cookie, token, platform
+  screenshot path, or raw platform capture is part of this committed evidence.
+
+Problem:
+- Real platform verification can leave local WeChat backend screenshots and QR captures near
+  text evidence.
+- A proof manifest must not become claimable or committable simply because it sets
+  safeForCommit:true while its id, label, or artifactRef still points at account-state material.
+
+Implemented:
+- Renamed the sensitive proof pattern list to SENSITIVE_ARTIFACT_TEXT_PATTERNS.
+- Sensitive artifact detection now checks artifact id, label, and artifactRef.
+- Added account/backend/creator/editor/logged-in screenshot wording guards.
+- Added WeChat paste PNG filename guards for preview QR, cover crop, cover vessel, account,
+  backend, and vessel captures.
+- Preserved redacted local paste HTML references such as
+  prompts/0601/evidence/wechat-paste/flagship-amber.html.
+
+Regression coverage:
+- A committed WeChat cover vessel PNG reference marked safeForCommit:true is still classified as
+  sensitive and unsafe-commit.
+- A committed artifact whose label says WeChat backend account screenshot redaction is missing is
+  still classified as sensitive and unsafe-commit.
+- A redacted local WeChat paste HTML reference under the same evidence tree remains accepted.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sensitive or non-committable|platform account screenshots|redacted WeChat paste HTML" --reporter=default --test-timeout=90000
+  PASS: 3 selected tests / 369 skipped
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 372 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1349 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit code 1, canClaimComplete=false, status=blocked-by-external,
+  blockerCount=4, combinedIssueCount=15, externalHandoffRows=19, safeExternalRows=0,
+  actionableLocalRows=0.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 32.95s.
+
+Boundary:
+- This proves local proof-hygiene classification only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public preview, public article rendering, XHS/Zhihu upload,
+  public-host acceptance, or publish success.

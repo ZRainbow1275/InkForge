@@ -3262,6 +3262,68 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-07-03 Sensitive Platform Artifact Reference Hygiene Slice
+
+Source:
+- Post-commit review confirmed local untracked WeChat backend screenshots and QR captures can exist
+  beside text evidence during real platform verification. These raw account-state artifacts must
+  not become committed style-proof evidence by accident.
+- Existing manifest hygiene already rejected HAR, QR, token, cookie, browser profile, and local
+  profile-path fragments in `artifactRef`, but did not inspect artifact id or label text.
+- No local browser profile, account screenshot, QR payload, capture path, cookie, token, HAR file,
+  platform publish artifact, upload artifact, sync artifact, scheduled-send artifact, or raw
+  platform image is part of this committed slice.
+
+Impact:
+- `npx gitnexus impact isSensitiveStyleProofArtifact -r InkForge --depth 3` returned LOW risk
+  with 4 direct dependents and 1 affected process (`progressChoices`).
+- `npx gitnexus impact validateStyleProofArtifactHygiene -r InkForge --depth 3` returned LOW risk
+  with 1 direct dependent and 1 affected process (`progressChoices`).
+- `npx gitnexus impact SENSITIVE_ARTIFACT_REF_PATTERNS -r InkForge --depth 3` returned LOW risk
+  with 0 direct dependents and 0 affected processes before the constant was renamed to
+  `SENSITIVE_ARTIFACT_TEXT_PATTERNS`.
+
+Implementation:
+- Renamed the sensitive proof text pattern list to `SENSITIVE_ARTIFACT_TEXT_PATTERNS`.
+- Extended sensitive proof detection to inspect `artifact.id`, `artifact.label`, and
+  `artifact.artifactRef`.
+- Added account/backend/creator/editor/logged-in screenshot wording guards.
+- Added WeChat paste PNG filename guards for raw local platform UI evidence such as preview QR,
+  cover crop, cover vessel, account, backend, and vessel captures.
+- Preserved redacted local paste HTML report references such as
+  `prompts/0601/evidence/wechat-paste/flagship-amber.html`.
+
+Verification:
+- Focused regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sensitive or non-committable|platform account screenshots|redacted WeChat paste HTML" --reporter=default --test-timeout=90000`
+  passed with 3 selected tests and 369 skipped tests.
+- Platform regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 372 tests.
+- Export suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1349 tests.
+- Static checks:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  `blockerCount=4`, `combinedIssueCount=15`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 32.95s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build.
+
+Scope:
+- This is committed-proof hygiene only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 135 Helper Iframe Chrome Residue Slice
 
 Source:
