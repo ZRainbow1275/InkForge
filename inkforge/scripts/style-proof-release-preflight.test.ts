@@ -110,6 +110,56 @@ interface ReleasePreflightJsonReport {
   nextRows: ReleasePreflightNextRow[]
 }
 
+interface ApplicationPreflightJsonReport {
+  scope: 'application'
+  status: 'application-ready' | 'application-blocked'
+  canClaimApplicationReady: boolean
+  canClaimReleaseComplete: boolean
+  summary: {
+    svgModuleCount: number
+    svgFamilyCount: number
+    personaCount: number
+    renderedModulePersonaPairs: number
+    wechatSafeViolationCount: number
+    moduleSentinelFailureCount: number
+    wechatStyleChoiceCount: number
+    wechatUsableChoiceCount: number
+    wechatSelectableChoiceCount: number
+    usableButUnselectableWechatChoices: number
+    actionableLocalRows: number
+    catalogBlockedLocalRows: number
+    manualDeferredOpenSteps: number
+    releaseBlockingOpenSteps: number
+    externalHandoffRows: number
+    nextExternalRows: number
+  }
+  moduleIssues: Array<{
+    moduleId: string
+    family: string
+    persona: string
+    issue: string
+  }>
+  choiceIssues: Array<{
+    choiceId: string
+    availabilityStatus: string
+    reason: string
+  }>
+  externalProof: {
+    notProof: true
+    releaseCanClaimComplete: boolean
+    releaseStatus: string
+    releaseBlockingOpenSteps: number
+    releaseBlockingPhoneOpenSteps: number
+    releaseBlockingExternalDependencyOpenSteps: number
+    releaseBlockingUnsafeToAutomateOpenSteps: number
+    releaseBlockingMutatingOpenSteps: number
+    externalHandoffRows: number
+    nextExternalRows: number
+    requiresManualWeChatProof: boolean
+    xhsZhihuPublishAutomationDeferred: true
+  }
+}
+
 const currentFilePath = fileURLToPath(import.meta.url)
 const projectRoot = resolve(dirname(currentFilePath), '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
@@ -322,6 +372,63 @@ function parseReleasePreflightJson(stdout: string): ReleasePreflightJsonReport {
   return parsed
 }
 
+function isStringIssueArray(value: unknown): value is Array<Record<string, string>> {
+  return Array.isArray(value) && value.every(item =>
+    isRecord(item) && Object.values(item).every(field => typeof field === 'string')
+  )
+}
+
+function isApplicationPreflightJsonReport(value: unknown): value is ApplicationPreflightJsonReport {
+  return isRecord(value) &&
+    value.scope === 'application' &&
+    (value.status === 'application-ready' || value.status === 'application-blocked') &&
+    typeof value.canClaimApplicationReady === 'boolean' &&
+    typeof value.canClaimReleaseComplete === 'boolean' &&
+    isRecord(value.summary) &&
+    hasNumberKeys(value.summary, [
+      'svgModuleCount',
+      'svgFamilyCount',
+      'personaCount',
+      'renderedModulePersonaPairs',
+      'wechatSafeViolationCount',
+      'moduleSentinelFailureCount',
+      'wechatStyleChoiceCount',
+      'wechatUsableChoiceCount',
+      'wechatSelectableChoiceCount',
+      'usableButUnselectableWechatChoices',
+      'actionableLocalRows',
+      'catalogBlockedLocalRows',
+      'manualDeferredOpenSteps',
+      'releaseBlockingOpenSteps',
+      'externalHandoffRows',
+      'nextExternalRows',
+    ]) &&
+    isStringIssueArray(value.moduleIssues) &&
+    isStringIssueArray(value.choiceIssues) &&
+    isRecord(value.externalProof) &&
+    value.externalProof.notProof === true &&
+    typeof value.externalProof.releaseCanClaimComplete === 'boolean' &&
+    typeof value.externalProof.releaseStatus === 'string' &&
+    typeof value.externalProof.releaseBlockingOpenSteps === 'number' &&
+    typeof value.externalProof.releaseBlockingPhoneOpenSteps === 'number' &&
+    typeof value.externalProof.releaseBlockingExternalDependencyOpenSteps === 'number' &&
+    typeof value.externalProof.releaseBlockingUnsafeToAutomateOpenSteps === 'number' &&
+    typeof value.externalProof.releaseBlockingMutatingOpenSteps === 'number' &&
+    typeof value.externalProof.externalHandoffRows === 'number' &&
+    typeof value.externalProof.nextExternalRows === 'number' &&
+    typeof value.externalProof.requiresManualWeChatProof === 'boolean' &&
+    value.externalProof.xhsZhihuPublishAutomationDeferred === true
+}
+
+function parseApplicationPreflightJson(stdout: string): ApplicationPreflightJsonReport {
+  const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
+  if (!isApplicationPreflightJsonReport(parsed)) {
+    throw new Error('style-proof application preflight JSON shape is invalid')
+  }
+
+  return parsed
+}
+
 function expectNoSensitiveFragments(output: string): void {
   for (const fragment of releasePreflightSensitiveFragments) {
     expect(output).not.toContain(fragment)
@@ -466,6 +573,51 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     ])
   })
 
+  it('emits an application-scope JSON gate for the narrowed local round target', async () => {
+    const result = await runReleasePreflightCli(['--scope=application', '--json'])
+
+    expect(result.exitCode).toBe(0)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout.trim()).not.toContain('\n')
+    expectNoSensitiveFragments(result.stdout)
+
+    const report = parseApplicationPreflightJson(result.stdout)
+    expect(report.scope).toBe('application')
+    expect(report.status).toBe('application-ready')
+    expect(report.canClaimApplicationReady).toBe(true)
+    expect(report.canClaimReleaseComplete).toBe(false)
+    expect(report.summary).toMatchObject({
+      svgModuleCount: 27,
+      svgFamilyCount: 7,
+      personaCount: 4,
+      renderedModulePersonaPairs: 108,
+      wechatSafeViolationCount: 0,
+      moduleSentinelFailureCount: 0,
+      wechatStyleChoiceCount: 17,
+      wechatUsableChoiceCount: 8,
+      wechatSelectableChoiceCount: 8,
+      usableButUnselectableWechatChoices: 0,
+      actionableLocalRows: 0,
+      manualDeferredOpenSteps: 7,
+      releaseBlockingOpenSteps: 19,
+      externalHandoffRows: 8,
+      nextExternalRows: 2,
+    })
+    expect(report.moduleIssues).toEqual([])
+    expect(report.choiceIssues).toEqual([])
+    expect(report.externalProof).toMatchObject({
+      notProof: true,
+      releaseCanClaimComplete: false,
+      releaseStatus: 'blocked-by-external',
+      releaseBlockingPhoneOpenSteps: 4,
+      releaseBlockingExternalDependencyOpenSteps: 4,
+      releaseBlockingUnsafeToAutomateOpenSteps: 4,
+      releaseBlockingMutatingOpenSteps: 4,
+      requiresManualWeChatProof: true,
+      xhsZhihuPublishAutomationDeferred: true,
+    })
+  })
+
   it('prints copy-safe next-row commands in text output without claiming release success', async () => {
     const result = await runReleasePreflightCli([])
 
@@ -493,13 +645,35 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(result.stdout)
   })
 
+  it('prints application-scope text without claiming phone or account proof', async () => {
+    const result = await runReleasePreflightCli(['--application'])
+
+    expect(result.exitCode).toBe(0)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout).toContain('InkForge style-proof application preflight')
+    expect(result.stdout).toContain('applicationReady: true')
+    expect(result.stdout).toContain('canClaimReleaseComplete: false')
+    expect(result.stdout).toContain('renderedModulePersonaPairs: 108')
+    expect(result.stdout).toContain('usableButUnselectableWechatChoices: 0')
+    expect(result.stdout).toContain('actionableLocalRows: 0')
+    expect(result.stdout).toContain('external proof boundary (not proof):')
+    expect(result.stdout).toContain('requiresManualWeChatProof: true')
+    expect(result.stdout).toContain('XHS/Zhihu publish-side automation remains manually deferred for this round.')
+    expect(result.stdout).not.toContain('canClaimComplete: true')
+    expect(result.stdout).not.toContain('canClaimReleaseComplete: true')
+    expect(result.stdout).not.toContain('releaseCanClaimComplete: true')
+    expectNoSensitiveFragments(result.stdout)
+  })
+
   it('prints help with a successful exit code', async () => {
     const result = await runReleasePreflightCli(['--help'])
 
     expect(result.exitCode).toBe(0)
     expect(result.stderr.trim()).toBe('')
-    expect(result.stdout).toContain('Usage: pnpm style-proof:release-preflight [--json]')
+    expect(result.stdout).toContain('Usage: pnpm style-proof:release-preflight [--json] [--scope=release|application]')
     expect(result.stdout).toContain('--json')
+    expect(result.stdout).toContain('--scope=application')
+    expect(result.stdout).toContain('--application')
     expect(result.stdout).toContain('--help')
     expect(result.stdout).toContain('pnpm --silent -C inkforge style-proof:release-preflight --json')
     expectNoSensitiveFragments(result.stdout)
@@ -510,7 +684,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
 
     expect(result.exitCode).toBe(2)
     expect(result.stderr).toContain('Unknown option: --unknown-release-flag')
-    expect(result.stdout).toContain('Usage: pnpm style-proof:release-preflight [--json]')
+    expect(result.stdout).toContain('Usage: pnpm style-proof:release-preflight [--json] [--scope=release|application]')
     expect(result.stdout).not.toContain('canClaimComplete')
     expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}`)
   })

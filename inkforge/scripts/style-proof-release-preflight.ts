@@ -2,8 +2,11 @@
 
 import {
   type CommittedStyleProofExternalProofArtifactTemplate,
+  DEFAULT_STYLE_EVIDENCE_BY_PLATFORM,
   getCommittedStyleProofEvidenceReleaseGateReport,
   getCommittedStyleProofExternalHandoffPacket,
+  getCommittedStyleProofLocalActionabilityReport,
+  getPlatformStyleApplicationReport,
   type CommittedStyleProofExternalHandoffNextRowKind,
   type CommittedStyleProofReleaseGateBlockerKind,
   type CommittedStyleProofReleaseGateStatus,
@@ -12,7 +15,84 @@ import {
   type StyleProofExecutionBoundary,
   type StyleProofRequirementId,
 } from '../src/services/export/style-catalog.ts'
+import {
+  buildThemeContext,
+  checkWechatSafe,
+  SVG_MODULES,
+} from '../src/services/export/svg-modules/index.ts'
 import type { Platform } from '../src/services/export/types.ts'
+
+type StyleProofApplicationPreflightStatus = 'application-ready' | 'application-blocked'
+
+const APPLICATION_PREVIEW_PERSONAS = ['academic', 'business', 'lifestyle', 'creative'] as const
+const APPLICATION_PREVIEW_PERSONA_COLORS = {
+  academic: '#5a4a3c',
+  business: '#004080',
+  lifestyle: '#a0522d',
+  creative: '#c0392b',
+} as const satisfies Record<(typeof APPLICATION_PREVIEW_PERSONAS)[number], string>
+const APPLICATION_MODULE_SENTINEL_ISSUES = new Set([
+  'missing-data-ink-svg-sentinel',
+  'missing-inline-svg',
+  'missing-viewBox',
+  'missing-responsive-width',
+])
+
+interface StyleProofApplicationPreflightModuleIssue {
+  moduleId: string
+  family: string
+  persona: string
+  issue: string
+}
+
+interface StyleProofApplicationPreflightChoiceIssue {
+  choiceId: string
+  availabilityStatus: string
+  reason: string
+}
+
+interface StyleProofApplicationPreflightExternalBoundary {
+  notProof: true
+  releaseCanClaimComplete: boolean
+  releaseStatus: CommittedStyleProofReleaseGateStatus
+  releaseBlockingOpenSteps: number
+  releaseBlockingPhoneOpenSteps: number
+  releaseBlockingExternalDependencyOpenSteps: number
+  releaseBlockingUnsafeToAutomateOpenSteps: number
+  releaseBlockingMutatingOpenSteps: number
+  externalHandoffRows: number
+  nextExternalRows: number
+  requiresManualWeChatProof: boolean
+  xhsZhihuPublishAutomationDeferred: true
+}
+
+interface StyleProofApplicationPreflightResult {
+  scope: 'application'
+  status: StyleProofApplicationPreflightStatus
+  canClaimApplicationReady: boolean
+  canClaimReleaseComplete: boolean
+  summary: {
+    svgModuleCount: number
+    svgFamilyCount: number
+    personaCount: number
+    renderedModulePersonaPairs: number
+    wechatSafeViolationCount: number
+    moduleSentinelFailureCount: number
+    wechatStyleChoiceCount: number
+    wechatUsableChoiceCount: number
+    wechatSelectableChoiceCount: number
+    usableButUnselectableWechatChoices: number
+    actionableLocalRows: number
+    catalogBlockedLocalRows: number
+    manualDeferredOpenSteps: number
+    releaseBlockingOpenSteps: number
+    externalHandoffRows: number
+    nextExternalRows: number
+  }
+  moduleIssues: readonly StyleProofApplicationPreflightModuleIssue[]
+  choiceIssues: readonly StyleProofApplicationPreflightChoiceIssue[]
+  externalProof: StyleProofApplicationPreflightExternalBoundary
+}
 
 interface StyleProofReleasePreflightNextRow {
   id: string
@@ -274,16 +354,22 @@ function buildPreflightAllMatchingSummary(rows: readonly {
 
 function printHelp(): void {
   console.log([
-    'Usage: pnpm style-proof:release-preflight [--json]',
+    'Usage: pnpm style-proof:release-preflight [--json] [--scope=release|application]',
     '',
     'Reads the committed InkForge style-proof release gate and exits non-zero',
     'unless every in-scope local, WeChat phone, account, sync, scheduled-send,',
     'preview, and publish proof gate is complete.',
+    'Use --scope=application for the narrowed local application-level round gate:',
+    'all registered SVG modules render WeChat-safe across personas, every usable',
+    'WeChat style choice is selectable, and no local proof rows remain actionable.',
     'XHS/Zhihu publish-side checks are manual-deferred for this round.',
     '',
     'Options:',
-    '  --json   Print a compact JSON report.',
-    '  --help   Print this help.',
+    '  --json                 Print a compact JSON report.',
+    '  --scope=release        Run the strict external-proof release gate (default).',
+    '  --scope=application    Run the current local application-level round gate.',
+    '  --application          Alias for --scope=application.',
+    '  --help                 Print this help.',
     '',
     'Tip: use `pnpm --silent -C inkforge style-proof:release-preflight --json`',
     'when piping JSON from a command that may intentionally exit non-zero.',
@@ -361,8 +447,229 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
   }
 }
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function getStyleProofApplicationModuleIssues(): readonly StyleProofApplicationPreflightModuleIssue[] {
+  const issues: StyleProofApplicationPreflightModuleIssue[] = []
+
+  for (const module of SVG_MODULES) {
+    for (const persona of APPLICATION_PREVIEW_PERSONAS) {
+      try {
+        const theme = buildThemeContext({
+          primaryColor: APPLICATION_PREVIEW_PERSONA_COLORS[persona],
+          persona,
+          target: 'wechat',
+        })
+        const rendered = module.render({
+          theme,
+          text: 'InkForge application preflight SVG coverage',
+          subtitle: 'WeChat-safe style module',
+          index: 2,
+          items: [
+            { title: 'Card One', body: 'First body' },
+            { title: 'Card Two', body: 'Second body' },
+          ],
+        })
+        const violations = checkWechatSafe(rendered)
+
+        for (const violation of violations) {
+          issues.push({
+            moduleId: module.id,
+            family: module.family,
+            persona,
+            issue: violation.rule,
+          })
+        }
+
+        if (!rendered.includes(`data-ink-svg="${module.id}"`)) {
+          issues.push({
+            moduleId: module.id,
+            family: module.family,
+            persona,
+            issue: 'missing-data-ink-svg-sentinel',
+          })
+        }
+        if (!/<svg\b/i.test(rendered)) {
+          issues.push({
+            moduleId: module.id,
+            family: module.family,
+            persona,
+            issue: 'missing-inline-svg',
+          })
+        }
+        if (!/viewBox=/i.test(rendered)) {
+          issues.push({
+            moduleId: module.id,
+            family: module.family,
+            persona,
+            issue: 'missing-viewBox',
+          })
+        }
+        if (!rendered.includes('width="100%"')) {
+          issues.push({
+            moduleId: module.id,
+            family: module.family,
+            persona,
+            issue: 'missing-responsive-width',
+          })
+        }
+      } catch (error) {
+        issues.push({
+          moduleId: module.id,
+          family: module.family,
+          persona,
+          issue: `render-error:${getErrorMessage(error)}`,
+        })
+      }
+    }
+  }
+
+  return issues
+}
+
+function getStyleProofApplicationChoiceIssues(): readonly StyleProofApplicationPreflightChoiceIssue[] {
+  return getPlatformStyleApplicationReport(
+    'wechat',
+    DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat,
+  )
+    .filter(row => row.availability.usable && !row.selectable)
+    .map(row => ({
+      choiceId: row.availability.choice.id,
+      availabilityStatus: row.availability.status,
+      reason: row.reason,
+    }))
+}
+
+function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult {
+  const releaseGate = getCommittedStyleProofEvidenceReleaseGateReport()
+  const handoffPacket = getCommittedStyleProofExternalHandoffPacket()
+  const localActionability = getCommittedStyleProofLocalActionabilityReport()
+  const wechatApplicationRows = getPlatformStyleApplicationReport(
+    'wechat',
+    DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat,
+  )
+  const moduleIssues = getStyleProofApplicationModuleIssues()
+  const choiceIssues = getStyleProofApplicationChoiceIssues()
+  const moduleSentinelFailureCount = moduleIssues.filter(issue =>
+    APPLICATION_MODULE_SENTINEL_ISSUES.has(issue.issue)
+  ).length
+  const hasLocalConflict = releaseGate.blockers.some(blocker => blocker.kind === 'local-conflict')
+  const canClaimApplicationReady = moduleIssues.length === 0 &&
+    choiceIssues.length === 0 &&
+    localActionability.summary.actionableLocalRows === 0 &&
+    !hasLocalConflict
+
+  return {
+    scope: 'application',
+    status: canClaimApplicationReady ? 'application-ready' : 'application-blocked',
+    canClaimApplicationReady,
+    canClaimReleaseComplete: releaseGate.canClaimComplete,
+    summary: {
+      svgModuleCount: SVG_MODULES.length,
+      svgFamilyCount: new Set(SVG_MODULES.map(module => module.family)).size,
+      personaCount: APPLICATION_PREVIEW_PERSONAS.length,
+      renderedModulePersonaPairs: SVG_MODULES.length * APPLICATION_PREVIEW_PERSONAS.length,
+      wechatSafeViolationCount: moduleIssues.length - moduleSentinelFailureCount,
+      moduleSentinelFailureCount,
+      wechatStyleChoiceCount: wechatApplicationRows.length,
+      wechatUsableChoiceCount: wechatApplicationRows.filter(row => row.availability.usable).length,
+      wechatSelectableChoiceCount: wechatApplicationRows.filter(row => row.selectable).length,
+      usableButUnselectableWechatChoices: choiceIssues.length,
+      actionableLocalRows: localActionability.summary.actionableLocalRows,
+      catalogBlockedLocalRows: localActionability.summary.catalogBlockedLocalRows,
+      manualDeferredOpenSteps: releaseGate.summary.manualDeferredOpenSteps,
+      releaseBlockingOpenSteps: releaseGate.summary.releaseBlockingOpenSteps,
+      externalHandoffRows: handoffPacket.summary.externalHandoffRows,
+      nextExternalRows: handoffPacket.nextRows.length,
+    },
+    moduleIssues,
+    choiceIssues,
+    externalProof: {
+      notProof: true,
+      releaseCanClaimComplete: releaseGate.canClaimComplete,
+      releaseStatus: releaseGate.status,
+      releaseBlockingOpenSteps: releaseGate.summary.releaseBlockingOpenSteps,
+      releaseBlockingPhoneOpenSteps: releaseGate.summary.releaseBlockingPhoneOpenSteps,
+      releaseBlockingExternalDependencyOpenSteps:
+        releaseGate.summary.releaseBlockingExternalDependencyOpenSteps,
+      releaseBlockingUnsafeToAutomateOpenSteps:
+        releaseGate.summary.releaseBlockingUnsafeToAutomateOpenSteps,
+      releaseBlockingMutatingOpenSteps: releaseGate.summary.releaseBlockingMutatingOpenSteps,
+      externalHandoffRows: handoffPacket.summary.externalHandoffRows,
+      nextExternalRows: handoffPacket.nextRows.length,
+      requiresManualWeChatProof: releaseGate.summary.releaseBlockingOpenSteps > 0,
+      xhsZhihuPublishAutomationDeferred: true,
+    },
+  }
+}
+
 function formatPreflightList(values: readonly string[]): string {
   return values.length > 0 ? values.join('|') : 'none'
+}
+
+function formatApplicationPreflightResult(result: StyleProofApplicationPreflightResult): string {
+  const lines = [
+    'InkForge style-proof application preflight',
+    `scope: ${result.scope}`,
+    `status: ${result.status}`,
+    `applicationReady: ${result.canClaimApplicationReady ? 'true' : 'false'}`,
+    `canClaimReleaseComplete: ${result.canClaimReleaseComplete ? 'true' : 'false'}`,
+    `svgModuleCount: ${result.summary.svgModuleCount}`,
+    `svgFamilyCount: ${result.summary.svgFamilyCount}`,
+    `personaCount: ${result.summary.personaCount}`,
+    `renderedModulePersonaPairs: ${result.summary.renderedModulePersonaPairs}`,
+    `wechatSafeViolationCount: ${result.summary.wechatSafeViolationCount}`,
+    `moduleSentinelFailureCount: ${result.summary.moduleSentinelFailureCount}`,
+    `wechatStyleChoiceCount: ${result.summary.wechatStyleChoiceCount}`,
+    `wechatUsableChoiceCount: ${result.summary.wechatUsableChoiceCount}`,
+    `wechatSelectableChoiceCount: ${result.summary.wechatSelectableChoiceCount}`,
+    `usableButUnselectableWechatChoices: ${result.summary.usableButUnselectableWechatChoices}`,
+    `actionableLocalRows: ${result.summary.actionableLocalRows}`,
+    `catalogBlockedLocalRows: ${result.summary.catalogBlockedLocalRows}`,
+    `manualDeferredOpenSteps: ${result.summary.manualDeferredOpenSteps}`,
+    `releaseBlockingOpenSteps: ${result.summary.releaseBlockingOpenSteps}`,
+    `externalHandoffRows: ${result.summary.externalHandoffRows}`,
+    `nextExternalRows: ${result.summary.nextExternalRows}`,
+    '',
+    'application issues:',
+    `- moduleIssues: ${result.moduleIssues.length}`,
+    `- choiceIssues: ${result.choiceIssues.length}`,
+    '',
+    'external proof boundary (not proof):',
+    `- releaseStatus: ${result.externalProof.releaseStatus}`,
+    `- releaseCanClaimComplete: ${result.externalProof.releaseCanClaimComplete ? 'true' : 'false'}`,
+    `- requiresManualWeChatProof: ${result.externalProof.requiresManualWeChatProof ? 'true' : 'false'}`,
+    `- xhsZhihuPublishAutomationDeferred: ${result.externalProof.xhsZhihuPublishAutomationDeferred ? 'true' : 'false'}`,
+    '',
+    'scope note:',
+    '- Application preflight proves only the local app-level SVG/style selector and WeChat-safe rendering surface.',
+    '- It does not prove WeChat phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or publish success.',
+    '- XHS/Zhihu publish-side automation remains manually deferred for this round.',
+  ]
+
+  if (result.moduleIssues.length > 0) {
+    lines.push(
+      '',
+      'module issue rows:',
+      ...result.moduleIssues.map(issue =>
+        `- ${issue.moduleId}/${issue.persona}/${issue.family}: ${issue.issue}`
+      ),
+    )
+  }
+
+  if (result.choiceIssues.length > 0) {
+    lines.push(
+      '',
+      'choice issue rows:',
+      ...result.choiceIssues.map(issue =>
+        `- ${issue.choiceId}: ${issue.availabilityStatus}; ${issue.reason}`
+      ),
+    )
+  }
+
+  return lines.join('\n')
 }
 
 function formatPreflightResult(result: StyleProofReleasePreflightResult): string {
@@ -454,11 +761,40 @@ function main(): void {
     process.exit(0)
   }
 
-  const unknownArgs = args.filter(arg => arg !== '--json')
+  const hasApplicationAlias = args.includes('--application')
+  const scopeArg = args.find(arg => arg.startsWith('--scope='))
+  const scope = hasApplicationAlias
+    ? 'application'
+    : scopeArg === '--scope=application'
+      ? 'application'
+      : 'release'
+  const unknownArgs = args.filter(arg =>
+    arg !== '--json' &&
+    arg !== '--application' &&
+    arg !== '--scope=release' &&
+    arg !== '--scope=application'
+  )
   if (unknownArgs.length > 0) {
     console.error(`Unknown option: ${unknownArgs.join(', ')}`)
     printHelp()
     process.exit(2)
+  }
+
+  if (scopeArg && scopeArg !== '--scope=release' && scopeArg !== '--scope=application') {
+    console.error(`Unknown option: ${scopeArg}`)
+    printHelp()
+    process.exit(2)
+  }
+
+  if (scope === 'application') {
+    const result = buildApplicationPreflightResult()
+    if (args.includes('--json')) {
+      console.log(JSON.stringify(result))
+    } else {
+      console.log(formatApplicationPreflightResult(result))
+    }
+
+    process.exit(result.canClaimApplicationReady ? 0 : 1)
   }
 
   const result = buildPreflightResult()

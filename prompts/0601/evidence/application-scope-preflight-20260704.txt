@@ -1,0 +1,61 @@
+Application Scope Preflight - 2026-07-04
+
+Scope:
+- Current-round local application gate for SVG rendering/style availability and WeChat-safe
+  application readiness.
+- Xiaohongshu and Zhihu publish-side automation is manually deferred for this round.
+- This file is not WeChat phone/account/publish proof.
+
+Command:
+- pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+
+Result:
+- exitCode: 0
+- scope: application
+- status: application-ready
+- canClaimApplicationReady: true
+- canClaimReleaseComplete: false
+
+Application evidence summary:
+- svgModuleCount: 27
+- svgFamilyCount: 7
+- personaCount: 4
+- renderedModulePersonaPairs: 108
+- wechatSafeViolationCount: 0
+- moduleSentinelFailureCount: 0
+- wechatStyleChoiceCount: 17
+- wechatUsableChoiceCount: 8
+- wechatSelectableChoiceCount: 8
+- usableButUnselectableWechatChoices: 0
+- actionableLocalRows: 0
+- catalogBlockedLocalRows: 11
+
+External/non-claim boundary:
+- releaseStatus: blocked-by-external
+- releaseBlockingOpenSteps: 19
+- releaseBlockingPhoneOpenSteps: 4
+- releaseBlockingExternalDependencyOpenSteps: 4
+- releaseBlockingUnsafeToAutomateOpenSteps: 4
+- releaseBlockingMutatingOpenSteps: 4
+- externalHandoffRows: 8
+- nextExternalRows: 2
+- manualDeferredOpenSteps: 7
+- requiresManualWeChatProof: true
+- xhsZhihuPublishAutomationDeferred: true
+
+Interpretation:
+- All 27 registered project-owned SVG modules render under the WeChat target across the four
+  current personas.
+- The 108 module/persona render pairs have zero `checkWechatSafe()` violations and retain the
+  required module sentinels: `data-ink-svg`, inline `<svg>`, `viewBox`, and `width="100%"`.
+- Every WeChat style-catalog row that is currently usable with default local evidence is
+  selectable through an InkForge-owned application mapping.
+- No direct local proof row remains actionable.
+
+Boundary:
+- This proves the narrowed local application-level round target only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu or Zhihu account upload, platform preview, scheduled send, public
+  host acceptance, or publish success.

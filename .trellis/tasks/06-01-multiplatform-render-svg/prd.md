@@ -87,3 +87,29 @@
 * 关键文件：见 What I already know。注入点 = `preset-decorations.ts` 的 `decorate()`；白名单 = `postProcessForWechat`/`enforcePlatformCSS`/DOMPurify。
 * 风险点：juice 会内联/剥离 `<style>`；`postProcessForWechat` 的 `unsupportedProps` 与 class 剥离可能误伤 SVG → 需 SVG 豁免逻辑。
 * 兼容性：SVG 走 1.1 标准子集（无 SMIL/foreignObject 依赖），跨 WebView2 版本稳定。
+
+## 2026-07-04 Scope Amendment
+
+The operator cancelled automated Xiaohongshu/Zhihu publish-side testing for this round and will
+test those platforms manually. Do not delete or weaken existing Xiaohongshu/Zhihu renderers,
+artifact manifests, degradation rules, or lower-level proof contracts; only defer their
+publish-side automation from the current round gate.
+
+Current-round completion target:
+
+- The application can apply all project-owned SVG rendering modules in the local WeChat-safe
+  rendering surface.
+- Every currently usable WeChat style-catalog row under default local evidence is selectable
+  through an InkForge-owned application mapping.
+- The WeChat application surface remains safe and applicable to the official-account HTML/SVG
+  export/copy pipeline without claiming account, phone, sync, schedule, or publish proof.
+- `style-proof:release-preflight --scope=application --json` is the machine-readable gate for this
+  narrowed local target.
+
+External/manual proof that remains outside this round's automatic completion claim:
+
+- WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, and publish
+  success.
+- Xiaohongshu/Zhihu account upload, platform preview, scheduled send, public-host acceptance, and
+  publish success.

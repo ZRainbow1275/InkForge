@@ -12427,3 +12427,37 @@ Boundary:
   mobile Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, or publish success by itself. It also does not claim Xiaohongshu or Zhihu
   publish-side completion.
+
+---
+
+## 2026-07-04 Application Scope Preflight Addendum
+
+- Added `--scope=application` and `--application` to
+  `scripts/style-proof-release-preflight.ts`.
+- This is the current-round local application gate requested after the operator cancelled
+  automated Xiaohongshu/Zhihu publish-side testing for this round.
+- Default release scope is unchanged and remains strict:
+  `style-proof:release-preflight --json` still exits non-zero while WeChat phone/account/platform
+  proof is missing.
+- Application scope exits successfully only when the narrowed local target is true:
+  - all 27 registered `SVG_MODULES` render for the WeChat target;
+  - all four personas are covered, for 108 module/persona render pairs;
+  - every render pair has zero `checkWechatSafe()` violations;
+  - every render pair keeps `data-ink-svg`, inline `<svg>`, `viewBox`, and `width="100%"`;
+  - every currently usable WeChat style-choice row under default local evidence is selectable;
+  - no direct local proof row remains actionable;
+  - no local-conflict release blocker exists.
+- The application report still carries a non-claim external boundary:
+  - `canClaimReleaseComplete=false`;
+  - `releaseStatus=blocked-by-external`;
+  - `requiresManualWeChatProof=true`;
+  - `xhsZhihuPublishAutomationDeferred=true`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 1 file / 6 tests passed.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`: exited 0 with `status=application-ready`, `canClaimApplicationReady=true`, `svgModuleCount=27`, `renderedModulePersonaPairs=108`, `wechatSafeViolationCount=0`, `moduleSentinelFailureCount=0`, `wechatStyleChoiceCount=17`, `wechatUsableChoiceCount=8`, `wechatSelectableChoiceCount=8`, `usableButUnselectableWechatChoices=0`, and `actionableLocalRows=0`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-scope-preflight-20260704.txt`.
+- Boundary: this proves the narrowed local application-level round target only. It does not prove
+  WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success. It also does not claim Xiaohongshu or Zhihu publish-side completion.

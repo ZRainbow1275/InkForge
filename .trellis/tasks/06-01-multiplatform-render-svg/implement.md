@@ -24452,3 +24452,71 @@ Scope:
 - It does not prove WeChat phone preview, mobile Dark Mode, cover-thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, or publish success.
 - XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+## 2026-07-04 Application Scope Preflight Slice
+
+Source:
+- The user narrowed this round's completion target: cancel automated Xiaohongshu/Zhihu publish
+  tests, and treat the round as complete when the application can apply all local SVG rendering and
+  styles and the output is applicable to WeChat.
+- The existing `style-proof:release-preflight` remains a strict external-proof release gate and
+  correctly exits non-zero while WeChat phone/account proof is missing.
+- A separate machine-readable application-scope gate was needed so the narrowed local target can be
+  verified without pretending phone, account, sync, scheduled-send, platform preview, or publish
+  proof exists.
+
+Impact:
+- `npx gitnexus impact "buildPreflightResult" -r InkForge --depth 3` reported LOW risk, one
+  direct caller (`main`), and 0 affected processes.
+- `npx gitnexus impact "formatPreflightResult" -r InkForge --depth 3` reported LOW risk, one
+  direct caller (`main`), and 0 affected processes.
+
+Implementation:
+- Added `--scope=application` and `--application` to `scripts/style-proof-release-preflight.ts`.
+- The default release scope is unchanged: it still exits 1 until all in-scope external proof rows
+  are real and accepted.
+- Application scope exits 0 only when:
+  - all 27 registered `SVG_MODULES` render for the WeChat target across the four current personas;
+  - all 108 module/persona render pairs have zero `checkWechatSafe()` violations;
+  - every render pair keeps `data-ink-svg`, inline `<svg>`, `viewBox`, and `width="100%"`;
+  - every currently usable WeChat style-choice row under default local evidence is selectable;
+  - no direct local proof row remains actionable;
+  - no local-conflict release blocker exists.
+- The application report always carries an external-proof boundary object with `notProof:true`,
+  `canClaimReleaseComplete:false`, the current release status, WeChat external row counts, and the
+  current XHS/Zhihu manual deferral flag.
+
+Verification so far:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 6 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with:
+  - `scope=application`;
+  - `status=application-ready`;
+  - `canClaimApplicationReady=true`;
+  - `canClaimReleaseComplete=false`;
+  - `svgModuleCount=27`;
+  - `svgFamilyCount=7`;
+  - `personaCount=4`;
+  - `renderedModulePersonaPairs=108`;
+  - `wechatSafeViolationCount=0`;
+  - `moduleSentinelFailureCount=0`;
+  - `wechatStyleChoiceCount=17`;
+  - `wechatUsableChoiceCount=8`;
+  - `wechatSelectableChoiceCount=8`;
+  - `usableButUnselectableWechatChoices=0`;
+  - `actionableLocalRows=0`;
+  - `manualDeferredOpenSteps=7`;
+  - `releaseBlockingOpenSteps=19`;
+  - `externalHandoffRows=8`;
+  - `nextExternalRows=2`.
+
+Evidence:
+- Added `prompts/0601/evidence/application-scope-preflight-20260704.txt`.
+
+Scope:
+- This proves the narrowed local application-level round target only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

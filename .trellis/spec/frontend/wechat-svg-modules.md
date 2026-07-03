@@ -14684,3 +14684,55 @@ const ruleFamilies = [
 - Run focused `platform-export-rendering.test.ts`, focused ESLint, type-check, build,
   release-preflight smoke, GitNexus detect, diff checks, and sensitive scans before committing
   this class of change.
+
+## 301. Application Scope Preflight - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: the current round's target was narrowed to local application-level SVG/style
+  availability plus WeChat-safe applicability. Xiaohongshu and Zhihu publish-side automation is
+  manually deferred for this round.
+- This rule applies to `scripts/style-proof-release-preflight.ts` application scope and its CLI
+  regressions.
+- It must not weaken the default strict release scope and must not mark phone/account/platform
+  proof as complete.
+
+### 2. Contract
+
+- `style-proof:release-preflight --scope=application --json` must emit a compact JSON report with:
+  - `scope: "application"`;
+  - `status: "application-ready"` only when all local application checks pass;
+  - `canClaimApplicationReady:true` only for the narrowed local application target;
+  - `canClaimReleaseComplete:false` while external WeChat proof remains missing.
+- Application readiness requires:
+  - all registered `SVG_MODULES` render for the WeChat target across the four current personas:
+    academic, business, lifestyle, creative;
+  - every module/persona render pair has zero `checkWechatSafe()` violations;
+  - every module/persona render pair keeps `data-ink-svg`, inline `<svg>`, `viewBox`, and
+    `width="100%"`;
+  - every WeChat style choice that is currently usable under
+    `DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat` is selectable through a non-null InkForge-owned
+    application mapping;
+  - no direct local proof row remains actionable;
+  - no local-conflict release blocker exists.
+- The application report must include a non-claim external boundary object with `notProof:true`,
+  current release status, external row counts, and `xhsZhihuPublishAutomationDeferred:true`.
+
+### 3. Cannot-Claim Boundary
+
+- Application preflight proves only the narrowed local application-level round target.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, scheduled send,
+  public-host acceptance, or publish success.
+- Default release scope must continue to fail while those external proof gates remain missing.
+
+### 4. Required Checks
+
+- Keep release-preflight CLI regressions covering both:
+  - default strict release scope exits non-zero with external proof rows open;
+  - application scope exits zero only with `application-ready` and the current SVG/style counts.
+- Run focused release-preflight CLI tests, related export/SVG regression tests, focused ESLint,
+  type-check, build or scoped build-equivalent checks, GitNexus detect, diff checks, and sensitive
+  scans before committing this class of change.

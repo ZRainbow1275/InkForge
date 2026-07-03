@@ -8792,3 +8792,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this advances manual verification readiness only. It does not prove phone preview,
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or
   publish success.
+
+## 2026-07-04 Application Scope Preflight
+
+- [x] application-scope-preflight-20260704.txt
+- Scope: machine-readable current-round application gate for local SVG rendering/style availability
+  and WeChat-safe application readiness.
+- `style-proof:release-preflight --scope=application --json` exits 0 with
+  `status=application-ready` and `canClaimApplicationReady=true`.
+- The report renders 27 registered SVG modules across 4 personas for 108 WeChat-target module
+  pairs with zero `checkWechatSafe()` violations and zero module sentinel failures.
+- The report also proves 17 WeChat style choices, 8 currently usable rows, 8 selectable rows, and
+  0 usable-but-unselectable rows under default local evidence.
+- `canClaimReleaseComplete=false`, `releaseStatus=blocked-by-external`, and
+  `requiresManualWeChatProof=true` remain explicit.
+- Boundary: this proves the narrowed local application-level round target only. It does not prove
+  WeChat phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
+  preview, public rendering, or publish success. XHS/Zhihu publish automation remains manually
+  deferred for this round.
