@@ -4437,15 +4437,24 @@ describe('platform native export rendering rules', () => {
       expect(manifest.artifacts.every(artifact =>
         artifact.committed === true
         && artifact.safeForCommit === true
-        && artifact.artifactFingerprint === manifest.artifactFingerprint
+        && (
+          artifact.artifactFingerprint === manifest.artifactFingerprint
+          || artifact.artifactRef === 'prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt'
+        )
       )).toBe(true)
     }
-    expect(amberManifest?.artifacts.every(artifact =>
+    expect(amberManifest?.artifacts.filter(artifact =>
       artifact.artifactRef === 'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
-    )).toBe(true)
-    expect(temperaManifest?.artifacts.every(artifact =>
+    )).toHaveLength(6)
+    expect(amberManifest?.artifacts.filter(artifact =>
+      artifact.artifactRef === 'prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt'
+    )).toHaveLength(2)
+    expect(temperaManifest?.artifacts.filter(artifact =>
       artifact.artifactRef === 'prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt'
-    )).toBe(true)
+    )).toHaveLength(6)
+    expect(temperaManifest?.artifacts.filter(artifact =>
+      artifact.artifactRef === 'prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt'
+    )).toHaveLength(2)
 
     const packReport = getStyleProofManifestPackReport(manifests)
     const wechatProgress = packReport.platformReports.wechat
@@ -4464,7 +4473,7 @@ describe('platform native export rendering rules', () => {
     expect(packReport.summary).toMatchObject({
       manifestCount: 2,
       usableManifestCount: 2,
-      artifactCount: 12,
+      artifactCount: 16,
       duplicateArtifactIdCount: 0,
     })
     expect(issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
@@ -4490,13 +4499,11 @@ describe('platform native export rendering rules', () => {
     expect(new Set(amberProgress?.report.issues.filter(issue =>
       issue.id === 'style-proof-manifest-proof-stale'
     ).map(issue => issue.location))).toEqual(new Set([
-      'authenticated-editor-url',
-      'pc-editor-dom-readback',
       'safe-disposable-draft',
       'pc-editor-paste-event',
     ]))
-    expect(amberRequirementStatus.get('authenticated-editor-url')).toBe('invalid')
-    expect(amberRequirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(amberRequirementStatus.get('authenticated-editor-url')).toBe('satisfied')
+    expect(amberRequirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
     expect(amberRequirementStatus.get('safe-disposable-draft')).toBe('invalid')
     expect(amberRequirementStatus.get('pc-editor-paste-event')).toBe('invalid')
     expect(amberRequirementStatus.get('exact-artifact')).toBe('satisfied')
@@ -4788,7 +4795,7 @@ describe('platform native export rendering rules', () => {
       localManifestCount: 20,
       combinedManifestCount: 22,
       hasExactArtifactFingerprintConflicts: false,
-      combinedIssueCount: 15,
+      combinedIssueCount: 13,
       cannotClaimSteps: expect.any(Number),
       phoneOpenSteps: expect.any(Number),
       externalDependencyOpenSteps: expect.any(Number),
@@ -4827,7 +4834,6 @@ describe('platform native export rendering rules', () => {
       }),
     ]))
     expect(externalBlocker?.requirementIds).toEqual(expect.arrayContaining([
-      'authenticated-editor-url',
       'pc-editor-dom-readback',
       'pc-editor-paste-event',
       'public-image-host',
@@ -4839,7 +4845,7 @@ describe('platform native export rendering rules', () => {
       'style-proof-manifest-requirement-missing',
     ]))
     expect(externalBlocker?.platformStepCounts).toEqual([
-      { platform: 'wechat', stepCount: 8 },
+      { platform: 'wechat', stepCount: 7 },
       { platform: 'xiaohongshu', stepCount: 2 },
       { platform: 'zhihu', stepCount: 5 },
     ])
@@ -4856,7 +4862,7 @@ describe('platform native export rendering rules', () => {
       'published-url-or-platform-preview',
     ]))
     expect(unsafeBlocker?.platformStepCounts).toEqual([
-      { platform: 'wechat', stepCount: 4 },
+      { platform: 'wechat', stepCount: 5 },
       { platform: 'xiaohongshu', stepCount: 2 },
       { platform: 'zhihu', stepCount: 4 },
     ])
@@ -4865,7 +4871,6 @@ describe('platform native export rendering rules', () => {
       action.requirementId === 'published-url-or-platform-preview'
     )).toBe(true)
     expect(mutatingBlocker?.requirementIds).toEqual(expect.arrayContaining([
-      'authenticated-editor-url',
       'pc-editor-dom-readback',
       'pc-editor-paste-event',
       'safe-disposable-draft',
@@ -4912,13 +4917,13 @@ describe('platform native export rendering rules', () => {
     expect(report.summary).toMatchObject({
       blockerCount: 4,
       groupCount: 4,
-      groupRowCount: 43,
-      uniqueChecklistRowCount: 19,
+      groupRowCount: 42,
+      uniqueChecklistRowCount: 18,
       phoneRows: 4,
-      externalAccountRows: 14,
+      externalAccountRows: 13,
       publicHostRows: 1,
-      mutatingRows: 14,
-      unsafeToAutomateRows: 10,
+      mutatingRows: 13,
+      unsafeToAutomateRows: 11,
       safeToAutomateRows: 0,
     })
     expect(report.rows.every(row => row.status !== 'completed')).toBe(true)
@@ -4927,7 +4932,7 @@ describe('platform native export rendering rules', () => {
 
     expect(phoneGroup?.rowCount).toBe(4)
     expect(phoneGroup?.rows.every(row => row.requiresPhone)).toBe(true)
-    expect(externalGroup?.rowCount).toBe(15)
+    expect(externalGroup?.rowCount).toBe(14)
     expect(externalGroup?.rows.some(row => row.boundary === 'public-host')).toBe(true)
 
     expect(wechatPhoneRow).toMatchObject({
@@ -5003,11 +5008,11 @@ describe('platform native export rendering rules', () => {
       safeLocalOpenRows: 11,
       actionableLocalRows: 0,
       catalogBlockedLocalRows: 11,
-      externalChecklistRows: 19,
-      externalChecklistGroupRows: 43,
+      externalChecklistRows: 18,
+      externalChecklistGroupRows: 42,
       phoneExternalRows: 4,
-      unsafeExternalRows: 10,
-      mutatingExternalRows: 14,
+      unsafeExternalRows: 11,
+      mutatingExternalRows: 13,
       safeExternalRows: 0,
     })
 
@@ -5078,16 +5083,16 @@ describe('platform native export rendering rules', () => {
     expect(report.localActionability.summary.actionableLocalRows).toBe(0)
     expect(report.summary).toMatchObject({
       blockerCount: 4,
-      externalHandoffRows: 19,
+      externalHandoffRows: 18,
       externalHandoffGroups: 4,
       actionableLocalRows: 0,
       catalogBlockedLocalRows: 11,
       safeLocalOpenRows: 11,
       phoneRows: 4,
-      externalAccountRows: 14,
+      externalAccountRows: 13,
       publicHostRows: 1,
-      unsafeToAutomateRows: 10,
-      mutatingRows: 14,
+      unsafeToAutomateRows: 11,
+      mutatingRows: 13,
       safeExternalRows: 0,
     })
     expect(report.nextLocalActionableRow).toBeNull()
@@ -5163,13 +5168,13 @@ describe('platform native export rendering rules', () => {
     expect(packet.requiresExternalAccount).toBe(true)
     expect(packet.requiresPublicHost).toBe(true)
     expect(packet.summary).toMatchObject({
-      externalHandoffRows: 19,
+      externalHandoffRows: 18,
       safeExternalRows: 0,
       phoneRows: 4,
-      externalAccountRows: 14,
+      externalAccountRows: 13,
       publicHostRows: 1,
-      unsafeToAutomateRows: 10,
-      mutatingRows: 14,
+      unsafeToAutomateRows: 11,
+      mutatingRows: 13,
     })
     expect(packet.nextRowRefs.map(ref => ref.kind)).toEqual([
       'phone-preview',
@@ -5180,7 +5185,7 @@ describe('platform native export rendering rules', () => {
     ])
     expect(packet.nextRowRefs.every(ref => ref.row.cannotClaim)).toBe(true)
     expect(packet.nextRowRefs.every(ref => ref.row.safeToAutomate === false)).toBe(true)
-    expect(packet.nextRows).toHaveLength(4)
+    expect(packet.nextRows).toHaveLength(3)
     expect(new Set(packet.nextRows.map(row => row.id)).size).toBe(packet.nextRows.length)
     expect(packet.nextRows.every(row => row.cannotClaim)).toBe(true)
     expect(packet.nextRows.every(row => row.safeToAutomate === false)).toBe(true)
@@ -5214,9 +5219,9 @@ describe('platform native export rendering rules', () => {
     expect(markdown).toContain('xiaohongshu / published-url-or-platform-preview / platform-publish')
     expect(markdown).toContain('zhihu / public-image-host / public-host')
     expect(markdown).toContain('phone-preview: wechat / cover-thumbnail-check / phone-preview')
-    expect(markdown).toContain('external-account: wechat / authenticated-editor-url / authenticated-pc-editor')
-    expect(markdown).toContain('unsafe-to-automate: wechat / credentialed-channel-response / credentialed-channel')
-    expect(markdown).toContain('mutating-platform: wechat / authenticated-editor-url / authenticated-pc-editor')
+    expect(markdown).toContain('external-account: wechat / pc-editor-dom-readback / authenticated-pc-editor')
+    expect(markdown).toContain('unsafe-to-automate: wechat / pc-editor-dom-readback / authenticated-pc-editor')
+    expect(markdown).toContain('mutating-platform: wechat / pc-editor-dom-readback / authenticated-pc-editor')
     expect(markdown).toContain('Do not claim completion from local-only checks')
     expect(markdown).toContain('Forbidden evidence fields')
     expect(formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)).toBe(markdown)

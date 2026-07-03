@@ -244,17 +244,17 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     ])
     expect(report.summary).toMatchObject({
       blockerCount: 4,
-      combinedIssueCount: 15,
-      cannotClaimSteps: 30,
+      combinedIssueCount: 13,
+      cannotClaimSteps: 29,
       phoneOpenSteps: 4,
-      externalDependencyOpenSteps: 15,
-      unsafeToAutomateOpenSteps: 10,
-      mutatingOpenSteps: 14,
-      externalHandoffRows: 19,
+      externalDependencyOpenSteps: 14,
+      unsafeToAutomateOpenSteps: 11,
+      mutatingOpenSteps: 13,
+      externalHandoffRows: 18,
       safeExternalRows: 0,
       actionableLocalRows: 0,
       nextRowRefs: 5,
-      uniqueNextRows: 4,
+      uniqueNextRows: 3,
     })
     expect(report.nextRows.map(row => row.kind)).toEqual([
       'phone-preview',
@@ -268,12 +268,12 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.nextRows.every(row => row.nextOperatorAction.length > 0)).toBe(true)
     expect(report.nextRows.some(row =>
       row.issueIds.includes('style-proof-manifest-proof-stale')
-    )).toBe(true)
+    )).toBe(false)
     expect(report.nextRows.some(row =>
       row.freshnessIssueIds.includes('style-proof-manifest-proof-stale')
-    )).toBe(true)
+    )).toBe(false)
     expect(report.nextRows.find(row => row.kind === 'external-account')?.cannotClaimReason)
-      .toContain('freshness window')
+      .toContain('mutating credentialed platform action')
   })
 
   it('prints help with a successful exit code', async () => {

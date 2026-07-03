@@ -13335,3 +13335,49 @@ const ruleFamilies = [
 - Evidence docs must state that manifest draft templates are collection guidance only and do not
   prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
   publish success.
+
+## 274. WeChat Authenticated Editor DOM Redacted Refresh - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the committed WeChat PC evidence pack can age out of the 14-day freshness window even
+  when the account can still open the real PC article editor. A read-only CloakBrowser DOM refresh
+  may update only the editor-reachability and editor-DOM preconditions.
+- The refresh must use CloakBrowser, not direct Playwright tooling, while the user has forbidden
+  Playwright for platform/editor work.
+- The refresh must not paste content, save drafts, click preview, upload, sync, schedule, publish,
+  or mutate platform content.
+
+### 2. Contract
+
+- A redacted authenticated editor refresh may satisfy `authenticated-editor-url` only when one
+  platform-editor row carries `action:'authenticated-editor-opened'`,
+  `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`, fresh `collectedAt`,
+  and `safeForCommit:true`.
+- A redacted read-only editor DOM refresh may satisfy `pc-editor-dom-readback` only when one
+  platform-editor row carries `action:'pc-editor-dom-readback'`, an accepted DOM/visual-DOM
+  readback, `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,
+  `platformEditorSurfaceVerified:true`, `platformEditorDomVerified:true`,
+  `mojibakeFreeVerified:true`, fresh `collectedAt`, and `safeForCommit:true`.
+- The committed refresh rows may reference only a sanitized text report. They must not commit
+  platform URLs, account names, article ids, credential query values, browser runtime paths,
+  transient capture paths, cookies, QR payloads, HAR files, or raw article content.
+- The refresh rows must not carry exact paste, input-event, body-mutation, safe-draft-cleanup,
+  phone, dark-mode, cover, sync, schedule, public-host, or publish success flags.
+- The refresh rows may omit `artifactFingerprint` when the observed editor surface is a
+  precondition readback rather than exact article-body artifact preservation. Exact-artifact and
+  ordinary paste rows remain separately bound to their existing fingerprints.
+
+### 3. Required Checks
+
+- Regression tests must prove the committed WeChat PC manifests keep the redacted refresh rows
+  safe for commit, do not introduce duplicate artifact ids or fingerprint conflicts, and still
+  leave ordinary paste, safe cleanup, phone, sync, schedule, public-host, and publish gates open
+  unless their own exact proof rows are fresh.
+- Release preflight must remain `canClaimComplete:false` after this refresh. A lower
+  `externalHandoffRows` count is acceptable only when it is caused by closing the stale
+  `authenticated-editor-url` freshness gap, not by suppressing open phone/account/public-host
+  gates.
+- Evidence docs must state that this is authenticated PC editor reachability and read-only DOM
+  refresh only, not rich paste, phone preview, sync, scheduled send, public rendering, or publish
+  success.

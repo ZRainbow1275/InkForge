@@ -22782,3 +22782,55 @@ Scope:
   access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 WeChat Authenticated Editor DOM Redacted Refresh Slice
+
+Source:
+- CloakBrowser reached an authenticated WeChat Official Account PC article editor tab and read a
+  sanitized DOM summary from the editor surface.
+- The previous committed WeChat PC proof pack had stale authenticated-editor precondition rows in
+  live release preflight. The refresh must narrow that gap without pretending to refresh ordinary
+  Ctrl+V paste, disposable-draft cleanup, phone preview, sync, scheduled send, public rendering, or
+  publish proof.
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofWechatPcEvidenceManifests -r InkForge --depth 3`
+  reported LOW risk with 3 direct dependents and 0 affected processes.
+- `npx gitnexus impact getCommittedStyleProofEvidenceManifests -r InkForge --depth 3` reported
+  LOW risk with 3 direct dependents and 0 affected processes.
+
+Implementation:
+- Added `prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt` with only
+  sanitized route shape, DOM counts, visible title/body ProseMirror geometry, replacement-glyph
+  counts, iframe/control counts, and strict no-mutation boundaries.
+- Added two redacted refresh artifacts to each committed Amber and Tempera WeChat PC manifest:
+  - `authenticated-editor-url` with authenticated session and editor target verification;
+  - read-only `pc-editor-dom-readback` with editor surface, DOM, and mojibake clearance.
+- The refresh artifacts reference only the sanitized report and intentionally omit
+  `artifactFingerprint`; exact-artifact and ordinary paste rows remain separately bound to the
+  original exact fingerprints.
+- The refresh artifacts do not set ordinary paste, same-tab paste, input-event, body-mutation,
+  safe cleanup, phone, dark-mode, cover, sync, schedule, public-host, or publish success flags.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 373 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 33 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite built in 31.46s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This slice proves only local committed accounting for a real authenticated PC editor DOM refresh.
+  It does not prove ordinary rich paste retention, safe disposable-draft cleanup, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

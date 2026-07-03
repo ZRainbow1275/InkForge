@@ -8166,3 +8166,33 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 WeChat Authenticated Editor DOM Redacted Refresh
+
+- [x] wechat-authenticated-editor-dom-redacted-20260703.txt
+- Used CloakBrowser only against the already open authenticated WeChat Official Account editor
+  tab; no save, preview, sync, scheduled send, upload, or publish action was clicked.
+- Sanitized editor readback:
+  - route shape: `/cgi-bin/appmsg` editor route with edit action;
+  - login or QR state: absent;
+  - `#js_editor=1`, `#js_appmsg_editor=1`, `#ueditor_0=1`, `.ProseMirror=2`,
+    `[contenteditable="true"]=3`, `[class*="edui-editor"]=14`, `[class*="appmsg_edit"]=16`;
+  - visible title ProseMirror rect `578x60`, textLength 41, replacementGlyphCount 0;
+  - visible body ProseMirror rect `586x487`, textLength 8, replacementGlyphCount 0;
+  - hidden same-origin iframe count 1, bodyTextLength 4478, bodySvgCount 0;
+  - visible controls included document import, image library, WeChat scan upload, AI image,
+    cover-from-body, publish, preview, and save-as-draft.
+- Committed style-proof manifests now use this redacted report to refresh only the
+  `authenticated-editor-url` and read-only `pc-editor-dom-readback` preconditions for the
+  committed Amber and Tempera WeChat PC evidence rows.
+- The refresh rows intentionally do not carry `ordinaryClipboardPasteVerified:true`,
+  `sameEditorTabVerified:true`, `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`,
+  `disposableDraft:true`, `cleanupPathVerified:true`, or any phone/publish/sync flags.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is authenticated PC editor reachability and read-only DOM-surface refresh only.
+  It does not prove ordinary rich paste retention, safe disposable-draft cleanup, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

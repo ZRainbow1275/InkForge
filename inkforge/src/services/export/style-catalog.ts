@@ -3203,6 +3203,8 @@ interface CommittedStyleProofWechatPcEvidenceManifestOptions {
   reportRef: string
   pasteProofLabel: string
   collectedAt: string
+  readonlyEditorRefreshReportRef: string
+  readonlyEditorRefreshCollectedAt: string
 }
 
 interface CommittedStyleProofWechatExternalBlockerManifestOptions {
@@ -3312,6 +3314,9 @@ const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
 
 const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF =
+  'prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt'
 
 const COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_REPORT_REF =
   'prompts/0601/evidence/wechat-login-state-readonly-20260625.txt'
@@ -3885,6 +3890,43 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
         safeForCommit: true,
       },
       {
+        id: `${options.idPrefix}-committed-readonly-authenticated-editor-refresh`,
+        requirementId: 'authenticated-editor-url',
+        kind: 'editor-readback',
+        label: `${options.label} committed redacted authenticated WeChat editor reachability refresh`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'platform-editor',
+        action: 'authenticated-editor-opened',
+        readback: 'visual-and-dom',
+        artifactRef: options.readonlyEditorRefreshReportRef,
+        authenticatedSessionVerified: true,
+        platformEditorTargetVerified: true,
+        collectedAt: options.readonlyEditorRefreshCollectedAt,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${options.idPrefix}-committed-readonly-pc-dom-refresh`,
+        requirementId: 'pc-editor-dom-readback',
+        kind: 'editor-readback',
+        label: `${options.label} committed redacted WeChat PC editor DOM refresh`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'platform-editor',
+        action: 'pc-editor-dom-readback',
+        readback: 'visual-and-dom',
+        artifactRef: options.readonlyEditorRefreshReportRef,
+        authenticatedSessionVerified: true,
+        platformEditorTargetVerified: true,
+        platformEditorSurfaceVerified: true,
+        platformEditorDomVerified: true,
+        mojibakeFreeVerified: true,
+        collectedAt: options.readonlyEditorRefreshCollectedAt,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
         id: `${options.idPrefix}-committed-exact-html-artifact-proof`,
         requirementId: 'exact-artifact',
         kind: 'doc-reference',
@@ -4198,6 +4240,8 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
     pasteProofLabel: 'Amber committed ordinary OS Ctrl+V rich HTML/SVG paste proof',
     collectedAt: '2026-06-18T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
   }),
   createCommittedStyleProofWechatPcEvidenceManifest({
     choiceId: 'wechat-flagship-tempera',
@@ -4207,6 +4251,8 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF,
     pasteProofLabel: 'Tempera committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
     collectedAt: '2026-06-19T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
   }),
 ] as const satisfies readonly StyleProofManifest[]
 

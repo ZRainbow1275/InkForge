@@ -11294,3 +11294,45 @@ Boundary:
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed
   sync, scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
   upload, or publish success.
+
+---
+
+## 2026-07-03 WeChat Authenticated Editor DOM Redacted Refresh Addendum
+
+- Used CloakBrowser only against an already open authenticated WeChat Official Account PC article
+  editor tab.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt`.
+- The readback recorded only route shape, selector counts, visible title/body ProseMirror geometry,
+  replacement-glyph counts, iframe/control counts, and no-mutation boundaries. It did not store or
+  commit platform URLs, account names, article ids, credential query values, browser runtime
+  paths, transient capture paths, cookies, QR payloads, HAR files, or raw article content.
+- Updated the committed WeChat PC evidence manifests so Amber and Tempera each receive two
+  redacted refresh rows:
+  - `authenticated-editor-url`;
+  - read-only `pc-editor-dom-readback`.
+- The refresh rows intentionally omit `artifactFingerprint` because this was editor-surface
+  reachability/readability proof, not exact article-body artifact preservation. Existing
+  exact-artifact and ordinary paste rows remain separately fingerprint-bound.
+- The refresh rows do not set `ordinaryClipboardPasteVerified:true`,
+  `sameEditorTabVerified:true`, `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`,
+  `disposableDraft:true`, `cleanupPathVerified:true`, `phonePreviewContentVerified:true`,
+  `darkModeEnabledVerified:true`, `coverThumbnailAccepted:true`, sync, schedule, public-host, or
+  publish flags.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 373 tests;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 4 files and 33 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  with 36 files and 1350 tests;
+  focused ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The build
+  transformed 4653 modules and completed in 31.46s.
+- Release preflight remains blocked as required:
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is authenticated PC editor reachability and read-only DOM refresh only. It does
+  not prove ordinary rich paste retention, safe disposable-draft cleanup, phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -1,0 +1,72 @@
+WeChat authenticated editor DOM redacted refresh - 2026-07-03
+
+Scope:
+- CloakBrowser-only read-only refresh in the existing inkforge-0601 browser profile.
+- Target platform: WeChat Official Account PC article editor.
+- This evidence records only sanitized route shape, DOM counts, visible editor geometry, and
+  control presence.
+
+Observed authenticated editor state:
+- Page title class: Official Account editor shell.
+- Route shape: /cgi-bin/appmsg editor route with edit action and credential query present.
+- Login or QR state: absent in the inspected editor page.
+- Top-level editor selectors:
+  - #js_editor: 1
+  - #js_appmsg_editor: 1
+  - #ueditor_0: 1
+  - .ProseMirror: 2
+  - [contenteditable="true"]: 3
+  - [class*="edui-editor"]: 14
+  - [class*="appmsg_edit"]: 16
+- Visible title editor:
+  - tag: div
+  - class family: ProseMirror
+  - textLength: 41
+  - replacementGlyphCount: 0
+  - rect: x=495, y=194, width=578, height=60
+- Visible body editor:
+  - tag: div
+  - class family: ProseMirror focused body surface
+  - textLength: 8
+  - replacementGlyphCount: 0
+  - rect: x=491, y=302, width=586, height=487
+- Hidden same-origin iframe:
+  - iframe count: 1
+  - visible: false
+  - sameOrigin: true
+  - bodyTextLength: 4478
+  - bodySvgCount: 0
+- Visible editor controls included:
+  - document import
+  - image library selection
+  - WeChat scan upload
+  - AI image generation
+  - choose video cover from body
+  - publish
+  - preview
+  - save as draft
+- Page-level counts:
+  - document textLength: 457
+  - global replacementGlyphCount: 0
+  - svgCount: 9
+  - dataInkSvgCount: 0
+  - styleAttrCount: 434
+
+Manifest use:
+- May refresh the committed `authenticated-editor-url` precondition for the WeChat flagship
+  committed PC evidence manifests.
+- May refresh the committed read-only `pc-editor-dom-readback` precondition for the same
+  manifests because the visible title/body ProseMirror editor surfaces were readable and mojibake
+  replacement glyphs were absent.
+- The committed manifest rows intentionally point to this redacted report without committing a
+  platform URL, account name, article id, credential query value, browser runtime path,
+  transient capture path, cookie, QR payload, HAR file, or raw article content.
+
+Boundary:
+- No paste was performed.
+- No save, preview, sync, scheduled send, upload, or publish action was clicked.
+- This does not prove ordinary Ctrl+V rich HTML/SVG acceptance.
+- This does not prove safe disposable-draft cleanup.
+- This does not prove phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed draft/material sync, scheduled send, public article
+  rendering, XHS/Zhihu account upload, public host acceptance, or publish success.
