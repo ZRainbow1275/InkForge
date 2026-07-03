@@ -13582,3 +13582,50 @@ const ruleFamilies = [
 - Evidence docs must state that `nextProofSteps` is collection guidance only and does not prove
   WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish
   success.
+
+## 279. Style Proof Manifest Merge Next Proof Steps - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: operators may collect proof into several redacted manifest packs. After merging, the
+  merge report must show the exact remaining proof rows for the merged pack, not only merge
+  hygiene blockers and aggregate counts.
+- This belongs only to the local `style-proof:manifest-merge` CLI. It must not open a browser,
+  read browser state, write platform content, upload, sync drafts, schedule sends, publish
+  articles, import artifacts, mark artifacts complete, or change release-gate accounting.
+- `nextProofSteps` is merged-pack runbook guidance. It is not evidence and must never change
+  `canClaimComplete` by itself.
+
+### 2. Contract
+
+- JSON output must include a sanitized `nextProofSteps` array derived from the merged pack's
+  `StyleProofExecutionRunbook.cannotClaim` rows.
+- Text output must include a `next proof steps:` section with sanitized summaries for the same
+  rows.
+- The field contract must match manifest-intake `nextProofSteps`: platform, requirement id/label,
+  gate, boundary, status, choice ids, issue ids, counts, phone/account/mutation/safety flags,
+  cannot-claim reason, next-operator action, required channels/actions/readbacks/fields,
+  forbidden fields, accepted host statuses, freshness limit, redaction boundary, success criteria,
+  and failure signals.
+- Output must not include input file paths, output paths, raw artifact refs, browser profile
+  paths, cookies, tokens, HAR references, QR payloads, account screenshots, local screenshot paths,
+  raw account-state captures, raw platform routes, draft URLs, publish URLs, or private material.
+- Empty merged draft manifests may be schema-clean at the source level but must stay
+  non-claimable when artifacts are absent.
+
+### 3. Required Checks
+
+- Add CLI regressions proving JSON shape includes `nextProofSteps`.
+- Add a merged-draft regression proving empty WeChat/Zhihu packs stay `canClaimComplete:false`,
+  `artifactCount=0`, and blocked by semantic proof issues, while exposing:
+  - WeChat phone cover-thumbnail channel/action/readback/field requirements;
+  - Zhihu public-host channel/action/host-status/field requirements.
+- Preserve existing merge behavior: clean redacted local packs can still be merge-ready/writeable
+  when merge hygiene is clean, even if the overall release remains unclaimable due to external
+  gates.
+- Run focused manifest-merge tests and focused ESLint before committing. Broaden to scripts suite,
+  export-service regressions, type-check, build, and release preflight when the slice also changes
+  shared style-catalog behavior.
+- Evidence docs must state that merged `nextProofSteps` is review guidance only and does not prove
+  WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish
+  success.

@@ -23149,3 +23149,67 @@ Scope:
   screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
   publish success.
+
+## 2026-07-03 Style Proof Manifest Merge Next Proof Steps Slice
+
+Source:
+- `style-proof:manifest-intake` now shows `nextProofSteps` for a single operator-supplied pack,
+  but `style-proof:manifest-merge` still reported only merge hygiene blockers and aggregate
+  counts after combining several packs.
+- Operators may collect phone, credentialed-channel, and public-host proof in separate files, so
+  the merged report must preserve the same next-step field guidance.
+
+Impact:
+- `npx gitnexus impact buildCliReport -r InkForge --depth 3`,
+  `npx gitnexus impact formatCliReportText -r InkForge --depth 3`, and
+  `npx gitnexus impact getMergeBlockers -r InkForge --depth 3` could not resolve script-local
+  helper symbols. The change is limited to the manifest-merge CLI wrapper, its regression tests,
+  spec, and sanitized evidence.
+
+Implementation:
+- Added sanitized `nextProofSteps` to `style-proof:manifest-merge` JSON output.
+- Added a `next proof steps:` section to merge text output.
+- Each row is derived from the merged pack's existing execution runbook cannot-claim steps and
+  includes platform, requirement, gate, boundary, status, counts, required channels/actions/
+  readbacks, required fields, forbidden fields, accepted host statuses, freshness limit,
+  redaction boundary, success criteria, failure signals, cannot-claim reason, and next operator
+  action.
+- The CLI still does not print input paths, output paths, raw artifact refs, browser profile data,
+  cookies, tokens, HAR, QR payloads, account screenshots, draft URLs, publish URLs, or private
+  material.
+
+Observed:
+- Temporary local WeChat/Zhihu draft packs outside the repository merged to
+  `status=merge-blocked`, `canClaimComplete=false`, `artifactCount=0`,
+  `blockers=semantic-issue`, and `nextProofSteps=34`.
+- The WeChat cover-thumbnail phone step surfaced required fields:
+  `artifactFingerprint`, `exactArtifact`, `coverThumbnailAccepted`, `collectedAt`,
+  `safeForCommit`.
+- The Zhihu public-host step surfaced required fields:
+  `artifactRef`, `hostStatus`, `collectedAt`, `safeForCommit`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 11 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 37 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with Vite
+  built in 39.09s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `combinedIssueCount=11`, `externalHandoffRows=15`, `safeExternalRows=0`, and
+  `actionableLocalRows=0`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-manifest-merge-next-proof-steps-20260703.txt`.
+
+Scope:
+- This slice is local merged-pack runbook reporting only. It does not prove WeChat phone preview,
+  phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

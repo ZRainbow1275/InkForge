@@ -8338,3 +8338,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: `nextProofSteps` is runbook guidance only. It does not prove phone preview, mobile
   Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Merge Next Proof Steps
+
+- Evidence file: `style-proof-manifest-merge-next-proof-steps-20260703.txt`.
+- Scope: local `style-proof:manifest-merge` reporting enhancement only.
+- The merge JSON/text report now includes sanitized `nextProofSteps` derived from the merged
+  pack's execution runbook cannot-claim rows.
+- A temporary local merge smoke with empty WeChat/Zhihu draft packs stayed non-claimable:
+  `status=merge-blocked`, `canClaimComplete=false`, `artifactCount=0`,
+  `blockers=semantic-issue`, and `nextProofSteps=34`.
+- The exposed next-step fields include the required channel/action/readback/field contract for
+  WeChat phone cover-thumbnail proof and Zhihu public-host proof, without printing raw input
+  paths, output paths, artifact refs, account material, browser profile data, tokens, HAR, QR
+  payloads, draft URLs, or publish URLs.
+- Boundary: `nextProofSteps` is merged-pack runbook guidance only. It does not prove phone
+  preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public-host acceptance, platform upload, or publish success.

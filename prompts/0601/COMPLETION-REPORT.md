@@ -11554,3 +11554,45 @@ Boundary:
   preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Manifest Merge Next Proof Steps Addendum
+
+- Added sanitized `nextProofSteps` to `pnpm -C inkforge style-proof:manifest-merge --json`.
+- Added a `next proof steps:` section to the merge text report.
+- The new rows are derived from the merged pack's existing execution runbook cannot-claim rows.
+  They expose the required channel/action/readback/field contract, forbidden fields, accepted host
+  statuses, freshness limit, redaction boundary, success criteria, failure signals,
+  cannot-claim reason, and next operator action.
+- This does not import, create, merge-claim, or mark any artifact complete. It only makes the local
+  merged-pack report harder to misuse after several operator proof packs are combined.
+- Temporary local empty WeChat/Zhihu draft packs stayed non-claimable after merge:
+  `status=merge-blocked`, `canClaimComplete=false`, `artifactCount=0`,
+  `blockers=semantic-issue`, `nextProofSteps=34`.
+- The WeChat phone cover-thumbnail next step surfaced:
+  `artifactFingerprint`, `exactArtifact`, `coverThumbnailAccepted`, `collectedAt`,
+  `safeForCommit`.
+- The Zhihu public-host next step surfaced:
+  `artifactRef`, `hostStatus`, `collectedAt`, `safeForCommit`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-manifest-merge-next-proof-steps-20260703.txt`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 11 tests;
+  focused ESLint for `scripts/style-proof-manifest-merge.ts` and its test file;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 4 files and 37 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  with 36 files and 1350 tests;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  production build with Vite built in 39.09s.
+- Release preflight remains blocked as required:
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `combinedIssueCount=11`, `externalHandoffRows=15`, `safeExternalRows=0`, and
+  `actionableLocalRows=0`.
+- Boundary: this is manifest-merge runbook reporting only. It does not prove WeChat phone preview,
+  phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

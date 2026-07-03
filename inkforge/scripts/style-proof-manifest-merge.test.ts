@@ -29,6 +29,39 @@ interface ManifestMergeIssueCount {
   count: number
 }
 
+interface ManifestMergeNextProofStep {
+  platform: string
+  requirementId: string
+  requirementLabel: string
+  gate: string
+  boundary: string
+  status: string
+  choiceIds: string[]
+  issueIds: string[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  requiredChannels: string[]
+  requiredActions: string[]
+  requiredReadbacks: string[]
+  requiredFields: string[]
+  forbiddenFields: string[]
+  acceptedHostStatuses: string[]
+  maxFreshnessDays: number | null
+  redactionBoundary: string
+  successCriteria: string[]
+  failureSignals: string[]
+}
+
 interface ManifestMergeJsonReport {
   source: string
   status: string
@@ -62,6 +95,7 @@ interface ManifestMergeJsonReport {
     semantic: ManifestMergeIssueCount[]
   }
   sources: ManifestMergeSourceSummary[]
+  nextProofSteps: ManifestMergeNextProofStep[]
 }
 
 const currentFilePath = fileURLToPath(import.meta.url)
@@ -182,6 +216,16 @@ function buildSensitiveManifest(): unknown {
   }
 }
 
+function buildDraftManifest(platform: string, choiceId: string): unknown {
+  return {
+    platform,
+    choiceId,
+    scope: 'style-choice',
+    claimedEvidence: [],
+    artifacts: [],
+  }
+}
+
 async function writeJson(path: string, value: unknown): Promise<void> {
   await writeFile(path, JSON.stringify(value), 'utf8')
 }
@@ -214,6 +258,46 @@ function isManifestMergeIssueCount(value: unknown): value is ManifestMergeIssueC
   return isRecord(value) &&
     typeof value.id === 'string' &&
     typeof value.count === 'number'
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string')
+}
+
+function isManifestMergeNextProofStep(value: unknown): value is ManifestMergeNextProofStep {
+  return isRecord(value) &&
+    typeof value.platform === 'string' &&
+    typeof value.requirementId === 'string' &&
+    typeof value.requirementLabel === 'string' &&
+    typeof value.gate === 'string' &&
+    typeof value.boundary === 'string' &&
+    typeof value.status === 'string' &&
+    isStringArray(value.choiceIds) &&
+    isStringArray(value.issueIds) &&
+    hasNumberKeys(value, [
+      'required',
+      'satisfied',
+      'missing',
+      'invalid',
+      'artifactCount',
+      'acceptedArtifactCount',
+    ]) &&
+    typeof value.mutatesPlatform === 'boolean' &&
+    typeof value.requiresExternalAccount === 'boolean' &&
+    typeof value.requiresPhone === 'boolean' &&
+    typeof value.safeToAutomate === 'boolean' &&
+    (typeof value.cannotClaimReason === 'string' || value.cannotClaimReason === null) &&
+    typeof value.nextOperatorAction === 'string' &&
+    isStringArray(value.requiredChannels) &&
+    isStringArray(value.requiredActions) &&
+    isStringArray(value.requiredReadbacks) &&
+    isStringArray(value.requiredFields) &&
+    isStringArray(value.forbiddenFields) &&
+    isStringArray(value.acceptedHostStatuses) &&
+    (typeof value.maxFreshnessDays === 'number' || value.maxFreshnessDays === null) &&
+    typeof value.redactionBoundary === 'string' &&
+    isStringArray(value.successCriteria) &&
+    isStringArray(value.failureSignals)
 }
 
 function isManifestMergeSummary(value: unknown): value is ManifestMergeJsonReport['summary'] {
@@ -256,7 +340,9 @@ function isManifestMergeJsonReport(value: unknown): value is ManifestMergeJsonRe
     Array.isArray(value.issueIds.semantic) &&
     value.issueIds.semantic.every(isManifestMergeIssueCount) &&
     Array.isArray(value.sources) &&
-    value.sources.every(isManifestMergeSourceSummary)
+    value.sources.every(isManifestMergeSourceSummary) &&
+    Array.isArray(value.nextProofSteps) &&
+    value.nextProofSteps.every(isManifestMergeNextProofStep)
 }
 
 function parseManifestMergeJson(stdout: string): ManifestMergeJsonReport {
@@ -296,6 +382,9 @@ describe('style-proof manifest merge CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('acceptedManifestCount: 2')
     expect(result.stdout).toContain('semanticIssueCount: 0')
     expect(result.stdout).toContain('canClaimComplete: false')
+    expect(result.stdout).toContain('next proof steps:')
+    expect(result.stdout).toContain('fields=')
+    expect(result.stdout).toContain('next=')
     expectNoSensitiveFragments(result.stdout)
   })
 
@@ -329,6 +418,60 @@ describe('style-proof manifest merge CLI', { timeout: 60_000 }, () => {
       acceptedManifestCount: 1,
       canClaimComplete: false,
     })
+    expect(report.nextProofSteps.length).toBeGreaterThan(0)
+    expect(report.nextProofSteps.every(row => row.status !== 'completed')).toBe(true)
+  })
+
+  it('emits runbook-level next proof fields after merging empty external draft packs', async () => {
+    const dir = await createTempDir()
+    const first = join(dir, 'wechat-draft.json')
+    const second = join(dir, 'zhihu-draft.json')
+    await writeJson(first, { manifests: [buildDraftManifest('wechat', 'wechat-card-rich')] })
+    await writeJson(second, { manifests: [buildDraftManifest('zhihu', 'zhihu-public-image-upload-checklist')] })
+
+    const result = await runManifestMergeCli(['--file', first, '--file', second, '--json'])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(result.stdout)
+
+    const report = parseManifestMergeJson(result.stdout)
+    expect(report.status).toBe('merge-blocked')
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.summary.artifactCount).toBe(0)
+    expect(report.blockers).toContain('semantic-issue')
+
+    const phoneStep = report.nextProofSteps.find(row =>
+      row.platform === 'wechat' &&
+      row.requirementId === 'cover-thumbnail-check' &&
+      row.gate === 'phone-preview'
+    )
+    expect(phoneStep).toBeDefined()
+    expect(phoneStep?.requiresPhone).toBe(true)
+    expect(phoneStep?.requiredChannels).toEqual(['phone-preview'])
+    expect(phoneStep?.requiredActions).toEqual(['cover-thumbnail-check'])
+    expect(phoneStep?.requiredReadbacks).toContain('phone')
+    expect(phoneStep?.requiredFields).toEqual(expect.arrayContaining([
+      'artifactFingerprint',
+      'exactArtifact',
+      'coverThumbnailAccepted',
+      'safeForCommit',
+    ]))
+
+    const publicHostStep = report.nextProofSteps.find(row =>
+      row.platform === 'zhihu' &&
+      row.requirementId === 'public-image-host' &&
+      row.gate === 'public-host'
+    )
+    expect(publicHostStep).toBeDefined()
+    expect(publicHostStep?.acceptedHostStatuses).toEqual(['public-https', 'platform-hosted'])
+    expect(publicHostStep?.requiredChannels).toEqual(['public-web'])
+    expect(publicHostStep?.requiredActions).toEqual(['public-image-host-check'])
+    expect(publicHostStep?.requiredFields).toEqual(expect.arrayContaining([
+      'artifactRef',
+      'hostStatus',
+      'safeForCommit',
+    ]))
   })
 
   it('writes a clean merged pack only when requested and does not print the output path', async () => {

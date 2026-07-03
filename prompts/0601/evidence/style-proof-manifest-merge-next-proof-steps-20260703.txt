@@ -1,0 +1,69 @@
+Style Proof Manifest Merge Next Proof Steps - 2026-07-03
+
+Scope:
+- Local manifest-merge report enhancement for multiple operator-supplied redacted StyleProofManifest packs.
+- No browser action, phone preview, upload, sync, scheduled send, public-host publish, or platform publish.
+- No proof artifact is created, imported, marked complete, or written unless the existing merge hygiene allows a clean --out write.
+
+Implemented:
+- style-proof:manifest-merge JSON/text output now includes nextProofSteps for the merged pack.
+- nextProofSteps are derived from the merged pack's existing execution runbook cannot-claim rows.
+
+Behavior:
+- The JSON report remains one-line sanitized output.
+- The text report now includes a "next proof steps" section with sanitized field/action/readback summaries.
+- nextProofSteps exposes platform, requirementId, requirementLabel, gate, boundary, status, counts, requiredChannels, requiredActions, requiredReadbacks, requiredFields, forbiddenFields, acceptedHostStatuses, maxFreshnessDays, redactionBoundary, successCriteria, failureSignals, cannotClaimReason, and nextOperatorAction.
+- Raw input paths, output paths, artifact references, browser profiles, cookies, tokens, HAR files, QR payloads, account screenshots, draft URLs, and publish URLs are not printed.
+
+Observed merged draft-pack smoke:
+- Temporary local draft packs outside the repository were created with:
+  - wechat / wechat-card-rich / style-choice / no artifacts
+  - zhihu / zhihu-public-image-upload-checklist / style-choice / no artifacts
+- Command:
+  pnpm --silent -C inkforge style-proof:manifest-merge --file <wechat-draft.json> --file <zhihu-draft.json> --json
+- Expected exit: 1.
+- status=merge-blocked.
+- canClaimComplete=false.
+- artifactCount=0.
+- blockers=semantic-issue.
+- nextProofSteps=34.
+- WeChat cover-thumbnail phone step requiredFields:
+  artifactFingerprint, exactArtifact, coverThumbnailAccepted, collectedAt, safeForCommit.
+- Zhihu public-host step requiredFields:
+  artifactRef, hostStatus, collectedAt, safeForCommit.
+
+Regression coverage:
+- JSON shape guard requires nextProofSteps.
+- Text output must include "next proof steps", "fields=", and "next=".
+- Clean redacted local packs can still be merge-ready while canClaimComplete remains false.
+- Empty merged draft manifests stay non-claimable and artifactCount=0.
+- WeChat cover-thumbnail step exposes phone-preview channel, cover-thumbnail-check action, phone readback, required phone fields, and next phone action.
+- Zhihu public-host step exposes public-web channel, public-image-host-check action, public HTTPS/platform-hosted statuses, required host fields, and next public-host action.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 11 tests.
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 37 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1350 tests.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge build with NODE_OPTIONS=--max-old-space-size=4096
+  PASS: Vite built in 39.09s.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  Expected exit: 1.
+  status=blocked-by-external.
+  canClaimComplete=false.
+  blockerCount=4.
+  combinedIssueCount=11.
+  externalHandoffRows=15.
+  safeExternalRows=0.
+  actionableLocalRows=0.
+
+Boundary:
+- This proves only local manifest-merge reporting for next proof requirements.
+- It does not prove WeChat phone preview, phone screenshot, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu upload, or publish success.
+- Do not treat nextProofSteps as evidence; it is a runbook summary for reviewing merged evidence packs.

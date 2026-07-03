@@ -6,10 +6,28 @@ import { dirname } from 'node:path'
 import {
   getStyleProofManifestIntakeReport,
   getStyleProofManifestJsonIntakeReport,
+  type StyleProofAction,
+  type StyleProofAcceptanceAuditStatus,
+  type StyleProofArtifactVerificationField,
+  type StyleProofChannel,
+  type StyleProofCollectionGate,
+  type StyleProofExecutionBoundary,
+  type StyleProofExecutionRunbookStep,
   type StyleProofManifest,
   type StyleProofManifestIntakeReport,
   type StyleProofManifestIntakeStatus,
+  type StyleProofHostStatus,
+  type StyleProofManifestIssueId,
+  type StyleProofReadback,
+  type StyleProofRequirementId,
 } from '../src/services/export/style-catalog.ts'
+import type { Platform } from '../src/services/export/types.ts'
+
+const STYLE_PROOF_MANIFEST_MERGE_PLATFORMS = [
+  'wechat',
+  'xiaohongshu',
+  'zhihu',
+] as const satisfies readonly Platform[]
 
 type StyleProofManifestMergeOutputMode = 'text' | 'json'
 type StyleProofManifestMergeStatus = 'merge-ready' | 'merge-blocked' | 'written'
@@ -47,6 +65,39 @@ interface StyleProofManifestMergeSourceSummary {
   canClaimComplete: boolean
 }
 
+interface StyleProofManifestMergeNextProofStep {
+  platform: Platform
+  requirementId: StyleProofRequirementId
+  requirementLabel: string
+  gate: StyleProofCollectionGate
+  boundary: StyleProofExecutionBoundary
+  status: StyleProofAcceptanceAuditStatus
+  choiceIds: readonly string[]
+  issueIds: readonly StyleProofManifestIssueId[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  requiredChannels: readonly StyleProofChannel[]
+  requiredActions: readonly StyleProofAction[]
+  requiredReadbacks: readonly StyleProofReadback[]
+  requiredFields: readonly StyleProofArtifactVerificationField[]
+  forbiddenFields: readonly StyleProofArtifactVerificationField[]
+  acceptedHostStatuses: readonly StyleProofHostStatus[]
+  maxFreshnessDays: number | null
+  redactionBoundary: string
+  successCriteria: readonly string[]
+  failureSignals: readonly string[]
+}
+
 interface StyleProofManifestMergeCliReport {
   source: 'files'
   status: StyleProofManifestMergeStatus
@@ -80,6 +131,7 @@ interface StyleProofManifestMergeCliReport {
     semantic: readonly StyleProofManifestMergeIssueCount[]
   }
   sources: readonly StyleProofManifestMergeSourceSummary[]
+  nextProofSteps: readonly StyleProofManifestMergeNextProofStep[]
 }
 
 interface StyleProofManifestMergeBuildInput {
@@ -207,6 +259,47 @@ function toSourceSummary(report: StyleProofManifestIntakeReport, index: number):
   }
 }
 
+function toNextProofStep(step: StyleProofExecutionRunbookStep): StyleProofManifestMergeNextProofStep {
+  return {
+    platform: step.platform,
+    requirementId: step.requirement.id,
+    requirementLabel: step.requirement.label,
+    gate: step.gate,
+    boundary: step.boundary,
+    status: step.status,
+    choiceIds: step.choiceIds,
+    issueIds: step.issueIds,
+    required: step.required,
+    satisfied: step.satisfied,
+    missing: step.missing,
+    invalid: step.invalid,
+    artifactCount: step.artifactCount,
+    acceptedArtifactCount: step.acceptedArtifactCount,
+    mutatesPlatform: step.mutatesPlatform,
+    requiresExternalAccount: step.requiresExternalAccount,
+    requiresPhone: step.requiresPhone,
+    safeToAutomate: step.safeToAutomate,
+    cannotClaimReason: step.cannotClaimReason,
+    nextOperatorAction: step.nextOperatorAction,
+    requiredChannels: step.requiredArtifact.requiredChannels,
+    requiredActions: step.requiredArtifact.requiredActions,
+    requiredReadbacks: step.requiredArtifact.requiredReadbacks,
+    requiredFields: step.requiredArtifact.requiredFields,
+    forbiddenFields: step.requiredArtifact.forbiddenFields ?? [],
+    acceptedHostStatuses: step.requiredArtifact.acceptedHostStatuses ?? [],
+    maxFreshnessDays: step.requiredArtifact.maxFreshnessDays ?? null,
+    redactionBoundary: step.redactionBoundary,
+    successCriteria: step.successCriteria,
+    failureSignals: step.failureSignals,
+  }
+}
+
+function toNextProofSteps(report: StyleProofManifestIntakeReport): readonly StyleProofManifestMergeNextProofStep[] {
+  return STYLE_PROOF_MANIFEST_MERGE_PLATFORMS.flatMap(platform =>
+    report.executionRunbook.platformReports[platform].cannotClaim.map(toNextProofStep),
+  )
+}
+
 function hasSourceSchemaErrors(sourceReports: readonly StyleProofManifestIntakeReport[]): boolean {
   return sourceReports.some(report => report.summary.schemaErrorCount > 0 || report.summary.rejectedManifestCount > 0)
 }
@@ -283,6 +376,7 @@ function buildCliReport(input: StyleProofManifestMergeBuildInput): StyleProofMan
       semantic: countIssueIds(input.mergedReport.packReport.issues),
     },
     sources: input.sourceReports.map((report, index) => toSourceSummary(report, index)),
+    nextProofSteps: toNextProofSteps(input.mergedReport),
   }
 }
 
@@ -297,6 +391,24 @@ function formatIssueCounts(issueCounts: readonly StyleProofManifestMergeIssueCou
 
 function formatBlockers(blockers: readonly StyleProofManifestMergeBlocker[]): string {
   return blockers.length > 0 ? blockers.join(', ') : 'none'
+}
+
+function formatListField(values: readonly string[]): string {
+  return values.length > 0 ? values.join('|') : 'none'
+}
+
+function formatNextProofSteps(rows: readonly StyleProofManifestMergeNextProofStep[]): readonly string[] {
+  if (rows.length === 0) return ['- none']
+  return rows.map(row =>
+    `- ${row.platform}/${row.requirementId}/${row.gate} ` +
+    `status=${row.status} boundary=${row.boundary} choices=${row.choiceIds.length} ` +
+    `missing=${row.missing} invalid=${row.invalid} artifacts=${row.artifactCount} ` +
+    `channels=${formatListField(row.requiredChannels)} actions=${formatListField(row.requiredActions)} ` +
+    `readbacks=${formatListField(row.requiredReadbacks)} fields=${formatListField(row.requiredFields)} ` +
+    `phone=${row.requiresPhone ? 'yes' : 'no'} account=${row.requiresExternalAccount ? 'yes' : 'no'} ` +
+    `mutates=${row.mutatesPlatform ? 'yes' : 'no'} safe=${row.safeToAutomate ? 'yes' : 'no'} ` +
+    `next=${row.nextOperatorAction}`
+  )
 }
 
 function formatCliReportText(report: StyleProofManifestMergeCliReport): string {
@@ -341,6 +453,9 @@ function formatCliReportText(report: StyleProofManifestMergeCliReport): string {
     '',
     'semantic issue ids:',
     ...formatIssueCounts(report.issueIds.semantic),
+    '',
+    'next proof steps:',
+    ...formatNextProofSteps(report.nextProofSteps),
     '',
     'boundary: sanitized local merge only; raw manifest paths, output paths, artifact references, browser profiles, cookies, tokens, HAR files, QR payloads, account screenshots, draft URLs, and publish URLs are not printed.',
   ].join('\n')
