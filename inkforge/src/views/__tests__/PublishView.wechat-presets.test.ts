@@ -39,6 +39,32 @@ describe('PublishView — WeChat preset selector coverage', () => {
     expect(PUBLISH_SOURCE).toMatch(/const\s+quickPresets\s*=\s*computed\(\(\)\s*=>\s*themePresets\s*\)/)
   })
 
+  it('loads direct publish route article ids through the real article and editor stores', () => {
+    expect(PUBLISH_SOURCE).toContain("import { useRoute, useRouter } from 'vue-router'")
+    expect(PUBLISH_SOURCE).toContain("import { useArticleStore } from '@/stores/article'")
+    expect(PUBLISH_SOURCE).toMatch(/const\s+route\s*=\s*useRoute\(\)/)
+    expect(PUBLISH_SOURCE).toMatch(/const\s+articleStore\s*=\s*useArticleStore\(\)/)
+    expect(PUBLISH_SOURCE).toMatch(/function\s+getRouteArticleId\(\):\s*string\s*\|\s*null/)
+    expect(PUBLISH_SOURCE).toMatch(/async\s+function\s+ensurePublishRouteArticleLoaded\(\)/)
+    expect(PUBLISH_SOURCE).toContain('await articleStore.loadArticles()')
+    expect(PUBLISH_SOURCE).toContain('articleStore.selectArticle(routeArticleId)')
+    expect(PUBLISH_SOURCE).toMatch(/watch\(\(\)\s*=>\s*route\.query\.id/)
+    expect(PUBLISH_SOURCE).toContain("router.push({ path: '/workstation', query: { id: routeArticleId } })")
+  })
+
+  it('keeps WeChat-safe SVG allowed in the rich-copy fallback sanitizer', () => {
+    expect(PUBLISH_SOURCE).toContain('PUBLISH_COPY_ALLOWED_TAGS')
+    expect(PUBLISH_SOURCE).toContain('PUBLISH_COPY_ALLOWED_ATTR')
+    expect(PUBLISH_SOURCE).toMatch(/'svg'/)
+    expect(PUBLISH_SOURCE).toMatch(/'path'/)
+    expect(PUBLISH_SOURCE).toMatch(/'animateTransform'/)
+    expect(PUBLISH_SOURCE).toMatch(/'data-ink-svg'/)
+    expect(PUBLISH_SOURCE).toMatch(/'viewBox'/)
+    expect(PUBLISH_SOURCE).toMatch(/ALLOWED_TAGS:\s*\[\.\.\.PUBLISH_COPY_ALLOWED_TAGS\]/)
+    expect(PUBLISH_SOURCE).toMatch(/ALLOWED_ATTR:\s*\[\.\.\.PUBLISH_COPY_ALLOWED_ATTR\]/)
+    expect(PUBLISH_SOURCE).toContain('ALLOW_DATA_ATTR: true')
+  })
+
   it('keeps all SVG flagship presets selectable from the publish center contract', () => {
     const presetIds = themePresets.map(preset => preset.id)
 

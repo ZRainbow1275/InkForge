@@ -1,0 +1,80 @@
+Publish Center Route SVG Preview - 2026-07-03
+
+Scope:
+- Local application proof for direct Publish Center routing with a real local draft.
+- WeChat preset application and SVG preview only.
+- No XHS/Zhihu publish automation.
+- No WeChat phone preview, credentialed sync, scheduled send, public rendering, or publish.
+
+Implementation under test:
+- PublishView now reads route.query.id through useRoute().
+- PublishView loads articleStore articles when the route article is not in memory.
+- PublishView selects the real route article through articleStore.selectArticle().
+- The existing editorStore watcher remains the owner of contentRepository hydration.
+- Rich-copy fallback sanitizer now preserves the existing WeChat-safe inline SVG subset instead
+  of stripping SVG when ClipboardItem is unavailable.
+
+CloakBrowser runtime verification:
+- Opened the local Vite app with CloakBrowser.
+- Created a real local blank article through Workstation File Manager:
+  New -> New blank article.
+- Filled the article body through the live editor runtime and waited for the app to report saved
+  state.
+- Navigated directly to the Publish Center route with the real article id.
+- Publish Center loaded with the expected Publish page title.
+- Header showed the article, and the page status showed CSS inlined.
+- Empty publish states were absent.
+- The real article body text was visible in the Publish Center preview.
+- The WeChat selector exposed 16 preset buttons.
+- Clicked all four SVG flagship preset buttons:
+  - terracotta flagship
+  - terracotta compatibility flagship
+  - verdigris flagship
+  - brass flagship
+- For each clicked flagship preset, the preview container confirmed:
+  - button became active;
+  - real article text was retained;
+  - data-ink-svg was present;
+  - data-ink-block was present;
+  - inline <svg> was present;
+  - width="100%" was present;
+  - viewBox was present;
+  - id="nice" wrapper was present;
+  - no <script> tag inside the preview container;
+  - no <style> tag inside the preview container.
+
+Cleanup:
+- Removed only this ephemeral proof article from local runtime storage.
+- Exact runtime cleanup removed:
+  - articles: 1
+  - contents: 1
+  - syncOutbox: 2
+- Follow-up readback confirmed:
+  - articleExists=false
+  - contentCount=0
+  - syncOutboxCount=0
+- auditLogs were intentionally not deleted.
+
+Automated verification:
+- pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 6 tests
+- pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 23 tests
+- pnpm -C inkforge exec vitest run src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 374 tests
+- pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external, canClaimComplete=false, next rows remain
+  WeChat phone-preview and WeChat external-account proof.
+
+Boundary:
+- This proves application-level route loading, all-WeChat-preset reachability, SVG flagship
+  preview rendering, and SVG-preserving rich-copy fallback configuration.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, or publish success.
+- XHS/Zhihu publish-side automation is manually deferred for this round per operator instruction.

@@ -24171,3 +24171,83 @@ Scope:
   local draft.
 - It does not prove WeChat phone preview, mobile Dark Mode, cover-thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, or publish success.
+
+## 2026-07-03 Publish Center Route SVG Preview Slice
+
+Source:
+- The operator cancelled automated Zhihu and Xiaohongshu publish-side tests for this round and
+  defined completion as application-level SVG/style availability plus WeChat application
+  readiness.
+- The previous ExportModal proof showed Workstation can apply SVG flagship styles to a real
+  draft, but direct `/publish?id=<articleId>` still depended on already-warm editor state.
+- The Publish Center rich-copy fallback sanitizer also had to preserve the same WeChat-safe SVG
+  subset used by the flagship renderer when ClipboardItem is unavailable.
+
+Impact:
+- `npx gitnexus impact "Function:inkforge/src/views/PublishView.vue:generateHtml" -r InkForge --depth 3`
+  reported LOW risk, 1 direct caller, 0 affected processes, and file-local scope.
+- `npx gitnexus impact "Function:inkforge/src/views/PublishView.vue:goBack" -r InkForge --depth 3`
+  reported LOW risk, 0 direct callers, and 0 affected processes.
+- `npx gitnexus impact "Function:inkforge/src/views/PublishView.vue:copyRichText" -r InkForge --depth 3`
+  reported LOW risk, 0 direct callers, and 0 affected processes.
+- `npx gitnexus impact "Function:inkforge/src/stores/article.ts:selectArticle" -r InkForge --depth 3`
+  reported LOW risk, 0 direct callers, and 0 affected processes.
+
+Implementation:
+- `PublishView.vue` now imports `useRoute()` and `useArticleStore()`.
+- Added route id normalization and `ensurePublishRouteArticleLoaded()`.
+- Direct Publish Center routes now:
+  - read `route.query.id`;
+  - load real articles through `articleStore.loadArticles()` when needed;
+  - select the route article through `articleStore.selectArticle()`;
+  - rely on the existing `editorStore` watcher for durable content hydration.
+- `goBack()` now preserves the route article id when returning to Workstation.
+- Added `PUBLISH_COPY_ALLOWED_TAGS` and `PUBLISH_COPY_ALLOWED_ATTR` so the execCommand
+  rich-copy fallback preserves the existing WeChat-safe SVG/SMIL subset rather than stripping
+  inline SVG.
+- Extended `PublishView.wechat-presets.test.ts` from 4 to 6 tests for route-id loading and
+  SVG-preserving fallback sanitizer contracts.
+
+Runtime verification:
+- Started the local Vite app and used CloakBrowser only.
+- Created a real local blank article through Workstation File Manager `New -> New blank article`.
+- Filled the live editor with a real body and waited for saved state.
+- Navigated directly to the Publish Center route for that real article.
+- Publish Center loaded the article, showed CSS inlined, and did not show empty publish states.
+- Publish Center exposed 16 WeChat preset buttons.
+- The four SVG flagship presets were clicked in sequence:
+  - `赤陶旗舰`
+  - `赤陶兼容旗舰`
+  - `铜绿旗舰`
+  - `黄铜旗舰`
+- Each became active and its preview container contained real article text, `data-ink-svg`,
+  `data-ink-block`, inline `<svg>`, `width="100%"`, `viewBox`, and `id="nice"`, with no
+  `<script>` or `<style>` tag inside the preview container.
+- Runtime cleanup removed only the ephemeral proof article rows from `articles`, `contents`,
+  and `syncOutbox`; audit logs were not deleted.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 6 tests.
+- `pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 23 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 374 tests.
+- `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still reports expected `blocked-by-external` with `canClaimComplete=false`; next rows remain
+  WeChat phone-preview and WeChat external-account proof, not local renderer claims.
+
+Evidence:
+- Added `prompts/0601/evidence/publish-center-route-svg-preview-20260703.txt`.
+
+Scope:
+- This proves local direct-route Publish Center loading and WeChat SVG preview readiness.
+- It does not prove WeChat phone preview, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, or publish success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

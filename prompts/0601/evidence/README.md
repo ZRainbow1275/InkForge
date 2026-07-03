@@ -8699,3 +8699,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves local application UI preview readiness only. It does not prove phone
   preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
   rendering, or publish success.
+
+## 2026-07-03 Publish Center Route SVG Preview
+
+- [x] publish-center-route-svg-preview-20260703.txt
+- Scope: local direct Publish Center route proof with a real local draft.
+- Publish Center now loads a real route article from `route.query.id` through `articleStore`
+  selection and the existing `editorStore` content hydration watcher.
+- The rich-copy fallback sanitizer now preserves the existing WeChat-safe inline SVG subset
+  instead of stripping SVG when ClipboardItem is unavailable.
+- CloakBrowser verified a real local draft created from Workstation, direct navigation to the
+  Publish Center route, 16 WeChat preset buttons, and all four SVG flagship presets active with
+  real article text, `data-ink-svg`, `data-ink-block`, inline `<svg>`, `width="100%"`,
+  `viewBox`, and no `<script>` or `<style>` tags inside the preview container.
+- Focused PublishView regression passed with 6 tests.
+- Boundary: this proves local application route loading and WeChat SVG preview readiness only.
+  It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail, credentialed sync,
+  scheduled send, public rendering, or publish success. XHS/Zhihu publish automation remains
+  manually deferred for this round.

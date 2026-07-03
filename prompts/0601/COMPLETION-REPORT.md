@@ -12219,3 +12219,57 @@ Boundary:
 - Boundary: this proves application-level selection reachability for all current WeChat export
   presets. It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, or publish success.
+
+---
+
+## 2026-07-03 Publish Center Route SVG Preview Addendum
+
+- Adjusted the current round scope according to operator instruction:
+  - automated Zhihu and Xiaohongshu publish-side tests are deferred to manual testing;
+  - this round focuses on application-level SVG/style availability and WeChat application
+    readiness.
+- Fixed the direct Publish Center route gap:
+  - `/publish?id=<articleId>` now reads `route.query.id`;
+  - it loads real articles through `articleStore.loadArticles()` when the target is not already
+    in memory;
+  - it selects the target through `articleStore.selectArticle()`;
+  - existing `editorStore` content hydration remains the only durable content loading path.
+- `goBack()` now preserves the article id when returning to Workstation.
+- Hardened the WeChat rich-copy fallback:
+  - the execCommand fallback sanitizer now preserves the existing WeChat-safe inline SVG subset;
+  - it keeps SVG geometry/text/SMIL attributes required by the flagship presets;
+  - it still does not allow generated preview/copy output to depend on `<script>` or `<style>`
+    tags.
+- Updated regression coverage:
+  - direct route article loading contract;
+  - SVG-preserving rich-copy fallback sanitizer contract;
+  - existing 16-preset and SVG flagship Markdown renderer coverage retained.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`: 1 file / 6 tests passed.
+  - `pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 23 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 374 tests passed.
+  - `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected
+    `blocked-by-external` with `canClaimComplete=false`; remaining next rows are WeChat
+    phone-preview and WeChat external-account proof.
+- CloakBrowser local runtime verification passed:
+  - created a real local draft through Workstation File Manager;
+  - wrote a real body through the live editor runtime and waited for saved state;
+  - navigated directly to the Publish Center route for that real draft;
+  - confirmed the page loaded the real article instead of the empty state;
+  - confirmed 16 WeChat preset buttons were present;
+  - clicked `赤陶旗舰`, `赤陶兼容旗舰`, `铜绿旗舰`, and `黄铜旗舰`;
+  - each preview contained real article text, `data-ink-svg`, `data-ink-block`, inline `<svg>`,
+    `width="100%"`, `viewBox`, and `id="nice"`;
+  - each preview container contained no `<script>` or `<style>` tag.
+- Runtime cleanup:
+  - removed only the ephemeral proof article rows from `articles`, `contents`, and `syncOutbox`;
+  - verified those exact runtime records were gone afterward;
+  - did not delete `auditLogs`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/publish-center-route-svg-preview-20260703.txt`.
+- Boundary: this proves local direct Publish Center route loading and WeChat SVG preview
+  readiness. It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, or publish success.

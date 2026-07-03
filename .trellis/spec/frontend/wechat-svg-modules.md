@@ -14489,3 +14489,59 @@ const ruleFamilies = [
   renderer output or source-only assertions.
 - Run the focused PublishView preset test, focused ESLint for the touched views/test, relevant
   export preset/flagship tests, type-check, and production build before committing.
+
+## 297. Publish Center Route Article Loading and SVG Copy Fallback - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: application-level WeChat readiness is incomplete if `/publish?id=<articleId>` only
+  works when `editorStore.currentContent` is already warm from Workstation state.
+- This rule applies to `src/views/PublishView.vue` and future Publish Center route-entry logic.
+- It must not replace the existing `editorStore` content hydration watcher, bypass
+  `contentRepository`, remove the Workstation ExportModal path, remove XHS/Zhihu local renderer
+  choices, or claim external platform proof.
+
+### 2. Contract
+
+- Publish Center must read `route.query.id` through `useRoute()`.
+- If a route id exists and `currentContent.articleId` is not already that id, Publish Center
+  must ensure the real article list is loaded through `articleStore.loadArticles()`.
+- Publish Center must select the route article through `articleStore.selectArticle(routeId)`.
+- The existing `editorStore` watcher remains the only owner of durable content hydration from
+  `contentRepository`; Publish Center must not duplicate repository read/write logic.
+- The Back action should preserve the route article id when returning to Workstation:
+  `/workstation?id=<articleId>`.
+- The WeChat rich-copy fallback path must preserve the existing WeChat-safe SVG subset:
+  `svg`, basic geometry/text tags, `animate`, `set`, `animateTransform`, `data-ink-svg`,
+  `data-ink-block`, `viewBox`, `width`, `height`, path geometry, paint, typography, transform,
+  and SMIL timing attributes.
+- The fallback sanitizer must still disallow script/style tags in generated preview/copy output
+  and must not add `foreignObject`, external images inside SVG, event-handler attributes, or
+  id-referenced paint server constructs.
+
+### 3. Cannot-Claim Boundary
+
+- Direct-route loading and SVG-preserving copy fallback prove local application readiness only.
+- They do not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, or publish success.
+- They do not re-enable XHS/Zhihu automated publish-side gates for this round; those remain
+  manually deferred per operator instruction.
+
+### 4. Required Checks
+
+- Run GitNexus impact on touched PublishView symbols when available.
+- Add or keep PublishView regression coverage proving:
+  - direct route id loading uses `useRoute`, `useArticleStore`, `loadArticles()`, and
+    `selectArticle()`;
+  - the fixed five-item preset slice does not return;
+  - all 16 WeChat presets still render through `markdownToWechatWithStats()` with real Markdown;
+  - SVG flagship presets still emit `data-ink-svg`, inline `<svg>`, `data-ink-block`,
+    `width="100%"`, and `viewBox`;
+  - the rich-copy fallback sanitizer keeps the WeChat-safe SVG tag/attribute subset.
+- Run CloakBrowser route smoke with a real local draft before claiming UI readiness:
+  direct `/publish?id=<realArticleId>` must load real article text, expose 16 WeChat presets,
+  and render all four SVG flagship presets without `<script>` or `<style>` tags inside the
+  preview container.
+- Run focused PublishView Vitest, focused ESLint, views regression tests, type-check,
+  production build, release-preflight smoke, diff checks, GitNexus detect, and sensitive scans
+  before committing.

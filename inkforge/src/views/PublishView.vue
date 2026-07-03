@@ -5,9 +5,10 @@
  * 支持微信公众号、小红书、知乎三平台真实渲染
  */
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DOMPurify from 'dompurify'
+import { useArticleStore } from '@/stores/article'
 import { useEditorStore } from '@/stores/editor'
 import { useThemeStore } from '@/stores/theme'
 import { marked } from 'marked'
@@ -23,6 +24,8 @@ import { logger } from '@/services/error'
 import { isLikelyHtmlContent, serializeHtmlToMarkdown } from '@/extensions/TyporaMode'
 
 const router = useRouter()
+const route = useRoute()
+const articleStore = useArticleStore()
 const editorStore = useEditorStore()
 const themeStore = useThemeStore()
 
@@ -95,6 +98,63 @@ const EMPTY_STATS: LocalStats = {
   readingTime: 0,
   codeBlockCount: 0,
   linkCount: 0,
+}
+
+const PUBLISH_COPY_ALLOWED_TAGS = [
+  'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'strong', 'em', 'u', 's', 'del', 'ins',
+  'a', 'img', 'br', 'hr',
+  'ul', 'ol', 'li',
+  'blockquote', 'pre', 'code',
+  'table', 'thead', 'tbody', 'tr', 'th', 'td',
+  'span', 'div', 'section', 'sup', 'sub', 'mark',
+  'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line',
+  'polyline', 'polygon', 'text', 'tspan', 'animate',
+  'animateTransform', 'animatetransform', 'set',
+] as const
+
+const PUBLISH_COPY_ALLOWED_ATTR = [
+  'href', 'src', 'alt', 'title', 'class', 'style',
+  'data-ink-svg', 'data-ink-block', 'data-ink-role', 'data-ink-module',
+  'xmlns', 'viewBox', 'viewbox', 'width', 'height',
+  'x', 'y', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'r', 'rx', 'ry',
+  'd', 'points', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
+  'stroke-linejoin', 'stroke-dasharray', 'opacity', 'fill-opacity',
+  'stroke-opacity', 'font-size', 'font-family', 'font-weight',
+  'letter-spacing', 'text-anchor', 'dominant-baseline', 'transform',
+  'attributeName', 'attributename', 'attributeType', 'attributetype',
+  'type', 'begin', 'dur', 'from', 'to', 'values',
+  'keyTimes', 'keytimes', 'keySplines', 'keysplines',
+  'calcMode', 'calcmode', 'repeatCount', 'repeatcount', 'restart',
+] as const
+
+function getRouteArticleId(): string | null {
+  const rawRouteArticleId = route.query.id
+  const rawArticleId = Array.isArray(rawRouteArticleId) ? rawRouteArticleId[0] : rawRouteArticleId
+
+  if (typeof rawArticleId !== 'string') return null
+
+  const routeArticleId = rawArticleId.trim()
+  return routeArticleId.length > 0 ? routeArticleId : null
+}
+
+async function ensurePublishRouteArticleLoaded() {
+  const routeArticleId = getRouteArticleId()
+  if (!routeArticleId) return
+  if (currentContent.value?.articleId === routeArticleId) return
+
+  if (!articleStore.articles.some(article => article.id === routeArticleId)) {
+    await articleStore.loadArticles()
+  }
+
+  if (!articleStore.articles.some(article => article.id === routeArticleId)) {
+    logger.warn('Publish route article not found', { articleId: routeArticleId })
+    return
+  }
+
+  if (articleStore.selectedArticleId !== routeArticleId) {
+    articleStore.selectArticle(routeArticleId)
+  }
 }
 
 function normalizePublishSource(content: string): string {
@@ -184,6 +244,10 @@ async function generateHtml() {
 }
 
 // 监听变化自动生成
+watch(() => route.query.id, () => {
+  void ensurePublishRouteArticleLoaded()
+}, { immediate: true })
+
 watch([publishSourceMarkdown, selectedPreset, exportOptions, platform, xhsPreset], generateHtml, { deep: true, immediate: true })
 
 // 复制富文本
@@ -204,16 +268,9 @@ async function copyRichText() {
     // Fallback: 使用 execCommand（防御性纵深：再次净化）
     const container = document.createElement('div')
     container.innerHTML = DOMPurify.sanitize(generatedHtml.value, {
-      ALLOWED_TAGS: [
-        'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'strong', 'em', 'u', 's', 'del', 'ins',
-        'a', 'img', 'br', 'hr',
-        'ul', 'ol', 'li',
-        'blockquote', 'pre', 'code',
-        'table', 'thead', 'tbody', 'tr', 'th', 'td',
-        'span', 'div', 'section', 'sup', 'sub', 'mark'
-      ],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style'],
+      ALLOWED_TAGS: [...PUBLISH_COPY_ALLOWED_TAGS],
+      ALLOWED_ATTR: [...PUBLISH_COPY_ALLOWED_ATTR],
+      ALLOW_DATA_ATTR: true,
     })
     container.style.position = 'fixed'
     container.style.left = '-9999px'
@@ -292,6 +349,12 @@ function showToastMessage(message: string) {
 
 // 返回
 function goBack() {
+  const routeArticleId = getRouteArticleId()
+  if (routeArticleId) {
+    router.push({ path: '/workstation', query: { id: routeArticleId } })
+    return
+  }
+
   router.push('/workstation')
 }
 
