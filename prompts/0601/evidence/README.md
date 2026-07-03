@@ -8571,3 +8571,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is release-gate guidance only. It does not prove phone preview, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
   platform upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Intake Template Misuse Guard
+
+- [x] style-proof-manifest-intake-template-misuse-20260703.txt
+- Scope: local `style-proof:manifest-intake` schema hardening only.
+- Artifact rows containing external handoff templates, draft worksheets, manifest draft guidance,
+  source rows, release-preflight guidance, or `draftOnly`/`templateOnly`/`notProof` markers now
+  receive `style-proof-manifest-intake-template-artifact`.
+- The misuse path returns `status=schema-invalid`, `canClaimComplete=false`, and exit code `2`;
+  the rejected row does not enter accepted manifests, accepted artifact count, or semantic proof
+  accounting.
+- Verification passed: focused manifest-intake Vitest with 11 tests. Broader validation is
+  recorded in the evidence file.
+- Boundary: this is local intake validation only. It does not prove phone preview, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
+  platform upload, or publish success.

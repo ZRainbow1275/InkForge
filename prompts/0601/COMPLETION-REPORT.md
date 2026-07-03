@@ -11972,3 +11972,43 @@ Boundary:
   phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Manifest Intake Template Misuse Guard Addendum
+
+- Added a schema-level manifest-intake guard for artifact rows that mistakenly paste external
+  handoff templates, nullable artifact draft worksheets, manifest-draft guidance, source rows, or
+  release-preflight guidance into `StyleProofManifest.artifacts[]`.
+- Template/guidance marker fields now trigger
+  `style-proof-manifest-intake-template-artifact` with severity `error`.
+- The rejected row does not enter `acceptedManifestCount`, does not increase accepted
+  `artifactCount`, and does not flow into semantic proof accounting.
+- CLI behavior for this misuse is `status=schema-invalid`, `canClaimComplete=false`, and exit
+  code `2`.
+- Added regression coverage using an otherwise valid PC editor paste artifact row plus
+  `draftOnly:true`, `notProof:true`, `appendOnlyAfterExternalProof:true`,
+  `keepOutOfManifestUntilCollected:true`, nullable `baseFields`, required verification field
+  guidance, accepted values, and do-not-include guidance.
+- Verification passed:
+  - `npx gitnexus impact parseStyleProofArtifactIntakeCandidate -r InkForge --depth 3`: LOW
+    risk, 1 direct caller, 0 affected processes.
+  - `npx gitnexus impact addStyleProofManifestIntakeUnknownFieldWarnings -r InkForge --depth 3`:
+    LOW risk, 2 direct callers, 0 affected processes.
+  - `npx gitnexus impact getStyleProofManifestIntakeReport -r InkForge --depth 3`: LOW risk,
+    1 direct caller, 0 affected processes.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`: 1 file / 11 tests passed.
+  - `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts scripts/style-proof-manifest-intake.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 40 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 43.45s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+    `combinedIssueCount=11`, `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-manifest-intake-template-misuse-20260703.txt`.
+- Boundary: this is local manifest-intake schema hardening only. It does not prove WeChat rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

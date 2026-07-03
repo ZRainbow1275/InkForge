@@ -1,0 +1,61 @@
+Style Proof Manifest Intake Template Misuse Guard - 2026-07-03
+
+Scope:
+- Local manifest-intake schema hardening for caller-supplied redacted StyleProofManifest JSON.
+- No browser action, no platform upload, no sync, no schedule, no publish, no artifact import.
+
+Problem:
+- External handoff and release-preflight commands intentionally output operator guidance objects.
+- Those objects can include draft/template-only fields such as draftOnly, templateOnly, notProof,
+  artifactTemplate, artifactDraftTemplate, manifestDraftTemplate, operatorWorksheet,
+  artifactGuidance, baseFields, acceptedValues, sourceRows, and command helpers.
+- If an operator pastes one of those objects into StyleProofManifest.artifacts[], intake must not
+  treat it as proof even when the row also contains otherwise valid StyleProofArtifact fields.
+
+Implemented:
+- Added a manifest-intake reserved template artifact field set.
+- Added schema error style-proof-manifest-intake-template-artifact for artifact rows containing
+  draft/template/guidance-only fields.
+- Rejected template/guidance rows before they enter accepted manifests or semantic proof
+  accounting.
+
+Regression coverage:
+- A would-be valid WeChat PC editor paste artifact row with extra draftOnly:true, notProof:true,
+  appendOnlyAfterExternalProof:true, keepOutOfManifestUntilCollected:true, nullable baseFields,
+  requiredVerificationFields, acceptedValues, and doNotInclude is rejected.
+- Expected CLI result:
+  - exitCode: 2
+  - status: schema-invalid
+  - canClaimComplete: false
+  - acceptedManifestCount: 0
+  - rejectedManifestCount: 1
+  - artifactCount: 0
+  - schema issue id: style-proof-manifest-intake-template-artifact
+  - semantic issue ids: []
+
+Verification:
+- npx gitnexus impact parseStyleProofArtifactIntakeCandidate -r InkForge --depth 3
+  PASS: LOW risk, 1 direct caller, 0 affected processes.
+- npx gitnexus impact addStyleProofManifestIntakeUnknownFieldWarnings -r InkForge --depth 3
+  PASS: LOW risk, 2 direct callers, 0 affected processes.
+- npx gitnexus impact getStyleProofManifestIntakeReport -r InkForge --depth 3
+  PASS: LOW risk, 1 direct caller, 0 affected processes.
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 11 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts scripts/style-proof-manifest-intake.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 40 tests.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 43.45s.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exitCode 1, status blocked-by-external, canClaimComplete false,
+  blockerCount 4, combinedIssueCount 11, nextRowRefs 5, uniqueNextRows 3, nextRows 3.
+
+Boundary:
+- This proves local manifest-intake schema rejection only.
+- It does not prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

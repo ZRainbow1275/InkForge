@@ -7760,6 +7760,45 @@ const STYLE_PROOF_MANIFEST_INTAKE_ARTIFACT_FIELDS = new Set<string>([
   'hostStatus',
 ])
 
+const STYLE_PROOF_MANIFEST_INTAKE_TEMPLATE_ARTIFACT_FIELDS = new Set<string>([
+  'acceptedHostStatuses',
+  'acceptedValues',
+  'appendOnlyAfterExternalProof',
+  'artifactDraftTemplate',
+  'artifactGuidance',
+  'artifactTemplate',
+  'baseFields',
+  'blankFields',
+  'canClaimComplete',
+  'doNotInclude',
+  'draftOnly',
+  'failureSignals',
+  'fillOnlyAfterExternalProof',
+  'forbiddenFields',
+  'forbiddenVerificationFields',
+  'format',
+  'intakeCommand',
+  'keepArtifactsEmptyUntilCollected',
+  'keepOutOfManifestUntilCollected',
+  'manifestDraftTemplate',
+  'manifestDraftsCommand',
+  'maxFreshnessDays',
+  'mergeCommand',
+  'notProof',
+  'operatorWorksheet',
+  'redactionBoundary',
+  'requiredActions',
+  'requiredChannels',
+  'requiredFields',
+  'requiredReadbacks',
+  'requiredVerificationFields',
+  'sourceRowIds',
+  'sourceRows',
+  'successCriteria',
+  'templateCommand',
+  'templateOnly',
+])
+
 type StyleProofArtifactBooleanField =
   | 'exactArtifact'
   | 'authenticatedSessionVerified'
@@ -7904,6 +7943,31 @@ function addStyleProofManifestIntakeUnknownFieldWarnings(
     message: `Style proof manifest intake dropped ${unknownFields.length} unsupported field(s) from ${location}.`,
     suggestion: 'Keep external evidence packs schema-minimal and submit sensitive runtime context through redacted artifact summaries only.',
     location: `${location}:${unknownFields.join(',')}`,
+  })
+}
+
+function getStyleProofManifestIntakeTemplateArtifactFields(
+  record: Record<string, unknown>,
+): readonly string[] {
+  return Object.keys(record)
+    .filter(field => STYLE_PROOF_MANIFEST_INTAKE_TEMPLATE_ARTIFACT_FIELDS.has(field))
+    .sort()
+}
+
+function addStyleProofManifestIntakeTemplateArtifactError(
+  record: Record<string, unknown>,
+  issues: QualityIssue[],
+  location: string,
+): void {
+  const templateFields = getStyleProofManifestIntakeTemplateArtifactFields(record)
+  if (templateFields.length === 0) return
+
+  addStyleProofManifestIntakeIssue(issues, {
+    id: 'style-proof-manifest-intake-template-artifact',
+    severity: 'error',
+    message: `Style proof manifest intake rejected ${location} because it contains external handoff draft/template field(s).`,
+    suggestion: 'Do not paste artifactTemplate, artifactDraftTemplate, manifestDraftTemplate, operator worksheet, guidance, or draftOnly/notProof placeholders into artifacts. Collect real external proof first, then append a minimal StyleProofArtifact row with only verified proof fields.',
+    location: `${location}:${templateFields.join(',')}`,
   })
 }
 
@@ -8099,6 +8163,7 @@ function parseStyleProofArtifactIntakeCandidate(
     issues,
     location,
   )
+  addStyleProofManifestIntakeTemplateArtifactError(input, issues, location)
 
   const id = readRequiredStyleProofStringField(input, 'id', issues, location)
   const requirementId = readRequiredStyleProofRequirementIdField(input, issues, location)

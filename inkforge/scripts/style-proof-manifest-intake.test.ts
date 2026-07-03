@@ -515,6 +515,87 @@ describe('style-proof manifest intake CLI', { timeout: 60_000 }, () => {
     })
   })
 
+  it('rejects external handoff artifact draft templates pasted as proof artifacts', async () => {
+    const templateMisuseJson = JSON.stringify({
+      manifests: [
+        {
+          platform: 'wechat',
+          choiceId: 'wechat-card-rich',
+          scope: 'style-choice',
+          claimedEvidence: ['pc-editor-paste'],
+          artifacts: [
+            {
+              id: 'mistaken-template-row',
+              requirementId: 'pc-editor-paste-event',
+              kind: 'editor-readback',
+              label: 'mistaken external handoff template paste',
+              platform: 'wechat',
+              choiceId: 'wechat-card-rich',
+              channel: 'platform-editor',
+              action: 'pc-paste',
+              readback: 'visual-and-dom',
+              artifactFingerprint: 'inkforge-template-misuse-fixture',
+              exactArtifact: true,
+              authenticatedSessionVerified: true,
+              platformEditorTargetVerified: true,
+              platformEditorSurfaceVerified: true,
+              platformEditorDomVerified: true,
+              ordinaryClipboardPasteVerified: true,
+              sameEditorTabVerified: true,
+              pasteInputEventVerified: true,
+              editorBodyMutationVerified: true,
+              mojibakeFreeVerified: true,
+              safeForCommit: true,
+              draftOnly: true,
+              notProof: true,
+              appendOnlyAfterExternalProof: true,
+              keepOutOfManifestUntilCollected: true,
+              baseFields: {
+                id: null,
+                artifactRef: null,
+                collectedAt: null,
+              },
+              requiredVerificationFields: [
+                { field: 'artifactFingerprint', value: null, required: true, forbidden: false },
+              ],
+              acceptedValues: {
+                channels: ['platform-editor'],
+                actions: ['pc-paste'],
+                readbacks: ['visual-and-dom'],
+                hostStatuses: [],
+              },
+              doNotInclude: ['browser profiles', 'cookies'],
+            },
+          ],
+        },
+      ],
+    })
+
+    await withManifestFile(templateMisuseJson, async filePath => {
+      const result = await runManifestIntakeCli(['--file', filePath, '--json'])
+
+      expect(result.exitCode).toBe(2)
+      expect(result.stderr.trim()).toBe('')
+      expectNoSensitiveFragments(result.stdout)
+
+      const report = parseManifestIntakeJson(result.stdout)
+      expect(report.status).toBe('schema-invalid')
+      expect(report.canClaimComplete).toBe(false)
+      expect(report.summary).toMatchObject({
+        inputManifestCount: 1,
+        acceptedManifestCount: 0,
+        rejectedManifestCount: 1,
+        schemaErrorCount: 1,
+        artifactCount: 0,
+      })
+      expect(report.issueIds.schema).toContainEqual({
+        id: 'style-proof-manifest-intake-template-artifact',
+        count: 1,
+      })
+      expect(report.issueIds.semantic).toEqual([])
+    })
+  })
+
   it('accepts UTF-8 BOM-prefixed JSON files produced by Windows editors', async () => {
     await withManifestFile(`\uFEFF${getRedactedFixtureManifestJson()}`, async filePath => {
       const result = await runManifestIntakeCli(['--file', filePath, '--json'])

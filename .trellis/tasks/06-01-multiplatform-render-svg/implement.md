@@ -23789,3 +23789,59 @@ Scope:
   phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Intake Template Artifact Rejection Slice
+
+Source:
+- External handoff and release-preflight outputs now expose non-proof artifact guidance, draft
+  templates, nullable artifact field worksheets, and source rows for operators.
+- Those objects are intentionally marked `draftOnly:true`, `templateOnly:true`, `notProof:true`,
+  or `appendOnlyAfterExternalProof:true`, but a caller could still paste one into a
+  `StyleProofManifest.artifacts[]` array alongside otherwise valid artifact fields.
+- Manifest intake therefore needs an explicit misuse guard so template/guidance objects cannot
+  become accepted artifacts or proof-count inputs.
+
+Impact:
+- `npx gitnexus impact parseStyleProofArtifactIntakeCandidate -r InkForge --depth 3` reported
+  LOW risk, 1 direct caller, 0 affected processes, and Export module scope.
+- `npx gitnexus impact addStyleProofManifestIntakeUnknownFieldWarnings -r InkForge --depth 3`
+  reported LOW risk, 2 direct callers, 0 affected processes, and Export module scope.
+- `npx gitnexus impact getStyleProofManifestIntakeReport -r InkForge --depth 3` reported LOW
+  risk, 1 direct caller, 0 affected processes, and Export module scope.
+
+Implementation:
+- Added a reserved draft/template artifact-field set to the manifest intake parser.
+- Artifact rows containing `draftOnly`, `templateOnly`, `notProof`, `artifactTemplate`,
+  `artifactDraftTemplate`, `manifestDraftTemplate`, `operatorWorksheet`, `artifactGuidance`,
+  `baseFields`, required/forbidden field guidance, accepted values, source rows, or template
+  command helpers now receive `style-proof-manifest-intake-template-artifact`.
+- The issue is schema-level and severity error, so the row is rejected before it can enter the
+  accepted manifest list or semantic proof accounting.
+- This does not change any real proof success condition; a real operator must still append a
+  minimal verified `StyleProofArtifact` row after external proof collection and redaction.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 11 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts scripts/style-proof-manifest-intake.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 40 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 43.45s; `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerCount=4`, `combinedIssueCount=11`, `nextRowRefs=5`, `uniqueNextRows=3`, and
+  `nextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-manifest-intake-template-misuse-20260703.txt`.
+
+Scope:
+- This is local manifest-intake schema hardening only. It does not prove WeChat ordinary rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

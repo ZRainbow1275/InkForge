@@ -14174,3 +14174,60 @@ const ruleFamilies = [
 - Add regression coverage for JSON next-row guidance and human-readable guidance.
 - Run focused release-preflight Vitest, focused ESLint, serial scripts tests, release-preflight
   smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans before committing.
+
+## 291. Style Proof Manifest Intake Template Artifact Rejection - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: external handoff output now intentionally includes `artifactTemplate`,
+  `artifactDraftTemplate`, `manifestDraftTemplate`, `sourceRows[]`, and release-preflight
+  `artifactGuidance` objects, but those objects are operator worksheets only.
+- This rule applies to `getStyleProofManifestJsonIntakeReport()` and
+  `style-proof:manifest-intake` when a caller supplies a redacted JSON proof pack.
+- It must not change accepted proof semantics, committed proof rows, release-preflight status,
+  renderer output, style availability, browser behavior, sync, upload, schedule, or publish logic.
+
+### 2. Contract
+
+- Intake must treat artifact rows as untrusted JSON, even when they contain otherwise valid
+  `StyleProofArtifact` required fields.
+- If an artifact object contains draft/template/guidance-only fields, intake must reject that
+  artifact with schema issue id `style-proof-manifest-intake-template-artifact`.
+- Template-only marker fields include, but are not limited to:
+  - `draftOnly`, `templateOnly`, `notProof`;
+  - `appendOnlyAfterExternalProof`, `keepOutOfManifestUntilCollected`,
+    `keepArtifactsEmptyUntilCollected`;
+  - `artifactTemplate`, `artifactDraftTemplate`, `manifestDraftTemplate`,
+    `operatorWorksheet`, `artifactGuidance`;
+  - `baseFields`, `requiredVerificationFields`, `forbiddenVerificationFields`,
+    `acceptedValues`, `requiredChannels`, `requiredActions`, `requiredReadbacks`,
+    `requiredFields`, `forbiddenFields`, `acceptedHostStatuses`;
+  - source/template command helpers such as `sourceRows`, `sourceRowIds`, `templateCommand`,
+    `manifestDraftsCommand`, `intakeCommand`, or `mergeCommand`.
+- A rejected template artifact must not enter the accepted manifest list, must not increase
+  accepted artifact count, and must not be passed to semantic proof accounting.
+- CLI behavior for this misuse is `status=schema-invalid`, `canClaimComplete:false`, and
+  exit code `2`.
+
+### 3. Cannot-Claim Boundary
+
+- Operator worksheets, release-preflight guidance, nullable base fields, and manifest drafts are
+  never proof.
+- They must not satisfy PC editor paste, phone preview, phone screenshot, mobile Dark Mode,
+  cover-thumbnail, credentialed-channel, public-host, upload, sync, schedule, platform preview,
+  public rendering, or publish rows.
+- Real proof may be appended only after external collection and redaction, using a minimal
+  `StyleProofArtifact` row that contains verified proof fields and no worksheet/template marker
+  fields.
+
+### 4. Required Checks
+
+- Run GitNexus impact on `parseStyleProofArtifactIntakeCandidate`,
+  `addStyleProofManifestIntakeUnknownFieldWarnings`, and `getStyleProofManifestIntakeReport`
+  before editing.
+- Add a manifest-intake CLI regression using a would-be-valid artifact row that also contains
+  draft/template fields; assert schema-invalid output, exit code 2, accepted manifest count 0,
+  artifact count 0, and `style-proof-manifest-intake-template-artifact`.
+- Run focused manifest-intake Vitest, focused ESLint, serial scripts tests, type-check, build,
+  release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
+  before committing.
