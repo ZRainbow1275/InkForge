@@ -11336,3 +11336,38 @@ Boundary:
   not prove ordinary rich paste retention, safe disposable-draft cleanup, phone preview, mobile
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Market Editor CloakBrowser Applied Depth Addendum
+
+- Used CloakBrowser only against the already open 135 SVG editor and Xiumi v5 paper editor tabs.
+- No source code, renderer output, proof manifest, WeChat paste, phone preview, sync, upload,
+  scheduled send, publish, browser-runtime files, screenshots, or account artifacts were changed.
+- Added sanitized evidence:
+  `prompts/0601/evidence/market-editor-cloakbrowser-applied-depth-20260703.txt`.
+- 135 SVG editor:
+  - Followed the intended left-panel workflow: read SVG effect taxonomy, clicked a visible
+    free-trial control, resolved the material prompt through the no-material branch, and re-read
+    the center canvas.
+  - Center canvas changed from `#app-content-canvas htmlLength=175`, `svg=0`, `img=0`,
+    `section=0`, `contenteditable=0` to `htmlLength=1795`, `svg=1`, `img=0`, `section=0`,
+    `contenteditable=0`.
+  - The resulting center SVG was only a placeholder picture icon; the reusable InkForge rule is
+    not to copy the editor DOM, but to map the effect to owned image slots, trigger/action
+    metadata, static fallbacks, and residue gates.
+- Xiumi v5:
+  - Re-read the applied SVG-gallery sample with function text for gallery switching by
+    single-step click and base typography of font size 16, line height 1.6, letter spacing 0.
+  - Current `.tn-editing-panel` readback was `hash=2779941906`, `htmlLength=602739`,
+    `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`, `svg=0`, `img=90`,
+    `contenteditable=2`.
+  - Left library thumbnails may contain inline SVG and `foreignObject`, but applied center output
+    is image-heavy authoring structure. InkForge must keep `foreignObject` banned in publishable
+    SVG and reject `tn-*`, `ng-*`, `opera-*`, hosted-material URLs, and authoring chrome.
+- Existing quality-detector coverage already guards the newly observed residue families, so this
+  slice required docs/spec/evidence synchronization rather than source behavior changes.
+- Boundary: this is market-editor learning only. It does not prove WeChat ordinary rich paste,
+  safe disposable-draft cleanup, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

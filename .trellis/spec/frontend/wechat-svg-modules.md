@@ -13381,3 +13381,52 @@ const ruleFamilies = [
 - Evidence docs must state that this is authenticated PC editor reachability and read-only DOM
   refresh only, not rich paste, phone preview, sync, scheduled send, public rendering, or publish
   success.
+
+## 275. Market Editor Applied Depth Pass - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the user explicitly required deeper live use of 135 and Xiumi from the left style/effect
+  panels into the center editor/canvas before deriving InkForge rendering rules.
+- Use CloakBrowser only for this path. Direct Playwright tooling remains out of scope for
+  platform/editor work.
+- This is market-learning evidence only. It must not mutate WeChat/XHS/Zhihu platform publish
+  state and must not create platform proof manifests by itself.
+
+### 2. Contract
+
+- A market-editor click is `applied-editor-element` only when a concrete left-panel style/effect
+  click changes the center editor/canvas digest and the after-state DOM is read.
+- 135 SVG editor applied evidence from this pass:
+  - left taxonomy included SVG effect/template, basic, image, click, carousel, slide, automatic,
+    audio/video, expand, long press, layout, public-account, hyperlink/miniprogram, and other;
+  - a visible free-trial click plus no-material prompt resolution changed the center
+    `#app-content-canvas` from `htmlLength=175`, `svg=0`, `img=0`, `section=0`,
+    `contenteditable=0` to `htmlLength=1795`, `svg=1`, `img=0`, `section=0`,
+    `contenteditable=0`;
+  - the resulting center SVG was a placeholder icon, and the useful signal was the authoring
+    shell: image slot, trigger toggle, placeholder, `data-name`, and inline style residue.
+- Xiumi v5 SVG-gallery evidence from this pass:
+  - the applied sample advertised gallery switching by single-step click, font size 16,
+    line-height 1.6, letter spacing 0, and default image;
+  - the center `.tn-editing-panel` readback was `hash=2779941906`, `htmlLength=602739`,
+    `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`, `svg=0`, `img=90`,
+    `contenteditable=2`;
+  - left thumbnails may use inline SVG and `foreignObject`, but applied center output is
+    image-heavy authoring structure and must not be copied into publishable output.
+- InkForge must map these market patterns to owned primitives: image slots, trigger/action
+  metadata, sequence manifests, static fallbacks, safe SVG subsets, and explicit residue
+  detectors. Publishable output must reject 135/Xiumi authoring chrome, hosted market material
+  URLs, `foreignObject`, `tn-*`, `ng-*`, and `opera-*` residue.
+
+### 3. Required Checks
+
+- Commit only sanitized text evidence and rule summaries. Do not commit browser-runtime files,
+  screenshots, account images, local capture paths, credential storage, request captures, auth
+  secret strings, QR payloads, or raw platform material.
+- Keep the quality-detector residue coverage aligned with observed 135/Xiumi shells. If a new
+  market DOM family is observed that is not covered by `MARKET_EDITOR_RESIDUE_RULES`, add a
+  focused detector regression before claiming the rule is guarded.
+- Evidence docs must state that market-editor learning does not prove WeChat ordinary paste,
+  phone preview, mobile SMIL/click, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

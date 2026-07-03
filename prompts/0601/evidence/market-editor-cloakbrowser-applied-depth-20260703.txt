@@ -1,0 +1,79 @@
+Market Editor CloakBrowser Applied Depth Pass - 2026-07-03
+
+Scope:
+- CloakBrowser-only live DOM study of already open market-editor tabs.
+- Platforms observed: 135 SVG editor and Xiumi v5 paper editor.
+- No WeChat paste, phone preview, sync, upload, scheduled send, publish, screenshot commit,
+  browser-runtime file commit, credential capture, HAR capture, or account artifact capture.
+
+135 SVG editor applied flow:
+- Correct workflow used:
+  1. Opened the 135 SVG editor tab.
+  2. Read the left SVG effect taxonomy and visible effect list.
+  3. Clicked a visible "free trial" control for a multi-trigger click-popup effect.
+  4. Resolved the material prompt by choosing the no-material branch.
+  5. Re-read the center canvas DOM after the applied state appeared.
+- Left taxonomy observed:
+  SVG effect, SVG template, recent, all, recommended, basic, image, click, carousel,
+  slide, automatic, audio/video, expand, long press, layout, public account,
+  hyperlink/miniprogram, and other.
+- Center canvas before click:
+  #app-content-canvas htmlLength=175, svg=0, img=0, section=0, contenteditable=0,
+  text empty.
+- Center canvas after click:
+  #app-content-canvas htmlLength=1795, svg=1, img=0, section=0, contenteditable=0,
+  text="trial multi-choice click popup custom trigger zones".
+- Center SVG summary:
+  one placeholder icon SVG, viewBox present, data-icon="picture", one path,
+  no animate/animateTransform/set.
+- Authoring residue observed in the applied shell:
+  content-background, content-inner, block active, block-inner, block-img,
+  block-img__inner, edit-placeholder, block-img__default, placeholder__help,
+  placeholder__icon, placeholder__name, edit-trigger, ant-switch, data-name, and
+  style attributes.
+- Classification:
+  applied-editor-element authoring-shell evidence only. It proves the center canvas
+  changes after a real free-trial click, but the result is a 135 editor placeholder
+  shell rather than publishable WeChat article markup.
+
+Xiumi v5 applied SVG gallery flow:
+- The left library exposed a sample titled as an SVG gallery / click color-fill image
+  game with function text indicating gallery switching by single-step click.
+- Base formatting text observed in the sample:
+  font size 16, line height 1.6, letter spacing 0, default image.
+- Current center .tn-editing-panel readback:
+  hash=2779941906, htmlLength=602739, tnComp=63, tnCell=30, tnUuid=28,
+  ngAttr=4617, operaAttr=58, svg=0, img=90, contenteditable=2.
+- The left library thumbnail contained many inline SVG nodes and foreignObject nodes.
+  The applied center editor surface rendered the resulting composition as image-heavy
+  authoring structure instead: img=90 and svg=0 in .tn-editing-panel.
+- Classification:
+  applied-editor-element authoring evidence only. It teaches structure and fallback
+  strategy, not account upload, WeChat paste, or publish success.
+
+InkForge rule implications:
+- Do not copy market-editor DOM chrome into publishable output.
+- 135 free-trial effects must map to InkForge-owned effect primitives:
+  image slot, trigger hot area, static fallback, action/sequence metadata, and
+  explicit placeholder handling.
+- Xiumi SVG-gallery effects must map to InkForge-owned image-slot manifests and
+  fallback/raster contracts. Do not retain tn-*, ng-*, opera-*, foreignObject,
+  editor-state classes, hosted market image URLs, or authoring toolbar wrappers.
+- Keep the existing no-foreignObject WeChat-safe rule. Market thumbnails may use
+  foreignObject, but InkForge publishable SVG must not.
+- Existing residue detectors cover the observed 135 and Xiumi shell families:
+  135 SVG builder canvas/shell/trigger/material-list residues and Xiumi tn/ng/opera/
+  foreignObject/hosted-material residues.
+- A center digest change alone is not enough to claim a reusable InkForge rule.
+  A reusable rule needs:
+  1. a center DOM change after a concrete click,
+  2. post-click DOM classification,
+  3. mapping to InkForge-owned primitives,
+  4. residue rejection for market-specific wrappers,
+  5. platform-proof separation from WeChat/XHS/Zhihu publish gates.
+
+Boundary:
+- This evidence does not prove WeChat PC ordinary rich paste, WeChat phone preview,
+  mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

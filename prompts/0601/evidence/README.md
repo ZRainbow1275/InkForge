@@ -8196,3 +8196,37 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-07-03 Market Editor CloakBrowser Applied Depth Pass
+
+- [x] market-editor-cloakbrowser-applied-depth-20260703.txt
+- Used CloakBrowser only against already open 135 SVG editor and Xiumi v5 paper editor tabs.
+- 135 SVG editor:
+  - Followed the concrete left-panel workflow: read SVG effect taxonomy, clicked a visible
+    "free trial" control, chose the no-material branch in the material prompt, and re-read the
+    center canvas.
+  - The center canvas changed from `#app-content-canvas htmlLength=175`, `svg=0`, `img=0`,
+    `section=0`, `contenteditable=0` to `htmlLength=1795`, `svg=1`, `img=0`, `section=0`,
+    `contenteditable=0`.
+  - The applied shell text was the trial multi-choice click-popup effect with custom trigger
+    zones. The only center SVG was a placeholder picture icon; the publishable effect was not
+    available as clean WeChat article markup.
+  - Observed authoring residue included `content-background`, `content-inner`, `block-img`,
+    `edit-placeholder`, `placeholder__help`, `placeholder__icon`, `edit-trigger`, `ant-switch`,
+    `data-name`, and inline style attributes.
+- Xiumi v5:
+  - Re-read the applied SVG-gallery sample that advertises gallery switching by single-step
+    click and base typography of font size 16, line height 1.6, letter spacing 0.
+  - Current `.tn-editing-panel` readback was `hash=2779941906`, `htmlLength=602739`,
+    `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`, `svg=0`, `img=90`,
+    `contenteditable=2`.
+  - The left library thumbnail used inline SVG and `foreignObject`, while the applied center
+    editor surface was image-heavy and authoring-wrapper-heavy.
+- Rule outcome: keep mapping market ideas into InkForge-owned image slots, trigger/action
+  metadata, static fallbacks, and residue detectors. Do not copy 135/Xiumi editor DOM, hosted
+  market material URLs, `foreignObject`, `tn-*`, `ng-*`, `opera-*`, or authoring chrome into
+  publishable output.
+- Boundary: this is market-editor learning only. It does not prove WeChat ordinary rich paste,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu account upload, or
+  publish success.

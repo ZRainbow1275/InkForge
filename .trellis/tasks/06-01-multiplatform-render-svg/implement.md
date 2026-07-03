@@ -22834,3 +22834,55 @@ Scope:
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-07-03 Market Editor CloakBrowser Applied Depth Pass Slice
+
+Source:
+- The user explicitly required deeper live use of 135 and Xiumi from visible left-panel
+  style/effect controls into the center editor/canvas before deriving reusable InkForge rules.
+- The previous market-editor recheck had one 135 account/taxonomy miss; this pass repeated the
+  intended 135 SVG editor flow and captured the applied center canvas state.
+
+Implementation:
+- Used CloakBrowser only. No direct Playwright tooling was used for the platform/editor pass.
+- Added sanitized evidence file
+  `prompts/0601/evidence/market-editor-cloakbrowser-applied-depth-20260703.txt`.
+- Updated the frontend SVG-module spec with a concrete market-applied contract:
+  center digest change plus after-state DOM readback is required before a market click counts as
+  applied evidence.
+- Updated evidence documentation and completion reporting with the observed 135/Xiumi applied
+  counts and the resulting InkForge rule mapping.
+
+Observed 135 facts:
+- Left taxonomy included SVG effect/template, basic, image, click, carousel, slide, automatic,
+  audio/video, expand, long press, layout, public account, hyperlink/miniprogram, and other.
+- A visible free-trial click plus the no-material prompt changed `#app-content-canvas` from
+  `htmlLength=175`, `svg=0`, `img=0`, `section=0`, `contenteditable=0` to `htmlLength=1795`,
+  `svg=1`, `img=0`, `section=0`, `contenteditable=0`.
+- The resulting center SVG was only a placeholder picture icon. The useful product rule is the
+  authoring-shell mapping: image slot, trigger hot area/toggle, placeholder, `data-name`, and
+  style residue must become InkForge-owned primitives, not copied DOM.
+
+Observed Xiumi facts:
+- The applied SVG-gallery sample exposed gallery switching by single-step click, font size 16,
+  line-height 1.6, letter spacing 0, and default image.
+- The center `.tn-editing-panel` readback was `hash=2779941906`, `htmlLength=602739`,
+  `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`, `svg=0`, `img=90`,
+  `contenteditable=2`.
+- Left library thumbnails may use inline SVG and `foreignObject`; applied center output was
+  image-heavy and wrapper-heavy, so InkForge must keep owned image-slot/fallback contracts and
+  reject Xiumi `tn-*`, `ng-*`, `opera-*`, `foreignObject`, and hosted-material residue.
+
+Verification:
+- No source code behavior changed in this slice.
+- Existing detector coverage was re-checked by source inspection: observed 135 shell families
+  (`edit-placeholder`, `placeholder__help`, `edit-trigger__switch`, `content-background`,
+  `content-inner`, `block-img__inner`) and Xiumi shell families (`tn-from-house-paper-cp`,
+  `tn-comp-anim-pin`, `tn-comp-style-pin`, `tn-state-active`, `foreignObject`) already have
+  focused quality-detector tests and rules.
+
+Scope:
+- This is market-learning and documentation/spec synchronization only. It does not prove WeChat
+  ordinary rich paste retention, safe disposable-draft cleanup, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
