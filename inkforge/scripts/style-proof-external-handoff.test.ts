@@ -205,6 +205,25 @@ interface ExternalHandoffTemplateRow {
   manifestDraftTemplate: ExternalHandoffManifestDraftTemplate
 }
 
+interface ExternalHandoffManifestDraftSourceRow {
+  id: string
+  platform: string
+  choiceIds: string[]
+  requirementId: string
+  requirementLabel: string
+  gate: string
+  boundary: string
+  status: string
+  blockerKinds: string[]
+  issueIds: string[]
+  freshnessIssueIds: string[]
+  cannotClaim: true
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  artifactTemplate: ExternalHandoffArtifactTemplate
+  artifactGuidance: ExternalHandoffManifestDraftTemplate['artifactGuidance']
+}
+
 interface ExternalHandoffTemplateNextRowRef {
   kind: string
   rowId: string
@@ -237,6 +256,7 @@ interface ExternalHandoffManifestDraftPack {
   filteredSummary: ExternalHandoffFilteredSummary
   recommendedNextAction: string | null
   sourceRowIds: string[]
+  sourceRows: ExternalHandoffManifestDraftSourceRow[]
   manifestCount: number
   intakeCommand: string
   mergeCommand: string
@@ -1237,6 +1257,40 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       'committed-style-proof:wechat:credentialed-channel-response:credentialed-channel:credentialed-channel',
       'committed-style-proof:zhihu:public-image-host:public-host:public-host',
     ])
+    expect(draftPack.sourceRows.map(row => row.id)).toEqual(draftPack.sourceRowIds)
+    expect(draftPack.sourceRows).toHaveLength(3)
+    const credentialedSourceRow = draftPack.sourceRows.find(
+      row => row.requirementId === 'credentialed-channel-response',
+    )
+    expect(credentialedSourceRow?.artifactGuidance.artifactDraftTemplate).toMatchObject({
+      draftOnly: true,
+      notProof: true,
+      appendOnlyAfterExternalProof: true,
+      keepOutOfManifestUntilCollected: true,
+      platform: 'wechat',
+      requirementId: 'credentialed-channel-response',
+      baseFields: {
+        platform: 'wechat',
+        requirementId: 'credentialed-channel-response',
+        channel: null,
+        action: null,
+        readback: null,
+      },
+    })
+    expect(
+      credentialedSourceRow?.artifactGuidance.artifactDraftTemplate.requiredVerificationFields,
+    ).toContainEqual({
+      field: 'externalAccountAuthenticated',
+      value: null,
+      required: true,
+      forbidden: false,
+    })
+    const publicHostSourceRow = draftPack.sourceRows.find(
+      row => row.requirementId === 'public-image-host',
+    )
+    expect(
+      publicHostSourceRow?.artifactGuidance.artifactDraftTemplate.acceptedValues.hostStatuses,
+    ).toEqual(['public-https', 'platform-hosted'])
     expect(draftPack.manifestCount).toBe(21)
     expect(draftPack.manifests).toHaveLength(21)
     expect(draftPack.intakeCommand).toBe(

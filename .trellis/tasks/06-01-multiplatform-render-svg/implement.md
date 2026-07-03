@@ -23693,3 +23693,49 @@ Scope:
   ordinary rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Draft Source Guidance Slice
+
+Source:
+- After adding row-level artifact draft templates to `--template`, the `--manifest-drafts`
+  output still emitted only `sourceRowIds[]` plus artifact-empty manifests.
+- Operators using the manifest draft pack directly could lose the row-specific artifact guidance
+  needed to fill future proof artifacts after real external collection.
+
+Impact:
+- `npx gitnexus impact buildManifestDraftPack -r InkForge --depth 3` returned target not found,
+  risk UNKNOWN, impactedCount 0. The helper is script-local and not indexed by the current
+  GitNexus graph.
+- The implementation is limited to `scripts/style-proof-external-handoff.ts`, its regression
+  test, docs/spec, and sanitized evidence.
+
+Implementation:
+- Added `sourceRows[]` to the manifest draft pack while preserving `sourceRowIds[]`.
+- Each source row carries row metadata, cannot-claim status, next operator action, committed
+  artifact template, and the row-specific artifact guidance.
+- The generated manifest list remains artifact-empty and claim-empty.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 14 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 39 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 40.10s; `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-manifest-draft-source-guidance-20260703.txt`.
+
+Scope:
+- This is local manifest-draft operator guidance only. It does not prove WeChat ordinary rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

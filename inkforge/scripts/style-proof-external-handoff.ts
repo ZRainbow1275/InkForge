@@ -150,6 +150,25 @@ interface ExternalHandoffManifestDraftTemplate {
   }
 }
 
+interface ExternalHandoffManifestDraftSourceRow {
+  id: string
+  platform: Platform
+  choiceIds: readonly string[]
+  requirementId: CommittedStyleProofExternalProofChecklistRow['requirementId']
+  requirementLabel: string
+  gate: CommittedStyleProofExternalProofChecklistRow['gate']
+  boundary: CommittedStyleProofExternalProofChecklistRow['boundary']
+  status: StyleProofAcceptanceAuditStatus
+  blockerKinds: readonly CommittedStyleProofExternalProofChecklistBlockerKind[]
+  issueIds: readonly ExternalHandoffIssueFilter[]
+  freshnessIssueIds: readonly ExternalHandoffIssueFilter[]
+  cannotClaim: true
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  artifactTemplate: ExternalHandoffArtifactTemplate
+  artifactGuidance: ExternalHandoffManifestDraftTemplate['artifactGuidance']
+}
+
 interface ExternalHandoffTemplateRow {
   id: string
   templateOnly: true
@@ -199,6 +218,7 @@ interface ExternalHandoffManifestDraftPack {
   filteredSummary: ExternalHandoffFilteredSummary
   recommendedNextAction: string | null
   sourceRowIds: readonly string[]
+  sourceRows: readonly ExternalHandoffManifestDraftSourceRow[]
   manifestCount: number
   intakeCommand: string
   mergeCommand: string
@@ -928,6 +948,29 @@ function getUniqueManifestDrafts(rows: readonly ExternalHandoffTemplateRow[]): r
   return Array.from(draftByKey.values())
 }
 
+function buildManifestDraftSourceRow(
+  row: ExternalHandoffTemplateRow,
+): ExternalHandoffManifestDraftSourceRow {
+  return {
+    id: row.id,
+    platform: row.platform,
+    choiceIds: row.choiceIds,
+    requirementId: row.requirementId,
+    requirementLabel: row.requirementLabel,
+    gate: row.gate,
+    boundary: row.boundary,
+    status: row.status,
+    blockerKinds: row.blockerKinds,
+    issueIds: row.issueIds,
+    freshnessIssueIds: row.freshnessIssueIds,
+    cannotClaim: row.cannotClaim,
+    cannotClaimReason: row.cannotClaimReason,
+    nextOperatorAction: row.nextOperatorAction,
+    artifactTemplate: row.artifactTemplate,
+    artifactGuidance: row.manifestDraftTemplate.artifactGuidance,
+  }
+}
+
 function buildManifestDraftPack(
   packet: CommittedStyleProofExternalHandoffPacket,
   filters: ExternalHandoffCliFilters,
@@ -947,6 +990,7 @@ function buildManifestDraftPack(
     filteredSummary: templatePacket.filteredSummary,
     recommendedNextAction: templatePacket.recommendedNextAction,
     sourceRowIds: templatePacket.rows.map(row => row.id),
+    sourceRows: templatePacket.rows.map(buildManifestDraftSourceRow),
     manifestCount: manifests.length,
     intakeCommand: 'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
     mergeCommand: 'pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json',

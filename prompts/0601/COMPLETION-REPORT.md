@@ -11902,3 +11902,34 @@ Boundary:
   WeChat rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Manifest Draft Source Guidance Addendum
+
+- Added `sourceRows[]` to `style-proof:external-handoff --manifest-drafts` output while
+  preserving the existing `sourceRowIds[]` field.
+- Each source row carries row metadata plus the committed artifact template and the row-specific
+  draft-only artifact guidance needed for later real external proof collection.
+- The manifest draft pack now preserves credentialed WeChat guidance such as required
+  `externalAccountAuthenticated` and forbidden `externalAccountLoginBlocked` checklist rows.
+- The Zhihu public-host source row now preserves nullable `hostStatus` guidance and accepted
+  statuses `public-https` and `platform-hosted`.
+- Generated `StyleProofManifest` drafts still contain `claimedEvidence: []` and `artifacts: []`;
+  the output remains `draftOnly:true`, `notProof:true`, and `canClaimComplete:false`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`: 1 file / 14 tests passed.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 39 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 40.10s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+    `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-manifest-draft-source-guidance-20260703.txt`.
+- Boundary: this is manifest-draft operator guidance only. It does not prove WeChat rich paste,
+  phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

@@ -14103,6 +14103,9 @@ const ruleFamilies = [
   - redaction boundary, success criteria, failure signals, and do-not-include guidance.
 - `manifestDraftTemplate.artifactGuidance.artifactDraftTemplate` must equal the operator
   worksheet artifact template for the same row.
+- `style-proof:external-handoff --manifest-drafts` must preserve existing `sourceRowIds[]` and
+  add `sourceRows[]` with row metadata plus the row-specific `artifactGuidance`, so direct
+  manifest-draft consumers do not lose the proof-field contract.
 - Generated `StyleProofManifest` drafts must still contain `artifacts: []` until real external
   proof is collected, redacted, and manually appended.
 
@@ -14124,6 +14127,7 @@ const ruleFamilies = [
 - Add regression coverage for:
   - credentialed-channel required/forbidden field checklist rows;
   - public-host accepted host-status guidance;
+  - manifest-drafts source rows preserving row-specific artifact guidance;
   - manifest draft outputs staying artifact-empty and non-claiming.
 - Run focused external-handoff Vitest, focused ESLint, serial scripts tests, release-preflight
   smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans before committing.

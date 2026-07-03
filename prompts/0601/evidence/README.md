@@ -8536,3 +8536,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is operator collection guidance only. It does not prove phone preview, mobile
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host
   acceptance, platform upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Draft Source Guidance
+
+- [x] style-proof-manifest-draft-source-guidance-20260703.txt
+- Scope: local `style-proof:external-handoff --manifest-drafts` operator guidance only.
+- Added `sourceRows[]` beside the existing `sourceRowIds[]` so a manifest draft pack preserves
+  the row-specific artifact template and artifact guidance needed to fill future proof artifacts.
+- Each source row carries platform, choice ids, requirement, gate, boundary, status, blocker
+  kinds, issue ids, cannot-claim reason, next operator action, committed artifact template, and
+  draft-only artifact guidance.
+- Generated manifest drafts still keep `claimedEvidence: []` and `artifacts: []`; the output
+  still exits blocked and never claims completion.
+- Verification passed: focused external-handoff Vitest with 14 tests, focused ESLint for the
+  external-handoff script/test, serial scripts suite with 4 files and 39 tests, `vue-tsc`,
+  production build, and expected blocked release-preflight smoke.
+- Boundary: this is manifest-draft handoff guidance only. It does not prove phone preview,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host
+  acceptance, platform upload, or publish success.
