@@ -175,6 +175,29 @@ interface ExternalHandoffTemplatePacket {
   nextRows: string[]
 }
 
+interface ExternalHandoffManifestDraftPack {
+  draftOnly: true
+  notProof: true
+  format: 'StyleProofManifestPack'
+  status: string
+  canClaimComplete: false
+  committedCanClaimComplete: boolean
+  filters: ExternalHandoffCliFilters
+  committedSummary: ExternalHandoffSummary
+  filteredSummary: ExternalHandoffFilteredSummary
+  recommendedNextAction: string | null
+  sourceRowIds: string[]
+  manifestCount: number
+  intakeCommand: string
+  mergeCommand: string
+  guidance: {
+    appendArtifactsOnlyAfterExternalProof: true
+    keepArtifactsEmptyUntilCollected: true
+    doNotInclude: string[]
+  }
+  manifests: ExternalHandoffManifestDraft[]
+}
+
 interface ExternalHandoffJsonPacket {
   canClaimComplete: boolean
   status: string
@@ -554,6 +577,31 @@ function isExternalHandoffTemplatePacket(value: unknown): value is ExternalHando
     isStringArray(value.nextRows)
 }
 
+function isExternalHandoffManifestDraftPack(value: unknown): value is ExternalHandoffManifestDraftPack {
+  return isRecord(value) &&
+    value.draftOnly === true &&
+    value.notProof === true &&
+    value.format === 'StyleProofManifestPack' &&
+    typeof value.status === 'string' &&
+    value.canClaimComplete === false &&
+    typeof value.committedCanClaimComplete === 'boolean' &&
+    isExternalHandoffCliFilters(value.filters) &&
+    isExternalHandoffSummary(value.committedSummary) &&
+    isExternalHandoffFilteredSummary(value.filteredSummary) &&
+    (typeof value.recommendedNextAction === 'string' || value.recommendedNextAction === null) &&
+    isStringArray(value.sourceRowIds) &&
+    typeof value.manifestCount === 'number' &&
+    typeof value.intakeCommand === 'string' &&
+    typeof value.mergeCommand === 'string' &&
+    isRecord(value.guidance) &&
+    value.guidance.appendArtifactsOnlyAfterExternalProof === true &&
+    value.guidance.keepArtifactsEmptyUntilCollected === true &&
+    isStringArray(value.guidance.doNotInclude) &&
+    Array.isArray(value.manifests) &&
+    value.manifests.every(isExternalHandoffManifestDraft) &&
+    value.manifestCount === value.manifests.length
+}
+
 function parseExternalHandoffJson(stdout: string): ExternalHandoffJsonPacket {
   const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
   if (!isExternalHandoffJsonPacket(parsed)) {
@@ -576,6 +624,15 @@ function parseExternalHandoffTemplateJson(stdout: string): ExternalHandoffTempla
   const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
   if (!isExternalHandoffTemplatePacket(parsed)) {
     throw new Error('style-proof external handoff template JSON shape is invalid')
+  }
+
+  return parsed
+}
+
+function parseExternalHandoffManifestDraftPack(stdout: string): ExternalHandoffManifestDraftPack {
+  const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
+  if (!isExternalHandoffManifestDraftPack(parsed)) {
+    throw new Error('style-proof external handoff manifest draft pack JSON shape is invalid')
   }
 
   return parsed
@@ -664,13 +721,15 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.exitCode).toBe(0)
     expect(result.stderr.trim()).toBe('')
     expect(result.stdout).toContain(
-      'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
+      'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
     )
     expect(result.stdout).toContain('--markdown')
     expect(result.stdout).toContain('--json')
     expect(result.stdout).toContain('--template')
     expect(result.stdout).toContain('This is not proof and contains no completed artifact rows.')
     expect(result.stdout).toContain('empty StyleProofManifest draft skeletons for intake')
+    expect(result.stdout).toContain('--manifest-drafts')
+    expect(result.stdout).toContain('redacted { manifests: [...] } draft pack')
     expect(result.stdout).toContain('--platform')
     expect(result.stdout).toContain('--kind')
     expect(result.stdout).toContain('--status')
@@ -685,17 +744,32 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
   it('rejects invalid output modes before reading or claiming proof success', async () => {
     const result = await runExternalHandoffCli(['--markdown', '--json'])
     const templateConflict = await runExternalHandoffCli(['--json', '--template'])
+    const draftPackConflict = await runExternalHandoffCli(['--template', '--manifest-drafts'])
 
     expect(result.exitCode).toBe(2)
-    expect(result.stderr).toContain('Choose only one output mode: --markdown, --json, or --template')
+    expect(result.stderr).toContain('Choose only one output mode: --markdown, --json, --template, or --manifest-drafts')
     expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(result.stdout).not.toContain('Can claim complete')
 
     expect(templateConflict.exitCode).toBe(2)
-    expect(templateConflict.stderr).toContain('Choose only one output mode: --markdown, --json, or --template')
+    expect(templateConflict.stderr).toContain('Choose only one output mode: --markdown, --json, --template, or --manifest-drafts')
     expect(templateConflict.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(templateConflict.stdout).not.toContain('Can claim complete')
-    expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}\n${templateConflict.stdout}\n${templateConflict.stderr}`)
+
+    expect(draftPackConflict.exitCode).toBe(2)
+    expect(draftPackConflict.stderr).toContain(
+      'Choose only one output mode: --markdown, --json, --template, or --manifest-drafts',
+    )
+    expect(draftPackConflict.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(draftPackConflict.stdout).not.toContain('Can claim complete')
+    expectNoSensitiveFragments([
+      result.stdout,
+      result.stderr,
+      templateConflict.stdout,
+      templateConflict.stderr,
+      draftPackConflict.stdout,
+      draftPackConflict.stderr,
+    ].join('\n'))
   })
 
   it('rejects unknown arguments before reading or claiming proof success', async () => {
@@ -972,6 +1046,106 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(semanticIssues.length).toBeGreaterThan(0)
     expect(result.stdout).not.toContain('"canClaimComplete":true')
     expect(result.stdout).not.toContain('"artifacts":[{')
+  })
+
+  it('prints a deduplicated manifest draft pack for the next external rows without creating proof', async () => {
+    const draftPackResult = await runExternalHandoffCli(['--manifest-drafts', '--next-only'])
+
+    expect(draftPackResult.exitCode).toBe(1)
+    expect(draftPackResult.stderr.trim()).toBe('')
+    expect(draftPackResult.stdout.trim()).not.toContain('\n')
+    expectNoSensitiveFragments(draftPackResult.stdout)
+
+    const draftPack = parseExternalHandoffManifestDraftPack(draftPackResult.stdout)
+    expect(draftPack).toMatchObject({
+      draftOnly: true,
+      notProof: true,
+      format: 'StyleProofManifestPack',
+      canClaimComplete: false,
+      committedCanClaimComplete: false,
+      filters: {
+        platform: null,
+        kind: null,
+        status: null,
+        issueId: null,
+        nextOnly: true,
+        freshnessOnly: false,
+      },
+    })
+    expect(draftPack.filteredSummary).toMatchObject({
+      committedExternalHandoffRows: 15,
+      filteredRows: 3,
+      filteredNextRows: 3,
+      phoneRows: 1,
+      externalAccountRows: 1,
+      publicHostRows: 1,
+      cannotClaimRows: 3,
+      freshnessIssueRows: 0,
+    })
+    expect(draftPack.sourceRowIds).toEqual([
+      'committed-style-proof:wechat:cover-thumbnail-check:phone-preview:phone-preview',
+      'committed-style-proof:wechat:credentialed-channel-response:credentialed-channel:credentialed-channel',
+      'committed-style-proof:zhihu:public-image-host:public-host:public-host',
+    ])
+    expect(draftPack.manifestCount).toBe(21)
+    expect(draftPack.manifests).toHaveLength(21)
+    expect(draftPack.intakeCommand).toBe(
+      'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
+    )
+    expect(draftPack.mergeCommand).toBe(
+      'pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json',
+    )
+    expect(draftPack.guidance).toMatchObject({
+      appendArtifactsOnlyAfterExternalProof: true,
+      keepArtifactsEmptyUntilCollected: true,
+    })
+    expect(draftPack.guidance.doNotInclude).toContain('raw account session material')
+    expect(draftPack.guidance.doNotInclude).toContain('local browser-runtime directories')
+    expect(new Set(draftPack.manifests.map(manifest =>
+      `${manifest.platform}:${manifest.scope ?? ''}:${manifest.choiceId ?? ''}`,
+    )).size).toBe(draftPack.manifestCount)
+    expect(draftPack.manifests.every(manifest => manifest.artifacts.length === 0)).toBe(true)
+    expect(draftPack.manifests.every(manifest => manifest.claimedEvidence.length === 0)).toBe(true)
+    expect(draftPack.manifests.filter(manifest => manifest.platform === 'wechat')).toHaveLength(17)
+    expect(draftPack.manifests.filter(manifest => manifest.platform === 'zhihu')).toHaveLength(4)
+    expect(draftPackResult.stdout).not.toContain('"canClaimComplete":true')
+    expect(draftPackResult.stdout).not.toContain('"artifacts":[{')
+  })
+
+  it('feeds manifest-drafts output directly into manifest-intake as an incomplete draft pack', async () => {
+    const draftPackResult = await runExternalHandoffCli(['--manifest-drafts', '--next-only'])
+    const draftPack = parseExternalHandoffManifestDraftPack(draftPackResult.stdout)
+
+    const intakeResult = await withRedactedManifestFile(
+      JSON.stringify({ manifests: draftPack.manifests }),
+      filePath => runManifestIntakeCli(['--file', filePath, '--json']),
+    )
+
+    expect(intakeResult.exitCode).toBe(1)
+    expect(intakeResult.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(intakeResult.stdout)
+
+    const report = JSON.parse(intakeResult.stdout) as unknown
+    if (!isRecord(report) || !isRecord(report.summary) || !isRecord(report.issueIds)) {
+      throw new Error('style-proof manifest intake JSON shape is invalid')
+    }
+    const schemaIssues = report.issueIds.schema
+    const semanticIssues = report.issueIds.semantic
+    if (!Array.isArray(schemaIssues) || !Array.isArray(semanticIssues)) {
+      throw new Error('style-proof manifest intake issue arrays are invalid')
+    }
+
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.status).not.toBe('schema-invalid')
+    expect(report.summary.inputManifestCount).toBe(draftPack.manifestCount)
+    expect(report.summary.acceptedManifestCount).toBe(draftPack.manifestCount)
+    expect(report.summary.schemaErrorCount).toBe(0)
+    expect(report.summary.schemaWarningCount).toBe(0)
+    expect(report.summary.artifactCount).toBe(0)
+    expect(schemaIssues).toHaveLength(0)
+    expect(semanticIssues.length).toBeGreaterThan(0)
+    expect(intakeResult.stdout).not.toContain('"canClaimComplete":true')
+    expect(intakeResult.stdout).not.toContain('"artifacts":[{')
   })
 
   it('rejects invalid filter values before reading or claiming proof success', async () => {

@@ -23030,3 +23030,60 @@ Scope:
   listed exact artifacts only. It does not prove phone preview, phone screenshot, mobile
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof External Handoff Manifest Draft Pack Slice
+
+Source:
+- The committed release gate has no remaining safe local proof rows. The next rows require phone
+  preview, credentialed channel, and public-host proof.
+- The existing external handoff template included nested empty `StyleProofManifest` drafts, but
+  operators still had to extract those drafts manually before running manifest-intake.
+
+Impact:
+- `npx gitnexus impact buildTemplatePacket -r InkForge --depth 3` and
+  `npx gitnexus impact parseArgs -r InkForge --depth 3` could not resolve script-local helper
+  symbols, matching prior style-proof CLI slices. The implementation is limited to the local
+  external-handoff CLI wrapper, its regression tests, docs, and sanitized evidence.
+
+Implementation:
+- Added `--manifest-drafts` to `pnpm -C inkforge style-proof:external-handoff`.
+- The mode composes with `--platform`, `--kind`, `--status`, `--issue`, `--freshness-only`, and
+  `--next-only`.
+- It emits one-line JSON with `draftOnly:true`, `notProof:true`,
+  `format:'StyleProofManifestPack'`, `canClaimComplete:false`, `sourceRowIds`, summaries,
+  `intakeCommand`, `mergeCommand`, guidance, and a deduplicated `manifests` array.
+- Every generated manifest keeps `claimedEvidence:[]` and `artifacts:[]`.
+- The command always exits 1 because the pack is scaffolding, not proof.
+
+Observed:
+- `pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --next-only`
+  exits 1 with `manifestCount=21`, `sourceRows=3`, `wechat=17`, `zhihu=4`, and `artifactCount=0`.
+- Feeding that generated pack into `style-proof:manifest-intake --json` exits 1 with
+  `status=ready-for-review`, `acceptedManifestCount=21`, `schemaErrorCount=0`,
+  `schemaWarningCount=0`, `artifactCount=0`, and `semanticIssueCount=30`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 13 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 35 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with Vite
+  built in 33.01s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `combinedIssueCount=11`, `externalHandoffRows=15`, `safeExternalRows=0`, and
+  `actionableLocalRows=0`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-external-handoff-manifest-draft-pack-20260703.txt`.
+
+Scope:
+- This slice is local draft-pack scaffolding only. It does not prove WeChat phone preview, phone
+  screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
+  publish success.

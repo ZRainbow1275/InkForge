@@ -13495,3 +13495,46 @@ const ruleFamilies = [
   fingerprint is documented as transport metadata.
 - The release preflight must remain blocked until phone preview, Dark Mode, cover, sync,
   scheduled send, public rendering, and publish rows are separately proven.
+## 277. Style Proof External Handoff Manifest Draft Pack - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the next committed external handoff rows can be rendered as worksheet templates, but
+  operators also need a directly intake-compatible `{ manifests: [...] }` draft pack so phone,
+  credentialed-channel, and public-host proof collection does not drift from the
+  `StyleProofManifest` schema.
+- This belongs only to the local `style-proof:external-handoff` CLI. It must not open a browser,
+  read browser state, write platform content, upload, sync drafts, schedule sends, publish
+  articles, create proof artifacts, or change release-gate accounting.
+- The output is scaffolding only. It must keep `draftOnly:true`, `notProof:true`,
+  `format:'StyleProofManifestPack'`, `canClaimComplete:false`, and empty `artifacts` arrays.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:external-handoff --manifest-drafts` prints one-line JSON for the
+  visible handoff rows.
+- `--manifest-drafts` is mutually exclusive with `--markdown`, `--json`, and `--template`.
+- The mode composes with every existing filter: `--platform`, `--kind`, `--status`, `--issue`,
+  `--freshness-only`, and `--next-only`.
+- The packet must include `sourceRowIds`, `committedSummary`, `filteredSummary`,
+  `recommendedNextAction`, `intakeCommand`, `mergeCommand`, guidance to append artifacts only
+  after external proof collection, and a deduplicated `manifests` array.
+- Every emitted manifest must keep `claimedEvidence:[]` and `artifacts:[]`; it may identify only
+  platform, choice id, scope, and optional existing draft-level fingerprint fields.
+- The command must always exit non-zero because the generated draft pack is not proof, even when
+  the JSON shape is valid.
+- Output must not include browser profile paths, cookies, tokens, HAR references, QR payloads,
+  account screenshots, local screenshot paths, raw account-state captures, raw platform routes,
+  draft URLs, publish URLs, or private material.
+
+### 3. Required Checks
+
+- Add CLI regressions proving `--manifest-drafts --next-only` emits the expected next-row source
+  ids, deduplicated manifest count, zero artifacts, and cannot-claim state.
+- Feed the emitted pack into `style-proof:manifest-intake --json`; it must have schemaErrorCount
+  0, schemaWarningCount 0, artifactCount 0, and still exit 1 with `canClaimComplete=false`.
+- Run focused external-handoff tests, focused ESLint, the serial scripts suite, export-service
+  regression, `vue-tsc`, production build, and release preflight before committing.
+- Evidence docs must state that manifest draft packs are collection scaffolding only and do not
+  prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
+  publish success.

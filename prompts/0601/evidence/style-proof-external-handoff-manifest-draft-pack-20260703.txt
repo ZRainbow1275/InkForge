@@ -1,0 +1,74 @@
+Style Proof External Handoff Manifest Draft Pack - 2026-07-03
+
+Scope:
+- Local CLI output mode for operator proof collection prep.
+- No browser action, phone preview, upload, sync, scheduled send, public-host publish, or platform publish.
+- No proof artifact is created; all emitted manifests keep artifacts empty.
+
+Implemented:
+- pnpm -C inkforge style-proof:external-handoff --manifest-drafts
+- The mode composes with existing filters: --platform, --kind, --status, --issue, --freshness-only, and --next-only.
+
+Behavior:
+- Prints one-line JSON with draftOnly=true, notProof=true, format=StyleProofManifestPack, and canClaimComplete=false.
+- Flattens visible worksheet manifest drafts into a deduplicated { manifests: [...] } pack.
+- Keeps every emitted StyleProofManifest with claimedEvidence=[] and artifacts=[].
+- Emits sourceRowIds, committedSummary, filteredSummary, intakeCommand, mergeCommand, and explicit guidance to append artifacts only after real external proof is collected.
+- Always exits non-zero because the generated pack is collection scaffolding, not evidence.
+
+Observed next-row draft pack:
+- Command:
+  pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --next-only
+- Expected exit: 1.
+- format=StyleProofManifestPack.
+- canClaimComplete=false.
+- sourceRows=3.
+- manifestCount=21.
+- wechat drafts=17.
+- zhihu drafts=4.
+- artifactCount=0.
+- source rows:
+  - committed-style-proof:wechat:cover-thumbnail-check:phone-preview:phone-preview
+  - committed-style-proof:wechat:credentialed-channel-response:credentialed-channel:credentialed-channel
+  - committed-style-proof:zhihu:public-image-host:public-host:public-host
+
+Intake verification:
+- The generated draft pack was written to a temporary local JSON file outside the repository and fed into:
+  pnpm --silent -C inkforge style-proof:manifest-intake --file <temp-draft-pack.json> --json
+- Expected exit: 1.
+- status=ready-for-review.
+- canClaimComplete=false.
+- inputManifestCount=21.
+- acceptedManifestCount=21.
+- schemaErrorCount=0.
+- schemaWarningCount=0.
+- artifactCount=0.
+- semanticIssueCount=30.
+
+Regression and release verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 13 tests.
+- pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 35 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1350 tests.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge build with NODE_OPTIONS=--max-old-space-size=4096
+  PASS: Vite built in 33.01s.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  Expected exit: 1.
+  status=blocked-by-external.
+  canClaimComplete=false.
+  blockerCount=4.
+  combinedIssueCount=11.
+  externalHandoffRows=15.
+  safeExternalRows=0.
+  actionableLocalRows=0.
+
+Boundary:
+- This proves only draft-pack shape and intake compatibility.
+- It does not prove WeChat phone preview, phone screenshot, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu upload, or publish success.
+- Do not commit filled operator artifacts unless they are redacted and pass manifest-intake/merge hygiene.

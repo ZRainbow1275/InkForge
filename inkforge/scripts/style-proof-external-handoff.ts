@@ -15,7 +15,7 @@ import {
 } from '../src/services/export/style-catalog.ts'
 import type { Platform } from '../src/services/export/types.ts'
 
-type ExternalHandoffOutputMode = 'markdown' | 'json' | 'template'
+type ExternalHandoffOutputMode = 'markdown' | 'json' | 'template' | 'manifest-drafts'
 type ExternalHandoffIssueFilter = CommittedStyleProofExternalProofChecklistRow['issueIds'][number]
 type ExternalHandoffArtifactTemplate =
   CommittedStyleProofExternalProofChecklistRow['artifactTemplate']
@@ -135,6 +135,29 @@ interface ExternalHandoffTemplatePacket {
   nextRows: readonly string[]
 }
 
+interface ExternalHandoffManifestDraftPack {
+  draftOnly: true
+  notProof: true
+  format: 'StyleProofManifestPack'
+  status: CommittedStyleProofExternalHandoffPacket['status']
+  canClaimComplete: false
+  committedCanClaimComplete: boolean
+  filters: ExternalHandoffCliFilters
+  committedSummary: CommittedStyleProofExternalHandoffPacket['summary']
+  filteredSummary: ExternalHandoffFilteredSummary
+  recommendedNextAction: string | null
+  sourceRowIds: readonly string[]
+  manifestCount: number
+  intakeCommand: string
+  mergeCommand: string
+  guidance: {
+    appendArtifactsOnlyAfterExternalProof: true
+    keepArtifactsEmptyUntilCollected: true
+    doNotInclude: readonly string[]
+  }
+  manifests: readonly StyleProofManifest[]
+}
+
 const PLATFORM_FILTERS: readonly Platform[] = ['wechat', 'xiaohongshu', 'zhihu']
 
 const KIND_FILTERS: readonly CommittedStyleProofExternalHandoffNextRowKind[] = [
@@ -160,7 +183,7 @@ const ISSUE_ID_FILTER_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 function printHelp(): void {
   console.log([
-    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]',
+    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]',
     '',
     'Prints the committed InkForge style-proof external handoff packet for',
     'operator-run phone, account, public-host, sync, scheduled-send, upload,',
@@ -176,6 +199,9 @@ function printHelp(): void {
     '  --template   Print a JSON operator worksheet for the visible rows.',
     '               This is not proof and contains no completed artifact rows.',
     '               It includes empty StyleProofManifest draft skeletons for intake.',
+    '  --manifest-drafts',
+    '               Print a redacted { manifests: [...] } draft pack for the visible rows.',
+    '               The pack contains only empty drafts and always exits non-zero.',
     '  --platform   Limit rows to one platform: wechat, xiaohongshu, zhihu.',
     '  --kind       Limit rows to one gate kind: phone-preview, external-account,',
     '               public-host, unsafe-to-automate, mutating-platform.',
@@ -244,6 +270,7 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
   let sawMarkdown = false
   let sawJson = false
   let sawTemplate = false
+  let sawManifestDrafts = false
   let platform: Platform | null = null
   let kind: CommittedStyleProofExternalHandoffNextRowKind | null = null
   let status: StyleProofAcceptanceAuditStatus | null = null
@@ -262,6 +289,9 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     } else if (arg === '--template') {
       sawTemplate = true
       outputMode = 'template'
+    } else if (arg === '--manifest-drafts') {
+      sawManifestDrafts = true
+      outputMode = 'manifest-drafts'
     } else if (arg === '--next-only') {
       nextOnly = true
     } else if (arg === '--freshness-only') {
@@ -291,9 +321,9 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     }
   }
 
-  const selectedOutputModeCount = [sawMarkdown, sawJson, sawTemplate].filter(Boolean).length
+  const selectedOutputModeCount = [sawMarkdown, sawJson, sawTemplate, sawManifestDrafts].filter(Boolean).length
   if (selectedOutputModeCount > 1) {
-    exitWithUsageError('Choose only one output mode: --markdown, --json, or --template')
+    exitWithUsageError('Choose only one output mode: --markdown, --json, --template, or --manifest-drafts')
   }
 
   return {
@@ -750,6 +780,61 @@ function buildTemplatePacket(
   }
 }
 
+function getManifestDraftKey(manifest: StyleProofManifest): string {
+  return JSON.stringify({
+    platform: manifest.platform,
+    scope: manifest.scope ?? null,
+    choiceId: manifest.choiceId ?? null,
+    artifactFingerprint: manifest.artifactFingerprint ?? null,
+    claimedEvidence: manifest.claimedEvidence,
+  })
+}
+
+function getUniqueManifestDrafts(rows: readonly ExternalHandoffTemplateRow[]): readonly StyleProofManifest[] {
+  const draftByKey = new Map<string, StyleProofManifest>()
+  for (const row of rows) {
+    for (const draft of row.manifestDraftTemplate.drafts) {
+      const key = getManifestDraftKey(draft)
+      if (!draftByKey.has(key)) {
+        draftByKey.set(key, draft)
+      }
+    }
+  }
+
+  return Array.from(draftByKey.values())
+}
+
+function buildManifestDraftPack(
+  packet: CommittedStyleProofExternalHandoffPacket,
+  filters: ExternalHandoffCliFilters,
+): ExternalHandoffManifestDraftPack {
+  const templatePacket = buildTemplatePacket(packet, filters)
+  const manifests = getUniqueManifestDrafts(templatePacket.rows)
+
+  return {
+    draftOnly: true,
+    notProof: true,
+    format: 'StyleProofManifestPack',
+    status: packet.status,
+    canClaimComplete: false,
+    committedCanClaimComplete: packet.canClaimComplete,
+    filters,
+    committedSummary: packet.summary,
+    filteredSummary: templatePacket.filteredSummary,
+    recommendedNextAction: templatePacket.recommendedNextAction,
+    sourceRowIds: templatePacket.rows.map(row => row.id),
+    manifestCount: manifests.length,
+    intakeCommand: 'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
+    mergeCommand: 'pnpm --silent -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> --json',
+    guidance: {
+      appendArtifactsOnlyAfterExternalProof: true,
+      keepArtifactsEmptyUntilCollected: true,
+      doNotInclude: TEMPLATE_DO_NOT_INCLUDE,
+    },
+    manifests,
+  }
+}
+
 function main(): void {
   const rawArgs = process.argv.slice(2)
   if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
@@ -762,6 +847,11 @@ function main(): void {
   if (outputMode === 'template') {
     console.log(JSON.stringify(buildTemplatePacket(packet, filters)))
     process.exit(packet.canClaimComplete ? 0 : 1)
+  }
+
+  if (outputMode === 'manifest-drafts') {
+    console.log(JSON.stringify(buildManifestDraftPack(packet, filters)))
+    process.exit(1)
   }
 
   if (!hasActiveFilters(filters)) {

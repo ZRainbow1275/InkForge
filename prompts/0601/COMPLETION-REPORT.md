@@ -11472,3 +11472,43 @@ Boundary:
   the exact listed artifacts. Phone preview, phone screenshot, mobile interaction, mobile Dark
   Mode, cover thumbnail, credentialed sync, scheduled send, public preview/rendering, public-host
   acceptance, and publish success remain external gates.
+
+---
+
+## 2026-07-03 Style Proof External Handoff Manifest Draft Pack Addendum
+
+- Added `--manifest-drafts` to `pnpm -C inkforge style-proof:external-handoff`.
+- The new mode is local scaffolding only: it does not open a browser, read browser state, upload,
+  sync, schedule, publish, or create proof artifacts.
+- It composes with the existing handoff filters and emits one-line JSON:
+  `draftOnly=true`, `notProof=true`, `format=StyleProofManifestPack`,
+  `canClaimComplete=false`, `sourceRowIds`, summaries, `intakeCommand`, `mergeCommand`, guidance,
+  and a deduplicated `manifests` array.
+- Every emitted manifest keeps `claimedEvidence=[]` and `artifacts=[]`; operators must append
+  artifacts only after collecting real redacted external proof.
+- `pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --next-only` now
+  exits 1 with `manifestCount=21`, `sourceRows=3`, `wechat=17`, `zhihu=4`, and `artifactCount=0`.
+- Feeding that generated draft pack into `style-proof:manifest-intake --json` exits 1 with
+  `status=ready-for-review`, `acceptedManifestCount=21`, `schemaErrorCount=0`,
+  `schemaWarningCount=0`, `artifactCount=0`, and `semanticIssueCount=30`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-external-handoff-manifest-draft-pack-20260703.txt`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 13 tests;
+  focused ESLint for `scripts/style-proof-external-handoff.ts` and its test file;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 4 files and 35 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  with 36 files and 1350 tests;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  production build with Vite built in 33.01s.
+- Release preflight remains blocked as required:
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `combinedIssueCount=11`, `externalHandoffRows=15`, `safeExternalRows=0`, and
+  `actionableLocalRows=0`.
+- Boundary: this is manifest draft-pack generation only. It does not prove WeChat phone preview,
+  phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

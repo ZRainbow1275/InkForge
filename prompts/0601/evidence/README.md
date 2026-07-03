@@ -8307,3 +8307,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   the exact listed artifacts. It does not prove phone preview, phone screenshot, mobile interaction,
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+## 2026-07-03 Style Proof External Handoff Manifest Draft Pack
+
+- Evidence file: `style-proof-external-handoff-manifest-draft-pack-20260703.txt`.
+- Scope: local `style-proof:external-handoff --manifest-drafts` output mode only.
+- The mode emits a deduplicated `StyleProofManifestPack` draft object for the visible external
+  handoff rows. It is `draftOnly`, `notProof`, `canClaimComplete=false`, and contains no artifact
+  rows.
+- The current `--next-only` draft pack contains 21 empty manifests from 3 source rows: WeChat
+  phone cover-thumbnail proof, WeChat credentialed-channel proof, and Zhihu public-host proof.
+- A temporary local intake smoke accepted all 21 draft manifests at schema level and kept the pack
+  non-claimable with `artifactCount=0`.
+- Boundary: draft packs are collection scaffolding only. They do not prove phone preview, mobile
+  Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public-host acceptance, platform upload, or publish success.
