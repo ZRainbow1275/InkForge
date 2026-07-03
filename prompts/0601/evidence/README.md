@@ -8685,3 +8685,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves local Markdown-to-WeChat renderer readiness only. It does not prove
   phone preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
   rendering, or publish success.
+
+## 2026-07-03 ExportModal Real Draft SVG Preview
+
+- [x] exportmodal-real-draft-svg-preview-20260703.txt
+- Scope: local Workstation -> ExportModal UI proof with a real local draft.
+- CloakBrowser created a real local article through Workstation File Manager, inserted a real
+  Markdown body in the ProseMirror editor, waited for `已同步`, and opened ExportModal from the
+  Workstation publish CTA.
+- ExportModal exposed 16 WeChat style cards.
+- The four SVG flagship cards all became active and rendered the real article with
+  `data-ink-svg=3`, `data-ink-block=10`, inline `<svg>`, `width="100%"`, and `viewBox`.
+- Boundary: this proves local application UI preview readiness only. It does not prove phone
+  preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
+  rendering, or publish success.

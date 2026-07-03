@@ -12206,6 +12206,16 @@ Boundary:
   `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
 - Added sanitized renderer evidence:
   `prompts/0601/evidence/publish-center-wechat-markdown-renderer-20260703.txt`.
+- Added CloakBrowser real-draft ExportModal evidence:
+  `prompts/0601/evidence/exportmodal-real-draft-svg-preview-20260703.txt`.
+- CloakBrowser real-draft ExportModal verification passed:
+  - created a real local article through Workstation `新建` -> `新建空白文章`;
+  - entered a real Markdown body in the ProseMirror editor and waited for `已同步`;
+  - opened ExportModal from the Workstation publish CTA;
+  - verified 16 WeChat style cards were available;
+  - clicked `赤陶旗舰`, `赤陶兼容旗舰`, `铜绿旗舰`, and `黄铜旗舰`;
+  - each became active and rendered the real article with `data-ink-svg=3`,
+    `data-ink-block=10`, inline `<svg>`, `width="100%"`, and `viewBox`.
 - Boundary: this proves application-level selection reachability for all current WeChat export
   presets. It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, or publish success.

@@ -1,0 +1,44 @@
+ExportModal Real Draft SVG Preview - 2026-07-03
+
+Scope:
+- Local Workstation -> ExportModal UI proof with a real local draft.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Runtime path:
+- Started the local Vite app.
+- Used CloakBrowser only.
+- Opened Workstation.
+- Expanded the File Manager panel.
+- Created a real local blank article through `新建` -> `新建空白文章`.
+- Entered a real Markdown body into the ProseMirror editor.
+- Waited for the application to show `已同步`.
+- Opened ExportModal from the Workstation publish CTA.
+
+Observed:
+- The editor reported a non-empty article body and updated article stats.
+- ExportModal opened with the real article text present.
+- ExportModal exposed 16 WeChat style cards.
+- Direct `/publish?id=...` remained empty because PublishView is currently driven by
+  editorStore.currentContent; the Workstation publish CTA correctly opens ExportModal in-place.
+
+SVG flagship verification:
+- Clicked each SVG flagship card in sequence:
+  - 赤陶旗舰
+  - 赤陶兼容旗舰
+  - 铜绿旗舰
+  - 黄铜旗舰
+- Each card became the active preset.
+- Each active flagship preview retained the real article text.
+- Each active flagship preview emitted:
+  - data-ink-svg count 3
+  - data-ink-block count 10
+  - inline <svg>
+  - width="100%"
+  - viewBox
+
+Boundary:
+- This proves local application UI preview readiness for the four SVG flagship presets on a real
+  local draft.
+- This does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or
+  publish success.

@@ -24123,9 +24123,51 @@ Verification:
 Evidence:
 - Added `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
 - Added `prompts/0601/evidence/publish-center-wechat-markdown-renderer-20260703.txt`.
+- Added `prompts/0601/evidence/exportmodal-real-draft-svg-preview-20260703.txt`.
 
 Scope:
 - This proves application-level Publish Center reachability for all current WeChat presets,
   including the SVG flagship family. It does not prove WeChat phone preview, mobile Dark Mode,
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
   success.
+
+## 2026-07-03 ExportModal Real Draft SVG Preview Slice
+
+Source:
+- After proving Publish Center selector reachability and Markdown renderer coverage, the
+  remaining local UI gap was whether the Workstation export/publish surface can apply SVG
+  flagship presets to a real local article, not just to service-level tests.
+
+Implementation / runtime action:
+- Started the local Vite app and opened Workstation with CloakBrowser.
+- Created a real local blank article through the File Manager `新建` -> `新建空白文章` UI.
+- Entered a real Markdown body into the ProseMirror editor, waited for the application to report
+  `已同步`, and opened ExportModal from the Workstation publish CTA.
+- The direct `/publish?id=...` route still showed the expected empty PublishView state because
+  PublishView is currently driven by `editorStore.currentContent`, while the Workstation CTA opens
+  ExportModal in-place.
+
+Verification:
+- CloakBrowser confirmed ExportModal opened with the real local article body present.
+- ExportModal exposed 16 `button.preset-card` WeChat style cards.
+- The four SVG flagship style cards were clicked in sequence:
+  - `赤陶旗舰`
+  - `赤陶兼容旗舰`
+  - `铜绿旗舰`
+  - `黄铜旗舰`
+- Each SVG flagship became active and its preview contained:
+  - `data-ink-svg` count 3;
+  - `data-ink-block` count 10;
+  - inline `<svg>`;
+  - `width="100%"`;
+  - `viewBox`;
+  - the real article text.
+
+Evidence:
+- Added `prompts/0601/evidence/exportmodal-real-draft-svg-preview-20260703.txt`.
+
+Scope:
+- This proves local Workstation -> ExportModal UI application of SVG flagship presets to a real
+  local draft.
+- It does not prove WeChat phone preview, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, or publish success.
