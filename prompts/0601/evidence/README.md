@@ -8859,3 +8859,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   only. It does not prove WeChat paste, phone preview, credentialed sync, scheduled send, public
   rendering, or publish success. Xiaohongshu and Zhihu publish-side tests are manually deferred to
   the user for this round.
+
+## 2026-07-04 ExportModal WeChat SVG Application Slots
+
+- [x] exportmodal-wechat-svg-slots-20260704.txt
+- Scope: application UI exposure for all project-owned SVG modules under the WeChat export panel.
+- Added an opt-in `SVG 高级排版模块` control to ExportModal with five semantic slots:
+  `cover`, `heading`, `divider`, `blockquote`, and `showcase`.
+- The `showcase` slot exposes all 27 registered `SVG_MODULES` entries in registry order, giving
+  the app an all-module application path without copying 135/Xiumi source markup.
+- Slot selections write through to `ExportOptions.enableSvgModules` and
+  `ExportOptions.svgInjectionPlan`, then flow into `markdownToWechatWithStats()`.
+- Verification passed: focused SVG application + ExportModal source-contract + WeChat option +
+  release-preflight Vitest with 4 files / 15 tests, focused ESLint, `vue-tsc`, production build,
+  and application-preflight JSON smoke with 5 app slots, 27 showcase modules, 0 slot failures, and
+  empty slot issues.
+- CloakBrowser visual/DOM check confirmed the ExportModal section, default-off summary, five
+  semantic slots, and the 27-option all-module trial slot without recording browser profile,
+  account, credential, network-capture, or image artifacts.
+- Boundary: this proves local application-level SVG/style selection and WeChat-safe export
+  readiness only. It does not prove WeChat paste, phone preview, credentialed sync, scheduled send,
+  public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests are manually
+  deferred to the user for this round.

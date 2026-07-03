@@ -14910,3 +14910,94 @@ const ruleFamilies = [
 - Run focused WeChat option tests, release-preflight tests, related export/SVG regression tests,
   focused ESLint, type-check, build, application preflight smoke, GitNexus detect, diff checks, and
   sensitive scans before committing this class of change.
+
+## 305. ExportModal WeChat SVG Application Slots - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: service-level SVG option injection is insufficient for the narrowed round target if the
+  application UI cannot let an operator pick and apply the owned SVG rendering/style modules.
+- This rule applies to:
+  - `src/components/export/ExportModal.vue`;
+  - `src/services/export/wechat-svg-application.ts`;
+  - `scripts/style-proof-release-preflight.ts`;
+  - UI/source-contract tests that verify the ExportModal binding.
+- This rule does not add Xiaohongshu/Zhihu publish automation. Per the current acceptance update,
+  those publish-side checks are manually owned by the operator and must not block the local
+  application gate.
+
+### 2. Application UI Contract
+
+- The WeChat export panel must expose an opt-in `SVG 高级排版模块` control.
+- Default behavior must remain unchanged:
+  - the toggle is off by default;
+  - disabled state must not inject SVG modules;
+  - existing style presets and non-SVG export options must keep their previous behavior.
+- When the toggle is enabled, the UI must write through the existing `ExportOptions` contract:
+  - `enableSvgModules: true`;
+  - `svgInjectionPlan` normalized through the application slot service.
+- The application slot service must expose the current semantic slots:
+  - `cover`;
+  - `heading`;
+  - `divider`;
+  - `blockquote`;
+  - `showcase`.
+- The `showcase` slot is the all-module trial path. It must contain every current `SVG_MODULES`
+  entry in registry order, so the application can apply any owned SVG module without copying
+  market-editor markup.
+
+### 3. WeChat Output Contract
+
+- Slot selections must flow into the existing WeChat export path through
+  `markdownToWechatWithStats(props.content, preset, exportOptions.value)`.
+- Every module selected through the all-module slot must still produce WeChat-safe output with:
+  - `data-ink-svg="<module.id>"`;
+  - inline `<svg>`;
+  - `viewBox`;
+  - `width="100%"`;
+  - zero `checkWechatSafe()` violations.
+- Do not copy 135/Xiumi source HTML, vendor classes, account artifacts, hosted material URLs, or
+  browser profile data into application modules. Market learning remains taxonomy/input for
+  InkForge-owned SVG and style rules only.
+
+### 4. Application Preflight Contract
+
+- `style-proof:release-preflight --scope=application --json` must include:
+  - `wechatApplicationSvgSlotCount`;
+  - `wechatApplicationSvgShowcaseModuleCount`;
+  - `wechatApplicationSvgSlotFailureCount`;
+  - `wechatApplicationSlotIssues`.
+- `canClaimApplicationReady` may be true only when:
+  - all required slot ids are present;
+  - no slot has an empty module list;
+  - the `showcase` slot exactly matches the live `SVG_MODULES` registry;
+  - the existing module, option, choice, and local-actionability checks are also green.
+
+### 5. Cannot-Claim Boundary
+
+- Passing this rule proves only local application-level SVG/style selection and WeChat-safe export
+  readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, public-host acceptance, or
+  publish success. Those publish-side tests are manually deferred to the user for this round.
+- The strict default release preflight must remain blocked while external WeChat proof gates remain
+  missing.
+
+### 6. Required Checks
+
+- Keep focused tests proving:
+  - ExportModal contains the SVG toggle, slot grid, slot-change handler, and export binding;
+  - `WECHAT_SVG_APPLICATION_SLOTS` contains the five semantic slots;
+  - the `showcase` slot contains all 27 current `SVG_MODULES`;
+  - every registered module can be applied through the app showcase path and remains WeChat-safe.
+- Keep release-preflight tests proving:
+  - slot counts are included in JSON/text output;
+  - `wechatApplicationSvgSlotCount=5`;
+  - `wechatApplicationSvgShowcaseModuleCount` equals the current registry count;
+  - `wechatApplicationSvgSlotFailureCount=0`;
+  - `wechatApplicationSlotIssues=[]`.
+- Run focused SVG application tests, ExportModal source-contract tests, WeChat option tests,
+  release-preflight tests, focused ESLint, type-check, build, application preflight smoke,
+  GitNexus detect, diff checks, and sensitive scans before committing this class of change.

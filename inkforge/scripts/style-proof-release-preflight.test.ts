@@ -120,6 +120,9 @@ interface ApplicationPreflightJsonReport {
     svgFamilyCount: number
     personaCount: number
     renderedModulePersonaPairs: number
+    wechatApplicationSvgSlotCount: number
+    wechatApplicationSvgShowcaseModuleCount: number
+    wechatApplicationSvgSlotFailureCount: number
     wechatOptionInjectedModuleCount: number
     wechatOptionInjectionFailureCount: number
     wechatSafeViolationCount: number
@@ -139,6 +142,10 @@ interface ApplicationPreflightJsonReport {
     moduleId: string
     family: string
     persona: string
+    issue: string
+  }>
+  wechatApplicationSlotIssues: Array<{
+    slotId: string
     issue: string
   }>
   wechatOptionIssues: Array<{
@@ -397,6 +404,9 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
       'svgFamilyCount',
       'personaCount',
       'renderedModulePersonaPairs',
+      'wechatApplicationSvgSlotCount',
+      'wechatApplicationSvgShowcaseModuleCount',
+      'wechatApplicationSvgSlotFailureCount',
       'wechatOptionInjectedModuleCount',
       'wechatOptionInjectionFailureCount',
       'wechatSafeViolationCount',
@@ -413,6 +423,7 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
       'nextExternalRows',
     ]) &&
     isStringIssueArray(value.moduleIssues) &&
+    isStringIssueArray(value.wechatApplicationSlotIssues) &&
     isStringIssueArray(value.wechatOptionIssues) &&
     isStringIssueArray(value.choiceIssues) &&
     isRecord(value.externalProof) &&
@@ -601,6 +612,9 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       svgFamilyCount: 7,
       personaCount: 4,
       renderedModulePersonaPairs: 108,
+      wechatApplicationSvgSlotCount: 5,
+      wechatApplicationSvgShowcaseModuleCount: 27,
+      wechatApplicationSvgSlotFailureCount: 0,
       wechatOptionInjectedModuleCount: 27,
       wechatOptionInjectionFailureCount: 0,
       wechatSafeViolationCount: 0,
@@ -616,6 +630,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       nextExternalRows: 2,
     })
     expect(report.moduleIssues).toEqual([])
+    expect(report.wechatApplicationSlotIssues).toEqual([])
     expect(report.wechatOptionIssues).toEqual([])
     expect(report.choiceIssues).toEqual([])
     expect(report.externalProof).toMatchObject({
@@ -667,8 +682,12 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('applicationReady: true')
     expect(result.stdout).toContain('canClaimReleaseComplete: false')
     expect(result.stdout).toContain('renderedModulePersonaPairs: 108')
+    expect(result.stdout).toContain('wechatApplicationSvgSlotCount: 5')
+    expect(result.stdout).toContain('wechatApplicationSvgShowcaseModuleCount: 27')
+    expect(result.stdout).toContain('wechatApplicationSvgSlotFailureCount: 0')
     expect(result.stdout).toContain('wechatOptionInjectedModuleCount: 27')
     expect(result.stdout).toContain('wechatOptionInjectionFailureCount: 0')
+    expect(result.stdout).toContain('- wechatApplicationSlotIssues: 0')
     expect(result.stdout).toContain('usableButUnselectableWechatChoices: 0')
     expect(result.stdout).toContain('actionableLocalRows: 0')
     expect(result.stdout).toContain('external proof boundary (not proof):')

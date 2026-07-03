@@ -58,6 +58,18 @@ export type {
 } from './types'
 
 export type {
+  SvgInjectionPlan,
+  SvgModuleFamily,
+  SvgModuleSpec,
+} from './svg-modules'
+
+export {
+  SVG_MODULES,
+  getSvgModule,
+  getSvgModulesByFamily,
+} from './svg-modules'
+
+export type {
   PlatformStyleChoice,
   StyleArtifactType,
   StyleChoiceApplication,
@@ -261,6 +273,19 @@ export {
   applyWechatOptionSvgModules,
   hasWechatSvgInjectionPlan,
 } from './wechat-svg-options'
+
+export type {
+  WechatSvgApplicationSlot,
+  WechatSvgApplicationSlotId,
+} from './wechat-svg-application'
+
+export {
+  createDefaultWechatSvgInjectionPlan,
+  getWechatSvgApplicationSlotModuleId,
+  normalizeWechatSvgApplicationPlan,
+  setWechatSvgApplicationSlot,
+  WECHAT_SVG_APPLICATION_SLOTS,
+} from './wechat-svg-application'
 
 export {
   PUBLISH_COPY_ALLOWED_ATTR,

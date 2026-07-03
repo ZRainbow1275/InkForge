@@ -24699,3 +24699,72 @@ Scope:
   preview, or publish success.
 - Per the 2026-07-04 acceptance update, XHS/Zhihu publish-side tests remain manually owned by the
   user for this round and are not claimed by this artifact.
+
+## 2026-07-04 ExportModal WeChat SVG Application Slots Slice
+
+Source:
+- The current round target was narrowed to application-level SVG/style availability and
+  WeChat-safe local export readiness. Xiaohongshu and Zhihu publish-side tests are canceled from
+  automation for this round and will be handled manually by the user.
+- The previous WeChat option slice proved the export service could consume `enableSvgModules` and
+  `svgInjectionPlan`, but the app UI still needed a direct operator-facing way to apply all owned
+  SVG modules.
+
+Impact:
+- `npx gitnexus impact "SVG_MODULES" -r InkForge --depth 3` reported LOW risk with 0 affected
+  processes.
+- `npx gitnexus impact "ExportModal" -r InkForge --depth 3` returned target-not-found; focused
+  ExportModal source-contract tests, release-preflight tests, type-check, build, and GitNexus
+  detect compensate for the UI/source path.
+
+Implementation:
+- Added `src/services/export/wechat-svg-application.ts` as the app-facing SVG slot service.
+- Re-exported the service and SVG module registry helpers from `src/services/export/index.ts`.
+- Added five semantic WeChat SVG application slots:
+  - `cover`;
+  - `heading`;
+  - `divider`;
+  - `blockquote`;
+  - `showcase`.
+- The `showcase` slot exposes every current `SVG_MODULES` entry in registry order, so the app can
+  apply all 27 owned SVG modules without copying market-editor payloads.
+- Updated `ExportModal.vue` with an opt-in `SVG 高级排版模块` toggle, slot selectors, current
+  coverage summary, and write-through to `ExportOptions.enableSvgModules` plus
+  `ExportOptions.svgInjectionPlan`.
+- Preserved default output: SVG application slots stay disabled unless the user explicitly enables
+  the toggle.
+- Extended `style-proof:release-preflight --scope=application` with:
+  - `wechatApplicationSvgSlotCount`;
+  - `wechatApplicationSvgShowcaseModuleCount`;
+  - `wechatApplicationSvgSlotFailureCount`;
+  - `wechatApplicationSlotIssues`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/wechat-svg-application.test.ts src/components/export/ExportModal.svg-options.test.ts src/services/export/wechat-svg-options.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 15 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with `status=application-ready`, `wechatApplicationSvgSlotCount=5`,
+  `wechatApplicationSvgShowcaseModuleCount=27`, `wechatApplicationSvgSlotFailureCount=0`,
+  `wechatApplicationSlotIssues=[]`, `wechatOptionInjectedModuleCount=27`, and
+  `wechatOptionInjectionFailureCount=0`.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/components/export/ExportModal.svg-options.test.ts src/services/export/wechat-svg-application.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.ts src/services/export/wechat-svg-options.test.ts src/services/export/index.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- CloakBrowser visual/DOM check against the local Vite app confirmed that ExportModal exposes the
+  `微信公众号 SVG 高级排版模块` section, default-off summary, five semantic slots, and a 27-option
+  all-module trial slot, with no console errors in the snapshot. The evidence records sanitized
+  observations only and omits local browser/account artifacts and image artifact paths.
+
+Evidence:
+- Added `prompts/0601/evidence/exportmodal-wechat-svg-slots-20260704.txt`.
+
+Scope:
+- This proves local application-level SVG slot selection, all-module SVG application coverage, and
+  WeChat-safe export readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for this round and
+  are not claimed by this artifact.

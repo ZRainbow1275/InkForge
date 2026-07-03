@@ -20,6 +20,11 @@ import {
   getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
+  getWechatSvgApplicationSlotModuleId,
+  normalizeWechatSvgApplicationPlan,
+  setWechatSvgApplicationSlot,
+  SVG_MODULES,
+  WECHAT_SVG_APPLICATION_SLOTS,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
@@ -38,7 +43,8 @@ import type {
   StyleMarketCapability, StyleMarketCapabilityFamily, StyleMarketCapabilityStatus,
   StyleMarketTriggerMode, StyleMotionLevel, StyleProofAcceptanceAuditStatus,
   StyleProofAcceptanceRequirementAudit, StyleProofCollectionGate, StyleProofCollectionStep,
-  StyleProofExecutionRunbookStep, StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength
+  StyleProofExecutionRunbookStep, StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength,
+  SvgModuleFamily, SvgInjectionPlan, WechatSvgApplicationSlotId
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
@@ -1165,6 +1171,72 @@ const exportOptions = ref<ExportOptions>({
   fontSize: normalizeExportFontSize(defaultWechatPreset.fontSize),
 })
 
+function svgModuleFamilyLabel(family: SvgModuleFamily): string {
+  const labels: Record<SvgModuleFamily, string> = {
+    header: '标题',
+    divider: '分割',
+    quote: '引用',
+    badge: '徽章',
+    endmark: '结尾',
+    cover: '封面',
+    interactive: '交互',
+  }
+  return labels[family]
+}
+
+function getCurrentWechatSvgPlan(): SvgInjectionPlan {
+  return normalizeWechatSvgApplicationPlan(exportOptions.value.svgInjectionPlan)
+}
+
+function getWechatSvgSlotModuleId(slotId: WechatSvgApplicationSlotId): string {
+  return getWechatSvgApplicationSlotModuleId(exportOptions.value.svgInjectionPlan, slotId)
+}
+
+function handleWechatSvgModulesToggle(event: Event) {
+  const target = event.target as { checked?: unknown } | null
+  const enabled = target?.checked === true
+  exportOptions.value = {
+    ...exportOptions.value,
+    enableSvgModules: enabled,
+    svgInjectionPlan: enabled
+      ? getCurrentWechatSvgPlan()
+      : exportOptions.value.svgInjectionPlan,
+  }
+}
+
+function handleWechatSvgSlotChange(slotId: WechatSvgApplicationSlotId, event: Event) {
+  const target = event.target as { value?: unknown } | null
+  const moduleId = typeof target?.value === 'string' ? target.value : ''
+  if (!moduleId) return
+
+  exportOptions.value = {
+    ...exportOptions.value,
+    enableSvgModules: true,
+    svgInjectionPlan: setWechatSvgApplicationSlot(
+      exportOptions.value.svgInjectionPlan,
+      slotId,
+      moduleId,
+    ),
+  }
+}
+
+const wechatSvgApplicationSummary = computed(() => {
+  const totalFamilies = new Set(SVG_MODULES.map(module => module.family)).size
+  if (exportOptions.value.enableSvgModules === true) {
+    const plan = getCurrentWechatSvgPlan()
+    const activeModules = [
+      plan.cover,
+      plan.headings?.find(heading => heading.level === 2)?.module,
+      plan.replaceHr,
+      plan.blockquote,
+      plan.endmark,
+    ].filter(Boolean)
+    return `已启用 ${activeModules.length} 个注入位；全量试用位覆盖 ${SVG_MODULES.length} 个 SVG 模块 / ${totalFamilies} 个家族。`
+  }
+
+  return `默认关闭，不改变现有导出；开启后可在应用内选择 ${SVG_MODULES.length} 个 SVG 模块并输出到微信公众号 HTML。`
+})
+
 // ─── Render State ────────────────────────────────────────
 const previewHtml = ref('')
 const qualityReport = ref<QualityReport | null>(null)
@@ -2046,6 +2118,50 @@ onUnmounted(() => {
                         :aria-label="swatch.label"
                         @click="exportOptions.primaryColor = swatch.color"
                       />
+                    </div>
+                  </div>
+
+                  <div
+                    class="wechat-svg-options"
+                    aria-label="微信公众号 SVG 高级排版模块"
+                  >
+                    <label class="toggle-item wechat-svg-toggle">
+                      <input
+                        :checked="exportOptions.enableSvgModules === true"
+                        type="checkbox"
+                        @change="handleWechatSvgModulesToggle"
+                      >
+                      <span class="toggle-text">SVG 高级排版模块</span>
+                    </label>
+                    <p class="wechat-svg-summary">
+                      {{ wechatSvgApplicationSummary }}
+                    </p>
+                    <div
+                      class="wechat-svg-slot-grid"
+                      :class="{ 'wechat-svg-slot-grid-disabled': exportOptions.enableSvgModules !== true }"
+                    >
+                      <label
+                        v-for="slot in WECHAT_SVG_APPLICATION_SLOTS"
+                        :key="slot.id"
+                        class="wechat-svg-slot"
+                      >
+                        <span class="wechat-svg-slot-label">{{ slot.label }}</span>
+                        <small>{{ slot.description }}</small>
+                        <select
+                          class="wechat-svg-select"
+                          :disabled="exportOptions.enableSvgModules !== true"
+                          :value="getWechatSvgSlotModuleId(slot.id)"
+                          @change="handleWechatSvgSlotChange(slot.id, $event)"
+                        >
+                          <option
+                            v-for="module in slot.modules"
+                            :key="module.id"
+                            :value="module.id"
+                          >
+                            {{ module.id }} · {{ svgModuleFamilyLabel(module.family) }}
+                          </option>
+                        </select>
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -3283,6 +3399,86 @@ onUnmounted(() => {
 .swatch-btn:hover,
 .swatch-btn.active {
   box-shadow: 0 0 0 2px var(--text-primary);
+}
+
+.wechat-svg-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--ember) 22%, var(--hairline));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--paper-warm) 56%, var(--bg-surface));
+}
+
+.wechat-svg-toggle {
+  margin: 0;
+  border-color: color-mix(in srgb, var(--ember) 30%, var(--hairline));
+  background: var(--bg-surface);
+}
+
+.wechat-svg-summary {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.wechat-svg-slot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.wechat-svg-slot-grid-disabled {
+  opacity: 0.62;
+}
+
+.wechat-svg-slot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--bg-surface);
+}
+
+.wechat-svg-slot-label {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wechat-svg-slot small {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.wechat-svg-select {
+  min-width: 0;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 11px;
+  outline: none;
+}
+
+.wechat-svg-select:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.wechat-svg-select:focus {
+  border-color: var(--ember);
 }
 
 .toggle-list {
