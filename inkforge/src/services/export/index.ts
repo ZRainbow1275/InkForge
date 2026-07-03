@@ -257,6 +257,12 @@ export {
   postProcessForWechat
 } from './wechat'
 
+export {
+  PUBLISH_COPY_ALLOWED_ATTR,
+  PUBLISH_COPY_ALLOWED_TAGS,
+  sanitizePublishRichCopyHtml,
+} from './publish-copy'
+
 // 小红书导出
 export {
   xiaohongshuBaseCSS,

@@ -3,7 +3,12 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { markdownToWechatWithStats, themePresets } from '@/services/export'
+import {
+  PUBLISH_COPY_ALLOWED_ATTR,
+  PUBLISH_COPY_ALLOWED_TAGS,
+  markdownToWechatWithStats,
+  themePresets,
+} from '@/services/export'
 import PUBLISH_SOURCE from '../PublishView.vue?raw'
 
 const FLAGSHIP_PRESET_IDS = [
@@ -53,16 +58,11 @@ describe('PublishView — WeChat preset selector coverage', () => {
   })
 
   it('keeps WeChat-safe SVG allowed in the rich-copy fallback sanitizer', () => {
-    expect(PUBLISH_SOURCE).toContain('PUBLISH_COPY_ALLOWED_TAGS')
-    expect(PUBLISH_SOURCE).toContain('PUBLISH_COPY_ALLOWED_ATTR')
-    expect(PUBLISH_SOURCE).toMatch(/'svg'/)
-    expect(PUBLISH_SOURCE).toMatch(/'path'/)
-    expect(PUBLISH_SOURCE).toMatch(/'animateTransform'/)
-    expect(PUBLISH_SOURCE).toMatch(/'data-ink-svg'/)
-    expect(PUBLISH_SOURCE).toMatch(/'viewBox'/)
-    expect(PUBLISH_SOURCE).toMatch(/ALLOWED_TAGS:\s*\[\.\.\.PUBLISH_COPY_ALLOWED_TAGS\]/)
-    expect(PUBLISH_SOURCE).toMatch(/ALLOWED_ATTR:\s*\[\.\.\.PUBLISH_COPY_ALLOWED_ATTR\]/)
-    expect(PUBLISH_SOURCE).toContain('ALLOW_DATA_ATTR: true')
+    expect(PUBLISH_SOURCE).toContain("import { sanitizePublishRichCopyHtml } from '@/services/export/publish-copy'")
+    expect(PUBLISH_SOURCE).toContain('container.innerHTML = sanitizePublishRichCopyHtml(generatedHtml.value)')
+    expect(PUBLISH_SOURCE).toContain('Publish rich-copy fallback execCommand returned false')
+    expect(PUBLISH_COPY_ALLOWED_TAGS).toEqual(expect.arrayContaining(['svg', 'path', 'animateTransform']))
+    expect(PUBLISH_COPY_ALLOWED_ATTR).toEqual(expect.arrayContaining(['data-ink-svg', 'viewBox']))
   })
 
   it('keeps all SVG flagship presets selectable from the publish center contract', () => {

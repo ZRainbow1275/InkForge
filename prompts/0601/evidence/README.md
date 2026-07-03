@@ -8717,3 +8717,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail, credentialed sync,
   scheduled send, public rendering, or publish success. XHS/Zhihu publish automation remains
   manually deferred for this round.
+
+## 2026-07-04 Publish Center Rich-Copy Sanitizer Hardening
+
+- [x] publish-center-rich-copy-sanitizer-20260704.txt
+- Scope: local Publish Center rich-copy fallback payload sanitizer proof.
+- Added a shared `sanitizePublishRichCopyHtml()` service and routed the PublishView
+  `execCommand` fallback through it.
+- The sanitizer preserves current WeChat-safe SVG flagship output while removing script tags,
+  style tags, `foreignObject`, event-handler attributes, and `javascript:` URI values.
+- Focused regression first exposed retained `<style>` and SVG `onload` in the previous path;
+  the new post-sanitize DOM pass fixed that gap.
+- Verification passed: focused sanitizer/PublishView Vitest with 8 tests, focused export
+  preset/flagship regression with 382 tests, views regression with 23 tests, focused ESLint,
+  `vue-tsc`, production build, and expected blocked release-preflight JSON smoke.
+- Boundary: this proves local rich-copy fallback readiness only. It does not prove WeChat phone
+  preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
+  rendering, or publish success. XHS/Zhihu publish automation remains manually deferred for this
+  round.

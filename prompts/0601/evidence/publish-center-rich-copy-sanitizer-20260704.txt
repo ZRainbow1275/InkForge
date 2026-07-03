@@ -1,0 +1,59 @@
+Publish Center Rich-Copy Sanitizer Hardening - 2026-07-04
+
+Scope:
+- Local application proof for the Publish Center rich-copy fallback payload.
+- WeChat SVG/style copy readiness only.
+- No XHS/Zhihu publish automation.
+- No WeChat phone preview, credentialed sync, scheduled send, public rendering, or publish.
+
+Implemented:
+- Added src/services/export/publish-copy.ts.
+- Exported PUBLISH_COPY_ALLOWED_TAGS, PUBLISH_COPY_ALLOWED_ATTR, and
+  sanitizePublishRichCopyHtml().
+- PublishView now calls sanitizePublishRichCopyHtml() in the execCommand fallback path.
+- The fallback now fails closed when document.execCommand('copy') returns false.
+- The fallback now removes the temporary DOM node and clears the selection in finally.
+
+Sanitizer behavior:
+- Preserves current WeChat-safe SVG subset needed by flagship presets:
+  data-ink-svg, data-ink-block, inline svg, viewBox, width, height, geometry, paint,
+  typography, transform, and safe SMIL timing attributes.
+- Removes scriptable or non-WeChat-safe constructs after DOMPurify:
+  script tags, style tags, foreignObject, event-handler attributes, and javascript: URI values.
+
+Regression coverage:
+- New publish-copy.test.ts feeds a real flagship Markdown-to-WeChat render through
+  sanitizePublishRichCopyHtml().
+- The test proves real body text remains readable after flagship drop-cap styling.
+- The test proves data-ink-svg, inline svg, data-ink-block, width="100%", and viewBox survive.
+- The same test injects hostile script/style/event/foreignObject/javascript payloads and proves
+  they are removed.
+- PublishView.wechat-presets.test.ts now proves the component uses the shared sanitizer and checks
+  the execCommand fallback return value.
+
+Verification:
+- First focused Vitest run failed before the defense-in-depth pass because the old sanitizer path
+  retained a style tag and an SVG onload attribute in the test DOM. This was treated as a real
+  product-path hardening gap and fixed.
+- pnpm -C inkforge exec vitest run src/services/export/publish-copy.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000
+  PASS: 2 files / 8 tests
+- pnpm -C inkforge exec eslint src/services/export/publish-copy.ts src/services/export/publish-copy.test.ts src/services/export/index.ts src/views/PublishView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/publish-copy.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 6 files / 382 tests
+- pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 23 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external, canClaimComplete=false, actionableLocalRows=0,
+  manualDeferredOpenSteps=7, next rows limited to WeChat phone-preview and WeChat external-account
+  proof.
+
+Boundary:
+- This proves local rich-copy fallback sanitizer readiness only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, or publish success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

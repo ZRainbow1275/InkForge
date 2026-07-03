@@ -14545,3 +14545,55 @@ const ruleFamilies = [
 - Run focused PublishView Vitest, focused ESLint, views regression tests, type-check,
   production build, release-preflight smoke, diff checks, GitNexus detect, and sensitive scans
   before committing.
+
+## 298. Publish Center Rich-Copy SVG Sanitizer Hardening - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: source-only assertions for the Publish Center rich-copy fallback are not sufficient to
+  prove the fallback payload can carry WeChat-safe SVG while blocking scriptable constructs.
+- This rule applies to `src/services/export/publish-copy.ts`, `src/views/PublishView.vue`, and
+  any future Publish Center copy path that falls back from `ClipboardItem` to DOM selection /
+  `execCommand`.
+- It must not weaken the main WeChat export sanitizer, delete any existing WeChat/XHS/Zhihu
+  renderer, or claim phone/account/platform proof.
+
+### 2. Contract
+
+- The Publish Center rich-copy fallback must call a shared, testable sanitizer rather than owning
+  a component-local untested allowlist.
+- The shared sanitizer must preserve the project-owned WeChat-safe inline SVG subset needed by
+  current flagship presets:
+  - basic SVG structure and geometry/text tags;
+  - `data-ink-svg`, `data-ink-block`, `viewBox`, `width`, `height`;
+  - path, paint, typography, transform, and safe SMIL timing attributes.
+- The same sanitizer must remove or neutralize scriptable/non-WeChat-safe constructs after
+  DOMPurify as a defense-in-depth pass:
+  - `<script>`;
+  - `<style>`;
+  - `foreignObject`;
+  - event-handler attributes such as `onload`;
+  - `javascript:` URI values.
+- The fallback copy action must treat `document.execCommand('copy') === false` as failure,
+  clean up the temporary DOM node in `finally`, clear the temporary selection, log the failure,
+  and show a manual-copy failure message instead of reporting success.
+
+### 3. Cannot-Claim Boundary
+
+- This proves the local application rich-copy fallback payload shape only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
+  credentialed sync, scheduled send, public rendering, or publish success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+### 4. Required Checks
+
+- Add a real sanitizer behavior regression that feeds a current SVG flagship WeChat render through
+  `sanitizePublishRichCopyHtml()` and proves:
+  - real body text is preserved;
+  - `data-ink-svg`, inline `<svg>`, `data-ink-block`, `width="100%"`, and `viewBox` survive;
+  - `<script>`, `<style>`, `foreignObject`, event attributes, and `javascript:` URLs are removed.
+- Keep the PublishView contract test proving the component uses the shared sanitizer and checks
+  the fallback copy result.
+- Run focused sanitizer/PublishView Vitest, focused ESLint, export regression tests, type-check,
+  build, release-preflight smoke, GitNexus detect, diff checks, and sensitive scans before
+  committing.
