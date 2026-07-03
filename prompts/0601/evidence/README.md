@@ -8230,3 +8230,37 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu account upload, or
   publish success.
+
+## 2026-07-03 WeChat Kiln Paste-Safe Encoded Ordinary Ctrl+V
+
+- [x] wechat-kiln-paste-safe-encoded-ordinary-ctrlv-20260703.txt
+- Used CloakBrowser only for WeChat tab/DOM readback and Windows foreground OS input for the
+  ordinary Ctrl+V path. No save, preview, sync, scheduled send, upload, publish, phone preview,
+  or sensitive account/runtime capture artifact was recorded.
+- Source artifact:
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`,
+  source fingerprint `sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- Transport:
+  `set-windows-html-clipboard.ps1 -EncodeNonAsciiEntities` produced encoded clipboard HTML with
+  fingerprint `sha256:a7247d01891b670b7decefe717f2dd3757427a7a9ea0007e1cc0f37551606c86`,
+  `htmlBytes=46330`, `cfHtmlBytes=46499`, `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, `nonAsciiCharCount=0`, and `htmlEntityCount=946`.
+- Negative control:
+  the unencoded CF_HTML path preserved rich structure but produced mojibake damage
+  (`replacementGlyphCount=1132`), then OS Ctrl+Z returned the body to the placeholder baseline.
+- Accepted readback:
+  OS keybd_event Ctrl+V on the authenticated editor body produced paste=1, mutations=26,
+  clipboard types `text/plain` and `text/html`, body `htmlLength=42889`, `textLength=1274`,
+  `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `section=48`, `img=2`,
+  `replacementGlyphCount=0`, and `cjkCount=845`.
+- Cleanup:
+  OS Ctrl+Z returned the body to `htmlLength=298`, `textLength=8`, `svg=0`, `dataInkSvg=0`,
+  `dataInkBlock=0`, `replacementGlyphCount=0`, with the original placeholder restored.
+- Committed style-proof manifests now add a WeChat PC evidence manifest for
+  `wechat-flagship-kiln-paste-safe` without reducing the existing local-browser catalog
+  availability floor. The artifact remains bound to the source fingerprint; the encoded
+  clipboard fingerprint is recorded for deterministic replay.
+- Boundary: this closes only the PC editor paste and safe disposable cleanup rows for the Kiln
+  paste-safe source artifact. It does not prove phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

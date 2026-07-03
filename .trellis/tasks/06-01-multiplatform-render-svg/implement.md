@@ -22886,3 +22886,58 @@ Scope:
   ordinary rich paste retention, safe disposable-draft cleanup, phone preview, mobile interaction,
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 WeChat Kiln Paste-Safe Encoded Ordinary Ctrl+V Slice
+
+Source:
+- The authenticated WeChat PC editor was open and readable through CloakBrowser.
+- `flagship-kiln-paste-safe.html` was designed as the safer Kiln rich-paste candidate, but had
+  only local HTML evidence before this slice.
+
+Implementation:
+- Used CloakBrowser only for tab/DOM readback. Used Windows foreground input for ordinary OS
+  Ctrl+V and Ctrl+Z cleanup.
+- Added sanitized evidence file
+  `prompts/0601/evidence/wechat-kiln-paste-safe-encoded-ordinary-ctrlv-20260703.txt`.
+- Added committed WeChat PC evidence for `wechat-flagship-kiln-paste-safe`.
+- Kept the catalog evidence floor for `wechat-flagship-kiln-paste-safe` at `local-browser` so the
+  existing selectable UI behavior is not reduced, and removed the stale "exact disposable draft
+  still required" blocker from that choice.
+- Kept the committed proof bound to the source artifact fingerprint
+  `sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`; recorded the
+  deterministic encoded clipboard fingerprint
+  `sha256:a7247d01891b670b7decefe717f2dd3757427a7a9ea0007e1cc0f37551606c86` in evidence only.
+
+Observed:
+- Unencoded CF_HTML ordinary Ctrl+V retained rich SVG structure but produced mojibake damage:
+  `replacementGlyphCount=1132`. OS Ctrl+Z cleanup restored the placeholder baseline.
+- Encoded CF_HTML ordinary Ctrl+V produced paste=1 and body mutations=26, with body readback
+  `htmlLength=42889`, `textLength=1274`, `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`,
+  `section=48`, `img=2`, `replacementGlyphCount=0`, and `cjkCount=845`.
+- Cleanup returned the editor body to `htmlLength=298`, `textLength=8`, `svg=0`,
+  `dataInkSvg=0`, `dataInkBlock=0`, and `replacementGlyphCount=0`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed" --reporter=default --test-timeout=90000`
+  passed with 1 file and 11 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 373 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 33 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 39.85s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This slice proves only WeChat PC ordinary rich HTML/SVG paste and cleanup for the Kiln
+  paste-safe source artifact. It does not prove phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

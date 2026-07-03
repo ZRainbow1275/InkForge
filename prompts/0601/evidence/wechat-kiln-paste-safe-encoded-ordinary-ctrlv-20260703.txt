@@ -1,0 +1,83 @@
+WeChat Kiln Paste-Safe Encoded Ordinary Ctrl+V Proof - 2026-07-03
+
+Scope:
+- Platform: WeChat Official Account PC article editor.
+- Browser control: CloakBrowser only for tab selection and DOM readback.
+- Input path: Windows clipboard CF_HTML plus real foreground OS Ctrl+V keybd_event.
+- Artifact under review: prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html
+- Source artifact fingerprint: sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491
+- Encoded clipboard HTML fingerprint: sha256:a7247d01891b670b7decefe717f2dd3757427a7a9ea0007e1cc0f37551606c86
+
+Sanitized editor baseline:
+- Authenticated editor route shape was verified without recording raw URL/query.
+- Redacted route shape: origin=WeChat MP, path=/cgi-bin/appmsg, action=edit present,
+  credential query present, article id present.
+- Visible title ProseMirror: textLength=41, htmlLength=41, svg=0, dataInkSvg=0,
+  dataInkBlock=0, replacementGlyphCount=0, textHash=2305348558.
+- Visible body ProseMirror before paste: textLength=8, htmlLength=298, svg=0,
+  dataInkSvg=0, dataInkBlock=0, section=1, img=0, replacementGlyphCount=0,
+  textHash=4126275486, htmlHash=2984956905, placeholder text present.
+- The draft title marker was an InkForge disposable cleanup marker. No save, preview,
+  publish, sync, schedule, phone preview, or sensitive account/runtime capture artifact was
+  recorded.
+
+Artifact preparation:
+- Unencoded dry-run for flagship-kiln-paste-safe.html:
+  sourceHtmlBytes=41618, htmlBytes=41618, cfHtmlBytes=41787, svgCount=35,
+  dataInkSvgCount=3, dataInkBlockCount=23, plainTextChars=1377,
+  nonAsciiCharCount=946, htmlEntityCount=0.
+- A negative unencoded paste was executed first. The WeChat editor retained the rich
+  structure but text was mojibake-damaged: body textLength=1808, htmlLength=43430,
+  svg=35, dataInkSvg=3, dataInkBlock=23, section=48, img=2,
+  replacementGlyphCount=1132. The body was immediately cleaned with OS Ctrl+Z and
+  returned to the placeholder baseline.
+- Encoded dry-run selected for the accepted proof:
+  sourceHtmlBytes=41618, htmlBytes=46330, cfHtmlBytes=46499, svgCount=35,
+  dataInkSvgCount=3, dataInkBlockCount=23, plainTextChars=1377,
+  nonAsciiCharCount=0, htmlEntityCount=946.
+- The encoded clipboard payload was created with the existing Windows helper:
+  set-windows-html-clipboard.ps1 -EncodeNonAsciiEntities.
+
+Accepted ordinary paste readback:
+- Windows AppActivate brought the WeChat editor window to foreground before key input.
+- The foreground input probe used PreserveClipboard=true and KeybdEvent Ctrl+V.
+- The click target was the visible body editor viewport coordinate, not a save, preview,
+  publish, sidebar, title, or navigation control.
+- Probe summary: action=CtrlV, inputMethod=KeybdEvent, windowMatched=true,
+  setForeground=true, preserveClipboard=true, keybdEventCount=4.
+- A temporary body-level observer recorded paste=1 and mutations=26.
+- Paste event clipboard types: text/plain and text/html.
+- Body readback after encoded ordinary Ctrl+V:
+  textLength=1274, htmlLength=42889, svg=35, dataInkSvg=3, dataInkBlock=23,
+  section=48, img=2, replacementGlyphCount=0, cjkCount=845,
+  textHash=3571809108, htmlHash=1285062965.
+- The body readback contained the expected Kiln paste-safe article title and content
+  without replacement glyph damage.
+- No browser DOM assignment, synthetic ClipboardEvent, document.execCommand insertion,
+  direct editor state mutation, save, preview, publish, sync, or upload was used.
+
+Cleanup verification:
+- OS Ctrl+Z was sent after the accepted paste.
+- Post-cleanup body readback returned to placeholder state:
+  textLength=8, htmlLength=298, svg=0, dataInkSvg=0, dataInkBlock=0, section=1,
+  img=0, replacementGlyphCount=0, textHash=4126275486, htmlHash=2984956905.
+- The temporary observer was disconnected and removed after cleanup.
+
+Proof mapping:
+- This satisfies the WeChat PC editor proof rows for the source artifact fingerprint:
+  authenticated-editor-url, pc-editor-dom-readback, safe-disposable-draft,
+  pc-editor-paste-event, exact-artifact, and no-sensitive-artifact.
+- The accepted pc-paste row is bound to the source artifact fingerprint because
+  -EncodeNonAsciiEntities is a deterministic clipboard-transport transform of the
+  same committed source HTML artifact. The encoded clipboard fingerprint is recorded
+  above for replay/audit.
+- pasteInputEventVerified is supported by the captured paste event and body mutation.
+  Browser input and beforeinput counters were not observed for this WeChat editor path.
+
+Boundary:
+- This does not prove phone preview, phone screenshot, mobile SMIL/click behavior,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public URL/platform preview, publish success, Xiaohongshu upload/publish, or Zhihu
+  public-host/upload/publish proof.
+- It must not be used to claim mobile-preview, dark-mode-check, cover-thumbnail-check,
+  sync-readback, scheduled-send-readback, or published-url-or-platform-preview.

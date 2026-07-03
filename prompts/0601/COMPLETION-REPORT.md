@@ -11371,3 +11371,51 @@ Boundary:
   safe disposable-draft cleanup, phone preview, mobile interaction, mobile Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 WeChat Kiln Paste-Safe Encoded Ordinary Ctrl+V Addendum
+
+- Used CloakBrowser only for the authenticated WeChat editor tab and DOM readback. Windows
+  foreground OS input was used for ordinary Ctrl+V and Ctrl+Z cleanup.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-kiln-paste-safe-encoded-ordinary-ctrlv-20260703.txt`.
+- Source artifact:
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`,
+  source fingerprint `sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- A first unencoded ordinary Ctrl+V attempt proved the transport problem: rich SVG structure
+  survived but the editor body contained `replacementGlyphCount=1132`. That attempt was
+  immediately cleaned with OS Ctrl+Z.
+- The accepted run used the existing `set-windows-html-clipboard.ps1 -EncodeNonAsciiEntities`
+  path. The encoded clipboard payload fingerprint was
+  `sha256:a7247d01891b670b7decefe717f2dd3757427a7a9ea0007e1cc0f37551606c86`.
+- Accepted WeChat PC body readback after ordinary OS Ctrl+V:
+  paste event count 1, mutation count 26, clipboard types `text/plain` and `text/html`,
+  `htmlLength=42889`, `textLength=1274`, `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`,
+  `section=48`, `img=2`, `replacementGlyphCount=0`, `cjkCount=845`.
+- OS Ctrl+Z cleanup returned the editor body to the original placeholder baseline:
+  `htmlLength=298`, `textLength=8`, `svg=0`, `dataInkSvg=0`, `dataInkBlock=0`,
+  `replacementGlyphCount=0`.
+- Updated committed style-proof accounting:
+  - added a WeChat PC evidence manifest for `wechat-flagship-kiln-paste-safe`;
+  - kept the existing local-browser catalog availability floor so the choice remains selectable
+    under the current UI rules;
+  - kept the proof bound to the source artifact fingerprint while recording the deterministic
+    encoded clipboard fingerprint in evidence.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 373 tests;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 4 files and 33 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  with 36 files and 1350 tests;
+  focused ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The build
+  transformed 4653 modules and completed in 39.85s.
+- Release preflight remains blocked as required:
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this closes only the WeChat PC editor paste/safe cleanup rows for the Kiln paste-safe
+  artifact. Phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
+  thumbnail, credentialed sync, scheduled send, public preview/rendering, and publish success
+  remain external gates.

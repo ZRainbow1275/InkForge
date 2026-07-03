@@ -13430,3 +13430,55 @@ const ruleFamilies = [
 - Evidence docs must state that market-editor learning does not prove WeChat ordinary paste,
   phone preview, mobile SMIL/click, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 276. WeChat Kiln Paste-Safe Encoded Ordinary Ctrl+V Proof - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: a live authenticated WeChat PC editor run proved that the Kiln paste-safe source
+  artifact can survive ordinary OS Ctrl+V when the Windows CF_HTML transport encodes non-ASCII
+  characters as entities.
+- Use CloakBrowser only for tab/DOM readback. Ordinary paste proof must use real Windows
+  foreground clipboard input, not DOM assignment, synthetic ClipboardEvent insertion, or direct
+  editor state mutation.
+- This closes only the PC editor paste and safe cleanup rows for
+  `wechat-flagship-kiln-paste-safe`; phone, Dark Mode, cover, sync, schedule, public rendering,
+  and publish rows remain independent external gates.
+
+### 2. Contract
+
+- The source artifact stays bound to
+  `sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- The accepted transport must record the deterministic encoded clipboard fingerprint separately:
+  `sha256:a7247d01891b670b7decefe717f2dd3757427a7a9ea0007e1cc0f37551606c86`.
+- The unencoded control path is explicitly negative evidence: it retained rich structure but
+  produced replacement glyph damage. Do not mark unencoded Kiln CF_HTML as mojibake-free.
+- The accepted encoded path must bind these fields on the same `platform-editor` / `pc-paste`
+  proof row before `pc-editor-paste-event` can be satisfied:
+  `artifactFingerprint`, `exactArtifact:true`, `authenticatedSessionVerified:true`,
+  `platformEditorTargetVerified:true`, `platformEditorSurfaceVerified:true`,
+  `platformEditorDomVerified:true`, `ordinaryClipboardPasteVerified:true`,
+  `sameEditorTabVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`, `collectedAt`, and
+  `safeForCommit:true`.
+- The same committed PC manifest may also satisfy `safe-disposable-draft` only when
+  `disposableDraft:true` and `cleanupPathVerified:true` are on the same platform-editor proof row.
+
+### 3. Required Evidence Shape
+
+- Redacted evidence must include:
+  - sanitized editor route shape, not raw URL/query;
+  - source and encoded clipboard fingerprints;
+  - baseline title/body ProseMirror counts;
+  - ordinary foreground Ctrl+V probe summary;
+  - paste event and body mutation counts;
+  - post-paste body counts for `svg`, `dataInkSvg`, `dataInkBlock`, `section`, `img`,
+    `replacementGlyphCount`, and CJK text;
+  - OS Ctrl+Z cleanup readback proving the body returned to placeholder/baseline state.
+- Do not commit sensitive account/runtime capture artifacts, raw platform routes, or raw account
+  state.
+- Regression tests must keep the combined committed evidence pack free of fingerprint conflicts:
+  the PC proof row is bound to the source artifact fingerprint while the encoded clipboard
+  fingerprint is documented as transport metadata.
+- The release preflight must remain blocked until phone preview, Dark Mode, cover, sync,
+  scheduled send, public rendering, and publish rows are separately proven.

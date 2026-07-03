@@ -1927,7 +1927,7 @@ const STYLE_CHOICE_APPLICATIONS = [
     presetId: 'flagship-kiln-paste-safe',
     presetLabel: '赤陶兼容旗舰',
     scope: 'styled-and-native',
-    note: 'additive Kiln ordinary-paste candidate using the cover-title first block while preserving the Kiln palette and Forge divider',
+    note: 'additive Kiln ordinary-paste compatibility path using encoded CF_HTML, the cover-title first block, the Kiln palette, and the Forge divider',
   },
   {
     choiceId: 'wechat-flagship-tempera',
@@ -2128,9 +2128,10 @@ const PLATFORM_STYLE_CHOICES_BASE = [
     evidenceFloor: 'local-browser',
     publishEvidence: ['pc-editor-paste', 'mobile-preview', 'published'],
     blockers: [
-      'created after the 2026-06-18 Kiln ordinary Ctrl+V plain-text negative proof; exact WeChat disposable-draft proof is still required before claiming ordinary rich paste',
       'fresh mobile WeChat preview missing',
+      'Dark Mode phone proof missing',
       'cover thumbnail not separately proven',
+      'platform preview or publish proof missing',
     ],
     detectorBlockers: ['wechat-unsafe-svg-construct', 'wechat-unsupported-css', 'wechat-class-id-dependency'],
   },
@@ -3196,7 +3197,7 @@ interface CommittedStyleProofZhihuCleanMarkdownEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofWechatPcEvidenceManifestOptions {
-  choiceId: 'wechat-flagship-amber' | 'wechat-flagship-tempera'
+  choiceId: 'wechat-flagship-amber' | 'wechat-flagship-tempera' | 'wechat-flagship-kiln-paste-safe'
   idPrefix: string
   label: string
   artifactFingerprint: string
@@ -3260,6 +3261,9 @@ const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_REPORT_REF =
   'prompts/0601/evidence/wechat-kiln-paste-safe-committed-local-evidence-20260622.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_PC_REPORT_REF =
+  'prompts/0601/evidence/wechat-kiln-paste-safe-encoded-ordinary-ctrlv-20260703.txt'
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
@@ -3326,6 +3330,9 @@ const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT =
 
 const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT =
   'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878'
+
+const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_PC_ARTIFACT_FINGERPRINT =
+  'sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491'
 
 const COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_ARTIFACT_FINGERPRINT =
   'sha256:redacted-wechat-login-state-readonly-20260625'
@@ -4251,6 +4258,17 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF,
     pasteProofLabel: 'Tempera committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
     collectedAt: '2026-06-19T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-flagship-kiln-paste-safe',
+    idPrefix: 'wechat-flagship-kiln-paste-safe-encoded',
+    label: 'Kiln paste-safe encoded',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_PC_ARTIFACT_FINGERPRINT,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_PC_REPORT_REF,
+    pasteProofLabel: 'Kiln paste-safe committed encoded ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
     readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
     readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
   }),
