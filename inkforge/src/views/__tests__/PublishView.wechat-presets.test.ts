@@ -6,6 +6,8 @@ import { describe, expect, it } from 'vitest'
 import {
   PUBLISH_COPY_ALLOWED_ATTR,
   PUBLISH_COPY_ALLOWED_TAGS,
+  SVG_MODULES,
+  WECHAT_SVG_APPLICATION_SLOTS,
   markdownToWechatWithStats,
   themePresets,
 } from '@/services/export'
@@ -63,6 +65,34 @@ describe('PublishView — WeChat preset selector coverage', () => {
     expect(PUBLISH_SOURCE).toContain('Publish rich-copy fallback execCommand returned false')
     expect(PUBLISH_COPY_ALLOWED_TAGS).toEqual(expect.arrayContaining(['svg', 'path', 'animateTransform']))
     expect(PUBLISH_COPY_ALLOWED_ATTR).toEqual(expect.arrayContaining(['data-ink-svg', 'viewBox']))
+  })
+
+  it('exposes the app SVG slot selector in PublishView and forwards it to WeChat export options', () => {
+    expect(PUBLISH_SOURCE).toContain('WECHAT_SVG_APPLICATION_SLOTS')
+    expect(PUBLISH_SOURCE).toContain('SVG_MODULES')
+    expect(PUBLISH_SOURCE).toContain('handlePublishWechatSvgModulesToggle')
+    expect(PUBLISH_SOURCE).toContain('handlePublishWechatSvgSlotChange')
+    expect(PUBLISH_SOURCE).toContain('publish-svg-options')
+    expect(PUBLISH_SOURCE).toContain('发布中心微信公众号 SVG 高级排版模块')
+    expect(PUBLISH_SOURCE).toContain('enableSvgModules: false')
+    expect(PUBLISH_SOURCE).toContain('enableSvgModules: exportOptions.value.enableSvgModules')
+    expect(PUBLISH_SOURCE).toContain('svgInjectionPlan: exportOptions.value.svgInjectionPlan')
+    expect(PUBLISH_SOURCE).toContain('getPublishWechatSvgSlotModuleId(slot.id)')
+    expect(PUBLISH_SOURCE).toContain('handlePublishWechatSvgSlotChange(slot.id, $event)')
+  })
+
+  it('keeps the PublishView all-module SVG slot aligned with the live registry', () => {
+    const showcase = WECHAT_SVG_APPLICATION_SLOTS.find(slot => slot.id === 'showcase')
+
+    expect(WECHAT_SVG_APPLICATION_SLOTS.map(slot => slot.id)).toEqual([
+      'cover',
+      'heading',
+      'divider',
+      'blockquote',
+      'showcase',
+    ])
+    expect(showcase?.modules.map(module => module.id)).toEqual(SVG_MODULES.map(module => module.id))
+    expect(showcase?.modules).toHaveLength(27)
   })
 
   it('keeps all SVG flagship presets selectable from the publish center contract', () => {

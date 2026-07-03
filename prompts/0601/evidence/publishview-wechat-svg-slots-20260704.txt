@@ -1,0 +1,57 @@
+PublishView WeChat SVG Application Slots - 2026-07-04
+
+Scope:
+- Local publish-center application gate for project-owned SVG rendering/style modules.
+- WeChat platform only.
+- Xiaohongshu and Zhihu publish-side checks are manually deferred to the user for this round.
+
+Implemented:
+- PublishView exposes a default-off WeChat SVG application section.
+- PublishView uses the shared WeChat SVG application slot service.
+- PublishView now carries LocalExportOptions.enableSvgModules.
+- PublishView now carries LocalExportOptions.svgInjectionPlan.
+- PublishView passes both options into its existing markdownToWechatWithStats() WeChat export call.
+
+Application slots:
+- cover
+- heading
+- divider
+- blockquote
+- showcase
+
+Coverage:
+- showcase exposes all 27 registered SVG_MODULES entries in registry order.
+- The 27 entries include heading, divider, quote, badge, endmark, cover, and interaction-family modules.
+- The local application path applies owned InkForge renderer output only; it does not copy 135/Xiumi source markup.
+
+CloakBrowser visual and DOM proof:
+- Local Vite PublishView page title: InkForge - 发布.
+- The WeChat SVG section is visible under export options.
+- Default-off summary reports that enabling the section can choose 27 SVG modules for WeChat HTML output.
+- Enabling the section updates the summary to: 已启用 5 个发布中心注入位；全量试用位覆盖 27 个 SVG 模块 / 7 个家族。
+- DOM evaluation after enabling:
+  - hasPublishSvgOptions=true
+  - selectCount=5
+  - disabledCount=0
+  - selectedValues=[cover-title, header-badge-num, divider-grid, quote-corner, i-stretch]
+  - showcaseOptions count=27
+- The all-module trial selector successfully selected i-stretch.
+- Browser console error count for the interaction: 0.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 20 tests
+- pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.ts src/services/export/wechat-svg-application.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+  PASS: status=application-ready; canClaimApplicationReady=true; wechatApplicationSvgSlotCount=5; wechatApplicationSvgShowcaseModuleCount=27; wechatApplicationSvgSlotFailureCount=0; wechatApplicationSlotIssues=[]; wechatOptionInjectedModuleCount=27; wechatOptionInjectionFailureCount=0
+- pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves local PublishView SVG/style selection and WeChat-safe export readiness only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish success.
+- It does not prove Xiaohongshu or Zhihu publish success.
+- No local browser runtime artifact, account artifact, credential material, network capture, scan artifact, or image artifact reference is recorded here.

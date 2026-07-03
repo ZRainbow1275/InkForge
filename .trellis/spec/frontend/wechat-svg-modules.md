@@ -15001,3 +15001,89 @@ const ruleFamilies = [
 - Run focused SVG application tests, ExportModal source-contract tests, WeChat option tests,
   release-preflight tests, focused ESLint, type-check, build, application preflight smoke,
   GitNexus detect, diff checks, and sensitive scans before committing this class of change.
+
+## 306. Publish Center WeChat SVG Application Slots - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: `ExportModal.vue` is not the only application surface where an operator expects to
+  apply rendering/style choices. `PublishView.vue` is the publish-center surface, so the narrowed
+  round target is incomplete unless PublishView can also apply all owned SVG modules to the
+  WeChat export path.
+- This rule applies to:
+  - `src/views/PublishView.vue`;
+  - `src/views/__tests__/PublishView.wechat-presets.test.ts`;
+  - `src/services/export/wechat-svg-application.ts`;
+  - the existing WeChat option path consumed by `markdownToWechatWithStats()`.
+- This rule does not re-enable Xiaohongshu/Zhihu publish automation. Per the current acceptance
+  update, those publish-side checks are manually owned by the operator and must not block this
+  local application gate.
+
+### 2. Publish Center UI Contract
+
+- The WeChat publish-center export options must expose an opt-in `SVG 高级排版模块` control.
+- Default behavior must remain unchanged:
+  - the toggle is off by default;
+  - disabled state must not inject SVG modules;
+  - existing WeChat preset selection and non-SVG options must keep their previous behavior.
+- When the toggle is enabled, PublishView must use the same application slot service as
+  ExportModal and write through the existing export options:
+  - `enableSvgModules: true`;
+  - `svgInjectionPlan` normalized through `normalizeWechatSvgApplicationPlan()`.
+- PublishView must expose the same semantic slots:
+  - `cover`;
+  - `heading`;
+  - `divider`;
+  - `blockquote`;
+  - `showcase`.
+- The `showcase` slot is the all-module trial path. It must expose every current `SVG_MODULES`
+  entry in registry order, including interaction-family modules, so the application can select
+  every owned SVG rendering/style module without copying market-editor payloads.
+
+### 3. WeChat Output Contract
+
+- PublishView must pass the SVG options into its existing WeChat output call:
+  `markdownToWechatWithStats(content.value, preset, options)`.
+- The output route remains the same local WeChat-safe renderer used by ExportModal.
+- Every selected module must still be produced through InkForge-owned renderer code and retain the
+  WeChat safety invariants already required by the service tests:
+  - `data-ink-svg="<module.id>"`;
+  - inline `<svg>`;
+  - `viewBox`;
+  - `width="100%"`;
+  - zero `checkWechatSafe()` violations in the focused option/application tests.
+- Do not copy 135/Xiumi source HTML, vendor classes, account artifacts, hosted material URLs, or
+  browser runtime artifacts into PublishView or the SVG module registry.
+
+### 4. Source-Contract and Visual Proof Contract
+
+- PublishView must have source-contract coverage proving:
+  - the SVG toggle, slot selector, slot-change handler, and WeChat export option pass-through are
+    present;
+  - `WECHAT_SVG_APPLICATION_SLOTS` still contains the five semantic slots;
+  - the `showcase` slot contains all current `SVG_MODULES` entries.
+- A CloakBrowser visual/DOM check should verify, when the local app is available:
+  - the PublishView section is visible under the WeChat platform;
+  - default-off summary reports 27 modules;
+  - enabling the toggle makes all five selectors available;
+  - the all-module selector can choose an interaction-family module such as `i-stretch`;
+  - no browser console errors are emitted by this interaction.
+
+### 5. Cannot-Claim Boundary
+
+- Passing this rule proves local PublishView application-level SVG/style selection and WeChat-safe
+  local export readiness only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu publish success. Those publish-side tests are manually
+  deferred to the user for this round.
+- The strict default release preflight must remain blocked while external WeChat proof gates remain
+  missing.
+
+### 6. Required Checks
+
+- Run focused PublishView source-contract tests, SVG application tests, WeChat option tests,
+  release-preflight tests, focused ESLint, type-check, build, application preflight smoke,
+  strict release-preflight smoke, CloakBrowser visual/DOM proof when local Vite is running,
+  GitNexus detect, diff checks, and sensitive scans before committing this class of change.

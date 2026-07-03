@@ -24768,3 +24768,75 @@ Scope:
   preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for this round and
   are not claimed by this artifact.
+
+## 2026-07-04 Publish Center WeChat SVG Application Slots Slice
+
+Source:
+- The user narrowed the current round completion target: cancel automated Xiaohongshu/Zhihu
+  publish tests, leave those checks to manual operator testing, and complete the local application
+  goal by ensuring all owned SVG rendering/style modules can be applied in the app and remain
+  applicable to WeChat.
+- The previous ExportModal slice exposed the SVG slots in the export modal, but PublishView is the
+  publish-center surface. Without the same slot selector there, the application-level goal was
+  still incomplete.
+
+Impact:
+- `npx gitnexus impact "PublishView" -r InkForge --depth 3` was ambiguous and resolved only
+  router references, so risk was treated as UNKNOWN for the broad name.
+- `npx gitnexus impact "Function:inkforge/src/router/index.ts:PublishView" -r InkForge --depth 3`
+  reported LOW risk with 0 affected processes.
+- `npx gitnexus impact "markdownToWechatWithStats" -r InkForge --depth 3` reported LOW risk with
+  the indexed direct caller limited to ExportModal and 0 affected processes. Focused PublishView
+  source-contract coverage compensates for the unindexed SFC call site.
+
+Implementation:
+- Extended `PublishView.vue` with the same app-facing WeChat SVG slot service already used by
+  ExportModal.
+- Added `LocalExportOptions.enableSvgModules` and `LocalExportOptions.svgInjectionPlan` to the
+  publish-center export options.
+- Added a default-off `SVG 高级排版模块` section under the WeChat export options.
+- Added five slot selectors:
+  - `cover`;
+  - `heading`;
+  - `divider`;
+  - `blockquote`;
+  - `showcase`.
+- The `showcase` selector exposes all 27 current `SVG_MODULES` entries in registry order,
+  including interaction-family modules, so PublishView can apply every owned SVG module without
+  copying 135/Xiumi source markup.
+- PublishView now passes `enableSvgModules` and `svgInjectionPlan` into its existing
+  `markdownToWechatWithStats()` WeChat export call.
+- Default behavior is preserved: disabled SVG slots do not change PublishView output.
+- Xiaohongshu/Zhihu publish automation remains canceled for this round and is not claimed by this
+  slice.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 20 tests.
+- `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.ts src/services/export/wechat-svg-application.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with `status=application-ready`, `canClaimApplicationReady=true`,
+  `wechatApplicationSvgSlotCount=5`, `wechatApplicationSvgShowcaseModuleCount=27`,
+  `wechatApplicationSvgSlotFailureCount=0`, `wechatApplicationSlotIssues=[]`,
+  `wechatOptionInjectedModuleCount=27`, and `wechatOptionInjectionFailureCount=0`.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- CloakBrowser visual/DOM check against the local Vite app confirmed that PublishView exposes the
+  WeChat `SVG 高级排版模块` section, default-off summary, five semantic slots, and a 27-option
+  all-module trial slot.
+- CloakBrowser interaction proof enabled the section, verified all five selectors were available,
+  selected `i-stretch` in the all-module slot, and reported zero browser console errors.
+
+Evidence:
+- Added `prompts/0601/evidence/publishview-wechat-svg-slots-20260704.txt`.
+
+Scope:
+- This proves local PublishView application-level SVG/style selection, all-module application
+  coverage, and WeChat-safe export readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for this round and
+  are not claimed by this artifact.

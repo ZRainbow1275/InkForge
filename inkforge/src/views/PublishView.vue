@@ -18,7 +18,17 @@ import {
   convertToXiaohongshu,
   convertToZhihu,
   calculateStats,
+  getWechatSvgApplicationSlotModuleId,
+  normalizeWechatSvgApplicationPlan,
+  setWechatSvgApplicationSlot,
+  SVG_MODULES,
+  WECHAT_SVG_APPLICATION_SLOTS,
   xiaohongshuPresets
+} from '@/services/export'
+import type {
+  SvgInjectionPlan,
+  SvgModuleFamily,
+  WechatSvgApplicationSlotId,
 } from '@/services/export'
 import { sanitizePublishRichCopyHtml } from '@/services/export/publish-copy'
 import { logger } from '@/services/error'
@@ -57,6 +67,8 @@ interface LocalExportOptions {
   lineNumbers: boolean
   convertFootnotes: boolean
   textIndent: boolean
+  enableSvgModules: boolean
+  svgInjectionPlan?: SvgInjectionPlan
 }
 
 const exportOptions = ref<LocalExportOptions>({
@@ -64,6 +76,72 @@ const exportOptions = ref<LocalExportOptions>({
   lineNumbers: false,
   convertFootnotes: true,
   textIndent: false,
+  enableSvgModules: false,
+})
+
+function svgModuleFamilyLabel(family: SvgModuleFamily): string {
+  const labels: Record<SvgModuleFamily, string> = {
+    header: '标题',
+    divider: '分割',
+    quote: '引用',
+    badge: '徽章',
+    endmark: '结尾',
+    cover: '封面',
+    interactive: '交互',
+  }
+  return labels[family]
+}
+
+function getCurrentPublishWechatSvgPlan(): SvgInjectionPlan {
+  return normalizeWechatSvgApplicationPlan(exportOptions.value.svgInjectionPlan)
+}
+
+function getPublishWechatSvgSlotModuleId(slotId: WechatSvgApplicationSlotId): string {
+  return getWechatSvgApplicationSlotModuleId(exportOptions.value.svgInjectionPlan, slotId)
+}
+
+function handlePublishWechatSvgModulesToggle() {
+  const enabled = !exportOptions.value.enableSvgModules
+  exportOptions.value = {
+    ...exportOptions.value,
+    enableSvgModules: enabled,
+    svgInjectionPlan: enabled
+      ? getCurrentPublishWechatSvgPlan()
+      : exportOptions.value.svgInjectionPlan,
+  }
+}
+
+function handlePublishWechatSvgSlotChange(slotId: WechatSvgApplicationSlotId, event: Event) {
+  const target = event.target as { value?: unknown } | null
+  const moduleId = typeof target?.value === 'string' ? target.value : ''
+  if (!moduleId) return
+
+  exportOptions.value = {
+    ...exportOptions.value,
+    enableSvgModules: true,
+    svgInjectionPlan: setWechatSvgApplicationSlot(
+      exportOptions.value.svgInjectionPlan,
+      slotId,
+      moduleId,
+    ),
+  }
+}
+
+const publishWechatSvgApplicationSummary = computed(() => {
+  const totalFamilies = new Set(SVG_MODULES.map(module => module.family)).size
+  if (exportOptions.value.enableSvgModules) {
+    const plan = getCurrentPublishWechatSvgPlan()
+    const activeModules = [
+      plan.cover,
+      plan.headings?.find(heading => heading.level === 2)?.module,
+      plan.replaceHr,
+      plan.blockquote,
+      plan.endmark,
+    ].filter(Boolean)
+    return `已启用 ${activeModules.length} 个发布中心注入位；全量试用位覆盖 ${SVG_MODULES.length} 个 SVG 模块 / ${totalFamilies} 个家族。`
+  }
+
+  return `默认关闭，不改变发布中心现有导出；开启后可选择 ${SVG_MODULES.length} 个 SVG 模块并输出到微信公众号 HTML。`
 })
 
 // 视图切换
@@ -186,6 +264,8 @@ async function generateHtml() {
           enableLineNumbers: exportOptions.value.lineNumbers,
           enableMacCodeBlock: exportOptions.value.macCodeBlock,
           enableTextIndent: exportOptions.value.textIndent,
+          enableSvgModules: exportOptions.value.enableSvgModules,
+          svgInjectionPlan: exportOptions.value.svgInjectionPlan,
         })
         generatedHtml.value = result.html
         stats.value = result.stats
@@ -639,6 +719,66 @@ onMounted(() => {
                 @click="exportOptions.textIndent = !exportOptions.textIndent"
               >
                 <div class="toggle-knob" />
+              </div>
+            </div>
+            <div
+              v-if="platform === 'wechat'"
+              class="publish-svg-options"
+              aria-label="发布中心微信公众号 SVG 高级排版模块"
+            >
+              <div
+                class="publish-svg-toggle-row"
+                role="button"
+                tabindex="0"
+                @click="handlePublishWechatSvgModulesToggle"
+                @keydown.enter.prevent="handlePublishWechatSvgModulesToggle"
+                @keydown.space.prevent="handlePublishWechatSvgModulesToggle"
+              >
+                <div class="toggle-info">
+                  <div class="toggle-title">
+                    SVG 高级排版模块
+                  </div>
+                  <div class="toggle-desc">
+                    发布中心直接应用 InkForge 自有 SVG 样式
+                  </div>
+                </div>
+                <div
+                  class="toggle-switch"
+                  :class="{ on: exportOptions.enableSvgModules }"
+                  aria-hidden="true"
+                >
+                  <div class="toggle-knob" />
+                </div>
+              </div>
+              <p class="publish-svg-summary">
+                {{ publishWechatSvgApplicationSummary }}
+              </p>
+              <div
+                class="publish-svg-slot-grid"
+                :class="{ 'publish-svg-slot-grid-disabled': !exportOptions.enableSvgModules }"
+              >
+                <label
+                  v-for="slot in WECHAT_SVG_APPLICATION_SLOTS"
+                  :key="slot.id"
+                  class="publish-svg-slot"
+                >
+                  <span class="publish-svg-slot-label">{{ slot.label }}</span>
+                  <small>{{ slot.description }}</small>
+                  <select
+                    class="publish-svg-select"
+                    :disabled="!exportOptions.enableSvgModules"
+                    :value="getPublishWechatSvgSlotModuleId(slot.id)"
+                    @change="handlePublishWechatSvgSlotChange(slot.id, $event)"
+                  >
+                    <option
+                      v-for="module in slot.modules"
+                      :key="module.id"
+                      :value="module.id"
+                    >
+                      {{ module.id }} · {{ svgModuleFamilyLabel(module.family) }}
+                    </option>
+                  </select>
+                </label>
               </div>
             </div>
           </div>
@@ -1306,6 +1446,96 @@ onMounted(() => {
 
 .toggle-switch.on .toggle-knob {
   transform: translateX(20px);
+}
+
+.publish-svg-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #FFCDD2;
+  border-radius: 10px;
+  background: #FFF8F8;
+}
+
+.publish-svg-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #FFEBEE;
+  cursor: pointer;
+  outline: none;
+}
+
+.publish-svg-toggle-row:focus-visible {
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.18);
+}
+
+.publish-svg-summary {
+  margin: 0;
+  color: #607D8B;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.publish-svg-slot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.publish-svg-slot-grid-disabled {
+  opacity: 0.62;
+}
+
+.publish-svg-slot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #ECEFF1;
+  border-radius: 8px;
+  background: #FFFFFF;
+}
+
+.publish-svg-slot-label {
+  color: #263238;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.publish-svg-slot small {
+  color: #90A4AE;
+  font-size: 10px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.publish-svg-select {
+  min-width: 0;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ECEFF1;
+  border-radius: 7px;
+  background: #FFFFFF;
+  color: #263238;
+  font-size: 11px;
+  outline: none;
+}
+
+.publish-svg-select:disabled {
+  color: #90A4AE;
+  cursor: not-allowed;
+}
+
+.publish-svg-select:focus {
+  border-color: #D32F2F;
 }
 
 /* ═══ Stats Grid (4 columns) ═══ */

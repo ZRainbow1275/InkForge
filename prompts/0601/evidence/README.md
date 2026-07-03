@@ -8881,3 +8881,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   readiness only. It does not prove WeChat paste, phone preview, credentialed sync, scheduled send,
   public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests are manually
   deferred to the user for this round.
+
+## 2026-07-04 PublishView WeChat SVG Application Slots
+
+- [x] publishview-wechat-svg-slots-20260704.txt
+- Scope: publish-center UI exposure for all project-owned SVG modules under the WeChat platform.
+- Added a default-off `SVG 高级排版模块` control to PublishView with five semantic slots:
+  `cover`, `heading`, `divider`, `blockquote`, and `showcase`.
+- The `showcase` slot exposes all 27 registered `SVG_MODULES` entries in registry order, giving
+  the publish center an all-module application path without copying 135/Xiumi source markup.
+- Slot selections write through to `LocalExportOptions.enableSvgModules` and
+  `LocalExportOptions.svgInjectionPlan`, then flow into PublishView's existing
+  `markdownToWechatWithStats()` WeChat export call.
+- Verification passed: focused PublishView source-contract + SVG application + WeChat option +
+  release-preflight Vitest with 4 files / 20 tests, focused ESLint, `vue-tsc`, production build,
+  and application-preflight JSON smoke with 5 app slots, 27 showcase modules, 0 slot failures, and
+  empty slot issues.
+- CloakBrowser visual/DOM check confirmed the PublishView section, default-off summary, five
+  semantic slots, 27-option all-module trial slot, successful `i-stretch` selection, and zero
+  browser console errors without recording browser runtime, account, credential, network-capture,
+  or image artifacts.
+- Boundary: this proves local PublishView SVG/style selection and WeChat-safe export readiness
+  only. It does not prove WeChat paste, phone preview, credentialed sync, scheduled send, public
+  rendering, or publish success. Xiaohongshu and Zhihu publish-side tests are manually deferred to
+  the user for this round.
