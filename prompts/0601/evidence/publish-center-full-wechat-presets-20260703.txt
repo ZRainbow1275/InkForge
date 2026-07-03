@@ -35,6 +35,19 @@ Verification:
   PASS: 3 files / 353 tests
 - pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet
   PASS
+- CloakBrowser local visual/DOM check against http://127.0.0.1:3005/publish
+  PASS:
+  - Page title was "InkForge - 发布".
+  - Publish Center rendered the WeChat target platform and the "排版预设" selector.
+  - DOM contained 16 `button.preset-item` entries.
+  - Visible preset names included the four SVG flagship presets:
+    - 赤陶旗舰
+    - 赤陶兼容旗舰
+    - 铜绿旗舰
+    - 黄铜旗舰
+  - Each SVG flagship preset was clicked through and became the active preset in sequence.
+  - The page had no selected local article in this profile, so the preview correctly stayed in
+    the "暂无可发布正文" state rather than fabricating publish content.
 
 Boundary:
 - This proves application-level selector reachability for all current WeChat export presets.

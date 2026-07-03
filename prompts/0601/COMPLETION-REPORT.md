@@ -12185,6 +12185,13 @@ Boundary:
   - `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`: 1 file / 2 tests passed.
   - `pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 3 files / 353 tests passed.
   - `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`: passed.
+- CloakBrowser local visual/DOM verification passed on the running Vite app:
+  - `http://127.0.0.1:3005/publish` loaded as `InkForge - 发布`.
+  - Publish Center exposed 16 WeChat preset buttons.
+  - The four SVG flagship labels were visible and each became active when clicked:
+    `赤陶旗舰`, `赤陶兼容旗舰`, `铜绿旗舰`, and `黄铜旗舰`.
+  - The local profile had no selected article, so the preview correctly remained in the
+    `暂无可发布正文` state rather than generating artificial content.
 - Added sanitized evidence:
   `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
 - Boundary: this proves application-level selection reachability for all current WeChat export
