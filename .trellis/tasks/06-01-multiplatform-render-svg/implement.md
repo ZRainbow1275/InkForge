@@ -23318,3 +23318,62 @@ Scope:
   preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+## 2026-07-03 Xiumi SVG/Title/Card CloakBrowser Thumbnail Residue Slice
+
+Source:
+- User specifically required deeper CloakBrowser-based learning from Xiumi's left SVG, title, and
+  card panels into the editor DOM rather than relying on listing-only assumptions.
+- The live readback showed thumbnail/card-cover template wrappers that were covered by broad
+  `tn-tpl*` detection but not named precisely for operator diagnostics.
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 3` reported LOW risk, 4 direct
+  dependents, 0 affected processes, and Export-only module scope before editing.
+- The implementation is limited to `MARKET_EDITOR_RESIDUE_RULES`, focused export rendering tests,
+  spec/docs, and sanitized text evidence.
+
+Observed:
+- Xiumi title taxonomy exposed base/minimal/framed/image/background/symbol/primary-secondary/
+  numbered/vertical/gradient/dynamic/texture/shadow categories.
+- Xiumi card taxonomy exposed base/minimal/plain-text/framed/background/patterned/image-text/
+  dialog-Q&A/timeline/all-card categories.
+- Xiumi SVG taxonomy exposed carousel, click-expand, path animation, lottery, slide, transition,
+  parallax, click-switch, flip, zoom, quiz, bullet text, click-show/change/open/disappear/popup/
+  play, long-press, region trigger, falling, and click-plus-auto categories.
+- Sanitized DOM families included `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, and
+  Xiumi-template-scoped `with-thumb`, beside existing `tn-tpl-item`, `tn-tpl-comp-box`,
+  `tn-tpl-ra-bind-box`, `tn-lighting-box`, and `tn-scene-paper` markers.
+
+Implementation:
+- Added `Xiumi template thumbnail card residue` as a precise market-editor residue label for
+  `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, and template-scoped `with-thumb` wrappers.
+- Kept generic source-owned `with-thumb` classes allowed when no Xiumi template shell is present.
+- Added WeChat, Xiaohongshu, and Zhihu regression coverage plus the false-positive guard.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi template thumbnail card" --reporter=default --test-timeout=90000`
+  passed with 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-owned with-thumb" --reporter=default --test-timeout=90000`
+  passed with 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 375 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1352 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with Vite
+  built in 44.99s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  `uniqueNextRows=3`, and `nextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/xiumi-svg-title-card-cloakbrowser-recheck-20260703.txt`.
+
+Scope:
+- This is market-editor DOM learning and local detector enforcement only. It does not prove
+  WeChat ordinary rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

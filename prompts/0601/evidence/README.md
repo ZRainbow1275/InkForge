@@ -8382,3 +8382,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is source-market classification only. It does not prove phone preview, mobile
   Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 Xiumi SVG/Title/Card CloakBrowser Recheck
+
+- [x] xiumi-svg-title-card-cloakbrowser-recheck-20260703.txt
+- Used CloakBrowser only against the already-open Xiumi v5 paper editor.
+- Clicked/read the left title, card, and SVG taxonomies and inspected sanitized DOM/class
+  families from the editor and template list.
+- Observed `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, and template-scoped `with-thumb`
+  thumbnail wrappers in addition to the existing `tn-tpl-item`, `tn-tpl-comp-box`,
+  `tn-tpl-ra-bind-box`, `tn-lighting-box`, and `tn-scene-paper` families.
+- Added the precise local detector label `Xiumi template thumbnail card residue`, while keeping
+  source-owned `with-thumb` classes allowed when no Xiumi template shell is present.
+- Verification passed: focused Xiumi thumbnail tests, full `platform-export-rendering.test.ts`
+  with 375 tests, focused ESLint, serial export suite with 36 files and 1352 tests, `vue-tsc`,
+  production build, and the expected blocked release-preflight smoke.
+- Boundary: this is market-editor DOM learning and local detector enforcement only. It does not
+  prove WeChat ordinary rich paste, phone preview, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

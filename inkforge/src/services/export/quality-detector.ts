@@ -617,6 +617,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi template list refresh directive residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:\btn-tpl-(?:thumb-bind-box|comp-item-cover)\b|(?=[^"']*\bwith-thumb\b)(?=[^"']*\b(?:tn-tpl-item|tn-tpl-comp-box|tn-lighting-box)\b)[^"']*)[^"']*["']/i,
+    label: 'Xiumi template thumbnail card residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-tpl(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi template authoring tree residue',
   },

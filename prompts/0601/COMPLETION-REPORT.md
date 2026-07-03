@@ -11655,3 +11655,36 @@ Boundary:
   phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Xiumi SVG/Title/Card CloakBrowser Thumbnail Residue Addendum
+
+- Used CloakBrowser, not Playwright, against the already-open Xiumi v5 paper editor.
+- Inspected the left title, card, and SVG category taxonomies plus sanitized editor/template DOM
+  class families.
+- Observed existing Xiumi template shell markers such as `tn-tpl-item`, `tn-tpl-comp-box`,
+  `tn-tpl-ra-bind-box`, `tn-lighting-box`, and `tn-scene-paper`, plus the newly named thumbnail
+  wrappers `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, and template-scoped `with-thumb`.
+- Added the precise market-editor residue label `Xiumi template thumbnail card residue` to
+  `MARKET_EDITOR_RESIDUE_RULES`.
+- Added regression coverage for WeChat, Xiaohongshu, and Zhihu market-editor blockers, and a
+  non-regression proving source-owned `with-thumb` utility classes remain allowed without Xiumi
+  template shell markers.
+- Added sanitized evidence:
+  `prompts/0601/evidence/xiumi-svg-title-card-cloakbrowser-recheck-20260703.txt`.
+- Focused verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi template thumbnail card" --reporter=default --test-timeout=90000`
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-owned with-thumb" --reporter=default --test-timeout=90000`.
+- Broader verification passed: full `platform-export-rendering.test.ts` with 375 tests,
+  focused ESLint for `quality-detector.ts` and the platform export test file, serial
+  `src/services/export` suite with 36 files and 1352 tests, `vue-tsc --noEmit`, and production
+  build with Vite built in 44.99s.
+- Release preflight remains blocked as required:
+  `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`, `uniqueNextRows=3`,
+  and `nextRows=3`.
+- Boundary: this is market-editor DOM learning and local detector enforcement only. It does not
+  prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

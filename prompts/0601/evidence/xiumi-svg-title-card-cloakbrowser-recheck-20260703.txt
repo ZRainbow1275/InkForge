@@ -1,0 +1,85 @@
+Xiumi SVG/Title/Card CloakBrowser Recheck - 2026-07-03
+
+Scope:
+- Read-only CloakBrowser inspection of the already-open Xiumi v5 paper editor.
+- No platform publish action, upload, sync, scheduled send, phone preview, screenshot capture,
+  clipboard write, proof manifest creation, or account artifact collection was performed.
+- This evidence file stores only sanitized DOM/class-family summaries and local detector results.
+
+Observed left taxonomy:
+- Top style families included title, card, image, layout, SVG, component, hot templates, and
+  recent/template library entries.
+- Title category expanded to title subfamilies such as base, minimal, framed, image-backed,
+  background, symbol, primary/secondary, numbered, vertical, gradient, dynamic, text texture,
+  and text shadow.
+- Card category expanded to card subfamilies such as base, minimal, plain text, framed,
+  background, patterned, image/text, dialog/Q&A, timeline, and all cards.
+- SVG category expanded to interaction/effect subfamilies such as base SVG, image carousel,
+  click expand, path animation, lottery, fun slide, transition, branch transition, slide trigger,
+  parallax, click switch, flip, zoom, click quiz, bullet text, click show, click change image,
+  click open, click disappear, popup, zoom, print, jump, play, long press, region trigger,
+  falling, and click plus auto.
+
+Observed Xiumi DOM families:
+- Editor shell and center state classes included tn-studio-root, tn-editing-panel,
+  tn-paper-document-root, tn-editing-block, tn-meta-panel, tn-lighting-box, tn-comp-inst,
+  tn-cube-inst, tn-comp, tn-cell-inst, tn-cell, tn-cell-group, tn-page, tn-page-inst,
+  tn-page-vessel, tn-layer, tn-layer-inst, tn-content-overlap, ui-sortable,
+  op-ce-layout-carousel, svg-animation-assistant, op-ce-layout-overlap,
+  op-ce-layout-image-set-ex, dc-ce-svg, and dc-ce-svg-animation.
+- Template/list wrappers included tn-tpl-item, tn-lighting-box, comp-feature-matched,
+  tn-tpl-comp, tn-scene-paper, tn-tpl-categ-paper-cp, tn-tpl-comp-box,
+  tn-tpl-comp-item, tn-tpl-ra-bind-box, with-thumb, tn-tpl-thumb-bind-box,
+  and tn-tpl-comp-item-cover.
+- Runtime/binding attributes included tn-animate, tn-animate-on-self, tn-bind-comp-index,
+  tn-bind-comp-inst-page-mode, tn-bind-comp-tpl-id, tn-cell, tn-cell-type,
+  tn-child-orientation, tn-child-position, tn-comp, tn-comp-enter-editing,
+  tn-comp-exit-editing, tn-comp-index, tn-comp-pose, tn-comp-role, tn-container-usage,
+  tn-group-flex-box, tn-image, tn-image-popup, tn-image-usage, tn-link, tn-music-card,
+  tn-page-cache-gatherer, tn-page-stage-size, tn-page-view-box-editor-desktop,
+  tn-placeholder, tn-sound, tn-style, tn-svg-animation, tn-svg-animation-carousel,
+  tn-text, tn-theme-color-mask, tn-uuid, tn-yzk-font, tn-yzk-font-content, and
+  tn-yzk-font-usage-id.
+
+Rule extracted for InkForge:
+- Xiumi title/card/SVG templates are schema inputs only. Their action taxonomy should become
+  InkForge-owned title/card/image-slot/sequence/action/fallback manifests and safe SVG or
+  raster/static outputs.
+- Xiumi authoring DOM, Angular/Vue bindings, tn-* attributes, template thumbnails, cover
+  thumbnails, hosted market media, contenteditable cells, and operation panels must not enter
+  WeChat/XHS/Zhihu publishable output.
+- The new precise blocker is `Xiumi template thumbnail card residue`. It flags
+  `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, and Xiumi-template-scoped `with-thumb`
+  wrappers. A source-owned `with-thumb` class without Xiumi template shells remains allowed.
+
+Implementation:
+- Added a focused `MARKET_EDITOR_RESIDUE_RULES` entry in
+  `inkforge/src/services/export/quality-detector.ts`.
+- Added regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts` for WeChat, Xiaohongshu,
+  and Zhihu residue blockers, plus a source-owned `with-thumb` non-regression.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi template thumbnail card" --reporter=default --test-timeout=90000
+  PASS: 1 file / 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-owned with-thumb" --reporter=default --test-timeout=90000
+  PASS: 1 file / 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 375 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1352 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- pnpm -C inkforge build with NODE_OPTIONS=--max-old-space-size=4096
+  PASS: Vite built in 44.99s
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1, status=blocked-by-external, canClaimComplete=false,
+  nextRowRefs=5, uniqueNextRows=3, nextRows=3
+
+Boundary:
+- This is market-editor DOM learning and local detector enforcement only.
+- It does not prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

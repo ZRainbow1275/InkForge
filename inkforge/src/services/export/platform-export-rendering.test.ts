@@ -1644,6 +1644,16 @@ const MARKET_EDITOR_XIUMI_TEMPLATE_LIST_REFRESH_DIRECTIVE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TEMPLATE_THUMBNAIL_CARD_RESIDUE_HTML = [
+  '<li class="tn-tpl-item tn-lighting-box with-thumb">',
+  '<div class="tn-tpl-comp-box lighting-hover with-thumb">',
+  '<div class="tn-tpl-thumb-bind-box">',
+  '<img class="tn-tpl-comp-item-cover" src="//statics.xiumi.us/mat/i/svg-cover.png" alt="">',
+  '</div>',
+  '</div>',
+  '</li>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SOURCE_HOUSE_AUTHORING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-from-house tn-from-house-template">Xiumi source-house authoring residue</div>',
@@ -12003,6 +12013,32 @@ describe('platform native export rendering rules', () => {
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi template thumbnail card shells with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_THUMBNAIL_CARD_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_THUMBNAIL_CARD_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_THUMBNAIL_CARD_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi template thumbnail card residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi template thumbnail card residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi template thumbnail card residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi template authoring tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('does not block source-owned with-thumb classes without Xiumi template shells', () => {
+    const html = '<section class="ink-card with-thumb"><p>source-owned thumbnail card</p></section>'
+
+    expect(detectQuality(html, 'wechat').issues.some(issue => issue.id === 'wechat-market-editor-residue')).toBe(false)
+    expect(detectQuality(html, 'xiaohongshu').issues.some(issue => issue.id === 'xhs-market-editor-residue')).toBe(false)
+    expect(detectQuality(html, 'zhihu').issues.some(issue => issue.id === 'zhihu-market-editor-residue')).toBe(false)
   })
 
   it('blocks Xiumi source-house authoring classes without broader tree markers', () => {

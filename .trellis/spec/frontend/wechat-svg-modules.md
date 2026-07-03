@@ -13716,3 +13716,57 @@ const ruleFamilies = [
 - Evidence docs must not store browser profile paths, cookies, tokens, HAR references, QR
   payloads, account screenshots, local screenshot paths, raw account-state captures, raw platform
   routes, draft URLs, publish URLs, or private material.
+
+## 282. Xiumi SVG/Title/Card Thumbnail Residue Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: CloakBrowser-only readback of the already-open Xiumi v5 paper editor after selecting
+  left-panel title, card, and SVG categories showed additional thumbnail/card-cover template
+  wrappers not previously named in the detector output.
+- This is market-learning evidence and local detector enforcement only. It must not click
+  WeChat/XHS/Zhihu publish surfaces, create/sync drafts, upload media, schedule sends, publish,
+  collect phone proof, or write platform proof manifests.
+
+### 2. Observed Surface
+
+- Title taxonomy exposed base, minimal, framed, image-backed, background, symbol,
+  primary/secondary, numbered, vertical, gradient, dynamic, texture, and shadow title groups.
+- Card taxonomy exposed base, minimal, plain-text, framed, background, patterned, image/text,
+  dialog/Q&A, timeline, and all-card groups.
+- SVG taxonomy exposed image carousel, click expand, path animation, lottery, slide,
+  transitions, parallax, click switch, flip, zoom, quiz, bullet text, click show/change/open/
+  disappear/popup/play, long-press, region-trigger, falling, and click-plus-auto groups.
+- Sanitized DOM readback included the existing Xiumi template shell families
+  `tn-tpl-item`, `tn-tpl-comp-box`, `tn-tpl-comp-item`, `tn-tpl-ra-bind-box`,
+  `tn-lighting-box`, and `tn-scene-paper`, plus thumbnail-specific wrappers:
+  `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, and template-scoped `with-thumb`.
+
+### 3. Contract
+
+- Publishable WeChat/XHS/Zhihu output must report `Xiumi template thumbnail card residue` when it
+  contains `tn-tpl-thumb-bind-box`, `tn-tpl-comp-item-cover`, or a `with-thumb` class on the same
+  class/id attribute as a Xiumi template shell such as `tn-tpl-item`, `tn-tpl-comp-box`, or
+  `tn-lighting-box`.
+- A source-owned `with-thumb` utility class without any Xiumi template shell must not be blocked
+  by this rule. The detector must stay anchored to Xiumi-specific class families rather than
+  ordinary prose or generic thumbnail naming.
+- This precise label is additive to the broader `Xiumi template authoring tree residue` and
+  `Xiumi template scene marker residue` labels. It improves operator diagnostics without
+  weakening existing broad blockers.
+- Xiumi title/card/SVG taxonomy must be translated into InkForge-owned title/card/image-slot/
+  sequence/action/fallback manifests and safe source-owned HTML/SVG/raster outputs. Do not copy
+  Xiumi DOM, template geometry, hosted material URLs, Angular/Vue bindings, `tn-*` attributes,
+  contenteditable cells, thumbnails, or operation-panel state into runtime output.
+
+### 4. Required Checks
+
+- Add/keep focused regression coverage proving WeChat, Xiaohongshu, and Zhihu all emit the
+  platform-specific market-editor-residue issue with `Xiumi template thumbnail card residue`.
+- Add/keep a non-regression proving a source-owned `with-thumb` class without Xiumi template
+  shells emits no market-editor-residue issue.
+- Run focused Vitest for the new Xiumi thumbnail rule, focused ESLint, type-check/build as risk
+  requires, release-preflight smoke, and a sensitive diff scan before committing.
+- Evidence docs must not store browser profile paths, cookies, tokens, HAR references, QR
+  payloads, account screenshots, local screenshot paths, raw account-state captures, raw platform
+  routes, draft URLs, publish URLs, or private material.
