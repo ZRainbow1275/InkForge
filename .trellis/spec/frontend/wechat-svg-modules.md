@@ -14640,3 +14640,47 @@ const ruleFamilies = [
 - Run the related PublishView/export regression suite, focused ESLint, type-check, build,
   release-preflight smoke, GitNexus detect, diff checks, and sensitive scans before committing
   this class of change.
+
+## 300. WeChat Style-Choice Application Coverage - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: proving WeChat presets and SVG modules render is not enough if an `available` and
+  locally usable style-catalog choice remains disabled in the application selector.
+- This rule applies to `STYLE_CHOICE_APPLICATIONS`,
+  `getPlatformStyleApplicationReport('wechat')`, and the ExportModal style-choice card behavior.
+- It must not promote phone-only, click/SMIL, credentialed sync, H5 handoff, plugin, or publish
+  checklist rows into selectable local actions.
+
+### 2. Contract
+
+- Every WeChat style choice that is `available` and usable under
+  `DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat` must have a real
+  `StyleChoiceApplication` mapping.
+- The mapping must point to an existing InkForge WeChat preset or native export option, not to a
+  market/vendor template source.
+- `wechat-toolbar-parameter-map` is a selectable application-level action and maps to the existing
+  `thesis` preset because that preset exercises the current typography parameter surface:
+  font size, serif stack, indent, justify, line-height, and side-padding rules.
+- Blocked or unavailable rows such as `wechat-click-reveal`,
+  `wechat-mobile-only-effect`, `wechat-carousel-switch`,
+  `wechat-market-svg-h5-fallback-matrix`, official-widget, plugin-transfer, sync-draft, and H5
+  boundary rows must remain non-selectable until their required external proof exists.
+
+### 3. Cannot-Claim Boundary
+
+- This proves local application selector reachability for currently usable WeChat style choices.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
+  success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+### 4. Required Checks
+
+- Keep a regression that verifies `wechat-toolbar-parameter-map` has a `thesis` application mapping
+  and is selectable with `local-browser` evidence.
+- Keep a platform application report regression proving every usable WeChat row is both selectable
+  and backed by a non-null application.
+- Run focused `platform-export-rendering.test.ts`, focused ESLint, type-check, build,
+  release-preflight smoke, GitNexus detect, diff checks, and sensitive scans before committing
+  this class of change.

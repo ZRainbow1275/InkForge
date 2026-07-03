@@ -1912,6 +1912,14 @@ const STYLE_CHOICE_APPLICATIONS = [
     note: 'uses the flagship editorial decorator chain for lede, reading bar, pullquote, and footer blocks',
   },
   {
+    choiceId: 'wechat-toolbar-parameter-map',
+    platform: 'wechat',
+    presetId: 'thesis',
+    presetLabel: '璁烘枃缈昏瘧',
+    scope: 'styled-and-native',
+    note: 'maps typography parameters to an existing WeChat preset with font size, serif stack, indent, justify, line-height, and side-padding rules instead of leaving the available style choice disabled',
+  },
+  {
     choiceId: 'wechat-cover-seal-divider',
     platform: 'wechat',
     presetId: 'flagship-kiln',

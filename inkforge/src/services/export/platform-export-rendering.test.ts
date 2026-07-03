@@ -9779,6 +9779,7 @@ describe('platform native export rendering rules', () => {
 
     expect(getStyleChoiceApplication('wechat-flagship-kiln')?.presetId).toBe('flagship-kiln')
     expect(getStyleChoiceApplication('wechat-flagship-kiln-paste-safe')?.presetId).toBe('flagship-kiln-paste-safe')
+    expect(getStyleChoiceApplication('wechat-toolbar-parameter-map')?.presetId).toBe('thesis')
     expect(evaluateStyleChoiceApplication(kiln, ['local-browser']).selectable).toBe(true)
     expect(evaluateStyleChoiceApplication(kilnPasteSafe, ['local-browser']).selectable).toBe(true)
 
@@ -9787,9 +9788,9 @@ describe('platform native export rendering rules', () => {
     expect(amberApplication.selectable).toBe(true)
 
     const toolbarApplication = evaluateStyleChoiceApplication(toolbarMap, ['local-browser'])
-    expect(toolbarApplication.application).toBeNull()
-    expect(toolbarApplication.selectable).toBe(false)
-    expect(toolbarApplication.reason).toContain('no existing InkForge preset')
+    expect(toolbarApplication.application?.presetId).toBe('thesis')
+    expect(toolbarApplication.selectable).toBe(true)
+    expect(toolbarApplication.reason).toContain('selects preset thesis')
 
     const xhsCarouselApplication = evaluateStyleChoiceApplication(xhsCarousel, ['local-browser'])
     expect(xhsCarouselApplication.availability.usable).toBe(true)
@@ -9849,7 +9850,13 @@ describe('platform native export rendering rules', () => {
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-kiln-paste-safe')?.selectable).toBe(true)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-amber')?.selectable).toBe(false)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-mobile-only-effect')?.selectable).toBe(false)
-    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-toolbar-parameter-map')?.selectable).toBe(false)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-toolbar-parameter-map')?.selectable).toBe(true)
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-toolbar-parameter-map'
+    )?.application?.presetId).toBe('thesis')
+
+    const usableWechatRows = wechatApplications.filter(item => item.availability.usable)
+    expect(usableWechatRows.every(item => item.selectable && item.application)).toBe(true)
 
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-clean-text')?.selectable).toBe(true)
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-cover-carousel')?.selectable).toBe(false)

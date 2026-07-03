@@ -1,0 +1,53 @@
+WeChat Style-Choice Application Coverage - 2026-07-04
+
+Scope:
+- Local application selector reachability for WeChat style-catalog choices.
+- No phone preview, no account sync, no upload, no scheduled send, no publish action.
+- Xiaohongshu and Zhihu publish-side automation remains manually deferred for this round.
+
+Issue found:
+- `wechat-toolbar-parameter-map` was cataloged as available and usable with the default WeChat
+  local evidence set, but it had no `STYLE_CHOICE_APPLICATIONS` mapping.
+- That made the ExportModal style-choice card disabled even though the row was locally usable.
+
+Implemented:
+- Added a `wechat-toolbar-parameter-map` application mapping to the existing `thesis` WeChat
+  preset.
+- The mapping uses InkForge-owned typography rules already present in the application:
+  font size, serif stack, indent, justify, line-height, and side-padding rules.
+- No market/vendor template source, hosted material, credentialed channel, or phone proof was
+  introduced.
+
+Regression coverage:
+- `wechat-toolbar-parameter-map` maps to `thesis`.
+- `wechat-toolbar-parameter-map` is selectable with `local-browser` evidence.
+- Every usable WeChat row in `getPlatformStyleApplicationReport('wechat')` has a non-null
+  application mapping and is selectable.
+- Blocked or unavailable WeChat rows remain non-selectable until their external proof gates are
+  satisfied.
+
+Verification:
+- pnpm -C inkforge exec tsx -e "<wechat application report audit>"
+  PASS: 17 WeChat choices, 8 usable rows, 8 selectable rows, 0 usable-but-not-selectable rows.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 375 tests
+- CloakBrowser runtime module audit on local Vite dev server:
+  PASS: 17 WeChat choices, 8 usable rows, 8 selectable rows, 0 usable-but-not-selectable rows.
+  `wechat-toolbar-parameter-map` returned usable=true, selectable=true, presetId=thesis.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 37 files / 1355 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external, canClaimComplete=false, actionableLocalRows=0,
+  manualDeferredOpenSteps=7
+
+Boundary:
+- This proves local application selector reachability for currently usable WeChat style choices.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
+  success.

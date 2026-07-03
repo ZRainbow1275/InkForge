@@ -8753,3 +8753,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
   credentialed sync, scheduled send, public rendering, or publish success. XHS/Zhihu publish
   automation remains manually deferred for this round.
+
+## 2026-07-04 WeChat Style-Choice Application Coverage
+
+- [x] wechat-style-choice-application-coverage-20260704.txt
+- Scope: local ExportModal style-choice selector reachability for currently usable WeChat catalog
+  rows.
+- The audit found `wechat-toolbar-parameter-map` was available and usable under default WeChat
+  local evidence, but lacked an application mapping and would remain disabled in the app.
+- Added a real mapping to the existing `thesis` WeChat preset, which exercises current typography
+  parameters through the owned renderer path.
+- Regression now requires every usable WeChat application-report row to be selectable and backed
+  by a non-null application.
+- Verification passed: focused application-report audit showed 17 WeChat choices, 8 usable rows,
+  8 selectable rows, and 0 usable-but-not-selectable rows; CloakBrowser runtime module audit on
+  the local Vite app showed the same result and `wechat-toolbar-parameter-map` mapped to
+  `thesis`; focused `platform-export-rendering.test.ts` passed with 375 tests; full export
+  service regression passed with 37 files / 1355 tests; focused ESLint, `vue-tsc`, production
+  build, and expected blocked release-preflight JSON smoke passed.
+- Boundary: this proves local application selector reachability only. It does not prove WeChat
+  ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
+  credentialed sync, scheduled send, public rendering, or publish success. XHS/Zhihu publish
+  automation remains manually deferred for this round.
