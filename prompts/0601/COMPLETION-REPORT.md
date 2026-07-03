@@ -11865,3 +11865,40 @@ Boundary:
   rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof External Handoff Artifact Template Addendum
+
+- Added a local-only artifact field worksheet to `style-proof:external-handoff --template`.
+- Each template row now carries an `artifactDraftTemplate` under both `operatorWorksheet` and
+  `manifestDraftTemplate.artifactGuidance`.
+- The artifact draft template is explicitly not proof:
+  `draftOnly:true`, `notProof:true`, `appendOnlyAfterExternalProof:true`, and
+  `keepOutOfManifestUntilCollected:true`.
+- It exposes nullable base artifact fields, required verification field checklist rows,
+  forbidden field checklist rows, accepted channel/action/readback/host-status values,
+  redaction boundary, success criteria, failure signals, and the do-not-include list.
+- Credentialed WeChat rows now show nullable required fields such as
+  `externalAccountAuthenticated` and forbidden fields such as `externalAccountLoginBlocked`
+  before the operator creates any manifest artifact.
+- Zhihu public-host rows now show nullable `hostStatus` guidance with accepted statuses
+  `public-https` and `platform-hosted`.
+- `--manifest-drafts --next-only` still emits empty `artifacts` arrays only, and template output
+  still never reports `canClaimComplete:true`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`: 1 file / 14 tests passed.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 39 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 37.92s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+    `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-external-handoff-artifact-template-20260703.txt`.
+- Boundary: this is operator worksheet and manifest-draft guidance only. It does not prove
+  WeChat rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

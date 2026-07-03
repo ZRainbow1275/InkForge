@@ -8515,3 +8515,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is catalog taxonomy and rule accounting only. It does not prove phone preview,
   mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
   scheduled send, public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 Style Proof External Handoff Artifact Template
+
+- [x] style-proof-external-handoff-artifact-template-20260703.txt
+- Scope: local `style-proof:external-handoff --template` and `--manifest-drafts` operator
+  worksheet enhancement only.
+- Added a draft-only `artifactDraftTemplate` to each template row's `operatorWorksheet` and to
+  `manifestDraftTemplate.artifactGuidance`.
+- The artifact draft template exposes nullable base artifact fields, required verification field
+  checklists, forbidden field checklists, accepted channel/action/readback/host-status values,
+  redaction boundaries, success criteria, failure signals, and the same do-not-include list.
+- The template explicitly remains `draftOnly:true`, `notProof:true`,
+  `appendOnlyAfterExternalProof:true`, and `keepOutOfManifestUntilCollected:true`.
+- `--manifest-drafts --next-only` still leaves every manifest `artifacts` array empty; template
+  output still does not claim `canClaimComplete:true`.
+- Verification passed: focused external-handoff Vitest with 14 tests, focused ESLint for the
+  external-handoff script/test, serial scripts suite with 4 files and 39 tests, `vue-tsc`,
+  production build, and expected blocked release-preflight smoke.
+- Boundary: this is operator collection guidance only. It does not prove phone preview, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host
+  acceptance, platform upload, or publish success.

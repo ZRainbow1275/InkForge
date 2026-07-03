@@ -23636,3 +23636,60 @@ Scope:
   WeChat ordinary rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof External Handoff Artifact Template Slice
+
+Source:
+- The release preflight gate correctly remains blocked by external phone/account/public-host
+  proof rows.
+- The operator worksheet already listed required channels, actions, readbacks, fields, forbidden
+  fields, host statuses, and blank top-level fields, but it did not provide a concrete nullable
+  `StyleProofArtifact` field worksheet for the external operator to fill after real proof.
+- This created an unnecessary handoff ambiguity without changing any proof-gate logic.
+
+Impact:
+- `npx gitnexus impact buildTemplateInstructions -r InkForge --depth 3`,
+  `npx gitnexus impact buildManifestDraftTemplate -r InkForge --depth 3`, and
+  `npx gitnexus impact buildTemplatePacket -r InkForge --depth 3` all returned target not found,
+  risk UNKNOWN, impactedCount 0. These helpers are script-local and not indexed by the current
+  GitNexus graph.
+- The implementation is limited to `scripts/style-proof-external-handoff.ts`, its regression
+  test, docs/spec, and sanitized evidence.
+
+Implementation:
+- Added a draft-only `artifactDraftTemplate` to each `style-proof:external-handoff --template`
+  row's `operatorWorksheet`.
+- Added the same `artifactDraftTemplate` to `manifestDraftTemplate.artifactGuidance`, so the
+  operator worksheet and generated manifest draft guidance share one field contract.
+- The template carries nullable base fields for `StyleProofArtifact` creation, required and
+  forbidden verification-field checklists, accepted channel/action/readback/host-status values,
+  redaction boundary, success criteria, failure signals, and the do-not-include list.
+- The template is explicitly not proof through `draftOnly:true`, `notProof:true`,
+  `appendOnlyAfterExternalProof:true`, and `keepOutOfManifestUntilCollected:true`.
+- Manifest draft output still keeps all `artifacts` arrays empty until real external proof is
+  collected and redacted.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 14 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 39 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 37.92s; `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-external-handoff-artifact-template-20260703.txt`.
+
+Scope:
+- This is local operator worksheet and manifest-draft guidance only. It does not prove WeChat
+  ordinary rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

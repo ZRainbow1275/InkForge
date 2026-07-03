@@ -14074,3 +14074,56 @@ const ruleFamilies = [
   `platform-export-rendering.test.ts`, and the serial `src/services/export` suite.
 - Run release-preflight smoke after the change; it must still exit non-zero with
   `status=blocked-by-external` and `canClaimComplete:false`.
+
+## 289. Style Proof External Handoff Artifact Template - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: external proof rows need an operator-fillable artifact field worksheet, not only a
+  list of required/forbidden fields.
+- This rule applies to `style-proof:external-handoff --template` and `--manifest-drafts`.
+- It must not change release-preflight status, proof gate accounting, accepted proof semantics,
+  style availability, renderer output, or platform state.
+
+### 2. Contract
+
+- Every template row must keep `templateOnly:true`, `notProof:true`, and
+  `canClaimComplete:false`.
+- Every manifest-draft packet must keep `draftOnly:true`, `notProof:true`, and
+  `canClaimComplete:false`.
+- `operatorWorksheet.artifactDraftTemplate` must be an operator worksheet only, with:
+  - `draftOnly:true`;
+  - `notProof:true`;
+  - `appendOnlyAfterExternalProof:true`;
+  - `keepOutOfManifestUntilCollected:true`;
+  - nullable base fields for a future `StyleProofArtifact`;
+  - required verification field checklist rows with `value:null`;
+  - forbidden verification field checklist rows with `value:null`;
+  - accepted channel/action/readback/host-status values from the committed artifact template;
+  - redaction boundary, success criteria, failure signals, and do-not-include guidance.
+- `manifestDraftTemplate.artifactGuidance.artifactDraftTemplate` must equal the operator
+  worksheet artifact template for the same row.
+- Generated `StyleProofManifest` drafts must still contain `artifacts: []` until real external
+  proof is collected, redacted, and manually appended.
+
+### 3. Cannot-Claim Boundary
+
+- A nullable artifact draft template is not proof.
+- It must not satisfy phone preview, phone screenshot, mobile Dark Mode, cover-thumbnail,
+  credentialed-channel, public-host, upload, sync, schedule, or publish rows.
+- It must not include local browser-state locations, auth secrets, request archives, QR payload
+  contents, account-identifying images, raw draft/publish URLs, local capture paths, or
+  third-party material URLs.
+- `style-proof:release-preflight --json` must still exit non-zero with
+  `status=blocked-by-external` and `canClaimComplete:false` while external rows remain open.
+
+### 4. Required Checks
+
+- Run GitNexus impact on the edited script helpers where available. If GitNexus cannot resolve
+  script-local helpers, record the target-not-found result and compensate with focused CLI tests.
+- Add regression coverage for:
+  - credentialed-channel required/forbidden field checklist rows;
+  - public-host accepted host-status guidance;
+  - manifest draft outputs staying artifact-empty and non-claiming.
+- Run focused external-handoff Vitest, focused ESLint, serial scripts tests, release-preflight
+  smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans before committing.

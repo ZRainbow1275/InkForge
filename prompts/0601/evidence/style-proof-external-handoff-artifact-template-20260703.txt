@@ -1,0 +1,78 @@
+Style Proof External Handoff Artifact Template - 2026-07-03
+
+Scope:
+- Local CLI/operator-template enhancement for committed style proof external handoff rows.
+- No platform action, no phone preview, no sync, no upload, no publish, no browser-profile capture,
+  and no proof artifact creation.
+
+Implemented:
+- Added a draft-only `artifactDraftTemplate` to each `style-proof:external-handoff --template`
+  row's `operatorWorksheet`.
+- Added the same `artifactDraftTemplate` under `manifestDraftTemplate.artifactGuidance` so the
+  manifest draft skeleton and the operator worksheet share the exact same field contract.
+- The template has `draftOnly:true`, `notProof:true`, `appendOnlyAfterExternalProof:true`, and
+  `keepOutOfManifestUntilCollected:true`.
+- Base artifact fields are nullable placeholders only: `id`, `kind`, `label`, `choiceId`,
+  `channel`, `action`, `readback`, `artifactFingerprint`, `artifactRef`, `exactArtifact`,
+  `collectedAt`, `safeForCommit`, `committed`, `sensitive`, and `hostStatus`.
+- Required and forbidden verification fields are emitted as explicit checklist rows with
+  `value:null`; they are not accepted proof and must be filled only after real external proof.
+- Accepted values are copied from the committed artifact template: channels, actions, readbacks,
+  and host statuses.
+
+Observed local behavior:
+- `--template --platform=zhihu --kind=public-host --status=blocked-by-external
+  --issue=style-proof-manifest-requirement-missing --next-only` still exits 1 and reports
+  `canClaimComplete:false`.
+- The public-host template now includes nullable `hostStatus` guidance and accepted host statuses
+  `public-https` and `platform-hosted`.
+- `--manifest-drafts --next-only` still keeps every generated `StyleProofManifest.artifacts`
+  array empty.
+- The CLI output still does not emit `"canClaimComplete":true` or an `artifacts` object.
+
+Regression coverage:
+- Credentialed WeChat external-account template asserts the artifact draft template is not proof,
+  shares the row requirement/platform, exposes nullable base fields, includes
+  `externalAccountAuthenticated` as a required field, and includes
+  `externalAccountLoginBlocked` as a forbidden field.
+- Zhihu public-host template asserts accepted host statuses and nullable `hostStatus` guidance.
+- Template-generated manifest drafts continue to pass schema intake as incomplete drafts with
+  zero artifacts and `canClaimComplete:false`.
+
+Verification:
+- `npx gitnexus impact buildTemplateInstructions -r InkForge --depth 3`
+  returned target not found, risk UNKNOWN, impactedCount 0. The helper is script-local and not
+  indexed by the current GitNexus graph.
+- `npx gitnexus impact buildManifestDraftTemplate -r InkForge --depth 3`
+  returned target not found, risk UNKNOWN, impactedCount 0. The helper is script-local and not
+  indexed by the current GitNexus graph.
+- `npx gitnexus impact buildTemplatePacket -r InkForge --depth 3`
+  returned target not found, risk UNKNOWN, impactedCount 0. The helper is script-local and not
+  indexed by the current GitNexus graph.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 14 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 39 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; 4653 modules transformed, Vite built in 37.92s, and `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+- `git diff --cached --check`
+  passed.
+- `git diff --cached -U0 | rg ... sensitive fragments`
+  returned no matches for local profile paths, auth header markers, QR/code markers, HAR markers,
+  account-image markers, local capture-path markers, or platform route fragments.
+- `npx gitnexus detect-changes -r InkForge --scope staged`
+  returned `No changes detected.` for the staged patch.
+
+Boundary:
+- This proves local operator worksheet/accounting behavior only.
+- It does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

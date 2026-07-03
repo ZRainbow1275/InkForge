@@ -85,6 +85,54 @@ interface ExternalHandoffArtifactTemplate {
   failureSignals: string[]
 }
 
+interface ExternalHandoffArtifactDraftFieldChecklistItem {
+  field: string
+  value: null
+  required: boolean
+  forbidden: boolean
+}
+
+interface ExternalHandoffArtifactDraftTemplate {
+  draftOnly: true
+  notProof: true
+  appendOnlyAfterExternalProof: true
+  keepOutOfManifestUntilCollected: true
+  requirementId: string
+  platform: string
+  choiceId: null
+  baseFields: {
+    id: null
+    requirementId: string
+    kind: null
+    label: null
+    platform: string
+    choiceId: null
+    channel: null
+    action: null
+    readback: null
+    artifactFingerprint: null
+    artifactRef: null
+    exactArtifact: null
+    collectedAt: null
+    safeForCommit: null
+    committed: null
+    sensitive: null
+    hostStatus: null
+  }
+  requiredVerificationFields: ExternalHandoffArtifactDraftFieldChecklistItem[]
+  forbiddenVerificationFields: ExternalHandoffArtifactDraftFieldChecklistItem[]
+  acceptedValues: {
+    channels: string[]
+    actions: string[]
+    readbacks: string[]
+    hostStatuses: string[]
+  }
+  redactionBoundary: string
+  successCriteria: string[]
+  failureSignals: string[]
+  doNotInclude: string[]
+}
+
 interface ExternalHandoffTemplateInstructions {
   requiredChannels: string[]
   requiredActions: string[]
@@ -103,6 +151,7 @@ interface ExternalHandoffTemplateInstructions {
     artifactRef: null
     notes: unknown[]
   }
+  artifactDraftTemplate: ExternalHandoffArtifactDraftTemplate
 }
 
 interface ExternalHandoffManifestDraft {
@@ -130,6 +179,7 @@ interface ExternalHandoffManifestDraftTemplate {
     forbiddenFields: string[]
     acceptedHostStatuses: string[]
     maxFreshnessDays: number | null
+    artifactDraftTemplate: ExternalHandoffArtifactDraftTemplate
   }
 }
 
@@ -966,6 +1016,64 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       artifactRef: null,
       notes: [],
     })
+    expect(row?.operatorWorksheet.artifactDraftTemplate).toMatchObject({
+      draftOnly: true,
+      notProof: true,
+      appendOnlyAfterExternalProof: true,
+      keepOutOfManifestUntilCollected: true,
+      requirementId: row?.requirementId,
+      platform: 'wechat',
+      choiceId: null,
+      baseFields: {
+        id: null,
+        requirementId: row?.requirementId,
+        kind: null,
+        label: null,
+        platform: 'wechat',
+        choiceId: null,
+        channel: null,
+        action: null,
+        readback: null,
+        artifactFingerprint: null,
+        artifactRef: null,
+        exactArtifact: null,
+        collectedAt: null,
+        safeForCommit: null,
+        committed: null,
+        sensitive: null,
+        hostStatus: null,
+      },
+      acceptedValues: {
+        channels: row?.artifactTemplate.requiredChannels,
+        actions: row?.artifactTemplate.requiredActions,
+        readbacks: row?.artifactTemplate.requiredReadbacks,
+        hostStatuses: row?.artifactTemplate.acceptedHostStatuses,
+      },
+    })
+    expect(row?.operatorWorksheet.artifactDraftTemplate.requiredVerificationFields).toContainEqual({
+      field: 'externalAccountAuthenticated',
+      value: null,
+      required: true,
+      forbidden: false,
+    })
+    expect(row?.operatorWorksheet.artifactDraftTemplate.forbiddenVerificationFields).toContainEqual({
+      field: 'externalAccountLoginBlocked',
+      value: null,
+      required: false,
+      forbidden: true,
+    })
+    expect(row?.operatorWorksheet.artifactDraftTemplate.redactionBoundary).toBe(
+      row?.artifactTemplate.redactionBoundary,
+    )
+    expect(row?.operatorWorksheet.artifactDraftTemplate.successCriteria).toEqual(
+      row?.artifactTemplate.successCriteria,
+    )
+    expect(row?.operatorWorksheet.artifactDraftTemplate.failureSignals).toEqual(
+      row?.artifactTemplate.failureSignals,
+    )
+    expect(row?.operatorWorksheet.artifactDraftTemplate.doNotInclude).toContain(
+      'raw account session material',
+    )
     expect(row?.manifestDraftTemplate).toMatchObject({
       draftOnly: true,
       notProof: true,
@@ -984,6 +1092,9 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     )
     expect(row?.manifestDraftTemplate.artifactGuidance.forbiddenFields).toEqual(
       row?.artifactTemplate.forbiddenFields,
+    )
+    expect(row?.manifestDraftTemplate.artifactGuidance.artifactDraftTemplate).toEqual(
+      row?.operatorWorksheet.artifactDraftTemplate,
     )
     expect(row?.manifestDraftTemplate.intakeCommand).toBe(
       'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
@@ -1044,6 +1155,45 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(report.summary.artifactCount).toBe(0)
     expect(schemaIssues).toHaveLength(0)
     expect(semanticIssues.length).toBeGreaterThan(0)
+    expect(result.stdout).not.toContain('"canClaimComplete":true')
+    expect(result.stdout).not.toContain('"artifacts":[{')
+  })
+
+  it('prints host-status worksheet fields for public-host proof without committing artifacts', async () => {
+    const result = await runExternalHandoffCli([
+      '--template',
+      '--platform=zhihu',
+      '--kind=public-host',
+      '--status=blocked-by-external',
+      '--issue=style-proof-manifest-requirement-missing',
+      '--next-only',
+    ])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(result.stdout)
+
+    const template = parseExternalHandoffTemplateJson(result.stdout)
+    expect(template.rows).toHaveLength(1)
+
+    const row = template.rows[0]
+    expect(row?.platform).toBe('zhihu')
+    expect(row?.requirementId).toBe('public-image-host')
+    expect(row?.operatorWorksheet.artifactDraftTemplate.acceptedValues.hostStatuses).toEqual([
+      'public-https',
+      'platform-hosted',
+    ])
+    expect(row?.operatorWorksheet.artifactDraftTemplate.requiredVerificationFields).toContainEqual({
+      field: 'hostStatus',
+      value: null,
+      required: true,
+      forbidden: false,
+    })
+    expect(row?.operatorWorksheet.artifactDraftTemplate.baseFields.hostStatus).toBeNull()
+    expect(row?.manifestDraftTemplate.artifactGuidance.artifactDraftTemplate).toEqual(
+      row?.operatorWorksheet.artifactDraftTemplate,
+    )
+    expect(row?.manifestDraftTemplate.drafts.every(draft => draft.artifacts.length === 0)).toBe(true)
     expect(result.stdout).not.toContain('"canClaimComplete":true')
     expect(result.stdout).not.toContain('"artifacts":[{')
   })

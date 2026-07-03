@@ -19,6 +19,8 @@ type ExternalHandoffOutputMode = 'markdown' | 'json' | 'template' | 'manifest-dr
 type ExternalHandoffIssueFilter = CommittedStyleProofExternalProofChecklistRow['issueIds'][number]
 type ExternalHandoffArtifactTemplate =
   CommittedStyleProofExternalProofChecklistRow['artifactTemplate']
+type ExternalHandoffArtifactVerificationField =
+  ExternalHandoffArtifactTemplate['requiredFields'][number]
 
 interface ExternalHandoffCliFilters {
   platform: Platform | null
@@ -58,6 +60,54 @@ interface ExternalHandoffTemplateNextRowRef {
   rowId: string
 }
 
+interface ExternalHandoffArtifactDraftFieldChecklistItem {
+  field: ExternalHandoffArtifactVerificationField
+  value: null
+  required: boolean
+  forbidden: boolean
+}
+
+interface ExternalHandoffArtifactDraftTemplate {
+  draftOnly: true
+  notProof: true
+  appendOnlyAfterExternalProof: true
+  keepOutOfManifestUntilCollected: true
+  requirementId: CommittedStyleProofExternalProofChecklistRow['requirementId']
+  platform: Platform
+  choiceId: null
+  baseFields: {
+    id: null
+    requirementId: CommittedStyleProofExternalProofChecklistRow['requirementId']
+    kind: null
+    label: null
+    platform: Platform
+    choiceId: null
+    channel: null
+    action: null
+    readback: null
+    artifactFingerprint: null
+    artifactRef: null
+    exactArtifact: null
+    collectedAt: null
+    safeForCommit: null
+    committed: null
+    sensitive: null
+    hostStatus: null
+  }
+  requiredVerificationFields: readonly ExternalHandoffArtifactDraftFieldChecklistItem[]
+  forbiddenVerificationFields: readonly ExternalHandoffArtifactDraftFieldChecklistItem[]
+  acceptedValues: {
+    channels: ExternalHandoffArtifactTemplate['requiredChannels']
+    actions: ExternalHandoffArtifactTemplate['requiredActions']
+    readbacks: ExternalHandoffArtifactTemplate['requiredReadbacks']
+    hostStatuses: ExternalHandoffArtifactTemplate['acceptedHostStatuses']
+  }
+  redactionBoundary: string
+  successCriteria: ExternalHandoffArtifactTemplate['successCriteria']
+  failureSignals: ExternalHandoffArtifactTemplate['failureSignals']
+  doNotInclude: readonly string[]
+}
+
 interface ExternalHandoffTemplateInstructions {
   requiredChannels: ExternalHandoffArtifactTemplate['requiredChannels']
   requiredActions: ExternalHandoffArtifactTemplate['requiredActions']
@@ -76,6 +126,7 @@ interface ExternalHandoffTemplateInstructions {
     artifactRef: null
     notes: readonly []
   }
+  artifactDraftTemplate: ExternalHandoffArtifactDraftTemplate
 }
 
 interface ExternalHandoffManifestDraftTemplate {
@@ -95,6 +146,7 @@ interface ExternalHandoffManifestDraftTemplate {
     forbiddenFields: ExternalHandoffArtifactTemplate['forbiddenFields']
     acceptedHostStatuses: ExternalHandoffArtifactTemplate['acceptedHostStatuses']
     maxFreshnessDays: number | null
+    artifactDraftTemplate: ExternalHandoffArtifactDraftTemplate
   }
 }
 
@@ -670,10 +722,79 @@ const TEMPLATE_DO_NOT_INCLUDE: readonly string[] = [
   'local capture file references',
 ]
 
+function buildArtifactDraftFieldChecklist(
+  fields: readonly ExternalHandoffArtifactVerificationField[],
+  options: {
+    required: boolean
+    forbidden: boolean
+  },
+): readonly ExternalHandoffArtifactDraftFieldChecklistItem[] {
+  return fields.map(field => ({
+    field,
+    value: null,
+    required: options.required,
+    forbidden: options.forbidden,
+  }))
+}
+
+function buildArtifactDraftTemplate(
+  row: CommittedStyleProofExternalProofChecklistRow,
+): ExternalHandoffArtifactDraftTemplate {
+  const template = row.artifactTemplate
+
+  return {
+    draftOnly: true,
+    notProof: true,
+    appendOnlyAfterExternalProof: true,
+    keepOutOfManifestUntilCollected: true,
+    requirementId: row.requirementId,
+    platform: row.platform,
+    choiceId: null,
+    baseFields: {
+      id: null,
+      requirementId: row.requirementId,
+      kind: null,
+      label: null,
+      platform: row.platform,
+      choiceId: null,
+      channel: null,
+      action: null,
+      readback: null,
+      artifactFingerprint: null,
+      artifactRef: null,
+      exactArtifact: null,
+      collectedAt: null,
+      safeForCommit: null,
+      committed: null,
+      sensitive: null,
+      hostStatus: null,
+    },
+    requiredVerificationFields: buildArtifactDraftFieldChecklist(template.requiredFields, {
+      required: true,
+      forbidden: false,
+    }),
+    forbiddenVerificationFields: buildArtifactDraftFieldChecklist(template.forbiddenFields, {
+      required: false,
+      forbidden: true,
+    }),
+    acceptedValues: {
+      channels: template.requiredChannels,
+      actions: template.requiredActions,
+      readbacks: template.requiredReadbacks,
+      hostStatuses: template.acceptedHostStatuses,
+    },
+    redactionBoundary: template.redactionBoundary,
+    successCriteria: template.successCriteria,
+    failureSignals: template.failureSignals,
+    doNotInclude: TEMPLATE_DO_NOT_INCLUDE,
+  }
+}
+
 function buildTemplateInstructions(
   row: CommittedStyleProofExternalProofChecklistRow,
 ): ExternalHandoffTemplateInstructions {
   const template = row.artifactTemplate
+  const artifactDraftTemplate = buildArtifactDraftTemplate(row)
 
   return {
     requiredChannels: template.requiredChannels,
@@ -693,6 +814,7 @@ function buildTemplateInstructions(
       artifactRef: null,
       notes: [],
     },
+    artifactDraftTemplate,
   }
 }
 
@@ -700,6 +822,7 @@ function buildManifestDraftTemplate(
   row: CommittedStyleProofExternalProofChecklistRow,
 ): ExternalHandoffManifestDraftTemplate {
   const choiceIds = row.choiceIds.length > 0 ? row.choiceIds : []
+  const artifactDraftTemplate = buildArtifactDraftTemplate(row)
   const drafts = choiceIds.length > 0
     ? choiceIds.map(choiceId => createStyleProofManifestDraft({
         platform: row.platform,
@@ -724,6 +847,7 @@ function buildManifestDraftTemplate(
       forbiddenFields: row.artifactTemplate.forbiddenFields,
       acceptedHostStatuses: row.artifactTemplate.acceptedHostStatuses,
       maxFreshnessDays: row.artifactTemplate.maxFreshnessDays,
+      artifactDraftTemplate,
     },
   }
 }
