@@ -1037,7 +1037,7 @@ function selectAccentColor(color: string): void {
 // 鈹€鈹€鈹€ 鎺掔増棰勮蹇€熷垏鎹?鈹€鈹€鈹€
 // ─── 排版预设快速切换（平台感知） ───
 // 替换原 themePresets.slice(0, 5) 的硬编码上限；按当前选中平台动态返回全部预设：
-// - wechat: 12 个
+// - wechat: 16 个（12 base + 4 SVG flagship）
 // - xiaohongshu: 5 个（xhs-*）
 // - zhihu: 3 个（zhihu-*）
 // Inspector 排版策略条消费此数据（双行 chip：name + persona 微标签）。

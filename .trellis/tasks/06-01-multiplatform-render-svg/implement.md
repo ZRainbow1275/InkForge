@@ -24053,3 +24053,50 @@ Evidence:
 Scope:
 - This is a release-scope change only. It does not prove XHS/Zhihu upload, public-host,
   platform preview, scheduled send, or publish success; the operator will test those manually.
+
+## 2026-07-03 Publish Center Full WeChat Preset Exposure Slice
+
+Source:
+- The revised round target is application-level SVG/style availability plus WeChat application
+  readiness.
+- `WorkstationView.vue` already consumes `getPlatformPresets(selectedPlatform)` and exposes all
+  WeChat presets, but `PublishView.vue` still used `ARTICLE_PRESETS.slice(0, 5)` for the WeChat
+  publish selector.
+- That meant the Publish Center copy/export path could generate flagship SVG output if a
+  matching id was already selected, but the user-facing selector did not expose the four SVG
+  flagship presets directly.
+
+Impact:
+- `npx gitnexus impact PublishView -r InkForge --depth 3` returned an ambiguous symbol list,
+  so the exact Vue file symbol was not used for risk.
+- `npx gitnexus impact generateHtml -r InkForge --depth 3` was ambiguous across duplicate roots.
+- `npx gitnexus impact "Function:inkforge/src/views/PublishView.vue:generateHtml" -r InkForge --depth 3`
+  reported LOW risk, 1 direct caller, 0 affected processes, and file-local scope.
+
+Implementation:
+- Removed the unused `ARTICLE_PRESETS` import from `PublishView.vue`.
+- Changed Publish Center WeChat `quickPresets` from the fixed five-item legacy article-preset
+  slice to the canonical export `themePresets` list.
+- Updated the Workstation preset comment from 12 to 16 WeChat presets so future maintenance does
+  not reintroduce the old count.
+- Added `src/views/__tests__/PublishView.wechat-presets.test.ts` to assert that the Publish
+  Center no longer references `ARTICLE_PRESETS`, no longer uses `.slice(0, 5)`, uses
+  `themePresets`, and that all four SVG flagship preset ids remain present in the canonical
+  export list.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 2 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 3 files and 353 tests.
+- `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`
+  passed.
+
+Evidence:
+- Added `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
+
+Scope:
+- This proves application-level Publish Center reachability for all current WeChat presets,
+  including the SVG flagship family. It does not prove WeChat phone preview, mobile Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
+  success.

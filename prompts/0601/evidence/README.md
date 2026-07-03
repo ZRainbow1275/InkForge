@@ -8656,3 +8656,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `platform-export-rendering.test.ts` with 375 tests, and expected blocked JSON smokes.
 - Boundary: this is release-scope accounting only. It does not prove XHS/Zhihu upload,
   public-host, platform preview, scheduled send, or publish success.
+
+## 2026-07-03 Publish Center Full WeChat Preset Exposure
+
+- [x] publish-center-full-wechat-presets-20260703.txt
+- Scope: application-level Publish Center preset reachability for current WeChat export presets.
+- Publish Center now uses canonical export `themePresets` for the WeChat selector instead of the
+  legacy five-item `ARTICLE_PRESETS.slice(0, 5)` subset.
+- The selector contract therefore exposes all 16 current WeChat presets, including
+  `flagship-kiln`, `flagship-kiln-paste-safe`, `flagship-tempera`, and `flagship-amber`.
+- Verification passed: focused PublishView preset test with 2 tests, focused ESLint for touched
+  views/test, and focused export preset/flagship regression with 353 tests.
+- Boundary: this proves app-level selection reachability only. It does not prove WeChat phone
+  preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
+  rendering, or publish success.

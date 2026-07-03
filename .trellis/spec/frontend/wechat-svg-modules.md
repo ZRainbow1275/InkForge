@@ -14439,3 +14439,45 @@ const ruleFamilies = [
 - Run focused release-preflight and external-handoff Vitest, platform export regression tests,
   focused ESLint, serial scripts tests, type-check, build, release-preflight smoke, diff checks,
   GitNexus staged detection, and sensitive-fragment scans before committing.
+
+## 296. Publish Center Full WeChat Preset Exposure - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: application-level SVG/style availability is incomplete if the export service owns
+  SVG flagship presets but the Publish Center selector still exposes only a legacy five-item
+  article-preset slice.
+- This rule applies to `src/views/PublishView.vue` and any future publish/export entry point
+  that lets users choose WeChat presets before copying or exporting rich HTML.
+- It must not remove existing base WeChat presets, XHS/Zhihu platform options, or the existing
+  `markdownToWechatWithStats()` rendering path.
+
+### 2. Contract
+
+- Publish Center WeChat preset selection must use the canonical export `themePresets` list.
+- The selector must expose all 16 current WeChat export presets:
+  - 12 base presets;
+  - `flagship-kiln`;
+  - `flagship-kiln-paste-safe`;
+  - `flagship-tempera`;
+  - `flagship-amber`.
+- Do not use `ARTICLE_PRESETS.slice(0, 5)` or any other fixed preview subset for the publish
+  selector. Small preview galleries may be separately designed, but the publish/export action
+  must have full preset reachability.
+- Selecting a flagship preset must continue to route through the real
+  `markdownToWechatWithStats(content, preset, options)` path, not a preview-only or mock path.
+
+### 3. Cannot-Claim Boundary
+
+- Full selector exposure proves application-level reachability only.
+- It does not prove WeChat phone preview, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, or publish success.
+- It must not mark blocked interactive SVG/H5 candidates as phone-proven.
+
+### 4. Required Checks
+
+- Run GitNexus impact on the touched PublishView symbol when available.
+- Add a regression test that fails if Publish Center returns to a fixed five-item slice or
+  omits any current SVG flagship preset.
+- Run the focused PublishView preset test, focused ESLint for the touched views/test, relevant
+  export preset/flagship tests, type-check, and production build before committing.

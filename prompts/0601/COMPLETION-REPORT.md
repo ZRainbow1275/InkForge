@@ -12164,3 +12164,29 @@ Boundary:
   `prompts/0601/evidence/style-proof-release-scope-manual-platform-defer-20260703.txt`.
 - Boundary: this is release-scope accounting only. It does not prove XHS/Zhihu upload,
   public-host, platform preview, scheduled send, or publish success; those checks are manual.
+
+---
+
+## 2026-07-03 Publish Center Full WeChat Preset Exposure Addendum
+
+- Fixed a user-facing application reachability gap in `PublishView.vue`: the WeChat publish
+  selector used to expose only `ARTICLE_PRESETS.slice(0, 5)`, while the real export renderer and
+  Workstation already supported all current WeChat export presets.
+- Publish Center now uses the canonical export `themePresets` list, so all 16 current WeChat
+  presets are directly selectable from the publish/copy path, including:
+  - `flagship-kiln`;
+  - `flagship-kiln-paste-safe`;
+  - `flagship-tempera`;
+  - `flagship-amber`.
+- Updated the Workstation preset-count comment from 12 to 16 to prevent future drift.
+- Added regression coverage in
+  `inkforge/src/views/__tests__/PublishView.wechat-presets.test.ts`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`: 1 file / 2 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 3 files / 353 tests passed.
+  - `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`: passed.
+- Added sanitized evidence:
+  `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
+- Boundary: this proves application-level selection reachability for all current WeChat export
+  presets. It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, or publish success.

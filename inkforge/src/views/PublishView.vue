@@ -9,7 +9,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DOMPurify from 'dompurify'
 import { useEditorStore } from '@/stores/editor'
-import { useThemeStore, ARTICLE_PRESETS } from '@/stores/theme'
+import { useThemeStore } from '@/stores/theme'
 import { marked } from 'marked'
 import {
   themePresets,
@@ -41,7 +41,7 @@ const platformInfo = {
 
 // 主题预设
 const selectedPreset = ref(currentPresetId.value || 'thesis')
-const quickPresets = computed(() => ARTICLE_PRESETS.slice(0, 5))
+const quickPresets = computed(() => themePresets)
 
 // 小红书预设
 const xhsPreset = ref('xhs-fresh')

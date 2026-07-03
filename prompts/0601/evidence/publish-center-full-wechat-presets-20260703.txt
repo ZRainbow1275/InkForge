@@ -1,0 +1,43 @@
+Publish Center Full WeChat Preset Exposure - 2026-07-03
+
+Scope:
+- Application-level WeChat preset reachability in Publish Center.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Problem:
+- Workstation already used getPlatformPresets(selectedPlatform) for all platform presets.
+- Publish Center still used ARTICLE_PRESETS.slice(0, 5), exposing only the legacy five-item
+  subset in the WeChat publish selector.
+- The real WeChat renderer could generate SVG flagship output when selectedPreset already
+  matched a flagship id, but the Publish Center UI did not let the operator select all current
+  WeChat SVG/style presets directly.
+
+Implemented:
+- PublishView.vue now uses canonical export themePresets for the WeChat preset selector.
+- PublishView.vue no longer imports ARTICLE_PRESETS.
+- WorkstationView.vue preset-count comment now records 16 WeChat presets.
+- Added PublishView.wechat-presets.test.ts.
+
+Regression contract:
+- Publish Center must not reference ARTICLE_PRESETS.
+- Publish Center must not use .slice(0, 5) for WeChat preset selection.
+- Publish Center quickPresets must be computed from themePresets.
+- Canonical themePresets must include all four SVG flagship ids:
+  - flagship-kiln
+  - flagship-kiln-paste-safe
+  - flagship-tempera
+  - flagship-amber
+
+Verification:
+- pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 2 tests
+- pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 3 files / 353 tests
+- pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet
+  PASS
+
+Boundary:
+- This proves application-level selector reachability for all current WeChat export presets.
+- It does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or
+  publish success.
