@@ -1,0 +1,43 @@
+Application Preflight Package Script - 2026-07-04
+
+Scope:
+- Local package-script acceptance entry only.
+- No WeChat account action, phone preview, upload, sync, schedule, platform preview, public render,
+  or publish action.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+Implemented:
+- Added `style-proof:application-preflight` to `inkforge/package.json`.
+- The script runs:
+  `tsx scripts/style-proof-release-preflight.ts --scope=application`
+- The existing strict `style-proof:release-preflight` script remains unchanged and continues to
+  represent external proof release readiness.
+
+Purpose:
+- Give operators one unambiguous command for the current narrowed local acceptance target.
+- Avoid confusing the strict external-proof release gate with the local application SVG/style
+  readiness gate.
+- Keep the strict gate blocked while WeChat phone/account/platform proof remains missing.
+
+TDD record:
+- Initial focused test failed because `style-proof:application-preflight` was absent from
+  `package.json`.
+- After adding the script, the focused test passed.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 1 file / 7 tests.
+- `pnpm --silent -C inkforge style-proof:application-preflight --json`
+  PASS: exit 0, `status=application-ready`, `canClaimApplicationReady=true`,
+  `applicationGalleryStatus=application-gallery-ready`, and no application issue rows.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  PASS: expected exit 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=4`, and `uniqueNextRows=2`.
+
+Boundary:
+- This proves the local package script points at the current application-level acceptance gate.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, public-host acceptance,
+  or publish success.

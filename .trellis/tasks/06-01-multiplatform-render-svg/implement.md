@@ -25046,3 +25046,47 @@ Scope:
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-04 Application Preflight Package Script Slice
+
+Source:
+- The current-round local acceptance gate is `style-proof:release-preflight --scope=application`.
+- `package.json` still only exposed the strict `style-proof:release-preflight` script, so
+  operators could easily run the strict external-proof gate and misread the expected
+  `blocked-by-external` status as a local application failure.
+
+Impact:
+- This is a package-script entry and source-contract test slice. No renderer, UI, gallery,
+  export, manifest, sync, upload, schedule, or publish logic is changed.
+
+Implementation:
+- Added `style-proof:application-preflight` to `inkforge/package.json`:
+  `tsx scripts/style-proof-release-preflight.ts --scope=application`.
+- Kept `style-proof:release-preflight` unchanged as the strict external-proof release gate.
+- Added a source-contract test proving the package scripts expose:
+  - strict release preflight;
+  - application preflight;
+  - application gallery.
+
+Verification:
+- Initial focused TDD run failed because `style-proof:application-preflight` was absent from
+  `package.json`.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 7 tests after implementation.
+- `pnpm --silent -C inkforge style-proof:application-preflight --json` exited 0 with
+  `status=application-ready`, `canClaimApplicationReady=true`,
+  `applicationGalleryStatus=application-gallery-ready`, and empty application issue rows.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected
+  with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=4`, and
+  `uniqueNextRows=2`.
+
+Evidence:
+- Added `prompts/0601/evidence/application-preflight-package-script-20260704.txt`.
+
+Scope:
+- This proves package-level local acceptance entry points are wired and that strict release
+  behavior remains unchanged.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

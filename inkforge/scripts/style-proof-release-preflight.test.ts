@@ -1,4 +1,5 @@
 import { execFile, type ExecFileException } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
@@ -7,6 +8,10 @@ interface ReleasePreflightCliResult {
   exitCode: number
   stdout: string
   stderr: string
+}
+
+interface PackageJsonScripts {
+  scripts?: Record<string, string>
 }
 
 interface ReleasePreflightSummary {
@@ -205,6 +210,12 @@ const currentFilePath = fileURLToPath(import.meta.url)
 const projectRoot = resolve(dirname(currentFilePath), '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
 const releasePreflightScriptPath = resolve(projectRoot, 'scripts', 'style-proof-release-preflight.ts')
+const packageJsonPath = resolve(projectRoot, 'package.json')
+
+function readPackageJsonScripts(): Record<string, string> {
+  const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as PackageJsonScripts
+  return parsed.scripts ?? {}
+}
 
 const releasePreflightSensitiveFragments = [
   ['C:/Users', 'HP'].join('/'),
@@ -775,6 +786,16 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('--help')
     expect(result.stdout).toContain('pnpm --silent -C inkforge style-proof:release-preflight --json')
     expectNoSensitiveFragments(result.stdout)
+  })
+
+  it('exposes a dedicated package script for the narrowed application gate', () => {
+    const scripts = readPackageJsonScripts()
+
+    expect(scripts['style-proof:release-preflight']).toBe('tsx scripts/style-proof-release-preflight.ts')
+    expect(scripts['style-proof:application-preflight']).toBe(
+      'tsx scripts/style-proof-release-preflight.ts --scope=application',
+    )
+    expect(scripts['style-proof:application-gallery']).toBe('tsx scripts/style-proof-application-gallery.ts')
   })
 
   it('rejects unknown arguments before reading or claiming release success', async () => {

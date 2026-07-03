@@ -8969,3 +8969,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   output readiness only. It does not prove WeChat paste, phone preview, credentialed sync,
   scheduled send, public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests
   remain manually deferred to the user.
+
+## 2026-07-04 Application Preflight Package Script
+
+- [x] application-preflight-package-script-20260704.txt
+- Scope: package-script entry for the current narrowed local acceptance gate.
+- Added `style-proof:application-preflight` to `inkforge/package.json` as an explicit alias for
+  `tsx scripts/style-proof-release-preflight.ts --scope=application`.
+- The strict `style-proof:release-preflight` script remains unchanged and still blocks on missing
+  external WeChat phone/account/platform proof.
+- Verification passed: TDD red/green focused release-preflight script test, direct
+  `style-proof:application-preflight --json` smoke with `status=application-ready`, and expected
+  blocked strict `style-proof:release-preflight --json` smoke.
+- Boundary: this proves the package-level acceptance entry only. It does not prove WeChat paste,
+  phone preview, credentialed sync, scheduled send, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

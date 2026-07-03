@@ -12762,3 +12762,33 @@ Boundary:
   Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, platform preview, or publish success. Xiaohongshu and Zhihu publish-side
   tests remain manually deferred to the user for this round.
+
+---
+
+## 2026-07-04 Application Preflight Package Script Addendum
+
+- Added a dedicated package script for the narrowed current-round local acceptance gate:
+  `style-proof:application-preflight`.
+- The new script runs:
+  `tsx scripts/style-proof-release-preflight.ts --scope=application`.
+- The strict `style-proof:release-preflight` script remains unchanged and continues to represent
+  external-proof release readiness.
+- Added a source-contract regression test proving the package scripts expose:
+  - strict release preflight;
+  - application preflight;
+  - application gallery.
+- TDD record:
+  - The first focused run failed before implementation because `style-proof:application-preflight`
+    was absent from `package.json`.
+  - The post-implementation focused run passed with 1 file / 7 tests.
+- Verification:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 1 file / 7 tests passed.
+  - `pnpm --silent -C inkforge style-proof:application-preflight --json`: exited 0 with `status=application-ready`, `canClaimApplicationReady=true`, `applicationGalleryStatus=application-gallery-ready`, and no application issue rows.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=4`, and `uniqueNextRows=2`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-preflight-package-script-20260704.txt`.
+- Boundary: this proves the package-level local acceptance entry only. It does not prove WeChat
+  ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this
+  round.

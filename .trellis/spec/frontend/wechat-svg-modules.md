@@ -15287,3 +15287,45 @@ const ruleFamilies = [
   release-preflight smoke, focused ESLint, full export-service regression, type-check,
   production build, GitNexus detect, diff checks, and sensitive scans before committing this
   class of change.
+
+## 310. Application Preflight Package Script Entry - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: operators need an unambiguous command for the narrowed local application acceptance
+  gate. The strict release preflight must remain available and blocked while external WeChat
+  proof is missing, but it must not be confused with the current-round local application gate.
+- This rule applies to `inkforge/package.json` and
+  `scripts/style-proof-release-preflight.test.ts`.
+- This rule does not re-enable Xiaohongshu/Zhihu publish automation. Per the current acceptance
+  update, those publish-side checks are manually owned by the operator and must not block this
+  local application gate.
+
+### 2. Package Script Contract
+
+- `inkforge/package.json` must expose:
+  - `style-proof:release-preflight` as `tsx scripts/style-proof-release-preflight.ts`;
+  - `style-proof:application-preflight` as
+    `tsx scripts/style-proof-release-preflight.ts --scope=application`;
+  - `style-proof:application-gallery` as `tsx scripts/style-proof-application-gallery.ts`.
+- The application preflight script is a convenience entry only. It must call the same
+  release-preflight implementation with `--scope=application`; it must not fork the acceptance
+  logic or change strict release behavior.
+- The strict `style-proof:release-preflight --json` command must continue to exit non-zero while
+  WeChat phone/account/platform proof rows remain missing.
+
+### 3. Cannot-Claim Boundary
+
+- Passing this rule proves only that package-level local acceptance entry points are wired.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu publish success. Those publish-side tests are manually
+  deferred to the user for this round.
+
+### 4. Required Checks
+
+- Keep the release-preflight test proving the package script strings exactly match the contract.
+- Run focused release-preflight tests, `style-proof:application-preflight --json` smoke, strict
+  `style-proof:release-preflight --json` blocked smoke, focused ESLint for the test file,
+  GitNexus detect, diff checks, and sensitive scans before committing this class of change.
