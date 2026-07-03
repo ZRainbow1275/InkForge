@@ -1298,6 +1298,61 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(draftPackResult.stdout).not.toContain('"artifacts":[{')
   })
 
+  it('can mark handoff generation as CLI-success while preserving cannot-claim payloads', async () => {
+    const rawJsonResult = await runExternalHandoffCli(['--json', '--handoff-ok-exit-zero'])
+    expect(rawJsonResult.exitCode).toBe(1)
+    expect(rawJsonResult.stderr.trim()).toBe('')
+
+    const rawJsonPacket = parseExternalHandoffJson(rawJsonResult.stdout)
+    expect(rawJsonPacket.canClaimComplete).toBe(false)
+    expect(rawJsonPacket.status).toBe('blocked-by-external')
+
+    const templateResult = await runExternalHandoffCli([
+      '--template',
+      '--platform=wechat',
+      '--next-only',
+      '--handoff-ok-exit-zero',
+    ])
+    expect(templateResult.exitCode).toBe(0)
+    expect(templateResult.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(templateResult.stdout)
+
+    const template = parseExternalHandoffTemplateJson(templateResult.stdout)
+    expect(template).toMatchObject({
+      templateOnly: true,
+      notProof: true,
+      status: 'blocked-by-external',
+      canClaimComplete: false,
+    })
+    expect(template.rows).toHaveLength(2)
+    expect(template.rows.every(row => row.cannotClaim)).toBe(true)
+    expect(templateResult.stdout).not.toContain('"canClaimComplete":true')
+    expect(templateResult.stdout).not.toContain('"artifacts":[{')
+
+    const draftPackResult = await runExternalHandoffCli([
+      '--manifest-drafts',
+      '--platform=wechat',
+      '--next-only',
+      '--handoff-ok-exit-zero',
+    ])
+    expect(draftPackResult.exitCode).toBe(0)
+    expect(draftPackResult.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(draftPackResult.stdout)
+
+    const draftPack = parseExternalHandoffManifestDraftPack(draftPackResult.stdout)
+    expect(draftPack).toMatchObject({
+      draftOnly: true,
+      notProof: true,
+      status: 'blocked-by-external',
+      canClaimComplete: false,
+      manifestCount: 17,
+    })
+    expect(draftPack.manifests.every(manifest => manifest.artifacts.length === 0)).toBe(true)
+    expect(draftPack.manifests.every(manifest => manifest.claimedEvidence.length === 0)).toBe(true)
+    expect(draftPackResult.stdout).not.toContain('"canClaimComplete":true')
+    expect(draftPackResult.stdout).not.toContain('"artifacts":[{')
+  })
+
   it('feeds manifest-drafts output directly into manifest-intake as an incomplete draft pack', async () => {
     const draftPackResult = await runExternalHandoffCli(['--manifest-drafts', '--next-only'])
     const draftPack = parseExternalHandoffManifestDraftPack(draftPackResult.stdout)

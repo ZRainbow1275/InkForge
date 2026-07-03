@@ -15311,9 +15311,9 @@ const ruleFamilies = [
     `tsx scripts/style-proof-application-acceptance.ts`;
   - `style-proof:application-gallery` as `tsx scripts/style-proof-application-gallery.ts`.
   - `style-proof:wechat-manual-handoff` as
-    `tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only`;
+    `tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only --handoff-ok-exit-zero`;
   - `style-proof:wechat-manual-manifest-drafts` as
-    `tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only`.
+    `tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only --handoff-ok-exit-zero`.
 - The application preflight script is a convenience entry only. It must call the same
   release-preflight implementation with `--scope=application`; it must not fork the acceptance
   logic or change strict release behavior.
@@ -15351,16 +15351,20 @@ const ruleFamilies = [
 ### 2. Package Script Contract
 
 - `style-proof:wechat-manual-handoff` must run:
-  `tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only`.
+  `tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only --handoff-ok-exit-zero`.
 - `style-proof:wechat-manual-manifest-drafts` must run:
-  `tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only`.
-- Both commands are expected to exit non-zero while external proof is missing. That non-zero exit
-  is the correct cannot-claim state, not a local failure.
+  `tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only --handoff-ok-exit-zero`.
+- Both commands are expected to exit 0 when the handoff/draft packet is generated successfully.
+  This exit code means "operator packet generated", not proof completion.
 - The handoff output must keep `notProof:true`, `canClaimComplete:false`, and the filtered WeChat
   next rows only.
 - The manifest-drafts output must keep `draftOnly:true`, `notProof:true`,
   `canClaimComplete:false`, empty `artifacts`, and empty `claimedEvidence` until the operator
   has collected real external proof.
+- The underlying `style-proof:external-handoff` default behavior must still exit non-zero when
+  proof is incomplete. The explicit `--handoff-ok-exit-zero` flag may only convert the
+  `--template` and `--manifest-drafts` packet-generation modes to exit 0; raw JSON and markdown
+  modes must remain strict cannot-claim exits.
 
 ### 3. Cannot-Claim Boundary
 
@@ -15376,10 +15380,12 @@ const ruleFamilies = [
 - Keep the package-script source-contract test proving both script strings exactly match the
   contract.
 - Smoke `style-proof:wechat-manual-handoff` and
-  `style-proof:wechat-manual-manifest-drafts`; both may exit non-zero, but must emit structured
+  `style-proof:wechat-manual-manifest-drafts`; both must exit 0 and emit structured
   cannot-claim handoff/draft JSON for the current WeChat next rows.
-- Run focused release-preflight tests, focused ESLint, strict release-preflight blocked smoke,
-  GitNexus detect, diff checks, and sensitive scans before committing this class of change.
+- Run focused external-handoff and release-preflight tests, focused ESLint, strict
+  release-preflight blocked smoke, external-handoff default-vs-handoff-ok exit-code contrast,
+  type-check, production build, GitNexus detect, diff checks, and sensitive scans before
+  committing this class of change.
 
 ## 311. Application Acceptance Aggregator CLI - 2026-07-04
 

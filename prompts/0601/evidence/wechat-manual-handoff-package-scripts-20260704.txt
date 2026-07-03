@@ -10,7 +10,10 @@ Implemented:
 - Added `style-proof:wechat-manual-handoff` to `inkforge/package.json`.
 - Added `style-proof:wechat-manual-manifest-drafts` to `inkforge/package.json`.
 - Both commands reuse `scripts/style-proof-external-handoff.ts` with
-  `--platform=wechat --next-only`.
+  `--platform=wechat --next-only --handoff-ok-exit-zero`.
+- Added the explicit `--handoff-ok-exit-zero` option to the external-handoff CLI. It changes only
+  the template/manifest-draft generation command exit code; it does not change proof accounting,
+  raw JSON output, or markdown output.
 
 Behavior:
 - `style-proof:wechat-manual-handoff` emits the current WeChat next-row operator worksheet.
@@ -20,26 +23,38 @@ Behavior:
   missing.
 - The draft output keeps `artifacts:[]` and `claimedEvidence:[]` until real external proof is
   collected and redacted by the operator.
+- The package scripts exit 0 when packet generation succeeds so the operator can distinguish
+  "manual packet generated" from a local command failure.
 
 TDD record:
 - Initial focused test failed because `style-proof:wechat-manual-handoff` was absent.
+- A second focused test failed because `--handoff-ok-exit-zero` was absent and the package script
+  strings did not include it.
 - After implementation, the focused package-script contract test passed.
 
 Verification:
 - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts -t "dedicated package script" --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
   PASS: 1 selected test.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts -t "handoff generation|dedicated package script" --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 2 selected tests.
 - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
   PASS: 1 file / 7 tests.
-- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.test.ts --quiet`
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 2 files / 22 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet`
   PASS.
 - `pnpm --silent -C inkforge style-proof:application-acceptance --json`
   PASS: exit 0, `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
   `canClaimReleaseComplete=false`.
+- External-handoff exit-code contrast
+  PASS: default `style-proof:external-handoff --template --platform=wechat --next-only` exits 1,
+  `style-proof:external-handoff --json --handoff-ok-exit-zero` still exits 1, the template command
+  with `--handoff-ok-exit-zero` exits 0, and all payloads keep cannot-claim fields.
 - `pnpm --silent -C inkforge style-proof:wechat-manual-handoff`
-  PASS: expected exit 1, `notProof=true`, `status=blocked-by-external`,
+  PASS: exit 0, `notProof=true`, `status=blocked-by-external`,
   `canClaimComplete=false`, and 2 filtered WeChat next rows.
 - `pnpm --silent -C inkforge style-proof:wechat-manual-manifest-drafts`
-  PASS: expected exit 1, `draftOnly=true`, `notProof=true`, `status=blocked-by-external`,
+  PASS: exit 0, `draftOnly=true`, `notProof=true`, `status=blocked-by-external`,
   `canClaimComplete=false`, 2 source rows, and 17 empty WeChat style-choice manifest drafts.
 - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
   PASS.

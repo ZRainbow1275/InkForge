@@ -9012,11 +9012,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   next rows.
 - Added `style-proof:wechat-manual-manifest-drafts` as the copy-safe empty draft-manifest entry
   for the same current WeChat next rows.
+- Added `--handoff-ok-exit-zero` so the manual package scripts exit 0 when packet generation
+  succeeds while preserving `notProof=true` and `canClaimComplete=false` in the payload.
+  The flag is scoped to template and manifest-draft packet-generation modes; raw JSON and markdown
+  output remain strict cannot-claim exits.
 - Verification passed: TDD red/green focused package-script contract test, full
-  release-preflight test file with 7 tests, focused ESLint, application-acceptance smoke,
-  expected blocked `style-proof:wechat-manual-handoff` smoke with 2 filtered WeChat next rows,
-  expected blocked `style-proof:wechat-manual-manifest-drafts` smoke with 17 empty WeChat
-  style-choice manifest drafts, `vue-tsc`, and production build.
+  release-preflight test file with 7 tests, related external-handoff/release-preflight regression
+  with 2 files / 22 tests, focused ESLint, application-acceptance smoke,
+  external-handoff default-vs-handoff-ok exit-code contrast including strict JSON mode,
+  `style-proof:wechat-manual-handoff` exit-0 smoke with 2 filtered WeChat next rows,
+  `style-proof:wechat-manual-manifest-drafts` exit-0 smoke with 17 empty WeChat style-choice
+  manifest drafts, `vue-tsc`, and production build.
 - Boundary: this proves package-level manual handoff entries only. It does not prove WeChat
   paste, phone preview, credentialed sync, scheduled send, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

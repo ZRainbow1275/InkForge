@@ -34,6 +34,7 @@ interface ExternalHandoffCliFilters {
 interface ExternalHandoffCliArgs {
   outputMode: ExternalHandoffOutputMode
   filters: ExternalHandoffCliFilters
+  handoffOkExitZero: boolean
 }
 
 interface ExternalHandoffFilteredSummary {
@@ -255,7 +256,7 @@ const ISSUE_ID_FILTER_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 function printHelp(): void {
   console.log([
-    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]',
+    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only] [--handoff-ok-exit-zero]',
     '',
     'Prints the committed InkForge style-proof external handoff packet for',
     'operator-run phone, account, public-host, sync, scheduled-send, upload,',
@@ -263,7 +264,7 @@ function printHelp(): void {
     '',
     'This command is read-only. It does not open a browser, upload content,',
     'sync drafts, schedule sends, publish articles, or create proof artifacts.',
-    'It exits non-zero while the packet cannot be claimed complete.',
+    'By default it exits non-zero while the packet cannot be claimed complete.',
     '',
     'Options:',
     '  --markdown   Print the human handoff packet. This is the default.',
@@ -273,7 +274,8 @@ function printHelp(): void {
     '               It includes empty StyleProofManifest draft skeletons for intake.',
     '  --manifest-drafts',
     '               Print a redacted { manifests: [...] } draft pack for the visible rows.',
-    '               The pack contains only empty drafts and always exits non-zero.',
+    '               The pack contains only empty drafts and exits non-zero unless',
+    '               --handoff-ok-exit-zero is set.',
     '  --platform   Limit rows to one platform: wechat, xiaohongshu, zhihu.',
     '  --kind       Limit rows to one gate kind: phone-preview, external-account,',
     '               public-host, unsafe-to-automate, mutating-platform.',
@@ -283,6 +285,9 @@ function printHelp(): void {
     '  --freshness-only',
     '               Print only rows with freshness issues such as stale proof.',
     '  --next-only  Print only the deduplicated next operator rows.',
+    '  --handoff-ok-exit-zero',
+    '               Exit 0 when a template/draft packet is generated successfully, while',
+    '               preserving notProof:true and canClaimComplete:false in the payload.',
     '  --help       Print this help.',
     '',
     'Tip: use `pnpm --silent -C inkforge style-proof:external-handoff --json`',
@@ -349,6 +354,7 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
   let issueId: ExternalHandoffIssueFilter | null = null
   let nextOnly = false
   let freshnessOnly = false
+  let handoffOkExitZero = false
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]
@@ -368,6 +374,8 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
       nextOnly = true
     } else if (arg === '--freshness-only') {
       freshnessOnly = true
+    } else if (arg === '--handoff-ok-exit-zero') {
+      handoffOkExitZero = true
     } else if (arg === '--platform') {
       platform = parsePlatformFilter(readOptionValue(args, index, '--platform'))
       index += 1
@@ -400,6 +408,7 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
 
   return {
     outputMode,
+    handoffOkExitZero,
     filters: {
       platform,
       kind,
@@ -1003,6 +1012,22 @@ function buildManifestDraftPack(
   }
 }
 
+function getExternalHandoffExitCode(
+  packet: CommittedStyleProofExternalHandoffPacket,
+  outputMode: ExternalHandoffOutputMode,
+  handoffOkExitZero: boolean,
+): number {
+  if (packet.canClaimComplete) {
+    return 0
+  }
+
+  if (handoffOkExitZero && (outputMode === 'template' || outputMode === 'manifest-drafts')) {
+    return 0
+  }
+
+  return 1
+}
+
 function main(): void {
   const rawArgs = process.argv.slice(2)
   if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
@@ -1010,16 +1035,16 @@ function main(): void {
     process.exit(0)
   }
 
-  const { outputMode, filters } = parseArgs(rawArgs)
+  const { outputMode, filters, handoffOkExitZero } = parseArgs(rawArgs)
   const packet = getCommittedStyleProofExternalHandoffPacket()
   if (outputMode === 'template') {
     console.log(JSON.stringify(buildTemplatePacket(packet, filters)))
-    process.exit(packet.canClaimComplete ? 0 : 1)
+    process.exit(getExternalHandoffExitCode(packet, outputMode, handoffOkExitZero))
   }
 
   if (outputMode === 'manifest-drafts') {
     console.log(JSON.stringify(buildManifestDraftPack(packet, filters)))
-    process.exit(1)
+    process.exit(getExternalHandoffExitCode(packet, outputMode, handoffOkExitZero))
   }
 
   if (!hasActiveFilters(filters)) {
@@ -1028,7 +1053,7 @@ function main(): void {
     } else {
       console.log(formatCommittedStyleProofExternalHandoffPacketMarkdown(packet).trimEnd())
     }
-    process.exit(packet.canClaimComplete ? 0 : 1)
+    process.exit(getExternalHandoffExitCode(packet, outputMode, handoffOkExitZero))
   }
 
   const filteredPacket = buildFilteredPacket(packet, filters)
@@ -1044,7 +1069,7 @@ function main(): void {
     console.log(formatFilteredPacketMarkdown(filteredPacket, filters, filteredSummary).trimEnd())
   }
 
-  process.exit(packet.canClaimComplete ? 0 : 1)
+  process.exit(getExternalHandoffExitCode(packet, outputMode, handoffOkExitZero))
 }
 
 main()
