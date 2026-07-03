@@ -11933,3 +11933,42 @@ Boundary:
   phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Release Preflight Guidance Addendum
+
+- Added non-claiming proof guidance directly to `style-proof:release-preflight`.
+- Compact JSON next rows now include `artifactGuidance` with:
+  - `notProof:true`;
+  - `appendOnlyAfterExternalProof:true`;
+  - required channels/actions/readbacks;
+  - required fields;
+  - forbidden fields;
+  - accepted host statuses;
+  - freshness limit;
+  - copy-safe `templateCommand` and `manifestDraftsCommand`.
+- Human-readable output now includes `proof guidance (not proof):` before the copy-safe command
+  section.
+- Release-preflight summary and gate semantics remain unchanged: it still exits non-zero while
+  external phone/account/public-host rows are missing.
+- Verification passed:
+  - `npx gitnexus impact buildPreflightResult -r InkForge --depth 3`: LOW risk,
+    1 direct caller, 0 affected processes.
+  - `npx gitnexus impact formatPreflightResult -r InkForge --depth 3`: LOW risk,
+    1 direct caller, 0 affected processes.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`: 1 file / 4 tests passed.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 39 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 41.08s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+    `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-release-preflight-guidance-20260703.txt`.
+- Boundary: this is release-gate operator guidance only. It does not prove WeChat rich paste,
+  phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

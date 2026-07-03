@@ -8412,8 +8412,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `external-handoff --template` and `external-handoff --manifest-drafts` commands.
 - The generated commands use the row's platform, first reference kind, status, first issue id,
   and `--next-only`, while the manifest placeholder is `REDACTED_MANIFEST.json`.
-- Verification passed: focused release-preflight Vitest with 4 tests and focused ESLint for the
-  release-preflight script/test. Broader validation is recorded in the evidence file.
+- Verification passed: focused release-preflight Vitest with 4 tests, focused ESLint for the
+  release-preflight script/test, serial scripts suite with 4 files and 39 tests, `vue-tsc`,
+  production build, and expected blocked release-preflight smoke.
 - Boundary: this is operator guidance only. It does not prove phone preview, mobile Dark Mode,
   SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, platform upload, or publish success.
@@ -8554,3 +8555,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is manifest-draft handoff guidance only. It does not prove phone preview,
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host
   acceptance, platform upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight Guidance Summary
+
+- [x] style-proof-release-preflight-guidance-20260703.txt
+- Scope: local `style-proof:release-preflight` operator guidance only.
+- Added `nextRows[].artifactGuidance` to JSON output and a text `proof guidance (not proof):`
+  section to human-readable output.
+- Guidance summarizes required channels, actions, readbacks, required fields, forbidden fields,
+  accepted host statuses, freshness limits, and copy-safe external-handoff commands.
+- Release preflight still exits blocked with `canClaimComplete=false`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Verification passed: focused release-preflight Vitest with 4 tests and focused ESLint for the
+  release-preflight script/test. Broader validation is recorded in the evidence file.
+- Boundary: this is release-gate guidance only. It does not prove phone preview, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
+  platform upload, or publish success.

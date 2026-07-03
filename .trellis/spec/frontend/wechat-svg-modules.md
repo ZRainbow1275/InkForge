@@ -14131,3 +14131,46 @@ const ruleFamilies = [
   - manifest draft outputs staying artifact-empty and non-claiming.
 - Run focused external-handoff Vitest, focused ESLint, serial scripts tests, release-preflight
   smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans before committing.
+
+## 290. Style Proof Release Preflight Guidance - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: release preflight is the top-level claim gate, so its next rows must show the proof
+  field contract without requiring a second command just to see required evidence fields.
+- This rule applies to `style-proof:release-preflight`.
+- It must not change release status, proof accounting, style availability, renderer output,
+  accepted proof semantics, or platform state.
+
+### 2. Contract
+
+- `style-proof:release-preflight --json` next rows may include operator guidance, but every
+  guidance object must remain explicitly non-proof.
+- `nextRows[].artifactGuidance` must include:
+  - `notProof:true`;
+  - `appendOnlyAfterExternalProof:true`;
+  - required channels/actions/readbacks;
+  - required fields;
+  - forbidden fields;
+  - accepted host statuses;
+  - freshness limit;
+  - copy-safe `templateCommand` and `manifestDraftsCommand`.
+- Human-readable output must include a `proof guidance (not proof):` section before copy-safe
+  commands.
+- The command must still exit non-zero and report `canClaimComplete:false` while phone,
+  credentialed-channel, public-host, sync, schedule, upload, or publish proof rows are open.
+
+### 3. Cannot-Claim Boundary
+
+- Release-preflight guidance is not proof.
+- It must not satisfy any phone preview, phone screenshot, mobile Dark Mode, cover-thumbnail,
+  credentialed-channel, public-host, upload, sync, schedule, or publish row.
+- It must not include browser runtime state, auth secrets, raw platform routes, account images,
+  local capture paths, request archives, or third-party material URLs.
+
+### 4. Required Checks
+
+- Run GitNexus impact on `buildPreflightResult` and `formatPreflightResult` before editing.
+- Add regression coverage for JSON next-row guidance and human-readable guidance.
+- Run focused release-preflight Vitest, focused ESLint, serial scripts tests, release-preflight
+  smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans before committing.

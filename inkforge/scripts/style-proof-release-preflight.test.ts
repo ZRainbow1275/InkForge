@@ -29,6 +29,7 @@ interface ReleasePreflightNextRow {
   kind: string
   refKinds: string[]
   commands: ReleasePreflightNextRowCommands
+  artifactGuidance: ReleasePreflightArtifactGuidance
   platform: string
   choiceIds: string[]
   requirementId: string
@@ -52,6 +53,20 @@ interface ReleasePreflightNextRow {
   safeToAutomate: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
+}
+
+interface ReleasePreflightArtifactGuidance {
+  notProof: true
+  appendOnlyAfterExternalProof: true
+  requiredChannels: string[]
+  requiredActions: string[]
+  requiredReadbacks: string[]
+  requiredFields: string[]
+  forbiddenFields: string[]
+  acceptedHostStatuses: string[]
+  maxFreshnessDays: number | null
+  templateCommand: string
+  manifestDraftsCommand: string
 }
 
 interface ReleasePreflightNextRowCommands {
@@ -185,6 +200,25 @@ function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNex
     typeof value.commands.manifestDrafts === 'string' &&
     typeof value.commands.intake === 'string' &&
     typeof value.commands.merge === 'string' &&
+    isRecord(value.artifactGuidance) &&
+    value.artifactGuidance.notProof === true &&
+    value.artifactGuidance.appendOnlyAfterExternalProof === true &&
+    Array.isArray(value.artifactGuidance.requiredChannels) &&
+    value.artifactGuidance.requiredChannels.every(channel => typeof channel === 'string') &&
+    Array.isArray(value.artifactGuidance.requiredActions) &&
+    value.artifactGuidance.requiredActions.every(action => typeof action === 'string') &&
+    Array.isArray(value.artifactGuidance.requiredReadbacks) &&
+    value.artifactGuidance.requiredReadbacks.every(readback => typeof readback === 'string') &&
+    Array.isArray(value.artifactGuidance.requiredFields) &&
+    value.artifactGuidance.requiredFields.every(field => typeof field === 'string') &&
+    Array.isArray(value.artifactGuidance.forbiddenFields) &&
+    value.artifactGuidance.forbiddenFields.every(field => typeof field === 'string') &&
+    Array.isArray(value.artifactGuidance.acceptedHostStatuses) &&
+    value.artifactGuidance.acceptedHostStatuses.every(status => typeof status === 'string') &&
+    (typeof value.artifactGuidance.maxFreshnessDays === 'number' ||
+      value.artifactGuidance.maxFreshnessDays === null) &&
+    typeof value.artifactGuidance.templateCommand === 'string' &&
+    typeof value.artifactGuidance.manifestDraftsCommand === 'string' &&
     typeof value.platform === 'string' &&
     Array.isArray(value.choiceIds) &&
     value.choiceIds.every(choiceId => typeof choiceId === 'string') &&
@@ -309,6 +343,28 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.nextRows.every(row =>
       row.commands.merge === 'pnpm --silent -C inkforge style-proof:manifest-merge --file REDACTED_MANIFEST.json --json'
     )).toBe(true)
+    expect(report.nextRows.every(row => row.artifactGuidance.notProof)).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.artifactGuidance.appendOnlyAfterExternalProof
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.artifactGuidance.templateCommand === row.commands.template
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.artifactGuidance.manifestDraftsCommand === row.commands.manifestDrafts
+    )).toBe(true)
+    expect(report.nextRows.find(row =>
+      row.requirementId === 'credentialed-channel-response'
+    )?.artifactGuidance.requiredFields).toContain('externalAccountAuthenticated')
+    expect(report.nextRows.find(row =>
+      row.requirementId === 'credentialed-channel-response'
+    )?.artifactGuidance.forbiddenFields).toContain('externalAccountLoginBlocked')
+    expect(report.nextRows.find(row =>
+      row.requirementId === 'public-image-host'
+    )?.artifactGuidance.acceptedHostStatuses).toEqual(['public-https', 'platform-hosted'])
+    expect(report.nextRows.find(row =>
+      row.requirementId === 'cover-thumbnail-check'
+    )?.artifactGuidance.requiredFields).toContain('coverThumbnailAccepted')
     expect(report.nextRows.map(row => row.commands.template)).toEqual([
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only',
@@ -322,6 +378,11 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.exitCode).toBe(1)
     expect(result.stderr.trim()).toBe('')
     expect(result.stdout).toContain('operator commands (copy-safe placeholders):')
+    expect(result.stdout).toContain('proof guidance (not proof):')
+    expect(result.stdout).toContain('requiredFields: artifactFingerprint|exactArtifact|coverThumbnailAccepted|collectedAt|safeForCommit')
+    expect(result.stdout).toContain('forbiddenFields: externalAccountLoginBlocked')
+    expect(result.stdout).toContain('acceptedHostStatuses: public-https|platform-hosted')
+    expect(result.stdout).toContain('appendOnlyAfterExternalProof: yes')
     expect(result.stdout).toContain('style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:manifest-intake --file REDACTED_MANIFEST.json --json')

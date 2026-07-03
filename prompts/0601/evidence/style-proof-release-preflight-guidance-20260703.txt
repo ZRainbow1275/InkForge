@@ -1,0 +1,70 @@
+Style Proof Release Preflight Guidance Summary - 2026-07-03
+
+Scope:
+- Local `style-proof:release-preflight` operator guidance enhancement.
+- No platform action, no phone preview, no sync, no upload, no publish, and no proof artifact
+  creation.
+
+Implemented:
+- Added `nextRows[].artifactGuidance` to the compact JSON release-preflight output.
+- Added a text `proof guidance (not proof):` section to the human-readable release-preflight
+  output.
+- The guidance is explicitly non-proof through `notProof:true` and
+  `appendOnlyAfterExternalProof:true`.
+- The guidance summarizes each next operator row's required channels, actions, readbacks,
+  required fields, forbidden fields, accepted host statuses, freshness limit, and copy-safe
+  external-handoff commands.
+- Existing `nextRows[].commands` and summary counters are preserved.
+
+Observed local behavior:
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  `uniqueNextRows=3`, and `nextRows=3`.
+- WeChat cover-thumbnail next row exposes required fields
+  `artifactFingerprint`, `exactArtifact`, `coverThumbnailAccepted`, `collectedAt`, and
+  `safeForCommit`, plus forbidden `phonePreviewBlocked`.
+- WeChat credentialed-channel next row exposes required `externalAccountAuthenticated` and
+  forbidden `externalAccountLoginBlocked`.
+- Zhihu public-host next row exposes accepted host statuses `public-https` and
+  `platform-hosted`.
+- Text output prints the same guidance without claiming release success.
+
+Regression coverage:
+- JSON shape validation now requires `artifactGuidance` on every next row.
+- Tests assert credentialed-channel required/forbidden fields, public-host accepted host statuses,
+  cover-thumbnail required field guidance, and guidance commands matching the existing row
+  commands.
+- Text output asserts the guidance section is present and remains non-claiming.
+
+Verification:
+- `npx gitnexus impact buildPreflightResult -r InkForge --depth 3`
+  reported LOW risk, 1 direct caller, 0 affected processes, and Scripts-only module scope.
+- `npx gitnexus impact formatPreflightResult -r InkForge --depth 3`
+  reported LOW risk, 1 direct caller, 0 affected processes, and Scripts-only module scope.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 4 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 39 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; 4653 modules transformed, Vite built in 41.08s, and `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+- `git diff --cached --check`
+  passed.
+- `git diff --cached -U0 | rg ... sensitive fragments`
+  returned no matches for local profile paths, auth header markers, QR/code markers, HAR markers,
+  account-image markers, local capture-path markers, or platform route fragments.
+- `npx gitnexus detect-changes -r InkForge --scope staged`
+  reported 7 files, 6 symbols, 0 affected processes, and low risk.
+
+Boundary:
+- This is local release-gate operator guidance only.
+- It does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

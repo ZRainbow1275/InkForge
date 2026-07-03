@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import {
+  type CommittedStyleProofExternalProofArtifactTemplate,
   getCommittedStyleProofEvidenceReleaseGateReport,
   getCommittedStyleProofExternalHandoffPacket,
   type CommittedStyleProofExternalHandoffNextRowKind,
@@ -18,6 +19,7 @@ interface StyleProofReleasePreflightNextRow {
   kind: CommittedStyleProofExternalHandoffNextRowKind
   refKinds: readonly CommittedStyleProofExternalHandoffNextRowKind[]
   commands: StyleProofReleasePreflightNextRowCommands
+  artifactGuidance: StyleProofReleasePreflightArtifactGuidance
   platform: Platform
   choiceIds: readonly string[]
   requirementId: StyleProofRequirementId
@@ -41,6 +43,20 @@ interface StyleProofReleasePreflightNextRow {
   cannotClaim: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
+}
+
+interface StyleProofReleasePreflightArtifactGuidance {
+  notProof: true
+  appendOnlyAfterExternalProof: true
+  requiredChannels: CommittedStyleProofExternalProofArtifactTemplate['requiredChannels']
+  requiredActions: CommittedStyleProofExternalProofArtifactTemplate['requiredActions']
+  requiredReadbacks: CommittedStyleProofExternalProofArtifactTemplate['requiredReadbacks']
+  requiredFields: CommittedStyleProofExternalProofArtifactTemplate['requiredFields']
+  forbiddenFields: CommittedStyleProofExternalProofArtifactTemplate['forbiddenFields']
+  acceptedHostStatuses: CommittedStyleProofExternalProofArtifactTemplate['acceptedHostStatuses']
+  maxFreshnessDays: CommittedStyleProofExternalProofArtifactTemplate['maxFreshnessDays']
+  templateCommand: string
+  manifestDraftsCommand: string
 }
 
 interface StyleProofReleasePreflightNextRowCommands {
@@ -149,6 +165,25 @@ function buildPreflightNextRowCommands(
   }
 }
 
+function buildPreflightArtifactGuidance(
+  artifactTemplate: CommittedStyleProofExternalProofArtifactTemplate,
+  commands: StyleProofReleasePreflightNextRowCommands,
+): StyleProofReleasePreflightArtifactGuidance {
+  return {
+    notProof: true,
+    appendOnlyAfterExternalProof: true,
+    requiredChannels: artifactTemplate.requiredChannels,
+    requiredActions: artifactTemplate.requiredActions,
+    requiredReadbacks: artifactTemplate.requiredReadbacks,
+    requiredFields: artifactTemplate.requiredFields,
+    forbiddenFields: artifactTemplate.forbiddenFields,
+    acceptedHostStatuses: artifactTemplate.acceptedHostStatuses,
+    maxFreshnessDays: artifactTemplate.maxFreshnessDays,
+    templateCommand: commands.template,
+    manifestDraftsCommand: commands.manifestDrafts,
+  }
+}
+
 function printHelp(): void {
   console.log([
     'Usage: pnpm style-proof:release-preflight [--json]',
@@ -191,12 +226,14 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
     nextRows: handoffPacket.nextRows.map(row => {
       const refKinds = getPreflightNextRowRefKinds(row.id, handoffPacket.nextRowRefs)
       const kind = refKinds[0] ?? 'external-account'
+      const commands = buildPreflightNextRowCommands(row, kind)
 
       return {
         id: row.id,
         kind,
         refKinds,
-        commands: buildPreflightNextRowCommands(row, kind),
+        commands,
+        artifactGuidance: buildPreflightArtifactGuidance(row.artifactTemplate, commands),
         platform: row.platform,
         choiceIds: row.choiceIds,
         requirementId: row.requirementId,
@@ -223,6 +260,10 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
       }
     }),
   }
+}
+
+function formatPreflightList(values: readonly string[]): string {
+  return values.length > 0 ? values.join('|') : 'none'
 }
 
 function formatPreflightResult(result: StyleProofReleasePreflightResult): string {
@@ -256,6 +297,19 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
       `reason=${row.cannotClaimReason ?? 'none'} ` +
       `next=${row.nextOperatorAction}`
     ),
+    '',
+    'proof guidance (not proof):',
+    ...result.nextRows.flatMap(row => [
+      `- ${row.platform}/${row.requirementId}/${row.boundary}`,
+      `  requiredChannels: ${formatPreflightList(row.artifactGuidance.requiredChannels)}`,
+      `  requiredActions: ${formatPreflightList(row.artifactGuidance.requiredActions)}`,
+      `  requiredReadbacks: ${formatPreflightList(row.artifactGuidance.requiredReadbacks)}`,
+      `  requiredFields: ${formatPreflightList(row.artifactGuidance.requiredFields)}`,
+      `  forbiddenFields: ${formatPreflightList(row.artifactGuidance.forbiddenFields)}`,
+      `  acceptedHostStatuses: ${formatPreflightList(row.artifactGuidance.acceptedHostStatuses)}`,
+      `  maxFreshnessDays: ${row.artifactGuidance.maxFreshnessDays ?? 'none'}`,
+      `  appendOnlyAfterExternalProof: ${row.artifactGuidance.appendOnlyAfterExternalProof ? 'yes' : 'no'}`,
+    ]),
     '',
     'operator commands (copy-safe placeholders):',
     ...result.nextRows.flatMap(row => [
