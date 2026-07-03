@@ -12865,3 +12865,51 @@ Boundary:
   ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, platform preview, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+---
+
+## 2026-07-04 WeChat Renderable Style Application Fallback Addendum
+
+- Adjusted the local app acceptance target to match the user's narrowed scope:
+  - Xiaohongshu and Zhihu publish-side tests are manually deferred to the user.
+  - This round proves local application of all renderable WeChat SVG/style rows and preserves the
+    external WeChat proof boundary.
+- Added safe fallback mappings:
+  - `wechat-click-reveal` -> `flagship-kiln-paste-safe`;
+  - `wechat-mobile-only-effect` -> `flagship-kiln`;
+  - `wechat-carousel-switch` -> `flagship-tempera`;
+  - `wechat-market-svg-h5-fallback-matrix` -> `flagship-kiln-paste-safe`.
+- Updated `evaluateStyleChoiceApplication()` so WeChat renderable rows with an existing InkForge
+  mapping can be selected even when required proof is still missing. `availability.usable` remains
+  false until the required proof exists.
+- Kept `publish-checklist` and `unavailable` choices disabled.
+- Added an Export modal renderable application summary next to the existing proof-usable summary.
+- CloakBrowser readback on the local Workstation Export modal verified:
+  - `微信公众号 当前可用 8/17`;
+  - `微信公众号 可应用渲染样式 13/13`;
+  - 17 style cards;
+  - 4 disabled publish/checklist cards;
+  - 13 renderable cards;
+  - 0 disabled renderable cards;
+  - all 13 renderable cards could be clicked and selected;
+  - no console errors reported by the in-page probe.
+- Verification:
+  - Focused platform rendering selection: 1 file / 6 selected tests passed.
+  - Related platform rendering and ExportModal SVG option regression: 2 files / 378 tests passed.
+  - Full export-service regression: 40 files / 1363 tests passed.
+  - `pnpm --silent -C inkforge style-proof:application-acceptance --json`: exited 0 with
+    `application-acceptance-ready`, `canClaimApplicationReady=true`,
+    `canClaimReleaseComplete=false`, `applicationIssueCount=0`, `galleryIssueCount=0`, and
+    `strictReleaseBoundaryPreserved=true`.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: still exited 1 as expected
+    with `blocked-by-external` and `canClaimComplete=false`.
+  - Focused ESLint for the changed service, UI, and test files: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated
+    `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-renderable-style-application-fallback-20260704.txt`.
+- Boundary: this proves local application of all renderable WeChat SVG/style rows through safe
+  InkForge output paths only. It does not prove WeChat ordinary paste, phone preview, mobile Dark
+  Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, platform preview, or publish success.

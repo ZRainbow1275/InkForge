@@ -384,6 +384,13 @@ const selectedStyleChoiceApplication = computed(() =>
     item.availability.choice.id === selectedStyleChoiceIds.value[selectedPlatform.value],
   ) ?? null,
 )
+const styleRenderableApplicationSummary = computed(() => {
+  const renderableRows = styleApplicationReport.value.filter(isRenderableStyleApplication)
+  return {
+    total: renderableRows.length,
+    selectable: renderableRows.filter(item => item.selectable && item.application).length,
+  }
+})
 
 const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const report = styleAvailabilityReport.value
@@ -993,6 +1000,11 @@ function styleChoiceActionLabel(item: StyleChoiceApplicationAvailability): strin
   if (!item.application) return item.availability.usable ? '仅说明能力' : '不可应用'
   if (item.availability.status === 'unavailable') return '不可用'
   return '受限'
+}
+
+function isRenderableStyleApplication(item: StyleChoiceApplicationAvailability): boolean {
+  const choice = item.availability.choice
+  return choice.primaryOutput !== 'publish-checklist' && choice.fallbackOutput !== 'unavailable'
 }
 
 function styleStatusLabel(status: StyleChoiceStatus, usable: boolean): string {
@@ -1852,6 +1864,7 @@ onUnmounted(() => {
                   样式能力
                 </div>
                 <div class="style-catalog-summary">
+                  <span>{{ platformInfo.name }} 可应用渲染样式 {{ styleRenderableApplicationSummary.selectable }}/{{ styleRenderableApplicationSummary.total }}</span>
                   <span>{{ platformInfo.name }} 当前可用 {{ styleAvailabilityReport.stats.usable }}/{{ styleAvailabilityReport.stats.total }}</span>
                   <span>证据门禁由 runtime catalog 决定</span>
                   <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>

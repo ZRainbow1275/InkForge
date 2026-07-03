@@ -15487,3 +15487,67 @@ return child.status === 'application-ready' && getApplicationIssueCount(child) =
   smoke, direct application-preflight smoke, strict release-preflight blocked smoke, focused
   ESLint, scripts-suite regression, type-check, production build, GitNexus detect, diff checks,
   and sensitive scans before committing this class of change.
+
+## 312. WeChat Renderable Style Application Fallback - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: the current narrowed round target is no longer automated Xiaohongshu/Zhihu publish
+  proof. The target is that every renderable SVG/style choice in the app can be applied to a
+  WeChat-safe output, while release proof remains external and manually collected.
+- This rule applies to `style-catalog.ts`, `ExportModal.vue`, and the platform rendering tests
+  that distinguish local style application from proof completion.
+- This rule is WeChat-only. It must not silently turn Xiaohongshu or Zhihu publish/checklist rows
+  into automated publish proof.
+
+### 2. Application vs Proof Contract
+
+- A WeChat style choice is locally renderable when:
+  - `primaryOutput !== "publish-checklist"`;
+  - `fallbackOutput !== "unavailable"`;
+  - the choice has a real InkForge application mapping to an existing preset/export path.
+- Locally renderable WeChat choices may be selectable even when their proof availability is still
+  blocked by phone preview, PC editor paste, Dark Mode, cover thumbnail, credentialed channel, or
+  public platform proof.
+- The selectable fallback must use an InkForge-owned static/SVG/image-safe output path. It must
+  not depend on 135/Xiumi vendor runtime wrappers, external H5 pages, plugin transfer, or account
+  sync side effects.
+- The `availability.usable` value remains the proof truth. Do not change it to `true` merely
+  because a local fallback can be selected.
+- `publish-checklist` and `unavailable` rows stay disabled in the UI and must remain
+  cannot-claim until the operator supplies real external proof.
+
+### 3. UI Contract
+
+- The Export modal must show both:
+  - current proof-usable count from the runtime catalog; and
+  - renderable application count for locally selectable style rows.
+- The renderable application count is expected to reach all renderable WeChat style rows even when
+  the proof-usable count remains lower.
+- Operators must be able to click each renderable WeChat style row without disabling the card,
+  crashing the modal, or claiming release completion.
+
+### 4. Required Checks
+
+- Regression tests must prove:
+  - WeChat renderable but proof-blocked rows such as Amber, click reveal, mobile-only effect,
+    carousel/switch, and market SVG/H5 fallback matrix are selectable through safe fallback
+    mappings.
+  - Their `availability.usable` values remain `false` when required proof is absent.
+  - WeChat `publish-checklist` / `unavailable` rows remain unselectable.
+  - Xiaohongshu and Zhihu publish-side automation remains manually deferred and is not promoted by
+    this fallback rule.
+- Browser verification must use CloakBrowser, not Playwright, for this acceptance line.
+- Required verification before commit: focused platform rendering tests, ExportModal SVG option
+  tests, application-acceptance JSON smoke, strict release-preflight blocked smoke, focused
+  ESLint, `vue-tsc`, production build, GitNexus detect, diff checks, sensitive scans, and
+  CloakBrowser UI readback.
+
+### 5. Cannot-Claim Boundary
+
+- Passing this rule proves the application can apply every renderable WeChat SVG/style choice via
+  an existing safe output path.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

@@ -1968,6 +1968,38 @@ const STYLE_CHOICE_APPLICATIONS = [
     note: 'direct mapping to the existing Amber flagship preset; ordinary OS Ctrl+V PC proof exists, while mobile preview and publish proof remain separate gates',
   },
   {
+    choiceId: 'wechat-click-reveal',
+    platform: 'wechat',
+    presetId: 'flagship-kiln-paste-safe',
+    presetLabel: '璧ら櫠鍏煎鏃楄埌',
+    scope: 'styled-preview',
+    note: 'maps click-reveal intent to the safe Kiln static/readable fallback path; phone click proof remains a separate cannot-claim gate',
+  },
+  {
+    choiceId: 'wechat-mobile-only-effect',
+    platform: 'wechat',
+    presetId: 'flagship-kiln',
+    presetLabel: '璧ら櫠鏃楄埌',
+    scope: 'styled-preview',
+    note: 'maps mobile-only SVG effect intent to an existing static flagship renderer so the app can apply the style without claiming mobile-trigger proof',
+  },
+  {
+    choiceId: 'wechat-carousel-switch',
+    platform: 'wechat',
+    presetId: 'flagship-tempera',
+    presetLabel: '閾滅豢鏃楄埌',
+    scope: 'styled-preview',
+    note: 'maps carousel and switch intent to the Tempera figure/frame fallback path until same-artifact phone interaction proof exists',
+  },
+  {
+    choiceId: 'wechat-market-svg-h5-fallback-matrix',
+    platform: 'wechat',
+    presetId: 'flagship-kiln-paste-safe',
+    presetLabel: '璧ら櫠鍏煎鏃楄埌',
+    scope: 'styled-preview',
+    note: 'maps learned 135/Xiumi SVG/H5 families to InkForge-owned static/SVG fallback output, not vendor runtime or publish-checklist proof',
+  },
+  {
     choiceId: 'xhs-clean-text',
     platform: 'xiaohongshu',
     presetId: 'xhs-fresh',
@@ -6336,6 +6368,18 @@ export function evaluateStyleChoiceAvailability(
   }
 }
 
+function canSelectStyleChoiceApplicationFallback(
+  availability: StyleChoiceAvailability,
+  application: StyleChoiceApplication,
+): boolean {
+  const choice = availability.choice
+  return choice.platform === 'wechat' &&
+    application.platform === choice.platform &&
+    choice.primaryOutput !== 'publish-checklist' &&
+    choice.fallbackOutput !== 'unavailable' &&
+    (choice.status === 'available' || choice.status === 'blocked')
+}
+
 export function evaluateStyleChoiceApplication(
   choice: PlatformStyleChoice,
   evidence: readonly StyleEvidenceLabel[] = [],
@@ -6361,7 +6405,7 @@ export function evaluateStyleChoiceApplication(
     }
   }
 
-  if (!availability.usable) {
+  if (!availability.usable && !canSelectStyleChoiceApplicationFallback(availability, application)) {
     return {
       availability,
       application,
@@ -6374,7 +6418,9 @@ export function evaluateStyleChoiceApplication(
     availability,
     application,
     selectable: true,
-    reason: `selects preset ${application.presetId} through the existing export pipeline`,
+    reason: availability.usable
+      ? `selects preset ${application.presetId} through the existing export pipeline`
+      : `selects preset ${application.presetId} through a WeChat-safe fallback; proof remains blocked: ${availability.reason}`,
   }
 }
 

@@ -9519,7 +9519,7 @@ describe('platform native export rendering rules', () => {
     }
   })
 
-  it('keeps unproven market-inspired SVG and rich-layout fallback choices blocked until exact artifact proof exists', () => {
+  it('keeps unproven market-inspired SVG and rich-layout fallback choices blocked while allowing WeChat safe fallback application', () => {
     const blockedMarketFallbackIds = [
       'wechat-market-svg-h5-fallback-matrix',
       'zhihu-market-rich-layout-fallback',
@@ -9541,10 +9541,10 @@ describe('platform native export rendering rules', () => {
       expect(choice.status, choiceId).toBe('blocked')
       expect(availability.usable, choiceId).toBe(false)
       expect(availability.status, choiceId).toBe('blocked')
-      expect(getStyleChoiceApplication(choiceId), choiceId).toBeNull()
       expect(choice.detectorBlockers, choiceId).toContain(marketResidueBlockerByPlatform[choice.platform])
 
       if (choice.platform === 'wechat') {
+        expect(getStyleChoiceApplication(choiceId)?.presetId).toBe('flagship-kiln-paste-safe')
         expect(choice.evidenceFloor).toBe('mobile-preview')
         expect(choice.motion).toBe('mobile-only')
         expect(choice.contentBlocks).toEqual(expect.arrayContaining([
@@ -9577,6 +9577,7 @@ describe('platform native export rendering rules', () => {
       }
 
       if (choice.platform === 'zhihu') {
+        expect(getStyleChoiceApplication(choiceId), choiceId).toBeNull()
         expect(choice.primaryOutput).toBe('image-fallback')
         expect(requirementIds).toEqual(expect.arrayContaining([
           'local-browser-rendering',
@@ -9702,7 +9703,7 @@ describe('platform native export rendering rules', () => {
 
     const availability = evaluateStyleChoiceAvailability(choice, getDefaultStyleEvidence('wechat'))
     expect(availability.usable).toBe(false)
-    expect(getStyleChoiceApplication(choice.id)).toBeNull()
+    expect(getStyleChoiceApplication(choice.id)?.presetId).toBe('flagship-kiln-paste-safe')
     expect(getStyleChoiceMarketCapabilities(choice.id).length).toBe(wechatMatrix.capabilities.length)
     expect(getStyleChoiceMarketCapabilities('wechat-classic-inline')).toEqual([])
 
@@ -9754,6 +9755,10 @@ describe('platform native export rendering rules', () => {
     const kiln = getStyleChoiceById('wechat-flagship-kiln')
     const kilnPasteSafe = getStyleChoiceById('wechat-flagship-kiln-paste-safe')
     const amber = getStyleChoiceById('wechat-flagship-amber')
+    const clickReveal = getStyleChoiceById('wechat-click-reveal')
+    const mobileOnly = getStyleChoiceById('wechat-mobile-only-effect')
+    const carouselSwitch = getStyleChoiceById('wechat-carousel-switch')
+    const marketMatrix = getStyleChoiceById('wechat-market-svg-h5-fallback-matrix')
     const toolbarMap = getStyleChoiceById('wechat-toolbar-parameter-map')
     const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
     const xhsClean = getStyleChoiceById('xhs-clean-text')
@@ -9764,6 +9769,10 @@ describe('platform native export rendering rules', () => {
     expect(kiln).toBeDefined()
     expect(kilnPasteSafe).toBeDefined()
     expect(amber).toBeDefined()
+    expect(clickReveal).toBeDefined()
+    expect(mobileOnly).toBeDefined()
+    expect(carouselSwitch).toBeDefined()
+    expect(marketMatrix).toBeDefined()
     expect(toolbarMap).toBeDefined()
     expect(xhsCarousel).toBeDefined()
     expect(xhsClean).toBeDefined()
@@ -9773,19 +9782,34 @@ describe('platform native export rendering rules', () => {
     expect(zhihuTable).toBeDefined()
 
     if (
-      !kiln || !kilnPasteSafe || !amber || !toolbarMap || !xhsCarousel || !xhsClean
-      || !xhsDataCard || !xhsLongReport || !xhsMarketFallback || !zhihuTable
+      !kiln || !kilnPasteSafe || !amber || !clickReveal || !mobileOnly || !carouselSwitch
+      || !marketMatrix || !toolbarMap || !xhsCarousel || !xhsClean || !xhsDataCard
+      || !xhsLongReport || !xhsMarketFallback || !zhihuTable
     ) return
 
     expect(getStyleChoiceApplication('wechat-flagship-kiln')?.presetId).toBe('flagship-kiln')
     expect(getStyleChoiceApplication('wechat-flagship-kiln-paste-safe')?.presetId).toBe('flagship-kiln-paste-safe')
+    expect(getStyleChoiceApplication('wechat-click-reveal')?.presetId).toBe('flagship-kiln-paste-safe')
+    expect(getStyleChoiceApplication('wechat-mobile-only-effect')?.presetId).toBe('flagship-kiln')
+    expect(getStyleChoiceApplication('wechat-carousel-switch')?.presetId).toBe('flagship-tempera')
+    expect(getStyleChoiceApplication('wechat-market-svg-h5-fallback-matrix')?.presetId).toBe('flagship-kiln-paste-safe')
     expect(getStyleChoiceApplication('wechat-toolbar-parameter-map')?.presetId).toBe('thesis')
     expect(evaluateStyleChoiceApplication(kiln, ['local-browser']).selectable).toBe(true)
     expect(evaluateStyleChoiceApplication(kilnPasteSafe, ['local-browser']).selectable).toBe(true)
 
-    const amberApplication = evaluateStyleChoiceApplication(amber, ['pc-editor-paste', 'mobile-preview'])
+    const amberApplication = evaluateStyleChoiceApplication(amber, ['local-browser'])
     expect(amberApplication.application?.presetId).toBe('flagship-amber')
     expect(amberApplication.selectable).toBe(true)
+    expect(amberApplication.availability.usable).toBe(false)
+    expect(amberApplication.reason).toContain('WeChat-safe fallback')
+
+    for (const choice of [clickReveal, mobileOnly, carouselSwitch, marketMatrix]) {
+      const application = evaluateStyleChoiceApplication(choice, getDefaultStyleEvidence('wechat'))
+      expect(application.availability.usable, choice.id).toBe(false)
+      expect(application.selectable, choice.id).toBe(true)
+      expect(application.application, choice.id).toBeDefined()
+      expect(application.reason, choice.id).toContain('proof remains blocked')
+    }
 
     const toolbarApplication = evaluateStyleChoiceApplication(toolbarMap, ['local-browser'])
     expect(toolbarApplication.application?.presetId).toBe('thesis')
@@ -9841,22 +9865,40 @@ describe('platform native export rendering rules', () => {
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-public-image-upload-checklist')?.usable).toBe(false)
   })
 
-  it('reports selectable style actions only when a usable catalog choice has a real application mapping', () => {
+  it('reports selectable WeChat renderable style actions without promoting external proof gates', () => {
     const wechatApplications = getPlatformStyleApplicationReport('wechat')
     const xhsApplications = getPlatformStyleApplicationReport('xiaohongshu')
     const zhihuApplications = getPlatformStyleApplicationReport('zhihu')
 
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-kiln')?.selectable).toBe(true)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-kiln-paste-safe')?.selectable).toBe(true)
-    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-amber')?.selectable).toBe(false)
-    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-mobile-only-effect')?.selectable).toBe(false)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-amber')?.selectable).toBe(true)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-click-reveal')?.selectable).toBe(true)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-mobile-only-effect')?.selectable).toBe(true)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-carousel-switch')?.selectable).toBe(true)
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-market-svg-h5-fallback-matrix'
+    )?.selectable).toBe(true)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-toolbar-parameter-map')?.selectable).toBe(true)
     expect(wechatApplications.find(item =>
       item.availability.choice.id === 'wechat-toolbar-parameter-map'
     )?.application?.presetId).toBe('thesis')
 
-    const usableWechatRows = wechatApplications.filter(item => item.availability.usable)
-    expect(usableWechatRows.every(item => item.selectable && item.application)).toBe(true)
+    const renderableWechatRows = wechatApplications.filter(item =>
+      item.availability.choice.primaryOutput !== 'publish-checklist' &&
+      item.availability.choice.fallbackOutput !== 'unavailable'
+    )
+    expect(renderableWechatRows.length).toBeGreaterThan(10)
+    expect(renderableWechatRows.every(item => item.selectable && item.application)).toBe(true)
+    expect(renderableWechatRows.find(item =>
+      item.availability.choice.id === 'wechat-mobile-only-effect'
+    )?.availability.usable).toBe(false)
+
+    const publishChecklistWechatRows = wechatApplications.filter(item =>
+      item.availability.choice.primaryOutput === 'publish-checklist' ||
+      item.availability.choice.fallbackOutput === 'unavailable'
+    )
+    expect(publishChecklistWechatRows.every(item => !item.selectable)).toBe(true)
 
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-clean-text')?.selectable).toBe(true)
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-cover-carousel')?.selectable).toBe(false)

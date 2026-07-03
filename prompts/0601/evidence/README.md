@@ -9026,3 +9026,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves package-level manual handoff entries only. It does not prove WeChat
   paste, phone preview, credentialed sync, scheduled send, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-04 WeChat Renderable Style Application Fallback
+
+- [x] wechat-renderable-style-application-fallback-20260704.txt
+- Scope: WeChat renderable SVG/style rows can be selected in the app through safe InkForge
+  fallback mappings.
+- Added fallback mappings for click reveal, mobile-only SVG effect, carousel/switch, and
+  market SVG/H5 fallback matrix rows.
+- The proof-usable count remains independent from the renderable application count:
+  `微信公众号 当前可用 8/17` and `微信公众号 可应用渲染样式 13/13`.
+- CloakBrowser UI readback verified 17 WeChat style cards, 4 disabled publish/checklist cards,
+  13 renderable cards, 0 disabled renderable cards, and successful selection for all 13
+  renderable cards with no console errors from the in-page probe.
+- Verification passed: focused platform rendering selection with 6 selected tests, related
+  platform rendering plus ExportModal SVG option regression with 2 files / 378 tests,
+  full export-service regression with 40 files / 1363 tests, application-acceptance JSON smoke,
+  expected blocked strict release-preflight smoke, focused ESLint, `vue-tsc`, and production
+  build.
+- Boundary: this proves local app application of renderable WeChat SVG/style rows only. It does
+  not prove WeChat paste, phone preview, credentialed sync, scheduled send, public rendering, or
+  publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
