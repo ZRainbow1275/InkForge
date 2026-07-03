@@ -8810,3 +8810,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   WeChat phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
   preview, public rendering, or publish success. XHS/Zhihu publish automation remains manually
   deferred for this round.
+
+## 2026-07-04 Application SVG Gallery
+
+- [x] application-svg-gallery-20260704.txt
+- [x] application-svg-gallery-20260704.html
+- Scope: local visual gallery for all project-owned SVG modules under the WeChat target.
+- `style-proof:application-gallery --json` exits 0 with `status=application-gallery-ready`.
+- The generated gallery renders 27 SVG modules across 4 personas for 108 local visual tiles.
+- Every tile is generated from the live `SVG_MODULES` registry, has zero `checkWechatSafe()`
+  violations, and retains `data-ink-svg`, inline `<svg>`, `viewBox`, and `width="100%"`.
+- Boundary: this is local visual evidence only. It does not prove WeChat paste, phone preview,
+  Dark Mode, cover thumbnail, credentialed sync, scheduled send, public rendering, or publish
+  success. XHS/Zhihu publish automation remains manually deferred for this round.

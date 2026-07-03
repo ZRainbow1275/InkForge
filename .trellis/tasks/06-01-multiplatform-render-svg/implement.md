@@ -24520,3 +24520,59 @@ Scope:
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+## 2026-07-04 Application SVG Gallery Slice
+
+Source:
+- The application-scope preflight proves the local SVG/style contract in compact JSON, but the
+  current round also benefits from a reviewable visual artifact that can be opened without
+  mutating any external platform.
+- The useful next local artifact is a real renderer-generated gallery, not a screenshot, mock, or
+  platform proof substitute.
+
+Impact:
+- `npx gitnexus impact "SVG_MODULES" -r InkForge --depth 3` reported LOW risk with 0 affected
+  processes.
+- `npx gitnexus impact "sanitizePublishRichCopyHtml" -r InkForge --depth 3` and
+  `npx gitnexus impact "style-proof:release-preflight" -r InkForge --depth 3` were not indexed
+  and returned target-not-found; focused CLI tests compensate for this scripts-only slice.
+
+Implementation:
+- Added `style-proof:application-gallery` to `inkforge/package.json`.
+- Added `scripts/style-proof-application-gallery.ts`.
+- The CLI renders every registered `SVG_MODULES` entry against the WeChat target across the four
+  current personas: academic, business, lifestyle, and creative.
+- The gallery writer checks every module/persona pair for:
+  - zero `checkWechatSafe()` violations;
+  - `data-ink-svg`;
+  - inline `<svg>`;
+  - `viewBox`;
+  - `width="100%"`.
+- The CLI writes a local HTML gallery artifact and emits a compact JSON report. The report always
+  includes `notProof:true`.
+
+Verification so far:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-application-gallery.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 2 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-application-gallery.ts scripts/style-proof-application-gallery.test.ts --quiet`
+  passed.
+- `pnpm --silent -C inkforge style-proof:application-gallery --json` exited 0 with:
+  - `status=application-gallery-ready`;
+  - `svgModuleCount=27`;
+  - `svgFamilyCount=7`;
+  - `personaCount=4`;
+  - `renderedModulePersonaPairs=108`;
+  - `wechatSafeViolationCount=0`;
+  - `moduleSentinelFailureCount=0`;
+  - `issues=[]`.
+
+Evidence:
+- Added `prompts/0601/evidence/application-svg-gallery-20260704.txt`.
+- Generated `prompts/0601/evidence/application-svg-gallery-20260704.html`.
+
+Scope:
+- This proves local visual renderability of the application SVG module registry only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

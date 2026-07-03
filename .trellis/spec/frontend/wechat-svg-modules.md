@@ -14736,3 +14736,58 @@ const ruleFamilies = [
 - Run focused release-preflight CLI tests, related export/SVG regression tests, focused ESLint,
   type-check, build or scoped build-equivalent checks, GitNexus detect, diff checks, and sensitive
   scans before committing this class of change.
+
+## 302. Application SVG Gallery - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: application-scope JSON is necessary but not sufficient for visual review of all owned
+  SVG rendering modules.
+- This rule applies to `scripts/style-proof-application-gallery.ts`,
+  `style-proof:application-gallery`, and the local gallery artifacts under
+  `prompts/0601/evidence/`.
+- The gallery is local visual evidence only. It must not open a browser, paste into WeChat, sync,
+  upload, schedule, publish, or create phone/account/platform proof.
+
+### 2. Contract
+
+- `style-proof:application-gallery --json` must emit a compact report with:
+  - `notProof:true`;
+  - `scope:"application-gallery"`;
+  - `status:"application-gallery-ready"` only when every local render check passes;
+  - a repo-relative `outputPath`;
+  - module/family/persona/render-pair counts;
+  - `wechatSafeViolationCount`;
+  - `moduleSentinelFailureCount`;
+  - an issue list.
+- The gallery must render every registered `SVG_MODULES` entry across the four current personas:
+  academic, business, lifestyle, and creative.
+- Every rendered module/persona pair must:
+  - have zero `checkWechatSafe()` violations;
+  - keep `data-ink-svg="<module.id>"`;
+  - keep inline `<svg>`;
+  - keep `viewBox`;
+  - keep `width="100%"`.
+- The HTML artifact may use shell CSS for local review, but the module payload checks must be run
+  against the actual renderer output before shell presentation.
+
+### 3. Cannot-Claim Boundary
+
+- Gallery readiness proves local visual renderability only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, public-host acceptance, or
+  publish success.
+- It must not relax the strict default release preflight gate.
+
+### 4. Required Checks
+
+- Keep CLI coverage proving:
+  - `--json --out <path>` writes a gallery with 108 tiles;
+  - the JSON report stays `notProof:true`;
+  - module/persona counts remain exact;
+  - generated output contains no script, `foreignObject`, or `javascript:` payload.
+- Run focused gallery CLI tests, focused ESLint, related release-preflight/export/SVG regression
+  tests, type-check, build, gallery smoke, release-preflight smoke, GitNexus detect, diff checks,
+  and sensitive scans before committing this class of change.

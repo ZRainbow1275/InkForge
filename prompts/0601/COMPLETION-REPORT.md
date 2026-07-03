@@ -12461,3 +12461,29 @@ Boundary:
   WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success. It also does not claim Xiaohongshu or Zhihu publish-side completion.
+
+---
+
+## 2026-07-04 Application SVG Gallery Addendum
+
+- Added `style-proof:application-gallery` and
+  `scripts/style-proof-application-gallery.ts`.
+- The CLI generates a local visual HTML gallery from the live `SVG_MODULES` registry rather than
+  from mock markup or market-editor payloads.
+- The generated gallery covers all 27 registered SVG modules across the four current personas,
+  producing 108 local WeChat-target visual tiles.
+- Each rendered pair is checked for zero `checkWechatSafe()` violations and for the required
+  module sentinels: `data-ink-svg`, inline `<svg>`, `viewBox`, and `width="100%"`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-application-gallery.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 1 file / 2 tests passed.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-application-gallery.ts scripts/style-proof-application-gallery.test.ts --quiet`: passed.
+  - `pnpm --silent -C inkforge style-proof:application-gallery --json`: exited 0 with
+    `status=application-gallery-ready`, `renderedModulePersonaPairs=108`,
+    `wechatSafeViolationCount=0`, and `moduleSentinelFailureCount=0`.
+- Added sanitized evidence:
+  - `prompts/0601/evidence/application-svg-gallery-20260704.txt`;
+  - `prompts/0601/evidence/application-svg-gallery-20260704.html`.
+- Boundary: this is local visual application evidence only. It does not prove WeChat ordinary
+  paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, platform preview, or publish success. It
+  also does not claim Xiaohongshu or Zhihu publish-side completion.

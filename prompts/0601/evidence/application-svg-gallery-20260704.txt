@@ -1,0 +1,46 @@
+Application SVG Gallery - 2026-07-04
+
+Scope:
+- Local visual gallery for InkForge-owned SVG modules under the WeChat target.
+- Generated from the live local `SVG_MODULES` registry and `buildThemeContext()`.
+- Xiaohongshu and Zhihu publish-side automation remains manually deferred for this round.
+- This file and its HTML companion are not WeChat phone/account/publish proof.
+
+Command:
+- pnpm --silent -C inkforge style-proof:application-gallery --json
+
+Generated artifact:
+- prompts/0601/evidence/application-svg-gallery-20260704.html
+
+Result:
+- exitCode: 0
+- notProof: true
+- scope: application-gallery
+- status: application-gallery-ready
+
+Gallery evidence summary:
+- svgModuleCount: 27
+- svgFamilyCount: 7
+- personaCount: 4
+- renderedModulePersonaPairs: 108
+- wechatSafeViolationCount: 0
+- moduleSentinelFailureCount: 0
+- issues: 0
+
+Interpretation:
+- The gallery renders every registered project-owned SVG module across the four current personas:
+  academic, business, lifestyle, and creative.
+- Every tile is generated through the same local renderer path used by application preflight.
+- Every rendered module/persona pair keeps `data-ink-svg`, inline `<svg>`, `viewBox`, and
+  `width="100%"`.
+- Every rendered module/persona pair has zero `checkWechatSafe()` violations.
+- The HTML gallery is a local visual artifact for review and regression inspection. It is not a
+  platform-paste artifact and should not be submitted as external proof.
+
+Boundary:
+- This proves local visual renderability of the application SVG module registry only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu or Zhihu account upload, platform preview, scheduled send, public
+  host acceptance, or publish success.
