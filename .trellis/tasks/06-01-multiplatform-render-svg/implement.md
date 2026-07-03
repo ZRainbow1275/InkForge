@@ -24312,3 +24312,48 @@ Scope:
 - It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover-thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, or publish success.
 - XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+## 2026-07-04 Publish Rich-Copy Full SVG Module Registry Coverage Slice
+
+Source:
+- The previous rich-copy sanitizer slice proved one real flagship Markdown render. To support the
+  current round's application-level "all SVG rendering and styles" target, the sanitizer contract
+  also needed to cover every owned SVG module in the registry.
+- The existing registry test proved module output is WeChat-safe before copy sanitization, but it
+  did not prove `sanitizePublishRichCopyHtml()` preserves every module after fallback copy
+  sanitization.
+
+Implementation:
+- Extended `src/services/export/publish-copy.test.ts`.
+- The new regression renders all 27 `SVG_MODULES` entries against all four personas
+  (`academic`, `business`, `lifestyle`, `creative`) using a WeChat `buildThemeContext()`.
+- Every rendered module/persona pair is passed through `sanitizePublishRichCopyHtml()`.
+- The test asserts sanitized output remains `checkWechatSafe()` clean and still contains:
+  `data-ink-svg="<module.id>"`, inline `<svg>`, `viewBox`, and `width="100%"`.
+- The same test asserts no `<script>`, `<style>`, `foreignObject`, event-handler attributes, or
+  `javascript:` URI values are emitted after sanitization.
+
+Verification so far:
+- `pnpm -C inkforge exec vitest run src/services/export/publish-copy.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 3 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/publish-copy.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/svg-modules/__tests__/registry.test.ts src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 7 files and 388 tests.
+- `pnpm -C inkforge exec eslint src/services/export/publish-copy.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected
+  with `status=blocked-by-external`, `canClaimComplete=false`, `actionableLocalRows=0`,
+  `manualDeferredOpenSteps=7`, and next rows limited to WeChat phone-preview and WeChat
+  external-account proof.
+
+Evidence:
+- Added `prompts/0601/evidence/publish-rich-copy-svg-module-registry-20260704.txt`.
+
+Scope:
+- This proves local owned SVG module retention through the Publish Center rich-copy fallback
+  sanitizer.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
+  success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

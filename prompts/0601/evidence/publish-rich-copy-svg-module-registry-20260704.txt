@@ -1,0 +1,54 @@
+Publish Rich-Copy SVG Module Registry Coverage - 2026-07-04
+
+Scope:
+- Local application proof for all owned SVG modules through the Publish Center rich-copy fallback
+  sanitizer.
+- WeChat SVG/style copy readiness only.
+- No XHS/Zhihu publish automation.
+- No WeChat phone preview, ordinary paste, credentialed sync, scheduled send, public rendering,
+  or publish.
+
+Implemented:
+- Extended src/services/export/publish-copy.test.ts.
+- The new test renders every registered SVG_MODULES entry through a WeChat buildThemeContext().
+- The matrix covers all four current personas:
+  academic, business, lifestyle, creative.
+- Each rendered module/persona pair is passed through sanitizePublishRichCopyHtml().
+
+Regression coverage:
+- The registry count is asserted at 27 modules.
+- For every module/persona pair, sanitized output must:
+  - remain checkWechatSafe() clean;
+  - keep data-ink-svg="<module.id>";
+  - keep inline svg;
+  - keep viewBox;
+  - keep width="100%";
+  - not contain script tags;
+  - not contain style tags;
+  - not contain foreignObject;
+  - not contain event-handler attributes;
+  - not contain javascript: URI values.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/publish-copy.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 3 tests
+- pnpm -C inkforge exec vitest run src/services/export/publish-copy.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/svg-modules/__tests__/registry.test.ts src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 388 tests
+- pnpm -C inkforge exec eslint src/services/export/publish-copy.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external, canClaimComplete=false, actionableLocalRows=0,
+  manualDeferredOpenSteps=7, next rows limited to WeChat phone-preview and WeChat external-account
+  proof.
+
+Boundary:
+- This proves local owned-module retention through the Publish Center rich-copy fallback sanitizer
+  only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
+  success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

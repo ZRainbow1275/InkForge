@@ -14597,3 +14597,46 @@ const ruleFamilies = [
 - Run focused sanitizer/PublishView Vitest, focused ESLint, export regression tests, type-check,
   build, release-preflight smoke, GitNexus detect, diff checks, and sensitive scans before
   committing.
+
+## 299. Publish Rich-Copy Full SVG Module Registry Coverage - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: proving one flagship preset through the Publish Center rich-copy sanitizer is not enough
+  to support the application-level claim that all owned SVG rendering modules remain usable before
+  the WeChat paste boundary.
+- This rule applies to the local sanitizer test contract for `SVG_MODULES` and
+  `sanitizePublishRichCopyHtml()`.
+- It must not mark interactive modules as phone-proven, and it must not claim WeChat paste,
+  phone preview, sync, schedule, or publish success.
+
+### 2. Contract
+
+- Every registered `SVG_MODULES` entry must be rendered with a WeChat `buildThemeContext()` and
+  then passed through `sanitizePublishRichCopyHtml()`.
+- The test matrix must cover all four current personas: academic, business, lifestyle, creative.
+- Sanitized output for every module/persona pair must:
+  - remain `checkWechatSafe()` clean;
+  - preserve `data-ink-svg="<module.id>"`;
+  - preserve inline `<svg>`;
+  - preserve `viewBox`;
+  - preserve `width="100%"`;
+  - not emit `<script>`, `<style>`, `foreignObject`, event-handler attributes, or `javascript:`
+    URI values.
+- The expected module count is currently 27; if the registry changes, this test must fail until the
+  new module is intentionally accounted for.
+
+### 3. Cannot-Claim Boundary
+
+- This proves local owned-module rich-copy retention only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publish
+  success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+### 4. Required Checks
+
+- Run focused `publish-copy.test.ts` after any sanitizer or SVG registry change.
+- Run the related PublishView/export regression suite, focused ESLint, type-check, build,
+  release-preflight smoke, GitNexus detect, diff checks, and sensitive scans before committing
+  this class of change.

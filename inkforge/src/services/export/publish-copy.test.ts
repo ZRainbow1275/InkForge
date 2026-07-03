@@ -10,6 +10,8 @@ import {
   sanitizePublishRichCopyHtml,
   themePresets,
 } from './index'
+import { buildThemeContext, checkWechatSafe, SVG_MODULES } from './svg-modules'
+import type { PresetPersona } from '@/types'
 
 const SVG_COPY_MARKDOWN = [
   '# WeChat SVG Copy Fixture',
@@ -18,6 +20,14 @@ const SVG_COPY_MARKDOWN = [
   '',
   '> SVG flagship styling must survive into the rich-copy fallback payload.',
 ].join('\n')
+
+const PERSONAS: PresetPersona[] = ['academic', 'business', 'lifestyle', 'creative']
+const SAMPLE_COLORS: Record<PresetPersona, string> = {
+  academic: '#5a4a3c',
+  business: '#004080',
+  lifestyle: '#a0522d',
+  creative: '#c0392b',
+}
 
 function textContentOf(html: string): string {
   const container = document.createElement('div')
@@ -83,5 +93,42 @@ describe('Publish Center rich-copy fallback sanitizer', () => {
     expect(sanitized).not.toMatch(/onload=/i)
     expect(sanitized).not.toMatch(/<foreignObject\b/i)
     expect(sanitized).not.toMatch(/javascript:/i)
+  })
+
+  it('preserves every registered WeChat SVG module through the rich-copy fallback sanitizer', () => {
+    expect(SVG_MODULES).toHaveLength(27)
+
+    for (const module of SVG_MODULES) {
+      for (const persona of PERSONAS) {
+        const theme = buildThemeContext({
+          primaryColor: SAMPLE_COLORS[persona],
+          persona,
+          target: 'wechat',
+        })
+        const rendered = module.render({
+          theme,
+          text: 'InkForge module sanitizer coverage',
+          subtitle: 'Publish Center rich-copy fallback',
+          index: 2,
+          items: [
+            { title: 'Card One', body: 'First body' },
+            { title: 'Card Two', body: 'Second body' },
+          ],
+        })
+
+        const sanitized = sanitizePublishRichCopyHtml(rendered)
+
+        expect(checkWechatSafe(sanitized), `${module.id}/${persona} should remain WeChat-safe`).toEqual([])
+        expect(sanitized, `${module.id}/${persona} sentinel`).toContain(`data-ink-svg="${module.id}"`)
+        expect(sanitized, `${module.id}/${persona} inline svg`).toMatch(/<svg\b/i)
+        expect(sanitized, `${module.id}/${persona} viewBox`).toContain('viewBox')
+        expect(sanitized, `${module.id}/${persona} responsive width`).toContain('width="100%"')
+        expect(sanitized, `${module.id}/${persona} script`).not.toMatch(/<script\b/i)
+        expect(sanitized, `${module.id}/${persona} style`).not.toMatch(/<style\b/i)
+        expect(sanitized, `${module.id}/${persona} foreignObject`).not.toMatch(/<foreignObject\b/i)
+        expect(sanitized, `${module.id}/${persona} events`).not.toMatch(/\son[a-z]+\s*=/i)
+        expect(sanitized, `${module.id}/${persona} javascript uri`).not.toMatch(/javascript:/i)
+      }
+    }
   })
 })

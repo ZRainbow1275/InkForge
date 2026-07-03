@@ -8735,3 +8735,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
   rendering, or publish success. XHS/Zhihu publish automation remains manually deferred for this
   round.
+
+## 2026-07-04 Publish Rich-Copy SVG Module Registry Coverage
+
+- [x] publish-rich-copy-svg-module-registry-20260704.txt
+- Scope: local Publish Center rich-copy fallback retention proof for all owned SVG modules.
+- The focused test now renders all 27 `SVG_MODULES` entries across the four personas and feeds
+  each output through `sanitizePublishRichCopyHtml()`.
+- Every sanitized module/persona pair must remain `checkWechatSafe()` clean and retain
+  `data-ink-svg`, inline `<svg>`, `viewBox`, and `width="100%"`.
+- The same matrix rejects script/style tags, `foreignObject`, event-handler attributes, and
+  `javascript:` URI values after sanitization.
+- Verification passed: focused `publish-copy.test.ts` with 3 tests, related PublishView/SVG
+  registry/export regression with 388 tests, focused ESLint, `vue-tsc`, production build, and
+  expected blocked release-preflight JSON smoke.
+- Boundary: this proves local owned-module sanitizer retention only. It does not prove WeChat
+  ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
+  credentialed sync, scheduled send, public rendering, or publish success. XHS/Zhihu publish
+  automation remains manually deferred for this round.
