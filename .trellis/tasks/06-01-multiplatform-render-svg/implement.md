@@ -8,6 +8,32 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 WeChat PC Editor CloakBrowser Reachability Recheck Slice
+
+Scope:
+- Read-only CloakBrowser inspection of the current WeChat public-platform article editor tab.
+- No preview, save, publish, sync, upload, schedule, cover-picker, media-picker, clipboard, paste,
+  manifest write, or platform mutation was attempted.
+
+Observed:
+- The current WeChat tab was the article-edit surface rather than a sign-in panel.
+- Sanitized DOM counts: `contentEditable=3`, `ProseMirror=2`, `iframes=1`, `svg=9`, `img=15`,
+  and `appmsg-related=84`.
+- Login-panel text was absent in the sampled body text.
+- Authoring controls for media insertion, import, article settings, cover selection, preview,
+  draft save, and publish-class actions were visible.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-pc-editor-cloakbrowser-reachability-20260703.txt`.
+
+Boundary:
+- This is PC editor reachability evidence only. It does not satisfy PC paste, ordinary clipboard
+  paste retention, phone preview, phone screenshot, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync/channel response, scheduled send, public rendering, upload, or publish
+  proof.
+- Release preflight remains expected to exit 1 with `status=blocked-by-external` and
+  `canClaimComplete=false`.
+
 ## 2026-07-03 Style Proof Release Preflight Next Commands Slice
 
 Source:

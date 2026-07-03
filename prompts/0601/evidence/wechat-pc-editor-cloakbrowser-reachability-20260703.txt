@@ -1,0 +1,47 @@
+WeChat PC Editor CloakBrowser Reachability Recheck - 2026-07-03
+
+Scope:
+- Read-only CloakBrowser inspection of the currently open WeChat public-platform article editor.
+- No click on preview, save, publish, sync, upload, schedule, cover picker, media picker, or
+  other mutating platform control.
+- No clipboard write, no paste attempt, no phone preview, no proof manifest write, and no local
+  browser-runtime artifact capture.
+
+Sanitized observation:
+- The current page title was the WeChat public-platform shell.
+- The active route shape was the article edit route, not a sign-in route.
+- Raw route values were not recorded. Only the fact that appmsg-edit style parameters existed was
+  used for classification.
+- Visible editor surface counts:
+  - contenteditable surfaces: 3
+  - ProseMirror surfaces: 2
+  - iframe surfaces: 1
+  - inline svg nodes in the editor shell: 9
+  - image nodes in the editor shell: 15
+  - appmsg-related nodes: 84
+- Login-panel text was not present in the sampled body text.
+- Visible authoring controls included media insertion, import, article settings, cover selection,
+  preview, draft save, and publish-class controls.
+- The body editor placeholder and cover-selection area were visible.
+
+Classification:
+- This is authenticated PC editor reachability and DOM-surface availability evidence only.
+- It is useful for planning the next real PC editor proof collection pass.
+- It is not a successful article paste, phone preview, cover acceptance, sync, schedule, publish,
+  or public-rendering proof.
+
+Boundary:
+- Do not use this evidence to satisfy pc-editor-paste-event, ordinaryClipboardPasteVerified,
+  phone-preview-readback, phone-screenshot, dark-mode-check, cover-thumbnail-check,
+  credentialed-channel-response, scheduled-send, public-host, or published proof rows.
+- Do not claim phone-side final article content from PC editor DOM.
+- Do not claim cover thumbnail acceptance from the cover setup panel.
+- Do not claim sync, schedule, upload, or publish success from the presence of the corresponding
+  controls.
+- Release preflight must remain blocked until phone/account/public-host/platform proof rows are
+  collected as redacted manifests.
+
+Sanitization:
+- This file intentionally omits account labels, raw route values, local browser-state locations,
+  credential browser storage, auth secret strings, request archives, QR payload material, local
+  capture file references, draft routes, publish routes, and private material.

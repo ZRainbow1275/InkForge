@@ -11722,3 +11722,24 @@ Boundary:
   release-gate accounting. It does not prove WeChat phone preview, phone screenshot, mobile
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 WeChat PC Editor CloakBrowser Reachability Addendum
+
+- Used CloakBrowser, not Playwright, to passively inspect the current WeChat public-platform
+  article editor tab.
+- The current surface was an article-edit page rather than a sign-in panel.
+- Sanitized DOM counts: `contentEditable=3`, `ProseMirror=2`, `iframes=1`, `svg=9`, `img=15`,
+  and `appmsg-related=84`.
+- Visible authoring controls included media insertion, import, article settings, cover selection,
+  preview, draft save, and publish-class actions.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-pc-editor-cloakbrowser-reachability-20260703.txt`.
+- No raw route values, account labels, local browser-state locations, credential browser storage,
+  auth secret strings, request archives, QR payload material, local capture file references,
+  draft routes, publish routes, or private material were recorded.
+- Boundary: this is PC editor reachability evidence only. It does not prove ordinary rich paste
+  retention, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

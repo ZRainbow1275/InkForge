@@ -13819,3 +13819,45 @@ const ruleFamilies = [
 - Evidence docs must state that next-command reporting is operator guidance only and does not
   prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
   publish success.
+
+## 284. WeChat PC Editor CloakBrowser Reachability Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: after the user re-logged into WeChat, CloakBrowser showed the WeChat public-platform
+  article edit surface rather than a sign-in panel.
+- This evidence class is `authenticated-pc-editor-reachability`. It is read-only PC editor
+  surface evidence and must remain separate from paste, phone, cover, sync, schedule, publish,
+  and public-rendering proof rows.
+- Use CloakBrowser only for this path. Do not use Playwright directly for platform/editor
+  probing while the user requires CloakBrowser.
+
+### 2. Contract
+
+- A reachability record may keep only sanitized route shape and aggregate DOM counts.
+- It may record that the page title matched the WeChat public-platform shell, the route shape was
+  article-edit, login-panel text was absent, and authoring surfaces/controls were visible.
+- It must not record account labels, raw route values, local browser-state locations, credential
+  browser storage, auth secret strings, request archives, QR payload material, local capture file
+  references, draft routes, publish routes, or private material.
+- It must not click preview, save, publish, sync, upload, schedule, cover picker, media picker, or
+  other mutating platform controls.
+
+### 3. Cannot-Claim Boundary
+
+- This evidence must not satisfy `pc-editor-paste-event`, `ordinaryClipboardPasteVerified`,
+  `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, `cover-thumbnail-check`,
+  `credentialed-channel-response`, `scheduled-send`, `public-image-host`, or `published`.
+- PC editor DOM availability is not phone-side final article content.
+- A cover picker or cover setup panel is not cover-thumbnail acceptance.
+- Visible preview/save/publish controls are not credentialed-channel, scheduled-send, upload, or
+  publish success.
+- Release preflight must remain `blocked-by-external` until the exact phone/account/public-host
+  proof artifacts are collected and accepted through redacted manifests.
+
+### 4. Required Checks
+
+- Evidence docs must cite only sanitized counts/labels and the cannot-claim boundary.
+- Run release-preflight smoke after recording the evidence; it must still exit non-zero with
+  `canClaimComplete:false`.
+- Run staged diff and sensitive-fragment scans before committing the docs-only evidence.

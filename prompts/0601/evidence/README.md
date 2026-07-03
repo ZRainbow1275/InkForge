@@ -8417,3 +8417,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is operator guidance only. It does not prove phone preview, mobile Dark Mode,
   SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 WeChat PC Editor CloakBrowser Reachability Recheck
+
+- [x] wechat-pc-editor-cloakbrowser-reachability-20260703.txt
+- Scope: read-only CloakBrowser inspection of the current WeChat public-platform article editor.
+- The page was an article-edit surface rather than a sign-in panel.
+- Sanitized DOM counts were recorded: `contentEditable=3`, `ProseMirror=2`, `iframes=1`,
+  `svg=9`, `img=15`, and `appmsg-related=84`.
+- Visible authoring controls included media insertion, import, article settings, cover selection,
+  preview, draft save, and publish-class actions.
+- No raw route values, account labels, local browser-state locations, credential browser storage,
+  auth secret strings, request archives, QR payload material, local capture file references,
+  draft routes, publish routes, or private material were recorded.
+- Boundary: this is PC editor reachability evidence only. It does not prove ordinary paste
+  retention, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.
