@@ -15307,6 +15307,8 @@ const ruleFamilies = [
   - `style-proof:release-preflight` as `tsx scripts/style-proof-release-preflight.ts`;
   - `style-proof:application-preflight` as
     `tsx scripts/style-proof-release-preflight.ts --scope=application`;
+  - `style-proof:application-acceptance` as
+    `tsx scripts/style-proof-application-acceptance.ts`;
   - `style-proof:application-gallery` as `tsx scripts/style-proof-application-gallery.ts`.
 - The application preflight script is a convenience entry only. It must call the same
   release-preflight implementation with `--scope=application`; it must not fork the acceptance
@@ -15329,3 +15331,104 @@ const ruleFamilies = [
 - Run focused release-preflight tests, `style-proof:application-preflight --json` smoke, strict
   `style-proof:release-preflight --json` blocked smoke, focused ESLint for the test file,
   GitNexus detect, diff checks, and sensitive scans before committing this class of change.
+
+## 311. Application Acceptance Aggregator CLI - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: application preflight and application gallery are both required local checks for the
+  narrowed round target. Operators need a single command that proves both local gates and also
+  confirms the strict release gate still refuses external-proof claims.
+- This rule applies to `scripts/style-proof-application-acceptance.ts`,
+  `scripts/style-proof-application-acceptance.test.ts`, and `inkforge/package.json`.
+- This rule does not re-enable Xiaohongshu/Zhihu publish automation. Per the current acceptance
+  update, those publish-side checks are manually owned by the operator and must not block this
+  local application gate.
+
+### 2. Aggregation Contract
+
+- `style-proof:application-acceptance --json` must emit a compact report with:
+  - `notProof:true`;
+  - `scope:"application-acceptance"`;
+  - `status:"application-acceptance-ready"` only when all local checks pass;
+  - `canClaimApplicationReady:true`;
+  - `canClaimReleaseComplete:false`;
+  - one check row each for application preflight, application gallery, and strict release
+    boundary.
+- The command must run the existing CLIs instead of forking renderer or release-gate logic:
+  - `style-proof:application-preflight --json`;
+  - `style-proof:application-gallery --json --out <temporary>`;
+  - `style-proof:release-preflight --json`.
+- The strict release-boundary check passes only when strict release preflight exits non-zero with
+  `canClaimComplete=false` and `status=blocked-by-external`.
+- The command may create a temporary gallery file, but it must remove it before exit.
+- Child CLI JSON must be shape-validated before dereferencing. A matching `scope` alone is not
+  enough; the aggregator must validate required summary fields, required issue arrays, and
+  external-proof boundary fields before using counts or claim booleans.
+
+### 3. Validation & Error Matrix
+
+- Unknown option -> exit 2, print help, and do not run acceptance checks.
+- Application preflight exits non-zero, reports a non-ready status, has malformed JSON, or has any
+  local issue array row -> `application-preflight` check fails and the aggregate exits 1.
+- Application gallery exits non-zero, reports a non-ready status, has malformed JSON, or has any
+  gallery issue row -> `application-gallery` check fails and the aggregate exits 1.
+- Strict release preflight exits 0, reports `canClaimComplete=true`, has malformed JSON, or does
+  not report `status=blocked-by-external` -> `strict-release-boundary` check fails and the
+  aggregate exits 1.
+- Temporary gallery-file cleanup must run in a `finally` path so failures do not leave repo-local
+  artifacts.
+
+### 4. Good / Base / Bad Cases
+
+- Good: all local application checks pass, strict release preflight exits 1 with
+  `blocked-by-external`, and the report is `application-acceptance-ready`.
+- Base: local checks pass but WeChat phone/account/platform proof is still missing; the aggregate
+  may claim `canClaimApplicationReady=true` but must keep `canClaimReleaseComplete=false`.
+- Bad: strict release preflight becomes green without external proof, or any child JSON is
+  malformed. The aggregate must block and must not claim application acceptance.
+
+### 5. Wrong vs Correct
+
+Wrong:
+
+```ts
+const child = JSON.parse(stdout)
+if (child.scope === 'application') {
+  return child.summary.applicationIssueCount === 0
+}
+```
+
+Correct:
+
+```ts
+const child = parseJsonOutput(stdout)
+if (!isApplicationPreflightReport(child)) {
+  return { passed: false, status: 'invalid-json' }
+}
+return child.status === 'application-ready' && getApplicationIssueCount(child) === 0
+```
+
+### 6. Cannot-Claim Boundary
+
+- Passing this rule proves only the local application acceptance aggregation and strict release
+  non-claim boundary.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu publish success. Those publish-side tests are manually
+  deferred to the user for this round.
+
+### 7. Required Checks
+
+- Keep focused tests proving:
+  - JSON shape and exact check ids;
+  - `application-acceptance-ready`;
+  - application issue count 0;
+  - gallery issue count 0;
+  - strict release boundary preserved;
+  - help and unknown-option behavior.
+- Run focused acceptance/preflight tests, direct `style-proof:application-acceptance --json`
+  smoke, direct application-preflight smoke, strict release-preflight blocked smoke, focused
+  ESLint, scripts-suite regression, type-check, production build, GitNexus detect, diff checks,
+  and sensitive scans before committing this class of change.

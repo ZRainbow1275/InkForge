@@ -1,0 +1,61 @@
+Application Acceptance CLI - 2026-07-04
+
+Scope:
+- Local application acceptance aggregation only.
+- No WeChat account action, phone preview, upload, sync, schedule, platform preview, public render,
+  or publish action.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+Implemented:
+- Added `scripts/style-proof-application-acceptance.ts`.
+- Added `style-proof:application-acceptance` to `inkforge/package.json`.
+- The command runs and aggregates:
+  - `style-proof:application-preflight --json`;
+  - `style-proof:application-gallery --json --out <temporary>`;
+  - `style-proof:release-preflight --json` as a strict boundary check.
+
+Behavior:
+- The acceptance report is `notProof:true` and `scope=application-acceptance`.
+- It returns `application-acceptance-ready` only when:
+  - application preflight exits 0 and reports `application-ready`;
+  - application gallery exits 0 and reports `application-gallery-ready`;
+  - strict release preflight remains blocked with `canClaimComplete=false`.
+- It shape-validates child CLI JSON before dereferencing issue arrays, summary counts, and
+  strict release claim fields; `scope` alone is not accepted as a valid child report.
+- It creates only a temporary gallery file and removes it before exit.
+- It does not fork renderer logic or create platform proof.
+
+TDD record:
+- Initial focused test failed because `style-proof-application-acceptance.ts` was absent.
+- After implementation, focused tests passed.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 2 files / 9 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 6 files / 48 tests.
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json`
+  PASS: exit 0, `status=application-acceptance-ready`,
+  `canClaimApplicationReady=true`, `canClaimReleaseComplete=false`,
+  `applicationPreflightExitCode=0`, `applicationGalleryExitCode=0`,
+  `strictReleaseExitCode=1`, `strictReleaseBoundaryPreserved=true`,
+  `applicationIssueCount=0`, and `galleryIssueCount=0`.
+- Focused ESLint for the new CLI and tests: PASS.
+- `pnpm --silent -C inkforge style-proof:application-preflight --json`
+  PASS: exit 0, `status=application-ready`, `canClaimApplicationReady=true`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  PASS: expected exit 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=4`, and `uniqueNextRows=2`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  PASS; generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Boundary:
+- This proves the current local application acceptance command can aggregate the local app-level
+  SVG/style gate and confirm strict release proof is not being claimed.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, public-host acceptance,
+  or publish success.

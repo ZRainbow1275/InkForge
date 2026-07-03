@@ -15,6 +15,7 @@
     "test:e2e": "wdio run tests/e2e/wdio.conf.cjs",
     "style-proof:release-preflight": "tsx scripts/style-proof-release-preflight.ts",
     "style-proof:application-preflight": "tsx scripts/style-proof-release-preflight.ts --scope=application",
+    "style-proof:application-acceptance": "tsx scripts/style-proof-application-acceptance.ts",
     "style-proof:application-gallery": "tsx scripts/style-proof-application-gallery.ts",
     "style-proof:external-handoff": "tsx scripts/style-proof-external-handoff.ts",
     "style-proof:manifest-intake": "tsx scripts/style-proof-manifest-intake.ts",

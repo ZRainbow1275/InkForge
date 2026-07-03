@@ -25090,3 +25090,64 @@ Scope:
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-04 Application Acceptance Aggregator CLI Slice
+
+Source:
+- The narrowed local round target requires both application preflight and application gallery
+  readiness.
+- The project now had separate commands for those checks, but no single local acceptance command
+  that also verified strict release proof was still not being claimed.
+
+Impact:
+- `npx gitnexus impact "style-proof-application-gallery" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk for scripts-only indexing.
+- The slice is limited to a local read-only CLI, package script, focused tests, docs, and
+  sanitized evidence. It does not change renderer, UI, export, manifest, sync, upload, schedule,
+  or publish behavior.
+
+Implementation:
+- Added `scripts/style-proof-application-acceptance.ts`.
+- Added `style-proof:application-acceptance` to `inkforge/package.json`.
+- The command runs:
+  - `style-proof:application-preflight --json`;
+  - `style-proof:application-gallery --json --out <temporary>`;
+  - `style-proof:release-preflight --json`.
+- The report is `notProof:true`, `scope=application-acceptance`, and reaches
+  `application-acceptance-ready` only when local application gates pass and strict release remains
+  blocked with `canClaimComplete=false`.
+- The command shape-validates child CLI JSON before dereferencing issue arrays, summary counts,
+  or strict release claim fields; a matching `scope` alone is not treated as valid proof.
+- The temporary gallery file is removed before exit.
+
+Verification:
+- Initial focused TDD run failed because `style-proof-application-acceptance.ts` was absent.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files and 9 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 6 files and 48 tests.
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json` exited 0 with
+  `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, `applicationPreflightExitCode=0`,
+  `applicationGalleryExitCode=0`, `strictReleaseExitCode=1`,
+  `strictReleaseBoundaryPreserved=true`, `applicationIssueCount=0`, and `galleryIssueCount=0`.
+- Focused ESLint passed for the acceptance CLI and tests.
+- `pnpm --silent -C inkforge style-proof:application-preflight --json` exited 0 with
+  `status=application-ready` and `canClaimApplicationReady=true`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected
+  with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=4`, and
+  `uniqueNextRows=2`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Evidence:
+- Added `prompts/0601/evidence/application-acceptance-cli-20260704.txt`.
+
+Scope:
+- This proves one command can aggregate the local application SVG/style acceptance gates and verify
+  strict release proof remains unclaimed.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

@@ -795,6 +795,9 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(scripts['style-proof:application-preflight']).toBe(
       'tsx scripts/style-proof-release-preflight.ts --scope=application',
     )
+    expect(scripts['style-proof:application-acceptance']).toBe(
+      'tsx scripts/style-proof-application-acceptance.ts',
+    )
     expect(scripts['style-proof:application-gallery']).toBe('tsx scripts/style-proof-application-gallery.ts')
   })
 

@@ -1,0 +1,215 @@
+import { execFile, type ExecFileException } from 'node:child_process'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { describe, expect, it } from 'vitest'
+
+interface ApplicationAcceptanceCliResult {
+  exitCode: number
+  stdout: string
+  stderr: string
+}
+
+interface ApplicationAcceptanceJsonReport {
+  notProof: true
+  scope: 'application-acceptance'
+  status: 'application-acceptance-ready' | 'application-acceptance-blocked'
+  canClaimApplicationReady: boolean
+  canClaimReleaseComplete: boolean
+  summary: {
+    applicationPreflightExitCode: number
+    applicationGalleryExitCode: number
+    strictReleaseExitCode: number
+    svgModuleCount: number
+    renderedModulePersonaPairs: number
+    applicationGalleryRenderedModulePersonaPairs: number
+    applicationIssueCount: number
+    galleryIssueCount: number
+    strictReleaseBoundaryPreserved: boolean
+  }
+  checks: Array<{
+    id: string
+    passed: boolean
+    exitCode: number
+    status: string
+    command: string
+  }>
+  issues: string[]
+  boundary: {
+    xhsZhihuPublishAutomationDeferred: true
+    requiresManualWeChatProof: boolean
+  }
+}
+
+const currentFilePath = fileURLToPath(import.meta.url)
+const projectRoot = resolve(dirname(currentFilePath), '..')
+const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
+const acceptanceScriptPath = resolve(projectRoot, 'scripts', 'style-proof-application-acceptance.ts')
+
+function getCliEnvironment(): NodeJS.ProcessEnv {
+  const environment: NodeJS.ProcessEnv = {}
+  for (const [key, value] of Object.entries(process.env)) {
+    if (typeof value === 'string') {
+      environment[key] = value
+    }
+  }
+
+  environment.FORCE_COLOR = '0'
+  environment.NO_COLOR = '1'
+
+  return environment
+}
+
+function toCliText(value: string | Buffer): string {
+  return Buffer.isBuffer(value) ? value.toString('utf8') : value
+}
+
+function getExitCode(error: ExecFileException | null): number {
+  if (!error) {
+    return 0
+  }
+
+  if (typeof error.code === 'number') {
+    return error.code
+  }
+
+  if (typeof error.code === 'string') {
+    const parsedCode = Number.parseInt(error.code, 10)
+    if (Number.isFinite(parsedCode)) {
+      return parsedCode
+    }
+  }
+
+  return 1
+}
+
+function runAcceptanceCli(args: readonly string[]): Promise<ApplicationAcceptanceCliResult> {
+  return new Promise(resolveResult => {
+    execFile(
+      process.execPath,
+      [tsxCliPath, acceptanceScriptPath, ...args],
+      {
+        cwd: projectRoot,
+        env: getCliEnvironment(),
+        maxBuffer: 1024 * 1024 * 16,
+        windowsHide: true,
+      },
+      (error, stdout, stderr) => {
+        resolveResult({
+          exitCode: getExitCode(error),
+          stdout: toCliText(stdout),
+          stderr: toCliText(stderr),
+        })
+      },
+    )
+  })
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function hasNumberKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return keys.every(key => typeof value[key] === 'number')
+}
+
+function isApplicationAcceptanceJsonReport(value: unknown): value is ApplicationAcceptanceJsonReport {
+  return isRecord(value) &&
+    value.notProof === true &&
+    value.scope === 'application-acceptance' &&
+    (value.status === 'application-acceptance-ready' || value.status === 'application-acceptance-blocked') &&
+    typeof value.canClaimApplicationReady === 'boolean' &&
+    typeof value.canClaimReleaseComplete === 'boolean' &&
+    isRecord(value.summary) &&
+    hasNumberKeys(value.summary, [
+      'applicationPreflightExitCode',
+      'applicationGalleryExitCode',
+      'strictReleaseExitCode',
+      'svgModuleCount',
+      'renderedModulePersonaPairs',
+      'applicationGalleryRenderedModulePersonaPairs',
+      'applicationIssueCount',
+      'galleryIssueCount',
+    ]) &&
+    typeof value.summary.strictReleaseBoundaryPreserved === 'boolean' &&
+    Array.isArray(value.checks) &&
+    value.checks.every(check =>
+      isRecord(check) &&
+      typeof check.id === 'string' &&
+      typeof check.passed === 'boolean' &&
+      typeof check.exitCode === 'number' &&
+      typeof check.status === 'string' &&
+      typeof check.command === 'string'
+    ) &&
+    Array.isArray(value.issues) &&
+    value.issues.every(issue => typeof issue === 'string') &&
+    isRecord(value.boundary) &&
+    value.boundary.xhsZhihuPublishAutomationDeferred === true &&
+    typeof value.boundary.requiresManualWeChatProof === 'boolean'
+}
+
+function parseAcceptanceJson(stdout: string): ApplicationAcceptanceJsonReport {
+  const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
+  if (!isApplicationAcceptanceJsonReport(parsed)) {
+    throw new Error('style-proof application acceptance JSON shape is invalid')
+  }
+
+  return parsed
+}
+
+describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
+  it('aggregates the current local application acceptance gates without claiming release success', async () => {
+    const result = await runAcceptanceCli(['--json'])
+
+    expect(result.exitCode).toBe(0)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout.trim()).not.toContain('\n')
+
+    const report = parseAcceptanceJson(result.stdout)
+    expect(report).toMatchObject({
+      notProof: true,
+      scope: 'application-acceptance',
+      status: 'application-acceptance-ready',
+      canClaimApplicationReady: true,
+      canClaimReleaseComplete: false,
+      summary: {
+        applicationPreflightExitCode: 0,
+        applicationGalleryExitCode: 0,
+        svgModuleCount: 27,
+        renderedModulePersonaPairs: 108,
+        applicationGalleryRenderedModulePersonaPairs: 108,
+        applicationIssueCount: 0,
+        galleryIssueCount: 0,
+        strictReleaseBoundaryPreserved: true,
+      },
+      issues: [],
+      boundary: {
+        xhsZhihuPublishAutomationDeferred: true,
+        requiresManualWeChatProof: true,
+      },
+    })
+    expect(report.summary.strictReleaseExitCode).not.toBe(0)
+    expect(report.checks.map(check => check.id)).toEqual([
+      'application-preflight',
+      'application-gallery',
+      'strict-release-boundary',
+    ])
+    expect(report.checks.every(check => check.passed)).toBe(true)
+    expect(report.checks.find(check => check.id === 'strict-release-boundary')).toMatchObject({
+      status: 'blocked-by-external',
+      command: 'style-proof:release-preflight --json',
+    })
+  })
+
+  it('prints help and rejects unknown options before running acceptance checks', async () => {
+    const help = await runAcceptanceCli(['--help'])
+    expect(help.exitCode).toBe(0)
+    expect(help.stderr.trim()).toBe('')
+    expect(help.stdout).toContain('Usage: pnpm style-proof:application-acceptance [--json]')
+    expect(help.stdout).toContain('does not open a browser')
+
+    const invalid = await runAcceptanceCli(['--unknown-acceptance-flag'])
+    expect(invalid.exitCode).toBe(2)
+    expect(invalid.stderr).toContain('Unknown option: --unknown-acceptance-flag')
+    expect(invalid.stdout).toContain('Usage: pnpm style-proof:application-acceptance')
+  })
+})

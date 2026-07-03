@@ -12792,3 +12792,38 @@ Boundary:
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this
   round.
+
+---
+
+## 2026-07-04 Application Acceptance Aggregator CLI Addendum
+
+- Added a dedicated local acceptance aggregator:
+  `style-proof:application-acceptance`.
+- The command is backed by `scripts/style-proof-application-acceptance.ts` and runs:
+  - `style-proof:application-preflight --json`;
+  - `style-proof:application-gallery --json --out <temporary>`;
+  - `style-proof:release-preflight --json`.
+- The command returns `application-acceptance-ready` only when the local application gates pass
+  and the strict release gate remains blocked with `canClaimComplete=false`.
+- The command shape-validates child CLI JSON before dereferencing issue arrays, summary counts,
+  or strict release claim fields; `scope` alone is not treated as a valid child report.
+- The temporary gallery file is removed before exit.
+- TDD record:
+  - The first focused run failed before implementation because the CLI file was absent.
+  - The post-implementation focused run passed with 2 files / 9 tests.
+- Verification:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 2 files / 9 tests passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 6 files / 48 tests passed.
+  - `pnpm --silent -C inkforge style-proof:application-acceptance --json`: exited 0 with `status=application-acceptance-ready`, `canClaimApplicationReady=true`, `canClaimReleaseComplete=false`, `applicationIssueCount=0`, `galleryIssueCount=0`, and `strictReleaseBoundaryPreserved=true`.
+  - Focused ESLint for the new CLI and tests: passed.
+  - `pnpm --silent -C inkforge style-proof:application-preflight --json`: exited 0 with `status=application-ready` and `canClaimApplicationReady=true`.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=4`, and `uniqueNextRows=2`.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-acceptance-cli-20260704.txt`.
+- Boundary: this proves local app-level SVG/style acceptance aggregation only. It does not prove
+  WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this
+  round.

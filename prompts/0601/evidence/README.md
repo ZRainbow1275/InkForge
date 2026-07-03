@@ -8984,3 +8984,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves the package-level acceptance entry only. It does not prove WeChat paste,
   phone preview, credentialed sync, scheduled send, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-04 Application Acceptance CLI
+
+- [x] application-acceptance-cli-20260704.txt
+- Scope: local application acceptance aggregation command.
+- Added `style-proof:application-acceptance`, backed by
+  `scripts/style-proof-application-acceptance.ts`.
+- The command aggregates application preflight, application gallery readiness, and a strict
+  release-boundary check into one `application-acceptance-ready` report.
+- The command shape-validates child CLI JSON before dereferencing issue arrays, summary counts,
+  or strict release claim fields.
+- Verification passed: TDD red/green focused acceptance/preflight tests with 2 files / 9 tests,
+  scripts-suite regression with 6 files / 48 tests,
+  direct `style-proof:application-acceptance --json` smoke with
+  `status=application-acceptance-ready`, focused ESLint, direct application-preflight smoke,
+  expected blocked strict release-preflight smoke, `vue-tsc`, and production build.
+- Boundary: this proves local app-level SVG/style acceptance aggregation only. It does not prove
+  WeChat paste, phone preview, credentialed sync, scheduled send, public rendering, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
