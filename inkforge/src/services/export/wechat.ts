@@ -27,6 +27,7 @@ import {
   type WechatRuleOptions,
 } from './platform-rules/wechat'
 import { generateThemeCSS, codeThemeCSS, applyHeadingDecorations } from './themes'
+import { applyWechatOptionSvgModules } from './wechat-svg-options'
 import { FONT_STACKS } from '@/constants'
 import {
   highlightCodeBlocks,
@@ -1336,6 +1337,8 @@ export function convertToWechatWithStats(
   if (effectivePreset.decorate) {
     decoratedHtml = effectivePreset.decorate(decoratedHtml, 'wechat')
   }
+
+  decoratedHtml = applyWechatOptionSvgModules(decoratedHtml, effectivePreset, options)
 
   // 增强表格样式 — 条纹行、圆角、主色表头（在 juice 内联之后）
   const tableEnhancedHtml = enableEnhancedTable

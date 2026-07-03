@@ -12523,3 +12523,42 @@ Boundary:
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform preview, or
   publish success. Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for
   this round and are not claimed by this artifact.
+
+---
+
+## 2026-07-04 WeChat SVG Option Injection Addendum
+
+- Added a pure WeChat SVG option helper:
+  `src/services/export/wechat-svg-options.ts`.
+- Re-exported the helper from `src/services/export/index.ts` for application/reporting consumers.
+- Routed `convertToWechatWithStats()` through the helper so `enableSvgModules === true` plus a
+  non-empty `svgInjectionPlan` now applies explicit SVG modules in the real WeChat export path.
+- Default behavior remains unchanged: disabled or empty SVG option plans do not inject module
+  markup.
+- Added happy-dom export-pipeline coverage proving:
+  - disabled/empty plans do not alter default output;
+  - a mixed explicit plan injects cover, heading, divider, quote, and endmark modules;
+  - all 27 registered `SVG_MODULES` entries can be applied through the explicit WeChat option
+    path while retaining `data-ink-svg`, inline `<svg>`, `viewBox`, `width="100%"`, and zero
+    `checkWechatSafe()` violations.
+- Extended application preflight with:
+  - `wechatOptionInjectedModuleCount`;
+  - `wechatOptionInjectionFailureCount`;
+  - `wechatOptionIssues`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run src/services/export/wechat-svg-options.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 2 files / 9 tests passed.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`: exited 0 with `status=application-ready`, `wechatOptionInjectedModuleCount=27`, `wechatOptionInjectionFailureCount=0`, and `wechatOptionIssues=[]`.
+  - `pnpm -C inkforge exec vitest run src/services/export/wechat-svg-options.test.ts scripts/style-proof-release-preflight.test.ts src/services/export/application-svg-gallery.test.ts scripts/style-proof-application-gallery.test.ts src/services/export/publish-copy.test.ts src/services/export/svg-modules/__tests__/registry.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 6 files / 21 tests passed.
+  - `pnpm -C inkforge exec eslint src/services/export/wechat.ts src/services/export/wechat-svg-options.ts src/services/export/wechat-svg-options.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated
+    `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: still exits 1 as expected
+    with `status=blocked-by-external` and `canClaimComplete=false`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-svg-option-injection-20260704.txt`.
+- Boundary: this proves local application option injection and WeChat-safe SVG export readiness
+  only. It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile
+  interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  platform preview, or publish success. Xiaohongshu and Zhihu publish-side tests are manually
+  deferred to the user for this round and are not claimed by this artifact.

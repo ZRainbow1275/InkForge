@@ -8839,3 +8839,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves application/export service availability only. It does not prove WeChat
   paste, phone preview, credentialed sync, scheduled send, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for this round.
+
+## 2026-07-04 WeChat SVG Option Injection
+
+- [x] wechat-svg-option-injection-20260704.txt
+- Scope: local explicit WeChat SVG option injection through `enableSvgModules` and
+  `svgInjectionPlan`.
+- `convertToWechatWithStats()` now consumes a non-empty SVG option plan after preset decoration
+  and before later WeChat export post-processing.
+- The pure helper is re-exported through `src/services/export/index.ts` for application/reporting
+  consumers.
+- Default behavior is preserved: disabled or empty option plans do not inject SVG modules.
+- Verification passed: focused WeChat option + release-preflight Vitest with 2 files / 9 tests,
+  related 6-file / 21-test export/SVG regression, focused ESLint, `vue-tsc`, production build,
+  and application-preflight JSON smoke with 27 injected modules, 0 injection failures, and empty
+  option issues. Strict release-preflight JSON remains blocked by external WeChat gates as
+  expected.
+- Boundary: this proves local application option injection and WeChat-safe SVG export readiness
+  only. It does not prove WeChat paste, phone preview, credentialed sync, scheduled send, public
+  rendering, or publish success. Xiaohongshu and Zhihu publish-side tests are manually deferred to
+  the user for this round.

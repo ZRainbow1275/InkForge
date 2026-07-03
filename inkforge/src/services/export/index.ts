@@ -258,6 +258,11 @@ export {
 } from './wechat'
 
 export {
+  applyWechatOptionSvgModules,
+  hasWechatSvgInjectionPlan,
+} from './wechat-svg-options'
+
+export {
   PUBLISH_COPY_ALLOWED_ATTR,
   PUBLISH_COPY_ALLOWED_TAGS,
   sanitizePublishRichCopyHtml,

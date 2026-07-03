@@ -14841,3 +14841,72 @@ const ruleFamilies = [
 - Run focused service/CLI tests, focused ESLint, related export/SVG regression tests, type-check,
   build, gallery smoke, release-preflight smoke, GitNexus detect, diff checks, and sensitive scans
   before committing this class of change.
+
+## 304. WeChat SVG Option Injection - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: `WechatExportOptions.enableSvgModules` and `svgInjectionPlan` are application-facing
+  export options. They must be consumed by the real WeChat export path, not only by preset
+  decorators or script-only gallery checks.
+- This rule applies to:
+  - `src/services/export/wechat.ts`;
+  - `src/services/export/wechat-svg-options.ts`;
+  - `scripts/style-proof-release-preflight.ts`;
+  - WeChat export tests covering explicit SVG option plans.
+- This rule does not add Xiaohongshu/Zhihu publish automation. Per the current round decision,
+  those publish-side checks are manually owned by the operator.
+
+### 2. Contract
+
+- Default behavior must remain unchanged:
+  - if `enableSvgModules !== true`, do not inject SVG modules from `svgInjectionPlan`;
+  - if `enableSvgModules === true` but the plan is empty, do not inject SVG modules.
+- When `enableSvgModules === true` and `svgInjectionPlan` is non-empty, WeChat export must apply
+  the explicit plan after preset decoration and before table/platform post-processing.
+- The option path must use the same `composeSvgDecorate()` renderer family as the preset path.
+- The option path must support every current `SVG_MODULES` entry as an explicit application
+  option module.
+- Every injected option module must retain:
+  - `data-ink-svg="<module.id>"`;
+  - inline `<svg>`;
+  - `viewBox`;
+  - `width="100%"`;
+  - zero `checkWechatSafe()` violations.
+
+### 3. Application Preflight Contract
+
+- `style-proof:release-preflight --scope=application --json` must include:
+  - `wechatOptionInjectedModuleCount`;
+  - `wechatOptionInjectionFailureCount`;
+  - `wechatOptionIssues`.
+- `canClaimApplicationReady` may be true only when `wechatOptionIssues.length === 0`.
+- The application preflight may use the pure WeChat SVG option helper to avoid loading browser-only
+  export dependencies in the Node CLI, but a focused happy-dom test must still exercise the real
+  WeChat export pipeline end to end.
+
+### 4. Cannot-Claim Boundary
+
+- Passing this rule proves local application option injection and WeChat-safe SVG output only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, public-host acceptance, or
+  publish success.
+- The strict default release preflight must remain blocked while external WeChat proof gates remain
+  missing.
+
+### 5. Required Checks
+
+- Keep focused tests proving:
+  - default/empty option behavior does not inject;
+  - an explicit mixed plan injects cover, heading, divider, quote, and endmark modules through the
+    real WeChat export pipeline;
+  - every registered SVG module can be applied through the explicit WeChat option path.
+- Keep release-preflight tests proving:
+  - `wechatOptionInjectedModuleCount` equals the current registry count;
+  - `wechatOptionInjectionFailureCount` is zero;
+  - `wechatOptionIssues` is empty for application readiness.
+- Run focused WeChat option tests, release-preflight tests, related export/SVG regression tests,
+  focused ESLint, type-check, build, application preflight smoke, GitNexus detect, diff checks, and
+  sensitive scans before committing this class of change.

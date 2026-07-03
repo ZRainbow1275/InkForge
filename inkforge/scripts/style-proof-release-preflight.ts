@@ -21,6 +21,7 @@ import {
   SVG_MODULES,
 } from '../src/services/export/svg-modules/index.ts'
 import type { Platform } from '../src/services/export/types.ts'
+import { applyWechatOptionSvgModules } from '../src/services/export/wechat-svg-options.ts'
 
 type StyleProofApplicationPreflightStatus = 'application-ready' | 'application-blocked'
 
@@ -37,11 +38,29 @@ const APPLICATION_MODULE_SENTINEL_ISSUES = new Set([
   'missing-viewBox',
   'missing-responsive-width',
 ])
+const APPLICATION_WECHAT_OPTION_HTML = [
+  '<h1>InkForge SVG option preflight</h1>',
+  '<h2>Section title</h2>',
+  '<p>Body text before divider.</p>',
+  '<hr>',
+  '<blockquote>Quote text for SVG replacement.</blockquote>',
+  '<p>Final paragraph.</p>',
+].join('')
+const APPLICATION_WECHAT_OPTION_PRESET = {
+  primaryColor: '#004080',
+  persona: 'business',
+} as const
 
 interface StyleProofApplicationPreflightModuleIssue {
   moduleId: string
   family: string
   persona: string
+  issue: string
+}
+
+interface StyleProofApplicationPreflightWechatOptionIssue {
+  moduleId: string
+  family: string
   issue: string
 }
 
@@ -76,6 +95,8 @@ interface StyleProofApplicationPreflightResult {
     svgFamilyCount: number
     personaCount: number
     renderedModulePersonaPairs: number
+    wechatOptionInjectedModuleCount: number
+    wechatOptionInjectionFailureCount: number
     wechatSafeViolationCount: number
     moduleSentinelFailureCount: number
     wechatStyleChoiceCount: number
@@ -90,6 +111,7 @@ interface StyleProofApplicationPreflightResult {
     nextExternalRows: number
   }
   moduleIssues: readonly StyleProofApplicationPreflightModuleIssue[]
+  wechatOptionIssues: readonly StyleProofApplicationPreflightWechatOptionIssue[]
   choiceIssues: readonly StyleProofApplicationPreflightChoiceIssue[]
   externalProof: StyleProofApplicationPreflightExternalBoundary
 }
@@ -529,6 +551,80 @@ function getStyleProofApplicationModuleIssues(): readonly StyleProofApplicationP
   return issues
 }
 
+function extractStyleProofApplicationSvgSection(html: string, moduleId: string): string {
+  const pattern = new RegExp(
+    `<section\\b(?=[^>]*\\bdata-ink-svg="${moduleId}")[\\s\\S]*?<\\/section>`,
+    'i',
+  )
+  return pattern.exec(html)?.[0] ?? ''
+}
+
+function getStyleProofApplicationWechatOptionIssues(): readonly StyleProofApplicationPreflightWechatOptionIssue[] {
+  const issues: StyleProofApplicationPreflightWechatOptionIssue[] = []
+
+  for (const module of SVG_MODULES) {
+    try {
+      const rendered = applyWechatOptionSvgModules(
+        APPLICATION_WECHAT_OPTION_HTML,
+        APPLICATION_WECHAT_OPTION_PRESET,
+        {
+          enableReadingTime: false,
+          enableSvgModules: true,
+          svgInjectionPlan: { endmark: module.id },
+        },
+      )
+      const section = extractStyleProofApplicationSvgSection(rendered, module.id)
+
+      if (!section) {
+        issues.push({
+          moduleId: module.id,
+          family: module.family,
+          issue: 'missing-data-ink-svg-sentinel',
+        })
+        continue
+      }
+
+      for (const violation of checkWechatSafe(section)) {
+        issues.push({
+          moduleId: module.id,
+          family: module.family,
+          issue: violation.rule,
+        })
+      }
+
+      if (!/<svg\b/i.test(section)) {
+        issues.push({
+          moduleId: module.id,
+          family: module.family,
+          issue: 'missing-inline-svg',
+        })
+      }
+      if (!/viewBox=/i.test(section)) {
+        issues.push({
+          moduleId: module.id,
+          family: module.family,
+          issue: 'missing-viewBox',
+        })
+      }
+      if (!section.includes('width="100%"')) {
+        issues.push({
+          moduleId: module.id,
+          family: module.family,
+          issue: 'missing-responsive-width',
+        })
+      }
+    } catch (error) {
+      issues.push({
+        moduleId: module.id,
+        family: module.family,
+        issue: `wechat-option-render-error:${getErrorMessage(error)}`,
+      })
+    }
+  }
+
+  return issues
+}
+
 function getStyleProofApplicationChoiceIssues(): readonly StyleProofApplicationPreflightChoiceIssue[] {
   return getPlatformStyleApplicationReport(
     'wechat',
@@ -551,12 +647,15 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
     DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat,
   )
   const moduleIssues = getStyleProofApplicationModuleIssues()
+  const wechatOptionIssues = getStyleProofApplicationWechatOptionIssues()
   const choiceIssues = getStyleProofApplicationChoiceIssues()
   const moduleSentinelFailureCount = moduleIssues.filter(issue =>
     APPLICATION_MODULE_SENTINEL_ISSUES.has(issue.issue)
   ).length
+  const wechatOptionIssueModuleIds = new Set(wechatOptionIssues.map(issue => issue.moduleId))
   const hasLocalConflict = releaseGate.blockers.some(blocker => blocker.kind === 'local-conflict')
   const canClaimApplicationReady = moduleIssues.length === 0 &&
+    wechatOptionIssues.length === 0 &&
     choiceIssues.length === 0 &&
     localActionability.summary.actionableLocalRows === 0 &&
     !hasLocalConflict
@@ -571,6 +670,8 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
       svgFamilyCount: new Set(SVG_MODULES.map(module => module.family)).size,
       personaCount: APPLICATION_PREVIEW_PERSONAS.length,
       renderedModulePersonaPairs: SVG_MODULES.length * APPLICATION_PREVIEW_PERSONAS.length,
+      wechatOptionInjectedModuleCount: SVG_MODULES.length - wechatOptionIssueModuleIds.size,
+      wechatOptionInjectionFailureCount: wechatOptionIssueModuleIds.size,
       wechatSafeViolationCount: moduleIssues.length - moduleSentinelFailureCount,
       moduleSentinelFailureCount,
       wechatStyleChoiceCount: wechatApplicationRows.length,
@@ -585,6 +686,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
       nextExternalRows: handoffPacket.nextRows.length,
     },
     moduleIssues,
+    wechatOptionIssues,
     choiceIssues,
     externalProof: {
       notProof: true,
@@ -620,6 +722,8 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `svgFamilyCount: ${result.summary.svgFamilyCount}`,
     `personaCount: ${result.summary.personaCount}`,
     `renderedModulePersonaPairs: ${result.summary.renderedModulePersonaPairs}`,
+    `wechatOptionInjectedModuleCount: ${result.summary.wechatOptionInjectedModuleCount}`,
+    `wechatOptionInjectionFailureCount: ${result.summary.wechatOptionInjectionFailureCount}`,
     `wechatSafeViolationCount: ${result.summary.wechatSafeViolationCount}`,
     `moduleSentinelFailureCount: ${result.summary.moduleSentinelFailureCount}`,
     `wechatStyleChoiceCount: ${result.summary.wechatStyleChoiceCount}`,
@@ -635,6 +739,7 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     '',
     'application issues:',
     `- moduleIssues: ${result.moduleIssues.length}`,
+    `- wechatOptionIssues: ${result.wechatOptionIssues.length}`,
     `- choiceIssues: ${result.choiceIssues.length}`,
     '',
     'external proof boundary (not proof):',
@@ -655,6 +760,16 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
       'module issue rows:',
       ...result.moduleIssues.map(issue =>
         `- ${issue.moduleId}/${issue.persona}/${issue.family}: ${issue.issue}`
+      ),
+    )
+  }
+
+  if (result.wechatOptionIssues.length > 0) {
+    lines.push(
+      '',
+      'wechat option issue rows:',
+      ...result.wechatOptionIssues.map(issue =>
+        `- ${issue.moduleId}/${issue.family}: ${issue.issue}`
       ),
     )
   }
