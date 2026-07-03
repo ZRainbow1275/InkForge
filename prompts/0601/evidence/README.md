@@ -8439,6 +8439,29 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
   credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.
 
+## 2026-07-03 135 Ordinary Free Style Center Delta Recheck
+
+- [x] 135-ordinary-free-style-center-delta-20260703.txt
+- Scope: CloakBrowser-only inspection of the ordinary 135 editor page.
+- Enabled the visible `免费` style filter and clicked two visible free style cards in the left
+  panel.
+- Center UEditor iframe baseline was editable and nearly empty: HTML length `71`, sections `1`,
+  `_135editor` sections `1`, no `data-tools`, no `data-id`, no inline styles, no SVG, and no
+  images.
+- First free style click (`style-174249`, `防溺水安全`) changed the iframe to HTML length `1867`,
+  sections `10`, `_135editor` sections `2`, `data-tools=1`, `data-id=1`, inline styles `11`,
+  SVG `1`, and image `1`.
+- Second free style click (`style-174246`, `夏日平安小贴士`) changed the iframe to HTML length
+  `4424`, sections `20`, `_135editor` sections `3`, `data-tools=2`, `data-id=2`,
+  `data-role=3`, inline styles `26`, SVG `3`, images `3`, and visible text
+  `防溺水安全 夏日平安小贴士`.
+- Existing 135 ordinary detector families already cover the observed `_135editor`, `assistant`,
+  `135brush`, `135bg`, `data-tools`, market `data-id`, and hosted material residue; no detector
+  source-code change was required.
+- Boundary: this is ordinary 135 applied-center DOM learning only. It does not prove WeChat rich
+  paste, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.
+
 ## 2026-07-03 WeChat PC Editor CloakBrowser Reachability Recheck
 
 - [x] wechat-pc-editor-cloakbrowser-reachability-20260703.txt

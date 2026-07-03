@@ -8,6 +8,47 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 135 Ordinary Free Style Center Delta Slice
+
+Scope:
+- CloakBrowser-only inspection of the ordinary 135 editor page.
+- No WeChat/XHS/Zhihu platform action, phone preview, upload, sync, save, schedule, publish,
+  account-state image capture, browser-runtime artifact capture, HAR, QR payload, or browser
+  credential value collection.
+
+Observed:
+- The ordinary 135 editor exposed the left style menu, categories `标题`, `正文`, `图文`, `引导`,
+  `布局`, `节日`, `行业`, `小元素`, `SVG`, and filters `推荐`, `最新`, and `免费`.
+- The center UEditor iframe baseline was editable and nearly empty: hash `1492352724`, HTML
+  length `71`, sections `1`, `_135editor` sections `1`, no `data-tools`, no `data-id`, no inline
+  style attributes, no SVG, and no images.
+- Clicking the visible `免费` filter made the free-style list active and exposed free cards such
+  as `style-174249` (`防溺水安全`), `style-174246` (`夏日平安小贴士`), and `style-174236`
+  (`暑假安全指南`).
+- A physical click on `style-174249` changed the center iframe to hash `896046138`, HTML length
+  `1867`, text `防溺水安全`, sections `10`, `_135editor` sections `2`, `data-tools=1`,
+  `data-id=1`, inline style attributes `11`, SVG `1`, image `1`, and 135-hosted image/string
+  references.
+- A physical click on `style-174246` appended another free style and changed the center iframe to
+  hash `591039618`, HTML length `4424`, text `防溺水安全 夏日平安小贴士`, sections `20`,
+  `_135editor` sections `3`, `data-tools=2`, `data-id=2`, `data-role=3`, inline style attributes
+  `26`, SVG `3`, images `3`, image-source/string references `14`, data ids `174249`/`174246`,
+  and roles `title`/`title`/`paragraph`.
+- Observed class families included `_135editor`, `assistant`, `135brush`, and `135bg`.
+
+Classification:
+- No detector source-code change was required. The observed ordinary 135 residue is already
+  covered by `135 editor style residue`, `135 data-tools marker`, `135 market data-id marker`,
+  and `135 editor hosted material source`.
+
+Evidence:
+- Added `prompts/0601/evidence/135-ordinary-free-style-center-delta-20260703.txt`.
+
+Boundary:
+- This is ordinary 135 applied-center DOM learning only. It does not prove WeChat rich paste,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-07-03 Xiumi Applied Center Delta Recheck Slice
 
 Scope:

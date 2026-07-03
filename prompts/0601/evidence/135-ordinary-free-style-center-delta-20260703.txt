@@ -1,0 +1,86 @@
+135 Ordinary Free Style Center Delta - 2026-07-03
+
+Scope:
+- CloakBrowser-only inspection of the ordinary 135 editor page.
+- Targeted the left style panel, enabled the visible free-style filter, clicked visible free
+  style cards, and read the center UEditor iframe DOM.
+- No WeChat/XHS/Zhihu platform action, phone preview, upload, sync, save, schedule, publish,
+  account-state image capture, browser profile artifact, HAR, QR payload, or browser credential
+  value was collected or recorded.
+
+Baseline:
+- The ordinary 135 editor page exposed the left menu entries `样式`, `模板`, `SVG编辑器`,
+  `AI排版`, `一键排版`, and material/account tools.
+- The active style panel exposed categories such as `标题`, `正文`, `图文`, `引导`, `布局`,
+  `节日`, `行业`, `小元素`, `SVG`, plus filters `推荐`, `最新`, and `免费`.
+- The center editor was a same-origin UEditor iframe.
+- Initial center iframe state:
+  - `contenteditable`: `true`
+  - hash: `1492352724`
+  - HTML length: `71`
+  - text: empty
+  - sections: `1`
+  - `_135editor` sections: `1`
+  - `data-tools`: `0`
+  - `data-id`: `0`
+  - inline `style` attributes: `0`
+  - SVG count: `0`
+  - image count: `0`
+
+Free filter and style list:
+- After clicking the visible `免费` filter, the filter was active.
+- Visible free style cards included:
+  - `style-174249`, text `防溺水安全`, title/category metadata for a summer safety image-title
+    style.
+  - `style-174246`, text `夏日平安小贴士`, title/category metadata for a summer safety image-title
+    style.
+  - `style-174236`, text `暑假安全指南`, title/category metadata for a summer safety double-image
+    style.
+
+Center deltas:
+- First physical click on `style-174249` changed the center iframe:
+  - hash changed from `1492352724` to `896046138`
+  - HTML length changed from `71` to `1867`
+  - visible text changed to `防溺水安全`
+  - sections changed from `1` to `10`
+  - `_135editor` sections changed from `1` to `2`
+  - `data-tools` changed from `0` to `1`
+  - `data-id` changed from `0` to `1`
+  - inline `style` attributes changed from `0` to `11`
+  - SVG count changed from `0` to `1`
+  - image count changed from `0` to `1`
+  - 135-hosted image/string references were present.
+- Second physical click on `style-174246` appended another free style and changed the center
+  iframe again:
+  - hash changed to `591039618`
+  - HTML length changed to `4424`
+  - visible text became `防溺水安全 夏日平安小贴士`
+  - sections changed to `20`
+  - `_135editor` sections changed to `3`
+  - `data-tools` changed to `2`
+  - `data-id` changed to `2`
+  - `data-role` changed to `3`
+  - inline `style` attributes changed to `26`
+  - SVG count changed to `3`
+  - image count changed to `3`
+  - image-source/string references changed to `14`
+  - data ids were `174249` and `174246`
+  - data roles included `title`, `title`, and `paragraph`
+  - observed class families included `_135editor`, `assistant`, `135brush`, and `135bg`.
+
+Classification:
+- This is applied ordinary 135 style evidence: the free style cards genuinely mutated the center
+  UEditor iframe, and the after-state DOM contains market authoring markers.
+- Existing detector families already cover the observed publish-blocking residue:
+  `135 editor style residue`, `135 data-tools marker`, `135 market data-id marker`, and
+  `135 editor hosted material source`.
+- The observed nested sections, inline styles, SVG/image material, `data-tools`, numeric
+  `data-id`, `data-role`, `_135editor`, `assistant`, `135brush`, and `135bg` are market schema
+  inputs only. They must not be copied into InkForge runtime output.
+
+Boundary:
+- Translate the lessons into InkForge-owned title/body/image-slot/layout schema, safe SVG/HTML
+  primitives, residue blockers, and fallback reports.
+- This evidence does not prove WeChat rich paste, phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

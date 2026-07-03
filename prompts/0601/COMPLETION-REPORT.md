@@ -11802,3 +11802,30 @@ Boundary:
   paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 135 Ordinary Free Style Center Delta Addendum
+
+- Used CloakBrowser, not Playwright, against the ordinary 135 editor.
+- Enabled the visible `免费` style filter in the left style panel.
+- The center UEditor iframe baseline was editable and nearly empty: hash `1492352724`, HTML
+  length `71`, sections `1`, `_135editor` sections `1`, `data-tools=0`, `data-id=0`, inline
+  style attributes `0`, SVG `0`, and images `0`.
+- A visible free style card click on `style-174249` (`防溺水安全`) changed the center iframe to
+  hash `896046138`, HTML length `1867`, text `防溺水安全`, sections `10`, `_135editor` sections
+  `2`, `data-tools=1`, `data-id=1`, inline style attributes `11`, SVG `1`, image `1`, and
+  135-hosted image/string references.
+- A second visible free style card click on `style-174246` (`夏日平安小贴士`) changed the center
+  iframe to hash `591039618`, HTML length `4424`, text `防溺水安全 夏日平安小贴士`, sections `20`,
+  `_135editor` sections `3`, `data-tools=2`, `data-id=2`, `data-role=3`, inline style
+  attributes `26`, SVG `3`, images `3`, and image-source/string references `14`.
+- Cross-check showed no detector source-code change was required: the observed ordinary 135
+  markers are already covered by current `135 editor style residue`, `135 data-tools marker`,
+  `135 market data-id marker`, and `135 editor hosted material source` families.
+- Added sanitized evidence:
+  `prompts/0601/evidence/135-ordinary-free-style-center-delta-20260703.txt`.
+- Boundary: this is ordinary 135 applied-center DOM learning only. It does not prove WeChat rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

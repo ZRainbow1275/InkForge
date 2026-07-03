@@ -13973,3 +13973,56 @@ const ruleFamilies = [
 - Run release-preflight smoke after recording the evidence; it must still exit non-zero with
   `canClaimComplete:false`.
 - Run staged diff and sensitive-fragment scans before committing the docs-only evidence.
+
+## 287. 135 Ordinary Free Style Center Delta Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the user specifically required the ordinary 135 editor path: enable/click free styles
+  in the left style panel, verify the center editor receives content, and read center elements.
+- This rule records a CloakBrowser-only recheck of the ordinary 135 editor where the visible
+  `免费` filter was enabled and two visible free style cards were clicked.
+- This is ordinary 135 applied-center evidence only. It does not click WeChat/XHS/Zhihu publish
+  surfaces, upload media, sync drafts, schedule sends, publish, collect phone proof, or write
+  platform proof manifests.
+
+### 2. Observed Surface
+
+- The ordinary 135 editor exposed the left style menu, categories `标题`, `正文`, `图文`, `引导`,
+  `布局`, `节日`, `行业`, `小元素`, `SVG`, and filters `推荐`, `最新`, and `免费`.
+- The center UEditor iframe baseline was editable and nearly empty: hash `1492352724`, HTML
+  length `71`, sections `1`, `_135editor` sections `1`, `data-tools=0`, `data-id=0`, inline
+  style attributes `0`, SVG `0`, and images `0`.
+- After enabling `免费`, visible free style cards included `style-174249` (`防溺水安全`),
+  `style-174246` (`夏日平安小贴士`), and `style-174236` (`暑假安全指南`).
+- A visible free style click on `style-174249` changed the center iframe to hash `896046138`,
+  HTML length `1867`, text `防溺水安全`, sections `10`, `_135editor` sections `2`,
+  `data-tools=1`, `data-id=1`, inline style attributes `11`, SVG `1`, image `1`, and
+  135-hosted image/string references.
+- A second visible free style click on `style-174246` changed the center iframe to hash
+  `591039618`, HTML length `4424`, text `防溺水安全 夏日平安小贴士`, sections `20`,
+  `_135editor` sections `3`, `data-tools=2`, `data-id=2`, `data-role=3`, inline style
+  attributes `26`, SVG `3`, images `3`, image-source/string references `14`, data ids
+  `174249`/`174246`, and roles `title`/`title`/`paragraph`.
+- Observed center class families included `_135editor`, `assistant`, `135brush`, and `135bg`.
+
+### 3. Contract
+
+- The observed DOM is schema input, not runtime source. Convert it into InkForge-owned
+  title/body/image-slot/layout schema, safe HTML/SVG primitives, residue blockers, and fallback
+  reports.
+- Do not copy ordinary 135 `_135editor`, `assistant`, `135brush`, `135bg`, `data-tools`,
+  numeric market `data-id`, `data-role`, nested section geometry, inline authoring styles,
+  hosted material references, or editor chrome into InkForge runtime output.
+- Existing detector families already cover this after-state as `135 editor style residue`,
+  `135 data-tools marker`, `135 market data-id marker`, and `135 editor hosted material source`.
+- Add a new detector rule only if a future applied center readback exposes a publishable-output
+  marker not represented by those current families.
+
+### 4. Required Checks
+
+- Evidence docs must cite only sanitized center deltas, style ids/text labels, class families,
+  and cannot-claim boundaries.
+- Run release-preflight smoke after recording the evidence; it must still exit non-zero with
+  `canClaimComplete:false`.
+- Run staged diff and sensitive-fragment scans before committing the docs-only evidence.
