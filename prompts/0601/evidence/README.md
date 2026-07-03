@@ -8601,3 +8601,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local merge validation only. It does not prove phone preview, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
   platform upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight All-Matching Commands
+
+- [x] style-proof-release-preflight-all-matching-commands-20260703.txt
+- Scope: local `style-proof:release-preflight` operator-command guidance only.
+- Each JSON `nextRows[]` command packet now keeps the existing `--next-only` template and
+  manifest-draft commands, and adds `allMatchingTemplate` plus `allMatchingManifestDrafts`
+  commands without `--next-only`.
+- The same command pair is also mirrored under `nextRows[].artifactGuidance` as
+  `allMatchingTemplateCommand` and `allMatchingManifestDraftsCommand`, while remaining
+  `notProof:true` and `appendOnlyAfterExternalProof:true`.
+- Local smoke confirmed the all-matching WeChat phone-preview command expands to four open rows:
+  cover thumbnail, Dark Mode, phone preview body readback, and phone screenshot.
+- Verification passed: focused release-preflight Vitest with 4 tests, focused ESLint, serial
+  scripts suite with 4 files and 41 tests, `vue-tsc`, production build, and expected blocked
+  release-preflight smoke.
+- Boundary: this is operator guidance only. It does not prove phone preview, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
+  platform upload, or publish success.

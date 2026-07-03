@@ -14272,3 +14272,52 @@ const ruleFamilies = [
 - Run focused manifest-merge Vitest, serial scripts tests, focused ESLint, type-check, build,
   release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
   before committing.
+
+## 293. Style Proof Release Preflight All-Matching Commands - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: `style-proof:release-preflight` reports deduplicated `nextRows[]`, but a single
+  deduped row can stand for a broader proof family with multiple open rows.
+- This rule applies to release-preflight command guidance only.
+- It must not change release status, proof accounting, style availability, renderer output,
+  accepted proof semantics, platform state, sync, upload, schedule, preview, or publish behavior.
+
+### 2. Contract
+
+- Existing `nextRows[].commands.template` and `nextRows[].commands.manifestDrafts` must remain
+  next-row commands and must include `--next-only`.
+- Each `nextRows[]` row must additionally expose:
+  - `commands.allMatchingTemplate`;
+  - `commands.allMatchingManifestDrafts`.
+- The all-matching commands must omit `--next-only` while preserving the same copy-safe
+  `--platform`, `--kind`, `--status`, and `--issue` filters used by the next-row command.
+- `nextRows[].artifactGuidance` must mirror those all-matching commands as:
+  - `allMatchingTemplateCommand`;
+  - `allMatchingManifestDraftsCommand`.
+- Every added command is guidance only; it must remain coupled to `notProof:true` and
+  `appendOnlyAfterExternalProof:true`.
+
+### 3. Cannot-Claim Boundary
+
+- All-matching commands are not proof.
+- They must not satisfy phone preview, phone screenshot, mobile Dark Mode, cover-thumbnail,
+  credentialed-channel, public-host, upload, sync, schedule, platform preview, public rendering,
+  or publish rows.
+- They must not print or require browser runtime state, auth secrets, raw platform routes,
+  account images, local capture paths, request archives, QR payloads, or third-party material
+  URLs.
+
+### 4. Required Checks
+
+- Run GitNexus impact on `buildPreflightResult` and `formatPreflightResult`; if script-local
+  command helpers are not indexed, record target-not-found and compensate with focused CLI tests.
+- Add release-preflight CLI regression coverage proving:
+  - all-matching commands exist in JSON;
+  - all-matching commands do not include `--next-only`;
+  - guidance mirrors the all-matching commands;
+  - text output exposes the all-matching commands;
+  - release-preflight still exits non-zero with `canClaimComplete:false`.
+- Run focused release-preflight Vitest, focused ESLint, serial scripts tests, type-check, build,
+  release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
+  before committing.

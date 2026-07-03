@@ -57,11 +57,15 @@ interface StyleProofReleasePreflightArtifactGuidance {
   maxFreshnessDays: CommittedStyleProofExternalProofArtifactTemplate['maxFreshnessDays']
   templateCommand: string
   manifestDraftsCommand: string
+  allMatchingTemplateCommand: string
+  allMatchingManifestDraftsCommand: string
 }
 
 interface StyleProofReleasePreflightNextRowCommands {
   template: string
   manifestDrafts: string
+  allMatchingTemplate: string
+  allMatchingManifestDrafts: string
   intake: string
   merge: string
 }
@@ -115,7 +119,7 @@ function getExternalHandoffFilterArgs(row: {
   status: string
   issueIds: readonly StyleProofManifestIssueId[]
   freshnessIssueIds: readonly StyleProofManifestIssueId[]
-}, kind: CommittedStyleProofExternalHandoffNextRowKind): readonly string[] {
+}, kind: CommittedStyleProofExternalHandoffNextRowKind, nextOnly: boolean): readonly string[] {
   const issueId = getPrimaryIssueFilter(row)
   const args = [
     `--platform=${row.platform}`,
@@ -127,7 +131,10 @@ function getExternalHandoffFilterArgs(row: {
     args.push(`--issue=${issueId}`)
   }
 
-  args.push('--next-only')
+  if (nextOnly) {
+    args.push('--next-only')
+  }
+
   return args
 }
 
@@ -140,11 +147,12 @@ function buildExternalHandoffCommand(
     freshnessIssueIds: readonly StyleProofManifestIssueId[]
   },
   kind: CommittedStyleProofExternalHandoffNextRowKind,
+  nextOnly: boolean,
 ): string {
   return [
     'pnpm --silent -C inkforge style-proof:external-handoff',
     mode,
-    ...getExternalHandoffFilterArgs(row, kind),
+    ...getExternalHandoffFilterArgs(row, kind, nextOnly),
   ].join(' ')
 }
 
@@ -158,8 +166,10 @@ function buildPreflightNextRowCommands(
   kind: CommittedStyleProofExternalHandoffNextRowKind,
 ): StyleProofReleasePreflightNextRowCommands {
   return {
-    template: buildExternalHandoffCommand('--template', row, kind),
-    manifestDrafts: buildExternalHandoffCommand('--manifest-drafts', row, kind),
+    template: buildExternalHandoffCommand('--template', row, kind, true),
+    manifestDrafts: buildExternalHandoffCommand('--manifest-drafts', row, kind, true),
+    allMatchingTemplate: buildExternalHandoffCommand('--template', row, kind, false),
+    allMatchingManifestDrafts: buildExternalHandoffCommand('--manifest-drafts', row, kind, false),
     intake: 'pnpm --silent -C inkforge style-proof:manifest-intake --file REDACTED_MANIFEST.json --json',
     merge: 'pnpm --silent -C inkforge style-proof:manifest-merge --file REDACTED_MANIFEST.json --json',
   }
@@ -181,6 +191,8 @@ function buildPreflightArtifactGuidance(
     maxFreshnessDays: artifactTemplate.maxFreshnessDays,
     templateCommand: commands.template,
     manifestDraftsCommand: commands.manifestDrafts,
+    allMatchingTemplateCommand: commands.allMatchingTemplate,
+    allMatchingManifestDraftsCommand: commands.allMatchingManifestDrafts,
   }
 }
 
@@ -309,6 +321,8 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
       `  acceptedHostStatuses: ${formatPreflightList(row.artifactGuidance.acceptedHostStatuses)}`,
       `  maxFreshnessDays: ${row.artifactGuidance.maxFreshnessDays ?? 'none'}`,
       `  appendOnlyAfterExternalProof: ${row.artifactGuidance.appendOnlyAfterExternalProof ? 'yes' : 'no'}`,
+      `  allMatchingTemplate: ${row.artifactGuidance.allMatchingTemplateCommand}`,
+      `  allMatchingManifestDrafts: ${row.artifactGuidance.allMatchingManifestDraftsCommand}`,
     ]),
     '',
     'operator commands (copy-safe placeholders):',
@@ -316,6 +330,8 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
       `- ${row.platform}/${row.requirementId}/${row.boundary}`,
       `  template: ${row.commands.template}`,
       `  manifestDrafts: ${row.commands.manifestDrafts}`,
+      `  allMatchingTemplate: ${row.commands.allMatchingTemplate}`,
+      `  allMatchingManifestDrafts: ${row.commands.allMatchingManifestDrafts}`,
       `  intake: ${row.commands.intake}`,
       `  merge: ${row.commands.merge}`,
     ]),

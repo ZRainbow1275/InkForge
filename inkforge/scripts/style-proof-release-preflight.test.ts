@@ -67,11 +67,15 @@ interface ReleasePreflightArtifactGuidance {
   maxFreshnessDays: number | null
   templateCommand: string
   manifestDraftsCommand: string
+  allMatchingTemplateCommand: string
+  allMatchingManifestDraftsCommand: string
 }
 
 interface ReleasePreflightNextRowCommands {
   template: string
   manifestDrafts: string
+  allMatchingTemplate: string
+  allMatchingManifestDrafts: string
   intake: string
   merge: string
 }
@@ -198,6 +202,8 @@ function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNex
     isRecord(value.commands) &&
     typeof value.commands.template === 'string' &&
     typeof value.commands.manifestDrafts === 'string' &&
+    typeof value.commands.allMatchingTemplate === 'string' &&
+    typeof value.commands.allMatchingManifestDrafts === 'string' &&
     typeof value.commands.intake === 'string' &&
     typeof value.commands.merge === 'string' &&
     isRecord(value.artifactGuidance) &&
@@ -219,6 +225,8 @@ function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNex
       value.artifactGuidance.maxFreshnessDays === null) &&
     typeof value.artifactGuidance.templateCommand === 'string' &&
     typeof value.artifactGuidance.manifestDraftsCommand === 'string' &&
+    typeof value.artifactGuidance.allMatchingTemplateCommand === 'string' &&
+    typeof value.artifactGuidance.allMatchingManifestDraftsCommand === 'string' &&
     typeof value.platform === 'string' &&
     Array.isArray(value.choiceIds) &&
     value.choiceIds.every(choiceId => typeof choiceId === 'string') &&
@@ -353,6 +361,18 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.nextRows.every(row =>
       row.artifactGuidance.manifestDraftsCommand === row.commands.manifestDrafts
     )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.artifactGuidance.allMatchingTemplateCommand === row.commands.allMatchingTemplate
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.artifactGuidance.allMatchingManifestDraftsCommand === row.commands.allMatchingManifestDrafts
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      !row.commands.allMatchingTemplate.includes('--next-only')
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      !row.commands.allMatchingManifestDrafts.includes('--next-only')
+    )).toBe(true)
     expect(report.nextRows.find(row =>
       row.requirementId === 'credentialed-channel-response'
     )?.artifactGuidance.requiredFields).toContain('externalAccountAuthenticated')
@@ -370,6 +390,11 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only',
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
     ])
+    expect(report.nextRows.map(row => row.commands.allMatchingTemplate)).toEqual([
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing',
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing',
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing',
+    ])
   })
 
   it('prints copy-safe next-row commands in text output without claiming release success', async () => {
@@ -383,6 +408,8 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('forbiddenFields: externalAccountLoginBlocked')
     expect(result.stdout).toContain('acceptedHostStatuses: public-https|platform-hosted')
     expect(result.stdout).toContain('appendOnlyAfterExternalProof: yes')
+    expect(result.stdout).toContain('allMatchingTemplate: pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing')
+    expect(result.stdout).toContain('allMatchingManifestDrafts: pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing')
     expect(result.stdout).toContain('style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:manifest-intake --file REDACTED_MANIFEST.json --json')

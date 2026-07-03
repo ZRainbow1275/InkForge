@@ -23896,3 +23896,65 @@ Scope:
   paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight All-Matching Commands Slice
+
+Source:
+- `style-proof:release-preflight` intentionally emits deduplicated `nextRows[]` so the operator
+  sees three immediate rows instead of five category references.
+- That low-noise output can hide sibling rows under the same proof family. In the current gate,
+  the WeChat phone-preview next row is `cover-thumbnail-check`, while the full family also has
+  `dark-mode-check`, `phone-preview-readback`, and `phone-screenshot`.
+
+Impact:
+- `npx gitnexus impact buildPreflightNextRowCommands -r InkForge --depth 3` returned target not
+  found, risk UNKNOWN, impactedCount 0. The helper is script-local and not indexed by the current
+  graph.
+- `npx gitnexus impact buildExternalHandoffCommand -r InkForge --depth 3` returned target not
+  found, risk UNKNOWN, impactedCount 0. The helper is script-local and not indexed by the current
+  graph.
+- `npx gitnexus impact formatPreflightResult -r InkForge --depth 3` reported LOW risk,
+  1 direct caller, 0 affected processes, and Scripts-only module scope.
+- `npx gitnexus impact buildPreflightResult -r InkForge --depth 3` reported LOW risk,
+  1 direct caller, 0 affected processes, and Scripts-only module scope.
+
+Implementation:
+- Added `allMatchingTemplate` and `allMatchingManifestDrafts` to release-preflight
+  `nextRows[].commands`.
+- Mirrored those commands under `nextRows[].artifactGuidance` as
+  `allMatchingTemplateCommand` and `allMatchingManifestDraftsCommand`.
+- Existing `template` and `manifestDrafts` commands still include `--next-only`.
+- New all-matching commands omit `--next-only` while preserving the same `--platform`, `--kind`,
+  `--status`, and `--issue` filters.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 4 tests.
+- Local all-matching smoke proved:
+  - WeChat phone-preview expands to 4 rows:
+    `cover-thumbnail-check`, `dark-mode-check`, `phone-preview-readback`, `phone-screenshot`.
+  - WeChat external-account expands to 4 rows:
+    `credentialed-channel-response`, `sync-readback`,
+    `published-url-or-platform-preview`, `scheduled-send-readback`.
+  - Zhihu public-host expands to 1 row: `public-image-host`.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 41 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 34.98s; `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-release-preflight-all-matching-commands-20260703.txt`.
+
+Scope:
+- This is local release-preflight operator guidance only. It does not prove WeChat ordinary rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

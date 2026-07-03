@@ -1,0 +1,61 @@
+Style Proof Release Preflight All-Matching Commands - 2026-07-03
+
+Scope:
+- Local release-preflight CLI guidance only.
+- No platform action, no phone preview, no sync, no upload, no schedule, and no publish.
+- No browser profile data, auth state, raw platform route, account label, local capture path,
+  request archive, QR payload, auth secret, credential browser storage, or platform material URL
+  is recorded here.
+
+Source:
+- `style-proof:release-preflight` emits three deduplicated next operator rows while the committed
+  release gate still has multiple open rows under the same logical proof kind.
+- A `--next-only` handoff command is useful for low-noise triage, but it can hide other open rows
+  in the same proof family, especially WeChat phone-preview proof.
+
+Implemented:
+- Added `commands.allMatchingTemplate` and `commands.allMatchingManifestDrafts` to every
+  release-preflight `nextRows[]` row.
+- Added matching fields to `nextRows[].artifactGuidance`:
+  - `allMatchingTemplateCommand`
+  - `allMatchingManifestDraftsCommand`
+- The existing `template` and `manifestDrafts` commands still include `--next-only`.
+- The new all-matching commands intentionally omit `--next-only` while keeping the same
+  copy-safe platform, kind, status, and issue filters.
+
+All-matching smoke:
+- WeChat phone-preview all-matching template expands to 4 rows:
+  `cover-thumbnail-check`, `dark-mode-check`, `phone-preview-readback`, `phone-screenshot`.
+- WeChat external-account all-matching template expands to 4 rows:
+  `credentialed-channel-response`, `sync-readback`,
+  `published-url-or-platform-preview`, `scheduled-send-readback`.
+- Zhihu public-host all-matching template expands to 1 row:
+  `public-image-host`.
+
+Verification:
+- GitNexus impact:
+  - `buildPreflightNextRowCommands`: target not found, risk UNKNOWN, impactedCount 0.
+  - `buildExternalHandoffCommand`: target not found, risk UNKNOWN, impactedCount 0.
+  - `formatPreflightResult`: LOW risk, 1 direct caller, 0 affected processes.
+  - `buildPreflightResult`: LOW risk, 1 direct caller, 0 affected processes.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 4 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 41 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 34.98s; `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is operator guidance only and remains explicitly non-proof.
+- It does not prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
+  publish success.

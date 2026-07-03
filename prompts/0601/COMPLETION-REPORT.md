@@ -12052,3 +12052,47 @@ Boundary:
   paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Release Preflight All-Matching Commands Addendum
+
+- Added all-matching operator commands to `style-proof:release-preflight` so deduplicated
+  `nextRows[]` do not hide sibling rows in the same proof family.
+- Existing `commands.template` and `commands.manifestDrafts` still include `--next-only`.
+- New `commands.allMatchingTemplate` and `commands.allMatchingManifestDrafts` omit
+  `--next-only` while preserving the same copy-safe `--platform`, `--kind`, `--status`, and
+  `--issue` filters.
+- `artifactGuidance` mirrors those commands as `allMatchingTemplateCommand` and
+  `allMatchingManifestDraftsCommand`, while remaining `notProof:true` and
+  `appendOnlyAfterExternalProof:true`.
+- Local all-matching smoke proved:
+  - WeChat phone-preview expands to `cover-thumbnail-check`, `dark-mode-check`,
+    `phone-preview-readback`, and `phone-screenshot`.
+  - WeChat external-account expands to `credentialed-channel-response`, `sync-readback`,
+    `published-url-or-platform-preview`, and `scheduled-send-readback`.
+  - Zhihu public-host expands to `public-image-host`.
+- Verification passed:
+  - `npx gitnexus impact buildPreflightNextRowCommands -r InkForge --depth 3`: target not found,
+    risk UNKNOWN, impactedCount 0.
+  - `npx gitnexus impact buildExternalHandoffCommand -r InkForge --depth 3`: target not found,
+    risk UNKNOWN, impactedCount 0.
+  - `npx gitnexus impact formatPreflightResult -r InkForge --depth 3`: LOW risk,
+    1 direct caller, 0 affected processes.
+  - `npx gitnexus impact buildPreflightResult -r InkForge --depth 3`: LOW risk,
+    1 direct caller, 0 affected processes.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`: 1 file / 4 tests passed.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 41 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 34.98s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`, and
+    `uniqueNextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-release-preflight-all-matching-commands-20260703.txt`.
+- Boundary: this is release-gate operator guidance only. It does not prove WeChat rich paste,
+  phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
