@@ -15310,6 +15310,10 @@ const ruleFamilies = [
   - `style-proof:application-acceptance` as
     `tsx scripts/style-proof-application-acceptance.ts`;
   - `style-proof:application-gallery` as `tsx scripts/style-proof-application-gallery.ts`.
+  - `style-proof:wechat-manual-handoff` as
+    `tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only`;
+  - `style-proof:wechat-manual-manifest-drafts` as
+    `tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only`.
 - The application preflight script is a convenience entry only. It must call the same
   release-preflight implementation with `--scope=application`; it must not fork the acceptance
   logic or change strict release behavior.
@@ -15330,6 +15334,51 @@ const ruleFamilies = [
 - Keep the release-preflight test proving the package script strings exactly match the contract.
 - Run focused release-preflight tests, `style-proof:application-preflight --json` smoke, strict
   `style-proof:release-preflight --json` blocked smoke, focused ESLint for the test file,
+  GitNexus detect, diff checks, and sensitive scans before committing this class of change.
+
+## 312. WeChat Manual Proof Handoff Package Scripts - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: strict release preflight has no safe local action rows left, but still has WeChat
+  phone/account rows that the operator must collect manually. The package scripts must make the
+  current manual proof handoff copy-safe and repeatable without weakening the release gate.
+- This rule applies to `inkforge/package.json` and
+  `scripts/style-proof-release-preflight.test.ts`.
+- This rule does not automate WeChat phone preview, account sync, scheduling, or publishing. It
+  only exposes the existing external-handoff CLI with the current WeChat next-row filter.
+
+### 2. Package Script Contract
+
+- `style-proof:wechat-manual-handoff` must run:
+  `tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only`.
+- `style-proof:wechat-manual-manifest-drafts` must run:
+  `tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only`.
+- Both commands are expected to exit non-zero while external proof is missing. That non-zero exit
+  is the correct cannot-claim state, not a local failure.
+- The handoff output must keep `notProof:true`, `canClaimComplete:false`, and the filtered WeChat
+  next rows only.
+- The manifest-drafts output must keep `draftOnly:true`, `notProof:true`,
+  `canClaimComplete:false`, empty `artifacts`, and empty `claimedEvidence` until the operator
+  has collected real external proof.
+
+### 3. Cannot-Claim Boundary
+
+- Passing this rule proves only that manual WeChat proof collection entry points are wired.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu publish success. Those publish-side tests are manually
+  deferred to the user for this round.
+
+### 4. Required Checks
+
+- Keep the package-script source-contract test proving both script strings exactly match the
+  contract.
+- Smoke `style-proof:wechat-manual-handoff` and
+  `style-proof:wechat-manual-manifest-drafts`; both may exit non-zero, but must emit structured
+  cannot-claim handoff/draft JSON for the current WeChat next rows.
+- Run focused release-preflight tests, focused ESLint, strict release-preflight blocked smoke,
   GitNexus detect, diff checks, and sensitive scans before committing this class of change.
 
 ## 311. Application Acceptance Aggregator CLI - 2026-07-04

@@ -9003,3 +9003,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves local app-level SVG/style acceptance aggregation only. It does not prove
   WeChat paste, phone preview, credentialed sync, scheduled send, public rendering, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-04 WeChat Manual Handoff Package Scripts
+
+- [x] wechat-manual-handoff-package-scripts-20260704.txt
+- Scope: package-script entries for the remaining WeChat manual proof handoff.
+- Added `style-proof:wechat-manual-handoff` as the copy-safe worksheet entry for current WeChat
+  next rows.
+- Added `style-proof:wechat-manual-manifest-drafts` as the copy-safe empty draft-manifest entry
+  for the same current WeChat next rows.
+- Verification passed: TDD red/green focused package-script contract test, full
+  release-preflight test file with 7 tests, focused ESLint, application-acceptance smoke,
+  expected blocked `style-proof:wechat-manual-handoff` smoke with 2 filtered WeChat next rows,
+  expected blocked `style-proof:wechat-manual-manifest-drafts` smoke with 17 empty WeChat
+  style-choice manifest drafts, `vue-tsc`, and production build.
+- Boundary: this proves package-level manual handoff entries only. It does not prove WeChat
+  paste, phone preview, credentialed sync, scheduled send, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

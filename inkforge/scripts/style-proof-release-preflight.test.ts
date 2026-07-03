@@ -799,6 +799,12 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       'tsx scripts/style-proof-application-acceptance.ts',
     )
     expect(scripts['style-proof:application-gallery']).toBe('tsx scripts/style-proof-application-gallery.ts')
+    expect(scripts['style-proof:wechat-manual-handoff']).toBe(
+      'tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only',
+    )
+    expect(scripts['style-proof:wechat-manual-manifest-drafts']).toBe(
+      'tsx scripts/style-proof-external-handoff.ts --manifest-drafts --platform=wechat --next-only',
+    )
   })
 
   it('rejects unknown arguments before reading or claiming release success', async () => {

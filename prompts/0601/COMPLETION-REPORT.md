@@ -12827,3 +12827,33 @@ Boundary:
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this
   round.
+
+---
+
+## 2026-07-04 WeChat Manual Handoff Package Scripts Addendum
+
+- Added package-level manual proof handoff entries for the remaining WeChat external rows:
+  - `style-proof:wechat-manual-handoff`;
+  - `style-proof:wechat-manual-manifest-drafts`.
+- Both commands reuse the existing external-handoff CLI with `--platform=wechat --next-only`.
+- The commands intentionally remain `notProof:true` and keep `canClaimComplete=false` until the
+  operator collects real external proof.
+- TDD record:
+  - The first focused run failed before implementation because `style-proof:wechat-manual-handoff`
+    was absent from `package.json`.
+  - The post-implementation focused package-script test passed.
+- Verification:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts -t "dedicated package script" --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 1 selected test passed.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 1 file / 7 tests passed.
+  - Focused ESLint for `scripts/style-proof-release-preflight.test.ts`: passed.
+  - `pnpm --silent -C inkforge style-proof:application-acceptance --json`: exited 0 with `status=application-acceptance-ready`, `canClaimApplicationReady=true`, and `canClaimReleaseComplete=false`.
+  - `pnpm --silent -C inkforge style-proof:wechat-manual-handoff`: exited 1 as expected with `notProof=true`, `status=blocked-by-external`, `canClaimComplete=false`, and 2 filtered WeChat next rows.
+  - `pnpm --silent -C inkforge style-proof:wechat-manual-manifest-drafts`: exited 1 as expected with `draftOnly=true`, `notProof=true`, `status=blocked-by-external`, `canClaimComplete=false`, 2 source rows, and 17 empty WeChat style-choice manifest drafts.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-manual-handoff-package-scripts-20260704.txt`.
+- Boundary: this proves package-level manual proof handoff entries only. It does not prove WeChat
+  ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, platform preview, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
