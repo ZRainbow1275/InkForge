@@ -12181,10 +12181,20 @@ Boundary:
 - Updated the Workstation preset-count comment from 12 to 16 to prevent future drift.
 - Added regression coverage in
   `inkforge/src/views/__tests__/PublishView.wechat-presets.test.ts`.
+- Extended that regression coverage so all 16 canonical WeChat presets render from real
+  Markdown through `markdownToWechatWithStats()`. The SVG flagship family now has an explicit
+  Markdown-path assertion for `data-ink-svg`, inline `<svg>`, `data-ink-block`,
+  `width="100%"`, and `viewBox`.
 - Verification passed:
-  - `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`: 1 file / 2 tests passed.
+  - `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`: 1 file / 4 tests passed.
   - `pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 3 files / 353 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 374 tests passed.
+  - `pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 21 tests passed.
   - `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected
+    `blocked-by-external` status remains for WeChat phone-preview / credentialed-channel proof.
 - CloakBrowser local visual/DOM verification passed on the running Vite app:
   - `http://127.0.0.1:3005/publish` loaded as `InkForge - 发布`.
   - Publish Center exposed 16 WeChat preset buttons.
@@ -12194,6 +12204,8 @@ Boundary:
     `暂无可发布正文` state rather than generating artificial content.
 - Added sanitized evidence:
   `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
+- Added sanitized renderer evidence:
+  `prompts/0601/evidence/publish-center-wechat-markdown-renderer-20260703.txt`.
 - Boundary: this proves application-level selection reachability for all current WeChat export
   presets. It does not prove WeChat phone preview, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, or publish success.

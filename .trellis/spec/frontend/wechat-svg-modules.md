@@ -14466,6 +14466,11 @@ const ruleFamilies = [
   must have full preset reachability.
 - Selecting a flagship preset must continue to route through the real
   `markdownToWechatWithStats(content, preset, options)` path, not a preview-only or mock path.
+- The Publish Center regression contract must prove more than UI reachability:
+  - every preset in `themePresets` renders through the real Markdown-to-WeChat path;
+  - every rendered preset preserves body content and emits inline WeChat-compatible styles;
+  - the SVG flagship presets render `data-ink-svg`, inline `<svg>`, `data-ink-block`,
+    `width="100%"`, and `viewBox` from Markdown input.
 
 ### 3. Cannot-Claim Boundary
 
@@ -14479,5 +14484,8 @@ const ruleFamilies = [
 - Run GitNexus impact on the touched PublishView symbol when available.
 - Add a regression test that fails if Publish Center returns to a fixed five-item slice or
   omits any current SVG flagship preset.
+- Add or keep a regression test that runs all 16 Publish Center WeChat presets through
+  `markdownToWechatWithStats()` with real Markdown input. Do not replace this with mock
+  renderer output or source-only assertions.
 - Run the focused PublishView preset test, focused ESLint for the touched views/test, relevant
   export preset/flagship tests, type-check, and production build before committing.

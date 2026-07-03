@@ -24083,14 +24083,32 @@ Implementation:
   Center no longer references `ARTICLE_PRESETS`, no longer uses `.slice(0, 5)`, uses
   `themePresets`, and that all four SVG flagship preset ids remain present in the canonical
   export list.
+- Extended `src/views/__tests__/PublishView.wechat-presets.test.ts` so the Publish Center
+  contract also renders all 16 canonical WeChat presets through the real
+  `markdownToWechatWithStats()` path with real Markdown input. The four SVG flagship presets
+  additionally assert `data-ink-svg`, inline `<svg>`, `data-ink-block`, mobile scaling
+  `width="100%"`, and `viewBox`.
 
 Verification:
 - `pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000`
-  passed with 1 file and 2 tests.
+  passed with 1 file and 4 tests after the Markdown renderer coverage was added.
 - `pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
   passed with 3 files and 353 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 374 tests.
+- `pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 21 tests.
 - `pnpm -C inkforge exec eslint src/views/PublishView.vue src/views/WorkstationView.vue src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`
   passed.
+- `pnpm -C inkforge exec eslint src/views/__tests__/PublishView.wechat-presets.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still reports the expected
+  `blocked-by-external` WeChat phone-preview / credentialed-channel rows rather than claiming
+  platform proof from local renderer tests.
 - CloakBrowser local visual/DOM verification against the running Vite app at
   `http://127.0.0.1:3005/publish` confirmed:
   - the Publish Center page loaded with title `InkForge - 发布`;
@@ -24104,6 +24122,7 @@ Verification:
 
 Evidence:
 - Added `prompts/0601/evidence/publish-center-full-wechat-presets-20260703.txt`.
+- Added `prompts/0601/evidence/publish-center-wechat-markdown-renderer-20260703.txt`.
 
 Scope:
 - This proves application-level Publish Center reachability for all current WeChat presets,

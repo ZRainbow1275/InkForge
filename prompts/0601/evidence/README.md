@@ -8670,3 +8670,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves app-level selection reachability only. It does not prove WeChat phone
   preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
   rendering, or publish success.
+
+## 2026-07-03 Publish Center WeChat Markdown Renderer Coverage
+
+- [x] publish-center-wechat-markdown-renderer-20260703.txt
+- Scope: local application renderer contract for the Publish Center WeChat preset list.
+- The focused PublishView regression now renders all 16 canonical WeChat presets through
+  `markdownToWechatWithStats()` using real Markdown input.
+- The same regression asserts that the four SVG flagship presets emit `data-ink-svg`, inline
+  `<svg>`, `data-ink-block`, `width="100%"`, and `viewBox` from the Markdown path.
+- Verification passed: focused PublishView preset test with 4 tests, focused export flagship/theme
+  regression with 374 tests, views tests with 21 tests, focused ESLint, vue-tsc, production
+  build, and expected blocked release-preflight JSON smoke.
+- Boundary: this proves local Markdown-to-WeChat renderer readiness only. It does not prove
+  phone preview, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public
+  rendering, or publish success.

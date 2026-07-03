@@ -1,0 +1,60 @@
+Publish Center WeChat Markdown Renderer Coverage - 2026-07-03
+
+Scope:
+- Local application renderer contract for the WeChat presets exposed by Publish Center.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Problem:
+- Publish Center selector reachability proves that all WeChat presets can be selected, but it
+  does not by itself prove that the selected preset list still matches the real
+  Markdown-to-WeChat renderer path used for copy/export.
+- Existing flagship pipeline tests primarily exercised pre-rendered HTML through
+  convertToWechatWithStats. Publish Center uses markdownToWechatWithStats(content, preset,
+  options).
+
+Implemented:
+- Extended inkforge/src/views/__tests__/PublishView.wechat-presets.test.ts.
+- The test file now uses happy-dom so the real DOMPurify/window-backed WeChat renderer path is
+  exercised.
+- Added a real Markdown fixture with h1, h2, h3, paragraph, list, quote, divider, and closing
+  paragraph content.
+- Added coverage that renders every preset in themePresets through markdownToWechatWithStats.
+- Added coverage that all four SVG flagship presets emit SVG/style structures from Markdown.
+
+Regression contract:
+- Publish Center must still use canonical themePresets.
+- themePresets must still contain 16 WeChat presets.
+- Every preset must produce non-empty WeChat HTML from real Markdown.
+- Every preset must preserve body text and emit inline style attributes.
+- No preset may emit script or style tags in this path.
+- The four SVG flagship presets must emit:
+  - data-ink-svg
+  - inline <svg>
+  - data-ink-block
+  - width="100%"
+  - viewBox
+
+Verification:
+- Initial TDD run failed because the test file used the default Node environment and
+  markdownToWechatWithStats reached DOMPurify(window). This was a valid test-environment gap,
+  not a production renderer change.
+- Added the @vitest-environment happy-dom test directive.
+- pnpm -C inkforge exec vitest run src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 4 tests
+- pnpm -C inkforge exec vitest run src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 374 tests
+- pnpm -C inkforge exec vitest run src/views --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 21 tests
+- pnpm -C inkforge exec eslint src/views/__tests__/PublishView.wechat-presets.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite production build completed in 41.44s
+
+Boundary:
+- This proves local application Markdown-to-WeChat renderer readiness for the presets exposed by
+  Publish Center.
+- It does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or
+  publish success.
