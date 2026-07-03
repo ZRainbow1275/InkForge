@@ -8620,3 +8620,39 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is operator guidance only. It does not prove phone preview, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
   platform upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight All-Matching Summary
+
+- [x] style-proof-release-preflight-all-matching-summary-20260703.txt
+- Scope: local `style-proof:release-preflight` operator-summary guidance only.
+- JSON `nextRows[]` now includes `allMatchingSummary` with `notProof:true` and sanitized
+  aggregate fields for row count, requirements, boundaries, statuses, issue ids, freshness issue
+  ids, choice count, phone count, external-account count, mutating-platform count, and
+  unsafe-to-automate count.
+- Human-readable `proof guidance (not proof):` output now prints all-matching row count,
+  requirement ids, boundaries, statuses, and issue ids before the all-matching commands.
+- Local smoke confirmed the summaries remain non-claiming and the release gate stays blocked
+  with `canClaimComplete=false`, `nextRowRefs=5`, and `uniqueNextRows=3` before the manual
+  platform deferral update.
+- Verification passed: focused release-preflight Vitest with 4 tests and expected blocked
+  release-preflight JSON/text smoke. Broader validation is recorded in the evidence file.
+- Boundary: this is operator guidance only. It does not prove phone preview, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
+  platform upload, or publish success.
+
+## 2026-07-03 XHS/Zhihu Publish Manual Deferral
+
+- [x] style-proof-release-scope-manual-platform-defer-20260703.txt
+- Scope: release-preflight and external-handoff scope accounting only.
+- XHS/Zhihu publish-side rows are manually deferred for this round after the operator cancelled
+  automated/platform publish testing and chose to test those platforms manually.
+- Underlying runbook and proof APIs still retain XHS/Zhihu public-host, credentialed-channel,
+  artifact-manifest, and platform-publish requirements as unclaimable proof rows.
+- Release-preflight now exposes `manualDeferredOpenSteps=7`, `externalHandoffRows=8`,
+  `nextRowRefs=4`, and `uniqueNextRows=2`.
+- Release-preflight next rows now focus on WeChat phone-preview and WeChat external-account
+  proof only.
+- Verification passed: focused release-preflight/external-handoff Vitest with 18 tests,
+  `platform-export-rendering.test.ts` with 375 tests, and expected blocked JSON smokes.
+- Boundary: this is release-scope accounting only. It does not prove XHS/Zhihu upload,
+  public-host, platform preview, scheduled send, or publish success.

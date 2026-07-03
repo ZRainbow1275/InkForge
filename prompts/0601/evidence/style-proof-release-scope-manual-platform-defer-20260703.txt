@@ -1,0 +1,51 @@
+Style Proof Release Scope Manual Platform Deferral - 2026-07-03
+
+Scope:
+- Local release-preflight and external-handoff scope accounting only.
+- The operator cancelled Zhihu and Xiaohongshu publish-side testing for this round and will test
+  those platforms manually.
+- No platform action, no phone preview, no sync, no upload, no schedule, no publish.
+
+Implemented:
+- XHS/Zhihu public-host, credentialed-channel, and platform-publish rows are manually deferred
+  for this round's release blocker calculation.
+- Underlying execution runbooks and platform proof APIs still retain those XHS/Zhihu rows as
+  unclaimable proof requirements.
+- Release summaries now expose:
+  - manualDeferredOpenSteps
+  - manualDeferredPlatformStepCounts
+  - releaseBlockingOpenSteps
+  - releaseBlockingPhoneOpenSteps
+  - releaseBlockingExternalDependencyOpenSteps
+  - releaseBlockingUnsafeToAutomateOpenSteps
+  - releaseBlockingMutatingOpenSteps
+- Release-preflight next rows now focus on in-scope WeChat proof only.
+
+Runtime smoke:
+- style-proof:release-preflight remains blocked-by-external.
+- canClaimComplete remains false because WeChat phone/account/platform proof remains open.
+- manualDeferredOpenSteps is 7.
+- externalHandoffRows is 8.
+- nextRowRefs is 4.
+- uniqueNextRows is 2.
+- release-preflight next rows:
+  - wechat / phone-preview / cover-thumbnail-check
+  - wechat / external-account / credentialed-channel-response
+- style-proof:external-handoff reports requiresPublicHost false and publicHostRows 0.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 2 files / 18 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 375 tests.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  PASS: expected blocked report with manual deferral counters and WeChat-only next rows.
+- pnpm --silent -C inkforge style-proof:external-handoff --json
+  PASS: expected blocked report with no public-host next row.
+
+Boundary:
+- Manual deferral is not proof.
+- This change does not prove XHS/Zhihu upload, public-host, platform preview, scheduled send, or
+  publish success.
+- XHS/Zhihu manual platform checks must be supplied later as redacted operator evidence if they
+  need to become release blockers or claimable proof.

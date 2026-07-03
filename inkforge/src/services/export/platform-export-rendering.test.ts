@@ -4808,6 +4808,9 @@ describe('platform native export rendering rules', () => {
       externalDependencyOpenSteps: expect.any(Number),
       unsafeToAutomateOpenSteps: expect.any(Number),
       mutatingOpenSteps: expect.any(Number),
+      manualDeferredOpenSteps: 7,
+      releaseBlockingOpenSteps: 19,
+      releaseBlockingExternalDependencyOpenSteps: 4,
     })
     expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
     expect(report.summary.cannotClaimSteps).toBeGreaterThan(0)
@@ -4842,31 +4845,26 @@ describe('platform native export rendering rules', () => {
     ]))
     expect(externalBlocker?.requirementIds).toEqual(expect.arrayContaining([
       'credentialed-channel-response',
-      'public-image-host',
       'sync-readback',
     ]))
+    expect(externalBlocker?.requirementIds).not.toContain('public-image-host')
     expect(externalBlocker?.issueIds).toEqual(['style-proof-manifest-requirement-missing'])
     expect(externalBlocker?.platformStepCounts).toEqual([
       { platform: 'wechat', stepCount: 4 },
-      { platform: 'xiaohongshu', stepCount: 2 },
-      { platform: 'zhihu', stepCount: 5 },
     ])
     expect(externalBlocker?.requirementStepCounts).toEqual(expect.arrayContaining([
-      { requirementId: 'public-image-host', stepCount: 1 },
-      { requirementId: 'published-url-or-platform-preview', stepCount: 3 },
-      { requirementId: 'scheduled-send-readback', stepCount: 3 },
+      { requirementId: 'published-url-or-platform-preview', stepCount: 1 },
+      { requirementId: 'scheduled-send-readback', stepCount: 1 },
     ]))
     expect(externalBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'public-host' || action.action.includes('public host')
-    )).toBe(true)
+    )).toBe(false)
     expect(unsafeBlocker?.requirementIds).toEqual(expect.arrayContaining([
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
     expect(unsafeBlocker?.platformStepCounts).toEqual([
       { platform: 'wechat', stepCount: 4 },
-      { platform: 'xiaohongshu', stepCount: 2 },
-      { platform: 'zhihu', stepCount: 4 },
     ])
     expect(unsafeBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'platform-publish' &&
@@ -4880,8 +4878,8 @@ describe('platform native export rendering rules', () => {
     ]))
     expect(mutatingBlocker?.issueIds).toEqual(['style-proof-manifest-requirement-missing'])
     expect(mutatingBlocker?.requirementStepCounts).toEqual(expect.arrayContaining([
-      { requirementId: 'published-url-or-platform-preview', stepCount: 3 },
-      { requirementId: 'scheduled-send-readback', stepCount: 3 },
+      { requirementId: 'published-url-or-platform-preview', stepCount: 1 },
+      { requirementId: 'scheduled-send-readback', stepCount: 1 },
     ]))
     expect(mutatingBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'platform-publish'
@@ -4915,14 +4913,15 @@ describe('platform native export rendering rules', () => {
     expect(report.summary).toMatchObject({
       blockerCount: 4,
       groupCount: 4,
-      groupRowCount: 35,
-      uniqueChecklistRowCount: 15,
+      groupRowCount: 16,
+      uniqueChecklistRowCount: 8,
       phoneRows: 4,
-      externalAccountRows: 10,
-      publicHostRows: 1,
-      mutatingRows: 10,
-      unsafeToAutomateRows: 10,
+      externalAccountRows: 4,
+      publicHostRows: 0,
+      mutatingRows: 4,
+      unsafeToAutomateRows: 4,
       safeToAutomateRows: 0,
+      manualDeferredOpenSteps: 7,
     })
     expect(report.rows.every(row => row.status !== 'completed')).toBe(true)
     expect(report.rows.every(row => row.safeToAutomate === false)).toBe(true)
@@ -4930,8 +4929,8 @@ describe('platform native export rendering rules', () => {
 
     expect(phoneGroup?.rowCount).toBe(4)
     expect(phoneGroup?.rows.every(row => row.requiresPhone)).toBe(true)
-    expect(externalGroup?.rowCount).toBe(11)
-    expect(externalGroup?.rows.some(row => row.boundary === 'public-host')).toBe(true)
+    expect(externalGroup?.rowCount).toBe(4)
+    expect(externalGroup?.rows.some(row => row.boundary === 'public-host')).toBe(false)
 
     expect(wechatPhoneRow).toMatchObject({
       blockerKinds: ['phone-preview'],
@@ -4953,38 +4952,8 @@ describe('platform native export rendering rules', () => {
     ]))
     expect(wechatPhoneRow?.artifactTemplate.forbiddenFields).toContain('phonePreviewBlocked')
 
-    expect(xhsPublishRow).toMatchObject({
-      blockerKinds: ['external-dependency', 'unsafe-to-automate', 'mutating-platform'],
-      boundary: 'platform-publish',
-      status: 'unsafe-to-automate',
-      requiresExternalAccount: true,
-      mutatesPlatform: true,
-      safeToAutomate: false,
-      cannotClaim: true,
-    })
-    expect(xhsPublishRow?.artifactTemplate.requiredActions).toContain('published-preview')
-    expect(xhsPublishRow?.artifactTemplate.requiredReadbacks).toContain('published-url')
-    expect(xhsPublishRow?.nextOperatorAction).toContain('real platform preview')
-
-    expect(zhihuPublicHostRow).toMatchObject({
-      blockerKinds: ['external-dependency'],
-      boundary: 'public-host',
-      status: 'blocked-by-external',
-      requiresExternalAccount: false,
-      mutatesPlatform: false,
-      safeToAutomate: false,
-      cannotClaim: true,
-    })
-    expect(zhihuPublicHostRow?.artifactTemplate.requiredFields).toEqual(expect.arrayContaining([
-      'artifactRef',
-      'hostStatus',
-      'collectedAt',
-      'safeForCommit',
-    ]))
-    expect(zhihuPublicHostRow?.artifactTemplate.acceptedHostStatuses).toEqual([
-      'public-https',
-      'platform-hosted',
-    ])
+    expect(xhsPublishRow).toBeUndefined()
+    expect(zhihuPublicHostRow).toBeUndefined()
   })
 
   itWithCommittedStyleProofValidationClock('separates committed local actionability from catalog-blocked and external proof rows', () => {
@@ -5006,12 +4975,13 @@ describe('platform native export rendering rules', () => {
       safeLocalOpenRows: 11,
       actionableLocalRows: 0,
       catalogBlockedLocalRows: 11,
-      externalChecklistRows: 15,
-      externalChecklistGroupRows: 35,
+      externalChecklistRows: 8,
+      externalChecklistGroupRows: 16,
       phoneExternalRows: 4,
-      unsafeExternalRows: 10,
-      mutatingExternalRows: 10,
+      unsafeExternalRows: 4,
+      mutatingExternalRows: 4,
       safeExternalRows: 0,
+      manualDeferredOpenSteps: 7,
     })
 
     expect(report.actionableRows).toEqual([])
@@ -5074,23 +5044,24 @@ describe('platform native export rendering rules', () => {
     expect(report.requiresOperator).toBe(true)
     expect(report.requiresPhone).toBe(true)
     expect(report.requiresExternalAccount).toBe(true)
-    expect(report.requiresPublicHost).toBe(true)
+    expect(report.requiresPublicHost).toBe(false)
     expect(report.containsUnsafeToAutomateRows).toBe(true)
     expect(report.containsMutatingPlatformRows).toBe(true)
     expect(report.externalChecklist.summary.safeToAutomateRows).toBe(0)
     expect(report.localActionability.summary.actionableLocalRows).toBe(0)
     expect(report.summary).toMatchObject({
       blockerCount: 4,
-      externalHandoffRows: 15,
+      externalHandoffRows: 8,
       externalHandoffGroups: 4,
       actionableLocalRows: 0,
       catalogBlockedLocalRows: 11,
       safeLocalOpenRows: 11,
       phoneRows: 4,
-      externalAccountRows: 10,
-      publicHostRows: 1,
-      unsafeToAutomateRows: 10,
-      mutatingRows: 10,
+      externalAccountRows: 4,
+      publicHostRows: 0,
+      unsafeToAutomateRows: 4,
+      mutatingRows: 4,
+      manualDeferredOpenSteps: 7,
       safeExternalRows: 0,
     })
     expect(report.nextLocalActionableRow).toBeNull()
@@ -5113,14 +5084,7 @@ describe('platform native export rendering rules', () => {
       safeToAutomate: false,
       cannotClaim: true,
     })
-    expect(report.nextPublicHostRow).toMatchObject({
-      platform: 'zhihu',
-      requirementId: 'public-image-host',
-      boundary: 'public-host',
-      requiresExternalAccount: false,
-      safeToAutomate: false,
-      cannotClaim: true,
-    })
+    expect(report.nextPublicHostRow).toBeNull()
     expect(report.nextUnsafeToAutomateRow).toMatchObject({
       status: 'unsafe-to-automate',
       safeToAutomate: false,
@@ -5164,32 +5128,32 @@ describe('platform native export rendering rules', () => {
     expect(packet.requiresOperator).toBe(true)
     expect(packet.requiresPhone).toBe(true)
     expect(packet.requiresExternalAccount).toBe(true)
-    expect(packet.requiresPublicHost).toBe(true)
+    expect(packet.requiresPublicHost).toBe(false)
     expect(packet.summary).toMatchObject({
-      externalHandoffRows: 15,
+      externalHandoffRows: 8,
       safeExternalRows: 0,
       phoneRows: 4,
-      externalAccountRows: 10,
-      publicHostRows: 1,
-      unsafeToAutomateRows: 10,
-      mutatingRows: 10,
+      externalAccountRows: 4,
+      publicHostRows: 0,
+      unsafeToAutomateRows: 4,
+      mutatingRows: 4,
+      manualDeferredOpenSteps: 7,
     })
     expect(packet.nextRowRefs.map(ref => ref.kind)).toEqual([
       'phone-preview',
       'external-account',
-      'public-host',
       'unsafe-to-automate',
       'mutating-platform',
     ])
     expect(packet.nextRowRefs.every(ref => ref.row.cannotClaim)).toBe(true)
     expect(packet.nextRowRefs.every(ref => ref.row.safeToAutomate === false)).toBe(true)
-    expect(packet.nextRows).toHaveLength(3)
+    expect(packet.nextRows).toHaveLength(2)
     expect(new Set(packet.nextRows.map(row => row.id)).size).toBe(packet.nextRows.length)
     expect(packet.nextRows.every(row => row.cannotClaim)).toBe(true)
     expect(packet.nextRows.every(row => row.safeToAutomate === false)).toBe(true)
     expect(packet.nextRows.some(row => row.requiresPhone)).toBe(true)
     expect(packet.nextRows.some(row => row.requiresExternalAccount)).toBe(true)
-    expect(packet.nextRows.some(row => row.boundary === 'public-host')).toBe(true)
+    expect(packet.nextRows.some(row => row.boundary === 'public-host')).toBe(false)
     expect(packet.nextRows.some(row => row.status === 'unsafe-to-automate')).toBe(true)
     expect(packet.nextRows.some(row => row.mutatesPlatform)).toBe(true)
     expect(packet.rows.every(row => row.cannotClaim)).toBe(true)
@@ -5203,19 +5167,19 @@ describe('platform native export rendering rules', () => {
       row.platform === 'xiaohongshu' &&
       row.requirementId === 'published-url-or-platform-preview' &&
       row.mutatesPlatform
-    )).toBe(true)
+    )).toBe(false)
     expect(packet.rows.some(row =>
       row.platform === 'zhihu' &&
       row.requirementId === 'public-image-host' &&
       row.artifactTemplate.acceptedHostStatuses.includes('public-https')
-    )).toBe(true)
+    )).toBe(false)
 
     expect(markdown).toContain('# Committed Style Proof External Handoff')
     expect(markdown).toContain('Can claim complete: no')
     expect(markdown).toContain('Safe external rows: 0')
     expect(markdown).toContain('wechat / phone-preview-readback / phone-preview')
-    expect(markdown).toContain('xiaohongshu / published-url-or-platform-preview / platform-publish')
-    expect(markdown).toContain('zhihu / public-image-host / public-host')
+    expect(markdown).not.toContain('xiaohongshu / published-url-or-platform-preview / platform-publish')
+    expect(markdown).not.toContain('zhihu / public-image-host / public-host')
     expect(markdown).toContain('phone-preview: wechat / cover-thumbnail-check / phone-preview')
     expect(markdown).toContain('external-account: wechat / credentialed-channel-response / credentialed-channel')
     expect(markdown).toContain('unsafe-to-automate: wechat / credentialed-channel-response / credentialed-channel')

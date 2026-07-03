@@ -14158,7 +14158,8 @@ const ruleFamilies = [
 - Human-readable output must include a `proof guidance (not proof):` section before copy-safe
   commands.
 - The command must still exit non-zero and report `canClaimComplete:false` while phone,
-  credentialed-channel, public-host, sync, schedule, upload, or publish proof rows are open.
+  credentialed-channel, sync, schedule, or WeChat publish proof rows are open in the current
+  release scope.
 
 ### 3. Cannot-Claim Boundary
 
@@ -14321,3 +14322,120 @@ const ruleFamilies = [
 - Run focused release-preflight Vitest, focused ESLint, serial scripts tests, type-check, build,
   release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
   before committing.
+
+## 294. Style Proof Release Preflight All-Matching Summary - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: all-matching release-preflight commands can expand deduplicated rows, but operators
+  still need a compact summary of the sibling open rows before running another command.
+- This rule applies to `style-proof:release-preflight` JSON and human-readable reporting only.
+- It must not change release status, proof accounting, style availability, renderer output,
+  accepted proof semantics, platform state, sync, upload, schedule, preview, or publish behavior.
+
+### 2. Contract
+
+- Each JSON `nextRows[]` item must expose `allMatchingSummary`.
+- `allMatchingSummary` must include `notProof:true`.
+- `allMatchingSummary` must expose only sanitized aggregate fields:
+  - `rowCount`;
+  - `requirementIds`;
+  - `boundaries`;
+  - `statuses`;
+  - `issueIds`;
+  - `freshnessIssueIds`;
+  - `choiceCount`;
+  - `requiresPhoneCount`;
+  - `requiresExternalAccountCount`;
+  - `mutatingPlatformCount`;
+  - `unsafeToAutomateCount`.
+- Human-readable output must print all-matching summary rows inside
+  `proof guidance (not proof):` before the all-matching commands:
+  - `allMatchingRowCount`;
+  - `allMatchingRequirementIds`;
+  - `allMatchingBoundaries`;
+  - `allMatchingStatuses`;
+  - `allMatchingIssueIds`.
+- The command must still exit non-zero and report `canClaimComplete:false` while phone,
+  credentialed-channel, public-host, sync, schedule, upload, or publish proof rows are open.
+
+### 3. Cannot-Claim Boundary
+
+- All-matching summaries are not proof.
+- They must not satisfy phone preview, phone screenshot, mobile Dark Mode, cover-thumbnail,
+  credentialed-channel, public-host, upload, sync, schedule, platform preview, public rendering,
+  or publish rows.
+- They must not include raw artifact payloads, raw platform routes, credential browser storage,
+  account images, local capture paths, request archives, QR payloads, third-party material URLs,
+  or any field that would identify a local operator environment.
+
+### 4. Required Checks
+
+- Run GitNexus impact on `buildPreflightResult` and `formatPreflightResult`; if script-local
+  summary helpers are not indexed, record target-not-found and compensate with focused CLI tests.
+- Add release-preflight CLI regression coverage proving:
+  - JSON next rows include `allMatchingSummary.notProof:true`;
+  - WeChat phone-preview summarizes four open requirements;
+  - WeChat external-account summarizes four open requirements and mutating platform count;
+  - XHS/Zhihu publish-side and public-host rows are not emitted as current release next rows
+    when they are manually deferred;
+  - text output exposes row count, requirement ids, and issue ids;
+  - release-preflight still exits non-zero with `canClaimComplete:false`.
+- Run focused release-preflight Vitest, focused ESLint, serial scripts tests, type-check, build,
+  release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
+  before committing.
+
+## 295. Style Proof Release Scope Manual Platform Deferral - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the operator cancelled automated/pipeline publish testing for Zhihu and Xiaohongshu
+  in this round and will test those platforms manually.
+- The current release target is application-level SVG/style availability plus WeChat application
+  readiness.
+- This rule applies only to release-preflight, release blockers, and external handoff next rows.
+- It must not delete or weaken XHS/Zhihu local renderers, style choices, image manifests,
+  platform-specific degradation rules, or lower-level proof requirements.
+
+### 2. Contract
+
+- XHS/Zhihu publish-side rows must remain visible in the underlying execution runbook and
+  platform proof APIs as unclaimable external rows.
+- XHS/Zhihu rows must be treated as current-round `manualDeferred` when they require:
+  - public-host proof;
+  - credentialed-channel proof;
+  - platform-publish proof;
+  - any external account or mutating platform action.
+- Manual-deferred rows must not create release blockers in
+  `getCommittedStyleProofEvidenceReleaseGateReport()`.
+- Manual-deferred rows must not appear in `style-proof:release-preflight` `nextRows[]` or
+  next-row handoff output.
+- Release summaries must expose the deferral explicitly through aggregate counters such as
+  `manualDeferredOpenSteps` and `manualDeferredPlatformStepCounts`.
+- Current release next rows must remain focused on in-scope WeChat proof:
+  - WeChat phone preview family;
+  - WeChat credentialed/account/platform family.
+
+### 3. Cannot-Claim Boundary
+
+- Manual deferral is not proof and does not claim XHS/Zhihu upload, public-host, platform
+  preview, scheduled send, or publish success.
+- Manual deferral must not mark XHS/Zhihu style choices as publish-proven.
+- Manual deferral must not remove XHS/Zhihu local renderer, artifact manifest, or hygiene
+  checks.
+- A later round may re-enable XHS/Zhihu release blockers after the operator supplies redacted
+  manual evidence.
+
+### 4. Required Checks
+
+- Run GitNexus impact on release-gate and handoff helpers before editing.
+- Add or update regression coverage proving:
+  - release-preflight still blocks on in-scope WeChat external proof;
+  - release-preflight reports `manualDeferredOpenSteps`;
+  - release-preflight next rows exclude Zhihu public-host and XHS/Zhihu publish rows;
+  - external handoff next rows exclude manually deferred XHS/Zhihu rows;
+  - lower-level execution runbook tests still prove XHS/Zhihu public-host/publish requirements
+    exist and remain unclaimable.
+- Run focused release-preflight and external-handoff Vitest, platform export regression tests,
+  focused ESLint, serial scripts tests, type-check, build, release-preflight smoke, diff checks,
+  GitNexus staged detection, and sensitive-fragment scans before committing.

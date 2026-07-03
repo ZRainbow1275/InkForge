@@ -23936,7 +23936,8 @@ Verification:
   - WeChat external-account expands to 4 rows:
     `credentialed-channel-response`, `sync-readback`,
     `published-url-or-platform-preview`, `scheduled-send-readback`.
-  - Zhihu public-host expands to 1 row: `public-image-host`.
+  - The earlier Zhihu public-host next row is superseded by the 2026-07-03 manual deferral
+    scope below.
 - `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
   passed.
 - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
@@ -23948,7 +23949,7 @@ Verification:
   was restored afterward.
 - `pnpm --silent -C inkforge style-proof:release-preflight --json`
   still exits 1 with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
-  and `uniqueNextRows=3`.
+  and `uniqueNextRows=3` before the manual-deferral scope change.
 
 Evidence:
 - Added `prompts/0601/evidence/style-proof-release-preflight-all-matching-commands-20260703.txt`.
@@ -23958,3 +23959,97 @@ Scope:
   paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight All-Matching Summary Slice
+
+Source:
+- The previous all-matching command slice lets operators expand deduplicated release-preflight
+  rows, but the first preflight screen still did not say how many sibling rows share the same
+  proof-family filters.
+- Operators needed a non-claiming summary in the top-level preflight output to see whether a
+  single visible next row represents several external proof obligations.
+
+Impact:
+- `npx gitnexus impact buildPreflightResult -r InkForge --depth 3` reported LOW risk,
+  1 direct caller, 0 affected processes, and Scripts-only module scope.
+- `npx gitnexus impact formatPreflightResult -r InkForge --depth 3` reported LOW risk,
+  1 direct caller, 0 affected processes, and Scripts-only module scope.
+- `npx gitnexus impact buildPreflightNextRowCommands -r InkForge --depth 3` returned target not
+  found, risk UNKNOWN, impactedCount 0. The command helper is script-local and not indexed by
+  the current graph.
+
+Implementation:
+- Added `nextRows[].allMatchingSummary` to release-preflight JSON output.
+- The summary is explicitly `notProof:true` and contains only sanitized aggregate metadata:
+  row count, requirement ids, boundaries, statuses, issue ids, freshness issue ids, choice count,
+  phone count, external-account count, mutating-platform count, and unsafe-to-automate count.
+- Human-readable `proof guidance (not proof):` output now prints all-matching row count,
+  requirement ids, boundaries, statuses, and issue ids before the all-matching commands.
+- Release-preflight status, summary counters, next-row count, command filters, and non-zero exit
+  behavior remain unchanged.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 4 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` smoke confirmed
+  `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  `uniqueNextRows=3`, and all-matching row counts `[4, 4, 1]` before the manual-deferral
+  scope change.
+- Human-readable smoke confirmed `allMatchingRowCount`, `allMatchingRequirementIds`, and
+  `allMatchingIssueIds` lines for WeChat phone-preview, WeChat external-account, and Zhihu
+  public-host rows before the manual-deferral scope change.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-release-preflight-all-matching-summary-20260703.txt`.
+
+Scope:
+- This is local release-preflight operator summary only. It does not prove WeChat ordinary rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 XHS/Zhihu Publish Manual Deferral Slice
+
+Source:
+- The operator cancelled Zhihu and Xiaohongshu publish-side tests for this round and will run
+  those tests manually.
+- The revised round target is application-level SVG/style availability plus WeChat application
+  readiness.
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofReleaseGateStatus -r InkForge --depth 3` reported
+  LOW risk, 1 direct caller, 0 affected processes, and Export/Scripts scope.
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`
+  reported LOW risk, 3 direct callers, 0 affected processes, and Export/Scripts scope.
+- `npx gitnexus impact getCommittedStyleProofExternalProofChecklistReport -r InkForge --depth 3`
+  reported LOW risk, 1 direct caller, 0 affected processes.
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffReport -r InkForge --depth 3`
+  reported LOW risk, 1 direct caller, 0 affected processes.
+
+Implementation:
+- Added a manual release deferral classifier for XHS/Zhihu external account, public-host, and
+  platform-publish rows.
+- Release blockers now use in-scope blocking open steps only, so XHS/Zhihu publish-side rows
+  remain in the underlying runbook but no longer block this round's release-preflight.
+- Release summaries expose `manualDeferredOpenSteps`, `manualDeferredPlatformStepCounts`, and
+  release-blocking counters.
+- External handoff next rows now focus on WeChat phone-preview and WeChat external-account rows.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files and 18 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 375 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` smoke confirmed
+  `manualDeferredOpenSteps=7`, `externalHandoffRows=8`, `nextRowRefs=4`,
+  `uniqueNextRows=2`, and next rows only for WeChat phone-preview and WeChat external-account.
+- `pnpm --silent -C inkforge style-proof:external-handoff --json` smoke confirmed
+  `requiresPublicHost=false`, `publicHostRows=0`, `externalHandoffRows=8`, and no Zhihu
+  public-host next row.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-release-scope-manual-platform-defer-20260703.txt`.
+
+Scope:
+- This is a release-scope change only. It does not prove XHS/Zhihu upload, public-host,
+  platform preview, scheduled send, or publish success; the operator will test those manually.

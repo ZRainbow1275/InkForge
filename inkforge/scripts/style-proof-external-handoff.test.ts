@@ -726,9 +726,9 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('- Can continue locally: no')
     expect(result.stdout).toContain('- Requires operator: yes')
     expect(result.stdout).toContain('- Phone rows: 4')
-    expect(result.stdout).toContain('- External account rows: 10')
-    expect(result.stdout).toContain('- Public host rows: 1')
-    expect(result.stdout).toContain('- External handoff rows: 15')
+    expect(result.stdout).toContain('- External account rows: 4')
+    expect(result.stdout).toContain('- Public host rows: 0')
+    expect(result.stdout).toContain('- External handoff rows: 8')
     expect(result.stdout).toContain('## Cannot-Claim Boundary')
     expect(result.stdout).toContain('Do not claim phone preview, mobile interaction, Dark Mode')
     expect(result.stdout).toContain('- phone-preview: wechat / cover-thumbnail-check / phone-preview:')
@@ -752,26 +752,26 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(packet.requiresOperator).toBe(true)
     expect(packet.requiresPhone).toBe(true)
     expect(packet.requiresExternalAccount).toBe(true)
-    expect(packet.requiresPublicHost).toBe(true)
+    expect(packet.requiresPublicHost).toBe(false)
     expect(packet.containsUnsafeToAutomateRows).toBe(true)
     expect(packet.containsMutatingPlatformRows).toBe(true)
     expect(packet.summary).toMatchObject({
-      externalHandoffRows: 15,
+      externalHandoffRows: 8,
       phoneRows: 4,
-      externalAccountRows: 10,
-      publicHostRows: 1,
-      unsafeToAutomateRows: 10,
-      mutatingRows: 10,
+      externalAccountRows: 4,
+      publicHostRows: 0,
+      unsafeToAutomateRows: 4,
+      mutatingRows: 4,
+      manualDeferredOpenSteps: 7,
       safeExternalRows: 0,
       actionableLocalRows: 0,
     })
-    expect(packet.rows).toHaveLength(15)
-    expect(packet.nextRowRefs).toHaveLength(5)
-    expect(packet.nextRows).toHaveLength(3)
+    expect(packet.rows).toHaveLength(8)
+    expect(packet.nextRowRefs).toHaveLength(4)
+    expect(packet.nextRows).toHaveLength(2)
     expect(packet.nextRowRefs.map(ref => ref.kind)).toEqual([
       'phone-preview',
       'external-account',
-      'public-host',
       'unsafe-to-automate',
       'mutating-platform',
     ])
@@ -878,9 +878,9 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       nextOnly: true,
       freshnessOnly: false,
     })
-    expect(packet.committedSummary.externalHandoffRows).toBe(15)
+    expect(packet.committedSummary.externalHandoffRows).toBe(8)
     expect(packet.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 15,
+      committedExternalHandoffRows: 8,
       filteredRows: 1,
       filteredNextRowRefs: 1,
       filteredNextRows: 1,
@@ -920,7 +920,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('- Issue id: all')
     expect(result.stdout).toContain('- Freshness only: no')
     expect(result.stdout).toContain('- Next only: yes')
-    expect(result.stdout).toContain('- Committed external handoff rows: 15')
+    expect(result.stdout).toContain('- Committed external handoff rows: 8')
     expect(result.stdout).toContain('- Filtered rows: 1')
     expect(result.stdout).toContain('- phone-preview: wechat / cover-thumbnail-check / phone-preview:')
     expect(result.stdout).not.toContain('- external-account:')
@@ -957,7 +957,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       freshnessOnly: true,
     })
     expect(packet.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 15,
+      committedExternalHandoffRows: 8,
       filteredRows: 0,
       filteredNextRowRefs: 0,
       filteredNextRows: 0,
@@ -1001,7 +1001,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       freshnessOnly: false,
     })
     expect(template.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 15,
+      committedExternalHandoffRows: 8,
       filteredRows: 1,
       filteredNextRowRefs: 1,
       filteredNextRows: 1,
@@ -1179,7 +1179,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).not.toContain('"artifacts":[{')
   })
 
-  it('prints host-status worksheet fields for public-host proof without committing artifacts', async () => {
+  it('defers Zhihu public-host worksheet rows out of this release handoff scope', async () => {
     const result = await runExternalHandoffCli([
       '--template',
       '--platform=zhihu',
@@ -1194,26 +1194,14 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(result.stdout)
 
     const template = parseExternalHandoffTemplateJson(result.stdout)
-    expect(template.rows).toHaveLength(1)
-
-    const row = template.rows[0]
-    expect(row?.platform).toBe('zhihu')
-    expect(row?.requirementId).toBe('public-image-host')
-    expect(row?.operatorWorksheet.artifactDraftTemplate.acceptedValues.hostStatuses).toEqual([
-      'public-https',
-      'platform-hosted',
-    ])
-    expect(row?.operatorWorksheet.artifactDraftTemplate.requiredVerificationFields).toContainEqual({
-      field: 'hostStatus',
-      value: null,
-      required: true,
-      forbidden: false,
+    expect(template.rows).toHaveLength(0)
+    expect(template.filteredSummary).toMatchObject({
+      committedExternalHandoffRows: 8,
+      filteredRows: 0,
+      filteredNextRows: 0,
+      publicHostRows: 0,
+      cannotClaimRows: 0,
     })
-    expect(row?.operatorWorksheet.artifactDraftTemplate.baseFields.hostStatus).toBeNull()
-    expect(row?.manifestDraftTemplate.artifactGuidance.artifactDraftTemplate).toEqual(
-      row?.operatorWorksheet.artifactDraftTemplate,
-    )
-    expect(row?.manifestDraftTemplate.drafts.every(draft => draft.artifacts.length === 0)).toBe(true)
     expect(result.stdout).not.toContain('"canClaimComplete":true')
     expect(result.stdout).not.toContain('"artifacts":[{')
   })
@@ -1243,22 +1231,21 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       },
     })
     expect(draftPack.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 15,
-      filteredRows: 3,
-      filteredNextRows: 3,
+      committedExternalHandoffRows: 8,
+      filteredRows: 2,
+      filteredNextRows: 2,
       phoneRows: 1,
       externalAccountRows: 1,
-      publicHostRows: 1,
-      cannotClaimRows: 3,
+      publicHostRows: 0,
+      cannotClaimRows: 2,
       freshnessIssueRows: 0,
     })
     expect(draftPack.sourceRowIds).toEqual([
       'committed-style-proof:wechat:cover-thumbnail-check:phone-preview:phone-preview',
       'committed-style-proof:wechat:credentialed-channel-response:credentialed-channel:credentialed-channel',
-      'committed-style-proof:zhihu:public-image-host:public-host:public-host',
     ])
     expect(draftPack.sourceRows.map(row => row.id)).toEqual(draftPack.sourceRowIds)
-    expect(draftPack.sourceRows).toHaveLength(3)
+    expect(draftPack.sourceRows).toHaveLength(2)
     const credentialedSourceRow = draftPack.sourceRows.find(
       row => row.requirementId === 'credentialed-channel-response',
     )
@@ -1285,14 +1272,9 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       required: true,
       forbidden: false,
     })
-    const publicHostSourceRow = draftPack.sourceRows.find(
-      row => row.requirementId === 'public-image-host',
-    )
-    expect(
-      publicHostSourceRow?.artifactGuidance.artifactDraftTemplate.acceptedValues.hostStatuses,
-    ).toEqual(['public-https', 'platform-hosted'])
-    expect(draftPack.manifestCount).toBe(21)
-    expect(draftPack.manifests).toHaveLength(21)
+    expect(draftPack.sourceRows.some(row => row.requirementId === 'public-image-host')).toBe(false)
+    expect(draftPack.manifestCount).toBe(17)
+    expect(draftPack.manifests).toHaveLength(17)
     expect(draftPack.intakeCommand).toBe(
       'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
     )
@@ -1311,7 +1293,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(draftPack.manifests.every(manifest => manifest.artifacts.length === 0)).toBe(true)
     expect(draftPack.manifests.every(manifest => manifest.claimedEvidence.length === 0)).toBe(true)
     expect(draftPack.manifests.filter(manifest => manifest.platform === 'wechat')).toHaveLength(17)
-    expect(draftPack.manifests.filter(manifest => manifest.platform === 'zhihu')).toHaveLength(4)
+    expect(draftPack.manifests.filter(manifest => manifest.platform === 'zhihu')).toHaveLength(0)
     expect(draftPackResult.stdout).not.toContain('"canClaimComplete":true')
     expect(draftPackResult.stdout).not.toContain('"artifacts":[{')
   })

@@ -1198,6 +1198,13 @@ export interface CommittedStyleProofReleaseGateReport {
   blockers: readonly CommittedStyleProofReleaseGateBlocker[]
   summary: CommittedStyleProofExecutionRunbookReport['summary'] & {
     blockerCount: number
+    manualDeferredOpenSteps: number
+    manualDeferredPlatformStepCounts: readonly CommittedStyleProofReleasePlatformStepCount[]
+    releaseBlockingOpenSteps: number
+    releaseBlockingPhoneOpenSteps: number
+    releaseBlockingExternalDependencyOpenSteps: number
+    releaseBlockingUnsafeToAutomateOpenSteps: number
+    releaseBlockingMutatingOpenSteps: number
   }
 }
 
@@ -8681,6 +8688,75 @@ function getCommittedStyleProofRunbookOpenSteps(
   )
 }
 
+const COMMITTED_STYLE_PROOF_MANUAL_RELEASE_PLATFORMS = new Set<Platform>([
+  'xiaohongshu',
+  'zhihu',
+])
+
+function isCommittedStyleProofManualReleaseDeferredStep(
+  step: StyleProofExecutionRunbookStep,
+): boolean {
+  return COMMITTED_STYLE_PROOF_MANUAL_RELEASE_PLATFORMS.has(step.platform) &&
+    (
+      step.boundary === 'public-host' ||
+      step.boundary === 'credentialed-channel' ||
+      step.boundary === 'platform-publish' ||
+      step.requiresExternalAccount ||
+      step.mutatesPlatform
+    )
+}
+
+function getCommittedStyleProofReleaseBlockingOpenSteps(
+  report: CommittedStyleProofExecutionRunbookReport,
+): StyleProofExecutionRunbookStep[] {
+  return getCommittedStyleProofRunbookOpenSteps(report)
+    .filter(step => !isCommittedStyleProofManualReleaseDeferredStep(step))
+}
+
+function getCommittedStyleProofManualReleaseDeferredOpenSteps(
+  report: CommittedStyleProofExecutionRunbookReport,
+): StyleProofExecutionRunbookStep[] {
+  return getCommittedStyleProofRunbookOpenSteps(report)
+    .filter(isCommittedStyleProofManualReleaseDeferredStep)
+}
+
+function getCommittedStyleProofReleaseOpenStepSummary(
+  steps: readonly StyleProofExecutionRunbookStep[],
+): Pick<
+  CommittedStyleProofReleaseGateReport['summary'],
+  | 'releaseBlockingOpenSteps'
+  | 'releaseBlockingPhoneOpenSteps'
+  | 'releaseBlockingExternalDependencyOpenSteps'
+  | 'releaseBlockingUnsafeToAutomateOpenSteps'
+  | 'releaseBlockingMutatingOpenSteps'
+> {
+  return {
+    releaseBlockingOpenSteps: steps.length,
+    releaseBlockingPhoneOpenSteps: steps.filter(step => step.requiresPhone).length,
+    releaseBlockingExternalDependencyOpenSteps: steps.filter(step =>
+      step.requiresExternalAccount || step.boundary === 'public-host'
+    ).length,
+    releaseBlockingUnsafeToAutomateOpenSteps: steps.filter(step =>
+      step.status === 'unsafe-to-automate'
+    ).length,
+    releaseBlockingMutatingOpenSteps: steps.filter(step => step.mutatesPlatform).length,
+  }
+}
+
+function isCommittedStyleProofReleaseBlockingLocalOpenStep(
+  step: StyleProofExecutionRunbookStep,
+): boolean {
+  if (step.boundary !== 'local-only') return false
+
+  return !(
+    step.safeToAutomate &&
+    step.invalid === 0 &&
+    step.missing > 0 &&
+    step.missing <= step.blockedChoiceCount &&
+    step.issueIds.every(issueId => issueId === 'style-proof-manifest-requirement-missing')
+  )
+}
+
 const COMMITTED_STYLE_PROOF_RELEASE_LOCAL_REQUIREMENTS = new Set<StyleProofRequirementId>([
   'catalog-source',
   'market-applied-dom-readback',
@@ -8926,24 +9002,35 @@ function buildCommittedStyleProofReleaseStepBlocker(
 
 function getCommittedStyleProofReleaseGateStatus(
   report: CommittedStyleProofExecutionRunbookReport,
+  blockingOpenSteps = getCommittedStyleProofReleaseBlockingOpenSteps(report),
 ): CommittedStyleProofReleaseGateStatus {
   const localConflictIssues = getCommittedStyleProofReleaseLocalConflictIssues(report)
   if (report.summary.hasExactArtifactFingerprintConflicts || localConflictIssues.length > 0) {
     return 'blocked-by-local-conflict'
   }
-  if (report.summary.phoneOpenSteps > 0 || report.summary.externalDependencyOpenSteps > 0) {
+  if (
+    blockingOpenSteps.some(step => step.requiresPhone) ||
+    blockingOpenSteps.some(step => step.requiresExternalAccount || step.boundary === 'public-host')
+  ) {
     return 'blocked-by-external'
   }
-  if (report.summary.unsafeToAutomateOpenSteps > 0 || report.summary.mutatingOpenSteps > 0) {
+  if (
+    blockingOpenSteps.some(step => step.status === 'unsafe-to-automate') ||
+    blockingOpenSteps.some(step => step.mutatesPlatform)
+  ) {
     return 'unsafe-to-automate'
   }
-  if (report.summary.cannotClaimSteps > 0) return 'blocked-by-local-conflict'
+  if (blockingOpenSteps.some(isCommittedStyleProofReleaseBlockingLocalOpenStep)) {
+    return 'blocked-by-local-conflict'
+  }
   return 'ready'
 }
 
 export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyleProofReleaseGateReport {
   const source = getCommittedStyleProofEvidenceExecutionRunbookReport()
-  const openSteps = getCommittedStyleProofRunbookOpenSteps(source)
+  const blockingOpenSteps = getCommittedStyleProofReleaseBlockingOpenSteps(source)
+  const manualDeferredOpenSteps = getCommittedStyleProofManualReleaseDeferredOpenSteps(source)
+  const blockingSummary = getCommittedStyleProofReleaseOpenStepSummary(blockingOpenSteps)
   const localConflictIssues = getCommittedStyleProofReleaseLocalConflictIssues(source)
   const issueIds = getCommittedStyleProofManifestIssueIds(localConflictIssues)
   const fingerprintConflicts = getCommittedStyleProofReleaseFingerprintConflicts(
@@ -8972,7 +9059,7 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
   const phoneBlocker = buildCommittedStyleProofReleaseStepBlocker(
     'phone-preview',
     'blocked-by-external',
-    openSteps.filter(step => step.requiresPhone),
+    blockingOpenSteps.filter(step => step.requiresPhone),
     'Phone preview, screenshots, Dark Mode, cover thumbnail, and mobile interaction remain external proof gates.',
   )
   if (phoneBlocker) blockers.push(phoneBlocker)
@@ -8980,28 +9067,28 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
   const externalDependencyBlocker = buildCommittedStyleProofReleaseStepBlocker(
     'external-dependency',
     'blocked-by-external',
-    openSteps.filter(step => step.requiresExternalAccount || step.boundary === 'public-host'),
-    'Credentialed account, public-host, sync, upload, and platform readback dependencies remain unproven.',
+    blockingOpenSteps.filter(step => step.requiresExternalAccount || step.boundary === 'public-host'),
+    'WeChat credentialed account, sync, platform preview, and readback dependencies remain unproven for this release scope.',
   )
   if (externalDependencyBlocker) blockers.push(externalDependencyBlocker)
 
   const unsafeToAutomateBlocker = buildCommittedStyleProofReleaseStepBlocker(
     'unsafe-to-automate',
     'unsafe-to-automate',
-    openSteps.filter(step => step.status === 'unsafe-to-automate'),
-    'Some open proof rows require mutating credentialed platform actions and exact readback.',
+    blockingOpenSteps.filter(step => step.status === 'unsafe-to-automate'),
+    'Some in-scope WeChat proof rows require mutating credentialed platform actions and exact readback.',
   )
   if (unsafeToAutomateBlocker) blockers.push(unsafeToAutomateBlocker)
 
   const mutatingBlocker = buildCommittedStyleProofReleaseStepBlocker(
     'mutating-platform',
     'unsafe-to-automate',
-    openSteps.filter(step => step.mutatesPlatform),
-    'Scheduled send, publish, and platform-preview rows mutate platform state and must be operator-proven.',
+    blockingOpenSteps.filter(step => step.mutatesPlatform),
+    'In-scope WeChat scheduled send, publish, and platform-preview rows mutate platform state and must be operator-proven.',
   )
   if (mutatingBlocker) blockers.push(mutatingBlocker)
 
-  const status = getCommittedStyleProofReleaseGateStatus(source)
+  const status = getCommittedStyleProofReleaseGateStatus(source, blockingOpenSteps)
 
   return {
     source,
@@ -9011,6 +9098,11 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
     summary: {
       ...source.summary,
       blockerCount: blockers.length,
+      manualDeferredOpenSteps: manualDeferredOpenSteps.length,
+      manualDeferredPlatformStepCounts: getCommittedStyleProofReleasePlatformStepCounts(
+        manualDeferredOpenSteps,
+      ),
+      ...blockingSummary,
     },
   }
 }
@@ -9129,6 +9221,7 @@ function sortCommittedStyleProofExternalProofChecklistRows(
 export function getCommittedStyleProofExternalProofChecklistReport(): CommittedStyleProofExternalProofChecklistReport {
   const releaseGate = getCommittedStyleProofEvidenceReleaseGateReport()
   const openSteps = getCommittedStyleProofRunbookOpenSteps(releaseGate.source)
+    .filter(step => !isCommittedStyleProofManualReleaseDeferredStep(step))
   const rowInputs = new Map<string, {
     step: StyleProofExecutionRunbookStep
     blockerKinds: Set<CommittedStyleProofExternalProofChecklistBlockerKind>

@@ -20,6 +20,7 @@ interface StyleProofReleasePreflightNextRow {
   refKinds: readonly CommittedStyleProofExternalHandoffNextRowKind[]
   commands: StyleProofReleasePreflightNextRowCommands
   artifactGuidance: StyleProofReleasePreflightArtifactGuidance
+  allMatchingSummary: StyleProofReleasePreflightAllMatchingSummary
   platform: Platform
   choiceIds: readonly string[]
   requirementId: StyleProofRequirementId
@@ -43,6 +44,21 @@ interface StyleProofReleasePreflightNextRow {
   cannotClaim: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
+}
+
+interface StyleProofReleasePreflightAllMatchingSummary {
+  notProof: true
+  rowCount: number
+  requirementIds: readonly StyleProofRequirementId[]
+  boundaries: readonly StyleProofExecutionBoundary[]
+  statuses: readonly string[]
+  issueIds: readonly StyleProofManifestIssueId[]
+  freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  choiceCount: number
+  requiresPhoneCount: number
+  requiresExternalAccountCount: number
+  mutatingPlatformCount: number
+  unsafeToAutomateCount: number
 }
 
 interface StyleProofReleasePreflightArtifactGuidance {
@@ -82,6 +98,12 @@ interface StyleProofReleasePreflightResult {
     externalDependencyOpenSteps: number
     unsafeToAutomateOpenSteps: number
     mutatingOpenSteps: number
+    manualDeferredOpenSteps: number
+    releaseBlockingOpenSteps: number
+    releaseBlockingPhoneOpenSteps: number
+    releaseBlockingExternalDependencyOpenSteps: number
+    releaseBlockingUnsafeToAutomateOpenSteps: number
+    releaseBlockingMutatingOpenSteps: number
     externalHandoffRows: number
     safeExternalRows: number
     actionableLocalRows: number
@@ -196,13 +218,68 @@ function buildPreflightArtifactGuidance(
   }
 }
 
+function getUniqueValues<T extends string>(values: readonly T[]): readonly T[] {
+  return Array.from(new Set(values))
+}
+
+function getPreflightAllMatchingRows<T extends {
+    platform: Platform
+    status: string
+    issueIds: readonly StyleProofManifestIssueId[]
+    freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  }>(
+  rows: readonly T[],
+  referenceRow: {
+    platform: Platform
+    status: string
+    issueIds: readonly StyleProofManifestIssueId[]
+    freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  },
+  kind: CommittedStyleProofExternalHandoffNextRowKind,
+): readonly T[] {
+  const filterArgs = getExternalHandoffFilterArgs(referenceRow, kind, false)
+
+  return rows.filter(row =>
+    getExternalHandoffFilterArgs(row, kind, false).join('\u0000') === filterArgs.join('\u0000')
+  )
+}
+
+function buildPreflightAllMatchingSummary(rows: readonly {
+  requirementId: StyleProofRequirementId
+  boundary: StyleProofExecutionBoundary
+  status: string
+  issueIds: readonly StyleProofManifestIssueId[]
+  freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  choiceIds: readonly string[]
+  requiresPhone: boolean
+  requiresExternalAccount: boolean
+  mutatesPlatform: boolean
+  safeToAutomate: boolean
+}[]): StyleProofReleasePreflightAllMatchingSummary {
+  return {
+    notProof: true,
+    rowCount: rows.length,
+    requirementIds: getUniqueValues(rows.map(row => row.requirementId)),
+    boundaries: getUniqueValues(rows.map(row => row.boundary)),
+    statuses: getUniqueValues(rows.map(row => row.status)),
+    issueIds: getUniqueValues(rows.flatMap(row => row.issueIds)),
+    freshnessIssueIds: getUniqueValues(rows.flatMap(row => row.freshnessIssueIds)),
+    choiceCount: getUniqueValues(rows.flatMap(row => row.choiceIds)).length,
+    requiresPhoneCount: rows.filter(row => row.requiresPhone).length,
+    requiresExternalAccountCount: rows.filter(row => row.requiresExternalAccount).length,
+    mutatingPlatformCount: rows.filter(row => row.mutatesPlatform).length,
+    unsafeToAutomateCount: rows.filter(row => !row.safeToAutomate).length,
+  }
+}
+
 function printHelp(): void {
   console.log([
     'Usage: pnpm style-proof:release-preflight [--json]',
     '',
     'Reads the committed InkForge style-proof release gate and exits non-zero',
-    'unless every local, phone, account, public-host, sync, scheduled-send,',
-    'upload, preview, and publish proof gate is complete.',
+    'unless every in-scope local, WeChat phone, account, sync, scheduled-send,',
+    'preview, and publish proof gate is complete.',
+    'XHS/Zhihu publish-side checks are manual-deferred for this round.',
     '',
     'Options:',
     '  --json   Print a compact JSON report.',
@@ -229,6 +306,14 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
       externalDependencyOpenSteps: releaseGate.summary.externalDependencyOpenSteps,
       unsafeToAutomateOpenSteps: releaseGate.summary.unsafeToAutomateOpenSteps,
       mutatingOpenSteps: releaseGate.summary.mutatingOpenSteps,
+      manualDeferredOpenSteps: releaseGate.summary.manualDeferredOpenSteps,
+      releaseBlockingOpenSteps: releaseGate.summary.releaseBlockingOpenSteps,
+      releaseBlockingPhoneOpenSteps: releaseGate.summary.releaseBlockingPhoneOpenSteps,
+      releaseBlockingExternalDependencyOpenSteps:
+        releaseGate.summary.releaseBlockingExternalDependencyOpenSteps,
+      releaseBlockingUnsafeToAutomateOpenSteps:
+        releaseGate.summary.releaseBlockingUnsafeToAutomateOpenSteps,
+      releaseBlockingMutatingOpenSteps: releaseGate.summary.releaseBlockingMutatingOpenSteps,
       externalHandoffRows: handoffPacket.summary.externalHandoffRows,
       safeExternalRows: handoffPacket.summary.safeExternalRows,
       actionableLocalRows: handoffPacket.summary.actionableLocalRows,
@@ -239,6 +324,7 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
       const refKinds = getPreflightNextRowRefKinds(row.id, handoffPacket.nextRowRefs)
       const kind = refKinds[0] ?? 'external-account'
       const commands = buildPreflightNextRowCommands(row, kind)
+      const allMatchingRows = getPreflightAllMatchingRows(handoffPacket.rows, row, kind)
 
       return {
         id: row.id,
@@ -246,6 +332,7 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
         refKinds,
         commands,
         artifactGuidance: buildPreflightArtifactGuidance(row.artifactTemplate, commands),
+        allMatchingSummary: buildPreflightAllMatchingSummary(allMatchingRows),
         platform: row.platform,
         choiceIds: row.choiceIds,
         requirementId: row.requirementId,
@@ -291,6 +378,12 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
     `externalDependencyOpenSteps: ${result.summary.externalDependencyOpenSteps}`,
     `unsafeToAutomateOpenSteps: ${result.summary.unsafeToAutomateOpenSteps}`,
     `mutatingOpenSteps: ${result.summary.mutatingOpenSteps}`,
+    `manualDeferredOpenSteps: ${result.summary.manualDeferredOpenSteps}`,
+    `releaseBlockingOpenSteps: ${result.summary.releaseBlockingOpenSteps}`,
+    `releaseBlockingPhoneOpenSteps: ${result.summary.releaseBlockingPhoneOpenSteps}`,
+    `releaseBlockingExternalDependencyOpenSteps: ${result.summary.releaseBlockingExternalDependencyOpenSteps}`,
+    `releaseBlockingUnsafeToAutomateOpenSteps: ${result.summary.releaseBlockingUnsafeToAutomateOpenSteps}`,
+    `releaseBlockingMutatingOpenSteps: ${result.summary.releaseBlockingMutatingOpenSteps}`,
     `externalHandoffRows: ${result.summary.externalHandoffRows}`,
     `safeExternalRows: ${result.summary.safeExternalRows}`,
     `actionableLocalRows: ${result.summary.actionableLocalRows}`,
@@ -321,6 +414,11 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
       `  acceptedHostStatuses: ${formatPreflightList(row.artifactGuidance.acceptedHostStatuses)}`,
       `  maxFreshnessDays: ${row.artifactGuidance.maxFreshnessDays ?? 'none'}`,
       `  appendOnlyAfterExternalProof: ${row.artifactGuidance.appendOnlyAfterExternalProof ? 'yes' : 'no'}`,
+      `  allMatchingRowCount: ${row.allMatchingSummary.rowCount}`,
+      `  allMatchingRequirementIds: ${formatPreflightList(row.allMatchingSummary.requirementIds)}`,
+      `  allMatchingBoundaries: ${formatPreflightList(row.allMatchingSummary.boundaries)}`,
+      `  allMatchingStatuses: ${formatPreflightList(row.allMatchingSummary.statuses)}`,
+      `  allMatchingIssueIds: ${formatPreflightList(row.allMatchingSummary.issueIds)}`,
       `  allMatchingTemplate: ${row.artifactGuidance.allMatchingTemplateCommand}`,
       `  allMatchingManifestDrafts: ${row.artifactGuidance.allMatchingManifestDraftsCommand}`,
     ]),
@@ -340,8 +438,9 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
   if (!result.canClaimComplete) {
     lines.push(
       '',
-      'release claim blocked: external phone/account/public-host/platform proof gates remain open.',
-      'Do not claim WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, upload, public rendering, or publish success from local-only checks.',
+      'release claim blocked: in-scope WeChat phone/account/platform proof gates remain open.',
+      'XHS/Zhihu publish-side checks are manual-deferred for this round and are not release-preflight blockers.',
+      'Do not claim WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public rendering, or publish success from local-only checks.',
     )
   }
 

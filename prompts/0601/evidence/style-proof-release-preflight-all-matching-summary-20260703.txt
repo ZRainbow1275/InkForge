@@ -1,0 +1,57 @@
+Style Proof Release Preflight All-Matching Summary - 2026-07-03
+
+Scope:
+- Local release-preflight CLI reporting only.
+- No platform action, no phone preview, no sync, no upload, no schedule, no publish.
+
+Implemented:
+- Added nextRows[].allMatchingSummary with notProof:true.
+- Summary fields are sanitized aggregate metadata only:
+  - rowCount
+  - requirementIds
+  - boundaries
+  - statuses
+  - issueIds
+  - freshnessIssueIds
+  - choiceCount
+  - requiresPhoneCount
+  - requiresExternalAccountCount
+  - mutatingPlatformCount
+  - unsafeToAutomateCount
+- Text proof guidance now prints:
+  - allMatchingRowCount
+  - allMatchingRequirementIds
+  - allMatchingBoundaries
+  - allMatchingStatuses
+  - allMatchingIssueIds
+
+Runtime smoke:
+- status remains blocked-by-external.
+- canClaimComplete remains false.
+- nextRowRefs is now 4 after XHS/Zhihu publish-side rows were manually deferred.
+- uniqueNextRows is now 2 after XHS/Zhihu publish-side rows were manually deferred.
+- manualDeferredOpenSteps is 7.
+- externalHandoffRows is 8.
+- phone-preview summary: rowCount 4, requirements cover-thumbnail-check, dark-mode-check,
+  phone-preview-readback, phone-screenshot.
+- external-account summary: rowCount 4, requirements credentialed-channel-response,
+  sync-readback, published-url-or-platform-preview, scheduled-send-readback.
+- Zhihu public-host is no longer a current release next row; it is manual-deferred for the
+  operator's separate platform testing.
+- Every summary has notProof:true.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 4 tests.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  PASS: expected blocked report with all-matching row counts [4, 4] and
+  manualDeferredOpenSteps 7.
+- pnpm --silent -C inkforge style-proof:release-preflight
+  PASS: text output includes allMatchingRowCount, allMatchingRequirementIds, and
+  allMatchingIssueIds for the deduplicated next rows.
+
+Boundary:
+- This summary is operator guidance only and not proof.
+- It does not prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

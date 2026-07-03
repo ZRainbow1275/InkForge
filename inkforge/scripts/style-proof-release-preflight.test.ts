@@ -17,6 +17,12 @@ interface ReleasePreflightSummary {
   externalDependencyOpenSteps: number
   unsafeToAutomateOpenSteps: number
   mutatingOpenSteps: number
+  manualDeferredOpenSteps: number
+  releaseBlockingOpenSteps: number
+  releaseBlockingPhoneOpenSteps: number
+  releaseBlockingExternalDependencyOpenSteps: number
+  releaseBlockingUnsafeToAutomateOpenSteps: number
+  releaseBlockingMutatingOpenSteps: number
   externalHandoffRows: number
   safeExternalRows: number
   actionableLocalRows: number
@@ -30,6 +36,7 @@ interface ReleasePreflightNextRow {
   refKinds: string[]
   commands: ReleasePreflightNextRowCommands
   artifactGuidance: ReleasePreflightArtifactGuidance
+  allMatchingSummary: ReleasePreflightAllMatchingSummary
   platform: string
   choiceIds: string[]
   requirementId: string
@@ -53,6 +60,21 @@ interface ReleasePreflightNextRow {
   safeToAutomate: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
+}
+
+interface ReleasePreflightAllMatchingSummary {
+  notProof: true
+  rowCount: number
+  requirementIds: string[]
+  boundaries: string[]
+  statuses: string[]
+  issueIds: string[]
+  freshnessIssueIds: string[]
+  choiceCount: number
+  requiresPhoneCount: number
+  requiresExternalAccountCount: number
+  mutatingPlatformCount: number
+  unsafeToAutomateCount: number
 }
 
 interface ReleasePreflightArtifactGuidance {
@@ -185,6 +207,12 @@ function isReleasePreflightSummary(value: unknown): value is ReleasePreflightSum
     'externalDependencyOpenSteps',
     'unsafeToAutomateOpenSteps',
     'mutatingOpenSteps',
+    'manualDeferredOpenSteps',
+    'releaseBlockingOpenSteps',
+    'releaseBlockingPhoneOpenSteps',
+    'releaseBlockingExternalDependencyOpenSteps',
+    'releaseBlockingUnsafeToAutomateOpenSteps',
+    'releaseBlockingMutatingOpenSteps',
     'externalHandoffRows',
     'safeExternalRows',
     'actionableLocalRows',
@@ -206,6 +234,24 @@ function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNex
     typeof value.commands.allMatchingManifestDrafts === 'string' &&
     typeof value.commands.intake === 'string' &&
     typeof value.commands.merge === 'string' &&
+    isRecord(value.allMatchingSummary) &&
+    value.allMatchingSummary.notProof === true &&
+    typeof value.allMatchingSummary.rowCount === 'number' &&
+    Array.isArray(value.allMatchingSummary.requirementIds) &&
+    value.allMatchingSummary.requirementIds.every(requirementId => typeof requirementId === 'string') &&
+    Array.isArray(value.allMatchingSummary.boundaries) &&
+    value.allMatchingSummary.boundaries.every(boundary => typeof boundary === 'string') &&
+    Array.isArray(value.allMatchingSummary.statuses) &&
+    value.allMatchingSummary.statuses.every(status => typeof status === 'string') &&
+    Array.isArray(value.allMatchingSummary.issueIds) &&
+    value.allMatchingSummary.issueIds.every(issueId => typeof issueId === 'string') &&
+    Array.isArray(value.allMatchingSummary.freshnessIssueIds) &&
+    value.allMatchingSummary.freshnessIssueIds.every(issueId => typeof issueId === 'string') &&
+    typeof value.allMatchingSummary.choiceCount === 'number' &&
+    typeof value.allMatchingSummary.requiresPhoneCount === 'number' &&
+    typeof value.allMatchingSummary.requiresExternalAccountCount === 'number' &&
+    typeof value.allMatchingSummary.mutatingPlatformCount === 'number' &&
+    typeof value.allMatchingSummary.unsafeToAutomateCount === 'number' &&
     isRecord(value.artifactGuidance) &&
     value.artifactGuidance.notProof === true &&
     value.artifactGuidance.appendOnlyAfterExternalProof === true &&
@@ -308,22 +354,26 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       externalDependencyOpenSteps: 11,
       unsafeToAutomateOpenSteps: 10,
       mutatingOpenSteps: 10,
-      externalHandoffRows: 15,
+      manualDeferredOpenSteps: 7,
+      releaseBlockingOpenSteps: 19,
+      releaseBlockingPhoneOpenSteps: 4,
+      releaseBlockingExternalDependencyOpenSteps: 4,
+      releaseBlockingUnsafeToAutomateOpenSteps: 4,
+      releaseBlockingMutatingOpenSteps: 4,
+      externalHandoffRows: 8,
       safeExternalRows: 0,
       actionableLocalRows: 0,
-      nextRowRefs: 5,
-      uniqueNextRows: 3,
+      nextRowRefs: 4,
+      uniqueNextRows: 2,
     })
-    expect(report.nextRows).toHaveLength(3)
+    expect(report.nextRows).toHaveLength(2)
     expect(report.nextRows.map(row => row.kind)).toEqual([
       'phone-preview',
       'external-account',
-      'public-host',
     ])
     expect(report.nextRows.map(row => row.refKinds)).toEqual([
       ['phone-preview'],
       ['external-account', 'unsafe-to-automate', 'mutating-platform'],
-      ['public-host'],
     ])
     expect(new Set(report.nextRows.map(row => row.id)).size).toBe(report.summary.uniqueNextRows)
     expect(report.nextRows.every(row => row.cannotClaim)).toBe(true)
@@ -373,6 +423,30 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.nextRows.every(row =>
       !row.commands.allMatchingManifestDrafts.includes('--next-only')
     )).toBe(true)
+    expect(report.nextRows.every(row => row.allMatchingSummary.notProof)).toBe(true)
+    expect(report.nextRows.map(row => row.allMatchingSummary.rowCount)).toEqual([4, 4])
+    expect(report.nextRows.find(row =>
+      row.kind === 'phone-preview'
+    )?.allMatchingSummary.requirementIds).toEqual([
+      'cover-thumbnail-check',
+      'dark-mode-check',
+      'phone-preview-readback',
+      'phone-screenshot',
+    ])
+    expect(report.nextRows.find(row =>
+      row.kind === 'external-account'
+    )?.allMatchingSummary.requirementIds).toEqual([
+      'credentialed-channel-response',
+      'sync-readback',
+      'published-url-or-platform-preview',
+      'scheduled-send-readback',
+    ])
+    expect(report.nextRows.find(row =>
+      row.kind === 'phone-preview'
+    )?.allMatchingSummary.requiresPhoneCount).toBe(4)
+    expect(report.nextRows.find(row =>
+      row.kind === 'external-account'
+    )?.allMatchingSummary.mutatingPlatformCount).toBe(4)
     expect(report.nextRows.find(row =>
       row.requirementId === 'credentialed-channel-response'
     )?.artifactGuidance.requiredFields).toContain('externalAccountAuthenticated')
@@ -380,20 +454,15 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       row.requirementId === 'credentialed-channel-response'
     )?.artifactGuidance.forbiddenFields).toContain('externalAccountLoginBlocked')
     expect(report.nextRows.find(row =>
-      row.requirementId === 'public-image-host'
-    )?.artifactGuidance.acceptedHostStatuses).toEqual(['public-https', 'platform-hosted'])
-    expect(report.nextRows.find(row =>
       row.requirementId === 'cover-thumbnail-check'
     )?.artifactGuidance.requiredFields).toContain('coverThumbnailAccepted')
     expect(report.nextRows.map(row => row.commands.template)).toEqual([
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only',
-      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
     ])
     expect(report.nextRows.map(row => row.commands.allMatchingTemplate)).toEqual([
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing',
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing',
-      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing',
     ])
   })
 
@@ -404,17 +473,21 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stderr.trim()).toBe('')
     expect(result.stdout).toContain('operator commands (copy-safe placeholders):')
     expect(result.stdout).toContain('proof guidance (not proof):')
+    expect(result.stdout).toContain('manualDeferredOpenSteps: 7')
+    expect(result.stdout).toContain('releaseBlockingExternalDependencyOpenSteps: 4')
     expect(result.stdout).toContain('requiredFields: artifactFingerprint|exactArtifact|coverThumbnailAccepted|collectedAt|safeForCommit')
     expect(result.stdout).toContain('forbiddenFields: externalAccountLoginBlocked')
-    expect(result.stdout).toContain('acceptedHostStatuses: public-https|platform-hosted')
     expect(result.stdout).toContain('appendOnlyAfterExternalProof: yes')
+    expect(result.stdout).toContain('allMatchingRowCount: 4')
+    expect(result.stdout).toContain('allMatchingRequirementIds: cover-thumbnail-check|dark-mode-check|phone-preview-readback|phone-screenshot')
+    expect(result.stdout).toContain('allMatchingRequirementIds: credentialed-channel-response|sync-readback|published-url-or-platform-preview|scheduled-send-readback')
     expect(result.stdout).toContain('allMatchingTemplate: pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing')
-    expect(result.stdout).toContain('allMatchingManifestDrafts: pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing')
     expect(result.stdout).toContain('style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:manifest-intake --file REDACTED_MANIFEST.json --json')
     expect(result.stdout).toContain('style-proof:manifest-merge --file REDACTED_MANIFEST.json --json')
-    expect(result.stdout).toContain('release claim blocked: external phone/account/public-host/platform proof gates remain open.')
+    expect(result.stdout).toContain('release claim blocked: in-scope WeChat phone/account/platform proof gates remain open.')
+    expect(result.stdout).toContain('XHS/Zhihu publish-side checks are manual-deferred for this round')
     expect(result.stdout).not.toContain('<redacted-manifest.json>')
     expect(result.stdout).not.toContain('canClaimComplete: true')
     expectNoSensitiveFragments(result.stdout)
