@@ -15214,3 +15214,76 @@ const ruleFamilies = [
 - Run the focused release-preflight tests, WeChat option tests, application preflight JSON smoke,
   strict release-preflight smoke, focused ESLint, type-check, production build, GitNexus detect,
   diff checks, and sensitive scans before committing this class of change.
+
+## 309. Application Preflight Gallery Service Readiness - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed local application gate must fail closed if the real application SVG
+  gallery service drifts, even when the separate module loop, UI source contracts, and WeChat
+  export-envelope checks remain green.
+- This rule applies to `scripts/style-proof-release-preflight.ts`,
+  `scripts/style-proof-release-preflight.test.ts`,
+  `src/services/export/application-svg-gallery.ts`, and
+  `scripts/style-proof-application-gallery.ts`.
+- This rule does not re-enable Xiaohongshu/Zhihu publish automation. Per the current acceptance
+  update, those publish-side checks are manually owned by the operator and must not block this
+  local application gate.
+
+### 2. Machine Gate Contract
+
+- `style-proof:release-preflight --scope=application --json` must consume
+  `createApplicationSvgGallerySnapshot()` and include:
+  - `applicationGalleryStatus`;
+  - `applicationGalleryRenderedModulePersonaPairs`;
+  - `applicationGalleryWechatSafeViolationCount`;
+  - `applicationGalleryModuleSentinelFailureCount`;
+  - `applicationGalleryIssueCount`;
+  - `applicationGalleryIssues`.
+- `canClaimApplicationReady` must be false unless:
+  - `applicationGalleryStatus === 'application-gallery-ready'`;
+  - `applicationGalleryIssues.length === 0`;
+  - the existing module, WeChat application slot, UI-surface, export-envelope, option-injection,
+    style-choice, local-actionability, and local-conflict checks are also green.
+
+### 3. Gallery Service Requirements
+
+- The preflight must use the shared application-gallery service rather than duplicating gallery
+  renderer logic inside the CLI.
+- The gallery service must keep the current executable readiness counts:
+  - `svgModuleCount=27`;
+  - `svgFamilyCount=7`;
+  - `personaCount=4`;
+  - `renderedModulePersonaPairs=108`;
+  - `wechatSafeViolationCount=0`;
+  - `moduleSentinelFailureCount=0`.
+- Gallery issues must be sanitized issue rows with module id, family, persona, and issue only.
+  They must not record local browser runtime artifacts, account data, credential material,
+  network captures, or image artifacts.
+
+### 4. Cannot-Claim Boundary
+
+- Passing this rule proves only that the local application gallery service and the local
+  application preflight agree that every owned SVG module/persona pair renders through the
+  WeChat-safe subset.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu publish success. Those publish-side tests are manually
+  deferred to the user for this round.
+
+### 5. Required Checks
+
+- Keep release-preflight tests proving:
+  - `applicationGalleryStatus=application-gallery-ready`;
+  - `applicationGalleryRenderedModulePersonaPairs=108`;
+  - `applicationGalleryWechatSafeViolationCount=0`;
+  - `applicationGalleryModuleSentinelFailureCount=0`;
+  - `applicationGalleryIssueCount=0`;
+  - `applicationGalleryIssues=[]`;
+  - text output includes the same gallery-readiness rows and issue bucket.
+- Run focused release-preflight tests, application-gallery service/CLI tests, related
+  application SVG slot/option/UI source-contract tests, application preflight JSON smoke, strict
+  release-preflight smoke, focused ESLint, full export-service regression, type-check,
+  production build, GitNexus detect, diff checks, and sensitive scans before committing this
+  class of change.

@@ -113,6 +113,7 @@ interface ReleasePreflightJsonReport {
 interface ApplicationPreflightJsonReport {
   scope: 'application'
   status: 'application-ready' | 'application-blocked'
+  applicationGalleryStatus: 'application-gallery-ready' | 'application-gallery-blocked'
   canClaimApplicationReady: boolean
   canClaimReleaseComplete: boolean
   summary: {
@@ -120,6 +121,10 @@ interface ApplicationPreflightJsonReport {
     svgFamilyCount: number
     personaCount: number
     renderedModulePersonaPairs: number
+    applicationGalleryRenderedModulePersonaPairs: number
+    applicationGalleryWechatSafeViolationCount: number
+    applicationGalleryModuleSentinelFailureCount: number
+    applicationGalleryIssueCount: number
     wechatApplicationSvgSlotCount: number
     wechatApplicationSvgShowcaseModuleCount: number
     wechatApplicationSvgSlotFailureCount: number
@@ -143,6 +148,12 @@ interface ApplicationPreflightJsonReport {
     nextExternalRows: number
   }
   moduleIssues: Array<{
+    moduleId: string
+    family: string
+    persona: string
+    issue: string
+  }>
+  applicationGalleryIssues: Array<{
     moduleId: string
     family: string
     persona: string
@@ -412,6 +423,8 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
   return isRecord(value) &&
     value.scope === 'application' &&
     (value.status === 'application-ready' || value.status === 'application-blocked') &&
+    (value.applicationGalleryStatus === 'application-gallery-ready' ||
+      value.applicationGalleryStatus === 'application-gallery-blocked') &&
     typeof value.canClaimApplicationReady === 'boolean' &&
     typeof value.canClaimReleaseComplete === 'boolean' &&
     isRecord(value.summary) &&
@@ -420,6 +433,10 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
       'svgFamilyCount',
       'personaCount',
       'renderedModulePersonaPairs',
+      'applicationGalleryRenderedModulePersonaPairs',
+      'applicationGalleryWechatSafeViolationCount',
+      'applicationGalleryModuleSentinelFailureCount',
+      'applicationGalleryIssueCount',
       'wechatApplicationSvgSlotCount',
       'wechatApplicationSvgShowcaseModuleCount',
       'wechatApplicationSvgSlotFailureCount',
@@ -443,6 +460,7 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
       'nextExternalRows',
     ]) &&
     isStringIssueArray(value.moduleIssues) &&
+    isStringIssueArray(value.applicationGalleryIssues) &&
     isStringIssueArray(value.wechatApplicationSlotIssues) &&
     isStringIssueArray(value.wechatApplicationSurfaceIssues) &&
     isStringIssueArray(value.wechatExportPipelineIssues) &&
@@ -627,6 +645,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     const report = parseApplicationPreflightJson(result.stdout)
     expect(report.scope).toBe('application')
     expect(report.status).toBe('application-ready')
+    expect(report.applicationGalleryStatus).toBe('application-gallery-ready')
     expect(report.canClaimApplicationReady).toBe(true)
     expect(report.canClaimReleaseComplete).toBe(false)
     expect(report.summary).toMatchObject({
@@ -634,6 +653,10 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       svgFamilyCount: 7,
       personaCount: 4,
       renderedModulePersonaPairs: 108,
+      applicationGalleryRenderedModulePersonaPairs: 108,
+      applicationGalleryWechatSafeViolationCount: 0,
+      applicationGalleryModuleSentinelFailureCount: 0,
+      applicationGalleryIssueCount: 0,
       wechatApplicationSvgSlotCount: 5,
       wechatApplicationSvgShowcaseModuleCount: 27,
       wechatApplicationSvgSlotFailureCount: 0,
@@ -656,6 +679,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       nextExternalRows: 2,
     })
     expect(report.moduleIssues).toEqual([])
+    expect(report.applicationGalleryIssues).toEqual([])
     expect(report.wechatApplicationSlotIssues).toEqual([])
     expect(report.wechatApplicationSurfaceIssues).toEqual([])
     expect(report.wechatExportPipelineIssues).toEqual([])
@@ -710,6 +734,11 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('applicationReady: true')
     expect(result.stdout).toContain('canClaimReleaseComplete: false')
     expect(result.stdout).toContain('renderedModulePersonaPairs: 108')
+    expect(result.stdout).toContain('applicationGalleryStatus: application-gallery-ready')
+    expect(result.stdout).toContain('applicationGalleryRenderedModulePersonaPairs: 108')
+    expect(result.stdout).toContain('applicationGalleryWechatSafeViolationCount: 0')
+    expect(result.stdout).toContain('applicationGalleryModuleSentinelFailureCount: 0')
+    expect(result.stdout).toContain('applicationGalleryIssueCount: 0')
     expect(result.stdout).toContain('wechatApplicationSvgSlotCount: 5')
     expect(result.stdout).toContain('wechatApplicationSvgShowcaseModuleCount: 27')
     expect(result.stdout).toContain('wechatApplicationSvgSlotFailureCount: 0')
@@ -719,6 +748,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('wechatExportPipelineFailureCount: 0')
     expect(result.stdout).toContain('wechatOptionInjectedModuleCount: 27')
     expect(result.stdout).toContain('wechatOptionInjectionFailureCount: 0')
+    expect(result.stdout).toContain('- applicationGalleryIssues: 0')
     expect(result.stdout).toContain('- wechatApplicationSlotIssues: 0')
     expect(result.stdout).toContain('- wechatApplicationSurfaceIssues: 0')
     expect(result.stdout).toContain('- wechatExportPipelineIssues: 0')

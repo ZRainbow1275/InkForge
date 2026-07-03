@@ -8947,3 +8947,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   SVG/style path only. It does not prove WeChat paste, phone preview, credentialed sync,
   scheduled send, public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests
   remain manually deferred to the user.
+
+## 2026-07-04 Application Preflight Gallery Readiness
+
+- [x] application-preflight-gallery-readiness-20260704.txt
+- Scope: machine-readable application gate coverage for the real local SVG gallery service.
+- `style-proof:release-preflight --scope=application --json` now reports:
+  `applicationGalleryStatus=application-gallery-ready`,
+  `applicationGalleryRenderedModulePersonaPairs=108`,
+  `applicationGalleryWechatSafeViolationCount=0`,
+  `applicationGalleryModuleSentinelFailureCount=0`, `applicationGalleryIssueCount=0`, and
+  `applicationGalleryIssues=[]`.
+- `canClaimApplicationReady` now fails closed if `createApplicationSvgGallerySnapshot()` is not
+  ready or reports any gallery issue, in addition to the existing module, slot, UI-surface,
+  export-envelope, option-injection, style-choice, and local-actionability gates.
+- Verification passed: TDD red/green focused release-preflight test, 7-file / 27-test related
+  regression, application-preflight JSON smoke, application-gallery JSON smoke, expected blocked
+  strict release-preflight smoke, focused ESLint, full export-service regression with
+  40 files / 1363 tests, `vue-tsc`, and production build.
+- Boundary: this proves local application SVG/style gallery readiness and WeChat-safe local
+  output readiness only. It does not prove WeChat paste, phone preview, credentialed sync,
+  scheduled send, public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests
+  remain manually deferred to the user.

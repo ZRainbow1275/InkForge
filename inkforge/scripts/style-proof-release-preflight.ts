@@ -25,6 +25,11 @@ import {
   SVG_MODULES,
 } from '../src/services/export/svg-modules/index.ts'
 import type { Platform } from '../src/services/export/types.ts'
+import {
+  createApplicationSvgGallerySnapshot,
+  type ApplicationSvgGalleryIssue,
+  type ApplicationSvgGalleryStatus,
+} from '../src/services/export/application-svg-gallery.ts'
 import { WECHAT_SVG_APPLICATION_SLOTS } from '../src/services/export/wechat-svg-application.ts'
 import { applyWechatOptionSvgModules } from '../src/services/export/wechat-svg-options.ts'
 
@@ -200,6 +205,7 @@ interface StyleProofApplicationPreflightExternalBoundary {
 interface StyleProofApplicationPreflightResult {
   scope: 'application'
   status: StyleProofApplicationPreflightStatus
+  applicationGalleryStatus: ApplicationSvgGalleryStatus
   canClaimApplicationReady: boolean
   canClaimReleaseComplete: boolean
   summary: {
@@ -207,6 +213,10 @@ interface StyleProofApplicationPreflightResult {
     svgFamilyCount: number
     personaCount: number
     renderedModulePersonaPairs: number
+    applicationGalleryRenderedModulePersonaPairs: number
+    applicationGalleryWechatSafeViolationCount: number
+    applicationGalleryModuleSentinelFailureCount: number
+    applicationGalleryIssueCount: number
     wechatApplicationSvgSlotCount: number
     wechatApplicationSvgShowcaseModuleCount: number
     wechatApplicationSvgSlotFailureCount: number
@@ -230,6 +240,7 @@ interface StyleProofApplicationPreflightResult {
     nextExternalRows: number
   }
   moduleIssues: readonly StyleProofApplicationPreflightModuleIssue[]
+  applicationGalleryIssues: readonly ApplicationSvgGalleryIssue[]
   wechatApplicationSlotIssues: readonly StyleProofApplicationPreflightWechatApplicationIssue[]
   wechatApplicationSurfaceIssues: readonly StyleProofApplicationPreflightWechatSurfaceIssue[]
   wechatExportPipelineIssues: readonly StyleProofApplicationPreflightWechatExportPipelineIssue[]
@@ -875,6 +886,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
   const releaseGate = getCommittedStyleProofEvidenceReleaseGateReport()
   const handoffPacket = getCommittedStyleProofExternalHandoffPacket()
   const localActionability = getCommittedStyleProofLocalActionabilityReport()
+  const applicationGallerySnapshot = createApplicationSvgGallerySnapshot()
   const wechatApplicationRows = getPlatformStyleApplicationReport(
     'wechat',
     DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat,
@@ -892,6 +904,8 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
   const showcaseSlot = WECHAT_SVG_APPLICATION_SLOTS.find(slot => slot.id === 'showcase')
   const hasLocalConflict = releaseGate.blockers.some(blocker => blocker.kind === 'local-conflict')
   const canClaimApplicationReady = moduleIssues.length === 0 &&
+    applicationGallerySnapshot.status === 'application-gallery-ready' &&
+    applicationGallerySnapshot.issues.length === 0 &&
     wechatApplicationSlotIssues.length === 0 &&
     wechatApplicationSurfaceIssues.length === 0 &&
     wechatExportPipelineIssues.length === 0 &&
@@ -903,6 +917,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
   return {
     scope: 'application',
     status: canClaimApplicationReady ? 'application-ready' : 'application-blocked',
+    applicationGalleryStatus: applicationGallerySnapshot.status,
     canClaimApplicationReady,
     canClaimReleaseComplete: releaseGate.canClaimComplete,
     summary: {
@@ -910,6 +925,13 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
       svgFamilyCount: new Set(SVG_MODULES.map(module => module.family)).size,
       personaCount: APPLICATION_PREVIEW_PERSONAS.length,
       renderedModulePersonaPairs: SVG_MODULES.length * APPLICATION_PREVIEW_PERSONAS.length,
+      applicationGalleryRenderedModulePersonaPairs:
+        applicationGallerySnapshot.summary.renderedModulePersonaPairs,
+      applicationGalleryWechatSafeViolationCount:
+        applicationGallerySnapshot.summary.wechatSafeViolationCount,
+      applicationGalleryModuleSentinelFailureCount:
+        applicationGallerySnapshot.summary.moduleSentinelFailureCount,
+      applicationGalleryIssueCount: applicationGallerySnapshot.issues.length,
       wechatApplicationSvgSlotCount: WECHAT_SVG_APPLICATION_SLOTS.length,
       wechatApplicationSvgShowcaseModuleCount: showcaseSlot?.modules.length ?? 0,
       wechatApplicationSvgSlotFailureCount: wechatApplicationSlotIssues.length,
@@ -933,6 +955,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
       nextExternalRows: handoffPacket.nextRows.length,
     },
     moduleIssues,
+    applicationGalleryIssues: applicationGallerySnapshot.issues,
     wechatApplicationSlotIssues,
     wechatApplicationSurfaceIssues,
     wechatExportPipelineIssues,
@@ -972,6 +995,11 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `svgFamilyCount: ${result.summary.svgFamilyCount}`,
     `personaCount: ${result.summary.personaCount}`,
     `renderedModulePersonaPairs: ${result.summary.renderedModulePersonaPairs}`,
+    `applicationGalleryStatus: ${result.applicationGalleryStatus}`,
+    `applicationGalleryRenderedModulePersonaPairs: ${result.summary.applicationGalleryRenderedModulePersonaPairs}`,
+    `applicationGalleryWechatSafeViolationCount: ${result.summary.applicationGalleryWechatSafeViolationCount}`,
+    `applicationGalleryModuleSentinelFailureCount: ${result.summary.applicationGalleryModuleSentinelFailureCount}`,
+    `applicationGalleryIssueCount: ${result.summary.applicationGalleryIssueCount}`,
     `wechatApplicationSvgSlotCount: ${result.summary.wechatApplicationSvgSlotCount}`,
     `wechatApplicationSvgShowcaseModuleCount: ${result.summary.wechatApplicationSvgShowcaseModuleCount}`,
     `wechatApplicationSvgSlotFailureCount: ${result.summary.wechatApplicationSvgSlotFailureCount}`,
@@ -996,6 +1024,7 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     '',
     'application issues:',
     `- moduleIssues: ${result.moduleIssues.length}`,
+    `- applicationGalleryIssues: ${result.applicationGalleryIssues.length}`,
     `- wechatApplicationSlotIssues: ${result.wechatApplicationSlotIssues.length}`,
     `- wechatApplicationSurfaceIssues: ${result.wechatApplicationSurfaceIssues.length}`,
     `- wechatExportPipelineIssues: ${result.wechatExportPipelineIssues.length}`,
@@ -1030,6 +1059,16 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
       'wechat application slot issue rows:',
       ...result.wechatApplicationSlotIssues.map(issue =>
         `- ${issue.slotId}: ${issue.issue}`
+      ),
+    )
+  }
+
+  if (result.applicationGalleryIssues.length > 0) {
+    lines.push(
+      '',
+      'application gallery issue rows:',
+      ...result.applicationGalleryIssues.map(issue =>
+        `- ${issue.moduleId}/${issue.persona}/${issue.family}: ${issue.issue}`
       ),
     )
   }

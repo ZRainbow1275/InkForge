@@ -24973,3 +24973,76 @@ Scope:
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-04 Application Preflight Gallery Readiness Slice
+
+Source:
+- The narrowed current-round target is local application SVG/style availability plus WeChat-safe
+  output applicability.
+- The application gate already covered the module loop, app slots, UI surfaces, WeChat option
+  injection, and final export-envelope source contracts, but it did not directly consume the real
+  `application-svg-gallery` service readiness.
+- Without that link, the visual gallery service could drift while `style-proof:release-preflight
+  --scope=application` still passed.
+
+Impact:
+- `npx gitnexus impact "buildApplicationPreflightResult" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk because scripts-only symbols are not indexed.
+- `npx gitnexus impact "createApplicationSvgGallerySnapshot" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk.
+- `npx gitnexus impact "formatApplicationPreflightResult" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk. Focused CLI tests, service tests, full export regression,
+  type-check, build, and final `detect-changes` compensate for this scripts-only path.
+
+Implementation:
+- Imported `createApplicationSvgGallerySnapshot()` into `style-proof-release-preflight.ts`.
+- Extended the application preflight JSON/text report with:
+  - `applicationGalleryStatus`;
+  - `applicationGalleryRenderedModulePersonaPairs`;
+  - `applicationGalleryWechatSafeViolationCount`;
+  - `applicationGalleryModuleSentinelFailureCount`;
+  - `applicationGalleryIssueCount`;
+  - `applicationGalleryIssues`.
+- `canClaimApplicationReady` now requires `application-gallery-ready` plus zero gallery issues,
+  in addition to the existing local gates.
+- The check remains local and non-mutating. It does not click platforms, write manifests, upload,
+  sync, schedule, or publish.
+
+Verification:
+- Initial TDD run failed as expected before implementation because the new gallery-readiness
+  fields were absent from application preflight JSON/text output.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 6 tests after implementation.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/services/export/application-svg-gallery.test.ts scripts/style-proof-application-gallery.test.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 7 files and 27 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with `status=application-ready`, `applicationGalleryStatus=application-gallery-ready`,
+  `applicationGalleryRenderedModulePersonaPairs=108`,
+  `applicationGalleryWechatSafeViolationCount=0`,
+  `applicationGalleryModuleSentinelFailureCount=0`, `applicationGalleryIssueCount=0`, and
+  `applicationGalleryIssues=[]`.
+- `pnpm --silent -C inkforge style-proof:application-gallery --json --out <non-repo-output>`
+  exited 0 with `status=application-gallery-ready`, 27 modules, 7 families, 4 personas,
+  108 rendered pairs, and zero issues.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected
+  with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=4`, and
+  `uniqueNextRows=2`.
+- Focused ESLint passed for touched preflight, gallery, WeChat SVG application/option,
+  ExportModal, and PublishView files.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 40 files and 1363 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4657
+  modules transformed and Vite built in 42.66s; generated `inkforge/tsconfig.tsbuildinfo` was
+  restored afterward.
+
+Evidence:
+- Added `prompts/0601/evidence/application-preflight-gallery-readiness-20260704.txt`.
+
+Scope:
+- This proves the local application preflight now directly gates on real SVG gallery service
+  readiness and keeps all existing WeChat-safe local gates intact.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
