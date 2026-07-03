@@ -1,0 +1,63 @@
+Style Proof Release Preflight Unique Next Rows - 2026-07-03
+
+Scope:
+- Local release-preflight reporting enhancement only.
+- No browser action, no platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- `style-proof:release-preflight --json` now emits unique `nextRows` while preserving raw
+  `summary.nextRowRefs`.
+- Each `nextRows[]` item includes `refKinds`, listing every blocker-kind reference pointing to the
+  same operator row.
+- Text output labels the section as `next operator rows (unique):` and prints `refKinds=...`.
+
+Observed real CLI smoke:
+- Command:
+  `pnpm --silent -C inkforge style-proof:release-preflight --json`
+- Expected exit code:
+  `1`
+- Status:
+  `blocked-by-external`
+- `canClaimComplete`:
+  `false`
+- `summary.nextRowRefs`:
+  `5`
+- `summary.uniqueNextRows`:
+  `3`
+- `nextRows.length`:
+  `3`
+- `refKinds`:
+  `phone-preview;external-account|unsafe-to-automate|mutating-platform;public-host`
+
+Text smoke:
+- Command:
+  `pnpm --silent -C inkforge style-proof:release-preflight`
+- Expected exit code:
+  `1`
+- Output section:
+  `next operator rows (unique):`
+- Unique rows:
+  - WeChat cover-thumbnail phone-preview row.
+  - WeChat credentialed-channel row with external-account, unsafe-to-automate, and
+    mutating-platform references.
+  - Zhihu public-host row.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  PASS: 1 file / 3 tests
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 4 files / 37 tests
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  PASS: Vite built in 35.30s
+
+Boundary:
+- This proves release-preflight reporting deduplication only.
+- It does not prove WeChat phone preview, phone screenshots, mobile SMIL/click behavior, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+- It does not contain browser profile paths, cookies, tokens, HAR files, QR payloads, account
+  screenshots, draft URLs, publish URLs, or local runtime artifacts.

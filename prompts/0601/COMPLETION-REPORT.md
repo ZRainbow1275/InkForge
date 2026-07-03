@@ -11596,3 +11596,34 @@ Boundary:
   phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Release Preflight Unique Next Rows Addendum
+
+- Changed `pnpm -C inkforge style-proof:release-preflight --json` so `nextRows` contains only
+  unique operator rows while retaining `summary.nextRowRefs` for the raw blocker-kind reference
+  count.
+- Added `refKinds` to each next row. The WeChat credentialed-channel row now aggregates
+  `external-account`, `unsafe-to-automate`, and `mutating-platform` instead of being printed three
+  times.
+- Text output now prints `next operator rows (unique):` and includes `refKinds=...`.
+- This does not alter release-gate accounting, committed manifests, renderer output, upload,
+  sync, schedule, phone preview, public-host, platform publish, or availability logic.
+- Real CLI smoke kept the required blocked state:
+  `exitCode=1`, `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-release-preflight-unique-next-rows-20260703.txt`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 3 tests;
+  focused ESLint for `scripts/style-proof-release-preflight.ts` and its test file;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 4 files and 37 tests;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  production build with Vite built in 35.30s.
+- Boundary: this is release-preflight operator reporting only. It does not prove WeChat phone
+  preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

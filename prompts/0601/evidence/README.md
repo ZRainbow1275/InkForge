@@ -8355,3 +8355,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: `nextProofSteps` is merged-pack runbook guidance only. It does not prove phone
   preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
   scheduled send, public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight Unique Next Rows
+
+- Evidence file: `style-proof-release-preflight-unique-next-rows-20260703.txt`.
+- Scope: local `style-proof:release-preflight` reporting enhancement only.
+- The JSON report now keeps `summary.nextRowRefs=5` while emitting `nextRows=3` unique operator
+  rows.
+- Each unique row includes `refKinds`; the WeChat credentialed-channel row aggregates
+  `external-account|unsafe-to-automate|mutating-platform`.
+- Text output labels the section `next operator rows (unique):` and prints `refKinds=...`.
+- Release preflight remains blocked:
+  `status=blocked-by-external`, `canClaimComplete=false`, and `safeExternalRows=0`.
+- Boundary: unique next-row reporting is operator guidance only. It does not prove phone preview,
+  mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public-host acceptance, platform upload, or publish success.

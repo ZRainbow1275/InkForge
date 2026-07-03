@@ -27,6 +27,7 @@ interface ReleasePreflightSummary {
 interface ReleasePreflightNextRow {
   id: string
   kind: string
+  refKinds: string[]
   platform: string
   choiceIds: string[]
   requirementId: string
@@ -169,6 +170,8 @@ function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNex
   return isRecord(value) &&
     typeof value.id === 'string' &&
     typeof value.kind === 'string' &&
+    Array.isArray(value.refKinds) &&
+    value.refKinds.every(kind => typeof kind === 'string') &&
     typeof value.platform === 'string' &&
     Array.isArray(value.choiceIds) &&
     value.choiceIds.every(choiceId => typeof choiceId === 'string') &&
@@ -256,13 +259,18 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       nextRowRefs: 5,
       uniqueNextRows: 3,
     })
+    expect(report.nextRows).toHaveLength(3)
     expect(report.nextRows.map(row => row.kind)).toEqual([
       'phone-preview',
       'external-account',
       'public-host',
-      'unsafe-to-automate',
-      'mutating-platform',
     ])
+    expect(report.nextRows.map(row => row.refKinds)).toEqual([
+      ['phone-preview'],
+      ['external-account', 'unsafe-to-automate', 'mutating-platform'],
+      ['public-host'],
+    ])
+    expect(new Set(report.nextRows.map(row => row.id)).size).toBe(report.summary.uniqueNextRows)
     expect(report.nextRows.every(row => row.cannotClaim)).toBe(true)
     expect(report.nextRows.every(row => !row.safeToAutomate)).toBe(true)
     expect(report.nextRows.every(row => row.nextOperatorAction.length > 0)).toBe(true)
@@ -274,6 +282,8 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     )).toBe(false)
     expect(report.nextRows.find(row => row.kind === 'external-account')?.cannotClaimReason)
       .toContain('mutating credentialed platform action')
+    expect(report.nextRows.find(row => row.kind === 'external-account')?.refKinds)
+      .toEqual(['external-account', 'unsafe-to-automate', 'mutating-platform'])
   })
 
   it('prints help with a successful exit code', async () => {

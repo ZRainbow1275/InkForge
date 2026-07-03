@@ -16,6 +16,7 @@ import type { Platform } from '../src/services/export/types.ts'
 interface StyleProofReleasePreflightNextRow {
   id: string
   kind: CommittedStyleProofExternalHandoffNextRowKind
+  refKinds: readonly CommittedStyleProofExternalHandoffNextRowKind[]
   platform: Platform
   choiceIds: readonly string[]
   requirementId: StyleProofRequirementId
@@ -62,6 +63,20 @@ interface StyleProofReleasePreflightResult {
   nextRows: readonly StyleProofReleasePreflightNextRow[]
 }
 
+function getPreflightNextRowRefKinds(
+  rowId: string,
+  refs: readonly { kind: CommittedStyleProofExternalHandoffNextRowKind; row: { id: string } }[],
+): readonly CommittedStyleProofExternalHandoffNextRowKind[] {
+  const kinds: CommittedStyleProofExternalHandoffNextRowKind[] = []
+  for (const ref of refs) {
+    if (ref.row.id === rowId && !kinds.includes(ref.kind)) {
+      kinds.push(ref.kind)
+    }
+  }
+
+  return kinds
+}
+
 function printHelp(): void {
   console.log([
     'Usage: pnpm style-proof:release-preflight [--json]',
@@ -101,33 +116,38 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
       nextRowRefs: handoffPacket.nextRowRefs.length,
       uniqueNextRows: handoffPacket.nextRows.length,
     },
-    nextRows: handoffPacket.nextRowRefs.map(ref => ({
-      id: ref.row.id,
-      kind: ref.kind,
-      platform: ref.row.platform,
-      choiceIds: ref.row.choiceIds,
-      requirementId: ref.row.requirementId,
-      requirementLabel: ref.row.requirementLabel,
-      gate: ref.row.gate,
-      boundary: ref.row.boundary,
-      status: ref.row.status,
-      blockerKinds: ref.row.blockerKinds,
-      issueIds: ref.row.issueIds,
-      freshnessIssueIds: ref.row.freshnessIssueIds,
-      required: ref.row.required,
-      satisfied: ref.row.satisfied,
-      missing: ref.row.missing,
-      invalid: ref.row.invalid,
-      artifactCount: ref.row.artifactCount,
-      acceptedArtifactCount: ref.row.acceptedArtifactCount,
-      mutatesPlatform: ref.row.mutatesPlatform,
-      requiresExternalAccount: ref.row.requiresExternalAccount,
-      requiresPhone: ref.row.requiresPhone,
-      safeToAutomate: ref.row.safeToAutomate,
-      cannotClaim: ref.row.cannotClaim,
-      cannotClaimReason: ref.row.cannotClaimReason,
-      nextOperatorAction: ref.row.nextOperatorAction,
-    })),
+    nextRows: handoffPacket.nextRows.map(row => {
+      const refKinds = getPreflightNextRowRefKinds(row.id, handoffPacket.nextRowRefs)
+
+      return {
+        id: row.id,
+        kind: refKinds[0] ?? 'external-account',
+        refKinds,
+        platform: row.platform,
+        choiceIds: row.choiceIds,
+        requirementId: row.requirementId,
+        requirementLabel: row.requirementLabel,
+        gate: row.gate,
+        boundary: row.boundary,
+        status: row.status,
+        blockerKinds: row.blockerKinds,
+        issueIds: row.issueIds,
+        freshnessIssueIds: row.freshnessIssueIds,
+        required: row.required,
+        satisfied: row.satisfied,
+        missing: row.missing,
+        invalid: row.invalid,
+        artifactCount: row.artifactCount,
+        acceptedArtifactCount: row.acceptedArtifactCount,
+        mutatesPlatform: row.mutatesPlatform,
+        requiresExternalAccount: row.requiresExternalAccount,
+        requiresPhone: row.requiresPhone,
+        safeToAutomate: row.safeToAutomate,
+        cannotClaim: row.cannotClaim,
+        cannotClaimReason: row.cannotClaimReason,
+        nextOperatorAction: row.nextOperatorAction,
+      }
+    }),
   }
 }
 
@@ -150,9 +170,10 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
     `nextRowRefs: ${result.summary.nextRowRefs}`,
     `uniqueNextRows: ${result.summary.uniqueNextRows}`,
     '',
-    'next operator rows:',
+    'next operator rows (unique):',
     ...result.nextRows.map(row =>
       `- ${row.kind}: ${row.platform}/${row.requirementId}/${row.boundary} ` +
+      `refKinds=${row.refKinds.length > 0 ? row.refKinds.join('|') : 'none'} ` +
       `status=${row.status} phone=${row.requiresPhone ? 'yes' : 'no'} ` +
       `account=${row.requiresExternalAccount ? 'yes' : 'no'} ` +
       `mutates=${row.mutatesPlatform ? 'yes' : 'no'} safe=${row.safeToAutomate ? 'yes' : 'no'} ` +

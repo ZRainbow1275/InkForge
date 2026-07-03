@@ -23213,3 +23213,63 @@ Scope:
   phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight Unique Next Rows Slice
+
+Source:
+- The committed release gate still has external phone/account/public-host/platform rows open.
+- `style-proof:release-preflight --json` correctly reported `nextRowRefs=5` and
+  `uniqueNextRows=3`, but the `nextRows` array repeated the same WeChat credentialed-channel row
+  under `external-account`, `unsafe-to-automate`, and `mutating-platform`.
+- Operators need the raw reference count and the deduplicated actionable rows at the same time.
+
+Impact:
+- `npx gitnexus impact buildPreflightResult -r InkForge --depth 3` reported LOW risk, 1 direct
+  caller, 0 affected processes, and only the Scripts module affected.
+- `npx gitnexus impact formatPreflightResult -r InkForge --depth 3` reported LOW risk, 1 direct
+  caller, 0 affected processes, and only the Scripts module affected.
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffPacket -r InkForge --depth 3`
+  reported LOW risk, 3 direct dependents, 0 affected processes, and Scripts/Export module hits.
+
+Implementation:
+- Changed `style-proof:release-preflight` JSON `nextRows` to emit unique rows from the existing
+  handoff packet's deduplicated `nextRows`.
+- Added `refKinds` to each next row so the same operator action can show all blocker references
+  that point to it.
+- Text output now labels the section `next operator rows (unique):` and prints
+  `refKinds=...`.
+- Preserved `summary.nextRowRefs=5`, `summary.uniqueNextRows=3`, release-gate blocked status, and
+  cannot-claim semantics.
+- The CLI still does not print browser profile data, cookies, tokens, HAR, QR payloads, account
+  screenshots, draft URLs, publish URLs, or private material.
+
+Observed:
+- Real JSON smoke kept `exitCode=1`, `status=blocked-by-external`,
+  `canClaimComplete=false`, `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+- The WeChat credentialed-channel row now reports
+  `refKinds=external-account|unsafe-to-automate|mutating-platform`.
+- Text smoke exits 1 as expected and prints three unique operator rows:
+  WeChat phone cover-thumbnail, WeChat credentialed-channel, and Zhihu public-host.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 3 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 37 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with Vite
+  built in 35.30s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  `uniqueNextRows=3`, and `nextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-release-preflight-unique-next-rows-20260703.txt`.
+
+Scope:
+- This slice is release-preflight operator reporting only. It does not prove WeChat phone preview,
+  phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

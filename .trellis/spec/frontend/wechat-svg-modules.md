@@ -13629,3 +13629,47 @@ const ruleFamilies = [
 - Evidence docs must state that merged `nextProofSteps` is review guidance only and does not prove
   WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish
   success.
+
+## 280. Style Proof Release Preflight Unique Next Rows - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the release-preflight CLI may have more `nextRowRefs` than unique operator actions
+  because the same external proof row can be referenced by several blocker categories such as
+  `external-account`, `unsafe-to-automate`, and `mutating-platform`.
+- The CLI must keep the audit counters visible while showing operators a deduplicated next-action
+  list. Repeating the same credentialed-channel row several times increases operator error risk.
+- This is a reporting-only release-preflight contract. It must not alter committed proof
+  manifests, style availability, renderer output, acceptance-audit status, upload, sync,
+  schedule, phone preview, public-host, platform publish, or release-gate accounting.
+
+### 2. Contract
+
+- JSON output from `style-proof:release-preflight --json` must retain:
+  - `summary.nextRowRefs`: the raw reference count grouped by blocker kind;
+  - `summary.uniqueNextRows`: the deduplicated external proof row count.
+- JSON `nextRows` must contain only unique rows and its length must match
+  `summary.uniqueNextRows`.
+- Each unique `nextRows[]` row must include:
+  - `kind`: the first matching reference kind for backward-readable summaries;
+  - `refKinds`: every reference kind that points to the same row, preserving reference order;
+  - the existing platform, requirement, gate, boundary, issue, count, safety, cannot-claim, and
+    next-operator fields.
+- Text output must label the section as `next operator rows (unique):` and print `refKinds=...`
+  so the operator can see why one row satisfies several blocker categories.
+- Output must not include browser profile paths, cookies, tokens, HAR references, QR payloads,
+  account screenshots, local screenshot paths, raw account-state captures, raw platform routes,
+  draft URLs, publish URLs, or private material.
+
+### 3. Required Checks
+
+- Add CLI regression coverage proving:
+  - `summary.nextRowRefs` remains greater than or equal to `summary.uniqueNextRows`;
+  - `nextRows.length === summary.uniqueNextRows`;
+  - the WeChat credentialed-channel row aggregates `external-account`,
+    `unsafe-to-automate`, and `mutating-platform` into `refKinds`.
+- Run focused release-preflight tests, focused ESLint, the serial scripts suite, type-check, build,
+  and release-preflight smoke before committing.
+- Evidence docs must state that unique next-row reporting is operator guidance only and does not
+  prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
+  publish success.
