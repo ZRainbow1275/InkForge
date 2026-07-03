@@ -8370,3 +8370,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: unique next-row reporting is operator guidance only. It does not prove phone preview,
   mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
   scheduled send, public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 135 SVG Public Free-Trial List CloakBrowser Recheck
+
+- Evidence file: `135-svg-cloakbrowser-free-trial-list-recheck-20260703.txt`.
+- Scope: read-only CloakBrowser market-learning recheck of the 135 SVG editor public list.
+- Observed the left SVG effect/list UI, category filters, repeated `免费试用` controls, and
+  current shell classes for list-card/editor authoring state.
+- Existing 135 SVG residue rule families already cover the observed class families; no source-code
+  detector change was required.
+- Boundary: this is source-market classification only. It does not prove phone preview, mobile
+  Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public-host acceptance, platform upload, or publish success.

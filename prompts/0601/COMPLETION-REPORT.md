@@ -11627,3 +11627,31 @@ Boundary:
   preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-07-03 135 SVG Public Free-Trial List CloakBrowser Recheck Addendum
+
+- Used CloakBrowser, not Playwright, to reopen the 135 SVG editor public page and inspect the
+  left SVG effect list plus DOM classes.
+- Observed `SVG效果`, `SVG模板`, `我的作品`, `我的图片`, `剪贴板`, `帮助`, category filters, and
+  repeated `免费试用` / `立即购买` controls.
+- Visible SVG list item IDs included `1061`, `1054`, `1049`, `1045`, `1025`, `1002`, `1001`,
+  `991`, `945`, and `943`, covering slide, click, expand, carousel, unlock, and selective-expand
+  effect families.
+- Observed class families included `editor-layout`, `side-tab-menu`, `side-tab-content`,
+  `tab-special`, `menu-filter`, `filter_category`, `svg-types`, `tab-special__tap`,
+  `tab-special__list`, `list-loader`, `item-element`, `item-element__price`,
+  `element-price__wrap`, `btn-buy`, `item-summary-tag`, `item-collect-tag`, and
+  `content-canvas`.
+- Cross-check showed these are already covered by existing 135 SVG market-editor residue rule
+  families, so no detector source-code change was required.
+- Added sanitized evidence:
+  `prompts/0601/evidence/135-svg-cloakbrowser-free-trial-list-recheck-20260703.txt`.
+- Release preflight remains blocked as required:
+  `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`, `uniqueNextRows=3`,
+  and `nextRows=3`.
+- Boundary: this is read-only market-learning evidence classification. It does not prove WeChat
+  phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

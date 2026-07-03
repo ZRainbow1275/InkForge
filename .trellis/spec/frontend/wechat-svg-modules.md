@@ -13673,3 +13673,46 @@ const ruleFamilies = [
 - Evidence docs must state that unique next-row reporting is operator guidance only and does not
   prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
   publish success.
+
+## 281. 135 SVG Public Free-Trial List CloakBrowser Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: after machine restart, CloakBrowser was used to reopen the public 135 SVG editor page
+  and recheck the left SVG effect list, category chips, free-trial/purchase controls, and editor
+  shell classes without touching WeChat/XHS/Zhihu publish state.
+- This is market-learning evidence classification only. It does not click WeChat preview,
+  create/sync drafts, upload images, schedule sends, publish articles, or collect phone proof.
+
+### 2. Observed Surface
+
+- Left navigation included `SVG效果`, `SVG模板`, `我的作品`, `我的图片`, `剪贴板`, and `帮助`.
+- Filter/action labels included `最新`, `已购买`, `已收藏`, `点击`, `轮播`, `滑动`,
+  `自动`, `展开`, `长按`, `组件`, `组合`, `立即购买`, and repeated `免费试用`.
+- Visible list-card examples included IDs such as `1061`, `1054`, `1049`, `1045`, `1025`,
+  `1002`, `1001`, `991`, `945`, and `943`, with effect names like double-layer slide,
+  cover-click remove/expand, click-move/zoom/disappear, carousel, unlock, selective expand, and
+  multi-layer expand.
+- Observed shell/residue classes included `editor-layout`, `editor-layout__main`,
+  `side-tab-menu`, `side-tab-content`, `material`, `tab-special`, `menu-filter`,
+  `filter_category`, `filter-list`, `svg-types`, `tab-special__tap`,
+  `tab-special__list`, `list-loader`, `list-loader__inner`, `list-item`,
+  `item-element`, `item-element_id`, `item-element__box`, `item-content__tag`,
+  `item-element__title`, `item-element__price`, `element-price__wrap`, `btn-buy`,
+  `item-summary-tag`, `item-collect-tag`, `content-canvas`, and `editor-content`.
+
+### 3. Contract
+
+- These classes and labels are 135 authoring/list/editor-shell state. If they appear in
+  WeChat/XHS/Zhihu publishable output, they must remain publish-blocking market-editor residue.
+- Existing detector/spec families already cover the observed shell families:
+  - sidebar/list/category/filter/navigation residue;
+  - material list item and purchase control residue;
+  - editor shell/canvas/content residue;
+  - SVG type and tab/list-card residue.
+- No new detector rule is required for this recheck because the observed class families are
+  already represented by existing `135 SVG ... residue` tests. Add a new rule only if a future
+  live DOM readback shows a publishable-output marker not covered by the current families.
+- Evidence docs must not store browser profile paths, cookies, tokens, HAR references, QR
+  payloads, account screenshots, local screenshot paths, raw account-state captures, raw platform
+  routes, draft URLs, publish URLs, or private material.

@@ -1,0 +1,72 @@
+135 SVG Public Free-Trial List CloakBrowser Recheck - 2026-07-03
+
+Scope:
+- Read-only CloakBrowser DOM/visual recheck of the 135 SVG editor public effect list.
+- No WeChat/XHS/Zhihu browser action, no phone preview, no sync, no upload, no publish.
+- No browser profile path, cookie, token, HAR, QR payload, account screenshot, draft URL, publish
+  URL, or local runtime artifact is recorded.
+
+Observed surface:
+- Left navigation:
+  `SVG效果`, `SVG模板`, `我的作品`, `我的图片`, `剪贴板`, `帮助`.
+- Category/filter labels:
+  `最新`, `已购买`, `已收藏`, `点击`, `轮播`, `滑动`, `自动`, `展开`, `长按`,
+  `组件`, `组合`.
+- Repeated action controls:
+  `免费试用`, `立即购买`.
+- Visible item IDs in the current list:
+  `1061`, `1054`, `1049`, `1045`, `1025`, `1002`, `1001`, `991`, `945`, `943`.
+- Observed effect families:
+  double-layer slide, cover-click remove/expand, click-move/zoom/disappear, carousel, unlock,
+  selective expand, multi-layer expand, image transition, and cover slide/expand.
+
+Observed class families:
+- `editor-layout`
+- `editor-layout__main`
+- `side-tab-menu`
+- `side-tab-content`
+- `material`
+- `tab-special`
+- `menu-filter`
+- `filter_category`
+- `filter-list`
+- `svg-types`
+- `tab-special__tap`
+- `tab-special__list`
+- `list-loader`
+- `list-loader__inner`
+- `list-item`
+- `item-element`
+- `item-element_id`
+- `item-element__box`
+- `item-content__tag`
+- `item-element__title`
+- `item-element__price`
+- `element-price__wrap`
+- `btn-buy`
+- `item-summary-tag`
+- `item-collect-tag`
+- `content-canvas`
+- `editor-content`
+
+Classification:
+- These are 135 authoring/list/editor-shell markers, not publishable article semantics.
+- If copied into WeChat/XHS/Zhihu publishable output, they must remain publish-blocking
+  market-editor residue.
+- Existing 135 SVG rule families already cover the observed markers:
+  sidebar/list/category/filter/navigation residue, material list item residue, purchase control
+  residue, editor shell/canvas residue, and SVG type/tab/list-card residue.
+- No source-code detector change was required for this recheck.
+
+Verification:
+- CloakBrowser DOM evaluation returned sanitized label/class/card summaries only.
+- Repository cross-check found existing spec/test coverage for the observed 135 SVG class
+  families.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  remains blocked as required with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+
+Boundary:
+- This does not prove WeChat phone preview, phone screenshots, mobile SMIL/click behavior, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
