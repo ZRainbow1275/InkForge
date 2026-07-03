@@ -12679,3 +12679,47 @@ Boundary:
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred
   to the user for this round.
+
+---
+
+## 2026-07-04 Application Preflight WeChat Export Envelope Addendum
+
+- Strengthened `style-proof:release-preflight --scope=application` so the narrowed local round
+  gate now also audits the WeChat final export envelope, not only the UI surfaces and SVG option
+  helper.
+- The application JSON report now includes:
+  - `wechatExportPipelineContractCount`;
+  - `wechatExportPipelineFailureCount`;
+  - `wechatExportPipelineIssues`.
+- The audited source contracts are:
+  - `src/services/export/wechat.ts`: explicit SVG option injection remains after preset
+    decoration and before table enhancement, WeChat post-processing, CSS enforcement, and
+    compliance transform.
+  - `src/services/export/platform-rules/wechat.ts`: the `data-wechat-clamp="1"` centered
+    `max-width:677px` wrapper remains present, and SVG stays opaque for CJK spacing.
+  - `src/services/export/preset-fonts.ts`: the 20-22 chars-per-line lock remains anchored by
+    `22em`, `17px`, and strict line breaking.
+- `canClaimApplicationReady` now requires zero WeChat export pipeline issues.
+- Strengthened the happy-dom WeChat option test so the real `markdownToWechatWithStats()` output
+  keeps `#nice`, the 677px clamp, 17px body sizing, and no script/style/foreignObject payload.
+- TDD record:
+  - The first focused run failed before implementation because the new `wechatExportPipeline*`
+    fields were absent.
+  - The post-implementation focused run passed with 2 files / 9 tests.
+- Verification so far:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/services/export/wechat-svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 2 files / 9 tests passed.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/services/export/wechat-svg-options.test.ts src/services/export/wechat-svg-application.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 5 files / 23 tests passed.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`: exited 0 with `status=application-ready`, `wechatExportPipelineContractCount=3`, `wechatExportPipelineFailureCount=0`, and `wechatExportPipelineIssues=[]`.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: exited 1 as expected with `status=blocked-by-external` and `canClaimComplete=false`.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts src/services/export/wechat-svg-options.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`: 40 files / 1363 tests passed.
+  - `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 0 affected processes; the report includes pre-existing unrelated dirty files, so this slice uses exact staging.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-preflight-wechat-export-envelope-20260704.txt`.
+- Boundary: this proves the local application gate covers the WeChat export envelope and focused
+  real-renderer SVG option path only. It does not prove WeChat ordinary paste, phone preview,
+  mobile Dark Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled
+  send, public rendering, platform preview, or publish success. Xiaohongshu and Zhihu publish-side
+  tests remain manually deferred to the user for this round.

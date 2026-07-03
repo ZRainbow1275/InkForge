@@ -8922,3 +8922,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves the local machine gate sees both application UI surfaces only. It does
   not prove WeChat paste, phone preview, credentialed sync, scheduled send, public rendering, or
   publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-04 Application Preflight WeChat Export Envelope
+
+- [x] application-preflight-wechat-export-envelope-20260704.txt
+- Scope: machine-readable application gate coverage for the WeChat final export envelope.
+- `style-proof:release-preflight --scope=application --json` now reports:
+  `wechatExportPipelineContractCount=3`, `wechatExportPipelineFailureCount=0`, and
+  `wechatExportPipelineIssues=[]`.
+- The audited source contracts are:
+  - `src/services/export/wechat.ts` keeps option SVG injection before table enhancement,
+    WeChat post-processing, CSS enforcement, and compliance transform.
+  - `src/services/export/platform-rules/wechat.ts` keeps `data-wechat-clamp="1"`,
+    `max-width:677px`, and SVG-opaque CJK spacing.
+  - `src/services/export/preset-fonts.ts` keeps the 20-22 chars-per-line lock through
+    `22em`, `17px`, and strict line breaking.
+- Focused happy-dom renderer coverage also asserts the real `markdownToWechatWithStats()` output
+  keeps `#nice`, the 677px clamp, 17px body sizing, and no script/style/foreignObject payload.
+- Verification passed: focused release-preflight + WeChat option Vitest with 2 files / 9 tests,
+  focused application regression with 5 files / 23 tests, full export-service regression with
+  40 files / 1363 tests, ESLint, `vue-tsc`, production build, strict release-preflight blocked
+  smoke, and application-preflight JSON smoke.
+- Boundary: this proves the local WeChat export envelope remains wired and safe for the app-level
+  SVG/style path only. It does not prove WeChat paste, phone preview, credentialed sync,
+  scheduled send, public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests
+  remain manually deferred to the user.

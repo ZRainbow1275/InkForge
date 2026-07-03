@@ -1,0 +1,68 @@
+Application Preflight WeChat Export Envelope - 2026-07-04
+
+Scope:
+- Local application preflight and focused export tests only.
+- No platform paste, phone preview, sync, upload, schedule, publish, or account-side mutation.
+
+Implemented:
+- Added a WeChat export pipeline source-contract audit to
+  `style-proof:release-preflight --scope=application`.
+- Added JSON/text report fields:
+  - `wechatExportPipelineContractCount`;
+  - `wechatExportPipelineFailureCount`;
+  - `wechatExportPipelineIssues`.
+
+Audited contracts:
+- `src/services/export/wechat.ts` keeps the option SVG injection after preset decoration and before
+  later WeChat post-processing, CSS enforcement, and compliance transform.
+- `src/services/export/platform-rules/wechat.ts` keeps the `data-wechat-clamp="1"` centered
+  `max-width:677px` wrapper and treats `<svg>` as an opaque segment for CJK spacing.
+- `src/services/export/preset-fonts.ts` keeps the 20-22 CJK chars-per-line source lock:
+  `max-width: min(22em, calc(100vw - 32px))`, `font-size: 17px`, and strict line breaking.
+
+Focused renderer proof:
+- The happy-dom WeChat SVG option test now also asserts that the real
+  `markdownToWechatWithStats()` output keeps:
+  - `<section id="nice">`;
+  - `data-wechat-clamp="1"`;
+  - `max-width:677px`;
+  - `font-size:17px`;
+  - no `<script>`;
+  - no `<style>`;
+  - no `foreignObject`.
+
+Smoke result:
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`
+  exited 0 with:
+  - `status=application-ready`;
+  - `canClaimApplicationReady=true`;
+  - `wechatExportPipelineContractCount=3`;
+  - `wechatExportPipelineFailureCount=0`;
+  - `wechatExportPipelineIssues=[]`.
+
+Focused test result:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/services/export/wechat-svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files and 9 tests.
+
+Final local verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/services/export/wechat-svg-options.test.ts src/services/export/wechat-svg-application.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 5 files and 23 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external` and `canClaimComplete=false`.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts src/services/export/wechat-svg-options.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 40 files and 1363 tests.
+- `npx gitnexus detect-changes -r InkForge --scope all` reported low risk and 0 affected
+  processes. The scan also saw pre-existing unrelated dirty files, so commit staging is exact.
+
+Boundary:
+- This proves the local application gate still sees the WeChat output envelope and the focused
+  real renderer path still preserves the article shell, width clamp, typography lock, and SVG
+  safety invariants.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side checks remain manually deferred to the user for this round.

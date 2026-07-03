@@ -64,6 +64,12 @@ interface StyleProofApplicationWechatSurfaceContract {
   requiredFragments: readonly string[]
 }
 
+interface StyleProofApplicationWechatExportPipelineContract {
+  id: string
+  relativePath: string
+  requiredFragments: readonly string[]
+}
+
 const APPLICATION_WECHAT_SURFACE_CONTRACTS = [
   {
     id: 'export-modal',
@@ -101,6 +107,43 @@ const APPLICATION_WECHAT_SURFACE_CONTRACTS = [
   },
 ] as const satisfies readonly StyleProofApplicationWechatSurfaceContract[]
 
+const APPLICATION_WECHAT_EXPORT_PIPELINE_CONTRACTS = [
+  {
+    id: 'wechat-export-svg-option-order',
+    relativePath: 'src/services/export/wechat.ts',
+    requiredFragments: [
+      'maxContentWidth = 677',
+      '<section id="nice">${finalContent}</section>',
+      'decoratedHtml = applyWechatOptionSvgModules(decoratedHtml, effectivePreset, options)',
+      'enhanceTableStyles(decoratedHtml, effectivePreset.primaryColor)',
+      'postProcessForWechat(tableEnhancedHtml, effectivePreset.primaryColor)',
+      "enforcePlatformCSS(wechatProcessedHtml, 'wechat')",
+      'wechatComplianceTransform(cssCompliantHtml, complianceOpts)',
+      'html: finalHtml',
+    ],
+  },
+  {
+    id: 'wechat-compliance-width-clamp',
+    relativePath: 'src/services/export/platform-rules/wechat.ts',
+    requiredFragments: [
+      'const DEFAULT_MAX_WIDTH = 677',
+      'const CLAMP_MARKER = \'data-wechat-clamp="1"\'',
+      'style="max-width:${maxWidth}px;margin:0 auto;"',
+      'result = clampContentWidth(result, maxContentWidth)',
+      "const OPAQUE_TAGS = new Set(['code', 'pre', 'style', 'script', 'svg'])",
+    ],
+  },
+  {
+    id: 'wechat-persona-line-width-lock',
+    relativePath: 'src/services/export/preset-fonts.ts',
+    requiredFragments: [
+      'max-width: min(22em, calc(100vw - 32px));',
+      'font-size: 17px;',
+      'line-break: strict;',
+    ],
+  },
+] as const satisfies readonly StyleProofApplicationWechatExportPipelineContract[]
+
 interface StyleProofApplicationPreflightModuleIssue {
   moduleId: string
   family: string
@@ -121,6 +164,13 @@ interface StyleProofApplicationPreflightWechatApplicationIssue {
 
 interface StyleProofApplicationPreflightWechatSurfaceIssue {
   surfaceId: string
+  relativePath: string
+  issue: string
+  fragment: string
+}
+
+interface StyleProofApplicationPreflightWechatExportPipelineIssue {
+  contractId: string
   relativePath: string
   issue: string
   fragment: string
@@ -162,6 +212,8 @@ interface StyleProofApplicationPreflightResult {
     wechatApplicationSvgSlotFailureCount: number
     wechatApplicationSurfaceCount: number
     wechatApplicationSurfaceFailureCount: number
+    wechatExportPipelineContractCount: number
+    wechatExportPipelineFailureCount: number
     wechatOptionInjectedModuleCount: number
     wechatOptionInjectionFailureCount: number
     wechatSafeViolationCount: number
@@ -180,6 +232,7 @@ interface StyleProofApplicationPreflightResult {
   moduleIssues: readonly StyleProofApplicationPreflightModuleIssue[]
   wechatApplicationSlotIssues: readonly StyleProofApplicationPreflightWechatApplicationIssue[]
   wechatApplicationSurfaceIssues: readonly StyleProofApplicationPreflightWechatSurfaceIssue[]
+  wechatExportPipelineIssues: readonly StyleProofApplicationPreflightWechatExportPipelineIssue[]
   wechatOptionIssues: readonly StyleProofApplicationPreflightWechatOptionIssue[]
   choiceIssues: readonly StyleProofApplicationPreflightChoiceIssue[]
   externalProof: StyleProofApplicationPreflightExternalBoundary
@@ -786,6 +839,38 @@ function getStyleProofApplicationWechatSurfaceIssues(): readonly StyleProofAppli
   return issues
 }
 
+function getStyleProofApplicationWechatExportPipelineIssues(): readonly StyleProofApplicationPreflightWechatExportPipelineIssue[] {
+  const issues: StyleProofApplicationPreflightWechatExportPipelineIssue[] = []
+
+  for (const contract of APPLICATION_WECHAT_EXPORT_PIPELINE_CONTRACTS) {
+    let source: string
+    try {
+      source = readFileSync(resolve(PROJECT_ROOT, contract.relativePath), 'utf8')
+    } catch (error) {
+      issues.push({
+        contractId: contract.id,
+        relativePath: contract.relativePath,
+        issue: `read-error:${getErrorMessage(error)}`,
+        fragment: '',
+      })
+      continue
+    }
+
+    for (const fragment of contract.requiredFragments) {
+      if (!source.includes(fragment)) {
+        issues.push({
+          contractId: contract.id,
+          relativePath: contract.relativePath,
+          issue: 'missing-fragment',
+          fragment,
+        })
+      }
+    }
+  }
+
+  return issues
+}
+
 function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult {
   const releaseGate = getCommittedStyleProofEvidenceReleaseGateReport()
   const handoffPacket = getCommittedStyleProofExternalHandoffPacket()
@@ -798,6 +883,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
   const wechatOptionIssues = getStyleProofApplicationWechatOptionIssues()
   const wechatApplicationSlotIssues = getStyleProofApplicationWechatSlotIssues()
   const wechatApplicationSurfaceIssues = getStyleProofApplicationWechatSurfaceIssues()
+  const wechatExportPipelineIssues = getStyleProofApplicationWechatExportPipelineIssues()
   const choiceIssues = getStyleProofApplicationChoiceIssues()
   const moduleSentinelFailureCount = moduleIssues.filter(issue =>
     APPLICATION_MODULE_SENTINEL_ISSUES.has(issue.issue)
@@ -808,6 +894,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
   const canClaimApplicationReady = moduleIssues.length === 0 &&
     wechatApplicationSlotIssues.length === 0 &&
     wechatApplicationSurfaceIssues.length === 0 &&
+    wechatExportPipelineIssues.length === 0 &&
     wechatOptionIssues.length === 0 &&
     choiceIssues.length === 0 &&
     localActionability.summary.actionableLocalRows === 0 &&
@@ -828,6 +915,8 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
       wechatApplicationSvgSlotFailureCount: wechatApplicationSlotIssues.length,
       wechatApplicationSurfaceCount: APPLICATION_WECHAT_SURFACE_CONTRACTS.length,
       wechatApplicationSurfaceFailureCount: wechatApplicationSurfaceIssues.length,
+      wechatExportPipelineContractCount: APPLICATION_WECHAT_EXPORT_PIPELINE_CONTRACTS.length,
+      wechatExportPipelineFailureCount: wechatExportPipelineIssues.length,
       wechatOptionInjectedModuleCount: SVG_MODULES.length - wechatOptionIssueModuleIds.size,
       wechatOptionInjectionFailureCount: wechatOptionIssueModuleIds.size,
       wechatSafeViolationCount: moduleIssues.length - moduleSentinelFailureCount,
@@ -846,6 +935,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
     moduleIssues,
     wechatApplicationSlotIssues,
     wechatApplicationSurfaceIssues,
+    wechatExportPipelineIssues,
     wechatOptionIssues,
     choiceIssues,
     externalProof: {
@@ -887,6 +977,8 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `wechatApplicationSvgSlotFailureCount: ${result.summary.wechatApplicationSvgSlotFailureCount}`,
     `wechatApplicationSurfaceCount: ${result.summary.wechatApplicationSurfaceCount}`,
     `wechatApplicationSurfaceFailureCount: ${result.summary.wechatApplicationSurfaceFailureCount}`,
+    `wechatExportPipelineContractCount: ${result.summary.wechatExportPipelineContractCount}`,
+    `wechatExportPipelineFailureCount: ${result.summary.wechatExportPipelineFailureCount}`,
     `wechatOptionInjectedModuleCount: ${result.summary.wechatOptionInjectedModuleCount}`,
     `wechatOptionInjectionFailureCount: ${result.summary.wechatOptionInjectionFailureCount}`,
     `wechatSafeViolationCount: ${result.summary.wechatSafeViolationCount}`,
@@ -906,6 +998,7 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `- moduleIssues: ${result.moduleIssues.length}`,
     `- wechatApplicationSlotIssues: ${result.wechatApplicationSlotIssues.length}`,
     `- wechatApplicationSurfaceIssues: ${result.wechatApplicationSurfaceIssues.length}`,
+    `- wechatExportPipelineIssues: ${result.wechatExportPipelineIssues.length}`,
     `- wechatOptionIssues: ${result.wechatOptionIssues.length}`,
     `- choiceIssues: ${result.choiceIssues.length}`,
     '',
@@ -947,6 +1040,16 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
       'wechat option issue rows:',
       ...result.wechatOptionIssues.map(issue =>
         `- ${issue.moduleId}/${issue.family}: ${issue.issue}`
+      ),
+    )
+  }
+
+  if (result.wechatExportPipelineIssues.length > 0) {
+    lines.push(
+      '',
+      'wechat export pipeline issue rows:',
+      ...result.wechatExportPipelineIssues.map(issue =>
+        `- ${issue.contractId}/${issue.relativePath}: ${issue.issue}; ${issue.fragment}`
       ),
     )
   }

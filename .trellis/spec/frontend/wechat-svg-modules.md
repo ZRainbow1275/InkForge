@@ -15138,3 +15138,79 @@ const ruleFamilies = [
 - Run the focused release-preflight tests, application preflight JSON smoke, strict release
   preflight smoke, focused ESLint, type-check, production build, GitNexus detect, diff checks, and
   sensitive scans before committing this class of change.
+
+## 308. Application Preflight WeChat Export Envelope - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: application-level SVG/style availability is incomplete if the local gate can pass while
+  the WeChat final export envelope, width clamp, or typography source lock has been bypassed.
+- This rule applies to `scripts/style-proof-release-preflight.ts`,
+  `scripts/style-proof-release-preflight.test.ts`,
+  `src/services/export/wechat.ts`, `src/services/export/platform-rules/wechat.ts`, and
+  `src/services/export/preset-fonts.ts`.
+- This rule does not re-enable Xiaohongshu/Zhihu publish automation. Per the current acceptance
+  update, those publish-side checks are manually owned by the operator and must not block this
+  local application gate.
+
+### 2. Machine Gate Contract
+
+- `style-proof:release-preflight --scope=application --json` must include:
+  - `wechatExportPipelineContractCount`;
+  - `wechatExportPipelineFailureCount`;
+  - `wechatExportPipelineIssues`.
+- `canClaimApplicationReady` must be false if any required WeChat export envelope fragment is
+  missing or if an audited source file cannot be read.
+- The initial audited contracts are:
+  - `src/services/export/wechat.ts`;
+  - `src/services/export/platform-rules/wechat.ts`;
+  - `src/services/export/preset-fonts.ts`.
+
+### 3. Export Envelope Requirements
+
+- `wechat.ts` must keep `applyWechatOptionSvgModules()` after preset decoration and before table
+  enhancement, WeChat post-processing, CSS enforcement, and `wechatComplianceTransform()`.
+- `wechat.ts` must keep the final output route returning `finalHtml`, not an intermediate
+  decorated or pre-compliance string.
+- `platform-rules/wechat.ts` must keep `data-wechat-clamp="1"`, the centered
+  `max-width:677px` wrapper contract, and `svg` inside the opaque tags used by CJK spacing.
+- `preset-fonts.ts` must keep the 20-22 CJK chars-per-line source lock:
+  `max-width: min(22em, calc(100vw - 32px))`, `font-size: 17px`, and strict line breaking.
+- Source-contract issues must be sanitized strings only. They must not record local browser
+  runtime artifacts, account data, credential material, network captures, or image artifacts.
+
+### 4. Real Renderer Test Contract
+
+- A focused happy-dom WeChat option test must exercise the real `markdownToWechatWithStats()` path
+  and assert the output retains:
+  - `<section id="nice">`;
+  - `data-wechat-clamp="1"`;
+  - `max-width:677px`;
+  - `font-size:17px`;
+  - no `<script>`;
+  - no `<style>`;
+  - no `foreignObject`.
+- These assertions are required because the CLI source-contract gate intentionally avoids loading
+  the browser-dependent renderer in the Node command.
+
+### 5. Cannot-Claim Boundary
+
+- Passing this rule proves only that the local application gate still covers the WeChat final
+  export envelope and that the focused renderer path preserves the article shell, width clamp,
+  typography lock, and SVG safety invariants.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu publish success. Those publish-side tests are manually
+  deferred to the user for this round.
+
+### 6. Required Checks
+
+- Keep release-preflight tests proving:
+  - `wechatExportPipelineContractCount=3`;
+  - `wechatExportPipelineFailureCount=0`;
+  - `wechatExportPipelineIssues=[]`;
+  - text output includes the same counts and issue bucket.
+- Run the focused release-preflight tests, WeChat option tests, application preflight JSON smoke,
+  strict release-preflight smoke, focused ESLint, type-check, production build, GitNexus detect,
+  diff checks, and sensitive scans before committing this class of change.

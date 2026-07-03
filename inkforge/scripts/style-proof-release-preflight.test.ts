@@ -125,6 +125,8 @@ interface ApplicationPreflightJsonReport {
     wechatApplicationSvgSlotFailureCount: number
     wechatApplicationSurfaceCount: number
     wechatApplicationSurfaceFailureCount: number
+    wechatExportPipelineContractCount: number
+    wechatExportPipelineFailureCount: number
     wechatOptionInjectedModuleCount: number
     wechatOptionInjectionFailureCount: number
     wechatSafeViolationCount: number
@@ -152,6 +154,12 @@ interface ApplicationPreflightJsonReport {
   }>
   wechatApplicationSurfaceIssues: Array<{
     surfaceId: string
+    relativePath: string
+    issue: string
+    fragment: string
+  }>
+  wechatExportPipelineIssues: Array<{
+    contractId: string
     relativePath: string
     issue: string
     fragment: string
@@ -417,6 +425,8 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
       'wechatApplicationSvgSlotFailureCount',
       'wechatApplicationSurfaceCount',
       'wechatApplicationSurfaceFailureCount',
+      'wechatExportPipelineContractCount',
+      'wechatExportPipelineFailureCount',
       'wechatOptionInjectedModuleCount',
       'wechatOptionInjectionFailureCount',
       'wechatSafeViolationCount',
@@ -435,6 +445,7 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
     isStringIssueArray(value.moduleIssues) &&
     isStringIssueArray(value.wechatApplicationSlotIssues) &&
     isStringIssueArray(value.wechatApplicationSurfaceIssues) &&
+    isStringIssueArray(value.wechatExportPipelineIssues) &&
     isStringIssueArray(value.wechatOptionIssues) &&
     isStringIssueArray(value.choiceIssues) &&
     isRecord(value.externalProof) &&
@@ -628,6 +639,8 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       wechatApplicationSvgSlotFailureCount: 0,
       wechatApplicationSurfaceCount: 2,
       wechatApplicationSurfaceFailureCount: 0,
+      wechatExportPipelineContractCount: 3,
+      wechatExportPipelineFailureCount: 0,
       wechatOptionInjectedModuleCount: 27,
       wechatOptionInjectionFailureCount: 0,
       wechatSafeViolationCount: 0,
@@ -645,6 +658,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.moduleIssues).toEqual([])
     expect(report.wechatApplicationSlotIssues).toEqual([])
     expect(report.wechatApplicationSurfaceIssues).toEqual([])
+    expect(report.wechatExportPipelineIssues).toEqual([])
     expect(report.wechatOptionIssues).toEqual([])
     expect(report.choiceIssues).toEqual([])
     expect(report.externalProof).toMatchObject({
@@ -701,10 +715,13 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('wechatApplicationSvgSlotFailureCount: 0')
     expect(result.stdout).toContain('wechatApplicationSurfaceCount: 2')
     expect(result.stdout).toContain('wechatApplicationSurfaceFailureCount: 0')
+    expect(result.stdout).toContain('wechatExportPipelineContractCount: 3')
+    expect(result.stdout).toContain('wechatExportPipelineFailureCount: 0')
     expect(result.stdout).toContain('wechatOptionInjectedModuleCount: 27')
     expect(result.stdout).toContain('wechatOptionInjectionFailureCount: 0')
     expect(result.stdout).toContain('- wechatApplicationSlotIssues: 0')
     expect(result.stdout).toContain('- wechatApplicationSurfaceIssues: 0')
+    expect(result.stdout).toContain('- wechatExportPipelineIssues: 0')
     expect(result.stdout).toContain('usableButUnselectableWechatChoices: 0')
     expect(result.stdout).toContain('actionableLocalRows: 0')
     expect(result.stdout).toContain('external proof boundary (not proof):')
