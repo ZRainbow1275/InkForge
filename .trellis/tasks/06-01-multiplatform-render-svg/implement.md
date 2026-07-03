@@ -24769,6 +24769,65 @@ Scope:
 - Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for this round and
   are not claimed by this artifact.
 
+## 2026-07-04 Application Preflight UI Surface Audit Slice
+
+Source:
+- The current-round machine gate is `style-proof:release-preflight --scope=application --json`.
+- Before this slice it proved the SVG module registry, WeChat application slots, WeChat option
+  injection, and selectable WeChat style rows, but it did not directly report whether the real
+  app UI surfaces still expose the selector.
+- The next safe local improvement is to make the machine gate fail closed if either ExportModal or
+  PublishView loses the SVG slot UI wiring.
+
+Impact:
+- `npx gitnexus impact "buildApplicationPreflightResult" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk because scripts-only symbols are not indexed.
+- `npx gitnexus impact "formatApplicationPreflightResult" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk for the same reason.
+- `npx gitnexus impact "style-proof-release-preflight" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk. Focused CLI tests, type-check, build, and final
+  `detect-changes` compensate for this scripts-only path.
+
+Implementation:
+- `style-proof:release-preflight --scope=application --json` now audits two real application UI
+  surfaces:
+  - `src/components/export/ExportModal.vue`;
+  - `src/views/PublishView.vue`.
+- Added preflight summary fields:
+  - `wechatApplicationSurfaceCount`;
+  - `wechatApplicationSurfaceFailureCount`.
+- Added `wechatApplicationSurfaceIssues` to the JSON result.
+- `canClaimApplicationReady` now requires zero surface issues in addition to the existing module,
+  slot, option, choice, local-actionability, and local-conflict checks.
+- The surface audit is source-level and sanitized: it checks required contract fragments and does
+  not record browser runtime artifacts, account artifacts, credential material, network captures,
+  or image artifact paths.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 5 files and 23 tests.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with `status=application-ready`, `wechatApplicationSurfaceCount=2`,
+  `wechatApplicationSurfaceFailureCount=0`, and `wechatApplicationSurfaceIssues=[]`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external` and `canClaimComplete=false`.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Evidence:
+- Added `prompts/0601/evidence/application-preflight-surface-audit-20260704.txt`.
+
+Scope:
+- This proves the local application preflight now covers both WeChat SVG UI surfaces as a
+  machine-readable gate.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 ## 2026-07-04 Publish Center WeChat SVG Application Slots Slice
 
 Source:

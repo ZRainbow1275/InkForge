@@ -15087,3 +15087,54 @@ const ruleFamilies = [
   release-preflight tests, focused ESLint, type-check, build, application preflight smoke,
   strict release-preflight smoke, CloakBrowser visual/DOM proof when local Vite is running,
   GitNexus detect, diff checks, and sensitive scans before committing this class of change.
+
+## 307. Application Preflight UI Surface Audit - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed local application gate must not only prove the service registry and
+  renderer path. It must also fail closed if the real application surfaces stop exposing the
+  WeChat SVG selector.
+- This rule applies to `scripts/style-proof-release-preflight.ts`,
+  `scripts/style-proof-release-preflight.test.ts`, `ExportModal.vue`, and `PublishView.vue`.
+
+### 2. Machine Gate Contract
+
+- `style-proof:release-preflight --scope=application --json` must include:
+  - `wechatApplicationSurfaceCount`;
+  - `wechatApplicationSurfaceFailureCount`;
+  - `wechatApplicationSurfaceIssues`.
+- `canClaimApplicationReady` must be false if any required UI surface contract fragment is
+  missing or if the surface source file cannot be read.
+- The initial required surfaces are:
+  - `src/components/export/ExportModal.vue`;
+  - `src/views/PublishView.vue`.
+
+### 3. Surface Contract Requirements
+
+- Each surface contract must verify the source contains the application slot service import/use,
+  slot selector class, slot-change handler, SVG module registry reference, and WeChat export
+  option pass-through.
+- The contract is intentionally source-level because it is a machine-readable preflight guard.
+  It does not replace CloakBrowser visual/DOM smoke; it prevents a service-only green report when
+  the UI entry point is removed.
+- Surface issues must be committed as sanitized strings only. They must not record local browser
+  runtime artifact paths, account data, credential material, network captures, or image artifact
+  paths.
+
+### 4. Cannot-Claim Boundary
+
+- Passing this rule proves only that the local application surfaces still expose the WeChat SVG
+  selection path and that the existing renderer path remains locally ready.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not re-enable Xiaohongshu/Zhihu publish automation; those publish-side checks remain
+  manually deferred to the user for this round.
+
+### 5. Required Checks
+
+- Update release-preflight JSON/text tests whenever a new application surface is added.
+- Run the focused release-preflight tests, application preflight JSON smoke, strict release
+  preflight smoke, focused ESLint, type-check, production build, GitNexus detect, diff checks, and
+  sensitive scans before committing this class of change.

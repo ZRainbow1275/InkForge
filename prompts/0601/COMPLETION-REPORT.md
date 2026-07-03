@@ -12647,3 +12647,35 @@ Boundary:
   interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   platform preview, or publish success. Xiaohongshu and Zhihu publish-side tests are manually
   deferred to the user for this round and are not claimed by this artifact.
+
+---
+
+## 2026-07-04 Application Preflight UI Surface Audit Addendum
+
+- Strengthened `style-proof:release-preflight --scope=application` so the narrowed local round
+  gate now audits the real application UI surfaces, not only the service registry and renderer
+  path.
+- The application JSON report now includes:
+  - `wechatApplicationSurfaceCount`;
+  - `wechatApplicationSurfaceFailureCount`;
+  - `wechatApplicationSurfaceIssues`.
+- The initial audited surfaces are:
+  - `src/components/export/ExportModal.vue`;
+  - `src/views/PublishView.vue`.
+- `canClaimApplicationReady` now requires zero surface issues. If either surface source file is
+  missing, or if it loses required SVG slot selector / option pass-through fragments, the
+  application gate becomes `application-blocked`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 5 files / 23 tests passed.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`: exited 0 with `status=application-ready`, `wechatApplicationSurfaceCount=2`, `wechatApplicationSurfaceFailureCount=0`, and `wechatApplicationSurfaceIssues=[]`.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: exited 1 as expected with `status=blocked-by-external` and `canClaimComplete=false`.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-preflight-surface-audit-20260704.txt`.
+- Boundary: this proves the local machine gate covers both WeChat SVG application surfaces only.
+  It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred
+  to the user for this round.

@@ -1,0 +1,41 @@
+Application Preflight UI Surface Audit - 2026-07-04
+
+Scope:
+- Machine-readable application gate coverage for the local WeChat SVG UI surfaces.
+- WeChat application surfaces only.
+- Xiaohongshu and Zhihu publish-side checks remain manually deferred to the user for this round.
+
+Implemented:
+- style-proof:release-preflight --scope=application now reads and audits real UI source files.
+- Audited surface: src/components/export/ExportModal.vue
+- Audited surface: src/views/PublishView.vue
+- canClaimApplicationReady now requires zero UI surface issues.
+
+New JSON fields:
+- summary.wechatApplicationSurfaceCount
+- summary.wechatApplicationSurfaceFailureCount
+- wechatApplicationSurfaceIssues
+
+Surface contracts:
+- ExportModal must retain the WeChat SVG slot service, slot grid, toggle handler, slot-change handler, SVG module registry reference, and markdownToWechatWithStats option binding.
+- PublishView must retain the WeChat SVG slot service, slot grid, toggle handler, slot-change handler, SVG module registry reference, default-off option state, and markdownToWechatWithStats option binding.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/wechat-svg-application.test.ts src/services/export/wechat-svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 5 files / 23 tests
+- pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+  PASS: status=application-ready; canClaimApplicationReady=true; wechatApplicationSurfaceCount=2; wechatApplicationSurfaceFailureCount=0; wechatApplicationSurfaceIssues=[]
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external; canClaimComplete=false
+- pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves the local application preflight covers ExportModal and PublishView UI source contracts.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish success.
+- It does not prove Xiaohongshu or Zhihu publish success.
+- No local browser runtime artifact, account artifact, credential material, network capture, scan artifact, or image artifact reference is recorded here.

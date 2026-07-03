@@ -8905,3 +8905,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   only. It does not prove WeChat paste, phone preview, credentialed sync, scheduled send, public
   rendering, or publish success. Xiaohongshu and Zhihu publish-side tests are manually deferred to
   the user for this round.
+
+## 2026-07-04 Application Preflight UI Surface Audit
+
+- [x] application-preflight-surface-audit-20260704.txt
+- Scope: machine-readable application gate coverage for real WeChat SVG UI surfaces.
+- `style-proof:release-preflight --scope=application --json` now reports:
+  `wechatApplicationSurfaceCount=2`, `wechatApplicationSurfaceFailureCount=0`, and
+  `wechatApplicationSurfaceIssues=[]`.
+- The two audited surfaces are ExportModal and PublishView.
+- `canClaimApplicationReady` now fails closed if either surface source file is missing or loses
+  required SVG slot selector / option pass-through fragments.
+- Verification passed: focused release-preflight/UI-surface regression with 5 files / 23 tests,
+  application-preflight JSON smoke, expected blocked strict release-preflight JSON smoke, focused
+  ESLint, `vue-tsc`, and production build.
+- Boundary: this proves the local machine gate sees both application UI surfaces only. It does
+  not prove WeChat paste, phone preview, credentialed sync, scheduled send, public rendering, or
+  publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
