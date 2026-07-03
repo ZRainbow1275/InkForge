@@ -11419,3 +11419,56 @@ Boundary:
   artifact. Phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
   thumbnail, credentialed sync, scheduled send, public preview/rendering, and publish success
   remain external gates.
+
+---
+
+## 2026-07-03 WeChat PC Ordinary Ctrl+V Batch Refresh Addendum
+
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-pc-ordinary-ctrlv-batch-20260703.txt`.
+- Used CloakBrowser only for authenticated WeChat editor tab state and DOM readback. Windows
+  foreground OS input was used for ordinary Ctrl+V and Ctrl+Z cleanup. No save, preview, sync,
+  scheduled send, upload, publish, phone preview, account screenshot, QR, HAR, cookie, token,
+  browser profile path, or raw platform response was committed.
+- The batch covers eight exact artifacts:
+  `wechat-classic-inline`, `wechat-quiet-editorial`, `wechat-toolbar-parameter-map`,
+  `wechat-cover-seal-divider`, `wechat-card-rich`, `wechat-flagship-kiln`,
+  `wechat-flagship-amber`, and `wechat-flagship-tempera`.
+- Key PC editor readbacks:
+  - classic inline: `svg=0`, `styleAttr=16`, `replacementGlyphCount=0`.
+  - quiet editorial: `svg=17`, `dataInkSvg=1`, `dataInkBlock=12`, `replacementGlyphCount=0`.
+  - toolbar parameter map: `svg=0`, `styleAttr=44`, `replacementGlyphCount=0`.
+  - cover seal divider: `svg=16`, `dataInkSvg=3`, `dataInkBlock=10`, `replacementGlyphCount=0`.
+  - card rich: `svg=23`, `dataInkSvg=1`, `dataInkBlock=14`, `replacementGlyphCount=0`.
+  - flagship kiln: `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `replacementGlyphCount=0`.
+  - flagship amber: `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `replacementGlyphCount=0`.
+  - flagship tempera: `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `replacementGlyphCount=0`.
+- Updated committed style-proof accounting:
+  - added WeChat PC evidence manifests for the five local HTML choices and original
+    `wechat-flagship-kiln`;
+  - refreshed Amber and Tempera PC proof freshness to 2026-07-03;
+  - kept Kiln paste-safe on its separate 2026-07-03 evidence file;
+  - aligned `wechat-flagship-kiln` local committed fingerprint to the exact
+    `flagship-kiln.html` source SHA-256
+    `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed" --reporter=default --test-timeout=90000`
+  with 1 file and 11 tests;
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  with 2 files and 14 tests;
+  focused ESLint for the touched export/style-proof files;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  production build with 4653 modules transformed in 32.64s;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 4 files and 33 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  with 36 files and 1350 tests.
+- Release preflight remains blocked as required, but the next rows no longer include PC editor DOM
+  or ordinary paste freshness:
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=15`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this closes only authenticated WeChat PC editor DOM and ordinary Ctrl+V paste rows for
+  the exact listed artifacts. Phone preview, phone screenshot, mobile interaction, mobile Dark
+  Mode, cover thumbnail, credentialed sync, scheduled send, public preview/rendering, public-host
+  acceptance, and publish success remain external gates.

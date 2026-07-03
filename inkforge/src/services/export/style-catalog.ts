@@ -3197,7 +3197,16 @@ interface CommittedStyleProofZhihuCleanMarkdownEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofWechatPcEvidenceManifestOptions {
-  choiceId: 'wechat-flagship-amber' | 'wechat-flagship-tempera' | 'wechat-flagship-kiln-paste-safe'
+  choiceId:
+    | 'wechat-classic-inline'
+    | 'wechat-quiet-editorial'
+    | 'wechat-toolbar-parameter-map'
+    | 'wechat-cover-seal-divider'
+    | 'wechat-card-rich'
+    | 'wechat-flagship-kiln'
+    | 'wechat-flagship-amber'
+    | 'wechat-flagship-tempera'
+    | 'wechat-flagship-kiln-paste-safe'
   idPrefix: string
   label: string
   artifactFingerprint: string
@@ -3265,6 +3274,9 @@ const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_REPORT_REF =
 const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-kiln-paste-safe-encoded-ordinary-ctrlv-20260703.txt'
 
+const COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF =
+  'prompts/0601/evidence/wechat-pc-ordinary-ctrlv-batch-20260703.txt'
+
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
 
@@ -3313,12 +3325,6 @@ const COMMITTED_STYLE_PROOF_ZHIHU_WECHAT_ADAPTED_ARTIFACT_REF =
 const COMMITTED_STYLE_PROOF_ZHIHU_WECHAT_ADAPTED_REPORT_REF =
   'prompts/0601/evidence/zhihu-wechat-adapted-local-evidence-20260621.txt'
 
-const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
-  'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
-
-const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF =
-  'prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt'
-
 const COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF =
   'prompts/0601/evidence/wechat-authenticated-editor-dom-redacted-20260703.txt'
 
@@ -3333,6 +3339,9 @@ const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT =
 
 const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_PC_ARTIFACT_FINGERPRINT =
   'sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491'
+
+const COMMITTED_STYLE_PROOF_WECHAT_KILN_PC_ARTIFACT_FINGERPRINT =
+  'sha256:90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531'
 
 const COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_ARTIFACT_FINGERPRINT =
   'sha256:redacted-wechat-login-state-readonly-20260625'
@@ -4125,7 +4134,7 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-kiln',
     label: 'Kiln creative flagship',
-    artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-kiln.png@tauri-webview-e2e',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_KILN_PC_ARTIFACT_FINGERPRINT,
     localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-kiln.png',
   }),
   createCommittedStyleProofWechatLocalHtmlEvidenceManifest({
@@ -4240,13 +4249,79 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
 
 const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-classic-inline',
+    idPrefix: 'wechat-classic-inline',
+    label: 'Classic inline',
+    artifactFingerprint: 'sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562',
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
+    pasteProofLabel: 'Classic inline committed entity-safe ordinary OS Ctrl+V rich HTML paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-quiet-editorial',
+    idPrefix: 'wechat-quiet-editorial',
+    label: 'Quiet editorial',
+    artifactFingerprint: 'sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e',
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
+    pasteProofLabel: 'Quiet editorial committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-toolbar-parameter-map',
+    idPrefix: 'wechat-toolbar-parameter-map',
+    label: 'Toolbar parameter map',
+    artifactFingerprint: 'sha256:f5e6487905e11bfc64e2998d553de45de29b372a87b584014076e38b49263e79',
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
+    pasteProofLabel: 'Toolbar parameter map committed entity-safe ordinary OS Ctrl+V rich HTML paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-cover-seal-divider',
+    idPrefix: 'wechat-cover-seal-divider',
+    label: 'Cover seal divider',
+    artifactFingerprint: 'sha256:e8537db3ddff4b51b5fc6cd189d92cc71fdc9dcc7b8beea7879c7dc96ecfcb2f',
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
+    pasteProofLabel: 'Cover seal divider committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-card-rich',
+    idPrefix: 'wechat-card-rich',
+    label: 'Rich card',
+    artifactFingerprint: 'sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990',
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
+    pasteProofLabel: 'Rich card committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-flagship-kiln',
+    idPrefix: 'wechat-flagship-kiln-entity-safe',
+    label: 'Kiln entity-safe',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_KILN_PC_ARTIFACT_FINGERPRINT,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
+    pasteProofLabel: 'Kiln committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-07-03T00:00:00.000Z',
+    readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
+    readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
     choiceId: 'wechat-flagship-amber',
     idPrefix: 'wechat-flagship-amber',
     label: 'Amber',
     artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT,
-    reportRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
     pasteProofLabel: 'Amber committed ordinary OS Ctrl+V rich HTML/SVG paste proof',
-    collectedAt: '2026-06-18T00:00:00.000Z',
+    collectedAt: '2026-07-03T00:00:00.000Z',
     readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
     readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
   }),
@@ -4255,9 +4330,9 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
     idPrefix: 'wechat-flagship-tempera-entity-safe',
     label: 'Tempera entity-safe',
     artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT,
-    reportRef: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_PC_BATCH_REPORT_REF,
     pasteProofLabel: 'Tempera committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
-    collectedAt: '2026-06-19T00:00:00.000Z',
+    collectedAt: '2026-07-03T00:00:00.000Z',
     readonlyEditorRefreshReportRef: COMMITTED_STYLE_PROOF_WECHAT_READONLY_EDITOR_REFRESH_REPORT_REF,
     readonlyEditorRefreshCollectedAt: '2026-07-03T00:00:00.000Z',
   }),

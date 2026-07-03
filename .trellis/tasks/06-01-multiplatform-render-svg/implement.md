@@ -22941,3 +22941,92 @@ Scope:
   paste-safe source artifact. It does not prove phone preview, phone screenshot, mobile
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 WeChat PC Ordinary Ctrl+V Batch Refresh Slice
+
+Source:
+- Release preflight still showed a WeChat authenticated-PC-editor row after the Kiln paste-safe
+  proof because six available WeChat choices had only local artifacts, and Amber/Tempera PC proof
+  rows were at the 14-day freshness boundary.
+- The authenticated WeChat PC editor remained open in CloakBrowser on a disposable draft body.
+
+Implementation:
+- Used CloakBrowser only for browser tab state and DOM readback. Used Windows foreground input for
+  ordinary OS Ctrl+V and Ctrl+Z cleanup.
+- Added sanitized evidence file
+  `prompts/0601/evidence/wechat-pc-ordinary-ctrlv-batch-20260703.txt`.
+- Added committed WeChat PC evidence manifests for:
+  `wechat-classic-inline`, `wechat-quiet-editorial`, `wechat-toolbar-parameter-map`,
+  `wechat-cover-seal-divider`, `wechat-card-rich`, `wechat-flagship-kiln`.
+- Refreshed committed Amber and Tempera PC proof rows to the same 2026-07-03 batch evidence.
+- Aligned the committed local Kiln flagship fingerprint to the exact `flagship-kiln.html` source
+  fingerprint so local and PC evidence do not conflict:
+  `sha256:90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+
+Observed:
+- `wechat-classic-inline`: source
+  `sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562`,
+  readback `htmlLength=3224`, `svg=0`, `styleAttr=16`, `replacementGlyphCount=0`, paste=1.
+- `wechat-quiet-editorial`: source
+  `sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e`,
+  readback `htmlLength=16009`, `svg=17`, `dataInkSvg=1`, `dataInkBlock=12`,
+  `replacementGlyphCount=0`, paste=1.
+- `wechat-toolbar-parameter-map`: source
+  `sha256:f5e6487905e11bfc64e2998d553de45de29b372a87b584014076e38b49263e79`,
+  readback `htmlLength=9434`, `svg=0`, `styleAttr=44`, `replacementGlyphCount=0`, paste=1.
+- `wechat-cover-seal-divider`: source
+  `sha256:e8537db3ddff4b51b5fc6cd189d92cc71fdc9dcc7b8beea7879c7dc96ecfcb2f`,
+  readback `htmlLength=15972`, `svg=16`, `dataInkSvg=3`, `dataInkBlock=10`,
+  `replacementGlyphCount=0`, paste=1.
+- `wechat-card-rich`: source
+  `sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990`,
+  readback `htmlLength=25367`, `svg=23`, `dataInkSvg=1`, `dataInkBlock=14`,
+  `replacementGlyphCount=0`, paste=1.
+- `wechat-flagship-kiln`: source
+  `sha256:90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`,
+  entity-safe clipboard `sha256:d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335`,
+  readback `htmlLength=43087`, `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`,
+  `replacementGlyphCount=0`, paste=1.
+- `wechat-flagship-amber`: source
+  `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`,
+  entity-safe clipboard `sha256:bd698217d44f038809ec5260ea9ef0513b230823c873839f7160f675c580124a`,
+  readback `htmlLength=43398`, `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`,
+  `replacementGlyphCount=0`, paste=1.
+- `wechat-flagship-tempera`: source
+  `sha256:d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`,
+  entity-safe clipboard `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`,
+  readback `htmlLength=43031`, `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`,
+  `replacementGlyphCount=0`, paste=1.
+- Every paste cleanup returned the body to `htmlLength=298`, `textLength=10`, `svg=0`,
+  `dataInkSvg=0`, `dataInkBlock=0`, and `replacementGlyphCount=0`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed WeChat PC evidence manifests" --reporter=default --test-timeout=90000`
+  passed with 1 test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed" --reporter=default --test-timeout=90000`
+  passed with 1 file and 11 tests.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 2 files and 14 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 32.64s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 33 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+
+Current release-preflight shape:
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=15`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- The next rows are now phone preview / credentialed channel / Zhihu public host only; PC editor
+  DOM and ordinary paste freshness are no longer the next release blocker.
+
+Scope:
+- This slice proves authenticated WeChat PC editor DOM and ordinary Ctrl+V rich paste for the
+  listed exact artifacts only. It does not prove phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -599,14 +599,14 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('- Can continue locally: no')
     expect(result.stdout).toContain('- Requires operator: yes')
     expect(result.stdout).toContain('- Phone rows: 4')
-    expect(result.stdout).toContain('- External account rows: 13')
+    expect(result.stdout).toContain('- External account rows: 10')
     expect(result.stdout).toContain('- Public host rows: 1')
-    expect(result.stdout).toContain('- External handoff rows: 18')
+    expect(result.stdout).toContain('- External handoff rows: 15')
     expect(result.stdout).toContain('## Cannot-Claim Boundary')
     expect(result.stdout).toContain('Do not claim phone preview, mobile interaction, Dark Mode')
     expect(result.stdout).toContain('- phone-preview: wechat / cover-thumbnail-check / phone-preview:')
-    expect(result.stdout).toContain('- Issue ids: style-proof-manifest-proof-stale')
-    expect(result.stdout).toContain('- Freshness issue ids: style-proof-manifest-proof-stale')
+    expect(result.stdout).toContain('- external-account: wechat / credentialed-channel-response / credentialed-channel:')
+    expect(result.stdout).not.toContain('style-proof-manifest-proof-stale')
     expectNoSensitiveFragments(result.stdout)
   })
 
@@ -629,16 +629,16 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(packet.containsUnsafeToAutomateRows).toBe(true)
     expect(packet.containsMutatingPlatformRows).toBe(true)
     expect(packet.summary).toMatchObject({
-      externalHandoffRows: 18,
+      externalHandoffRows: 15,
       phoneRows: 4,
-      externalAccountRows: 13,
+      externalAccountRows: 10,
       publicHostRows: 1,
-      unsafeToAutomateRows: 11,
-      mutatingRows: 13,
+      unsafeToAutomateRows: 10,
+      mutatingRows: 10,
       safeExternalRows: 0,
       actionableLocalRows: 0,
     })
-    expect(packet.rows).toHaveLength(18)
+    expect(packet.rows).toHaveLength(15)
     expect(packet.nextRowRefs).toHaveLength(5)
     expect(packet.nextRows).toHaveLength(3)
     expect(packet.nextRowRefs.map(ref => ref.kind)).toEqual([
@@ -652,10 +652,10 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(packet.nextRowRefs.every(ref => !ref.row.safeToAutomate)).toBe(true)
     expect(packet.rows.some(row =>
       row.issueIds.includes('style-proof-manifest-proof-stale')
-    )).toBe(true)
+    )).toBe(false)
     expect(packet.rows.some(row =>
       row.freshnessIssueIds.includes('style-proof-manifest-proof-stale')
-    )).toBe(true)
+    )).toBe(false)
   })
 
   it('prints help with a successful exit code', async () => {
@@ -734,9 +734,9 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       nextOnly: true,
       freshnessOnly: false,
     })
-    expect(packet.committedSummary.externalHandoffRows).toBe(18)
+    expect(packet.committedSummary.externalHandoffRows).toBe(15)
     expect(packet.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 18,
+      committedExternalHandoffRows: 15,
       filteredRows: 1,
       filteredNextRowRefs: 1,
       filteredNextRows: 1,
@@ -776,7 +776,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('- Issue id: all')
     expect(result.stdout).toContain('- Freshness only: no')
     expect(result.stdout).toContain('- Next only: yes')
-    expect(result.stdout).toContain('- Committed external handoff rows: 18')
+    expect(result.stdout).toContain('- Committed external handoff rows: 15')
     expect(result.stdout).toContain('- Filtered rows: 1')
     expect(result.stdout).toContain('- phone-preview: wechat / cover-thumbnail-check / phone-preview:')
     expect(result.stdout).not.toContain('- external-account:')
@@ -785,7 +785,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(result.stdout)
   })
 
-  it('filters stale proof rows by status, issue id, and freshness without treating stale proof as complete', async () => {
+  it('filters freshness-only stale rows after the PC proof refresh without treating absence as completion', async () => {
     const result = await runExternalHandoffCli([
       '--json',
       '--platform=wechat',
@@ -813,41 +813,29 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       freshnessOnly: true,
     })
     expect(packet.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 18,
-      filteredRows: 2,
+      committedExternalHandoffRows: 15,
+      filteredRows: 0,
       filteredNextRowRefs: 0,
       filteredNextRows: 0,
-      externalAccountRows: 2,
-      freshnessIssueRows: 2,
-      cannotClaimRows: 2,
+      externalAccountRows: 0,
+      freshnessIssueRows: 0,
+      cannotClaimRows: 0,
     })
-    expect(packet.filteredSummary.platforms).toEqual(['wechat'])
-    expect(packet.filteredSummary.kinds).toEqual(['external-account', 'mutating-platform'])
-    expect(packet.filteredSummary.statuses).toEqual(['invalid'])
-    expect(packet.filteredSummary.issueIds).toEqual([
-      'style-proof-manifest-proof-stale',
-      'style-proof-manifest-requirement-missing',
-    ])
-    expect(packet.rows).toHaveLength(2)
-    expect(packet.rows.map(row => row.requirementId).sort()).toEqual([
-      'pc-editor-paste-event',
-      'safe-disposable-draft',
-    ])
-    expect(packet.rows.every(row => row.status === 'invalid')).toBe(true)
-    expect(packet.rows.every(row => row.issueIds.includes('style-proof-manifest-proof-stale'))).toBe(true)
-    expect(packet.rows.every(row => row.freshnessIssueIds.includes('style-proof-manifest-proof-stale'))).toBe(true)
-    expect(packet.rows.every(row => row.cannotClaim)).toBe(true)
-    expect(packet.rows.every(row => !row.safeToAutomate)).toBe(true)
+    expect(packet.filteredSummary.platforms).toEqual([])
+    expect(packet.filteredSummary.kinds).toEqual([])
+    expect(packet.filteredSummary.statuses).toEqual([])
+    expect(packet.filteredSummary.issueIds).toEqual([])
+    expect(packet.rows).toHaveLength(0)
   })
 
-  it('prints a redacted operator worksheet template for filtered stale proof rows without creating proof', async () => {
+  it('prints a redacted operator worksheet template for the next credentialed proof row without creating proof', async () => {
     const result = await runExternalHandoffCli([
       '--template',
       '--platform=wechat',
       '--kind=external-account',
-      '--status=invalid',
-      '--issue=style-proof-manifest-proof-stale',
-      '--freshness-only',
+      '--status=unsafe-to-automate',
+      '--issue=style-proof-manifest-requirement-missing',
+      '--next-only',
     ])
 
     expect(result.exitCode).toBe(1)
@@ -863,33 +851,33 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(template.filters).toEqual({
       platform: 'wechat',
       kind: 'external-account',
-      status: 'invalid',
-      issueId: 'style-proof-manifest-proof-stale',
-      nextOnly: false,
-      freshnessOnly: true,
+      status: 'unsafe-to-automate',
+      issueId: 'style-proof-manifest-requirement-missing',
+      nextOnly: true,
+      freshnessOnly: false,
     })
     expect(template.filteredSummary).toMatchObject({
-      committedExternalHandoffRows: 18,
-      filteredRows: 2,
-      filteredNextRowRefs: 0,
-      filteredNextRows: 0,
-      externalAccountRows: 2,
-      freshnessIssueRows: 2,
-      cannotClaimRows: 2,
+      committedExternalHandoffRows: 15,
+      filteredRows: 1,
+      filteredNextRowRefs: 1,
+      filteredNextRows: 1,
+      externalAccountRows: 1,
+      freshnessIssueRows: 0,
+      cannotClaimRows: 1,
     })
-    expect(template.rows).toHaveLength(2)
-    expect(template.nextRowRefs).toEqual([])
-    expect(template.nextRows).toEqual([])
+    expect(template.rows).toHaveLength(1)
+    expect(template.nextRowRefs).toHaveLength(1)
+    expect(template.nextRows).toHaveLength(1)
 
     const row = template.rows[0]
     expect(row?.templateOnly).toBe(true)
     expect(row?.notProof).toBe(true)
     expect(row?.cannotClaim).toBe(true)
     expect(row?.platform).toBe('wechat')
-    expect(['pc-editor-paste-event', 'safe-disposable-draft']).toContain(row?.requirementId)
-    expect(row?.status).toBe('invalid')
-    expect(row?.issueIds).toContain('style-proof-manifest-proof-stale')
-    expect(row?.freshnessIssueIds).toContain('style-proof-manifest-proof-stale')
+    expect(row?.requirementId).toBe('credentialed-channel-response')
+    expect(row?.status).toBe('unsafe-to-automate')
+    expect(row?.issueIds).toContain('style-proof-manifest-requirement-missing')
+    expect(row?.freshnessIssueIds).toEqual([])
     expect(row?.artifactTemplate.requirementId).toBe(row?.requirementId)
     expect(row?.operatorWorksheet.requiredFields).toContain('collectedAt')
     expect(row?.operatorWorksheet.requiredChannels).toEqual(row?.artifactTemplate.requiredChannels)
@@ -944,14 +932,14 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       '--template',
       '--platform=wechat',
       '--kind=external-account',
-      '--status=invalid',
-      '--issue=style-proof-manifest-proof-stale',
-      '--freshness-only',
+      '--status=unsafe-to-automate',
+      '--issue=style-proof-manifest-requirement-missing',
+      '--next-only',
     ])
     const template = parseExternalHandoffTemplateJson(templateResult.stdout)
     const manifests = template.rows.flatMap(row => row.manifestDraftTemplate.drafts)
 
-    expect(manifests).toHaveLength(18)
+    expect(manifests).toHaveLength(4)
     expect(manifests.every(manifest => manifest.artifacts.length === 0)).toBe(true)
 
     const result = await withRedactedManifestFile(
@@ -975,8 +963,8 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
 
     expect(report.canClaimComplete).toBe(false)
     expect(report.status).not.toBe('schema-invalid')
-    expect(report.summary.inputManifestCount).toBe(18)
-    expect(report.summary.acceptedManifestCount).toBe(18)
+    expect(report.summary.inputManifestCount).toBe(4)
+    expect(report.summary.acceptedManifestCount).toBe(4)
     expect(report.summary.schemaErrorCount).toBe(0)
     expect(report.summary.schemaWarningCount).toBe(0)
     expect(report.summary.artifactCount).toBe(0)

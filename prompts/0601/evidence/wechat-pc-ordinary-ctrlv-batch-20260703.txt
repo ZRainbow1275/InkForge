@@ -1,0 +1,183 @@
+WeChat PC Ordinary Ctrl+V Batch Proof - 2026-07-03
+
+Scope:
+- CloakBrowser-only authenticated WeChat PC editor proof for eight exact InkForge artifacts.
+- Ordinary Windows OS Ctrl+V path using CF_HTML plus UnicodeText.
+- Each artifact was transformed only by decimal HTML entity encoding for non-ASCII characters before
+  the clipboard write.
+- No phone preview, Dark Mode inspection, cover-thumbnail acceptance, sync, scheduled send,
+  platform preview, public article rendering, upload, save, or publish action was executed or
+  claimed.
+
+Safety boundary:
+- Browser profile paths, account identifiers, cookies, tokens, QR codes, HAR files, local
+  screenshot paths, request payloads, and raw platform responses are intentionally excluded.
+- The target editor was an already-open authenticated disposable draft surface.
+- Every paste was followed by Ctrl+Z cleanup, and the body returned to the placeholder state:
+  htmlLength=298, textLength=10, svg=0, dataInkSvg=0, dataInkBlock=0, replacementGlyphCount=0.
+
+Common method:
+- Current CloakBrowser tab: redacted WeChat PC article editor.
+- Visible body editor: ProseMirror contenteditable surface.
+- Paste method: Win32 keybd_event Ctrl+V through the real foreground browser window.
+- Foreground input probe: windowMatched=true, matchedWindowCount=1, keybdEventCount=4,
+  preserveClipboard=true.
+- In-page probe: paste listener installed on the visible body editor before each Ctrl+V.
+- Required success signal for each row:
+  paste=1, clipboardTypes=[text/plain,text/html], mutations>0, replacementGlyphCount=0,
+  styleAttrCount>0, no account artifacts committed, and cleanup readback returned to placeholder.
+
+Artifact results:
+
+1. wechat-classic-inline
+- Source artifact: prompts/0601/evidence/wechat-classic-inline-local-artifact-20260621.html.
+- Source SHA-256: 13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562.
+- Source bytes: 3605.
+- Entity-safe SHA-256: 6217d6a73b588b8684608f288e20fc4f44baa99a19efd633aef7c50290310a16.
+- Entity-safe HTML bytes: 4320; CF_HTML bytes: 4489.
+- Source non-ASCII characters: 143; decimal entity count: 143.
+- Clipboard source metrics: svg=0, dataInkSvg=0, dataInkBlock=0, plainTextChars=270.
+- WeChat PC editor readback:
+  htmlLength=3224, textLength=281, section=6, p=5, span=15, svg=0,
+  dataInkSvg=0, dataInkBlock=0, styleAttr=16, classAttr=2, img=0,
+  replacementGlyphCount=0, cjkCount=116, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=6, clipboardTypes=[text/plain,text/html].
+
+2. wechat-quiet-editorial
+- Source artifact: prompts/0601/evidence/wechat-quiet-editorial-local-artifact-20260621.html.
+- Source SHA-256: 1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e.
+- Source bytes: 15324.
+- Entity-safe SHA-256: 6ca702ecf6d811b69136362f9cf01658bd3d79639d8fae67630fd1fa454d1fb6.
+- Entity-safe HTML bytes: 16865; CF_HTML bytes: 17034.
+- Source non-ASCII characters: 309; decimal entity count: 309.
+- Clipboard source metrics: svg=17, dataInkSvg=1, dataInkBlock=12, plainTextChars=470.
+- WeChat PC editor readback:
+  htmlLength=16009, textLength=525, section=18, p=23, span=50, svg=17,
+  dataInkSvg=1, dataInkBlock=12, styleAttr=70, classAttr=14, img=0,
+  replacementGlyphCount=0, cjkCount=286, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=8, clipboardTypes=[text/plain,text/html].
+
+3. wechat-toolbar-parameter-map
+- Source artifact: prompts/0601/evidence/wechat-toolbar-parameter-map-local-artifact-20260622.html.
+- Source SHA-256: f5e6487905e11bfc64e2998d553de45de29b372a87b584014076e38b49263e79.
+- Source bytes: 9058.
+- Entity-safe SHA-256: 5188d84adf0364ce61920f82e4755ec5a93f06df4b87be08d90524221c87d33c.
+- Entity-safe HTML bytes: 10143; CF_HTML bytes: 10312.
+- Source non-ASCII characters: 217; decimal entity count: 217.
+- Clipboard source metrics: svg=0, dataInkSvg=0, dataInkBlock=0, plainTextChars=571.
+- WeChat PC editor readback:
+  htmlLength=9434, textLength=613, section=20, p=8, span=41, svg=0,
+  dataInkSvg=0, dataInkBlock=0, styleAttr=44, classAttr=6, img=0,
+  replacementGlyphCount=0, cjkCount=181, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=31, clipboardTypes=[text/plain,text/html].
+
+4. wechat-cover-seal-divider
+- Source artifact: prompts/0601/evidence/wechat-cover-seal-divider-local-artifact-20260622.html.
+- Source SHA-256: e8537db3ddff4b51b5fc6cd189d92cc71fdc9dcc7b8beea7879c7dc96ecfcb2f.
+- Source bytes: 15452.
+- Entity-safe SHA-256: fe76fcad4093eb41538a7747daef1fb2eb37af76e74b3719163a162b74ba0082.
+- Entity-safe HTML bytes: 16984; CF_HTML bytes: 17153.
+- Source non-ASCII characters: 307; decimal entity count: 307.
+- Clipboard source metrics: svg=16, dataInkSvg=3, dataInkBlock=10, plainTextChars=491.
+- WeChat PC editor readback:
+  htmlLength=15972, textLength=536, section=17, p=19, span=45, svg=16,
+  dataInkSvg=3, dataInkBlock=10, styleAttr=64, classAttr=11, img=0,
+  replacementGlyphCount=0, cjkCount=284, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=8, clipboardTypes=[text/plain,text/html].
+
+5. wechat-card-rich
+- Source artifact: prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html.
+- Source SHA-256: 91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990.
+- Source bytes: 24797.
+- Entity-safe SHA-256: cd628946e1b1b0acf3b2f3a77dcbb4b395db237c59fc858584b50c00941e5f1f.
+- Entity-safe HTML bytes: 26868; CF_HTML bytes: 27037.
+- Source non-ASCII characters: 415; decimal entity count: 415.
+- Clipboard source metrics: svg=23, dataInkSvg=1, dataInkBlock=14, plainTextChars=704.
+- WeChat PC editor readback:
+  htmlLength=25367, textLength=764, section=29, p=39, span=73, svg=23,
+  dataInkSvg=1, dataInkBlock=14, styleAttr=114, classAttr=9, img=0,
+  replacementGlyphCount=0, cjkCount=389, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=8, clipboardTypes=[text/plain,text/html].
+
+6. wechat-flagship-kiln
+- Source artifact: prompts/0601/evidence/wechat-paste/flagship-kiln.html.
+- Source SHA-256: 90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531.
+- Source bytes: 41800.
+- Entity-safe SHA-256: d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335.
+- Entity-safe HTML bytes: 46487; CF_HTML bytes: 46656.
+- Source non-ASCII characters: 941; decimal entity count: 941.
+- Clipboard source metrics: svg=35, dataInkSvg=3, dataInkBlock=23, plainTextChars=1357.
+- WeChat PC editor readback:
+  htmlLength=43087, textLength=1426, section=48, p=70, span=153, svg=35,
+  dataInkSvg=3, dataInkBlock=23, styleAttr=195, classAttr=30, img=2,
+  replacementGlyphCount=0, cjkCount=832, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=26, clipboardTypes=[text/plain,text/html].
+
+7. wechat-flagship-amber
+- Source artifact: prompts/0601/evidence/wechat-paste/flagship-amber.html.
+- Source SHA-256: 09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d.
+- Source bytes: 42096.
+- Entity-safe SHA-256: bd698217d44f038809ec5260ea9ef0513b230823c873839f7160f675c580124a.
+- Entity-safe HTML bytes: 46798; CF_HTML bytes: 46967.
+- Source non-ASCII characters: 944; decimal entity count: 944.
+- Clipboard source metrics: svg=35, dataInkSvg=3, dataInkBlock=23, plainTextChars=1365.
+- WeChat PC editor readback:
+  htmlLength=43398, textLength=1433, section=48, p=70, span=153, svg=35,
+  dataInkSvg=3, dataInkBlock=23, styleAttr=195, classAttr=30, img=2,
+  replacementGlyphCount=0, cjkCount=835, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=26, clipboardTypes=[text/plain,text/html].
+
+8. wechat-flagship-tempera
+- Source artifact: prompts/0601/evidence/wechat-paste/flagship-tempera.html.
+- Source SHA-256: d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585.
+- Entity-safe SHA-256: f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878.
+- Source bytes: 41754.
+- Entity-safe HTML bytes: 46456; CF_HTML bytes: 46625.
+- Source non-ASCII characters: 944; decimal entity count: 944.
+- Clipboard source metrics: svg=35, dataInkSvg=3, dataInkBlock=23, plainTextChars=1367.
+- WeChat PC editor readback:
+  htmlLength=43031, textLength=1433, section=48, p=70, span=153, svg=35,
+  dataInkSvg=3, dataInkBlock=23, styleAttr=195, classAttr=30, img=2,
+  replacementGlyphCount=0, cjkCount=835, hasNice=true.
+- Paste probe:
+  paste=1, input=0, beforeinput=0, mutations=26, clipboardTypes=[text/plain,text/html].
+
+Interpretation:
+- These eight rows prove authenticated WeChat PC editor DOM readback and ordinary Ctrl+V paste
+  behavior for the exact listed artifacts only.
+- The Kiln result supersedes the earlier 2026-06-19 editor-return negative attempt for the current
+  corrected foreground/click path and entity-safe clipboard payload.
+- The Amber and Tempera rows refresh the earlier 2026-06-18 and 2026-06-19 PC ordinary Ctrl+V proof
+  freshness without widening the proof boundary.
+- This file does not prove phone-side WeChat preview, mobile Dark Mode, SMIL/click interaction,
+  cover thumbnail acceptance, plugin/authorized sync, scheduled send, public platform preview, or
+  publish success.
+
+Local verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed WeChat PC evidence manifests" --reporter=default --test-timeout=90000
+  PASS: 1 test.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed" --reporter=default --test-timeout=90000
+  PASS: 1 file / 11 tests.
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000
+  PASS: 2 files / 14 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge build with NODE_OPTIONS=--max-old-space-size=4096
+  PASS: 4653 modules transformed, built in 32.64s.
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 33 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1350 tests.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  blockerCount=4, combinedIssueCount=11, cannotClaimSteps=26, externalHandoffRows=15,
+  safeExternalRows=0, actionableLocalRows=0.

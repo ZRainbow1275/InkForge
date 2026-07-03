@@ -1342,6 +1342,19 @@ Contracts:
   `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
   `editorBodyMutationVerified:true`, or `mojibakeFreeVerified:true`, and it must not weaken or
   contradict the Tempera entity-safe success proof.
+- 2026-07-03 live WeChat PC ordinary Ctrl+V batch refresh:
+  `wechat-pc-ordinary-ctrlv-batch-20260703.txt` supersedes the above Kiln entity-safe negative
+  outcome for the corrected foreground/click path and current authenticated disposable editor. The
+  batch proves ordinary OS Ctrl+V, DOM readback, paste event, body mutation, mojibake-free text, and
+  Ctrl+Z cleanup for eight exact artifacts: `wechat-classic-inline`, `wechat-quiet-editorial`,
+  `wechat-toolbar-parameter-map`, `wechat-cover-seal-divider`, `wechat-card-rich`,
+  `wechat-flagship-kiln`, `wechat-flagship-amber`, and `wechat-flagship-tempera`. Combined with
+  `wechat-kiln-paste-safe-encoded-ordinary-ctrlv-20260703.txt`, the committed WeChat PC proof pack
+  now contains fresh PC editor evidence for all nine available WeChat choices that require
+  authenticated PC editor readback. This only satisfies PC editor DOM / ordinary paste /
+  disposable-cleanup rows for the exact artifacts. It still must not satisfy phone preview, mobile
+  Dark Mode, mobile SMIL/click, cover thumbnail, credentialed sync, scheduled send, public preview,
+  or publish proof.
 - 2026-06-18 Kiln paste-safe candidate:
   `flagship-kiln-paste-safe` and `wechat-flagship-kiln-paste-safe` are additive candidates created
   after the exact `flagship-kiln.html` ordinary Ctrl+V negative proof. They preserve the original

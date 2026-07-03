@@ -7,6 +7,21 @@
 
 ---
 
+## 2026-07-03 WeChat PC ordinary Ctrl+V batch refresh
+
+`wechat-pc-ordinary-ctrlv-batch-20260703.txt` records a CloakBrowser-only authenticated
+WeChat PC editor batch proof for eight exact InkForge artifacts:
+`wechat-classic-inline`, `wechat-quiet-editorial`, `wechat-toolbar-parameter-map`,
+`wechat-cover-seal-divider`, `wechat-card-rich`, `wechat-flagship-kiln`,
+`wechat-flagship-amber`, and `wechat-flagship-tempera`.
+
+Each row used Windows CF_HTML plus UnicodeText, entity-encoded non-ASCII text, ordinary OS Ctrl+V
+through the real foreground browser window, in-page paste/mutation probes, DOM readback, and Ctrl+Z
+cleanup back to the placeholder body. The batch refresh closes the committed WeChat PC editor DOM
+and ordinary paste freshness gap for the available WeChat style choices, but it does not prove phone
+preview, mobile Dark Mode, mobile SMIL/click interaction, cover-thumbnail acceptance, credentialed
+sync, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+
 ## A. 跑 tauri-driver 真二进制探针 / e2e（机器门禁）
 
 **当前状态（2026-06-08）**：已执行并通过。最新机器日志已留档：
@@ -8264,3 +8279,31 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste-safe source artifact. It does not prove phone preview, phone screenshot, mobile
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-07-03 WeChat PC Ordinary Ctrl+V Batch Refresh
+
+- [x] wechat-pc-ordinary-ctrlv-batch-20260703.txt
+- Used the same authenticated disposable WeChat PC editor surface with CloakBrowser DOM readback and
+  Windows foreground ordinary Ctrl+V / Ctrl+Z cleanup. No save, preview, sync, scheduled send,
+  upload, publish, phone preview, or sensitive account/runtime capture artifact was recorded.
+- The batch covers eight exact artifacts:
+  `wechat-classic-inline`, `wechat-quiet-editorial`, `wechat-toolbar-parameter-map`,
+  `wechat-cover-seal-divider`, `wechat-card-rich`, `wechat-flagship-kiln`,
+  `wechat-flagship-amber`, and `wechat-flagship-tempera`.
+- DOM readback highlights:
+  - classic-inline: `svg=0`, `styleAttr=16`, `replacementGlyphCount=0`.
+  - quiet-editorial: `svg=17`, `dataInkSvg=1`, `dataInkBlock=12`, `replacementGlyphCount=0`.
+  - toolbar-parameter-map: `svg=0`, `styleAttr=44`, `replacementGlyphCount=0`.
+  - cover-seal-divider: `svg=16`, `dataInkSvg=3`, `dataInkBlock=10`, `replacementGlyphCount=0`.
+  - card-rich: `svg=23`, `dataInkSvg=1`, `dataInkBlock=14`, `replacementGlyphCount=0`.
+  - flagship-kiln: `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `replacementGlyphCount=0`.
+  - flagship-amber: `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `replacementGlyphCount=0`.
+  - flagship-tempera: `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `replacementGlyphCount=0`.
+- Committed style-proof manifests now include nine fresh WeChat PC evidence manifests in total:
+  the eight batch rows above plus the already committed Kiln paste-safe row. Release preflight no
+  longer reports a PC editor DOM / ordinary paste freshness blocker; it still exits 1 because phone
+  preview, credentialed sync/publish, and Zhihu public-host proof remain external gates.
+- Boundary: this closes only authenticated WeChat PC editor DOM and ordinary Ctrl+V paste rows for
+  the exact listed artifacts. It does not prove phone preview, phone screenshot, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.
