@@ -1,0 +1,110 @@
+Xiumi Applied Center Delta - 2026-07-03
+
+Scope:
+- CloakBrowser-only inspection of the already-open Xiumi v5 paper editor.
+- Targeted the left Xiumi SVG, title, and card libraries, then read the center
+  `.tn-editing-panel` summary after visible/template item interactions.
+- No WeChat/XHS/Zhihu platform action, phone preview, upload, sync, save, schedule, publish,
+  account-state image capture, browser profile artifact, HAR, QR payload, or browser credential value was
+  collected or recorded.
+
+Baseline:
+- Page title matched the Xiumi paper editor.
+- The navigation still exposed login text, so this evidence is not account/sync proof.
+- The center already contained applied SVG-gallery/game-style content from the current editor
+  state.
+- Center baseline:
+  - hash: `-1515025390`
+  - HTML length: `602739`
+  - `tnComp`: `63`
+  - `tnCell`: `30`
+  - `tnUuid`: `28`
+  - `ng-*` attributes: `4617`
+  - `opera-tn-ra-*` bindings: `58`
+  - `contenteditable` surfaces: `2`
+  - literal center SVG: `0`
+  - images: `90`
+  - hosted-image/string references: `29`
+
+Left taxonomy observed:
+- Title groups: base, minimal, framed, image-backed, background, symbol, primary-secondary,
+  numbered, vertical, gradient, dynamic, texture, shadow, all titles.
+- Card groups: base, minimal, plain-text, framed, background, patterned, image-text,
+  dialog/Q&A, timeline/axis, all cards.
+- SVG groups: base SVG, image carousel, click expand, path animation, lottery, slide,
+  transition, branch transition, slide trigger, parallax, click switch, flip, zoom, quiz,
+  bullet text, click show/change/open/disappear/popup/zoom/print/jump/play, long-press switch,
+  region trigger, falling, and click-plus-auto.
+
+Center deltas:
+- Physical click on a visible title template added title content:
+  - hash changed to `27562813`
+  - HTML length changed to `630289`
+  - `tnComp` changed to `83`
+  - `tnCell` changed to `44`
+  - `tnUuid` changed to `38`
+  - `ng-*` attributes changed to `4705`
+  - `opera-tn-ra-*` bindings changed to `82`
+  - `contenteditable` changed to `5`
+  - images changed to `94`
+  - text readback added a visible `七一建党节` title.
+- A later physical click on a visible card template added card/body content:
+  - hash changed to `1255512782`
+  - HTML length changed to `644825`
+  - `tnComp` changed to `103`
+  - `tnCell` changed to `56`
+  - `tnUuid` changed to `48`
+  - `ng-*` attributes changed to `4747`
+  - `opera-tn-ra-*` bindings changed to `104`
+  - `contenteditable` changed to `8`
+  - images changed to `97`
+  - text readback added a card-style paragraph body.
+- Selecting SVG subcategories exposed the active SVG taxonomy, including `文字弹幕`.
+  A selector-targeted CloakBrowser click against a visible left template item changed the center:
+  - hash changed from `1255512782` to `2130047643`
+  - HTML length changed from `644825` to `719571`
+  - `tnComp` changed from `103` to `193`
+  - `tnCell` changed from `56` to `103`
+  - `tnUuid` changed from `48` to `93`
+  - `contenteditable` changed from `8` to `19`
+  - images changed from `97` to `98`
+  - text readback added visible `马到功成 / 马上有钱` template content.
+
+Final center residue families:
+- `tn-comp-*`, `tn-cell-*`, `tn-uuid`, `tn-from-house-paper-cp`, `tn-comp-anim-pin`,
+  `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`, `tn-group-sortable-box`,
+  `tn-sortable-pin`, `tn-image-inst-wrapper`, `tn-image-presenter`, `raw-image`,
+  `ui-sortable`, `ng-*`, `opera-tn-ra-*`, operation-panel classes, and `contenteditable`.
+- Final center exact counters included:
+  - animation markers: `394`
+  - `tn-link` bindings: `196`
+  - `ui-sortable` markers: `16`
+  - image wrapper/presenter markers: `51`
+  - state wrapper markers: `228`
+  - `contenteditable` attributes: `19`
+  - hosted-image/string references: `34`
+
+Classification:
+- The run satisfies market-editor applied-center learning for Xiumi title/card and reinforces
+  the existing Xiumi SVG/title/card rule set.
+- Xiumi's applied SVG-style elements again produced an Angular/TN authoring tree with image
+  slots and action/state metadata, not literal center inline SVG.
+- The observed families are already covered by current detector labels, including:
+  `Xiumi image instance wrapper residue`, `Xiumi content-overlap state residue`,
+  `Xiumi state toggle residue`, `Xiumi editing state residue`,
+  `Xiumi in-cell active state residue`, `Xiumi group sortable box residue`,
+  `Xiumi operation panel loader residue`, `Xiumi animate operation panel residue`,
+  `Xiumi template authoring tree residue`, `Xiumi template scene marker residue`,
+  `Xiumi animation binding metadata residue`, `Xiumi link binding metadata residue`,
+  `Xiumi sortable control residue`, `Xiumi component runtime path binding residue`,
+  `Xiumi cell runtime path binding residue`, `Xiumi editor contenteditable residue`, and
+  `Xiumi third-party image source`.
+
+Boundary:
+- This evidence must be translated into InkForge-owned title/card/image-slot/action schema,
+  fallback-state reports, raster/static fallback rules, and residue blockers.
+- It must not be copied as runtime Xiumi DOM, private classes, Angular/Vue bindings, hosted
+  material references, operation panels, template geometry, or editor-state wrappers.
+- It does not prove WeChat rich paste, phone preview, phone screenshot, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -8418,6 +8418,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, platform upload, or publish success.
 
+## 2026-07-03 Xiumi Applied Center Delta Recheck
+
+- [x] xiumi-applied-center-delta-20260703.txt
+- Scope: CloakBrowser-only inspection of the already-open Xiumi v5 paper editor.
+- Center baseline already contained applied SVG-gallery/game-style content with
+  `tnComp=63`, `tnCell=30`, `tnUuid=28`, `contenteditable=2`, literal center SVG `0`,
+  and images `90`.
+- A visible title template click changed the center to `tnComp=83`, `tnCell=44`,
+  `tnUuid=38`, `contenteditable=5`, images `94`, and visible `七一建党节` title text.
+- A visible card template click changed the center to `tnComp=103`, `tnCell=56`,
+  `tnUuid=48`, `contenteditable=8`, images `97`, and visible card body text.
+- SVG taxonomy inspection exposed active SVG groups including `文字弹幕`; a visible left template
+  interaction changed the center to `tnComp=193`, `tnCell=103`, `tnUuid=93`,
+  `contenteditable=19`, and images `98`.
+- Existing Xiumi detector families already cover the observed authoring-state classes, Angular/
+  TN bindings, image wrappers, state wrappers, sortable controls, contenteditable surfaces, and
+  hosted image references; no detector source-code change was required.
+- Boundary: this is market-editor applied-center learning only. It does not prove WeChat rich
+  paste, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.
+
 ## 2026-07-03 WeChat PC Editor CloakBrowser Reachability Recheck
 
 - [x] wechat-pc-editor-cloakbrowser-reachability-20260703.txt

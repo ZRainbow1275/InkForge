@@ -13910,3 +13910,66 @@ const ruleFamilies = [
 - Run release-preflight smoke after recording the evidence; it must still exit non-zero with
   `canClaimComplete:false`.
 - Run staged diff and sensitive-fragment scans before committing the docs-only evidence.
+
+## 286. Xiumi Applied Center Delta Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the user required Xiumi learning from actual left-panel SVG/title/card interactions
+  into the center editor, not listing-only assumptions.
+- This rule records a CloakBrowser-only recheck of the already-open Xiumi v5 paper editor where
+  the center `.tn-editing-panel` was read before and after visible title/card/template
+  interactions.
+- This is market-editor applied-center evidence only. It does not click WeChat/XHS/Zhihu publish
+  surfaces, upload media, sync drafts, schedule sends, publish, collect phone proof, or write
+  platform proof manifests.
+
+### 2. Observed Surface
+
+- The center baseline already contained applied SVG-gallery/game-style content: hash
+  `-1515025390`, HTML length `602739`, `tnComp=63`, `tnCell=30`, `tnUuid=28`,
+  `ngAttr=4617`, `operaAttr=58`, `contenteditable=2`, literal center SVG `0`, images `90`, and
+  hosted-image/string references `29`.
+- Xiumi title taxonomy included base, minimal, framed, image-backed, background, symbol,
+  primary/secondary, numbered, vertical, gradient, dynamic, texture, shadow, and all-title
+  groups.
+- Xiumi card taxonomy included base, minimal, plain-text, framed, background, patterned,
+  image-text, dialog/Q&A, timeline/axis, and all-card groups.
+- Xiumi SVG taxonomy included base SVG, image carousel, click expand, path animation, lottery,
+  slide, transition, branch transition, slide trigger, parallax, click switch, flip, zoom, quiz,
+  bullet text, click show/change/open/disappear/popup/zoom/print/jump/play, long-press switch,
+  region trigger, falling, and click-plus-auto.
+- A visible title template click changed the center to hash `27562813`, HTML length `630289`,
+  `tnComp=83`, `tnCell=44`, `tnUuid=38`, `ngAttr=4705`, `operaAttr=82`,
+  `contenteditable=5`, images `94`, and visible `七一建党节` title text.
+- A visible card template click changed the center to hash `1255512782`, HTML length `644825`,
+  `tnComp=103`, `tnCell=56`, `tnUuid=48`, `ngAttr=4747`, `operaAttr=104`,
+  `contenteditable=8`, images `97`, and visible card body text.
+- Active SVG subcategory inspection exposed `文字弹幕`. A selector-targeted CloakBrowser click on
+  a visible left template item changed the center to hash `2130047643`, HTML length `719571`,
+  `tnComp=193`, `tnCell=103`, `tnUuid=93`, `contenteditable=19`, images `98`, and visible
+  `马到功成 / 马上有钱` text.
+
+### 3. Contract
+
+- The observed Xiumi DOM is schema input, not runtime source. Convert it into InkForge-owned
+  title/card/image-slot/action schemas, layout reports, fallback states, raster/static fallback,
+  and residue-blocker contracts.
+- Do not copy Xiumi `tn-*`, `ng-*`, `opera-tn-ra-*`, operation-panel classes, contenteditable
+  cells, hosted material references, template geometry, or editor-state wrappers into runtime
+  output.
+- The final center exposed animation markers, `tn-link` bindings, `ui-sortable`, image
+  wrappers/presenters, state wrappers, `contenteditable`, and hosted image references. Existing
+  detector families already cover these as Xiumi image instance, content-overlap/state/editing,
+  sortable, operation-panel, template authoring/tree/scene, animation/link binding, runtime path,
+  contenteditable, and third-party image residues.
+- Add a new detector rule only if a future applied center readback exposes a publishable-output
+  marker not represented by those current families.
+
+### 4. Required Checks
+
+- Evidence docs must cite only sanitized center deltas, taxonomy labels, class families, and
+  cannot-claim boundaries.
+- Run release-preflight smoke after recording the evidence; it must still exit non-zero with
+  `canClaimComplete:false`.
+- Run staged diff and sensitive-fragment scans before committing the docs-only evidence.

@@ -8,6 +8,53 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Xiumi Applied Center Delta Recheck Slice
+
+Scope:
+- CloakBrowser-only inspection of the already-open Xiumi v5 paper editor.
+- No WeChat/XHS/Zhihu platform action, phone preview, upload, sync, save, schedule, publish,
+  account-state image capture, browser-runtime artifact capture, HAR, QR payload, or browser
+  credential value collection.
+
+Observed:
+- The center `.tn-editing-panel` baseline already contained applied SVG-gallery/game-style
+  content from the current editor state: hash `-1515025390`, HTML length `602739`,
+  `tnComp=63`, `tnCell=30`, `tnUuid=28`, `ngAttr=4617`, `operaAttr=58`,
+  `contenteditable=2`, literal center SVG `0`, images `90`, and hosted-image/string references
+  `29`.
+- Left taxonomy exposed title groups, card groups, and the full SVG category set including
+  image carousel, click expand, path animation, lottery, slide, transitions, parallax, click
+  switch, flip, zoom, quiz, bullet text, click show/change/open/disappear/popup/zoom/print/jump/
+  play, long-press switch, region trigger, falling, and click-plus-auto.
+- A physical click on a visible title template changed the center to hash `27562813`, HTML
+  length `630289`, `tnComp=83`, `tnCell=44`, `tnUuid=38`, `ngAttr=4705`, `operaAttr=82`,
+  `contenteditable=5`, images `94`, and visible `七一建党节` title text.
+- A later physical click on a visible card template changed the center to hash `1255512782`,
+  HTML length `644825`, `tnComp=103`, `tnCell=56`, `tnUuid=48`, `ngAttr=4747`,
+  `operaAttr=104`, `contenteditable=8`, images `97`, and visible card body text.
+- SVG subcategory inspection exposed active SVG taxonomy including `文字弹幕`; a selector-targeted
+  CloakBrowser click against a visible template item changed the center to hash `2130047643`,
+  HTML length `719571`, `tnComp=193`, `tnCell=103`, `tnUuid=93`, `contenteditable=19`, and
+  images `98`, with visible `马到功成 / 马上有钱` text.
+- Final center residue counters included animation markers `394`, `tn-link` bindings `196`,
+  `ui-sortable` markers `16`, image wrapper/presenter markers `51`, state wrapper markers `228`,
+  `contenteditable` attributes `19`, and hosted-image/string references `34`.
+
+Classification:
+- No detector source-code change was required. The observed Xiumi families are already covered by
+  current rules for image instance wrappers, content-overlap/state/editing/in-cell states,
+  group-sortable/sortable controls, operation-panel controls, template authoring/tree/scene
+  markers, animation/link binding metadata, runtime path bindings, contenteditable surfaces, and
+  hosted third-party image sources.
+
+Evidence:
+- Added `prompts/0601/evidence/xiumi-applied-center-delta-20260703.txt`.
+
+Boundary:
+- This is market-editor applied-center learning only. It does not prove WeChat rich paste,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-07-03 135 SVG Free-Trial Center Delta Recheck Slice
 
 Scope:
