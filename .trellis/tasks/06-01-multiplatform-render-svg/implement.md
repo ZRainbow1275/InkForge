@@ -8,6 +8,61 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Style Proof Release Preflight Next Commands Slice
+
+Source:
+- `style-proof:release-preflight` already deduplicates the next operator rows, and
+  `style-proof:external-handoff` already generates templates and manifest draft packs.
+- The remaining operator-risk gap was between the blocked preflight row and the exact follow-up
+  command. Operators could still rerun the handoff CLI with the wrong platform/kind/status/issue
+  filter and collect proof against the wrong row.
+
+Impact:
+- `npx gitnexus impact buildPreflightResult -r InkForge --depth 3` reported LOW risk with one
+  direct caller, 0 affected processes, and Scripts-only module scope.
+- `npx gitnexus impact formatPreflightResult -r InkForge --depth 3` reported LOW risk with one
+  direct caller, 0 affected processes, and Scripts-only module scope.
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffPacket -r InkForge --depth 3`
+  reported LOW risk with 3 direct dependents and 0 affected processes.
+
+Implementation:
+- Added a `commands` object to every `style-proof:release-preflight --json` `nextRows[]` entry:
+  `template`, `manifestDrafts`, `intake`, and `merge`.
+- The `template` and `manifestDrafts` commands are generated from the row's existing platform,
+  primary reference kind, status, first issue/freshness issue, and `--next-only` filter.
+- The text report now includes an `operator commands (copy-safe placeholders):` section under the
+  unique next-row list.
+- Placeholder manifest file names are copy-safe (`REDACTED_MANIFEST.json`) rather than shell
+  redirection-shaped placeholders.
+
+Verification:
+- Initial focused validation passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 4 tests.
+- Initial focused ESLint passed for `scripts/style-proof-release-preflight.ts` and
+  `scripts/style-proof-release-preflight.test.ts`.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 38 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1352 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 37.95s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` and the text smoke still
+  exit 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+
+Scope:
+- This is local operator-command guidance only. It does not create artifacts, write manifests,
+  open a browser, upload, sync, schedule, publish, mutate platform state, collect phone proof, or
+  change release-gate accounting.
+- It does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-07-03 Style Proof External Handoff Manifest Drafts Slice
 
 Source:

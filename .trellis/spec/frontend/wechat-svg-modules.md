@@ -13770,3 +13770,52 @@ const ruleFamilies = [
 - Evidence docs must not store browser profile paths, cookies, tokens, HAR references, QR
   payloads, account screenshots, local screenshot paths, raw account-state captures, raw platform
   routes, draft URLs, publish URLs, or private material.
+
+## 283. Style Proof Release Preflight Next Commands - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: `style-proof:release-preflight` now reports deduplicated `nextRows`, while
+  `style-proof:external-handoff` has row-filtered `--template` and `--manifest-drafts` modes.
+  The release preflight must bridge those tools with copy-safe commands so the operator does not
+  collect proof against the wrong platform, kind, status, or issue filter.
+- This belongs only to the local `style-proof:release-preflight` CLI. It must not open a browser,
+  read browser state, write platform content, upload, sync drafts, schedule sends, publish
+  articles, create proof artifacts, or change release-gate accounting.
+
+### 2. Contract
+
+- JSON output from `style-proof:release-preflight --json` must include `commands` on each
+  `nextRows[]` entry.
+- `commands.template` must call:
+  `pnpm --silent -C inkforge style-proof:external-handoff --template ... --next-only`.
+- `commands.manifestDrafts` must call:
+  `pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts ... --next-only`.
+- The generated external-handoff filters must be derived from the row itself:
+  platform, first reference kind, current status, first issue id or freshness issue id, and
+  `--next-only`.
+- `commands.intake` and `commands.merge` must use copy-safe local placeholders such as
+  `REDACTED_MANIFEST.json`; do not use shell-redirection-shaped placeholders.
+- Text output must include an `operator commands (copy-safe placeholders):` section after the
+  unique next-row list.
+- Output must not include local browser-state locations, credential browser storage, auth secret
+  strings, request archives, QR payload material, account image captures, local capture file
+  references, raw account-state captures, raw platform routes, draft routes, publish routes, or
+  private material.
+- These commands are guidance only. They must not change `canClaimComplete`, release status,
+  style availability, renderer output, committed manifest state, upload, sync, schedule, phone
+  preview, public-host, platform publish, or release-gate accounting.
+
+### 3. Required Checks
+
+- Add CLI regression coverage proving JSON `nextRows[]` includes all four commands.
+- Add CLI regression coverage proving text output prints the command section while still exiting
+  non-zero and retaining the blocked release message.
+- Preserve the existing unique-row contract: `summary.nextRowRefs` remains greater than or equal
+  to `summary.uniqueNextRows`, and the WeChat credentialed-channel row keeps all `refKinds`.
+- Run focused release-preflight tests, focused ESLint, the serial scripts suite, type-check,
+  build, release-preflight smoke, GitNexus staged change detection, and sensitive diff scans
+  before committing.
+- Evidence docs must state that next-command reporting is operator guidance only and does not
+  prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
+  publish success.

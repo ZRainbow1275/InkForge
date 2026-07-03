@@ -17,6 +17,7 @@ interface StyleProofReleasePreflightNextRow {
   id: string
   kind: CommittedStyleProofExternalHandoffNextRowKind
   refKinds: readonly CommittedStyleProofExternalHandoffNextRowKind[]
+  commands: StyleProofReleasePreflightNextRowCommands
   platform: Platform
   choiceIds: readonly string[]
   requirementId: StyleProofRequirementId
@@ -40,6 +41,13 @@ interface StyleProofReleasePreflightNextRow {
   cannotClaim: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
+}
+
+interface StyleProofReleasePreflightNextRowCommands {
+  template: string
+  manifestDrafts: string
+  intake: string
+  merge: string
 }
 
 interface StyleProofReleasePreflightResult {
@@ -75,6 +83,70 @@ function getPreflightNextRowRefKinds(
   }
 
   return kinds
+}
+
+function getPrimaryIssueFilter(
+  row: {
+    issueIds: readonly StyleProofManifestIssueId[]
+    freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  },
+): StyleProofManifestIssueId | null {
+  return row.issueIds[0] ?? row.freshnessIssueIds[0] ?? null
+}
+
+function getExternalHandoffFilterArgs(row: {
+  platform: Platform
+  status: string
+  issueIds: readonly StyleProofManifestIssueId[]
+  freshnessIssueIds: readonly StyleProofManifestIssueId[]
+}, kind: CommittedStyleProofExternalHandoffNextRowKind): readonly string[] {
+  const issueId = getPrimaryIssueFilter(row)
+  const args = [
+    `--platform=${row.platform}`,
+    `--kind=${kind}`,
+    `--status=${row.status}`,
+  ]
+
+  if (issueId) {
+    args.push(`--issue=${issueId}`)
+  }
+
+  args.push('--next-only')
+  return args
+}
+
+function buildExternalHandoffCommand(
+  mode: '--template' | '--manifest-drafts',
+  row: {
+    platform: Platform
+    status: string
+    issueIds: readonly StyleProofManifestIssueId[]
+    freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  },
+  kind: CommittedStyleProofExternalHandoffNextRowKind,
+): string {
+  return [
+    'pnpm --silent -C inkforge style-proof:external-handoff',
+    mode,
+    ...getExternalHandoffFilterArgs(row, kind),
+  ].join(' ')
+}
+
+function buildPreflightNextRowCommands(
+  row: {
+    platform: Platform
+    status: string
+    issueIds: readonly StyleProofManifestIssueId[]
+    freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  },
+  kind: CommittedStyleProofExternalHandoffNextRowKind,
+): StyleProofReleasePreflightNextRowCommands {
+  return {
+    template: buildExternalHandoffCommand('--template', row, kind),
+    manifestDrafts: buildExternalHandoffCommand('--manifest-drafts', row, kind),
+    intake: 'pnpm --silent -C inkforge style-proof:manifest-intake --file REDACTED_MANIFEST.json --json',
+    merge: 'pnpm --silent -C inkforge style-proof:manifest-merge --file REDACTED_MANIFEST.json --json',
+  }
 }
 
 function printHelp(): void {
@@ -118,11 +190,13 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
     },
     nextRows: handoffPacket.nextRows.map(row => {
       const refKinds = getPreflightNextRowRefKinds(row.id, handoffPacket.nextRowRefs)
+      const kind = refKinds[0] ?? 'external-account'
 
       return {
         id: row.id,
-        kind: refKinds[0] ?? 'external-account',
+        kind,
         refKinds,
+        commands: buildPreflightNextRowCommands(row, kind),
         platform: row.platform,
         choiceIds: row.choiceIds,
         requirementId: row.requirementId,
@@ -182,6 +256,15 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
       `reason=${row.cannotClaimReason ?? 'none'} ` +
       `next=${row.nextOperatorAction}`
     ),
+    '',
+    'operator commands (copy-safe placeholders):',
+    ...result.nextRows.flatMap(row => [
+      `- ${row.platform}/${row.requirementId}/${row.boundary}`,
+      `  template: ${row.commands.template}`,
+      `  manifestDrafts: ${row.commands.manifestDrafts}`,
+      `  intake: ${row.commands.intake}`,
+      `  merge: ${row.commands.merge}`,
+    ]),
   ]
 
   if (!result.canClaimComplete) {

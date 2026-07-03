@@ -1,0 +1,61 @@
+Style Proof Release Preflight Next Commands - 2026-07-03
+
+Scope:
+- Local style-proof:release-preflight operator-command reporting only.
+- No browser action, no clipboard write, no artifact creation, no manifest write, no upload,
+  no sync, no schedule, no publish, and no platform mutation.
+
+Implemented:
+- Added commands.template to each JSON nextRows[] row.
+- Added commands.manifestDrafts to each JSON nextRows[] row.
+- Added commands.intake to each JSON nextRows[] row.
+- Added commands.merge to each JSON nextRows[] row.
+- Added an "operator commands (copy-safe placeholders):" section to text output.
+
+Command derivation:
+- template and manifestDrafts commands are generated from the row's platform, first reference
+  kind, current status, first issue id or freshness issue id, and --next-only.
+- intake and merge commands use the copy-safe placeholder REDACTED_MANIFEST.json.
+- The command output does not include local browser-state locations, credential browser storage,
+  auth secret strings, request archives, QR payload material, account image captures, local
+  capture file references, raw account-state captures, raw platform routes, draft routes,
+  publish routes, or private material.
+
+Observed rows after the focused implementation:
+- WeChat phone cover-thumbnail row:
+  pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only
+- WeChat credentialed-channel row:
+  pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only
+- Zhihu public-host row:
+  pnpm --silent -C inkforge style-proof:external-handoff --template --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only
+
+Initial verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 4 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+
+Broader verification:
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 38 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1352 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS max-old-space-size 4096; pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 37.95s
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, status blocked-by-external, canClaimComplete false, nextRowRefs 5,
+  uniqueNextRows 3, nextRows 3
+- pnpm --silent -C inkforge style-proof:release-preflight
+  EXPECTED BLOCK: exit 1, text report includes operator commands and the blocked release message
+
+Boundary:
+- This is operator guidance only.
+- It does not prove WeChat phone preview, phone screenshot, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
+- Release preflight must remain non-claimable until the external phone/account/public-host and
+  platform proof gates are satisfied with real redacted artifacts.

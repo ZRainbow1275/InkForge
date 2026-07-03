@@ -8401,3 +8401,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   prove WeChat ordinary rich paste, phone preview, mobile interaction, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight Next Commands
+
+- [x] style-proof-release-preflight-next-commands-20260703.txt
+- Scope: local `style-proof:release-preflight` operator-command reporting only.
+- JSON `nextRows[]` now includes `commands.template`, `commands.manifestDrafts`,
+  `commands.intake`, and `commands.merge`.
+- Text output now includes `operator commands (copy-safe placeholders):` with row-filtered
+  `external-handoff --template` and `external-handoff --manifest-drafts` commands.
+- The generated commands use the row's platform, first reference kind, status, first issue id,
+  and `--next-only`, while the manifest placeholder is `REDACTED_MANIFEST.json`.
+- Verification passed: focused release-preflight Vitest with 4 tests and focused ESLint for the
+  release-preflight script/test. Broader validation is recorded in the evidence file.
+- Boundary: this is operator guidance only. It does not prove phone preview, mobile Dark Mode,
+  SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public-host acceptance, platform upload, or publish success.

@@ -11688,3 +11688,37 @@ Boundary:
   prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile interaction, mobile
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Release Preflight Next Commands Addendum
+
+- Added copy-safe next-step commands to `style-proof:release-preflight`.
+- JSON `nextRows[]` now exposes:
+  - `commands.template`
+  - `commands.manifestDrafts`
+  - `commands.intake`
+  - `commands.merge`
+- Text output now includes an `operator commands (copy-safe placeholders):` section for the
+  three unique next rows: WeChat phone cover-thumbnail, WeChat credentialed-channel, and Zhihu
+  public-host.
+- The generated external-handoff commands are row-filtered by platform, first reference kind,
+  status, first issue id, and `--next-only`.
+- Manifest file placeholders use `REDACTED_MANIFEST.json` so copied commands do not accidentally
+  become shell redirection.
+- Initial focused verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  with 1 file and 4 tests, plus focused ESLint for the release-preflight script/test.
+- Broader verification passed: serial scripts suite with 4 files and 38 tests, serial
+  `src/services/export` suite with 36 files and 1352 tests, focused ESLint for all style-proof
+  CLI wrappers/tests, `vue-tsc --noEmit`, and production build with 4653 modules transformed and
+  Vite built in 37.95s.
+- Release preflight JSON/text smokes still exit 1 as required with `status=blocked-by-external`,
+  `canClaimComplete=false`, `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-release-preflight-next-commands-20260703.txt`.
+- Boundary: this is local operator-command guidance only. It does not create proof, write
+  manifests, open browsers, upload, sync, schedule, publish, mutate platform state, or change
+  release-gate accounting. It does not prove WeChat phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

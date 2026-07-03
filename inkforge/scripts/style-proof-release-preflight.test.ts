@@ -28,6 +28,7 @@ interface ReleasePreflightNextRow {
   id: string
   kind: string
   refKinds: string[]
+  commands: ReleasePreflightNextRowCommands
   platform: string
   choiceIds: string[]
   requirementId: string
@@ -51,6 +52,13 @@ interface ReleasePreflightNextRow {
   safeToAutomate: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
+}
+
+interface ReleasePreflightNextRowCommands {
+  template: string
+  manifestDrafts: string
+  intake: string
+  merge: string
 }
 
 interface ReleasePreflightJsonReport {
@@ -172,6 +180,11 @@ function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNex
     typeof value.kind === 'string' &&
     Array.isArray(value.refKinds) &&
     value.refKinds.every(kind => typeof kind === 'string') &&
+    isRecord(value.commands) &&
+    typeof value.commands.template === 'string' &&
+    typeof value.commands.manifestDrafts === 'string' &&
+    typeof value.commands.intake === 'string' &&
+    typeof value.commands.merge === 'string' &&
     typeof value.platform === 'string' &&
     Array.isArray(value.choiceIds) &&
     value.choiceIds.every(choiceId => typeof choiceId === 'string') &&
@@ -284,6 +297,39 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       .toContain('mutating credentialed platform action')
     expect(report.nextRows.find(row => row.kind === 'external-account')?.refKinds)
       .toEqual(['external-account', 'unsafe-to-automate', 'mutating-platform'])
+    expect(report.nextRows.every(row =>
+      row.commands.template.startsWith('pnpm --silent -C inkforge style-proof:external-handoff --template ')
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.commands.manifestDrafts.startsWith('pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts ')
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.commands.intake === 'pnpm --silent -C inkforge style-proof:manifest-intake --file REDACTED_MANIFEST.json --json'
+    )).toBe(true)
+    expect(report.nextRows.every(row =>
+      row.commands.merge === 'pnpm --silent -C inkforge style-proof:manifest-merge --file REDACTED_MANIFEST.json --json'
+    )).toBe(true)
+    expect(report.nextRows.map(row => row.commands.template)).toEqual([
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only',
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=zhihu --kind=public-host --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
+    ])
+  })
+
+  it('prints copy-safe next-row commands in text output without claiming release success', async () => {
+    const result = await runReleasePreflightCli([])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout).toContain('operator commands (copy-safe placeholders):')
+    expect(result.stdout).toContain('style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only')
+    expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only')
+    expect(result.stdout).toContain('style-proof:manifest-intake --file REDACTED_MANIFEST.json --json')
+    expect(result.stdout).toContain('style-proof:manifest-merge --file REDACTED_MANIFEST.json --json')
+    expect(result.stdout).toContain('release claim blocked: external phone/account/public-host/platform proof gates remain open.')
+    expect(result.stdout).not.toContain('<redacted-manifest.json>')
+    expect(result.stdout).not.toContain('canClaimComplete: true')
+    expectNoSensitiveFragments(result.stdout)
   })
 
   it('prints help with a successful exit code', async () => {
