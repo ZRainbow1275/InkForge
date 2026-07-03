@@ -14791,3 +14791,53 @@ const ruleFamilies = [
 - Run focused gallery CLI tests, focused ESLint, related release-preflight/export/SVG regression
   tests, type-check, build, gallery smoke, release-preflight smoke, GitNexus detect, diff checks,
   and sensitive scans before committing this class of change.
+
+## 303. Application SVG Gallery Service - 2026-07-04
+
+### 1. Scope / Trigger
+
+- Trigger: a gallery CLI artifact is not enough for application-level availability if the render
+  matrix is owned only by a script.
+- This rule applies to `src/services/export/application-svg-gallery.ts`,
+  `src/services/export/index.ts`, and `scripts/style-proof-application-gallery.ts`.
+- The service is still local-only; it must not open a browser, paste into WeChat, sync, upload,
+  schedule, publish, or create phone/account/platform proof.
+
+### 2. Contract
+
+- The export service layer must own the gallery domain logic:
+  - module/persona matrix;
+  - theme construction;
+  - renderer invocation;
+  - WeChat-safe checks;
+  - module sentinel checks;
+  - snapshot/report creation;
+  - local HTML gallery rendering;
+  - human-readable text formatting.
+- `style-proof:application-gallery` must call the service APIs rather than duplicating registry
+  iteration, sentinel checks, or HTML layout logic.
+- The service snapshot must remain `notProof:true` and `scope:"application-gallery"`.
+- Service reports must not include local browser runtime identifiers, account-state payloads,
+  scan-code payloads, request archives, local capture locations, credential-bearing headers,
+  credential-bearing storage values, or raw platform responses.
+
+### 3. Cannot-Claim Boundary
+
+- Service-level gallery readiness proves application/export-service availability only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- It does not prove Xiaohongshu/Zhihu account upload, platform preview, public-host acceptance, or
+  publish success.
+- It must not relax strict release preflight or style-proof manifest validation.
+
+### 4. Required Checks
+
+- Keep service tests proving:
+  - snapshot summary counts remain exact;
+  - all 108 tiles have no sentinel failures;
+  - generated HTML contains 108 gallery tiles and no script/`foreignObject`/`javascript:` payload.
+- Keep CLI tests proving `--json --out <path>` writes the gallery and preserves the report shape.
+- Run focused service/CLI tests, focused ESLint, related export/SVG regression tests, type-check,
+  build, gallery smoke, release-preflight smoke, GitNexus detect, diff checks, and sensitive scans
+  before committing this class of change.

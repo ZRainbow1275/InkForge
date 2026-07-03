@@ -12487,3 +12487,39 @@ Boundary:
   paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, platform preview, or publish success. It
   also does not claim Xiaohongshu or Zhihu publish-side completion.
+
+---
+
+## 2026-07-04 Application SVG Gallery Service Addendum
+
+- Extracted the local SVG gallery proof logic into the export service layer:
+  `src/services/export/application-svg-gallery.ts`.
+- Re-exported the service through `src/services/export/index.ts` so application/reporting code can
+  consume the same snapshot and HTML renderer used by the CLI.
+- Updated `style-proof:application-gallery` so it no longer owns a separate renderer
+  implementation; it now calls:
+  - `createApplicationSvgGallerySnapshot()`;
+  - `createApplicationSvgGalleryReport()`;
+  - `renderApplicationSvgGalleryHtml()`;
+  - `formatApplicationSvgGalleryReportText()`.
+- Verification passed:
+  - `pnpm -C inkforge exec vitest run src/services/export/application-svg-gallery.test.ts scripts/style-proof-application-gallery.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 2 files / 4 tests passed.
+  - `pnpm -C inkforge exec eslint src/services/export/application-svg-gallery.ts src/services/export/application-svg-gallery.test.ts src/services/export/index.ts scripts/style-proof-application-gallery.ts scripts/style-proof-application-gallery.test.ts --quiet`: passed.
+  - `pnpm --silent -C inkforge style-proof:application-gallery --json`: exited 0 with
+    `status=application-gallery-ready`, `renderedModulePersonaPairs=108`,
+    `wechatSafeViolationCount=0`, and `moduleSentinelFailureCount=0`.
+  - `pnpm -C inkforge exec vitest run src/services/export/application-svg-gallery.test.ts scripts/style-proof-application-gallery.test.ts scripts/style-proof-release-preflight.test.ts src/services/export/publish-copy.test.ts src/services/export/svg-modules/__tests__/registry.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 5 files / 18 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed after replacing
+    `String.replaceAll()` in service-layer escaping with regex `replace(..., /g)` for current
+    TypeScript lib compatibility.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated
+    `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: still exits 1 as expected
+    with `status=blocked-by-external` and `canClaimComplete=false`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-svg-gallery-service-20260704.txt`.
+- Boundary: this proves application/export service availability for the local SVG gallery only. It
+  does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform preview, or
+  publish success. Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for
+  this round and are not claimed by this artifact.

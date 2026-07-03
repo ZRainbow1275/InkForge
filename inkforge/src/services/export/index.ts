@@ -263,6 +263,28 @@ export {
   sanitizePublishRichCopyHtml,
 } from './publish-copy'
 
+export type {
+  ApplicationSvgGalleryIssue,
+  ApplicationSvgGalleryPersona,
+  ApplicationSvgGalleryReport,
+  ApplicationSvgGallerySnapshot,
+  ApplicationSvgGalleryStatus,
+  ApplicationSvgGallerySummary,
+  ApplicationSvgGalleryTile,
+} from './application-svg-gallery'
+
+export {
+  APPLICATION_SVG_GALLERY_PERSONA_COLORS,
+  APPLICATION_SVG_GALLERY_PERSONAS,
+  createApplicationSvgGalleryReport,
+  createApplicationSvgGallerySnapshot,
+  escapeApplicationSvgGalleryHtml,
+  formatApplicationSvgGalleryReportText,
+  getApplicationSvgGallerySentinelIssues,
+  isApplicationSvgGallerySentinelIssue,
+  renderApplicationSvgGalleryHtml,
+} from './application-svg-gallery'
+
 // 小红书导出
 export {
   xiaohongshuBaseCSS,

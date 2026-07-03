@@ -8823,3 +8823,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local visual evidence only. It does not prove WeChat paste, phone preview,
   Dark Mode, cover thumbnail, credentialed sync, scheduled send, public rendering, or publish
   success. XHS/Zhihu publish automation remains manually deferred for this round.
+
+## 2026-07-04 Application SVG Gallery Service
+
+- [x] application-svg-gallery-service-20260704.txt
+- Scope: service-layer extraction for the local SVG gallery proof.
+- `src/services/export/application-svg-gallery.ts` now owns the snapshot, report, sentinel check,
+  HTML render, and text formatter APIs.
+- `style-proof:application-gallery` consumes that service instead of duplicating renderer logic
+  inside the script.
+- Verification passed: focused service + CLI Vitest with 2 files / 4 tests, focused ESLint, and
+  live CLI smoke with 108 rendered pairs, 0 WeChat-safe violations, and 0 sentinel failures.
+- Final verification also passed: related 5-file / 18-test regression, `vue-tsc`, production
+  build, and expected blocked strict release preflight.
+- Boundary: this proves application/export service availability only. It does not prove WeChat
+  paste, phone preview, credentialed sync, scheduled send, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests are manually deferred to the user for this round.

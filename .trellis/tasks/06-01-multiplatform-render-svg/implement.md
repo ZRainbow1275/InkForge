@@ -24576,3 +24576,62 @@ Scope:
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+## 2026-07-04 Application SVG Gallery Service Slice
+
+Source:
+- The first gallery slice proved the local visual artifact, but its renderer implementation lived
+  in the CLI script. For the application-level goal, the same capability needs to be available from
+  the export service layer so UI/reporting code can consume it without shelling out.
+
+Impact:
+- `npx gitnexus impact "SVG_MODULES" -r InkForge --depth 3` reported LOW risk with 0 affected
+  processes.
+- `npx gitnexus impact "Function:inkforge/src/services/export/index.ts" -r InkForge --depth 3`
+  returned target-not-found; focused export-service and CLI regressions compensate for the
+  scripts/service extraction.
+
+Implementation:
+- Added `src/services/export/application-svg-gallery.ts`.
+- Re-exported the gallery service types and functions from `src/services/export/index.ts`.
+- Moved the full local SVG gallery snapshot/report/HTML/text/sentinel logic into service APIs:
+  - `createApplicationSvgGallerySnapshot()`;
+  - `createApplicationSvgGalleryReport()`;
+  - `renderApplicationSvgGalleryHtml()`;
+  - `formatApplicationSvgGalleryReportText()`;
+  - `getApplicationSvgGallerySentinelIssues()`;
+  - `isApplicationSvgGallerySentinelIssue()`.
+- Updated `scripts/style-proof-application-gallery.ts` to call the service APIs and keep the same
+  output contract.
+
+Verification so far:
+- `pnpm -C inkforge exec vitest run src/services/export/application-svg-gallery.test.ts scripts/style-proof-application-gallery.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files and 4 tests.
+- `pnpm -C inkforge exec eslint src/services/export/application-svg-gallery.ts src/services/export/application-svg-gallery.test.ts src/services/export/index.ts scripts/style-proof-application-gallery.ts scripts/style-proof-application-gallery.test.ts --quiet`
+  passed.
+- `pnpm --silent -C inkforge style-proof:application-gallery --json` exited 0 with
+  `status=application-gallery-ready`, `renderedModulePersonaPairs=108`,
+  `wechatSafeViolationCount=0`, and `moduleSentinelFailureCount=0`.
+- The first `vue-tsc` pass exposed that service-layer code must avoid `String.replaceAll()` under
+  the current TypeScript lib target. The escaping helper was changed to regex `replace(..., /g)`
+  so older target/library combinations remain compatible.
+- `pnpm -C inkforge exec vitest run src/services/export/application-svg-gallery.test.ts scripts/style-proof-application-gallery.test.ts scripts/style-proof-release-preflight.test.ts src/services/export/publish-copy.test.ts src/services/export/svg-modules/__tests__/registry.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 5 files and 18 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed after the compatibility fix.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected with
+  `status=blocked-by-external` and `canClaimComplete=false`.
+
+Evidence:
+- Added `prompts/0601/evidence/application-svg-gallery-service-20260704.txt`.
+
+Scope:
+- This proves application/export service availability for the local SVG gallery snapshot.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success.
+- Per the 2026-07-04 acceptance update, XHS/Zhihu publish-side tests are manually owned by the
+  user for this round. The implementable completion target is application SVG/style availability
+  plus WeChat-safe local rendering/export readiness, without claiming XHS/Zhihu platform publish
+  proof.
