@@ -8321,3 +8321,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: draft packs are collection scaffolding only. They do not prove phone preview, mobile
   Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Intake Next Proof Steps
+
+- Evidence file: `style-proof-manifest-intake-next-proof-steps-20260703.txt`.
+- Scope: local `style-proof:manifest-intake` reporting enhancement only.
+- The intake JSON/text report now includes sanitized `nextProofSteps` derived from the execution
+  runbook cannot-claim rows for the supplied redacted manifest pack.
+- A temporary local draft pack with empty WeChat/Zhihu manifests stayed non-claimable:
+  `status=ready-for-review`, `canClaimComplete=false`, `artifactCount=0`, and
+  `nextProofSteps=34`.
+- The exposed next-step fields include the required channel/action/readback/field contract for
+  WeChat phone cover-thumbnail proof and Zhihu public-host proof, without printing raw paths,
+  artifact refs, account material, browser profile data, tokens, HAR, QR payloads, draft URLs, or
+  publish URLs.
+- Boundary: `nextProofSteps` is runbook guidance only. It does not prove phone preview, mobile
+  Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public-host acceptance, platform upload, or publish success.

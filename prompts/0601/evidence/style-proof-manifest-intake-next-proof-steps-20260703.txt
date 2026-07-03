@@ -1,0 +1,67 @@
+Style Proof Manifest Intake Next Proof Steps - 2026-07-03
+
+Scope:
+- Local manifest-intake report enhancement for operator-supplied redacted StyleProofManifest packs.
+- No browser action, phone preview, upload, sync, scheduled send, public-host publish, or platform publish.
+- No proof artifact is created, imported, merged, or marked complete.
+
+Implemented:
+- style-proof:manifest-intake JSON/text output now includes nextProofSteps.
+- nextProofSteps are derived from the existing execution runbook cannot-claim rows for the supplied manifest pack.
+
+Behavior:
+- The JSON report remains one-line sanitized output.
+- nextProofSteps exposes platform, requirementId, requirementLabel, gate, boundary, status, counts, requiredChannels, requiredActions, requiredReadbacks, requiredFields, forbiddenFields, acceptedHostStatuses, maxFreshnessDays, redactionBoundary, successCriteria, failureSignals, cannotClaimReason, and nextOperatorAction.
+- The text report now includes a "next proof steps" section with sanitized field/action/readback summaries.
+- Raw input paths, artifact references, browser profiles, cookies, tokens, HAR files, QR payloads, account screenshots, draft URLs, and publish URLs are not printed.
+
+Observed draft-pack intake:
+- A temporary local draft pack outside the repository was created with:
+  - wechat / wechat-card-rich / style-choice / no artifacts
+  - zhihu / zhihu-public-image-upload-checklist / style-choice / no artifacts
+- Command:
+  pnpm --silent -C inkforge style-proof:manifest-intake --file <temp-draft-pack.json> --json
+- Expected exit: 1.
+- status=ready-for-review.
+- canClaimComplete=false.
+- artifactCount=0.
+- nextProofSteps=34.
+- WeChat cover-thumbnail phone step requiredFields:
+  artifactFingerprint, exactArtifact, coverThumbnailAccepted, collectedAt, safeForCommit.
+- Zhihu public-host step requiredFields:
+  artifactRef, hostStatus, collectedAt, safeForCommit.
+
+Regression coverage:
+- JSON shape guard requires nextProofSteps.
+- Text output must include "next proof steps", "fields=", and "next=".
+- Empty draft manifests still stay non-claimable and artifactCount=0.
+- WeChat cover-thumbnail step exposes phone-preview channel, cover-thumbnail-check action, phone readback, required phone fields, and next phone action.
+- Zhihu public-host step exposes public-web channel, public-image-host-check action, public HTTPS/platform-hosted statuses, required host fields, and next public-host action.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 10 tests.
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 36 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1350 tests.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge build with NODE_OPTIONS=--max-old-space-size=4096
+  PASS: Vite built in 34.48s.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  Expected exit: 1.
+  status=blocked-by-external.
+  canClaimComplete=false.
+  blockerCount=4.
+  combinedIssueCount=11.
+  externalHandoffRows=15.
+  safeExternalRows=0.
+  actionableLocalRows=0.
+
+Boundary:
+- This proves only local manifest-intake reporting for next proof requirements.
+- It does not prove WeChat phone preview, phone screenshot, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu upload, or publish success.
+- Do not treat nextProofSteps as evidence; it is a runbook summary for collecting evidence.

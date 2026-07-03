@@ -23087,3 +23087,65 @@ Scope:
   screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
   publish success.
+
+## 2026-07-03 Style Proof Manifest Intake Next Proof Steps Slice
+
+Source:
+- After `--manifest-drafts`, operator proof collection has an intake-compatible empty manifest
+  pack, but `style-proof:manifest-intake` still exposed mostly aggregate cannot-claim counts.
+- The release gate has no safe local proof rows remaining, so the next useful local improvement is
+  stronger intake guidance that tells operators exactly which artifact fields are still required
+  after they fill a pack.
+
+Impact:
+- `npx gitnexus impact buildCliReport -r InkForge --depth 3`,
+  `npx gitnexus impact formatCliReportText -r InkForge --depth 3`, and
+  `npx gitnexus impact toCannotClaimRows -r InkForge --depth 3` could not resolve script-local
+  helper symbols. The change is limited to the manifest-intake CLI wrapper, its regression tests,
+  spec, and sanitized evidence.
+
+Implementation:
+- Added sanitized `nextProofSteps` to `style-proof:manifest-intake` JSON output.
+- Added a `next proof steps:` section to text output.
+- Each row is derived from the existing execution runbook cannot-claim steps and includes:
+  platform, requirement, gate, boundary, status, counts, required channels/actions/readbacks,
+  required fields, forbidden fields, accepted host statuses, freshness limit, redaction boundary,
+  success criteria, failure signals, cannot-claim reason, and next operator action.
+- The CLI still does not print input paths, raw artifact refs, browser profile data, cookies,
+  tokens, HAR, QR payloads, account screenshots, draft URLs, publish URLs, or private material.
+
+Observed:
+- A temporary local draft pack outside the repository with empty WeChat/Zhihu manifests kept
+  `status=ready-for-review`, `canClaimComplete=false`, `artifactCount=0`, and
+  `nextProofSteps=34`.
+- The WeChat cover-thumbnail phone step surfaced required fields:
+  `artifactFingerprint`, `exactArtifact`, `coverThumbnailAccepted`, `collectedAt`,
+  `safeForCommit`.
+- The Zhihu public-host step surfaced required fields:
+  `artifactRef`, `hostStatus`, `collectedAt`, `safeForCommit`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-intake.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 10 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 36 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with Vite
+  built in 34.48s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `combinedIssueCount=11`, `externalHandoffRows=15`, `safeExternalRows=0`, and
+  `actionableLocalRows=0`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-manifest-intake-next-proof-steps-20260703.txt`.
+
+Scope:
+- This slice is local runbook reporting only. It does not prove WeChat phone preview, phone
+  screenshot, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
+  publish success.

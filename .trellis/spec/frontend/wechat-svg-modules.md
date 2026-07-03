@@ -13538,3 +13538,47 @@ const ruleFamilies = [
 - Evidence docs must state that manifest draft packs are collection scaffolding only and do not
   prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
   publish success.
+
+## 278. Style Proof Manifest Intake Next Proof Steps - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: operator-supplied manifest packs can be schema-clean yet still incomplete. Intake
+  output must therefore show the exact remaining proof rows and required artifact fields, not just
+  aggregate cannot-claim counts.
+- This belongs only to the local `style-proof:manifest-intake` CLI. It must not open a browser,
+  read browser state, write platform content, upload, sync drafts, schedule sends, publish
+  articles, create artifacts, import artifacts, merge artifacts, or change release-gate
+  accounting.
+- `nextProofSteps` is runbook guidance. It is not evidence and must never change
+  `canClaimComplete` by itself.
+
+### 2. Contract
+
+- JSON output must include a sanitized `nextProofSteps` array derived from
+  `StyleProofExecutionRunbook.cannotClaim` for the supplied manifest pack.
+- Text output must include a `next proof steps:` section with sanitized summaries for the same
+  rows.
+- Each step must include platform, requirement id/label, gate, boundary, status, choice ids,
+  issue ids, counts, phone/account/mutation/safety flags, cannot-claim reason,
+  next-operator action, required channels/actions/readbacks/fields, forbidden fields, accepted
+  host statuses, freshness limit, redaction boundary, success criteria, and failure signals.
+- Output must not include input file paths, raw artifact refs, browser profile paths, cookies,
+  tokens, HAR references, QR payloads, account screenshots, local screenshot paths, raw
+  account-state captures, raw platform routes, draft URLs, publish URLs, or private material.
+- Empty draft manifests may be schema-clean but must remain non-claimable when artifacts are
+  absent.
+
+### 3. Required Checks
+
+- Add CLI regressions proving JSON shape includes `nextProofSteps`.
+- Add a draft-manifest regression proving empty WeChat/Zhihu manifests remain
+  `canClaimComplete:false` and `artifactCount=0`, while exposing:
+  - WeChat phone cover-thumbnail channel/action/readback/field requirements;
+  - Zhihu public-host channel/action/host-status/field requirements.
+- Run focused manifest-intake tests and focused ESLint before committing. Broaden to scripts
+  suite, export-service regressions, type-check, build, and release preflight when the slice also
+  changes shared style-catalog behavior.
+- Evidence docs must state that `nextProofSteps` is collection guidance only and does not prove
+  WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or publish
+  success.

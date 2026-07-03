@@ -34,6 +34,39 @@ interface ManifestIntakeCannotClaimRow {
   safeToAutomate: boolean
 }
 
+interface ManifestIntakeNextProofStep {
+  platform: string
+  requirementId: string
+  requirementLabel: string
+  gate: string
+  boundary: string
+  status: string
+  choiceIds: string[]
+  issueIds: string[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  requiredChannels: string[]
+  requiredActions: string[]
+  requiredReadbacks: string[]
+  requiredFields: string[]
+  forbiddenFields: string[]
+  acceptedHostStatuses: string[]
+  maxFreshnessDays: number | null
+  redactionBoundary: string
+  successCriteria: string[]
+  failureSignals: string[]
+}
+
 interface ManifestIntakeJsonReport {
   source: string
   status: string
@@ -76,6 +109,7 @@ interface ManifestIntakeJsonReport {
     nextUnsafeToAutomateGate: string | null
   }>
   cannotClaimRows: ManifestIntakeCannotClaimRow[]
+  nextProofSteps: ManifestIntakeNextProofStep[]
 }
 
 const currentFilePath = fileURLToPath(import.meta.url)
@@ -224,6 +258,46 @@ function isPlatformSummary(value: unknown): boolean {
     (typeof value.nextUnsafeToAutomateGate === 'string' || value.nextUnsafeToAutomateGate === null)
 }
 
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string')
+}
+
+function isNextProofStep(value: unknown): value is ManifestIntakeNextProofStep {
+  return isRecord(value) &&
+    typeof value.platform === 'string' &&
+    typeof value.requirementId === 'string' &&
+    typeof value.requirementLabel === 'string' &&
+    typeof value.gate === 'string' &&
+    typeof value.boundary === 'string' &&
+    typeof value.status === 'string' &&
+    isStringArray(value.choiceIds) &&
+    isStringArray(value.issueIds) &&
+    hasNumberKeys(value, [
+      'required',
+      'satisfied',
+      'missing',
+      'invalid',
+      'artifactCount',
+      'acceptedArtifactCount',
+    ]) &&
+    typeof value.mutatesPlatform === 'boolean' &&
+    typeof value.requiresExternalAccount === 'boolean' &&
+    typeof value.requiresPhone === 'boolean' &&
+    typeof value.safeToAutomate === 'boolean' &&
+    (typeof value.cannotClaimReason === 'string' || value.cannotClaimReason === null) &&
+    typeof value.nextOperatorAction === 'string' &&
+    isStringArray(value.requiredChannels) &&
+    isStringArray(value.requiredActions) &&
+    isStringArray(value.requiredReadbacks) &&
+    isStringArray(value.requiredFields) &&
+    isStringArray(value.forbiddenFields) &&
+    isStringArray(value.acceptedHostStatuses) &&
+    (typeof value.maxFreshnessDays === 'number' || value.maxFreshnessDays === null) &&
+    typeof value.redactionBoundary === 'string' &&
+    isStringArray(value.successCriteria) &&
+    isStringArray(value.failureSignals)
+}
+
 function isManifestIntakeJsonReport(value: unknown): value is ManifestIntakeJsonReport {
   return isRecord(value) &&
     value.source === 'file' &&
@@ -259,7 +333,9 @@ function isManifestIntakeJsonReport(value: unknown): value is ManifestIntakeJson
     Array.isArray(value.platforms) &&
     value.platforms.every(isPlatformSummary) &&
     Array.isArray(value.cannotClaimRows) &&
-    value.cannotClaimRows.every(isCannotClaimRow)
+    value.cannotClaimRows.every(isCannotClaimRow) &&
+    Array.isArray(value.nextProofSteps) &&
+    value.nextProofSteps.every(isNextProofStep)
 }
 
 function parseManifestIntakeJson(stdout: string): ManifestIntakeJsonReport {
@@ -330,6 +406,9 @@ describe('style-proof manifest intake CLI', { timeout: 60_000 }, () => {
       expect(result.stdout).toContain('semanticIssueCount:')
       expect(result.stdout).toContain('style-proof-manifest-sensitive-artifact')
       expect(result.stdout).toContain('cannot claim rows:')
+      expect(result.stdout).toContain('next proof steps:')
+      expect(result.stdout).toContain('fields=')
+      expect(result.stdout).toContain('next=')
       expect(result.stdout).toContain('wechat/')
       expect(result.stdout).toContain('boundary: sanitized local intake only')
       expectNoSensitiveFragments(result.stdout)
@@ -362,6 +441,77 @@ describe('style-proof manifest intake CLI', { timeout: 60_000 }, () => {
       expect(report.cannotClaimRows.length).toBeGreaterThan(0)
       expect(report.cannotClaimRows.some(row => row.platform === 'wechat')).toBe(true)
       expect(report.cannotClaimRows.every(row => row.status !== 'completed')).toBe(true)
+      expect(report.nextProofSteps.length).toBeGreaterThan(0)
+      expect(report.nextProofSteps.every(row => row.status !== 'completed')).toBe(true)
+    })
+  })
+
+  it('emits runbook-level next proof fields without treating an empty draft as evidence', async () => {
+    const draftJson = JSON.stringify({
+      manifests: [
+        {
+          platform: 'wechat',
+          choiceId: 'wechat-card-rich',
+          scope: 'style-choice',
+          claimedEvidence: [],
+          artifacts: [],
+        },
+        {
+          platform: 'zhihu',
+          choiceId: 'zhihu-public-image-upload-checklist',
+          scope: 'style-choice',
+          claimedEvidence: [],
+          artifacts: [],
+        },
+      ],
+    })
+
+    await withManifestFile(draftJson, async filePath => {
+      const result = await runManifestIntakeCli(['--file', filePath, '--json'])
+
+      expect(result.exitCode).toBe(1)
+      expect(result.stderr.trim()).toBe('')
+      expectNoSensitiveFragments(result.stdout)
+
+      const report = parseManifestIntakeJson(result.stdout)
+      expect(report.canClaimComplete).toBe(false)
+      expect(report.summary.artifactCount).toBe(0)
+
+      const phoneStep = report.nextProofSteps.find(row =>
+        row.platform === 'wechat' &&
+        row.requirementId === 'cover-thumbnail-check' &&
+        row.gate === 'phone-preview'
+      )
+      expect(phoneStep).toBeDefined()
+      expect(phoneStep?.requiresPhone).toBe(true)
+      expect(phoneStep?.requiresExternalAccount).toBe(false)
+      expect(phoneStep?.requiredChannels).toEqual(['phone-preview'])
+      expect(phoneStep?.requiredActions).toEqual(['cover-thumbnail-check'])
+      expect(phoneStep?.requiredReadbacks).toContain('phone')
+      expect(phoneStep?.requiredFields).toEqual(expect.arrayContaining([
+        'artifactFingerprint',
+        'exactArtifact',
+        'coverThumbnailAccepted',
+        'safeForCommit',
+      ]))
+      expect(phoneStep?.nextOperatorAction).toContain('phone')
+      expect(phoneStep?.redactionBoundary).not.toContain('C:/Users')
+
+      const publicHostStep = report.nextProofSteps.find(row =>
+        row.platform === 'zhihu' &&
+        row.requirementId === 'public-image-host' &&
+        row.gate === 'public-host'
+      )
+      expect(publicHostStep).toBeDefined()
+      expect(publicHostStep?.acceptedHostStatuses).toEqual(['public-https', 'platform-hosted'])
+      expect(publicHostStep?.requiredChannels).toEqual(['public-web'])
+      expect(publicHostStep?.requiredActions).toEqual(['public-image-host-check'])
+      expect(publicHostStep?.requiredFields).toEqual(expect.arrayContaining([
+        'artifactRef',
+        'hostStatus',
+        'safeForCommit',
+      ]))
+      expect(publicHostStep?.nextOperatorAction).toContain('public')
     })
   })
 
