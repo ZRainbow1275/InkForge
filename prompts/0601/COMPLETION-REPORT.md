@@ -12391,3 +12391,39 @@ Boundary:
   choices only. It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile
   interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or
   publish success. XHS/Zhihu publish-side automation remains manually deferred for this round.
+
+---
+
+## 2026-07-04 WeChat Manual External Proof Handoff Addendum
+
+- Generated the current manual operator handoff for the remaining in-scope WeChat external gates:
+  phone-preview proof and credentialed-account proof.
+- This follows the narrowed round target: application-level SVG/style availability plus WeChat
+  applicability. Xiaohongshu and Zhihu publish-side automation is intentionally deferred for the
+  operator's manual testing in this round.
+- The handoff records the current local release state:
+  - `status=blocked-by-external`;
+  - `canClaimComplete=false`;
+  - `actionableLocalRows=0`;
+  - 20 committed local manifests, 9 committed WeChat PC manifests, and 29 combined committed
+    manifests;
+  - 8 external handoff rows, split into 4 phone-preview rows and 4 credentialed-account rows;
+  - 7 manually deferred non-WeChat rows, split into Xiaohongshu 2 and Zhihu 5.
+- Generated and reviewed the current handoff templates/drafts with:
+  - `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only`;
+  - `pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only`;
+  - `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only`;
+  - `pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only`.
+- The external-handoff commands intentionally exit non-zero while `notProof=true` and
+  `canClaimComplete=false`; that is the correct behavior until real redacted phone/account proof is
+  collected and accepted.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-manual-external-handoff-20260704.txt`.
+- The handoff file records required fields, forbidden blocker fields, and safe intake commands for:
+  - phone preview, cover thumbnail, Dark Mode, and phone screenshot readback;
+  - credentialed channel response, sync readback, scheduled send readback, and platform preview
+    readback.
+- Boundary: this is a manual verification handoff only. It does not prove WeChat phone preview,
+  mobile Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, or publish success by itself. It also does not claim Xiaohongshu or Zhihu
+  publish-side completion.

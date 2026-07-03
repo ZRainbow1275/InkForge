@@ -1,0 +1,130 @@
+WeChat Manual External Proof Handoff - 2026-07-04
+
+Scope:
+- Manual operator handoff for the remaining WeChat phone-preview and credentialed-account proof
+  gates.
+- This file is not proof and must not be used to claim completion.
+- No account login, browser profile, cookie, token, QR payload, HAR, unredacted URL, screenshot
+  path, or platform response body is included here.
+- Xiaohongshu and Zhihu publish-side automation remains manually deferred for this round.
+
+Current local state:
+- Latest release preflight status: blocked-by-external.
+- canClaimComplete: false.
+- actionableLocalRows: 0.
+- committed local manifest count: 20.
+- committed WeChat PC manifest count: 9.
+- combined committed manifest count: 29.
+- external handoff rows: 8.
+- phone rows: 4.
+- external account rows: 4.
+- manually deferred non-WeChat rows: Xiaohongshu 2, Zhihu 5.
+
+Commands used to generate the handoff templates:
+- pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only
+- pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only
+- pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only
+- pnpm --silent -C inkforge style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only
+
+Expected command status:
+- These commands exit non-zero because the handoff rows are intentionally not proof and
+  canClaimComplete remains false.
+- That non-zero exit is expected until real phone/account proof is collected, redacted, and
+  validated.
+
+Phone-preview handoff:
+- Next row id:
+  committed-style-proof:wechat:cover-thumbnail-check:phone-preview:phone-preview
+- Next operator action:
+  Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and
+  interaction checks; PC DOM proof is not enough.
+- All matching phone requirements:
+  - cover-thumbnail-check
+  - dark-mode-check
+  - phone-preview-readback
+  - phone-screenshot
+- Affected WeChat choice ids:
+  - wechat-card-rich
+  - wechat-carousel-switch
+  - wechat-classic-inline
+  - wechat-click-reveal
+  - wechat-cover-seal-divider
+  - wechat-flagship-amber
+  - wechat-flagship-kiln
+  - wechat-flagship-kiln-paste-safe
+  - wechat-flagship-tempera
+  - wechat-market-svg-h5-fallback-matrix
+  - wechat-mobile-only-effect
+  - wechat-plugin-transfer-checklist
+  - wechat-quiet-editorial
+  - wechat-sync-draft-checklist
+  - wechat-toolbar-parameter-map
+- Success artifact requirements for the next row:
+  - requirementId: cover-thumbnail-check
+  - channel: phone-preview
+  - action: cover-thumbnail-check
+  - readback: phone, visual, visual-and-dom, or screenshot
+  - artifactFingerprint: non-empty fingerprint for the exact exported artifact
+  - exactArtifact: true
+  - coverThumbnailAccepted: true
+  - collectedAt: parseable timestamp, non-future, within 14 days
+  - safeForCommit: true after redaction and repository hygiene review
+- Forbidden on a phone success proof row:
+  - phonePreviewBlocked: true
+- Not sufficient:
+  - PC editor DOM
+  - local browser screenshots
+  - setup screens
+  - generic QR or scan screens
+  - phone preview entries before the exact article body is visible
+  - cover crop panels or upload dialogs without final accepted thumbnail readback
+
+Credentialed-account handoff:
+- Next row id:
+  committed-style-proof:wechat:credentialed-channel-response:credentialed-channel:credentialed-channel
+- Next operator action:
+  Use a real credentialed sync, plugin, upload, or API channel and read back the created
+  draft/material; login or sign-in pages must stay blocked evidence.
+- All matching credentialed requirements:
+  - credentialed-channel-response
+  - sync-readback
+  - published-url-or-platform-preview
+  - scheduled-send-readback
+- Affected WeChat choice ids:
+  - wechat-h5-design-boundary
+  - wechat-official-widget-checklist
+  - wechat-plugin-transfer-checklist
+  - wechat-sync-draft-checklist
+- Success artifact requirements for the next row:
+  - requirementId: credentialed-channel-response
+  - channel: credentialed-channel
+  - action: credentialed-sync
+  - readback: api-response
+  - artifactFingerprint: non-empty fingerprint for the exact exported artifact
+  - exactArtifact: true
+  - externalAccountAuthenticated: true
+  - collectedAt: parseable timestamp, non-future, within 14 days
+  - safeForCommit: true after redaction and repository hygiene review
+- Forbidden on a credentialed success proof row:
+  - externalAccountLoginBlocked: true
+- Not sufficient:
+  - login pages
+  - sign-in prompts
+  - request success without created-draft/material readback
+  - response for a different artifact fingerprint
+  - raw request payloads, cookies, draft ids, account identifiers, QR payloads, or browser profile
+    material in committed evidence
+
+Safe intake flow after manual collection:
+1. Keep raw phone/account artifacts outside git.
+2. Redact account, QR, URL, notification, and platform response details.
+3. Fill a minimal redacted StyleProofManifest with only safe references and verification fields.
+4. Validate before merging:
+   pnpm --silent -C inkforge style-proof:manifest-intake --file REDACTED_MANIFEST.json --json
+5. Merge only after the manifest is accepted and safe for commit:
+   pnpm --silent -C inkforge style-proof:manifest-merge --file REDACTED_MANIFEST.json --json
+
+Boundary:
+- This handoff advances manual verification readiness only.
+- It does not prove phone preview, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, or publish success by itself.

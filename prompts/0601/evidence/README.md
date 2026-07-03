@@ -8775,3 +8775,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
   credentialed sync, scheduled send, public rendering, or publish success. XHS/Zhihu publish
   automation remains manually deferred for this round.
+
+## 2026-07-04 WeChat Manual External Proof Handoff
+
+- [x] wechat-manual-external-handoff-20260704.txt
+- Scope: manual operator handoff for the remaining WeChat phone-preview and credentialed-account
+  gates.
+- Generated current `style-proof:external-handoff` templates and manifest drafts for the next
+  WeChat phone-preview row and credentialed-channel row.
+- The handoff records `blocked-by-external`, `canClaimComplete=false`, and
+  `actionableLocalRows=0`; it is explicitly not proof.
+- Phone handoff covers cover thumbnail, Dark Mode, phone preview readback, and phone screenshot
+  rows, with required fields and forbidden blocker fields.
+- Credentialed-account handoff covers credentialed channel response, sync readback, scheduled
+  send, and published/platform-preview rows, with redaction requirements.
+- Boundary: this advances manual verification readiness only. It does not prove phone preview,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or
+  publish success.
