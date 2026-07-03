@@ -13861,3 +13861,52 @@ const ruleFamilies = [
 - Run release-preflight smoke after recording the evidence; it must still exit non-zero with
   `canClaimComplete:false`.
 - Run staged diff and sensitive-fragment scans before committing the docs-only evidence.
+
+## 285. 135 SVG Free-Trial Center Delta Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the user explicitly required the 135 SVG editor path to click visible free-trial
+  controls, verify that the center editor/canvas changes, and read elements from the changed
+  center area.
+- This rule records a CloakBrowser-only recheck where a visible 135 SVG free-trial effect was
+  already applied in the center canvas, then another visible free-trial control was clicked and
+  the no-material option was selected.
+- This is market-editor applied evidence only. It does not click WeChat/XHS/Zhihu publish
+  surfaces, write platform content, upload media, sync drafts, schedule sends, publish, collect
+  phone proof, or write platform proof manifests.
+
+### 2. Observed Surface
+
+- Before the second free-trial click, the center `.content-canvas` held one applied trial effect:
+  multi-select click popup / custom trigger zones.
+- After the second free-trial click and no-material confirmation, center hash changed, HTML length
+  grew from 7312 to 8627, center SVG count grew from 1 to 2, and the center text added an
+  automatic bouncing flip-card effect.
+- Center image and section counts stayed zero in this no-material pass.
+- Observed center authoring classes included `content-wrapper`, `content-background`,
+  `content-inner`, `block`, `block-inner`, `block-img`, `block-img__inner`,
+  `edit-placeholder`, `block-img__default`, `placeholder__help`, `placeholder__icon`,
+  `placeholder__name`, `edit-trigger__switch`, `block-spacing`, `block-gap`,
+  `gap-item-wrapper`, `gap_input`, `ant-slider-track`, and `ant-slider-handle`.
+
+### 3. Contract
+
+- The observed DOM is schema input, not runtime source. Convert it into InkForge-owned image-slot,
+  trigger-zone, motion/action, static fallback, raster fallback, and residue-blocker contracts.
+- Do not copy 135 authoring DOM, Ant/Vue classes, material controls, editor-shell wrappers,
+  geometry, pricing controls, material URLs, or private editor state into InkForge runtime output.
+- Existing detector families already cover the observed center and list classes:
+  `135 SVG editor shell residue`, `135 SVG builder canvas residue`,
+  `135 SVG trigger switch control residue`, `135 SVG editor layout control residue`,
+  `135 SVG material list item residue`, and `135 SVG material purchase control residue`.
+- Add a new detector rule only if a future applied center readback exposes a publishable-output
+  marker not represented by those families.
+
+### 4. Required Checks
+
+- Evidence docs must cite only sanitized center deltas, class families, and cannot-claim
+  boundaries.
+- Run release-preflight smoke after recording the evidence; it must still exit non-zero with
+  `canClaimComplete:false`.
+- Run staged diff and sensitive-fragment scans before committing the docs-only evidence.

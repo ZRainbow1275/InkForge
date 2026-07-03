@@ -8,6 +8,36 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 135 SVG Free-Trial Center Delta Recheck Slice
+
+Scope:
+- CloakBrowser-only recheck of the current 135 SVG editor after user-login state was available.
+- No export, save, publish, WeChat sync, article paste, platform upload, phone preview, account
+  screenshot, or browser-runtime artifact capture.
+
+Observed:
+- The center canvas already contained one applied trial effect for multi-select click popup /
+  custom trigger zones.
+- Before the second free-trial click: center hash `-976682689`, HTML length `7312`, SVG count `1`,
+  image count `0`, and section count `0`.
+- Clicked the next visible free-trial control. 135 showed a material-inclusion prompt.
+- Selected the no-material option to avoid third-party asset dependency.
+- After confirmation: center hash `81954428`, HTML length `8627`, SVG count `2`, image count `0`,
+  section count `0`, and center text added an automatic bouncing flip-card effect.
+- Observed center authoring classes were already covered by existing 135 SVG editor shell,
+  builder canvas, trigger switch, layout control, material list item, and purchase-control
+  residue families.
+
+Evidence:
+- Added `prompts/0601/evidence/135-svg-free-trial-center-delta-20260703.txt`.
+
+Boundary:
+- This is applied-market-editor DOM delta evidence only. It does not prove WeChat paste
+  retention, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+- No detector source-code change was required because the observed class families are already
+  represented by existing runtime blockers.
+
 ## 2026-07-03 WeChat PC Editor CloakBrowser Reachability Recheck Slice
 
 Scope:

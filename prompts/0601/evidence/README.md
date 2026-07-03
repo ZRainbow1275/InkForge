@@ -8433,3 +8433,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is PC editor reachability evidence only. It does not prove ordinary paste
   retention, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
   credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 135 SVG Free-Trial Center Delta Recheck
+
+- [x] 135-svg-free-trial-center-delta-20260703.txt
+- Scope: CloakBrowser-only recheck of the current 135 SVG editor.
+- The center canvas already contained a multi-select click-popup / custom-trigger-zone trial
+  effect.
+- Clicking the next visible free-trial control produced a material-inclusion prompt; the
+  no-material option was selected to avoid third-party asset dependency.
+- Center delta after confirmation:
+  - hash changed from `-976682689` to `81954428`;
+  - HTML length changed from `7312` to `8627`;
+  - SVG count changed from `1` to `2`;
+  - image count stayed `0`;
+  - section count stayed `0`;
+  - center text added an automatic bouncing flip-card effect.
+- Observed center classes are already covered by existing 135 SVG shell, builder-canvas, trigger,
+  layout-control, material-list, and purchase-control residue families.
+- Boundary: this is applied-market-editor DOM learning only. It does not prove WeChat paste
+  retention, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.

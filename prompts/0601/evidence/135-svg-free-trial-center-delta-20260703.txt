@@ -1,0 +1,69 @@
+135 SVG Free-Trial Center Delta Recheck - 2026-07-03
+
+Scope:
+- CloakBrowser-only inspection of the currently open 135 SVG editor.
+- No export, save, publish, WeChat sync, article paste, platform upload, phone preview, account
+  screenshot, or browser-runtime artifact capture.
+- One visible free-trial control was clicked, followed by the no-material option in the material
+  prompt, so the observation stays focused on interaction structure and center editor DOM rather
+  than third-party material URLs.
+
+Observed before the second free-trial click:
+- The center editor already contained one applied trial effect:
+  "multi-select click popup / custom trigger zones".
+- Center hash: -976682689
+- Center HTML length: 7312
+- Center svg count: 1
+- Center image count: 0
+- Center section count: 0
+- Visible center authoring classes included content-wrapper, content-background, content-inner,
+  block, block-inner, block-img, block-img__inner, edit-placeholder, block-img__default,
+  placeholder__help, placeholder__icon, placeholder__name, edit-trigger__switch, block-spacing,
+  block-gap, gap-item-wrapper, gap_input, ant-slider-track, and ant-slider-handle.
+
+Free-trial flow:
+- Clicked a visible "free trial" control for the next card in the 135 SVG effect list.
+- 135 displayed a material-inclusion confirmation.
+- Selected the no-material option to avoid importing third-party asset dependencies.
+
+Observed after the no-material confirmation:
+- Center hash changed from -976682689 to 81954428.
+- Center HTML length changed from 7312 to 8627.
+- Center text now included a second applied trial effect:
+  "automatic bouncing flip card".
+- Center svg count changed from 1 to 2.
+- Center image count stayed 0.
+- Center section count stayed 0.
+- The material confirmation dialog was gone.
+
+Classification:
+- This is applied-market-editor evidence for 135 SVG free-trial insertion and center DOM delta.
+- It confirms that the left free-trial card can mutate the central editor canvas after the
+  material prompt is resolved.
+- The observed center DOM is authoring structure only. It maps to InkForge-owned image-slot,
+  trigger-zone, motion/action schema, static fallback, raster fallback, and residue-blocker
+  contracts.
+
+Detector cross-check:
+- Existing rules already cover the observed class families:
+  - 135 SVG editor shell residue
+  - 135 SVG builder canvas residue
+  - 135 SVG trigger switch control residue
+  - 135 SVG editor layout control residue
+  - 135 SVG material list item residue
+  - 135 SVG material purchase control residue
+- No new detector rule was required for this recheck.
+
+Boundary:
+- This does not prove WeChat paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, XHS or
+  Zhihu upload, or publish success.
+- Do not copy 135 authoring DOM, Ant/Vue classes, material controls, geometry, pricing controls,
+  or editor shell wrappers into InkForge runtime output.
+- Release preflight remains expected to exit non-zero until external phone/account/public-host
+  and platform proof rows are collected.
+
+Sanitization:
+- This evidence omits account labels, local browser-state locations, credential browser storage,
+  auth secret strings, request archives, QR payload material, local capture file references,
+  third-party material URLs, draft routes, publish routes, and private material.

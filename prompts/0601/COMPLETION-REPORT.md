@@ -11743,3 +11743,27 @@ Boundary:
   retention, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 135 SVG Free-Trial Center Delta Addendum
+
+- Used CloakBrowser, not Playwright, against the current 135 SVG editor.
+- The center canvas already contained one applied trial effect for multi-select click popup /
+  custom trigger zones.
+- Before the second free-trial click, the center hash was `-976682689`, HTML length was `7312`,
+  SVG count was `1`, image count was `0`, and section count was `0`.
+- Clicked the next visible free-trial control, then selected the no-material option in the
+  material-inclusion prompt to avoid third-party asset dependency.
+- After confirmation, the center hash changed to `81954428`, HTML length changed to `8627`, SVG
+  count changed to `2`, image count stayed `0`, section count stayed `0`, and center text added
+  an automatic bouncing flip-card effect.
+- Cross-check showed no detector source-code change was required: the observed classes are
+  already covered by existing 135 SVG editor shell, builder canvas, trigger switch, layout
+  control, material list item, and purchase-control residue families.
+- Added sanitized evidence:
+  `prompts/0601/evidence/135-svg-free-trial-center-delta-20260703.txt`.
+- Boundary: this is applied-market-editor DOM learning only. It does not prove WeChat paste
+  retention, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
