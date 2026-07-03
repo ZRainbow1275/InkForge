@@ -8,6 +8,66 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Market Capability Taxonomy Expansion Slice
+
+Scope:
+- Local style catalog and regression-test update only.
+- No browser runtime artifact capture, no platform upload, no save, no sync, no schedule, no
+  publish, no phone preview, no account-state proof, and no release-gate relaxation.
+
+Source:
+- Recent Xiumi applied-center and SVG taxonomy readbacks exposed text bullet/marquee, lottery,
+  quiz/game, flip, zoom, click popup/reveal, click print/jump/play, falling motion, and
+  click-plus-auto categories.
+- Recent 135 SVG/free-trial readbacks exposed click-popup/custom trigger-zone and automatic
+  flip-card effects.
+- Recent 135 ordinary free-style readbacks exposed title/body/image-slot style payloads with
+  `_135editor`, `assistant`, `135brush`, `135bg`, `data-tools`, market `data-id`, and hosted
+  material residue.
+
+Impact:
+- `npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge --depth 3` reported LOW risk,
+  0 impacted processes, and 0 affected modules.
+
+Implementation:
+- Extended `StyleMarketCapabilityFamily` with explicit learned market families:
+  `text-marquee`, `quiz-game`, `flip-zoom`, `click-popup`, `click-print-jump-play`,
+  `falling-motion`, and `click-plus-auto`.
+- Added corresponding entries to `wechat-market-svg-h5-fallback-matrix`.
+- The new entries are intentionally `blocked-until-proof` or `external-handoff`; they do not
+  change style availability, evidence floors, publish-evidence requirements, selectable state,
+  renderer output, or proof accounting.
+- `click-print-jump-play` remains `publish-checklist` / `external-handoff` because print, jump,
+  and play semantics imply runtime action state beyond static article markup.
+- `ExportModal.vue` market capability labels were updated to keep the UI label map exhaustive
+  under `Record<StyleMarketCapabilityFamily, string>`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market-derived capability" --reporter=default --test-timeout=90000`
+  passed with 1 selected test.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 375 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1352 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 35.03s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected
+  with `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+  `uniqueNextRows=3`, and `nextRows=3`.
+
+Evidence:
+- Added `prompts/0601/evidence/market-capability-taxonomy-expansion-20260703.txt`.
+
+Boundary:
+- This is catalog taxonomy and rule accounting only. It does not prove WeChat rich paste,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-07-03 135 Ordinary Free Style Center Delta Slice
 
 Scope:

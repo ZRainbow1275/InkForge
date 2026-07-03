@@ -88,6 +88,13 @@ export type StyleMarketCapabilityFamily =
   | 'slide-trigger'
   | 'long-press-switch'
   | 'region-trigger'
+  | 'text-marquee'
+  | 'quiz-game'
+  | 'flip-zoom'
+  | 'click-popup'
+  | 'click-print-jump-play'
+  | 'falling-motion'
+  | 'click-plus-auto'
   | 'title-card-layout'
   | 'ratio-image-layer'
   | 'h5-handoff'
@@ -2446,6 +2453,145 @@ const PLATFORM_STYLE_CHOICES_BASE = [
         ],
         notes: [
           'Trigger zones require normalized geometry reports and mobile readback before export success.',
+        ],
+      },
+      {
+        family: 'text-marquee',
+        label: 'Text marquee and bullet-comment motion family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'auto',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Xiumi text bullet screens are motion candidates; InkForge must keep readable static text before mobile proof.',
+          'Do not copy vendor timeline wrappers, Angular bindings, or hosted material references.',
+        ],
+      },
+      {
+        family: 'quiz-game',
+        label: 'Lottery, quiz, and lightweight game family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'click',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Lottery and quiz affordances need deterministic fallback copy and exact phone before/after readback.',
+          'Game-like state must not depend on hidden vendor runtime, random remote state, or proprietary scripts.',
+        ],
+      },
+      {
+        family: 'flip-zoom',
+        label: 'Flip, zoom, and scale transition family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'click',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Flip/zoom effects must expose both front and back content in a static fallback.',
+          '135 free-trial flip-card observations remain authoring-canvas proof only until phone readback exists.',
+        ],
+      },
+      {
+        family: 'click-popup',
+        label: 'Click popup and reveal overlay family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'click',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Popup/reveal overlays require same-artifact click readback and a fully readable expanded fallback.',
+          'Transparent trigger regions must be normalized into InkForge-owned geometry metadata.',
+        ],
+      },
+      {
+        family: 'click-print-jump-play',
+        label: 'Click print, jump, and play handoff family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'plugin-sync',
+        renderPattern: 'publish-checklist',
+        output: 'publish-checklist',
+        status: 'external-handoff',
+        degradable: false,
+        requiredProof: [
+          'credentialed-channel-response',
+          'sync-readback',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Print, jump, and play actions stay checklist-only because they imply runtime action state outside static article markup.',
+          'Do not mark these actions usable from editor thumbnails, preview labels, or desktop DOM alone.',
+        ],
+      },
+      {
+        family: 'falling-motion',
+        label: 'Falling particles and ambient auto-motion family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'auto',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Ambient falling effects need static density limits, motion-off fallback, and mobile timing proof.',
+          'Decorative particles must never obscure selectable article text or cover required readback.',
+        ],
+      },
+      {
+        family: 'click-plus-auto',
+        label: 'Click plus automatic mixed-trigger family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'mobile-touch',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Mixed click and auto effects must define the initial, triggered, and settled frames before export selection.',
+          'Phone proof must verify both automatic timing and user-triggered state on the same artifact.',
         ],
       },
       {

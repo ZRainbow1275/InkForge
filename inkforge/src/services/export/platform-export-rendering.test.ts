@@ -9668,10 +9668,18 @@ describe('platform native export rendering rules', () => {
       'parallax-motion',
       'long-press-switch',
       'region-trigger',
+      'text-marquee',
+      'quiz-game',
+      'flip-zoom',
+      'click-popup',
+      'click-print-jump-play',
+      'falling-motion',
+      'click-plus-auto',
       'ratio-image-layer',
       'h5-handoff',
       'static-raster-fallback',
     ]))
+    expect(wechatMatrix.capabilities.length).toBeGreaterThanOrEqual(18)
     expect(wechatReport.stats.choicesWithCapabilities).toBeGreaterThanOrEqual(1)
     expect(wechatReport.stats.blockedUntilProof).toBeGreaterThanOrEqual(1)
 
@@ -9694,6 +9702,35 @@ describe('platform native export rendering rules', () => {
     expect(ratioLayer?.renderPattern).toBe('component-tree')
     expect(ratioLayer?.status).toBe('fallback-only')
     expect(ratioLayer?.degradable).toBe(true)
+
+    const textMarquee = wechatMatrix.capabilities.find(capability => capability.family === 'text-marquee')
+    expect(textMarquee).toBeDefined()
+    expect(textMarquee?.sources).toContain('xiumi-v5-paper')
+    expect(textMarquee?.triggerMode).toBe('auto')
+    expect(textMarquee?.status).toBe('blocked-until-proof')
+    expect(textMarquee?.requiredProof).toEqual(expect.arrayContaining([
+      'market-applied-dom-readback',
+      'phone-preview-readback',
+      'phone-screenshot',
+    ]))
+
+    const flipZoom = wechatMatrix.capabilities.find(capability => capability.family === 'flip-zoom')
+    expect(flipZoom).toBeDefined()
+    expect(flipZoom?.sources).toEqual(expect.arrayContaining(['135-svg-editor', 'xiumi-v5-paper']))
+    expect(flipZoom?.degradable).toBe(true)
+    expect(flipZoom?.notes.join(' ')).toContain('static fallback')
+
+    const clickPrintJumpPlay = wechatMatrix.capabilities.find(capability =>
+      capability.family === 'click-print-jump-play'
+    )
+    expect(clickPrintJumpPlay).toBeDefined()
+    expect(clickPrintJumpPlay?.status).toBe('external-handoff')
+    expect(clickPrintJumpPlay?.output).toBe('publish-checklist')
+    expect(clickPrintJumpPlay?.requiredProof).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'sync-readback',
+      'published-url-or-platform-preview',
+    ]))
 
     const choice = getStyleChoiceById('wechat-market-svg-h5-fallback-matrix')
     expect(choice).toBeDefined()

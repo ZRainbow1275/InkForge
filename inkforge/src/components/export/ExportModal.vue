@@ -797,6 +797,13 @@ function styleMarketCapabilityFamilyLabel(family: StyleMarketCapabilityFamily): 
     'h5-handoff': 'H5 交接',
     'static-raster-fallback': '静态栅格',
     'public-image-fallback': '公网图片',
+    'text-marquee': '文字弹幕',
+    'quiz-game': '测验游戏',
+    'flip-zoom': '翻转缩放',
+    'click-popup': '点击弹层',
+    'click-print-jump-play': '打印跳转播放',
+    'falling-motion': '落下动效',
+    'click-plus-auto': '点击自动',
   }
   return labels[family]
 }

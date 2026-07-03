@@ -11829,3 +11829,39 @@ Boundary:
   paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Market Capability Taxonomy Expansion Addendum
+
+- Expanded the local WeChat market SVG/H5 fallback matrix from the latest 135/Xiumi learning
+  without touching platform state or renderer output.
+- Added explicit `StyleMarketCapabilityFamily` entries for `text-marquee`, `quiz-game`,
+  `flip-zoom`, `click-popup`, `click-print-jump-play`, `falling-motion`, and
+  `click-plus-auto`.
+- All new interactive/motion families remain either `blocked-until-proof` or
+  `external-handoff`. No style choice availability, evidence floor, publish-evidence
+  requirement, selectable state, proof gate, or release status was relaxed.
+- `click-print-jump-play` is deliberately `publish-checklist` / `external-handoff` because
+  print, jump, and play semantics imply runtime action state outside static article markup.
+- `ExportModal.vue` market capability labels were updated so the UI label map remains exhaustive
+  for the expanded `StyleMarketCapabilityFamily` union.
+- Verification passed:
+  - `npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge --depth 3`: LOW risk,
+    0 impacted processes.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market-derived capability" --reporter=default --test-timeout=90000`: 1 selected test passed.
+  - `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`: 375 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`: 36 files / 1352 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 35.03s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `nextRowRefs=5`,
+    `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/market-capability-taxonomy-expansion-20260703.txt`.
+- Boundary: this is catalog taxonomy and rule-accounting work only. It does not prove WeChat
+  rich paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

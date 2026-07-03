@@ -8498,3 +8498,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is applied-market-editor DOM learning only. It does not prove WeChat paste
   retention, phone preview, mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance,
   credentialed sync, scheduled send, public-host acceptance, platform upload, or publish success.
+
+## 2026-07-03 Market Capability Taxonomy Expansion
+
+- [x] market-capability-taxonomy-expansion-20260703.txt
+- Scope: local style-catalog taxonomy expansion only.
+- Added explicit WeChat market SVG/H5 fallback matrix families for text marquee, quiz/game,
+  flip/zoom, click popup, click print/jump/play, falling motion, and click-plus-auto effects.
+- The new families encode the latest 135/Xiumi observations as InkForge-owned rule metadata,
+  not as copied vendor DOM, hosted material references, template source, or platform proof.
+- All new motion/action families stay `blocked-until-proof` or `external-handoff`; release
+  preflight remains `blocked-by-external` with `canClaimComplete=false`.
+- Verification passed: focused market capability Vitest, focused ESLint, full
+  `platform-export-rendering.test.ts`, serial `src/services/export` suite, GitNexus impact,
+  and expected blocked release-preflight smoke.
+- Boundary: this is catalog taxonomy and rule accounting only. It does not prove phone preview,
+  mobile Dark Mode, SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public-host acceptance, platform upload, or publish success.

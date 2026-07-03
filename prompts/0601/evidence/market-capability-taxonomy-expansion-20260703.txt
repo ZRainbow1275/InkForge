@@ -1,0 +1,52 @@
+Market Capability Taxonomy Expansion - 2026-07-03
+
+Scope:
+- Local style catalog rule expansion for market-editor taxonomy learned from 135 and Xiumi.
+- No browser runtime artifact capture, no platform upload, no save, no sync, no schedule, no publish, no phone preview, no account-state proof.
+
+Source observations:
+- Xiumi SVG taxonomy exposed text bullet/marquee, lottery, quiz/game, flip, zoom, click popup/reveal, click print/jump/play, falling motion, and click-plus-auto categories.
+- 135 SVG/free-trial center evidence exposed click-popup/custom trigger zones and automatic flip-card style effects.
+- 135 ordinary free-style center evidence exposed title/body/image-slot style payloads with editor residue, not publishable source markup.
+
+Implemented:
+- Extended StyleMarketCapabilityFamily with:
+  - text-marquee
+  - quiz-game
+  - flip-zoom
+  - click-popup
+  - click-print-jump-play
+  - falling-motion
+  - click-plus-auto
+- Added corresponding entries to the WeChat market SVG/H5 fallback matrix.
+- Updated the ExportModal market capability label map so UI/type-check remains exhaustive for
+  the new families.
+- All new motion/action families stay blocked-until-proof or external-handoff.
+- No style choice availability, evidence floor, publish evidence, selectable state, renderer output, or proof gate was relaxed.
+
+Rules:
+- text-marquee, quiz-game, flip-zoom, click-popup, falling-motion, and click-plus-auto require market-applied DOM readback plus phone preview readback, phone screenshot, and platform preview/published URL proof before any claim.
+- click-print-jump-play remains publish-checklist/external-handoff because it implies runtime action state outside static article markup and requires credentialed-channel response plus sync readback.
+- Vendor DOM, Angular/TN bindings, 135 editor wrappers, hosted material URLs, and template source remain forbidden runtime inputs.
+
+Verification:
+- npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge --depth 3
+  PASS: LOW risk, 0 impacted processes.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market-derived capability" --reporter=default --test-timeout=90000
+  PASS: 1 file / 1 selected test.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 375 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1352 tests.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 35.03s; tsconfig.tsbuildinfo restored afterward.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, canClaimComplete=false, status=blocked-by-external, nextRowRefs=5, uniqueNextRows=3, nextRows=3.
+
+Boundary:
+- This is local catalog taxonomy and rule accounting only.
+- It does not prove WeChat ordinary rich paste, phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

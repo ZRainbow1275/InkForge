@@ -14026,3 +14026,51 @@ const ruleFamilies = [
 - Run release-preflight smoke after recording the evidence; it must still exit non-zero with
   `canClaimComplete:false`.
 - Run staged diff and sensitive-fragment scans before committing the docs-only evidence.
+
+## 288. Market Capability Taxonomy Expansion - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the latest 135 and Xiumi CloakBrowser readbacks exposed specific market effect
+  families that were present in source-editor taxonomies but not all named in the InkForge
+  catalog.
+- This rule expands only local market-capability metadata for `wechat-market-svg-h5-fallback-matrix`.
+- It must not change renderer output, style availability, evidence floors, publish-evidence
+  requirements, proof-gate accounting, or platform release status.
+
+### 2. Required Families
+
+`StyleMarketCapabilityFamily` must explicitly represent these market-learned families:
+
+- `text-marquee` for Xiumi text bullet / marquee-like motion.
+- `quiz-game` for lottery, quiz, and lightweight game affordances.
+- `flip-zoom` for 135/Xiumi flip, zoom, and scale transitions.
+- `click-popup` for popup, reveal overlay, and custom trigger-zone effects.
+- `click-print-jump-play` for print, jump, and play actions that imply runtime action state.
+- `falling-motion` for ambient falling particles or similar auto-motion.
+- `click-plus-auto` for mixed click plus automatic timing effects.
+
+### 3. Contract
+
+- `text-marquee`, `quiz-game`, `flip-zoom`, `click-popup`, `falling-motion`, and
+  `click-plus-auto` remain `blocked-until-proof`.
+- Their required proof must include market-applied DOM readback, phone preview readback, phone
+  screenshot, and platform preview or published URL proof.
+- `click-print-jump-play` remains `publish-checklist` / `external-handoff` and requires
+  credentialed-channel response, sync readback, and platform preview or published URL proof.
+- All families must be degradable only when a readable static fallback exists. Vendor DOM,
+  Angular/TN bindings, 135 editor wrappers, hosted material URLs, material IDs, private template
+  source, and account-state artifacts must never become runtime output or committed proof.
+- Public search or source-editor thumbnails may inform taxonomy, but cannot satisfy phone,
+  credentialed-channel, sync, public-host, or publish gates.
+
+### 4. Required Checks
+
+- Run `npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge --depth 3` before editing
+  the catalog.
+- Add or update regression coverage asserting the new families exist and stay blocked or
+  external-handoff.
+- Run focused market capability tests, focused ESLint, the full
+  `platform-export-rendering.test.ts`, and the serial `src/services/export` suite.
+- Run release-preflight smoke after the change; it must still exit non-zero with
+  `status=blocked-by-external` and `canClaimComplete:false`.
