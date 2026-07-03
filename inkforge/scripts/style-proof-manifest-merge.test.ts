@@ -226,6 +226,50 @@ function buildDraftManifest(platform: string, choiceId: string): unknown {
   }
 }
 
+function buildTemplateMisuseManifest(): unknown {
+  return {
+    platform: 'wechat',
+    choiceId: 'wechat-card-rich',
+    scope: 'style-choice',
+    claimedEvidence: ['pc-editor-paste'],
+    artifacts: [{
+      id: 'merge-template-misuse-row',
+      requirementId: 'pc-editor-paste-event',
+      kind: 'editor-readback',
+      label: 'merge template misuse fixture',
+      platform: 'wechat',
+      choiceId: 'wechat-card-rich',
+      channel: 'platform-editor',
+      action: 'pc-paste',
+      readback: 'visual-and-dom',
+      artifactFingerprint: 'inkforge-merge-template-misuse-fixture',
+      exactArtifact: true,
+      authenticatedSessionVerified: true,
+      platformEditorTargetVerified: true,
+      platformEditorSurfaceVerified: true,
+      platformEditorDomVerified: true,
+      ordinaryClipboardPasteVerified: true,
+      sameEditorTabVerified: true,
+      pasteInputEventVerified: true,
+      editorBodyMutationVerified: true,
+      mojibakeFreeVerified: true,
+      safeForCommit: true,
+      draftOnly: true,
+      notProof: true,
+      artifactDraftTemplate: {
+        draftOnly: true,
+        notProof: true,
+        appendOnlyAfterExternalProof: true,
+        keepOutOfManifestUntilCollected: true,
+      },
+      artifactGuidance: {
+        requiredFields: ['artifactFingerprint', 'exactArtifact', 'safeForCommit'],
+        forbiddenFields: ['sensitive'],
+      },
+    }],
+  }
+}
+
 async function writeJson(path: string, value: unknown): Promise<void> {
   await writeFile(path, JSON.stringify(value), 'utf8')
 }
@@ -532,6 +576,42 @@ describe('style-proof manifest merge CLI', { timeout: 60_000 }, () => {
     expect(report.status).toBe('merge-blocked')
     expect(report.blockers).toContain('semantic-issue')
     expect(report.issueIds.semantic.some(issue => issue.id === 'style-proof-manifest-sensitive-artifact')).toBe(true)
+    await expect(readFile(output, 'utf8')).rejects.toThrow()
+  })
+
+  it('blocks external handoff template artifacts before writing a merged pack', async () => {
+    const dir = await createTempDir()
+    const input = join(dir, 'template-misuse.json')
+    const output = join(dir, 'merged-template-misuse.json')
+    await writeJson(input, { manifests: [buildTemplateMisuseManifest()] })
+
+    const result = await runManifestMergeCli(['--file', input, '--out', output, '--json'])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(result.stdout)
+
+    const report = parseManifestMergeJson(result.stdout)
+    expect(report.status).toBe('merge-blocked')
+    expect(report.canWritePack).toBe(false)
+    expect(report.outputWritten).toBe(false)
+    expect(report.blockers).toContain('input-schema-error')
+    expect(report.blockers).toContain('empty-pack')
+    expect(report.summary).toMatchObject({
+      acceptedManifestCount: 0,
+      artifactCount: 0,
+    })
+    expect(report.sources[0]).toMatchObject({
+      status: 'schema-invalid',
+      acceptedManifestCount: 0,
+      rejectedManifestCount: 1,
+      artifactCount: 0,
+    })
+    expect(report.issueIds.schema).toContainEqual({
+      id: 'style-proof-manifest-intake-template-artifact',
+      count: 1,
+    })
+    expect(report.issueIds.semantic).toEqual([])
     await expect(readFile(output, 'utf8')).rejects.toThrow()
   })
 

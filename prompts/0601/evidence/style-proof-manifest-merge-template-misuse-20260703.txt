@@ -1,0 +1,58 @@
+Style Proof Manifest Merge Template Misuse Propagation - 2026-07-03
+
+Scope:
+- Local manifest-merge regression coverage for caller-supplied redacted StyleProofManifest packs.
+- No browser action, no platform upload, no sync, no schedule, no publish, no artifact import.
+
+Problem:
+- Manifest intake rejects artifacts containing external handoff template or draft guidance fields.
+- Manifest merge consumes source files through manifest intake, so this rejection must remain
+  visible when operators merge proof packs and request a merged output file.
+
+Implemented:
+- Added a manifest-merge CLI regression source containing an otherwise valid WeChat PC editor
+  paste artifact row plus draftOnly:true, notProof:true, artifactDraftTemplate, and
+  artifactGuidance.
+- The test runs style-proof:manifest-merge with --file, --out, and --json.
+
+Expected merge behavior:
+- exitCode: 1
+- status: merge-blocked
+- canWritePack: false
+- outputWritten: false
+- blockers include input-schema-error
+- blockers include empty-pack
+- source status: schema-invalid
+- source acceptedManifestCount: 0
+- source rejectedManifestCount: 1
+- source artifactCount: 0
+- schema issue id: style-proof-manifest-intake-template-artifact
+- semantic issue ids: []
+- requested output file is not written
+
+Verification:
+- npx gitnexus impact buildCliReport -r InkForge --depth 3
+  PASS: target not found, risk UNKNOWN, impactedCount 0. The helper is script-local and not
+  indexed by the current graph.
+- npx gitnexus impact readSourceReports -r InkForge --depth 3
+  PASS: target not found, risk UNKNOWN, impactedCount 0. The helper is script-local and not
+  indexed by the current graph.
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 12 tests.
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 41 tests.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 34.77s.
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exitCode 1, status blocked-by-external, canClaimComplete false,
+  blockerCount 4, combinedIssueCount 11, nextRowRefs 5, uniqueNextRows 3, nextRows 3.
+
+Boundary:
+- This proves local manifest-merge propagation and write blocking only.
+- It does not prove WeChat ordinary rich paste, phone preview, phone screenshot, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.

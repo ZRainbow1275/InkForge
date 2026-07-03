@@ -8587,3 +8587,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local intake validation only. It does not prove phone preview, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
   platform upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Merge Template Misuse Propagation
+
+- [x] style-proof-manifest-merge-template-misuse-20260703.txt
+- Scope: local `style-proof:manifest-merge` regression coverage only.
+- Merge now has locked coverage that source-level
+  `style-proof-manifest-intake-template-artifact` blocks writes, keeps
+  `canWritePack=false`, reports source `schema-invalid`, keeps accepted manifest/artifact counts
+  at zero, and does not create semantic proof rows.
+- Verification passed: focused manifest-merge Vitest with 12 tests. Broader validation is
+  recorded in the evidence file.
+- Boundary: this is local merge validation only. It does not prove phone preview, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
+  platform upload, or publish success.

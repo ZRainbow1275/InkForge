@@ -14231,3 +14231,44 @@ const ruleFamilies = [
 - Run focused manifest-intake Vitest, focused ESLint, serial scripts tests, type-check, build,
   release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
   before committing.
+
+## 292. Style Proof Manifest Merge Template Misuse Propagation - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: `style-proof:manifest-merge` consumes caller-supplied manifest packs through the same
+  intake path, so template-artifact rejection must remain visible when operators merge multiple
+  external proof packs.
+- This rule applies to merge reporting and merge write gating only.
+- It must not change real proof success semantics, accepted manifest rows, proof artifacts,
+  renderer output, style availability, browser state, upload, sync, schedule, or publish logic.
+
+### 2. Contract
+
+- If any source file contains an artifact row rejected by manifest intake with
+  `style-proof-manifest-intake-template-artifact`, merge output must:
+  - keep `status=merge-blocked`;
+  - keep `canWritePack=false`;
+  - keep `outputWritten=false`;
+  - include `input-schema-error`;
+  - expose `style-proof-manifest-intake-template-artifact` in `issueIds.schema`;
+  - keep source summary `status=schema-invalid`, `acceptedManifestCount=0`,
+    `rejectedManifestCount=1`, and `artifactCount=0`.
+- `--out` must not write a merged pack while the source template-artifact error is present.
+
+### 3. Cannot-Claim Boundary
+
+- A merge report is a local audit artifact, not platform proof.
+- Merge must not convert external handoff templates, manifest drafts, release-preflight guidance,
+  or worksheet rows into proof rows.
+- Merge must not prove phone preview, mobile Dark Mode, cover thumbnail, credentialed sync,
+  scheduled send, public-host acceptance, upload, or publish success.
+
+### 4. Required Checks
+
+- Add a manifest-merge CLI regression that feeds a template-misuse artifact source and requests
+  `--out`; assert blocked output, no write, schema issue propagation, source rejection, and no
+  semantic proof rows.
+- Run focused manifest-merge Vitest, serial scripts tests, focused ESLint, type-check, build,
+  release-preflight smoke, diff checks, GitNexus staged detection, and sensitive-fragment scans
+  before committing.

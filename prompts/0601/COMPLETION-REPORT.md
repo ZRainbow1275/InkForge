@@ -12012,3 +12012,43 @@ Boundary:
   paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Manifest Merge Template Misuse Propagation Addendum
+
+- Added manifest-merge regression coverage proving that source-level template artifact misuse
+  propagates through `style-proof:manifest-merge`.
+- The fixture uses an otherwise valid WeChat PC paste artifact row plus `draftOnly:true`,
+  `notProof:true`, `artifactDraftTemplate`, and `artifactGuidance`.
+- `style-proof:manifest-merge --file <source> --out <target> --json` now has locked coverage for:
+  - `status=merge-blocked`;
+  - `canWritePack=false`;
+  - `outputWritten=false`;
+  - blocker `input-schema-error`;
+  - blocker `empty-pack`;
+  - source `status=schema-invalid`;
+  - source `acceptedManifestCount=0`, `rejectedManifestCount=1`, and `artifactCount=0`;
+  - schema issue `style-proof-manifest-intake-template-artifact`;
+  - no semantic issue ids;
+  - no merged pack written.
+- Verification passed:
+  - `npx gitnexus impact buildCliReport -r InkForge --depth 3`: target not found, risk UNKNOWN,
+    impactedCount 0.
+  - `npx gitnexus impact readSourceReports -r InkForge --depth 3`: target not found,
+    risk UNKNOWN, impactedCount 0.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000`: 1 file / 12 tests passed.
+  - `pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.test.ts --quiet`: passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 4 files / 41 tests passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: 4653 modules
+    transformed, Vite built in 34.77s; `inkforge/tsconfig.tsbuildinfo` restored afterward.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: expected exit 1 with
+    `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+    `combinedIssueCount=11`, `nextRowRefs=5`, `uniqueNextRows=3`, and `nextRows=3`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/style-proof-manifest-merge-template-misuse-20260703.txt`.
+- Boundary: this is local manifest-merge regression coverage only. It does not prove WeChat rich
+  paste, phone preview, phone screenshot, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
