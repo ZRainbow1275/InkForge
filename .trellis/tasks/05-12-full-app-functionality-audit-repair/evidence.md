@@ -197,3 +197,12 @@ Boundary: this closes the Desktop runtime detection drift and proves safe native
 | 2026-07-05 | Final full Tauri/WebDriver replay: `pnpm -C inkforge test:e2e` | PASS: 3 specs / 20 tests. `native-runtime.spec.cjs` passed 3/3 including exact clipboard write/read/restore-readback, `svg-render.spec.cjs` passed 6/6, and `visual.spec.cjs` passed 11/11. |
 
 Boundary: this closes `DSK-006` for the text clipboard boundary only. It does not claim rich HTML clipboard, image clipboard preservation, OS permission-prompt UX, or WeChat rich paste proof.
+
+### 2026-07-05 Export Matrix Current-Round Reconciliation
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Audit matrix reconciliation for `CMP-EXPORT-001` | The row was still `pending` even though `F-EXP-001`, `EXP-MODAL-001`, `EXP-SVC-001`, and the current real Tauri/WebDriver export suite already provided the required local evidence for ExportModal platform controls and renderer output. |
+| 2026-07-05 | Current-round user boundary | XHS/Zhihu publish-side automation is not part of this automatic acceptance pass; those platform publish checks are manual/operator-owned. The automated claim is limited to local application of SVG/style rules, honest unsupported upload states, and WeChat-focused render/style gates. |
+| 2026-07-05 | Real binary evidence reused | `pnpm -C inkforge test:e2e` passed 3 specs / 20 tests. `svg-render.spec.cjs` passed 6/6 with real draft seeding, real ExportModal platform controls, WeChat/XHS/Zhihu local style capability readback, WeChat flagship Kiln/Tempera/Amber SVG injection, and mobile-comfort CJK line-width proof. |
+| 2026-07-05 | Matrix update | `CMP-EXPORT-001` is marked `fixed` against `F-EXP-001`. This does not claim account upload, scheduled send, XHS publish, Zhihu publish, or WeChat phone preview success. |
