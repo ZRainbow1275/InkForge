@@ -89,6 +89,12 @@ Validation commands run in this audit slice:
     `canClaimReleaseComplete=false`.
 - `pnpm --silent -C inkforge style-proof:release-preflight --json`
   - EXPECTED BLOCKED: exit 1 with `status=blocked-by-external` and `canClaimComplete=false`.
+- `pnpm -C inkforge test:e2e`
+  - PASS after e2e contract calibration to the current-round scope: 2 real Tauri/WebDriver spec
+    files / 17 tests. The run seeds a real draft in the Tauri WebView2 shell, opens the real
+    ExportModal, verifies WeChat current-round external handoff rows are 8, verifies preset-backed
+    WeChat styles such as Kiln/Amber/Toolbar are selectable locally, verifies flagship
+    Kiln/Tempera/Amber SVG injection, and keeps strict release proof unclaimed.
 
 Current-round conclusion:
 - The current-round local application target is complete and proven.

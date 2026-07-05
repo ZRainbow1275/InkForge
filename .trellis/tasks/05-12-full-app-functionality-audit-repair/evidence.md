@@ -123,7 +123,10 @@ Targeted non-mutating ESLint has passed for `PublishView.vue`, `ThemesView.vue`,
 
 ## Tauri Evidence
 
-Pending. Tauri desktop shell has not been started yet.
+Partial. A real Tauri/WebDriver run now starts the packaged WebView2 shell and covers the chrome
+window controls, brand mark, visual tokens, theme cascade, and SVG export surface. Native dialogs,
+updater, file-system/runtime boundaries, file reveal, shell-open, and other shell-only controls
+still require dedicated rows before the whole `05-12` task can close.
 
 ## 2026-07-05 Continuation Gate Replay
 
@@ -142,3 +145,14 @@ Pending. Tauri desktop shell has not been started yet.
 ### Current native-boundary status
 
 The package build gate is now green. Interactive Tauri shell evidence for native dialogs, updater, file-system/runtime boundaries, and shell-only controls is still not complete in this continuation slice. Those rows remain active and must not be counted as passed until a real desktop-shell run is recorded.
+
+### 2026-07-05 Tauri/WebDriver SVG + chrome replay
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Initial Tauri/WebDriver e2e replay: `pnpm -C inkforge test:e2e` | Failed because `tests/e2e/specs/svg-render.spec.cjs` still expected pre-amendment three-platform external proof counts (`外部证明清单 19 行`) and disabled rows for styles that are now preset-backed current-round applications. This was a stale e2e contract, not a runtime renderer failure. |
+| 2026-07-05 | GitNexus impact before e2e contract edit: `npx gitnexus impact svg-render.spec.cjs -r InkForge -d upstream --depth 2` | LOW risk; file target only; 0 affected processes. |
+| 2026-07-05 | E2E contract calibration | Updated the real-binary assertions to the user-confirmed current round: WeChat external handoff has 8 rows, XHS/Zhihu publish-side automation is outside this round, market capability summary is `21/3/16/2`, and preset-backed WeChat style rows such as Amber and Toolbar are selectable locally while release proof remains unclaimed. |
+| 2026-07-05 | Final Tauri/WebDriver replay: `pnpm -C inkforge test:e2e` | PASS: 2 spec files / 17 tests. `svg-render.spec.cjs` passed 6/6 with real draft seeding, real ExportModal, WeChat/XHS/Zhihu local style capability readback, flagship Kiln/Tempera/Amber SVG injection, and mobile-comfort CJK line-width check. `visual.spec.cjs` passed 11/11 with TitleBar controls, IPC click round-trips, brand mark, tokens, and theme cascade in the Tauri WebView2 shell. |
+
+Boundary: this Tauri/WebDriver proof strengthens the desktop-shell evidence for chrome and SVG/export UI. It does not complete native dialogs, updater, file-system/runtime boundaries, file reveal, shell-open, external credentials, platform upload, platform sync, public rendering, or publish rows.

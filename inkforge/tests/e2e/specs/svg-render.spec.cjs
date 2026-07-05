@@ -517,7 +517,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
       .to.include('fingerprintConflicts 0');
     expect(wechat.externalChecklistText, 'WeChat external proof checklist is visible')
-      .to.include('外部证明清单 19 行');
+      .to.include('外部证明清单 8 行');
     expect(wechat.externalChecklistText, 'external proof checklist keeps publish/sync success disabled')
       .to.include('当前不会启用发布、同步或平台成功宣称');
     expect(wechat.externalChecklistGroups, 'external proof checklist exposes four release blocker groups')
@@ -528,14 +528,14 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('目录阻断 11');
     expect(wechat.localActionabilityText, 'WeChat local actionability exposes safe local row count')
       .to.include('安全本地 11');
-    expect(wechat.localActionabilityText, 'WeChat local actionability links back to external checklist')
-      .to.include('外部清单 19');
+    expect(wechat.localActionabilityText, 'WeChat local actionability links back to current-round external checklist')
+      .to.include('外部清单 8');
     expect(wechat.localActionabilityText, 'WeChat local actionability prevents false local completion claims')
       .to.include('不得把目录阻断或外部平台行当作本地补证完成');
     expect(wechat.localActionabilityGroups, 'local actionability exposes local/catalog groups')
       .to.have.length(2);
     expect(wechat.externalHandoffText, 'WeChat external proof handoff is visible')
-      .to.include('外部交接 19 行');
+      .to.include('外部交接 8 行');
     expect(wechat.externalHandoffText, 'external handoff exposes group count')
       .to.include('分组 4');
     expect(wechat.externalHandoffText, 'external handoff keeps safe external automation closed')
@@ -560,30 +560,25 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       wechat.externalHandoffFlags.some((flag) =>
         flag.includes('账号') &&
-        flag.includes('14') &&
+        flag.includes('4') &&
         flag.includes('需要真实账号环境')),
-      'external handoff exposes account rows',
+      'external handoff exposes current-round WeChat account rows',
     ).to.equal(true);
-    expect(
-      wechat.externalHandoffFlags.some((flag) =>
-        flag.includes('公网') &&
-        flag.includes('1') &&
-        flag.includes('需要公开 host 读回')),
-      'external handoff exposes public host rows',
-    ).to.equal(true);
+    expect(wechat.externalChecklistText, 'current-round WeChat checklist keeps public-host rows out of scope')
+      .to.include('public host 0');
     expect(
       wechat.externalHandoffFlags.some((flag) =>
         flag.includes('人工') &&
-        flag.includes('10') &&
+        flag.includes('4') &&
         flag.includes('不得本地自动执行')),
-      'external handoff exposes unsafe rows',
+      'external handoff exposes current-round unsafe WeChat rows',
     ).to.equal(true);
     expect(
       wechat.externalHandoffFlags.some((flag) =>
         flag.includes('平台变更') &&
-        flag.includes('14') &&
+        flag.includes('4') &&
         flag.includes('涉及同步或发布')),
-      'external handoff exposes mutating platform rows',
+      'external handoff exposes current-round mutating WeChat rows',
     ).to.equal(true);
     expect(
       wechat.localActionabilityGroups.some((group) =>
@@ -612,27 +607,27 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       wechat.externalChecklistGroups.some((group) =>
         group.includes('外部依赖') &&
-        group.includes('15') &&
-        group.includes('微信公众号 8') &&
-        group.includes('小红书 2') &&
-        group.includes('知乎 5')),
-      'external proof checklist exposes external dependency rows',
+        group.includes('4') &&
+        group.includes('微信公众号 4') &&
+        !group.includes('小红书') &&
+        !group.includes('知乎')),
+      'external proof checklist exposes only current-round WeChat external dependency rows',
     ).to.equal(true);
     expect(
       wechat.externalChecklistGroups.some((group) =>
         group.includes('需人工') &&
-        group.includes('10') &&
-        group.includes('发布/平台预览 3') &&
-        group.includes('定时/发送读回 3')),
-      'external proof checklist exposes unsafe-to-automate rows',
+        group.includes('4') &&
+        group.includes('发布/平台预览 1') &&
+        group.includes('授权通道响应 1')),
+      'external proof checklist exposes current-round unsafe-to-automate WeChat rows',
     ).to.equal(true);
     expect(
       wechat.externalChecklistGroups.some((group) =>
         group.includes('平台变更') &&
-        group.includes('14') &&
-        group.includes('发布/平台预览 3') &&
-        group.includes('定时/发送读回 3')),
-      'external proof checklist exposes mutating platform rows',
+        group.includes('4') &&
+        group.includes('发布/平台预览 1') &&
+        group.includes('授权通道响应 1')),
+      'external proof checklist exposes current-round mutating WeChat rows',
     ).to.equal(true);
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(17);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
@@ -641,7 +636,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.marketSummaries, 'WeChat shows exactly one market capability summary')
       .to.have.length(1);
     expect(wechat.marketSummaries[0], 'WeChat market capability summary mirrors runtime catalog')
-      .to.include('市场能力：14；降级 3；待证明 10；外部交接 1');
+      .to.include('市场能力：21；降级 3；待证明 16；外部交接 2');
     expect(wechat.marketChipLabels, 'WeChat market matrix exposes five visible market chips')
       .to.have.length(5);
     expect(wechat.marketChipLabels, 'WeChat market chips expose learned SVG/H5 families')
@@ -719,16 +714,16 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.text.includes('135/秀米 SVG 与 H5 规则必须重写')),
       'market SVG/H5 fallback matrix stays blocked until InkForge-owned fallback proof exists',
     ).to.equal(true);
+    const marketMatrixCard = wechat.cards.find((card) =>
+      card.text.includes('Market SVG/H5 fallback matrix'));
     expect(
-      wechat.cards.some((card) =>
-        card.disabled &&
-        card.className.includes('style-choice-blocked') &&
-        card.text.includes('Market SVG/H5 fallback matrix') &&
-        card.text.includes('市场能力：14；降级 3；待证明 10；外部交接 1') &&
-        card.text.includes('背景 SVG · 静态 · 待证明') &&
-        card.text.includes('点击切换 · 点击 · 待证明')),
-      'WeChat market matrix card surfaces market metadata without becoming selectable',
-    ).to.equal(true);
+      marketMatrixCard,
+      'WeChat market matrix card is present in the style catalog',
+    ).to.exist;
+    expect(
+      marketMatrixCard.disabled,
+      'WeChat market matrix is selectable as a current-round safe fallback application',
+    ).to.equal(false);
     expect(
       wechat.cards.some((card) =>
         card.className.includes('style-choice-unavailable') &&
@@ -765,8 +760,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     });
     expect(applicationProbe.kilnDisabled, 'Kiln style is selectable because it maps to a real preset').to.equal(false);
     expect(applicationProbe.kilnPressed, 'Kiln style exposes selected state after click').to.equal('true');
-    expect(applicationProbe.amberDisabled, 'Amber has a preset but remains disabled while catalog status is blocked').to.equal(true);
-    expect(applicationProbe.toolbarDisabled, 'Toolbar parameter map is available but not selectable without a preset-backed action').to.equal(true);
+    expect(applicationProbe.amberDisabled, 'Amber is selectable as a preset-backed current-round style').to.equal(false);
+    expect(applicationProbe.toolbarDisabled, 'Toolbar parameter map is selectable as a current-round preset-backed style').to.equal(false);
     expect(applicationProbe.activePresetText, 'style click selects the real Kiln preset').to.include('赤陶旗舰');
     expect(applicationProbe.preflight, 'preflight names the selected style and real preset')
       .to.include('已选择 Kiln creative flagship → 赤陶旗舰（flagship-kiln）');

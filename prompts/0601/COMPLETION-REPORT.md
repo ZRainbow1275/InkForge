@@ -13310,3 +13310,30 @@ Boundary:
 - Current-round conclusion: the local application target is complete and proven. The broader
   external release proof is not complete and is deliberately not claimed. Xiaohongshu and Zhihu
   publish-side proof remains manually deferred to the user.
+
+### Follow-up: Tauri/WebDriver current-round e2e calibration
+
+- Replayed the existing real Tauri/WebDriver harness with `pnpm -C inkforge test:e2e`; this is
+  `tauri-driver` + WebView2 against the real desktop shell, not Playwright and not a browser-only
+  mock.
+- The first replay exposed stale e2e assertions from the pre-amendment release matrix:
+  `svg-render.spec.cjs` still expected 19 external proof rows and disabled states for style rows
+  that are now preset-backed current-round local applications.
+- Updated the e2e contract to the user-confirmed current scope:
+  - WeChat external handoff is 8 current-round rows;
+  - XHS/Zhihu publish-side automation is outside this round and remains operator-owned;
+  - WeChat market capability summary is `21/3/16/2`;
+  - Kiln, Amber, Toolbar, and Market fallback style rows are locally selectable when backed by
+    real preset mappings;
+  - strict release proof still shows `canClaimComplete=false` and keeps phone/account proof
+    unclaimed.
+- Final replay passed: 2 spec files / 17 tests.
+  - `svg-render.spec.cjs`: 6/6 passed, including real draft seeding, real ExportModal style
+    capability readback, flagship Kiln/Tempera/Amber SVG injection, and mobile-comfort CJK
+    line-width check.
+  - `visual.spec.cjs`: 11/11 passed, including TitleBar controls, IPC click round-trips, brand
+    mark, tokens, and theme cascade in the Tauri WebView2 shell.
+- Boundary: this strengthens the current-round application/WeChat local evidence and desktop-shell
+  chrome evidence. It does not prove WeChat phone preview, mobile Dark Mode, credentialed sync,
+  scheduled send, platform preview, public rendering, Xiaohongshu/Zhihu account upload, or publish
+  success.
