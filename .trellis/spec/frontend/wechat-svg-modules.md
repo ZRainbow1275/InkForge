@@ -15688,8 +15688,9 @@ and merge after real, redacted external proof exists.
 ### 3. Contracts
 
 - Application acceptance remains `notProof:true`.
-- `canClaimApplicationReady` may be true only when application preflight, gallery readiness,
-  WeChat manual checklist readiness, and strict release-boundary preservation all pass.
+- `canClaimApplicationReady` may be true only when application preflight, WeChat style readiness,
+  gallery readiness, WeChat manual checklist readiness, and strict release-boundary preservation
+  all pass.
 - `canClaimReleaseComplete` must remain false while strict release proof is blocked externally.
 - The manual checklist child check must validate:
   - checklist exit code is 0;
@@ -15709,14 +15710,14 @@ and merge after real, redacted external proof exists.
 
 ### 5. Good/Base/Bad Cases
 
-- Good: `style-proof:application-acceptance --json` exits 0 with four passing checks, including
-  `wechat-manual-checklist`.
+- Good: `style-proof:application-acceptance --json` exits 0 with five passing checks, including
+  `wechat-style-readiness` and `wechat-manual-checklist`.
 - Base: `style-proof:wechat-manual-checklist` remains separately runnable for operators.
 - Bad: application acceptance reports ready while omitting the manual checklist check.
 
 ### 6. Tests Required
 
-- Regression tests must assert the new summary field, the four-check order, the checklist command,
+- Regression tests must assert the new summary field, the five-check order, the checklist command,
   and help text mentioning WeChat manual checklist readiness.
 - Direct smoke must confirm application acceptance exits 0 with
   `wechatManualChecklistExitCode=0`, `status=application-acceptance-ready`,
@@ -15735,7 +15736,7 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
 #### Correct
 
 ```json
-{"checks":[{"id":"application-preflight"},{"id":"application-gallery"},{"id":"wechat-manual-checklist"},{"id":"strict-release-boundary"}]}
+{"checks":[{"id":"application-preflight"},{"id":"wechat-style-readiness"},{"id":"application-gallery"},{"id":"wechat-manual-checklist"},{"id":"strict-release-boundary"}]}
 ```
 
 ## 315. Application Acceptance Exposes WeChat Style Readiness Counts - 2026-07-05
@@ -15768,6 +15769,7 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
   - `usableButUnselectableWechatChoices`;
   - `actionableLocalRows`.
 - `canClaimApplicationReady` may be true only when:
+  - `checks[]` includes `id:"wechat-style-readiness"` with `status:"wechat-style-ready"`;
   - all WeChat SVG slot, UI surface, export pipeline, and option injection failure counts are 0;
   - `wechatStyleChoiceCount > 0`;
   - `wechatSelectableChoiceCount > 0`;
@@ -15787,13 +15789,15 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
 - Base: strict release remains `blocked-by-external`; the aggregate can report local application
   readiness but cannot report release completion.
 - Bad: the aggregate omits these fields, reports selectable WeChat rows as 0, has any WeChat
-  application failure count, or loses the XHS/Zhihu manual deferral boundary.
+  application failure count, omits the dedicated `wechat-style-readiness` check row, or loses the
+  XHS/Zhihu manual deferral boundary.
 
 ### 4. Tests Required
 
 - Regression tests must assert:
   - the JSON shape requires every WeChat style/readiness count;
   - the current good counts are present in the aggregate report;
+  - the check order includes `wechat-style-readiness` immediately after `application-preflight`;
   - `wechatSelectableChoiceCount` is greater than proof-usable choices but lower than all style
     choices, proving local fallback application is distinct from proof completion;
   - `usableButUnselectableWechatChoices` remains 0.

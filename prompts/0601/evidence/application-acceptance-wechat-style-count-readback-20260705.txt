@@ -10,6 +10,8 @@ Implemented:
   WeChat SVG/style application readiness counts from the application-preflight child report.
 - Extended scripts/style-proof-application-acceptance.test.ts so JSON shape and current good
   counts are regression-tested.
+- Added a dedicated wechat-style-readiness check row so WeChat SVG/style count failures are
+  reported as a separate aggregate gate.
 - Updated .trellis/spec/frontend/wechat-svg-modules.md with rule 315.
 
 Aggregate summary fields added:
@@ -32,6 +34,12 @@ Readiness rule:
   blocked externally, WeChat application failure counts are 0, there is at least one WeChat style
   choice, there is at least one selectable WeChat application row, usableButUnselectableWechatChoices
   is 0, actionableLocalRows is 0, and xhsZhihuPublishAutomationDeferred is true.
+- checks[] order:
+  - application-preflight
+  - wechat-style-readiness
+  - application-gallery
+  - wechat-manual-checklist
+  - strict-release-boundary
 
 Verification:
 - npx gitnexus impact buildApplicationAcceptanceReport -r InkForge -d upstream --include-tests
@@ -44,6 +52,7 @@ Verification:
   - status: application-acceptance-ready
   - canClaimApplicationReady: true
   - canClaimReleaseComplete: false
+  - wechat-style-readiness check: status wechat-style-ready
   - wechatApplicationSvgSlotCount: 5
   - wechatApplicationSvgSlotFailureCount: 0
   - wechatApplicationSurfaceCount: 2

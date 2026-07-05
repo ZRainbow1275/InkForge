@@ -79,7 +79,12 @@ interface StrictReleaseJsonReport {
 }
 
 interface ApplicationAcceptanceCheck {
-  id: 'application-preflight' | 'application-gallery' | 'wechat-manual-checklist' | 'strict-release-boundary'
+  id:
+    | 'application-preflight'
+    | 'wechat-style-readiness'
+    | 'application-gallery'
+    | 'wechat-manual-checklist'
+    | 'strict-release-boundary'
   passed: boolean
   exitCode: number
   status: string
@@ -439,10 +444,16 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         passed: applicationPreflightResult.exitCode === 0 &&
           applicationPreflight?.status === 'application-ready' &&
           applicationPreflight.canClaimApplicationReady === true &&
-          applicationIssueCount === 0 &&
-          wechatStyleApplicationReady,
+          applicationIssueCount === 0,
         exitCode: applicationPreflightResult.exitCode,
         status: applicationPreflight?.status ?? 'invalid-json',
+        command: 'style-proof:application-preflight --json',
+      },
+      {
+        id: 'wechat-style-readiness',
+        passed: wechatStyleApplicationReady,
+        exitCode: applicationPreflightResult.exitCode,
+        status: wechatStyleApplicationReady ? 'wechat-style-ready' : 'wechat-style-blocked',
         command: 'style-proof:application-preflight --json',
       },
       {

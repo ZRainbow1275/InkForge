@@ -25544,3 +25544,38 @@ Boundary:
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 Application Acceptance WeChat Style Readiness Check Row Slice
+
+Context:
+- After the WeChat style count readback slice, the aggregate could block on those counts, but the
+  failing row would still appear as `application-preflight`, which is less actionable for
+  operators reading one report.
+
+Changes:
+- Added a dedicated `wechat-style-readiness` row to `style-proof:application-acceptance`.
+- The new row reuses the same application-preflight child report and reports:
+  - `status=wechat-style-ready` when WeChat SVG slot, UI surface, export pipeline, option
+    injection, style-choice, selectable-choice, no-unselectable-choice, no-actionable-local-row,
+    and Xiaohongshu/Zhihu manual deferral conditions all pass;
+  - `status=wechat-style-blocked` if any of those local style readiness gates fail.
+- Updated focused tests so the aggregate check order is now:
+  `application-preflight`, `wechat-style-readiness`, `application-gallery`,
+  `wechat-manual-checklist`, `strict-release-boundary`.
+- Updated spec rule 314 and rule 315 to preserve the five-check contract.
+- Updated the existing evidence file
+  `prompts/0601/evidence/application-acceptance-wechat-style-count-readback-20260705.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files / 9 tests.
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json` exited 0 with
+  `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, a passing `wechat-style-readiness` row, and
+  `wechatSelectableChoiceCount=13`.
+
+Boundary:
+- This improves report explainability only. It does not claim WeChat phone preview, mobile Dark
+  Mode, mobile interaction, cover-thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, platform preview, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

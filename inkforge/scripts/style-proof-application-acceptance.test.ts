@@ -235,11 +235,16 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(report.summary.usableButUnselectableWechatChoices).toBe(0)
     expect(report.checks.map(check => check.id)).toEqual([
       'application-preflight',
+      'wechat-style-readiness',
       'application-gallery',
       'wechat-manual-checklist',
       'strict-release-boundary',
     ])
     expect(report.checks.every(check => check.passed)).toBe(true)
+    expect(report.checks.find(check => check.id === 'wechat-style-readiness')).toMatchObject({
+      status: 'wechat-style-ready',
+      command: 'style-proof:application-preflight --json',
+    })
     expect(report.checks.find(check => check.id === 'strict-release-boundary')).toMatchObject({
       status: 'blocked-by-external',
       command: 'style-proof:release-preflight --json',

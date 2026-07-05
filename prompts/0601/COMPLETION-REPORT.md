@@ -13072,3 +13072,13 @@ Boundary:
   preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance, credentialed sync,
   scheduled send, public rendering, platform preview, or publish success. Xiaohongshu and Zhihu
   publish-side tests remain manually deferred to the user for this round.
+
+### Follow-up: dedicated WeChat style readiness check row
+
+- Added a dedicated `wechat-style-readiness` row to the aggregate `checks[]` list so WeChat
+  SVG/style count failures are no longer hidden under the broader `application-preflight` row.
+- The current check order is now:
+  `application-preflight`, `wechat-style-readiness`, `application-gallery`,
+  `wechat-manual-checklist`, `strict-release-boundary`.
+- Current direct smoke confirms the new row passes with `status=wechat-style-ready` while
+  `canClaimReleaseComplete=false` remains preserved.

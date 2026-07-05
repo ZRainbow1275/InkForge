@@ -9115,6 +9115,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `wechatStyleChoiceCount=17`, `wechatUsableChoiceCount=8`,
   `wechatSelectableChoiceCount=13`, `usableButUnselectableWechatChoices=0`, and
   `actionableLocalRows=0`.
+- The aggregate `checks[]` list now includes a dedicated `wechat-style-readiness` row between
+  `application-preflight` and `application-gallery`, with `status=wechat-style-ready`.
 - Focused regression passed with 2 files / 9 tests.
 - Boundary: this proves local aggregate reporting of WeChat app-level SVG/style readiness. It does
   not prove WeChat phone preview, credentialed sync, scheduled send, public rendering, or publish
