@@ -561,3 +561,18 @@ Phase 3  我亲自跑（~30 分钟）
 - 优点：每条改动可追溯到 0506 出处；并行度合理；验收确定性高
 - 风险：HubView 内部串行总周期较长；缓解 — A2 内部按版面分段串行 commit，渐进可验
 - 长期：deny-list、useEdgeMagnetism、useScrollSnap 沉淀为可复用资产
+
+---
+
+## Closeout evidence - 2026-07-05
+
+This visual overhaul task is closed based on the dedicated completion audit already stored in this task directory:
+
+- `.trellis/tasks/05-06-app-visual-overhaul/evidence/completion-audit-2026-05-14.md` marks the 0506 visual overhaul as development-complete.
+- The audit maps Hub and Workstation acceptance criteria to browser screenshots, DOM measurements, command evidence, and Tauri build evidence.
+- The task directory is clean before closeout.
+- Current continuation checks also confirmed project type-check still passes with `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+
+Boundary:
+
+- This archive records the already completed 0506 visual overhaul. It does not close the separate 05-12 full-functionality audit task or the 05-28 logo/chrome identity task.
