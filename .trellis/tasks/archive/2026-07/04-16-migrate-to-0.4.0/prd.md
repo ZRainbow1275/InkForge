@@ -67,3 +67,17 @@ When helping users migrate to v0.4.0-beta.1:
 3. **If not customized**: Just run `trellis update` — safe-file-delete will handle cleanup automatically.
 4. **Python scripts**: No user action needed. The refactoring preserves all entry paths. If the user has custom scripts that import from `.trellis/scripts/common/`, they may need to update imports (e.g., `from common.io import read_json` instead of inline `_read_json_file`).
 
+---
+
+## Closeout evidence - 2026-07-05
+
+This migration task is closed as superseded and satisfied by the current Trellis runtime state:
+
+- `.trellis/.version` is `0.6.5`, which is newer than this task's target migration version.
+- `.trellis/scripts/task.py` and `.trellis/scripts/get_context.py` exist.
+- No `.sh` files remain under `.trellis/scripts/`.
+- `.trellis/scripts/multi-agent/` does not exist.
+- Legacy unprefixed Codex skill directories checked for this migration are absent.
+- Current Codex Trellis skill directories are present under `.agents/skills/trellis-*`.
+
+No product source code changes are required for this closeout; this is a Trellis housekeeping migration archive only.

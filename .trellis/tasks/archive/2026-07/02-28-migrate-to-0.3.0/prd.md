@@ -67,3 +67,17 @@ When assisting users upgrading from 0.2.x to 0.3.0:
 
 Note: Users upgrading from any 0.3.0 prerelease (beta/rc) need no file changes — only the version stamp is updated.
 
+---
+
+## Closeout evidence - 2026-07-05
+
+This migration task is closed as superseded and satisfied by the current Trellis runtime state:
+
+- `.trellis/.version` is `0.6.5`, which is newer than this task's target migration version.
+- `.trellis/scripts/task.py` and `.trellis/scripts/get_context.py` exist.
+- No `.sh` files remain under `.trellis/scripts/`.
+- `.trellis/scripts/multi-agent/` does not exist.
+- Legacy unprefixed Codex skill directories checked for this migration are absent.
+- Current Codex Trellis skill directories are present under `.agents/skills/trellis-*`.
+
+No product source code changes are required for this closeout; this is a Trellis housekeeping migration archive only.

@@ -177,3 +177,17 @@ When helping with this migration:
 3. Verify hook scripts output correct JSON format
 4. Check that git commands work with non-ASCII characters
 
+---
+
+## Closeout evidence - 2026-07-05
+
+This migration task is closed as superseded and satisfied by the current Trellis runtime state:
+
+- `.trellis/.version` is `0.6.5`, which is newer than this task's target migration version.
+- `.trellis/scripts/task.py` and `.trellis/scripts/get_context.py` exist.
+- No `.sh` files remain under `.trellis/scripts/`.
+- `.trellis/scripts/multi-agent/` does not exist.
+- Legacy unprefixed Codex skill directories checked for this migration are absent.
+- Current Codex Trellis skill directories are present under `.agents/skills/trellis-*`.
+
+No product source code changes are required for this closeout; this is a Trellis housekeeping migration archive only.

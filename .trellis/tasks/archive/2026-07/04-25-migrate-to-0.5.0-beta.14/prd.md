@@ -144,3 +144,17 @@ When helping a user migrate to 0.5.0-beta.5:
 
 5. **Verify clean second run**: after migrate, running `trellis update` again should report "Already up to date!". Any diff indicates a rename that didn't complete (user chose skip on a modified file).
 
+---
+
+## Closeout evidence - 2026-07-05
+
+This migration task is closed as superseded and satisfied by the current Trellis runtime state:
+
+- `.trellis/.version` is `0.6.5`, which is newer than this task's target migration version.
+- `.trellis/scripts/task.py` and `.trellis/scripts/get_context.py` exist.
+- No `.sh` files remain under `.trellis/scripts/`.
+- `.trellis/scripts/multi-agent/` does not exist.
+- Legacy unprefixed Codex skill directories checked for this migration are absent.
+- Current Codex Trellis skill directories are present under `.agents/skills/trellis-*`.
+
+No product source code changes are required for this closeout; this is a Trellis housekeeping migration archive only.
