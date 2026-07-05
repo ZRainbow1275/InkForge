@@ -214,3 +214,20 @@ Inspector 写作辅助面板新增"光标位置"滑块：
 7. 手测 + typecheck + lint + test
 
 每个步骤独立可回滚。完成后 single commit PR2。
+
+---
+
+## Closeout evidence - 2026-07-05
+
+This task is closed by current source inspection and targeted regression tests:
+
+- `inkforge/src/extensions/TypewriterMode.ts` contains the current typewriter focus classes and idle handling: `typewriter-dim-near`, `typewriter-dim-far`, `typewriter-sentence-dim`, `typewriter-block-active`, and `data-typewriter-idle`.
+- `inkforge/src/stores/writingAssist.ts`, `WritingAssistPanel.vue`, and `EditorPanel.vue` contain `cursorPosition` state/slider/synchronization hooks.
+- Command: `pnpm -C inkforge exec vitest run src/stores/writingAssist.test.ts src/extensions/__tests__/TypewriterMode.decorations.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism`.
+- Result: `2` test files passed, `13` tests passed.
+- Command: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Result: exit code `0`.
+
+Boundary:
+
+- This closeout proves the local implementation and regression tests. It does not claim new Tauri visual screenshots beyond the existing project evidence.

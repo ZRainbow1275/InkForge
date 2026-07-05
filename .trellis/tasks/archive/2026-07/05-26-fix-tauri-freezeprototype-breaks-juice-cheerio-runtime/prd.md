@@ -274,3 +274,21 @@
 ### 风险
 - Approach A：若未来需要恢复 freezePrototype，需要先解决 cheerio 兼容问题
 - 任何 approach：juice + cheerio 路径多，单测可能漏掉某条
+
+---
+
+## Closeout evidence - 2026-07-05
+
+This task is closed by current source inspection and targeted export regression tests:
+
+- `inkforge/src-tauri/tauri.conf.json` has `freezePrototype` set to `false` while CSP remains enabled.
+- `inkforge/src/services/export/__tests__/frozen-prototype.test.ts` exists and covers frozen-prototype export loading/conversion boundaries.
+- Command: `pnpm -C inkforge exec vitest run src/services/export/__tests__/frozen-prototype.test.ts src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism`.
+- Result: `3` test files passed, `404` tests passed.
+- Command: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Result: exit code `0`.
+
+Boundary:
+
+- This closeout proves local export/runtime regression coverage. It does not claim a fresh Tauri release-package manual run in this slice.
+- Xiaohongshu and Zhihu account publishing remain manual per the current user instruction.
