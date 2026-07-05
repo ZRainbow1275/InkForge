@@ -13138,3 +13138,32 @@ Boundary:
   interaction, cover thumbnail, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred
   to the user.
+
+### Follow-up: application-scope release preflight style samples alignment
+
+- Aligned `style-proof:release-preflight --scope=application` with the dedicated WeChat style
+  export samples gate, because the PRD amendment names application-scope release preflight as the
+  current-round machine-readable gate.
+- The application-scope release preflight now runs `createWechatStyleExportSamplesReport()` and
+  exposes `wechatStyleSamplesStatus`, `wechatRenderedStyleChoiceCount`,
+  `wechatStyleSampleIssueCount`, `wechatStyleSampleSvgBearingChoiceCount`,
+  `wechatStyleSampleTotalSvgModuleCount`, and `wechatStyleSampleIssues`.
+- `canClaimApplicationReady` now requires the style samples gate to be ready, zero sample issues,
+  rendered choices to match selectable WeChat choices, and SVG-bearing choices to match selectable
+  WeChat choices.
+- Current direct smoke:
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exits 0
+    with `status=application-ready`, `wechatStyleSamplesStatus=wechat-style-samples-ready`,
+    `canClaimApplicationReady=true`, `canClaimReleaseComplete=false`,
+    `wechatRenderedStyleChoiceCount=13`, `wechatStyleSampleIssueCount=0`,
+    `wechatStyleSampleSvgBearingChoiceCount=13`, and
+    `wechatStyleSampleTotalSvgModuleCount=45`.
+- Focused release-preflight regression, the related 3-file scripts regression, the full scripts
+  suite, focused ESLint, `vue-tsc`, and production build all pass.
+- Strict release preflight still remains expected-blocked with `status=blocked-by-external` and
+  `canClaimComplete=false`.
+- Boundary: this proves only that the current-round application preflight now includes local
+  WeChat style export-sample readiness. It does not prove WeChat ordinary paste, phone preview,
+  mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send,
+  platform preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
+  tests remain manually deferred to the user.

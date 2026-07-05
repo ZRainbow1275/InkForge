@@ -344,6 +344,74 @@ Boundary:
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
 
+## 2026-07-05 Application-Scope Release Preflight Style Samples Slice
+
+Context:
+- The PRD amendment defines `style-proof:release-preflight --scope=application --json` as the
+  current-round machine-readable gate.
+- The previous style-samples slice wired `style-proof:application-acceptance`, but the
+  application-scope release preflight still did not expose or require the WeChat style export
+  sample report.
+
+Implementation:
+- Extended `scripts/style-proof-release-preflight.ts` application scope so it now imports and runs
+  `createWechatStyleExportSamplesReport()`.
+- The application-scope result now includes:
+  - `wechatStyleSamplesStatus`;
+  - `summary.wechatRenderedStyleChoiceCount`;
+  - `summary.wechatStyleSampleIssueCount`;
+  - `summary.wechatStyleSampleSvgBearingChoiceCount`;
+  - `summary.wechatStyleSampleTotalSvgModuleCount`;
+  - `wechatStyleSampleIssues`.
+- `canClaimApplicationReady` now requires the style-samples status to be
+  `wechat-style-samples-ready`, zero sample issues, rendered count matching selectable WeChat
+  choices, and SVG-bearing count matching selectable WeChat choices.
+- The `--application` text output now prints the same style-sample status/counts and issue-row
+  total.
+- The release-scope strict preflight behavior remains unchanged and continues to block release
+  completion while WeChat phone/account/platform proof is missing.
+
+TDD:
+- Initial focused test for `scripts/style-proof-release-preflight.test.ts -t "application-scope JSON"`
+  failed because application-scope JSON omitted `wechatStyleSamplesStatus` and the sample counts.
+- After implementation the same focused test passed.
+
+Current smoke:
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exits 0
+  with:
+  - `status=application-ready`;
+  - `applicationGalleryStatus=application-gallery-ready`;
+  - `wechatStyleSamplesStatus=wechat-style-samples-ready`;
+  - `canClaimApplicationReady=true`;
+  - `canClaimReleaseComplete=false`;
+  - `wechatRenderedStyleChoiceCount=13`;
+  - `wechatStyleSampleIssueCount=0`;
+  - `wechatStyleSampleSvgBearingChoiceCount=13`;
+  - `wechatStyleSampleTotalSvgModuleCount=45`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` remains expected-blocked with
+  `status=blocked-by-external` and `canClaimComplete=false`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 7 tests.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-wechat-style-samples.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 3 files and 11 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 7 files and 52 tests.
+- Focused ESLint passed for the release-preflight, application-acceptance, style-samples scripts,
+  and the style-samples service/test.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS="--max-old-space-size=4096" pnpm -C inkforge build` passed with 4659 modules
+  transformed and Vite built in 26.89s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Boundary:
+- This slice aligns the current-round application machine gate with the real WeChat style sample
+  renderer.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 Scope:
 - This is local operator-command guidance only. It does not create artifacts, write manifests,
   open a browser, upload, sync, schedule, publish, mutate platform state, collect phone proof, or

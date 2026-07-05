@@ -9147,3 +9147,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
   thumbnail, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 Application-Scope Release Preflight Style Samples
+
+- [x] application-preflight-style-samples-20260705.txt
+- Scope: current-round machine gate alignment for
+  `style-proof:release-preflight --scope=application`.
+- Application-scope release preflight now runs the WeChat style export samples gate and exposes
+  `wechatStyleSamplesStatus`, rendered style count, style-sample issue count, SVG-bearing style
+  count, total SVG module count, and style-sample issue rows.
+- Current direct smoke reports `status=application-ready`,
+  `wechatStyleSamplesStatus=wechat-style-samples-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, `wechatRenderedStyleChoiceCount=13`,
+  `wechatStyleSampleIssueCount=0`, `wechatStyleSampleSvgBearingChoiceCount=13`, and
+  `wechatStyleSampleTotalSvgModuleCount=45`.
+- Verification passed: focused release-preflight regression, related 3-file scripts regression,
+  full scripts-suite regression, focused ESLint, `vue-tsc`, production build, application-scope
+  release preflight smoke, and expected blocked strict release-preflight smoke.
+- Boundary: this proves only local application-scope preflight alignment with WeChat style
+  export-sample readiness. It does not prove WeChat ordinary paste, phone preview, credentialed
+  sync, scheduled send, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
+  tests remain manually deferred to the user.

@@ -16009,3 +16009,119 @@ real exporter and carry at least one WeChat-safe SVG module.
   cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 317. Application-Scope Release Preflight Must Include WeChat Style Samples - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed current-round machine gate is
+  `style-proof:release-preflight --scope=application --json`. Therefore the release-preflight
+  application scope must audit the same selectable WeChat style export-sample readiness as
+  `style-proof:application-acceptance`.
+- Applies to `scripts/style-proof-release-preflight.ts`,
+  `scripts/style-proof-release-preflight.test.ts`, and the service contract from Rule 316.
+- This is still a local application gate. It must not claim WeChat account, phone, sync,
+  schedule, platform-preview, public-rendering, or publish proof.
+
+### 2. Signatures
+
+```bash
+pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+pnpm --silent -C inkforge style-proof:release-preflight --application
+```
+
+Application-scope result additions:
+
+```typescript
+{
+  wechatStyleSamplesStatus: 'wechat-style-samples-ready' | 'wechat-style-samples-blocked'
+  summary: {
+    wechatRenderedStyleChoiceCount: number
+    wechatStyleSampleIssueCount: number
+    wechatStyleSampleSvgBearingChoiceCount: number
+    wechatStyleSampleTotalSvgModuleCount: number
+  }
+  wechatStyleSampleIssues: readonly WechatStyleExportSampleIssue[]
+}
+```
+
+### 3. Contracts
+
+- `canClaimApplicationReady` may be true only when:
+  - `wechatStyleSamplesStatus === "wechat-style-samples-ready"`;
+  - `wechatStyleSampleIssueCount === 0`;
+  - `wechatRenderedStyleChoiceCount === wechatSelectableChoiceCount`;
+  - `wechatStyleSampleSvgBearingChoiceCount === wechatSelectableChoiceCount`;
+  - existing module, gallery, slot, surface, export-pipeline, option, choice, local-actionability,
+    and local-conflict checks still pass.
+- Text output for `--application` must include the style sample status, rendered count, issue
+  count, SVG-bearing count, total SVG module count, and `wechatStyleSampleIssues` row count.
+
+### 4. Validation & Error Matrix
+
+- Style-sample service exits blocked or emits issues -> application preflight becomes
+  `application-blocked`.
+- Rendered style sample count does not match selectable WeChat choice count -> application
+  preflight becomes `application-blocked`.
+- SVG-bearing style sample count does not match selectable WeChat choice count -> application
+  preflight becomes `application-blocked`.
+- Strict release remains externally blocked -> `canClaimApplicationReady` can still be true, but
+  `canClaimReleaseComplete` must stay false.
+
+### 5. Good / Base / Bad Cases
+
+- Good: application-scope release preflight exits 0 with `status:"application-ready"`,
+  `wechatStyleSamplesStatus:"wechat-style-samples-ready"`,
+  `wechatRenderedStyleChoiceCount=13`, `wechatStyleSampleIssueCount=0`,
+  `wechatStyleSampleSvgBearingChoiceCount=13`, and `wechatStyleSampleTotalSvgModuleCount=45`.
+- Base: strict release preflight without `--scope=application` still exits non-zero with
+  `status:"blocked-by-external"` while WeChat phone/account proof remains missing.
+- Bad: application-scope preflight claims ready while omitting style sample counts or while the
+  standalone `style-proof:wechat-style-samples` gate would be blocked.
+
+### 6. Tests Required
+
+- Release-preflight regression must assert:
+  - the application-scope JSON shape includes `wechatStyleSamplesStatus`;
+  - current 13/0/13/45 style-sample counts are present;
+  - `wechatStyleSampleIssues` is empty in the good case;
+  - `wechatRenderedStyleChoiceCount === wechatSelectableChoiceCount`;
+  - text output contains the same fields;
+  - strict release output still refuses completion.
+- Direct smoke must confirm:
+
+```bash
+pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+pnpm --silent -C inkforge style-proof:release-preflight --json
+```
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```typescript
+const canClaimApplicationReady = choiceIssues.length === 0
+```
+
+This can pass when style choices are selectable but have not been rendered through the WeChat
+export sample gate.
+
+#### Correct
+
+```typescript
+const canClaimApplicationReady = wechatStyleSamples.status === 'wechat-style-samples-ready' &&
+  wechatStyleSamples.summary.issueCount === 0 &&
+  wechatStyleSamples.summary.renderedStyleChoiceCount ===
+    wechatStyleSamples.summary.selectableStyleChoiceCount &&
+  wechatStyleSamples.summary.svgBearingStyleChoiceCount ===
+    wechatStyleSamples.summary.selectableStyleChoiceCount
+```
+
+### 8. Cannot-Claim Boundary
+
+- Passing this rule proves only that the current-round application preflight includes local
+  WeChat style export-sample readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

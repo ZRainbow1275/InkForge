@@ -30,10 +30,27 @@ import {
   type ApplicationSvgGalleryIssue,
   type ApplicationSvgGalleryStatus,
 } from '../src/services/export/application-svg-gallery.ts'
+import {
+  createWechatStyleExportSamplesReport,
+  type WechatStyleExportSampleIssue,
+  type WechatStyleExportSamplesStatus,
+} from '../src/services/export/wechat-style-export-samples.ts'
 import { WECHAT_SVG_APPLICATION_SLOTS } from '../src/services/export/wechat-svg-application.ts'
 import { applyWechatOptionSvgModules } from '../src/services/export/wechat-svg-options.ts'
 
 type StyleProofApplicationPreflightStatus = 'application-ready' | 'application-blocked'
+
+type DomRuntimeGlobal = typeof globalThis & {
+  window?: unknown
+  document?: unknown
+  Node?: unknown
+  Element?: unknown
+  HTMLElement?: unknown
+  SVGElement?: unknown
+  DOMParser?: unknown
+  XMLSerializer?: unknown
+  navigator?: unknown
+}
 
 const APPLICATION_PREVIEW_PERSONAS = ['academic', 'business', 'lifestyle', 'creative'] as const
 const APPLICATION_PREVIEW_PERSONA_COLORS = {
@@ -62,6 +79,36 @@ const APPLICATION_WECHAT_OPTION_PRESET = {
 } as const
 const CURRENT_SCRIPT_PATH = fileURLToPath(import.meta.url)
 const PROJECT_ROOT = resolve(dirname(CURRENT_SCRIPT_PATH), '..')
+
+async function ensureDomRuntime(): Promise<void> {
+  const runtimeGlobal = globalThis as DomRuntimeGlobal
+  if (runtimeGlobal.window && runtimeGlobal.document) {
+    return
+  }
+
+  const { Window } = await import('happy-dom')
+  const window = new Window({ url: 'http://127.0.0.1/style-proof-release-preflight' })
+  const windowRecord = window as unknown as Record<string, unknown>
+
+  const defineRuntimeValue = (key: keyof DomRuntimeGlobal, value: unknown): void => {
+    Object.defineProperty(runtimeGlobal, key, {
+      configurable: true,
+      enumerable: false,
+      value,
+      writable: true,
+    })
+  }
+
+  defineRuntimeValue('window', window)
+  defineRuntimeValue('document', window.document)
+  defineRuntimeValue('Node', windowRecord.Node)
+  defineRuntimeValue('Element', windowRecord.Element)
+  defineRuntimeValue('HTMLElement', windowRecord.HTMLElement)
+  defineRuntimeValue('SVGElement', windowRecord.SVGElement)
+  defineRuntimeValue('DOMParser', windowRecord.DOMParser)
+  defineRuntimeValue('XMLSerializer', windowRecord.XMLSerializer)
+  defineRuntimeValue('navigator', window.navigator)
+}
 
 interface StyleProofApplicationWechatSurfaceContract {
   id: string
@@ -206,6 +253,7 @@ interface StyleProofApplicationPreflightResult {
   scope: 'application'
   status: StyleProofApplicationPreflightStatus
   applicationGalleryStatus: ApplicationSvgGalleryStatus
+  wechatStyleSamplesStatus: WechatStyleExportSamplesStatus
   canClaimApplicationReady: boolean
   canClaimReleaseComplete: boolean
   summary: {
@@ -231,6 +279,10 @@ interface StyleProofApplicationPreflightResult {
     wechatStyleChoiceCount: number
     wechatUsableChoiceCount: number
     wechatSelectableChoiceCount: number
+    wechatRenderedStyleChoiceCount: number
+    wechatStyleSampleIssueCount: number
+    wechatStyleSampleSvgBearingChoiceCount: number
+    wechatStyleSampleTotalSvgModuleCount: number
     usableButUnselectableWechatChoices: number
     actionableLocalRows: number
     catalogBlockedLocalRows: number
@@ -245,6 +297,7 @@ interface StyleProofApplicationPreflightResult {
   wechatApplicationSurfaceIssues: readonly StyleProofApplicationPreflightWechatSurfaceIssue[]
   wechatExportPipelineIssues: readonly StyleProofApplicationPreflightWechatExportPipelineIssue[]
   wechatOptionIssues: readonly StyleProofApplicationPreflightWechatOptionIssue[]
+  wechatStyleSampleIssues: readonly WechatStyleExportSampleIssue[]
   choiceIssues: readonly StyleProofApplicationPreflightChoiceIssue[]
   externalProof: StyleProofApplicationPreflightExternalBoundary
 }
@@ -882,11 +935,14 @@ function getStyleProofApplicationWechatExportPipelineIssues(): readonly StylePro
   return issues
 }
 
-function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult {
+async function buildApplicationPreflightResult(): Promise<StyleProofApplicationPreflightResult> {
+  await ensureDomRuntime()
+
   const releaseGate = getCommittedStyleProofEvidenceReleaseGateReport()
   const handoffPacket = getCommittedStyleProofExternalHandoffPacket()
   const localActionability = getCommittedStyleProofLocalActionabilityReport()
   const applicationGallerySnapshot = createApplicationSvgGallerySnapshot()
+  const wechatStyleSamples = await createWechatStyleExportSamplesReport()
   const wechatApplicationRows = getPlatformStyleApplicationReport(
     'wechat',
     DEFAULT_STYLE_EVIDENCE_BY_PLATFORM.wechat,
@@ -910,6 +966,14 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
     wechatApplicationSurfaceIssues.length === 0 &&
     wechatExportPipelineIssues.length === 0 &&
     wechatOptionIssues.length === 0 &&
+    wechatStyleSamples.status === 'wechat-style-samples-ready' &&
+    wechatStyleSamples.summary.issueCount === 0 &&
+    wechatStyleSamples.summary.selectableStyleChoiceCount ===
+      wechatApplicationRows.filter(row => row.selectable).length &&
+    wechatStyleSamples.summary.renderedStyleChoiceCount ===
+      wechatStyleSamples.summary.selectableStyleChoiceCount &&
+    wechatStyleSamples.summary.svgBearingStyleChoiceCount ===
+      wechatStyleSamples.summary.selectableStyleChoiceCount &&
     choiceIssues.length === 0 &&
     localActionability.summary.actionableLocalRows === 0 &&
     !hasLocalConflict
@@ -918,6 +982,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
     scope: 'application',
     status: canClaimApplicationReady ? 'application-ready' : 'application-blocked',
     applicationGalleryStatus: applicationGallerySnapshot.status,
+    wechatStyleSamplesStatus: wechatStyleSamples.status,
     canClaimApplicationReady,
     canClaimReleaseComplete: releaseGate.canClaimComplete,
     summary: {
@@ -946,6 +1011,10 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
       wechatStyleChoiceCount: wechatApplicationRows.length,
       wechatUsableChoiceCount: wechatApplicationRows.filter(row => row.availability.usable).length,
       wechatSelectableChoiceCount: wechatApplicationRows.filter(row => row.selectable).length,
+      wechatRenderedStyleChoiceCount: wechatStyleSamples.summary.renderedStyleChoiceCount,
+      wechatStyleSampleIssueCount: wechatStyleSamples.summary.issueCount,
+      wechatStyleSampleSvgBearingChoiceCount: wechatStyleSamples.summary.svgBearingStyleChoiceCount,
+      wechatStyleSampleTotalSvgModuleCount: wechatStyleSamples.summary.totalSvgModuleCount,
       usableButUnselectableWechatChoices: choiceIssues.length,
       actionableLocalRows: localActionability.summary.actionableLocalRows,
       catalogBlockedLocalRows: localActionability.summary.catalogBlockedLocalRows,
@@ -960,6 +1029,7 @@ function buildApplicationPreflightResult(): StyleProofApplicationPreflightResult
     wechatApplicationSurfaceIssues,
     wechatExportPipelineIssues,
     wechatOptionIssues,
+    wechatStyleSampleIssues: wechatStyleSamples.issues,
     choiceIssues,
     externalProof: {
       notProof: true,
@@ -996,6 +1066,7 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `personaCount: ${result.summary.personaCount}`,
     `renderedModulePersonaPairs: ${result.summary.renderedModulePersonaPairs}`,
     `applicationGalleryStatus: ${result.applicationGalleryStatus}`,
+    `wechatStyleSamplesStatus: ${result.wechatStyleSamplesStatus}`,
     `applicationGalleryRenderedModulePersonaPairs: ${result.summary.applicationGalleryRenderedModulePersonaPairs}`,
     `applicationGalleryWechatSafeViolationCount: ${result.summary.applicationGalleryWechatSafeViolationCount}`,
     `applicationGalleryModuleSentinelFailureCount: ${result.summary.applicationGalleryModuleSentinelFailureCount}`,
@@ -1014,6 +1085,10 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `wechatStyleChoiceCount: ${result.summary.wechatStyleChoiceCount}`,
     `wechatUsableChoiceCount: ${result.summary.wechatUsableChoiceCount}`,
     `wechatSelectableChoiceCount: ${result.summary.wechatSelectableChoiceCount}`,
+    `wechatRenderedStyleChoiceCount: ${result.summary.wechatRenderedStyleChoiceCount}`,
+    `wechatStyleSampleIssueCount: ${result.summary.wechatStyleSampleIssueCount}`,
+    `wechatStyleSampleSvgBearingChoiceCount: ${result.summary.wechatStyleSampleSvgBearingChoiceCount}`,
+    `wechatStyleSampleTotalSvgModuleCount: ${result.summary.wechatStyleSampleTotalSvgModuleCount}`,
     `usableButUnselectableWechatChoices: ${result.summary.usableButUnselectableWechatChoices}`,
     `actionableLocalRows: ${result.summary.actionableLocalRows}`,
     `catalogBlockedLocalRows: ${result.summary.catalogBlockedLocalRows}`,
@@ -1029,6 +1104,7 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
     `- wechatApplicationSurfaceIssues: ${result.wechatApplicationSurfaceIssues.length}`,
     `- wechatExportPipelineIssues: ${result.wechatExportPipelineIssues.length}`,
     `- wechatOptionIssues: ${result.wechatOptionIssues.length}`,
+    `- wechatStyleSampleIssues: ${result.wechatStyleSampleIssues.length}`,
     `- choiceIssues: ${result.choiceIssues.length}`,
     '',
     'external proof boundary (not proof):',
@@ -1079,6 +1155,16 @@ function formatApplicationPreflightResult(result: StyleProofApplicationPreflight
       'wechat option issue rows:',
       ...result.wechatOptionIssues.map(issue =>
         `- ${issue.moduleId}/${issue.family}: ${issue.issue}`
+      ),
+    )
+  }
+
+  if (result.wechatStyleSampleIssues.length > 0) {
+    lines.push(
+      '',
+      'wechat style sample issue rows:',
+      ...result.wechatStyleSampleIssues.map(issue =>
+        `- ${issue.choiceId}/${issue.presetId ?? 'none'}: ${issue.issue}; ${issue.detail}`
       ),
     )
   }
@@ -1198,7 +1284,7 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
   return lines.join('\n')
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const args = process.argv.slice(2)
   if (args.includes('--help') || args.includes('-h')) {
     printHelp()
@@ -1231,7 +1317,7 @@ function main(): void {
   }
 
   if (scope === 'application') {
-    const result = buildApplicationPreflightResult()
+    const result = await buildApplicationPreflightResult()
     if (args.includes('--json')) {
       console.log(JSON.stringify(result))
     } else {
@@ -1251,4 +1337,7 @@ function main(): void {
   process.exit(result.canClaimComplete ? 0 : 1)
 }
 
-main()
+void main().catch(error => {
+  console.error(error instanceof Error ? error.message : String(error))
+  process.exit(1)
+})

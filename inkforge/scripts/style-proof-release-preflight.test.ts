@@ -119,6 +119,7 @@ interface ApplicationPreflightJsonReport {
   scope: 'application'
   status: 'application-ready' | 'application-blocked'
   applicationGalleryStatus: 'application-gallery-ready' | 'application-gallery-blocked'
+  wechatStyleSamplesStatus: 'wechat-style-samples-ready' | 'wechat-style-samples-blocked'
   canClaimApplicationReady: boolean
   canClaimReleaseComplete: boolean
   summary: {
@@ -144,6 +145,10 @@ interface ApplicationPreflightJsonReport {
     wechatStyleChoiceCount: number
     wechatUsableChoiceCount: number
     wechatSelectableChoiceCount: number
+    wechatRenderedStyleChoiceCount: number
+    wechatStyleSampleIssueCount: number
+    wechatStyleSampleSvgBearingChoiceCount: number
+    wechatStyleSampleTotalSvgModuleCount: number
     usableButUnselectableWechatChoices: number
     actionableLocalRows: number
     catalogBlockedLocalRows: number
@@ -184,6 +189,12 @@ interface ApplicationPreflightJsonReport {
     moduleId: string
     family: string
     issue: string
+  }>
+  wechatStyleSampleIssues: Array<{
+    choiceId: string
+    presetId: string | null
+    issue: string
+    detail: string
   }>
   choiceIssues: Array<{
     choiceId: string
@@ -436,6 +447,8 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
     (value.status === 'application-ready' || value.status === 'application-blocked') &&
     (value.applicationGalleryStatus === 'application-gallery-ready' ||
       value.applicationGalleryStatus === 'application-gallery-blocked') &&
+    (value.wechatStyleSamplesStatus === 'wechat-style-samples-ready' ||
+      value.wechatStyleSamplesStatus === 'wechat-style-samples-blocked') &&
     typeof value.canClaimApplicationReady === 'boolean' &&
     typeof value.canClaimReleaseComplete === 'boolean' &&
     isRecord(value.summary) &&
@@ -462,6 +475,10 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
       'wechatStyleChoiceCount',
       'wechatUsableChoiceCount',
       'wechatSelectableChoiceCount',
+      'wechatRenderedStyleChoiceCount',
+      'wechatStyleSampleIssueCount',
+      'wechatStyleSampleSvgBearingChoiceCount',
+      'wechatStyleSampleTotalSvgModuleCount',
       'usableButUnselectableWechatChoices',
       'actionableLocalRows',
       'catalogBlockedLocalRows',
@@ -476,6 +493,14 @@ function isApplicationPreflightJsonReport(value: unknown): value is ApplicationP
     isStringIssueArray(value.wechatApplicationSurfaceIssues) &&
     isStringIssueArray(value.wechatExportPipelineIssues) &&
     isStringIssueArray(value.wechatOptionIssues) &&
+    Array.isArray(value.wechatStyleSampleIssues) &&
+    value.wechatStyleSampleIssues.every(issue =>
+      isRecord(issue) &&
+      typeof issue.choiceId === 'string' &&
+      (typeof issue.presetId === 'string' || issue.presetId === null) &&
+      typeof issue.issue === 'string' &&
+      typeof issue.detail === 'string'
+    ) &&
     isStringIssueArray(value.choiceIssues) &&
     isRecord(value.externalProof) &&
     value.externalProof.notProof === true &&
@@ -657,6 +682,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.scope).toBe('application')
     expect(report.status).toBe('application-ready')
     expect(report.applicationGalleryStatus).toBe('application-gallery-ready')
+    expect(report.wechatStyleSamplesStatus).toBe('wechat-style-samples-ready')
     expect(report.canClaimApplicationReady).toBe(true)
     expect(report.canClaimReleaseComplete).toBe(false)
     expect(report.summary).toMatchObject({
@@ -682,6 +708,10 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       wechatStyleChoiceCount: 17,
       wechatUsableChoiceCount: 8,
       wechatSelectableChoiceCount: 13,
+      wechatRenderedStyleChoiceCount: 13,
+      wechatStyleSampleIssueCount: 0,
+      wechatStyleSampleSvgBearingChoiceCount: 13,
+      wechatStyleSampleTotalSvgModuleCount: 45,
       usableButUnselectableWechatChoices: 0,
       actionableLocalRows: 0,
       manualDeferredOpenSteps: 7,
@@ -695,7 +725,15 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.wechatApplicationSurfaceIssues).toEqual([])
     expect(report.wechatExportPipelineIssues).toEqual([])
     expect(report.wechatOptionIssues).toEqual([])
+    expect(report.wechatStyleSampleIssues).toEqual([])
     expect(report.choiceIssues).toEqual([])
+    expect(report.summary.wechatRenderedStyleChoiceCount).toBe(report.summary.wechatSelectableChoiceCount)
+    expect(report.summary.wechatStyleSampleSvgBearingChoiceCount).toBe(
+      report.summary.wechatSelectableChoiceCount,
+    )
+    expect(report.summary.wechatStyleSampleTotalSvgModuleCount).toBeGreaterThanOrEqual(
+      report.summary.wechatRenderedStyleChoiceCount,
+    )
     expect(report.externalProof).toMatchObject({
       notProof: true,
       releaseCanClaimComplete: false,
@@ -746,6 +784,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('canClaimReleaseComplete: false')
     expect(result.stdout).toContain('renderedModulePersonaPairs: 108')
     expect(result.stdout).toContain('applicationGalleryStatus: application-gallery-ready')
+    expect(result.stdout).toContain('wechatStyleSamplesStatus: wechat-style-samples-ready')
     expect(result.stdout).toContain('applicationGalleryRenderedModulePersonaPairs: 108')
     expect(result.stdout).toContain('applicationGalleryWechatSafeViolationCount: 0')
     expect(result.stdout).toContain('applicationGalleryModuleSentinelFailureCount: 0')
@@ -759,10 +798,15 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('wechatExportPipelineFailureCount: 0')
     expect(result.stdout).toContain('wechatOptionInjectedModuleCount: 27')
     expect(result.stdout).toContain('wechatOptionInjectionFailureCount: 0')
+    expect(result.stdout).toContain('wechatRenderedStyleChoiceCount: 13')
+    expect(result.stdout).toContain('wechatStyleSampleIssueCount: 0')
+    expect(result.stdout).toContain('wechatStyleSampleSvgBearingChoiceCount: 13')
+    expect(result.stdout).toContain('wechatStyleSampleTotalSvgModuleCount: 45')
     expect(result.stdout).toContain('- applicationGalleryIssues: 0')
     expect(result.stdout).toContain('- wechatApplicationSlotIssues: 0')
     expect(result.stdout).toContain('- wechatApplicationSurfaceIssues: 0')
     expect(result.stdout).toContain('- wechatExportPipelineIssues: 0')
+    expect(result.stdout).toContain('- wechatStyleSampleIssues: 0')
     expect(result.stdout).toContain('usableButUnselectableWechatChoices: 0')
     expect(result.stdout).toContain('actionableLocalRows: 0')
     expect(result.stdout).toContain('external proof boundary (not proof):')

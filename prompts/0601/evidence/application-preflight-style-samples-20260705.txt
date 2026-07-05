@@ -1,0 +1,64 @@
+Application-Scope Release Preflight Style Samples - 2026-07-05
+
+Scope:
+- Local current-round machine gate alignment for style-proof:release-preflight --scope=application.
+- No browser action, no paste, no upload, no sync, no schedule, no public rendering, no publish.
+
+Implemented:
+- style-proof:release-preflight --scope=application now runs createWechatStyleExportSamplesReport().
+- Application-scope JSON exposes:
+  - wechatStyleSamplesStatus
+  - summary.wechatRenderedStyleChoiceCount
+  - summary.wechatStyleSampleIssueCount
+  - summary.wechatStyleSampleSvgBearingChoiceCount
+  - summary.wechatStyleSampleTotalSvgModuleCount
+  - wechatStyleSampleIssues
+- canClaimApplicationReady requires:
+  - wechatStyleSamplesStatus=wechat-style-samples-ready
+  - wechatStyleSampleIssueCount=0
+  - wechatRenderedStyleChoiceCount equals wechatSelectableChoiceCount
+  - wechatStyleSampleSvgBearingChoiceCount equals wechatSelectableChoiceCount
+
+Current smoke:
+- status=application-ready
+- applicationGalleryStatus=application-gallery-ready
+- wechatStyleSamplesStatus=wechat-style-samples-ready
+- canClaimApplicationReady=true
+- canClaimReleaseComplete=false
+- wechatRenderedStyleChoiceCount=13
+- wechatStyleSampleIssueCount=0
+- wechatStyleSampleSvgBearingChoiceCount=13
+- wechatStyleSampleTotalSvgModuleCount=45
+
+TDD:
+- Initial focused test failed because application-scope JSON omitted wechatStyleSamplesStatus and
+  the style-sample counts.
+- After implementation, the focused application-scope JSON test passed.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts -t "application-scope JSON" --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 1 focused test
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 7 tests
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-wechat-style-samples.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 3 files / 11 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 52 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts scripts/style-proof-application-acceptance.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-wechat-style-samples.ts scripts/style-proof-wechat-style-samples.test.ts src/services/export/wechat-style-export-samples.ts src/services/export/wechat-style-export-samples.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS="--max-old-space-size=4096" pnpm -C inkforge build
+  PASS: 4659 modules transformed, Vite built in 26.89s
+- pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+  PASS: exit 0, status=application-ready, wechatStyleSamplesStatus=wechat-style-samples-ready
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1, status=blocked-by-external, canClaimComplete=false
+
+Boundary:
+- This proves only that the current-round application machine gate includes local WeChat style
+  export-sample readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
