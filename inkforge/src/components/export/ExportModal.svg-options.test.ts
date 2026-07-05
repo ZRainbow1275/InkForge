@@ -25,6 +25,13 @@ describe('ExportModal WeChat SVG option UI contract', () => {
     expect(EXPORT_MODAL_SOURCE).toContain('markdownToWechatWithStats(props.content, preset, exportOptions.value)')
   })
 
+  it('surfaces current-round local WeChat readiness without claiming external proof', () => {
+    expect(EXPORT_MODAL_SOURCE).toContain('styleCurrentRoundLocalTarget')
+    expect(EXPORT_MODAL_SOURCE).toContain('current-round-local-target')
+    expect(EXPORT_MODAL_SOURCE).toContain('当前轮本地目标已就绪')
+    expect(EXPORT_MODAL_SOURCE).toContain('不等同手机预览、同步或发布证明')
+  })
+
   it('keeps the all-module showcase slot aligned with the registered SVG module catalog', () => {
     const showcase = WECHAT_SVG_APPLICATION_SLOTS.find(slot => slot.id === 'showcase')
 

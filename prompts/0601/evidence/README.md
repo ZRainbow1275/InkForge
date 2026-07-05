@@ -9252,3 +9252,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves the local UI label/readability fix only. It does not prove WeChat
   ordinary paste, phone preview, credentialed sync, scheduled send, public rendering, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 ExportModal Current-Round Local Target Summary
+
+- [x] exportmodal-current-round-local-target-20260705.txt
+- Scope: visible application summary for the narrowed current-round WeChat SVG/style target.
+- ExportModal now shows a WeChat-only row:
+  `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`.
+- The ready row depends on all renderable WeChat style rows being selectable, zero actionable
+  local proof rows, and strict release completion still unclaimed.
+- Direct `style-proof:current-round` smoke exits 0 with
+  `currentRoundTarget.status=current-round-ready`, `canClaimCurrentRoundTarget=true`,
+  `canClaimReleaseComplete=false`, `wechatRenderedStyleChoiceCount=13`,
+  `wechatStyleSampleIssueCount=0`, and `actionableLocalRows=0`.
+- CloakBrowser readback from the live Workstation ExportModal showed
+  `微信公众号 可应用渲染样式 13/13`, `微信公众号 当前可用 8/17`, the current-round row visible,
+  `totalCards=17`, `renderableCards=13`, `disabledCards=4`, no runtime error toasts, and all 13
+  non-disabled style rows selected after click with no failures.
+- Verification passed: focused ExportModal source test, related 3-file acceptance regression,
+  focused ESLint, `vue-tsc`, production build, direct current-round smoke, and live DOM/click
+  readback.
+- Boundary: this proves local application visibility and selectable style behavior for the
+  narrowed WeChat target only. It does not prove WeChat ordinary paste, phone preview, mobile
+  Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send, platform
+  preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests remain
+  manually deferred to the user.

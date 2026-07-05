@@ -26068,3 +26068,73 @@ Boundary:
   cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 ExportModal Current-Round Local Target Summary Slice
+
+Context:
+- The narrowed round target is machine-readable through `style-proof:current-round`, but the real
+  application still needed a visible operator-facing statement that the local SVG/style target is
+  ready while strict WeChat release proof remains unclaimed.
+- The user explicitly cancelled automated Xiaohongshu/Zhihu publish-side testing for this round
+  and will test those platforms manually.
+
+Impact:
+- `npx gitnexus impact ExportModal -r InkForge -d upstream --include-tests` could not resolve the
+  Vue SFC component in the GitNexus index.
+- `npx gitnexus impact getPlatformStyleApplicationReport -r InkForge -d upstream --include-tests`
+  returned LOW risk with `ExportModal.vue` as the direct dependent and 0 affected processes.
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge -d upstream --include-tests`
+  returned LOW risk with export/script modules only.
+
+Changes:
+- Added `styleCurrentRoundLocalTarget` to `ExportModal.vue`.
+- Added a WeChat-only summary row:
+  `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`.
+- Styled the row with `current-round-local-target` and
+  `current-round-local-target--ready`, using component CSS only and no emoji icons.
+- Added raw-source regression coverage in `ExportModal.svg-options.test.ts` so the current-round
+  UI contract cannot silently disappear.
+- Added spec Rule 321.
+
+Application verification:
+- CloakBrowser opened the latest Vite Workstation at `http://127.0.0.1:3005/workstation`, opened a
+  real local article, and opened ExportModal from the real toolbar.
+- DOM readback reported:
+  - `hasPanel=true`;
+  - `hasCurrentRound=true`;
+  - current-row text:
+    `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`;
+  - `summaryText=["微信公众号 可应用渲染样式 13/13","微信公众号 当前可用 8/17", ...]`;
+  - `totalCards=17`;
+  - `renderableCards=13`;
+  - `disabledCards=4`;
+  - runtime error toasts `[]`.
+- Clicking all 13 non-disabled style-choice cards in the live ExportModal produced
+  `selectedAfterClickCount=13` and `failed=[]`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/components/export/ExportModal.svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file / 4 tests.
+- `pnpm -C inkforge exec vitest run src/components/export/ExportModal.svg-options.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 3 files / 14 tests.
+- `pnpm --silent style-proof:current-round` exited 0 with
+  `status=application-acceptance-ready`, `currentRoundTarget.status=current-round-ready`,
+  `canClaimCurrentRoundTarget=true`, `canClaimReleaseComplete=false`,
+  `wechatRenderedStyleChoiceCount=13`, `wechatStyleSampleIssueCount=0`, and
+  `actionableLocalRows=0`.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/components/export/ExportModal.svg-options.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Evidence:
+- Added `prompts/0601/evidence/exportmodal-current-round-local-target-20260705.txt`.
+
+Boundary:
+- This slice proves local application visibility and clickability for the narrowed WeChat
+  SVG/style target only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

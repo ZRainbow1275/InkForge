@@ -1,0 +1,72 @@
+ExportModal Current-Round Local Target Summary - 2026-07-05
+
+Scope:
+- Visible application summary for the narrowed current-round target.
+- WeChat local SVG/style application readiness only.
+- No Xiaohongshu/Zhihu publish automation for this round; the operator will test those publish
+  paths manually.
+- No WeChat phone preview, account sync, scheduled send, platform preview, upload, or publish
+  action was performed.
+
+Implemented:
+- Added `styleCurrentRoundLocalTarget` in `ExportModal.vue`.
+- Added a WeChat-only summary row:
+  `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`.
+- Added scoped CSS for `current-round-local-target` and `current-round-local-target--ready`.
+- Added `ExportModal.svg-options.test.ts` assertions that the source includes the current-round
+  row and cannot-claim wording.
+- Added spec Rule 321.
+
+Current-round machine readback:
+- Command: `pnpm --silent style-proof:current-round`
+- Exit: 0
+- status: `application-acceptance-ready`
+- currentRoundTarget.status: `current-round-ready`
+- currentRoundTarget.canClaimCurrentRoundTarget: `true`
+- canClaimReleaseComplete: `false`
+- wechatRenderedStyleChoiceCount: 13
+- wechatStyleSampleIssueCount: 0
+- actionableLocalRows: 0
+
+CloakBrowser application readback:
+- Opened the latest local Vite Workstation.
+- Opened a real local article from the Workstation UI.
+- Opened ExportModal from the real toolbar.
+- DOM readback:
+  - hasPanel: true
+  - hasCurrentRound: true
+  - current row text:
+    `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`
+  - summary rows:
+    - `微信公众号 可应用渲染样式 13/13`
+    - `微信公众号 当前可用 8/17`
+  - totalCards: 17
+  - renderableCards: 13
+  - disabledCards: 4
+  - runtime error toasts: none
+- Clicked every non-disabled style-choice card in the live ExportModal:
+  - clicked: 13
+  - selectedAfterClickCount: 13
+  - failed: []
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/components/export/ExportModal.svg-options.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 1 file / 4 tests
+- `pnpm -C inkforge exec vitest run src/components/export/ExportModal.svg-options.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 3 files / 14 tests
+- `pnpm --silent style-proof:current-round`
+  PASS: current-round local target ready, strict release completion not claimed
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/components/export/ExportModal.svg-options.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`
+  PASS
+
+Boundary:
+- This proves local application visibility and style-row clickability for the narrowed WeChat
+  SVG/style target.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

@@ -392,6 +392,23 @@ const styleRenderableApplicationSummary = computed(() => {
   }
 })
 
+const styleCurrentRoundLocalTarget = computed(() => {
+  const summary = styleRenderableApplicationSummary.value
+  const ready = selectedPlatform.value === 'wechat' &&
+    summary.total > 0 &&
+    summary.selectable === summary.total &&
+    committedStyleProofLocalActionability.value.summary.actionableLocalRows === 0 &&
+    committedStyleProofReleaseGate.value.canClaimComplete === false
+
+  return {
+    ready,
+    label: ready ? '当前轮本地目标已就绪' : '当前轮本地目标待检查',
+    detail: ready
+      ? 'SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明'
+      : '需确认可渲染样式、外部证明边界和本地可行动行',
+  }
+})
+
 const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const report = styleAvailabilityReport.value
   const proofPlan = styleProofCollectionPlan.value
@@ -1866,6 +1883,13 @@ onUnmounted(() => {
                 <div class="style-catalog-summary">
                   <span>{{ platformInfo.name }} 可应用渲染样式 {{ styleRenderableApplicationSummary.selectable }}/{{ styleRenderableApplicationSummary.total }}</span>
                   <span>{{ platformInfo.name }} 当前可用 {{ styleAvailabilityReport.stats.usable }}/{{ styleAvailabilityReport.stats.total }}</span>
+                  <span
+                    v-if="selectedPlatform === 'wechat'"
+                    class="current-round-local-target"
+                    :class="{ 'current-round-local-target--ready': styleCurrentRoundLocalTarget.ready }"
+                  >
+                    {{ styleCurrentRoundLocalTarget.label }}：{{ styleCurrentRoundLocalTarget.detail }}
+                  </span>
                   <span>证据门禁由 runtime catalog 决定</span>
                   <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>
                   <span>验收审计 {{ styleProofAcceptanceSummary }}</span>
@@ -2870,6 +2894,20 @@ onUnmounted(() => {
 .style-catalog-summary span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.style-catalog-summary .current-round-local-target {
+  padding: 5px 7px;
+  border: 1px solid rgba(217, 91, 63, 0.28);
+  border-radius: 8px;
+  background: rgba(217, 91, 63, 0.08);
+  color: var(--text-primary);
+}
+
+.style-catalog-summary .current-round-local-target--ready {
+  border-color: rgba(15, 118, 110, 0.24);
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
 }
 
 .style-proof-local-actionability,

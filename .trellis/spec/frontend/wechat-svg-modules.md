@@ -16394,3 +16394,95 @@ still valid before collecting account/phone proof.
   cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 321. ExportModal Must Surface Current-Round Local WeChat Target - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed current-round target is now `style-proof:current-round`, but operators also
+  need the same boundary to be visible in the real application while choosing SVG/style rows.
+- Applies to `inkforge/src/components/export/ExportModal.vue` and the source-contract regression
+  in `ExportModal.svg-options.test.ts`.
+- This rule is UI clarity only. It does not relax any release, phone, account, sync, schedule, or
+  publish proof gate.
+
+### 2. Signatures
+
+`ExportModal` must expose a WeChat-only current-round local target row in the style-catalog
+summary:
+
+```text
+当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明
+```
+
+The row must use a component-owned class name:
+
+```text
+current-round-local-target
+current-round-local-target--ready
+```
+
+### 3. Contracts
+
+- The current-round local target row is shown only for `selectedPlatform === 'wechat'`.
+- The ready state may be true only when:
+  - the renderable WeChat style-application report has at least one row;
+  - every renderable row is selectable and has an InkForge-owned application mapping;
+  - local actionability reports zero actionable local rows;
+  - strict release completion is still not claimable.
+- The ready text must explicitly say that local WeChat HTML/SVG export readiness is not phone
+  preview, sync, or publish proof.
+- The row must be styled as normal product UI using CSS and existing design variables; do not add
+  emoji icons or third-party visual assets.
+- The row must not mutate content, create proof manifests, write browser artifacts, access account
+  state, upload, sync, schedule, or publish.
+
+### 4. Validation & Error Matrix
+
+- WeChat platform selected and current-round local gates pass, but no visible row appears ->
+  browser-readback failure.
+- Visible row says the target is ready but omits the external-proof boundary -> regression failure.
+- Visible row appears for Xiaohongshu or Zhihu -> regression failure for the narrowed WeChat-only
+  claim.
+- Visible row implies phone preview, sync, scheduled send, public rendering, or publish success ->
+  invalid release claim.
+
+### 5. Good / Base / Bad Cases
+
+- Good: ExportModal displays `微信公众号 可应用渲染样式 13/13`, `微信公众号 当前可用 8/17`,
+  and the current-round local target row, while strict release remains externally blocked.
+- Good: all 13 non-disabled style rows can be clicked and selected in the application.
+- Base: XHS/Zhihu publish-side testing is manually deferred for this round; their renderers and
+  lower-level contracts remain intact.
+- Bad: the UI only exposes `canClaimReleaseComplete=false` without saying the narrowed local
+  target is ready.
+
+### 6. Tests Required
+
+- `ExportModal.svg-options.test.ts` must assert the raw SFC source includes:
+  - `styleCurrentRoundLocalTarget`;
+  - `current-round-local-target`;
+  - `当前轮本地目标已就绪`;
+  - `不等同手机预览、同步或发布证明`.
+- Direct application smoke must open a real Workstation article, open ExportModal, and read back:
+  - `hasCurrentRound=true`;
+  - `summaryText` includes `微信公众号 可应用渲染样式 13/13`;
+  - `summaryText` includes `微信公众号 当前可用 8/17`;
+  - the current-round row text matches the cannot-claim wording;
+  - 13 non-disabled style rows click into selected state with no runtime error toasts.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+当前轮已完成发布验收
+```
+
+This incorrectly claims external publication proof.
+
+#### Correct
+
+```text
+当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明
+```

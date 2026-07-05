@@ -13257,3 +13257,34 @@ Boundary:
   prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
   thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+### Follow-up: ExportModal current-round local target summary
+
+- Added a visible WeChat-only current-round row to the real ExportModal style-catalog summary:
+  `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`.
+- The ready state requires a positive renderable style count, all renderable rows selectable,
+  zero local actionable proof rows, and strict release still not claimable.
+- Added `ExportModal.svg-options.test.ts` source-contract assertions for
+  `styleCurrentRoundLocalTarget`, `current-round-local-target`, and the explicit cannot-claim
+  wording.
+- Current root smoke:
+  - `pnpm --silent style-proof:current-round` exits 0;
+  - `status=application-acceptance-ready`;
+  - `currentRoundTarget.status=current-round-ready`;
+  - `canClaimCurrentRoundTarget=true`;
+  - `canClaimReleaseComplete=false`;
+  - `wechatRenderedStyleChoiceCount=13`;
+  - `wechatStyleSampleIssueCount=0`;
+  - `actionableLocalRows=0`.
+- CloakBrowser application readback from the latest Vite Workstation ExportModal reports
+  `hasCurrentRound=true`, summary rows `微信公众号 可应用渲染样式 13/13` and
+  `微信公众号 当前可用 8/17`, current-round row text matching the cannot-claim boundary,
+  `totalCards=17`, `renderableCards=13`, `disabledCards=4`, empty runtime error list, and
+  all 13 non-disabled style rows selected after click with `failed=[]`.
+- Verification passed: focused ExportModal source test, related 3-file acceptance regression,
+  direct `style-proof:current-round` smoke, focused ESLint, `vue-tsc`, production build, and
+  CloakBrowser DOM/click readback.
+- Boundary: this completes the narrowed current-round application visibility target only. It does
+  not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
+  thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
