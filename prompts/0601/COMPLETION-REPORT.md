@@ -13239,3 +13239,21 @@ Boundary:
   paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync,
   scheduled send, platform preview, public rendering, or publish success. Xiaohongshu and Zhihu
   publish-side tests remain manually deferred to the user.
+
+### Follow-up: WeChat style application preset label mojibake fix
+
+- CloakBrowser visual readback of the latest Workstation ExportModal found readable top-level
+  style counts but mojibake in several `应用到 <presetLabel>` rows.
+- Corrected the affected WeChat style application labels in `style-catalog.ts`:
+  `论文翻译`, `赤陶旗舰`, `赤陶兼容旗舰`, and `铜绿旗舰` now match the real preset names.
+- Added regression assertions so the affected labels must remain exact and known mojibake
+  characters cannot appear across WeChat application labels.
+- Added spec Rule 320 documenting the human-readable label contract.
+- CloakBrowser readback after the fix reports `totalCards=17`, `renderableCount=13`,
+  `disabledRenderableCount=0`, `mojibakeCount=0`, all 13 renderable rows clicked with selected
+  state visible, empty runtime error list, and final feedback
+  `已应用 Market SVG/H5 fallback matrix，实际使用 赤陶兼容旗舰。`.
+- Boundary: this is a local visual/readability fix for the application style selector. It does not
+  prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
+  thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

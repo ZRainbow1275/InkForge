@@ -1,0 +1,59 @@
+WeChat Style Preset Label Mojibake Fix - 2026-07-05
+
+Scope:
+- Local visual/readability fix for ExportModal WeChat style application rows.
+- No platform upload, no phone preview, no sync, no schedule, no publish.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the operator for this round.
+
+Problem observed:
+- A latest-code CloakBrowser Workstation/ExportModal readback showed the style selector was
+  functionally present, but several `应用到 <presetLabel>` rows contained mojibake:
+  - `璁烘枃缈昏瘧`
+  - `璧ら櫠...`
+  - `閾滅豢...`
+- The affected rows were source constants in `STYLE_CHOICE_APPLICATIONS`, not browser rendering
+  noise.
+
+Impact:
+- npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge -d upstream --include-tests
+  RESULT: LOW risk, 0 impacted processes, 0 affected modules.
+
+Implemented:
+- Corrected five WeChat style application labels:
+  - wechat-toolbar-parameter-map -> 论文翻译
+  - wechat-click-reveal -> 赤陶兼容旗舰
+  - wechat-mobile-only-effect -> 赤陶旗舰
+  - wechat-carousel-switch -> 铜绿旗舰
+  - wechat-market-svg-h5-fallback-matrix -> 赤陶兼容旗舰
+- Added regression assertions in platform-export-rendering.test.ts:
+  - affected labels must match expected human-readable preset names;
+  - known mojibake characters must not appear across all WeChat application labels.
+- Added spec Rule 320 for the human-readable style application label contract.
+
+TDD:
+- The focused test failed before the fix because wechat-toolbar-parameter-map returned
+  `璁烘枃缈昏瘧` instead of `论文翻译`.
+- After the fix, the focused test passed.
+
+CloakBrowser visual/DOM readback after fix:
+- URL: http://127.0.0.1:3005/workstation
+- Surface: real Workstation -> toolbar ExportModal -> WeChat style cards.
+- totalCards=17
+- renderableCount=13
+- disabledRenderableCount=0
+- mojibakeCount=0
+- summaryText:
+  - 微信公众号 可应用渲染样式 13/13
+  - 微信公众号 当前可用 8/17
+- clickedCount=13
+- selectedAfterClickCount=13
+- runtime errors=[]
+- final feedback:
+  已应用 Market SVG/H5 fallback matrix，实际使用 赤陶兼容旗舰。
+
+Boundary:
+- This proves local UI label/readability and click-select behavior for the WeChat style selector.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the operator for this round.

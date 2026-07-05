@@ -16222,6 +16222,80 @@ const canClaimApplicationReady = wechatStyleSamples.status === 'wechat-style-sam
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
 
+## 320. WeChat Style Application Labels Must Stay Human-Readable - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: a live CloakBrowser readback of `ExportModal` exposed mojibake in several
+  `应用到 <presetLabel>` rows even though the actual preset IDs were valid.
+- This is a UI/UX and operator-trust gate for the narrowed current round. A style selector may be
+  technically selectable, but an unreadable preset label means the application is not cleanly
+  usable by a human operator.
+
+### 2. Signatures
+
+- Source contract:
+  `STYLE_CHOICE_APPLICATIONS[].presetLabel` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- UI read contract:
+  `styleChoiceActionLabel(item)` in `ExportModal.vue` renders
+  `应用到 ${item.application.presetLabel}`.
+
+### 3. Contracts
+
+- Every WeChat `StyleChoiceApplication.presetLabel` must match the corresponding local
+  `themePresets[].name` for its `presetId`.
+- The labels for the flagship/local mappings must remain:
+  - `thesis` -> `论文翻译`;
+  - `flagship-kiln` -> `赤陶旗舰`;
+  - `flagship-kiln-paste-safe` -> `赤陶兼容旗舰`;
+  - `flagship-tempera` -> `铜绿旗舰`;
+  - `flagship-amber` -> `黄铜旗舰`.
+- Mojibake strings such as `璁烘枃缈昏瘧`, `璧ら櫠...`, and `閾滅豢...` are forbidden in
+  source constants, CLI reports, ExportModal DOM text, and evidence docs except inside regression
+  tests that explicitly assert they do not appear.
+
+### 4. Validation & Error Matrix
+
+- WeChat application row has a mojibake label -> regression failure.
+- WeChat application row maps to a valid `presetId` but wrong `presetLabel` -> regression failure.
+- ExportModal shows `应用到` text with mojibake -> browser visual-readback failure.
+- The current-round CLI remains ready while labels are mojibake -> not sufficient for visual
+  acceptance; fix labels and rerun browser readback.
+
+### 5. Good / Base / Bad Cases
+
+- Good: `wechat-toolbar-parameter-map` shows `应用到 论文翻译`.
+- Good: `wechat-click-reveal` and `wechat-market-svg-h5-fallback-matrix` show
+  `应用到 赤陶兼容旗舰`.
+- Base: non-renderable publish-checklist rows stay `不可应用` and do not need preset labels.
+- Bad: `应用到 璁烘枃缈昏瘧` or `应用到 璧ら櫠...` appears in the selector.
+
+### 6. Tests Required
+
+- `platform-export-rendering.test.ts` must assert the affected WeChat application labels exactly
+  and must reject known mojibake characters across all WeChat application labels.
+- A CloakBrowser readback should verify:
+  - `totalCards=17`;
+  - `renderableCount=13`;
+  - `disabledRenderableCount=0`;
+  - `mojibakeCount=0`;
+  - 13 renderable cards can be clicked with no runtime errors and selected state is visible.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```typescript
+presetLabel: '璁烘枃缈昏瘧'
+```
+
+#### Correct
+
+```typescript
+presetLabel: '论文翻译'
+```
+
 ## 318. WeChat Manual Checklist Must Require Local Gates First - 2026-07-05
 
 ### 1. Scope / Trigger

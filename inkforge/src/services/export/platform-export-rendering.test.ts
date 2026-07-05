@@ -9883,6 +9883,24 @@ describe('platform native export rendering rules', () => {
     expect(wechatApplications.find(item =>
       item.availability.choice.id === 'wechat-toolbar-parameter-map'
     )?.application?.presetId).toBe('thesis')
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-toolbar-parameter-map'
+    )?.application?.presetLabel).toBe('论文翻译')
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-click-reveal'
+    )?.application?.presetLabel).toBe('赤陶兼容旗舰')
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-mobile-only-effect'
+    )?.application?.presetLabel).toBe('赤陶旗舰')
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-carousel-switch'
+    )?.application?.presetLabel).toBe('铜绿旗舰')
+    expect(wechatApplications.find(item =>
+      item.availability.choice.id === 'wechat-market-svg-h5-fallback-matrix'
+    )?.application?.presetLabel).toBe('赤陶兼容旗舰')
+    expect(wechatApplications
+      .flatMap(item => item.application ? [item.application.presetLabel] : [])
+      .join('\n')).not.toMatch(/[璁璧閾鍏煎缈瘧櫠]/)
 
     const renderableWechatRows = wechatApplications.filter(item =>
       item.availability.choice.primaryOutput !== 'publish-checklist' &&

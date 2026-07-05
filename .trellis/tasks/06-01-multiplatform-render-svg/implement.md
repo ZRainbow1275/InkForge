@@ -26016,3 +26016,55 @@ Boundary:
 - It does not create proof artifacts, mutate platform state, open a browser, upload content, sync
   drafts, schedule sends, publish articles, or claim release completion.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 WeChat Style Application Preset Label Mojibake Fix Slice
+
+Context:
+- A latest-code CloakBrowser Workstation/ExportModal readback found that the style cards were
+  functionally selectable but several `应用到 <presetLabel>` strings were mojibake:
+  `璁烘枃缈昏瘧`, `璧ら櫠...`, and `閾滅豢...`.
+- This violated the current-round visual/readability target even though CLI gates already
+  reported `current-round-ready`.
+
+Impact:
+- `npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted processes, and 0 affected modules.
+
+Changes:
+- Corrected five `STYLE_CHOICE_APPLICATIONS` preset labels in `style-catalog.ts`:
+  - `wechat-toolbar-parameter-map` -> `论文翻译`;
+  - `wechat-click-reveal` -> `赤陶兼容旗舰`;
+  - `wechat-mobile-only-effect` -> `赤陶旗舰`;
+  - `wechat-carousel-switch` -> `铜绿旗舰`;
+  - `wechat-market-svg-h5-fallback-matrix` -> `赤陶兼容旗舰`.
+- Added a regression assertion in `platform-export-rendering.test.ts` so WeChat application
+  labels must match the expected human-readable names and known mojibake characters cannot appear
+  across all WeChat application labels.
+- Added spec Rule 320 to document the human-readable label contract.
+
+Visual verification:
+- Used CloakBrowser against `http://127.0.0.1:3005/workstation` with the latest Vite dev server.
+- Opened the real ExportModal from the Workstation toolbar.
+- Readback after the fix:
+  - `totalCards=17`;
+  - `renderableCount=13`;
+  - `disabledRenderableCount=0`;
+  - `mojibakeCount=0`;
+  - `summaryText=["微信公众号 可应用渲染样式 13/13","微信公众号 当前可用 8/17"]`;
+  - all 13 renderable cards clicked;
+  - all 13 clicks produced visible selected state (`style-choice-selected` or
+    `aria-pressed=true`);
+  - final feedback: `已应用 Market SVG/H5 fallback matrix，实际使用 赤陶兼容旗舰。`;
+  - runtime error list was empty.
+
+Initial TDD:
+- The new focused regression failed before the source fix because
+  `wechat-toolbar-parameter-map` returned `璁烘枃缈昏瘧` instead of `论文翻译`.
+- After the fix, the focused regression passed with 1 selected test.
+
+Boundary:
+- This is a visual/readability and operator-trust fix for the local application style selector.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

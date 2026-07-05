@@ -9236,3 +9236,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send,
   platform preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
   tests remain manually deferred to the user.
+
+## 2026-07-05 WeChat Style Application Preset Label Mojibake Fix
+
+- [x] wechat-style-preset-label-mojibake-fix-20260705.txt
+- Scope: visual/readability repair for ExportModal style application rows.
+- Corrected mojibake `presetLabel` constants in WeChat style application mappings so
+  `应用到` rows show `论文翻译`, `赤陶旗舰`, `赤陶兼容旗舰`, `铜绿旗舰`, and `黄铜旗舰`.
+- Added regression coverage that exact affected labels match the expected human-readable names
+  and known mojibake characters cannot appear across WeChat application labels.
+- CloakBrowser readback after the fix showed `totalCards=17`, `renderableCount=13`,
+  `disabledRenderableCount=0`, `mojibakeCount=0`, all 13 renderable cards selected after click,
+  no runtime errors, and the final feedback
+  `已应用 Market SVG/H5 fallback matrix，实际使用 赤陶兼容旗舰。`.
+- Boundary: this proves the local UI label/readability fix only. It does not prove WeChat
+  ordinary paste, phone preview, credentialed sync, scheduled send, public rendering, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
