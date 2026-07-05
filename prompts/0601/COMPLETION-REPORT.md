@@ -13188,3 +13188,27 @@ Boundary:
   phone preview, mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync,
   scheduled send, platform preview, public rendering, or publish success. Xiaohongshu and Zhihu
   publish-side tests remain manually deferred to the user.
+
+### Follow-up: application acceptance current-round target
+
+- Added `currentRoundTarget` to `style-proof:application-acceptance --json` so the narrowed
+  current-round goal is machine-readable without weakening strict external release proof.
+- Current direct smoke reports:
+  - `currentRoundTarget.scope=application-svg-style-wechat-local`;
+  - `currentRoundTarget.status=current-round-ready`;
+  - `currentRoundTarget.canClaimCurrentRoundTarget=true`;
+  - `currentRoundTarget.releaseProofNotClaimed=true`;
+  - `currentRoundTarget.strictReleaseBlockedByExternal=true`;
+  - `currentRoundTarget.xhsZhihuPublishAutomationDeferred=true`;
+  - `currentRoundTarget.remainingExternalProofOwnedByOperator=true`.
+- Text output now prints the same current-round fields near the top of the report, and help output
+  mentions `current-round target readiness`.
+- Verification passed: focused application-acceptance TDD with 1 file / 2 tests, related
+  4-file script regression with 27 tests, full scripts-suite regression with 7 files / 52 tests,
+  full export-service regression with 41 files / 1364 tests, focused ESLint, `vue-tsc`,
+  production build, direct application-acceptance smoke, application-preflight smoke, and expected
+  blocked strict release-preflight smoke.
+- Boundary: this proves the narrowed local current-round target only. It does not prove WeChat
+  ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

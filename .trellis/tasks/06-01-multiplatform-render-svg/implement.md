@@ -483,6 +483,70 @@ Scope:
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-07-05 Application Acceptance Current-Round Target Slice
+
+Context:
+- The user narrowed this round's completion target to local application SVG/style availability
+  plus WeChat local export/checklist/preflight readiness.
+- `style-proof:application-acceptance` already proved the child gates, but the JSON did not expose
+  a single machine-readable current-round target row. That made later audits conflate the
+  narrowed local target with strict external release proof.
+
+Implementation:
+- Extended `scripts/style-proof-application-acceptance.ts` with `currentRoundTarget`.
+- The new field reports:
+  - `scope=application-svg-style-wechat-local`;
+  - `status=current-round-ready` or `current-round-blocked`;
+  - `canClaimCurrentRoundTarget`;
+  - `releaseProofNotClaimed`;
+  - `strictReleaseBlockedByExternal`;
+  - `xhsZhihuPublishAutomationDeferred`;
+  - `remainingExternalProofOwnedByOperator`.
+- Text output now prints the same current-round target fields near the top of the report.
+- Help output now explicitly mentions `current-round target readiness`.
+
+TDD:
+- Initial focused `style-proof-application-acceptance.test.ts` failed because JSON omitted
+  `currentRoundTarget` and help omitted the current-round target wording.
+- After implementation the focused test passed.
+
+Current smoke:
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json` exits 0 with:
+  - `status=application-acceptance-ready`;
+  - `currentRoundTarget.status=current-round-ready`;
+  - `currentRoundTarget.canClaimCurrentRoundTarget=true`;
+  - `currentRoundTarget.releaseProofNotClaimed=true`;
+  - `currentRoundTarget.strictReleaseBlockedByExternal=true`;
+  - `currentRoundTarget.xhsZhihuPublishAutomationDeferred=true`;
+  - `currentRoundTarget.remainingExternalProofOwnedByOperator=true`;
+  - `wechatRenderedStyleChoiceCount=13`;
+  - `wechatStyleSampleIssueCount=0`;
+  - `actionableLocalRows=0`.
+- `pnpm --silent -C inkforge style-proof:application-preflight --json` still exits 0 with
+  `status=application-ready`, `canClaimApplicationReady=true`, and `actionableLocalRows=0`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected
+  with `status=blocked-by-external`, `canClaimComplete=false`, and `uniqueNextRows=2`.
+
+Verification:
+- `npx gitnexus impact buildApplicationAcceptanceReport -r InkForge -d upstream --include-tests`
+  reported `Target 'buildApplicationAcceptanceReport' not found`, so symbol-level impact was
+  unavailable for this script symbol.
+- Focused application-acceptance TDD passed with 1 file and 2 tests.
+- Related script regression passed with 4 files and 27 tests.
+- Full scripts-suite regression passed with 7 files and 52 tests.
+- Full export-service regression passed with 41 files and 1364 tests.
+- Focused ESLint passed for `scripts/style-proof-application-acceptance.ts` and its test.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build` passed; restored
+  `inkforge/tsconfig.tsbuildinfo` afterward.
+
+Boundary:
+- This slice proves only the narrowed current-round local target accounting.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 ## 2026-07-03 Style Proof External Handoff Manifest Drafts Slice
 
 Source:

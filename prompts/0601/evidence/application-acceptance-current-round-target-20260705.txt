@@ -1,0 +1,82 @@
+Application Acceptance Current-Round Target - 2026-07-05
+
+Scope:
+- Machine-readable accounting for the narrowed current-round target.
+- The current-round target is local application SVG/style availability plus WeChat local
+  export/checklist/preflight readiness.
+- Xiaohongshu and Zhihu publish-side automation remains cancelled for this round and will be
+  tested manually by the operator.
+- This evidence item does not perform browser profile access, platform account access, phone
+  preview, upload, sync, scheduled send, or publish.
+
+Implemented:
+- Added currentRoundTarget to style-proof:application-acceptance JSON output.
+- Added current-round target lines to the text output.
+- Added current-round target wording to the command help output.
+
+Current JSON smoke:
+- pnpm --silent -C inkforge style-proof:application-acceptance --json exits 0.
+- status=application-acceptance-ready.
+- canClaimApplicationReady=true.
+- canClaimReleaseComplete=false.
+- currentRoundTarget.scope=application-svg-style-wechat-local.
+- currentRoundTarget.status=current-round-ready.
+- currentRoundTarget.canClaimCurrentRoundTarget=true.
+- currentRoundTarget.releaseProofNotClaimed=true.
+- currentRoundTarget.strictReleaseBlockedByExternal=true.
+- currentRoundTarget.xhsZhihuPublishAutomationDeferred=true.
+- currentRoundTarget.remainingExternalProofOwnedByOperator=true.
+- wechatRenderedStyleChoiceCount=13.
+- wechatStyleSampleIssueCount=0.
+- actionableLocalRows=0.
+
+Current text smoke:
+- pnpm --silent -C inkforge style-proof:application-acceptance exits 0.
+- Text output includes:
+  - currentRoundTargetStatus: current-round-ready
+  - canClaimCurrentRoundTarget: true
+  - currentRoundTargetScope: application-svg-style-wechat-local
+  - currentRoundReleaseProofNotClaimed: true
+  - currentRoundStrictReleaseBlockedByExternal: true
+  - currentRoundXhsZhihuPublishAutomationDeferred: true
+  - currentRoundRemainingExternalProofOwnedByOperator: true
+
+Strict boundary smoke:
+- pnpm --silent -C inkforge style-proof:release-preflight --json exits 1 as expected.
+- status=blocked-by-external.
+- canClaimComplete=false.
+- actionableLocalRows=0.
+- uniqueNextRows=2.
+- Remaining next rows are WeChat cover-thumbnail-check and credentialed-channel-response.
+
+TDD:
+- The application-acceptance focused test was tightened first.
+- Initial focused run failed because JSON omitted currentRoundTarget and help omitted
+  current-round target readiness.
+- After implementation the focused test passed.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 2 tests
+- pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-wechat-style-samples.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 27 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 52 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 41 files / 1364 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-application-acceptance.ts scripts/style-proof-application-acceptance.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS
+- npx gitnexus impact buildApplicationAcceptanceReport -r InkForge -d upstream --include-tests
+  RESULT: target not found in GitNexus index; symbol-level impact unavailable for this script symbol.
+
+Boundary:
+- This proves the narrowed current-round local target accounting only.
+- It proves neither WeChat ordinary paste nor phone preview.
+- It proves neither mobile Dark Mode nor mobile SMIL/click interaction.
+- It proves neither cover thumbnail acceptance nor credentialed sync.
+- It proves neither scheduled send nor platform preview/public rendering/publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

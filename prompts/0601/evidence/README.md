@@ -9193,3 +9193,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync,
   scheduled send, platform preview, public rendering, or publish success. Xiaohongshu and Zhihu
   publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 Application Acceptance Current-Round Target
+
+- [x] application-acceptance-current-round-target-20260705.txt
+- Scope: machine-readable accounting for the narrowed current-round target.
+- Added `currentRoundTarget` to `style-proof:application-acceptance --json` with
+  `scope=application-svg-style-wechat-local`, `status=current-round-ready`,
+  `canClaimCurrentRoundTarget=true`, `releaseProofNotClaimed=true`,
+  `strictReleaseBlockedByExternal=true`, `xhsZhihuPublishAutomationDeferred=true`, and
+  `remainingExternalProofOwnedByOperator=true`.
+- Text output now prints the same current-round fields near the top of the report.
+- Help output now mentions `current-round target readiness`.
+- Verification passed: focused application-acceptance TDD with 1 file / 2 tests, related 4-file
+  script regression with 27 tests, full scripts-suite regression with 7 files / 52 tests, full
+  export-service regression with 41 files / 1364 tests, focused ESLint, `vue-tsc`, production
+  build, direct application-acceptance smoke, application-preflight smoke, and expected blocked
+  strict release-preflight smoke.
+- Boundary: this proves narrowed current-round local acceptance accounting only. It does not prove
+  WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

@@ -117,6 +117,15 @@ interface ApplicationAcceptanceReport {
   status: ApplicationAcceptanceStatus
   canClaimApplicationReady: boolean
   canClaimReleaseComplete: boolean
+  currentRoundTarget: {
+    scope: 'application-svg-style-wechat-local'
+    status: 'current-round-ready' | 'current-round-blocked'
+    canClaimCurrentRoundTarget: boolean
+    releaseProofNotClaimed: boolean
+    strictReleaseBlockedByExternal: boolean
+    xhsZhihuPublishAutomationDeferred: true
+    remainingExternalProofOwnedByOperator: boolean
+  }
   summary: {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
@@ -174,6 +183,7 @@ function printHelp(): void {
     '- selectable WeChat style export samples;',
     '- application SVG gallery readiness;',
     '- WeChat manual proof checklist readiness;',
+    '- current-round target readiness;',
     '- strict release boundary preservation.',
     '',
     'This command is read-only except for a temporary gallery file that is removed before exit.',
@@ -520,6 +530,13 @@ function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceRepo
     `status: ${report.status}`,
     `applicationReady: ${report.canClaimApplicationReady ? 'true' : 'false'}`,
     `canClaimReleaseComplete: ${report.canClaimReleaseComplete ? 'true' : 'false'}`,
+    `currentRoundTargetStatus: ${report.currentRoundTarget.status}`,
+    `canClaimCurrentRoundTarget: ${report.currentRoundTarget.canClaimCurrentRoundTarget ? 'true' : 'false'}`,
+    `currentRoundTargetScope: ${report.currentRoundTarget.scope}`,
+    `currentRoundReleaseProofNotClaimed: ${report.currentRoundTarget.releaseProofNotClaimed ? 'true' : 'false'}`,
+    `currentRoundStrictReleaseBlockedByExternal: ${report.currentRoundTarget.strictReleaseBlockedByExternal ? 'true' : 'false'}`,
+    `currentRoundXhsZhihuPublishAutomationDeferred: ${report.currentRoundTarget.xhsZhihuPublishAutomationDeferred ? 'true' : 'false'}`,
+    `currentRoundRemainingExternalProofOwnedByOperator: ${report.currentRoundTarget.remainingExternalProofOwnedByOperator ? 'true' : 'false'}`,
     `applicationPreflightExitCode: ${report.summary.applicationPreflightExitCode}`,
     `applicationGalleryExitCode: ${report.summary.applicationGalleryExitCode}`,
     `wechatStyleSamplesExitCode: ${report.summary.wechatStyleSamplesExitCode}`,
@@ -720,6 +737,14 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
 
     const canClaimApplicationReady = checks.every(check => check.passed) &&
       applicationPreflight?.canClaimApplicationReady === true
+    const releaseProofNotClaimed = strictRelease?.canClaimComplete !== true
+    const remainingExternalProofOwnedByOperator =
+      applicationPreflight?.externalProof.requiresManualWeChatProof ?? true
+    const canClaimCurrentRoundTarget = canClaimApplicationReady &&
+      releaseProofNotClaimed &&
+      strictReleaseBoundaryPreserved &&
+      applicationPreflight?.externalProof.xhsZhihuPublishAutomationDeferred === true &&
+      remainingExternalProofOwnedByOperator === true
 
     return {
       notProof: true,
@@ -727,6 +752,15 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       status: canClaimApplicationReady ? 'application-acceptance-ready' : 'application-acceptance-blocked',
       canClaimApplicationReady,
       canClaimReleaseComplete: strictRelease?.canClaimComplete === true,
+      currentRoundTarget: {
+        scope: 'application-svg-style-wechat-local',
+        status: canClaimCurrentRoundTarget ? 'current-round-ready' : 'current-round-blocked',
+        canClaimCurrentRoundTarget,
+        releaseProofNotClaimed,
+        strictReleaseBlockedByExternal: strictReleaseBoundaryPreserved,
+        xhsZhihuPublishAutomationDeferred: true,
+        remainingExternalProofOwnedByOperator,
+      },
       summary: {
         applicationPreflightExitCode: applicationPreflightResult.exitCode,
         applicationGalleryExitCode: applicationGalleryResult.exitCode,

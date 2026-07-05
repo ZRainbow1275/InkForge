@@ -15,6 +15,15 @@ interface ApplicationAcceptanceJsonReport {
   status: 'application-acceptance-ready' | 'application-acceptance-blocked'
   canClaimApplicationReady: boolean
   canClaimReleaseComplete: boolean
+  currentRoundTarget: {
+    scope: 'application-svg-style-wechat-local'
+    status: 'current-round-ready' | 'current-round-blocked'
+    canClaimCurrentRoundTarget: boolean
+    releaseProofNotClaimed: boolean
+    strictReleaseBlockedByExternal: boolean
+    xhsZhihuPublishAutomationDeferred: true
+    remainingExternalProofOwnedByOperator: boolean
+  }
   summary: {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
@@ -140,6 +149,15 @@ function isApplicationAcceptanceJsonReport(value: unknown): value is Application
     (value.status === 'application-acceptance-ready' || value.status === 'application-acceptance-blocked') &&
     typeof value.canClaimApplicationReady === 'boolean' &&
     typeof value.canClaimReleaseComplete === 'boolean' &&
+    isRecord(value.currentRoundTarget) &&
+    value.currentRoundTarget.scope === 'application-svg-style-wechat-local' &&
+    (value.currentRoundTarget.status === 'current-round-ready' ||
+      value.currentRoundTarget.status === 'current-round-blocked') &&
+    typeof value.currentRoundTarget.canClaimCurrentRoundTarget === 'boolean' &&
+    typeof value.currentRoundTarget.releaseProofNotClaimed === 'boolean' &&
+    typeof value.currentRoundTarget.strictReleaseBlockedByExternal === 'boolean' &&
+    value.currentRoundTarget.xhsZhihuPublishAutomationDeferred === true &&
+    typeof value.currentRoundTarget.remainingExternalProofOwnedByOperator === 'boolean' &&
     isRecord(value.summary) &&
     hasNumberKeys(value.summary, [
       'applicationPreflightExitCode',
@@ -213,6 +231,15 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
       status: 'application-acceptance-ready',
       canClaimApplicationReady: true,
       canClaimReleaseComplete: false,
+      currentRoundTarget: {
+        scope: 'application-svg-style-wechat-local',
+        status: 'current-round-ready',
+        canClaimCurrentRoundTarget: true,
+        releaseProofNotClaimed: true,
+        strictReleaseBlockedByExternal: true,
+        xhsZhihuPublishAutomationDeferred: true,
+        remainingExternalProofOwnedByOperator: true,
+      },
       summary: {
         applicationPreflightExitCode: 0,
         applicationGalleryExitCode: 0,
@@ -300,6 +327,7 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(help.stderr.trim()).toBe('')
     expect(help.stdout).toContain('Usage: pnpm style-proof:application-acceptance [--json]')
     expect(help.stdout).toContain('WeChat manual proof checklist readiness')
+    expect(help.stdout).toContain('current-round target readiness')
     expect(help.stdout).toContain('does not open a browser')
 
     const invalid = await runAcceptanceCli(['--unknown-acceptance-flag'])

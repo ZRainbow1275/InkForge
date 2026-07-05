@@ -16010,6 +16010,91 @@ real exporter and carry at least one WeChat-safe SVG module.
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
 
+## 319. Application Acceptance Must Expose Current-Round Target - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed current round is complete when SVG/style rows are applicable in InkForge
+  and the local WeChat export/checklist/preflight chain is ready; Xiaohongshu/Zhihu publish-side
+  checks are manually owned by the operator.
+- Applies to `scripts/style-proof-application-acceptance.ts` and
+  `scripts/style-proof-application-acceptance.test.ts`.
+- This is an acceptance-accounting rule only. It must not downgrade, bypass, or satisfy strict
+  external release proof.
+
+### 2. JSON Contract
+
+`style-proof:application-acceptance --json` must expose:
+
+```json
+{
+  "currentRoundTarget": {
+    "scope": "application-svg-style-wechat-local",
+    "status": "current-round-ready",
+    "canClaimCurrentRoundTarget": true,
+    "releaseProofNotClaimed": true,
+    "strictReleaseBlockedByExternal": true,
+    "xhsZhihuPublishAutomationDeferred": true,
+    "remainingExternalProofOwnedByOperator": true
+  }
+}
+```
+
+The field is valid only when the existing local checks pass:
+
+- `application-preflight`;
+- `wechat-style-readiness`;
+- `wechat-style-export-samples`;
+- `application-gallery`;
+- `wechat-manual-checklist`;
+- `wechat-manual-template`;
+- `wechat-manual-manifest-drafts`;
+- `strict-release-boundary`.
+
+### 3. Text Contract
+
+Text output must include:
+
+```text
+currentRoundTargetStatus: current-round-ready
+canClaimCurrentRoundTarget: true
+currentRoundTargetScope: application-svg-style-wechat-local
+currentRoundReleaseProofNotClaimed: true
+currentRoundStrictReleaseBlockedByExternal: true
+currentRoundXhsZhihuPublishAutomationDeferred: true
+currentRoundRemainingExternalProofOwnedByOperator: true
+```
+
+### 4. Validation & Error Matrix
+
+- If any local application/style/checklist check fails -> `canClaimCurrentRoundTarget=false`.
+- If strict release is not still blocked by external proof -> `strictReleaseBlockedByExternal=false`
+  and current-round readiness must not silently imply external release proof.
+- If `strictRelease.canClaimComplete=true` appears in this report without real external proof, the
+  report is invalid.
+- Missing `currentRoundTarget` in JSON or text output -> regression failure.
+
+### 5. Tests Required
+
+- `style-proof-application-acceptance.test.ts` must validate the JSON shape and exact current
+  good values for `currentRoundTarget`.
+- The help output must mention `current-round target readiness`.
+- Direct smoke must confirm:
+
+```bash
+pnpm --silent -C inkforge style-proof:application-acceptance --json
+pnpm --silent -C inkforge style-proof:application-acceptance
+```
+
+### 6. Cannot-Claim Boundary
+
+- Passing this rule proves only the narrowed current-round local target:
+  application SVG/style availability plus WeChat local export/checklist/preflight readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 ## 317. Application-Scope Release Preflight Must Include WeChat Style Samples - 2026-07-05
 
 ### 1. Scope / Trigger
