@@ -9127,3 +9127,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves local aggregate reporting of WeChat app-level SVG/style readiness. It does
   not prove WeChat phone preview, credentialed sync, scheduled send, public rendering, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 WeChat Style Export Samples Gate
+
+- [x] wechat-style-export-samples-20260705.txt
+- Scope: local/read-only export-sample gate for every selectable WeChat style-catalog row.
+- The gate renders 13 selectable WeChat style choices through the real WeChat export pipeline with
+  application SVG options enabled.
+- Current direct smoke reports `status=wechat-style-samples-ready`,
+  `wechatStyleChoiceCount=17`, `selectableStyleChoiceCount=13`,
+  `renderedStyleChoiceCount=13`, `uniquePresetCount=6`,
+  `svgBearingStyleChoiceCount=13`, `totalSvgModuleCount=45`, and `issueCount=0`.
+- Application acceptance now includes `wechat-style-export-samples` immediately after
+  `wechat-style-readiness`, and exposes the rendered/SVG-bearing/sample issue counts directly.
+- Verification passed: focused 4-file regression, full export-service regression, full
+  scripts-suite regression, focused ESLint, `vue-tsc`, production build, direct style-sample
+  smoke, direct application-acceptance smoke, and expected blocked strict release-preflight smoke.
+- Boundary: this proves local WeChat style-choice to export HTML/SVG readiness only. It does not
+  prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
+  thumbnail, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

@@ -89,7 +89,17 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 export const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const satisfies readonly LogLevel[]
 
-const DEFAULT_LOG_LEVEL: LogLevel = import.meta.env.PROD ? 'warn' : 'debug'
+type ViteImportMeta = ImportMeta & {
+    readonly env?: {
+        readonly PROD?: boolean
+    }
+}
+
+function isViteProductionRuntime(): boolean {
+    return ((import.meta as ViteImportMeta).env?.PROD ?? false) === true
+}
+
+const DEFAULT_LOG_LEVEL: LogLevel = isViteProductionRuntime() ? 'warn' : 'debug'
 
 /**
  * 日志级别优先级映射
@@ -130,7 +140,7 @@ export function setLogLevel(level: LogLevel): void {
  */
 function shouldSample(level: LogLevel): boolean {
     // 生产环境启用采样，开发环境不采样
-    if (!import.meta.env.PROD) return true
+    if (!isViteProductionRuntime()) return true
 
     const rate = LOG_SECURITY.SAMPLING_RATES[level]
     return secureShouldSample(rate)

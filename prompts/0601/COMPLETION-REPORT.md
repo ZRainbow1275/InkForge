@@ -13108,3 +13108,33 @@ Boundary:
 - Current focused regression confirms `wechatManualTemplateExitCode=0`,
   `wechat-manual-template` has `status=manual-template-ready`, and
   `canClaimReleaseComplete=false` remains preserved.
+
+### Follow-up: WeChat style export samples gate
+
+- Added `style-proof:wechat-style-samples` as a dedicated local/read-only WeChat export-sample
+  gate for the narrowed round target.
+- The new gate renders every currently selectable WeChat style-catalog row through the real
+  `convertToWechatWithStats()` path with application SVG options enabled by
+  `createDefaultWechatSvgInjectionPlan()`.
+- Current direct smoke reports `status=wechat-style-samples-ready`,
+  `wechatStyleChoiceCount=17`, `selectableStyleChoiceCount=13`,
+  `renderedStyleChoiceCount=13`, `svgBearingStyleChoiceCount=13`,
+  `totalSvgModuleCount=45`, and `issueCount=0`.
+- `style-proof:application-acceptance` now includes `wechat-style-export-samples` immediately
+  after `wechat-style-readiness`. The aggregate check order is now:
+  `application-preflight`, `wechat-style-readiness`, `wechat-style-export-samples`,
+  `application-gallery`, `wechat-manual-checklist`, `wechat-manual-template`,
+  `wechat-manual-manifest-drafts`, `strict-release-boundary`.
+- The aggregate summary now includes `wechatStyleSamplesExitCode`,
+  `wechatRenderedStyleChoiceCount`, `wechatStyleSampleIssueCount`,
+  `wechatStyleSampleSvgBearingChoiceCount`, and `wechatStyleSampleTotalSvgModuleCount`.
+- Current focused regression confirms 4 files / 12 tests passed, direct style-sample smoke exits
+  0, application acceptance exits 0 with `canClaimApplicationReady=true`, and strict release
+  preflight still exits 1 with `status=blocked-by-external`.
+- Full export-service regression also passes with 41 files / 1364 tests; the scripts-suite
+  regression passes with 7 files / 52 tests; focused ESLint, `vue-tsc`, and production build pass.
+- Boundary: this proves local WeChat style-choice to export HTML/SVG readiness for the current
+  round. It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile
+  interaction, cover thumbnail, credentialed sync, scheduled send, public rendering, platform
+  preview, or publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred
+  to the user.

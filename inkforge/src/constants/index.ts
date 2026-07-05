@@ -7,8 +7,8 @@
 // 从 Schema 导入核心状态常量（Single Source of Truth）
 // ═══════════════════════════════════════════════════════════════════
 
-export { ARTICLE_STATUS } from '@/schemas/article';
-export type { ArticleStatus } from '@/schemas/article';
+export { ARTICLE_STATUS } from '@/schemas/article-status';
+export type { ArticleStatusValue as ArticleStatus } from '@/schemas/article-status';
 
 // ═══════════════════════════════════════════════════════════════════
 // 预设相关

@@ -8,7 +8,6 @@
 
 import juice from 'juice'
 import { marked } from 'marked'
-import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
 import DOMPurify from 'dompurify'
 
 // 确保 marked 配置一致性（防止直接调用 markdownToWechat 时配置缺失）
@@ -99,6 +98,13 @@ function replaceCssVariables(html: string, primaryColor?: string): string {
 }
 
 const CSS_UNICODE_ESCAPE_PATTERN = /\\([0-9a-fA-F]{1,6})([ \t\r\n\f])?/g
+
+async function renderWechatMarkdownWithLazyEnhancements(markdown: string): Promise<string> {
+  const { renderMarkdownWithLazyOptionalEnhancements } = await import(
+    '@/services/rendering/lazy-optional-renderer'
+  )
+  return renderMarkdownWithLazyOptionalEnhancements(markdown)
+}
 
 const WECHAT_DECORATED_PSEUDO_RULES: Record<string, RegExp[]> = {
   thesis: [
@@ -1398,7 +1404,7 @@ export async function markdownToWechat(
   options: WechatExportOptions = {}
 ): Promise<string> {
   // Markdown → HTML
-  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
+  const html = await renderWechatMarkdownWithLazyEnhancements(markdown)
 
   // HTML → 微信格式
   return convertToWechat(html, preset, options)
@@ -1416,7 +1422,7 @@ export async function markdownToWechatWithStats(
   preset: ExportPreset,
   options: WechatExportOptions = {}
 ): Promise<ExportResult> {
-  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
+  const html = await renderWechatMarkdownWithLazyEnhancements(markdown)
   const readingSpeed = options.readingSpeed ?? 300
   const baseStats = calculateStats(html, readingSpeed)
 

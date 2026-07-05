@@ -1,0 +1,69 @@
+WeChat Style Export Samples Gate - 2026-07-05
+
+Scope:
+- Local read-only export sample gate for selectable WeChat style-catalog rows.
+- No browser action, no paste, no upload, no sync, no schedule, no public rendering, no publish.
+
+Implemented:
+- createWechatStyleExportSamplesReport()
+- formatWechatStyleExportSamplesReportText()
+- style-proof:wechat-style-samples
+- application-acceptance child check: wechat-style-export-samples
+
+Behavior:
+- Reads getPlatformStyleApplicationReport('wechat').
+- Renders 13 selectable WeChat rows through convertToWechatWithStats() with application SVG
+  options enabled by createDefaultWechatSvgInjectionPlan().
+- Validates section#nice, data-wechat-clamp="1", 677px max-width, no script/style/foreignObject,
+  data-ink-svg presence, responsive SVG width/viewBox, and checkWechatSafe() for every SVG
+  section.
+- Emits sha256 fingerprints and export stats for each sample without writing HTML artifacts.
+
+Current smoke:
+- status=wechat-style-samples-ready
+- wechatStyleChoiceCount=17
+- selectableStyleChoiceCount=13
+- renderedStyleChoiceCount=13
+- uniquePresetCount=6
+- svgBearingStyleChoiceCount=13
+- totalSvgModuleCount=45
+- issueCount=0
+
+Application acceptance:
+- status=application-acceptance-ready
+- canClaimApplicationReady=true
+- canClaimReleaseComplete=false
+- wechatStyleSamplesExitCode=0
+- wechatRenderedStyleChoiceCount=13
+- wechatStyleSampleIssueCount=0
+- wechatStyleSampleSvgBearingChoiceCount=13
+- wechatStyleSampleTotalSvgModuleCount=45
+- checks include wechat-style-export-samples immediately after wechat-style-readiness.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/wechat-style-export-samples.test.ts scripts/style-proof-wechat-style-samples.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 12 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 41 files / 1364 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 52 tests
+- pnpm -C inkforge exec eslint src/services/export/wechat-style-export-samples.ts src/services/export/wechat-style-export-samples.test.ts scripts/style-proof-wechat-style-samples.ts scripts/style-proof-wechat-style-samples.test.ts scripts/style-proof-application-acceptance.ts scripts/style-proof-application-acceptance.test.ts src/services/export/wechat.ts src/services/error.ts src/schemas/article.ts src/schemas/article-status.ts src/constants/index.ts src/services/export/index.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS="--max-old-space-size=4096" pnpm -C inkforge build
+  PASS: 4659 modules transformed, Vite built in 25.34s
+- pnpm --silent -C inkforge style-proof:wechat-style-samples --json
+  PASS: exit 0, status=wechat-style-samples-ready, issueCount=0
+- pnpm --silent -C inkforge style-proof:application-acceptance --json
+  PASS: exit 0, status=application-acceptance-ready, canClaimApplicationReady=true,
+  canClaimReleaseComplete=false
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1, status=blocked-by-external, canClaimComplete=false
+
+Boundary:
+- This proves local WeChat style-choice to export HTML/SVG readiness only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

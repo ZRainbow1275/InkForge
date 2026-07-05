@@ -68,6 +68,23 @@ interface ApplicationGalleryJsonReport {
   issues: readonly unknown[]
 }
 
+interface WechatStyleSamplesJsonReport {
+  notProof: true
+  scope: 'wechat-style-export-samples'
+  status: 'wechat-style-samples-ready' | 'wechat-style-samples-blocked'
+  summary: {
+    wechatStyleChoiceCount: number
+    selectableStyleChoiceCount: number
+    renderedStyleChoiceCount: number
+    uniquePresetCount: number
+    svgBearingStyleChoiceCount: number
+    totalSvgModuleCount: number
+    issueCount: number
+  }
+  issues: readonly unknown[]
+  samples: readonly unknown[]
+}
+
 interface StrictReleaseJsonReport {
   canClaimComplete: boolean
   status: string
@@ -82,6 +99,7 @@ interface ApplicationAcceptanceCheck {
   id:
     | 'application-preflight'
     | 'wechat-style-readiness'
+    | 'wechat-style-export-samples'
     | 'application-gallery'
     | 'wechat-manual-checklist'
     | 'wechat-manual-template'
@@ -102,6 +120,7 @@ interface ApplicationAcceptanceReport {
   summary: {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
+    wechatStyleSamplesExitCode: number
     wechatManualChecklistExitCode: number
     wechatManualTemplateExitCode: number
     wechatManualManifestDraftsExitCode: number
@@ -122,6 +141,10 @@ interface ApplicationAcceptanceReport {
     wechatStyleChoiceCount: number
     wechatUsableChoiceCount: number
     wechatSelectableChoiceCount: number
+    wechatRenderedStyleChoiceCount: number
+    wechatStyleSampleIssueCount: number
+    wechatStyleSampleSvgBearingChoiceCount: number
+    wechatStyleSampleTotalSvgModuleCount: number
     usableButUnselectableWechatChoices: number
     actionableLocalRows: number
     strictReleaseBoundaryPreserved: boolean
@@ -139,6 +162,7 @@ const projectRoot = resolve(dirname(currentFilePath), '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
 const releasePreflightScriptPath = resolve(projectRoot, 'scripts', 'style-proof-release-preflight.ts')
 const galleryScriptPath = resolve(projectRoot, 'scripts', 'style-proof-application-gallery.ts')
+const wechatStyleSamplesScriptPath = resolve(projectRoot, 'scripts', 'style-proof-wechat-style-samples.ts')
 const externalHandoffScriptPath = resolve(projectRoot, 'scripts', 'style-proof-external-handoff.ts')
 
 function printHelp(): void {
@@ -147,6 +171,7 @@ function printHelp(): void {
     '',
     'Runs the current local InkForge application acceptance gate:',
     '- application preflight;',
+    '- selectable WeChat style export samples;',
     '- application SVG gallery readiness;',
     '- WeChat manual proof checklist readiness;',
     '- strict release boundary preservation.',
@@ -280,6 +305,19 @@ function isApplicationGallerySummary(value: unknown): value is ApplicationGaller
     ])
 }
 
+function isWechatStyleSamplesSummary(value: unknown): value is WechatStyleSamplesJsonReport['summary'] {
+  return isRecord(value) &&
+    hasNumberKeys(value, [
+      'wechatStyleChoiceCount',
+      'selectableStyleChoiceCount',
+      'renderedStyleChoiceCount',
+      'uniquePresetCount',
+      'svgBearingStyleChoiceCount',
+      'totalSvgModuleCount',
+      'issueCount',
+    ])
+}
+
 function isApplicationPreflightReport(value: unknown): value is ApplicationPreflightJsonReport {
   return isRecord(value) &&
     value.scope === 'application' &&
@@ -308,6 +346,16 @@ function isApplicationGalleryReport(value: unknown): value is ApplicationGallery
     (value.status === 'application-gallery-ready' || value.status === 'application-gallery-blocked') &&
     isApplicationGallerySummary(value.summary) &&
     Array.isArray(value.issues)
+}
+
+function isWechatStyleSamplesReport(value: unknown): value is WechatStyleSamplesJsonReport {
+  return isRecord(value) &&
+    value.notProof === true &&
+    value.scope === 'wechat-style-export-samples' &&
+    (value.status === 'wechat-style-samples-ready' || value.status === 'wechat-style-samples-blocked') &&
+    isWechatStyleSamplesSummary(value.summary) &&
+    Array.isArray(value.issues) &&
+    Array.isArray(value.samples)
 }
 
 function isStrictReleaseReport(value: unknown): value is StrictReleaseJsonReport {
@@ -474,6 +522,7 @@ function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceRepo
     `canClaimReleaseComplete: ${report.canClaimReleaseComplete ? 'true' : 'false'}`,
     `applicationPreflightExitCode: ${report.summary.applicationPreflightExitCode}`,
     `applicationGalleryExitCode: ${report.summary.applicationGalleryExitCode}`,
+    `wechatStyleSamplesExitCode: ${report.summary.wechatStyleSamplesExitCode}`,
     `wechatManualChecklistExitCode: ${report.summary.wechatManualChecklistExitCode}`,
     `wechatManualTemplateExitCode: ${report.summary.wechatManualTemplateExitCode}`,
     `wechatManualManifestDraftsExitCode: ${report.summary.wechatManualManifestDraftsExitCode}`,
@@ -494,6 +543,10 @@ function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceRepo
     `wechatStyleChoiceCount: ${report.summary.wechatStyleChoiceCount}`,
     `wechatUsableChoiceCount: ${report.summary.wechatUsableChoiceCount}`,
     `wechatSelectableChoiceCount: ${report.summary.wechatSelectableChoiceCount}`,
+    `wechatRenderedStyleChoiceCount: ${report.summary.wechatRenderedStyleChoiceCount}`,
+    `wechatStyleSampleIssueCount: ${report.summary.wechatStyleSampleIssueCount}`,
+    `wechatStyleSampleSvgBearingChoiceCount: ${report.summary.wechatStyleSampleSvgBearingChoiceCount}`,
+    `wechatStyleSampleTotalSvgModuleCount: ${report.summary.wechatStyleSampleTotalSvgModuleCount}`,
     `usableButUnselectableWechatChoices: ${report.summary.usableButUnselectableWechatChoices}`,
     `actionableLocalRows: ${report.summary.actionableLocalRows}`,
     `strictReleaseBoundaryPreserved: ${report.summary.strictReleaseBoundaryPreserved ? 'true' : 'false'}`,
@@ -528,6 +581,10 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       galleryScriptPath,
       ['--json', '--out', galleryOutputPath],
     )
+    const wechatStyleSamplesResult = await runTsxScript(
+      wechatStyleSamplesScriptPath,
+      ['--json'],
+    )
     const wechatManualChecklistResult = await runTsxScript(
       externalHandoffScriptPath,
       ['--checklist', '--platform=wechat', '--next-only', '--handoff-ok-exit-zero'],
@@ -544,6 +601,7 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
 
     const applicationPreflightJson = parseJsonOutput<unknown>(applicationPreflightResult)
     const applicationGalleryJson = parseJsonOutput<unknown>(applicationGalleryResult)
+    const wechatStyleSamplesJson = parseJsonOutput<unknown>(wechatStyleSamplesResult)
     const strictReleaseJson = parseJsonOutput<unknown>(strictReleaseResult)
 
     const applicationPreflight = isApplicationPreflightReport(applicationPreflightJson)
@@ -552,12 +610,16 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
     const applicationGallery = isApplicationGalleryReport(applicationGalleryJson)
       ? applicationGalleryJson
       : null
+    const wechatStyleSamples = isWechatStyleSamplesReport(wechatStyleSamplesJson)
+      ? wechatStyleSamplesJson
+      : null
     const strictRelease = isStrictReleaseReport(strictReleaseJson)
       ? strictReleaseJson
       : null
 
     const applicationIssueCount = getApplicationIssueCount(applicationPreflight)
     const galleryIssueCount = applicationGallery?.issues.length ?? 1
+    const wechatStyleSampleIssueCount = wechatStyleSamples?.summary.issueCount ?? 1
     const wechatManualChecklistReady = isWechatManualChecklistReady(wechatManualChecklistResult)
     const wechatManualTemplateReady = isWechatManualTemplateReady(wechatManualTemplateResult)
     const wechatManualManifestDraftsReady = isWechatManualManifestDraftsReady(
@@ -576,6 +638,15 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       applicationPreflight.summary.usableButUnselectableWechatChoices === 0 &&
       applicationPreflight.summary.actionableLocalRows === 0 &&
       applicationPreflight.externalProof.xhsZhihuPublishAutomationDeferred === true
+    const wechatStyleSamplesReady = wechatStyleSamplesResult.exitCode === 0 &&
+      wechatStyleSamples?.status === 'wechat-style-samples-ready' &&
+      wechatStyleSamples.summary.issueCount === 0 &&
+      wechatStyleSamples.summary.selectableStyleChoiceCount ===
+        applicationPreflight?.summary.wechatSelectableChoiceCount &&
+      wechatStyleSamples.summary.renderedStyleChoiceCount ===
+        wechatStyleSamples.summary.selectableStyleChoiceCount &&
+      wechatStyleSamples.summary.svgBearingStyleChoiceCount ===
+        wechatStyleSamples.summary.selectableStyleChoiceCount
 
     const checks: ApplicationAcceptanceCheck[] = [
       {
@@ -594,6 +665,13 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         exitCode: applicationPreflightResult.exitCode,
         status: wechatStyleApplicationReady ? 'wechat-style-ready' : 'wechat-style-blocked',
         command: 'style-proof:application-preflight --json',
+      },
+      {
+        id: 'wechat-style-export-samples',
+        passed: wechatStyleSamplesReady,
+        exitCode: wechatStyleSamplesResult.exitCode,
+        status: wechatStyleSamples?.status ?? 'invalid-json',
+        command: 'style-proof:wechat-style-samples --json',
       },
       {
         id: 'application-gallery',
@@ -652,6 +730,7 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       summary: {
         applicationPreflightExitCode: applicationPreflightResult.exitCode,
         applicationGalleryExitCode: applicationGalleryResult.exitCode,
+        wechatStyleSamplesExitCode: wechatStyleSamplesResult.exitCode,
         wechatManualChecklistExitCode: wechatManualChecklistResult.exitCode,
         wechatManualTemplateExitCode: wechatManualTemplateResult.exitCode,
         wechatManualManifestDraftsExitCode: wechatManualManifestDraftsResult.exitCode,
@@ -677,6 +756,12 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         wechatStyleChoiceCount: applicationPreflight?.summary.wechatStyleChoiceCount ?? 0,
         wechatUsableChoiceCount: applicationPreflight?.summary.wechatUsableChoiceCount ?? 0,
         wechatSelectableChoiceCount: applicationPreflight?.summary.wechatSelectableChoiceCount ?? 0,
+        wechatRenderedStyleChoiceCount: wechatStyleSamples?.summary.renderedStyleChoiceCount ?? 0,
+        wechatStyleSampleIssueCount,
+        wechatStyleSampleSvgBearingChoiceCount:
+          wechatStyleSamples?.summary.svgBearingStyleChoiceCount ?? 0,
+        wechatStyleSampleTotalSvgModuleCount:
+          wechatStyleSamples?.summary.totalSvgModuleCount ?? 0,
         usableButUnselectableWechatChoices:
           applicationPreflight?.summary.usableButUnselectableWechatChoices ?? 1,
         actionableLocalRows: applicationPreflight?.summary.actionableLocalRows ?? 1,

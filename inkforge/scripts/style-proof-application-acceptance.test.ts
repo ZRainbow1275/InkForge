@@ -18,6 +18,7 @@ interface ApplicationAcceptanceJsonReport {
   summary: {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
+    wechatStyleSamplesExitCode: number
     wechatManualChecklistExitCode: number
     wechatManualTemplateExitCode: number
     wechatManualManifestDraftsExitCode: number
@@ -38,6 +39,10 @@ interface ApplicationAcceptanceJsonReport {
     wechatStyleChoiceCount: number
     wechatUsableChoiceCount: number
     wechatSelectableChoiceCount: number
+    wechatRenderedStyleChoiceCount: number
+    wechatStyleSampleIssueCount: number
+    wechatStyleSampleSvgBearingChoiceCount: number
+    wechatStyleSampleTotalSvgModuleCount: number
     usableButUnselectableWechatChoices: number
     actionableLocalRows: number
     strictReleaseBoundaryPreserved: boolean
@@ -139,6 +144,7 @@ function isApplicationAcceptanceJsonReport(value: unknown): value is Application
     hasNumberKeys(value.summary, [
       'applicationPreflightExitCode',
       'applicationGalleryExitCode',
+      'wechatStyleSamplesExitCode',
       'wechatManualChecklistExitCode',
       'wechatManualTemplateExitCode',
       'wechatManualManifestDraftsExitCode',
@@ -159,6 +165,10 @@ function isApplicationAcceptanceJsonReport(value: unknown): value is Application
       'wechatStyleChoiceCount',
       'wechatUsableChoiceCount',
       'wechatSelectableChoiceCount',
+      'wechatRenderedStyleChoiceCount',
+      'wechatStyleSampleIssueCount',
+      'wechatStyleSampleSvgBearingChoiceCount',
+      'wechatStyleSampleTotalSvgModuleCount',
       'usableButUnselectableWechatChoices',
       'actionableLocalRows',
     ]) &&
@@ -206,6 +216,7 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
       summary: {
         applicationPreflightExitCode: 0,
         applicationGalleryExitCode: 0,
+        wechatStyleSamplesExitCode: 0,
         wechatManualChecklistExitCode: 0,
         wechatManualTemplateExitCode: 0,
         wechatManualManifestDraftsExitCode: 0,
@@ -225,6 +236,10 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
         wechatStyleChoiceCount: 17,
         wechatUsableChoiceCount: 8,
         wechatSelectableChoiceCount: 13,
+        wechatRenderedStyleChoiceCount: 13,
+        wechatStyleSampleIssueCount: 0,
+        wechatStyleSampleSvgBearingChoiceCount: 13,
+        wechatStyleSampleTotalSvgModuleCount: 45,
         usableButUnselectableWechatChoices: 0,
         actionableLocalRows: 0,
         strictReleaseBoundaryPreserved: true,
@@ -236,12 +251,16 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
       },
     })
     expect(report.summary.strictReleaseExitCode).not.toBe(0)
+    expect(report.summary.wechatStyleSampleTotalSvgModuleCount).toBeGreaterThanOrEqual(
+      report.summary.wechatRenderedStyleChoiceCount,
+    )
     expect(report.summary.wechatSelectableChoiceCount).toBeGreaterThan(report.summary.wechatUsableChoiceCount)
     expect(report.summary.wechatSelectableChoiceCount).toBeLessThan(report.summary.wechatStyleChoiceCount)
     expect(report.summary.usableButUnselectableWechatChoices).toBe(0)
     expect(report.checks.map(check => check.id)).toEqual([
       'application-preflight',
       'wechat-style-readiness',
+      'wechat-style-export-samples',
       'application-gallery',
       'wechat-manual-checklist',
       'wechat-manual-template',
@@ -252,6 +271,10 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(report.checks.find(check => check.id === 'wechat-style-readiness')).toMatchObject({
       status: 'wechat-style-ready',
       command: 'style-proof:application-preflight --json',
+    })
+    expect(report.checks.find(check => check.id === 'wechat-style-export-samples')).toMatchObject({
+      status: 'wechat-style-samples-ready',
+      command: 'style-proof:wechat-style-samples --json',
     })
     expect(report.checks.find(check => check.id === 'strict-release-boundary')).toMatchObject({
       status: 'blocked-by-external',

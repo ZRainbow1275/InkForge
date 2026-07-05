@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { ARTICLE_STATUS } from './article-status';
+
+export { ARTICLE_STATUS } from './article-status';
 
 /**
  * Zod Schema Definitions
@@ -14,20 +17,6 @@ import { z } from 'zod';
 // ═══════════════════════════════════════════════════════════════════
 // 核心常量定义（Single Source of Truth）
 // ═══════════════════════════════════════════════════════════════════
-
-/** 文章状态枚举 - 核心定义 */
-export const ARTICLE_STATUS = {
-    DRAFT: 'draft',
-    WRITING: 'writing',
-    UNDER_REVIEW: 'under_review',
-    READY_TO_PUBLISH: 'ready_to_publish',
-    PUBLISHED: 'published',
-    ARCHIVED: 'archived',
-    TRASHED: 'trashed',
-    NEW: 'new',
-    READ: 'read',
-    PROCESSED: 'processed'
-} as const;
 
 // ═══════════════════════════════════════════════════════════════════
 // Shared Schemas

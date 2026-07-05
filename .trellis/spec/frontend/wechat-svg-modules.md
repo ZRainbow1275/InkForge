@@ -15703,8 +15703,9 @@ and merge after real, redacted external proof exists.
 
 - Application acceptance remains `notProof:true`.
 - `canClaimApplicationReady` may be true only when application preflight, WeChat style readiness,
-  gallery readiness, WeChat manual checklist readiness, WeChat manual template readiness, WeChat
-  manual manifest-draft readiness, and strict release-boundary preservation all pass.
+  WeChat style export-sample readiness, gallery readiness, WeChat manual checklist readiness,
+  WeChat manual template readiness, WeChat manual manifest-draft readiness, and strict
+  release-boundary preservation all pass.
 - `canClaimReleaseComplete` must remain false while strict release proof is blocked externally.
 - The manual checklist child check must validate:
   - checklist exit code is 0;
@@ -15753,9 +15754,9 @@ and merge after real, redacted external proof exists.
 
 ### 5. Good/Base/Bad Cases
 
-- Good: `style-proof:application-acceptance --json` exits 0 with seven passing checks, including
-  `wechat-style-readiness`, `wechat-manual-checklist`, `wechat-manual-template`, and
-  `wechat-manual-manifest-drafts`.
+- Good: `style-proof:application-acceptance --json` exits 0 with eight passing checks, including
+  `wechat-style-readiness`, `wechat-style-export-samples`, `wechat-manual-checklist`,
+  `wechat-manual-template`, and `wechat-manual-manifest-drafts`.
 - Base: `style-proof:wechat-manual-checklist` remains separately runnable for operators.
 - Base: `style-proof:wechat-manual-handoff` remains separately runnable for operators who need
   the proof template packet before collecting external evidence.
@@ -15767,9 +15768,9 @@ and merge after real, redacted external proof exists.
 
 ### 6. Tests Required
 
-- Regression tests must assert the new summary fields, the seven-check order, the checklist
-  command, template command, manifest-drafts command, and help text mentioning WeChat manual
-  checklist readiness.
+- Regression tests must assert the new summary fields, the eight-check order, the style sample
+  command, checklist command, template command, manifest-drafts command, and help text mentioning
+  WeChat manual checklist readiness.
 - Direct smoke must confirm application acceptance exits 0 with
   `wechatManualChecklistExitCode=0`, `wechatManualTemplateExitCode=0`,
   `wechatManualManifestDraftsExitCode=0`, `status=application-acceptance-ready`,
@@ -15788,7 +15789,7 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
 #### Correct
 
 ```json
-{"checks":[{"id":"application-preflight"},{"id":"wechat-style-readiness"},{"id":"application-gallery"},{"id":"wechat-manual-checklist"},{"id":"wechat-manual-template"},{"id":"wechat-manual-manifest-drafts"},{"id":"strict-release-boundary"}]}
+{"checks":[{"id":"application-preflight"},{"id":"wechat-style-readiness"},{"id":"wechat-style-export-samples"},{"id":"application-gallery"},{"id":"wechat-manual-checklist"},{"id":"wechat-manual-template"},{"id":"wechat-manual-manifest-drafts"},{"id":"strict-release-boundary"}]}
 ```
 
 ## 315. Application Acceptance Exposes WeChat Style Readiness Counts - 2026-07-05
@@ -15819,12 +15820,21 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
   - `wechatUsableChoiceCount`;
   - `wechatSelectableChoiceCount`;
   - `usableButUnselectableWechatChoices`;
-  - `actionableLocalRows`.
+  - `actionableLocalRows`;
+  - `wechatRenderedStyleChoiceCount`;
+  - `wechatStyleSampleIssueCount`;
+  - `wechatStyleSampleSvgBearingChoiceCount`;
+  - `wechatStyleSampleTotalSvgModuleCount`.
 - `canClaimApplicationReady` may be true only when:
   - `checks[]` includes `id:"wechat-style-readiness"` with `status:"wechat-style-ready"`;
+  - `checks[]` includes `id:"wechat-style-export-samples"` with
+    `status:"wechat-style-samples-ready"`;
   - all WeChat SVG slot, UI surface, export pipeline, and option injection failure counts are 0;
   - `wechatStyleChoiceCount > 0`;
   - `wechatSelectableChoiceCount > 0`;
+  - `wechatRenderedStyleChoiceCount === wechatSelectableChoiceCount`;
+  - `wechatStyleSampleIssueCount === 0`;
+  - `wechatStyleSampleSvgBearingChoiceCount === wechatSelectableChoiceCount`;
   - `usableButUnselectableWechatChoices === 0`;
   - `actionableLocalRows === 0`;
   - `boundary.xhsZhihuPublishAutomationDeferred === true`;
@@ -15836,26 +15846,32 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
 
 - Good: application acceptance exits 0 with
   `wechatStyleChoiceCount=17`, `wechatUsableChoiceCount=8`, `wechatSelectableChoiceCount=13`,
-  all WeChat application failure counts 0, `usableButUnselectableWechatChoices=0`, and
+  `wechatRenderedStyleChoiceCount=13`, `wechatStyleSampleIssueCount=0`,
+  `wechatStyleSampleSvgBearingChoiceCount=13`, `wechatStyleSampleTotalSvgModuleCount=45`, all
+  WeChat application failure counts 0, `usableButUnselectableWechatChoices=0`, and
   `actionableLocalRows=0`.
 - Base: strict release remains `blocked-by-external`; the aggregate can report local application
   readiness but cannot report release completion.
 - Bad: the aggregate omits these fields, reports selectable WeChat rows as 0, has any WeChat
-  application failure count, omits the dedicated `wechat-style-readiness` check row, or loses the
-  XHS/Zhihu manual deferral boundary.
+  application failure count, omits the dedicated `wechat-style-readiness` or
+  `wechat-style-export-samples` check row, has style sample issues, or loses the XHS/Zhihu manual
+  deferral boundary.
 
 ### 4. Tests Required
 
 - Regression tests must assert:
   - the JSON shape requires every WeChat style/readiness count;
   - the current good counts are present in the aggregate report;
-  - the check order includes `wechat-style-readiness` immediately after `application-preflight`;
+  - the check order includes `wechat-style-readiness` immediately after `application-preflight`
+    and `wechat-style-export-samples` immediately after `wechat-style-readiness`;
+  - `wechatRenderedStyleChoiceCount` equals `wechatSelectableChoiceCount`;
+  - `wechatStyleSampleIssueCount` remains 0;
   - `wechatSelectableChoiceCount` is greater than proof-usable choices but lower than all style
     choices, proving local fallback application is distinct from proof completion;
   - `usableButUnselectableWechatChoices` remains 0.
 - Direct smoke must confirm `style-proof:application-acceptance --json` exits 0 with
   `application-acceptance-ready`, `canClaimApplicationReady=true`,
-  `canClaimReleaseComplete=false`, and the WeChat style readiness counts above.
+  `canClaimReleaseComplete=false`, and the WeChat style readiness/export-sample counts above.
 
 ### 5. Cannot-Claim Boundary
 
@@ -15863,4 +15879,133 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
 - It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 316. WeChat Style Export Samples Gate - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed round target requires not only selectable WeChat style rows in the UI,
+  but proof that every selectable row can render through the real InkForge WeChat export pipeline
+  with application SVG options enabled.
+- This rule applies to `src/services/export/wechat-style-export-samples.ts`,
+  `scripts/style-proof-wechat-style-samples.ts`, `scripts/style-proof-application-acceptance.ts`,
+  `package.json`, and their regression tests.
+- This gate is local and read-only. It must not open a browser, paste into WeChat, upload, sync,
+  schedule, publish, or create phone/account proof.
+
+### 2. Signatures
+
+- Package command:
+
+```bash
+pnpm style-proof:wechat-style-samples [--json]
+```
+
+- Service API:
+
+```typescript
+createWechatStyleExportSamplesReport(): Promise<WechatStyleExportSamplesReport>
+formatWechatStyleExportSamplesReportText(report: WechatStyleExportSamplesReport): string
+```
+
+- JSON status:
+
+```typescript
+type WechatStyleExportSamplesStatus =
+  | 'wechat-style-samples-ready'
+  | 'wechat-style-samples-blocked'
+```
+
+### 3. Contracts
+
+- `style-proof:wechat-style-samples --json` emits `notProof:true`,
+  `scope:"wechat-style-export-samples"`, and `status:"wechat-style-samples-ready"` only when all
+  selectable WeChat style rows render without issues.
+- The current good summary is:
+  - `wechatStyleChoiceCount === 17`;
+  - `selectableStyleChoiceCount === 13`;
+  - `renderedStyleChoiceCount === 13`;
+  - `svgBearingStyleChoiceCount === 13`;
+  - `totalSvgModuleCount === 45`;
+  - `issueCount === 0`.
+- Samples must use the real `convertToWechatWithStats()` path on representative pre-rendered HTML
+  and enable `createDefaultWechatSvgInjectionPlan()` through `WechatExportOptions`.
+- Each sample records `choiceId`, `presetId`, `htmlLength`, `htmlSha256`, `svgModuleCount`,
+  `svgModuleIds`, and export `stats`.
+
+### 4. Validation & Error Matrix
+
+- Empty output HTML -> `empty-html`.
+- Missing `section#nice` root -> `missing-nice-root`.
+- Missing `data-wechat-clamp="1"` -> `missing-wechat-clamp`.
+- Missing `max-width:677px` responsive clamp -> `missing-responsive-max-width`.
+- Any `<script>` tag -> `forbidden-script`.
+- Any `<style>` tag after inlining -> `forbidden-style`.
+- Any `foreignObject` -> `forbidden-foreign-object`.
+- No `data-ink-svg` section -> `missing-svg-application-module`.
+- SVG section missing `width="100%"` -> `svg-section-missing-responsive-width`.
+- SVG section missing `viewBox` -> `svg-section-missing-viewbox`.
+- `checkWechatSafe()` violation -> `wechat-safe-violation`.
+- Missing application preset mapping or missing mapped preset -> `missing-preset`.
+- Export exception -> `render-error`.
+
+### 5. Good / Base / Bad Cases
+
+- Good: `style-proof:wechat-style-samples --json` exits 0 with
+  `status:"wechat-style-samples-ready"`, 13 samples, 45 total SVG modules, and no issues.
+- Base: `style-proof:application-acceptance --json` includes a
+  `wechat-style-export-samples` check immediately after `wechat-style-readiness`.
+- Base: the check confirms selectable/rendered/SVG-bearing style counts match
+  `wechatSelectableChoiceCount` from the application preflight.
+- Bad: application acceptance reports local application readiness while the style sample command
+  is missing, exits non-zero, emits invalid JSON, reports issues, or renders fewer selectable
+  WeChat styles than the preflight says are selectable.
+
+### 6. Tests Required
+
+- Service regression must assert the current 17/13/13/13/45/0 summary, the exact 13 selectable
+  WeChat `choiceId` values, per-sample SHA-256 fingerprints, non-empty HTML length, SVG module
+  presence, and export stats.
+- CLI regression must assert JSON shape, help text, unknown-option exit code 2, one-line JSON
+  output, 13 samples, and non-empty SVG modules.
+- Application acceptance regression must assert the new check order, command label
+  `style-proof:wechat-style-samples --json`, summary pass-through fields, and preserved
+  `canClaimReleaseComplete:false`.
+- Direct smoke must run:
+
+```bash
+pnpm --silent -C inkforge style-proof:wechat-style-samples --json
+pnpm --silent -C inkforge style-proof:application-acceptance --json
+```
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```typescript
+const ready = selectableRows.length > 0
+```
+
+This only proves the catalog has rows. It does not prove the rows can render through the WeChat
+export path with application SVG modules enabled.
+
+#### Correct
+
+```typescript
+const ready = summary.issueCount === 0 &&
+  summary.selectableStyleChoiceCount > 0 &&
+  summary.renderedStyleChoiceCount === summary.selectableStyleChoiceCount &&
+  summary.svgBearingStyleChoiceCount === summary.selectableStyleChoiceCount
+```
+
+This preserves the narrowed local objective: every selectable WeChat style must render through the
+real exporter and carry at least one WeChat-safe SVG module.
+
+### 8. Cannot-Claim Boundary
+
+- Passing this gate proves only local WeChat style-choice to export-HTML/SVG sample readiness.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

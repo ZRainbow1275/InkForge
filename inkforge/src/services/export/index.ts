@@ -209,6 +209,21 @@ export {
   sliceMarkdownToXhsCards,
 } from './svg-modules/xhs-card-slicer'
 
+export type {
+  WechatStyleExportSample,
+  WechatStyleExportSampleIssue,
+  WechatStyleExportSampleIssueId,
+  WechatStyleExportSampleStats,
+  WechatStyleExportSamplesReport,
+  WechatStyleExportSamplesStatus,
+  WechatStyleExportSamplesSummary,
+} from './wechat-style-export-samples'
+
+export {
+  createWechatStyleExportSamplesReport,
+  formatWechatStyleExportSamplesReportText,
+} from './wechat-style-export-samples'
+
 // 主题相关导出
 export {
   themePresets,
