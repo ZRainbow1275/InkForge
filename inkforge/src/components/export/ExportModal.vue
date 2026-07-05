@@ -179,6 +179,7 @@ interface StyleChoiceDisplay {
 const props = defineProps<{
   visible: boolean
   content: string
+  initialPlatform?: Platform
 }>()
 
 const emit = defineEmits<{
@@ -186,7 +187,14 @@ const emit = defineEmits<{
 }>()
 
 // ─── Platform ────────────────────────────────────────────
-const selectedPlatform = ref<Platform>('wechat')
+function normalizeInitialPlatform(platform: Platform | undefined): Platform {
+  if (platform === 'wechat' || platform === 'xiaohongshu' || platform === 'zhihu') {
+    return platform
+  }
+  return 'wechat'
+}
+
+const selectedPlatform = ref<Platform>(normalizeInitialPlatform(props.initialPlatform))
 const platformInfo = computed(() => PLATFORMS.find(p => p.id === selectedPlatform.value)!)
 
 // ─── Presets (per-platform memory) ───────────────────────
@@ -1512,6 +1520,15 @@ const preflightRows = computed<PreflightRow[]>(() => {
 })
 
 let renderVersion = 0
+
+watch(
+  () => props.visible,
+  (visible, wasVisible) => {
+    if (visible && !wasVisible) {
+      selectedPlatform.value = normalizeInitialPlatform(props.initialPlatform)
+    }
+  },
+)
 
 watch(
   [() => props.content, () => props.visible, selectedPlatform, selectedPresetId, exportOptions],

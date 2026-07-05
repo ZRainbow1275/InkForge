@@ -312,6 +312,20 @@ async function openFlagshipExportPreview(flagshipName) {
 }
 
 async function openExportPanel(platformLabel = '微信') {
+  await openExportPanelOnly();
+
+  const selected = await browser.execute((label) => {
+    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
+    const target = pills.find((p) => (p.textContent || '').includes(label)) || pills[0];
+    if (!target) return false;
+    if (!target.classList.contains('active')) target.click();
+    return true;
+  }, platformLabel);
+  expect(selected, `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
+  await browser.pause(400);
+}
+
+async function openExportPanelOnly() {
   // Click 全屏导出 to open the ExportModal.
   await browser.execute(() => {
     const btn = document.querySelector('.panel-stage .stage-btn-secondary');
@@ -332,16 +346,6 @@ async function openExportPanel(platformLabel = '微信') {
       timeoutMsg: 'ExportModal (.export-panel + .preset-card) never mounted',
     },
   );
-
-  const selected = await browser.execute((label) => {
-    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
-    const target = pills.find((p) => (p.textContent || '').includes(label)) || pills[0];
-    if (!target) return false;
-    if (!target.classList.contains('active')) target.click();
-    return true;
-  }, platformLabel);
-  expect(selected, `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
-  await browser.pause(400);
 }
 
 async function selectExportPlatform(platformLabel) {
@@ -427,6 +431,60 @@ async function closeExportModal() {
   );
 }
 
+async function closeExportModalIfOpen() {
+  const open = await browser.execute(() => Boolean(document.querySelector('.export-panel')));
+  if (open) {
+    await closeExportModal();
+  }
+}
+
+async function setDefaultExportPlatform(platform) {
+  return browser.execute((nextPlatform) => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      if (!app || !app._context || !app._context.provides) return null;
+      const provides = app._context.provides;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    const pinia = findPinia();
+    const settingsStore = pinia && pinia._s.get('settings');
+    if (!settingsStore || !settingsStore.settings || typeof settingsStore.save !== 'function') {
+      return { ok: false, reason: 'SETTINGS-STORE-MISSING' };
+    }
+
+    const original = settingsStore.settings.export.defaultPlatform;
+    settingsStore.settings.export.defaultPlatform = nextPlatform;
+    settingsStore.save();
+    return {
+      ok: true,
+      original,
+      current: settingsStore.settings.export.defaultPlatform,
+    };
+  }, platform);
+}
+
+async function getActiveStagePlatformLabel() {
+  return browser.execute(() => {
+    const active = document.querySelector('.panel-stage .stage-tab.active');
+    return (active?.textContent || '').trim().replace(/\s+/g, ' ');
+  });
+}
+
+async function getActiveExportPlatformLabel() {
+  return browser.execute(() => {
+    const active = document.querySelector('.export-panel .pill-btn.active');
+    return (active?.textContent || '').trim().replace(/\s+/g, ' ');
+  });
+}
+
 function ensureEvidenceDir() {
   try {
     fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
@@ -441,6 +499,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
   let seeded = false;
   let seedFailureReason = '';
   let exportReady = false;
+  let seededArticleId = '';
 
   before(async () => {
     ensureEvidenceDir();
@@ -470,6 +529,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       return;
     }
     seeded = true;
+    seededArticleId = seedResult.articleId;
 
     // 4. Reach the Stage export control with the seeded draft selected.
     const reach = await reachWorkstationExport(seedResult.articleId);
@@ -498,6 +558,48 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       return this.skip();
     }
     expect(exportReady, '全屏导出 button is enabled (editor status ready)').to.equal(true);
+  });
+
+  it('uses the persisted Settings default export platform as the Workstation and ExportModal initial platform', async function () {
+    if (!exportReady) {
+      // eslint-disable-next-line no-console
+      console.warn(`[svg-render] default export platform skip — ${seedFailureReason}`);
+      return this.skip();
+    }
+
+    let originalPlatform = 'wechat';
+    const setResult = await setDefaultExportPlatform('zhihu');
+    expect(setResult.ok, setResult.reason || 'settings export.defaultPlatform write').to.equal(true);
+    originalPlatform = setResult.original || originalPlatform;
+    expect(setResult.current, 'settings store should persist the requested default platform').to.equal('zhihu');
+
+    try {
+      await closeExportModalIfOpen();
+      await browser.execute(() => {
+        window.history.pushState({}, '', '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await browser.pause(500);
+
+      const reach = await reachWorkstationExport(seededArticleId);
+      expect(reach.ready, reach.reason || 'workstation export button should be ready after remount').to.equal(true);
+
+      const stagePlatform = await getActiveStagePlatformLabel();
+      expect(stagePlatform, 'Workstation Stage should initialize from settings.export.defaultPlatform').to.include('知乎');
+
+      await openExportPanelOnly();
+      const modalPlatform = await getActiveExportPlatformLabel();
+      expect(modalPlatform, 'ExportModal should initialize from settings.export.defaultPlatform').to.include('知乎');
+    } finally {
+      await closeExportModalIfOpen();
+      await setDefaultExportPlatform(originalPlatform);
+      await browser.execute(() => {
+        window.history.pushState({}, '', '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await browser.pause(300);
+      await reachWorkstationExport(seededArticleId);
+    }
   });
 
   it('surfaces style capability gates for all platforms in the real ExportModal', async function () {

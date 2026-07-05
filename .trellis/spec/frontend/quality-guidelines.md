@@ -142,6 +142,12 @@ and still run the narrow checks for the touched scope.
 - Browser smoke must use a real Workstation article and real uploaded local image files. At minimum verify `.asset-image-node` rendering, Blob-backed local image `src`, five alignment buttons, caption attrs, safe link attrs, resize width/height attrs, replace-image upload through the Asset Pipeline, Source-mode hidden toolbar, and fresh console-error logs are clean.
 
 
+## ExportSettings Quality Gate
+
+- Settings `export.defaultPlatform` is the authority for initial export platform selection. Do not hardcode `wechat` as the initial Workstation Stage or ExportModal platform when a persisted Settings value exists.
+- ExportModal may accept an initial platform from the host surface, but it must not keep overriding the platform after the user manually switches platform while the modal remains open. Re-seed from Settings only on modal open or route/surface initialization.
+- Browser smoke must use a real Workstation article and real Settings/Pinia persistence. At minimum set a non-WeChat default platform, remount Workstation, verify Stage and ExportModal initial platform, restore the original setting, and verify no XHS/Zhihu/WeChat publish action or external upload is claimed.
+
 ## CustomCSS Quality Gate
 
 - Do not accept a CustomCSS change unless runtime CSS is scoped to `.editor-content` through `src/services/custom-css/sandbox.ts`; raw string concatenation or direct chrome-wide selector injection is forbidden.

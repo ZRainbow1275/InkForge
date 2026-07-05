@@ -206,3 +206,17 @@ Boundary: this closes `DSK-006` for the text clipboard boundary only. It does no
 | 2026-07-05 | Current-round user boundary | XHS/Zhihu publish-side automation is not part of this automatic acceptance pass; those platform publish checks are manual/operator-owned. The automated claim is limited to local application of SVG/style rules, honest unsupported upload states, and WeChat-focused render/style gates. |
 | 2026-07-05 | Real binary evidence reused | `pnpm -C inkforge test:e2e` passed 3 specs / 20 tests. `svg-render.spec.cjs` passed 6/6 with real draft seeding, real ExportModal platform controls, WeChat/XHS/Zhihu local style capability readback, WeChat flagship Kiln/Tempera/Amber SVG injection, and mobile-comfort CJK line-width proof. |
 | 2026-07-05 | Matrix update | `CMP-EXPORT-001` is marked `fixed` against `F-EXP-001`. This does not claim account upload, scheduled send, XHS publish, Zhihu publish, or WeChat phone preview success. |
+
+### 2026-07-05 Settings Default Export Platform Boundary
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Reproduction for `SET-EXPORT-001` | Code audit found `SettingsView` persisted `settings.export.defaultPlatform`, but `WorkstationView` and `ExportModal` both initialized local platform state from hardcoded `wechat`. A changed default platform therefore did not drive the actual export surface. |
+| 2026-07-05 | GitNexus impact | `selectedPlatform` in `WorkstationView.vue` and `ExportModal.vue` each returned LOW risk / 0 affected processes. `openExportModal` returned LOW risk / 0 affected processes. |
+| 2026-07-05 | Repair | `WorkstationView` now initializes its Stage platform from `settingsStore.settings.export.defaultPlatform`; `ExportModal` receives `initialPlatform` and re-seeds its selected platform on open, without overriding manual in-modal selection while the modal remains open. |
+| 2026-07-05 | Targeted lint/typecheck | `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/views/WorkstationView.vue tests/e2e/specs/svg-render.spec.cjs --quiet` PASS. `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` PASS. |
+| 2026-07-05 | Production web build | `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` PASS. |
+| 2026-07-05 | Targeted real Tauri/WebDriver replay | `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs` PASS: 7/7. The new test writes `export.defaultPlatform=zhihu` through the real Settings Pinia store, remounts Workstation with a real seeded draft, observes Stage=`知乎`, opens ExportModal without platform clicking, observes active platform pill=`知乎`, restores the original setting, and then continues the SVG style assertions. |
+| 2026-07-05 | Full real Tauri/WebDriver replay | `pnpm -C inkforge test:e2e` PASS: 3 specs / 21 tests. `native-runtime.spec.cjs` 3/3, `svg-render.spec.cjs` 7/7, `visual.spec.cjs` 11/11. |
+
+Boundary: this closes the default export platform local-application path only. It does not claim XHS/Zhihu publish, WeChat phone preview, scheduled send, account upload, or external platform success.

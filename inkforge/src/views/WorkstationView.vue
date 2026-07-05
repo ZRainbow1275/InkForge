@@ -1091,7 +1091,7 @@ const currentFontStack = computed(() => {
 })
 
 // 鈹€鈹€鈹€ 骞冲彴閫夋嫨 鈹€鈹€鈹€
-const selectedPlatform = ref<Platform>('wechat')
+const selectedPlatform = ref<Platform>(settingsStore.settings.export.defaultPlatform)
 
 const platformOptions: { value: Platform; label: string }[] = [
   { value: 'wechat', label: '微信' },
@@ -3435,6 +3435,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     <ExportModal
       :visible="showExportModal"
       :content="normalizedBody"
+      :initial-platform="settingsStore.settings.export.defaultPlatform"
       @close="showExportModal = false"
     />
     <FocusSessionSummaryModal
