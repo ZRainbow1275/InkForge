@@ -73,6 +73,195 @@ async function readDesktopRuntimeUi() {
   });
 }
 
+async function readAuditActionCounts() {
+  return browser.execute(() => {
+    const actions = ['updater.user-check', 'command.execute'];
+
+    return new Promise((resolve) => {
+      const request = window.indexedDB.open('InkForgeDB');
+
+      request.onerror = () => {
+        resolve({
+          ok: false,
+          reason: request.error ? request.error.message : 'indexeddb-open-failed',
+          counts: Object.fromEntries(actions.map((action) => [action, 0])),
+          latest: {},
+        });
+      };
+
+      request.onsuccess = () => {
+        const database = request.result;
+        if (!database.objectStoreNames.contains('auditLogs')) {
+          database.close();
+          resolve({
+            ok: true,
+            counts: Object.fromEntries(actions.map((action) => [action, 0])),
+            latest: {},
+          });
+          return;
+        }
+
+        const transaction = database.transaction('auditLogs', 'readonly');
+        const store = transaction.objectStore('auditLogs');
+        const all = store.getAll();
+
+        all.onerror = () => {
+          database.close();
+          resolve({
+            ok: false,
+            reason: all.error ? all.error.message : 'auditLogs-read-failed',
+            counts: Object.fromEntries(actions.map((action) => [action, 0])),
+            latest: {},
+          });
+        };
+
+        all.onsuccess = () => {
+          const rows = Array.isArray(all.result) ? all.result : [];
+          const counts = Object.fromEntries(actions.map((action) => [
+            action,
+            rows.filter((row) => row && row.action === action).length,
+          ]));
+          const latest = Object.fromEntries(actions.map((action) => {
+            const entry = rows
+              .filter((row) => row && row.action === action)
+              .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0] || null;
+            return [action, entry];
+          }));
+
+          database.close();
+          resolve({ ok: true, counts, latest });
+        };
+      };
+    });
+  });
+}
+
+async function readUpdaterCommandProbe() {
+  return browser.execute(() => {
+    function clone(value) {
+      if (value === null || value === undefined) return value;
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch {
+        return null;
+      }
+    }
+
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      const provides = app && app._context && app._context.provides;
+      if (!provides) return null;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    const pinia = findPinia();
+    const updaterStore = pinia && pinia._s.get('updater');
+    const section = document.querySelector('[data-settings-entry="about.updater"]');
+    const activeCommand = document.querySelector('#command-palette-option-updater\\.checkUpdates, [id="command-palette-option-updater.checkUpdates"]');
+
+    return {
+      pathname: location.pathname,
+      search: location.search,
+      commandPaletteOpen: Boolean(document.querySelector('.cp-overlay')),
+      activeCommandText: activeCommand?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      sectionExists: Boolean(section),
+      sectionText: section?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      visibleButtonsWithoutType: Array.from(section?.querySelectorAll('button') ?? [])
+        .filter((button) => button.offsetParent !== null && button.getAttribute('type') !== 'button')
+        .map((button) => button.textContent?.trim().replace(/\s+/g, ' ') ?? button.className),
+      updaterStoreExists: Boolean(updaterStore),
+      status: updaterStore?.status ?? null,
+      busy: Boolean(updaterStore?.busy),
+      actionMessage: clone(updaterStore?.actionMessage ?? null),
+      lastResult: clone(updaterStore?.lastResult ?? null),
+      updaterSettings: clone(updaterStore?.updaterSettings ?? null),
+    };
+  });
+}
+
+async function runUpdaterCommandPaletteProbe() {
+  const beforeAudit = await readAuditActionCounts();
+
+  await browser.execute(() => {
+    window.dispatchEvent(new window.KeyboardEvent('keydown', {
+      key: 'k',
+      code: 'KeyK',
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    }));
+  });
+
+  await browser.waitUntil(
+    async () => browser.execute(() => Boolean(document.querySelector('.cp-overlay .cp-search-input'))),
+    {
+      timeout: 8_000,
+      interval: 200,
+      timeoutMsg: 'command palette did not open from Ctrl+K shortcut',
+    },
+  );
+
+  const input = await browser.$('.cp-search-input');
+  await input.setValue('Updater: Check');
+
+  await browser.waitUntil(
+    async () => {
+      const probe = await readUpdaterCommandProbe();
+      return probe.activeCommandText.includes('Updater: Check for Updates');
+    },
+    {
+      timeout: 8_000,
+      interval: 200,
+      timeoutMsg: 'updater command did not appear in Command Palette search results',
+    },
+  );
+
+  const clicked = await browser.execute(() => {
+    const target =
+      document.getElementById('command-palette-option-updater.checkUpdates') ||
+      Array.from(document.querySelectorAll('.cp-item'))
+        .find((item) => (item.textContent || '').includes('Updater: Check for Updates'));
+    if (!target) return false;
+    target.click();
+    return true;
+  });
+  expect(clicked, 'Updater command should be clickable from the real Command Palette').to.equal(true);
+
+  await browser.waitUntil(
+    async () => {
+      const probe = await readUpdaterCommandProbe();
+      if (!probe.sectionExists || probe.busy || probe.commandPaletteOpen) {
+        return false;
+      }
+      const audit = await readAuditActionCounts();
+      return (
+        probe.lastResult?.source === 'manual' &&
+        audit.counts['updater.user-check'] > beforeAudit.counts['updater.user-check'] &&
+        audit.counts['command.execute'] > beforeAudit.counts['command.execute']
+      );
+    },
+    {
+      timeout: 15_000,
+      interval: 300,
+      timeoutMsg: 'updater command did not finish with settings section and audit evidence',
+    },
+  );
+
+  const afterAudit = await readAuditActionCounts();
+  return {
+    beforeAudit,
+    afterAudit,
+    probe: await readUpdaterCommandProbe(),
+  };
+}
+
 async function runDesktopStoreProbe() {
   return browser.execute(async () => {
     function findPinia() {
@@ -243,6 +432,57 @@ describe('InkForge — native desktop runtime boundary', () => {
     expect(capability('File Watcher')?.state, 'file-watch planned state is honest').to.equal('planned');
     expect(capability('Update Notification')?.state, 'updater planned state is honest without fake release endpoint').to.equal('planned');
     expect(capability('Package Signing')?.state, 'package signing planned/local release boundary').to.equal('planned');
+  });
+
+  it('Command Palette manual updater check opens Settings About and writes honest audit evidence', async () => {
+    const result = await runUpdaterCommandPaletteProbe();
+    const { probe, beforeAudit, afterAudit } = result;
+
+    expect(probe.updaterStoreExists, 'updater store should be instantiated by the real app root').to.equal(true);
+    expect(probe.commandPaletteOpen, 'command palette closes after a successful command').to.equal(false);
+    expect(probe.pathname, 'command routes to Settings').to.equal('/settings');
+    expect(probe.search, 'command routes directly to About updater section').to.include('tab=about');
+    expect(probe.search, 'command routes directly to About updater section').to.include('section=updater');
+    expect(probe.sectionExists, 'Settings About updater section renders').to.equal(true);
+    expect(probe.visibleButtonsWithoutType, 'updater buttons keep explicit non-submit type').to.deep.equal([]);
+
+    expect(probe.lastResult?.source, 'manual command calls updaterStore.checkNow').to.equal('manual');
+    expect(probe.lastResult?.status, 'unconfigured local updater must not fake update success').to.equal('disabled');
+    expect(
+      ['build-config', 'runtime-unavailable', 'env', 'user-setting', 'offline'],
+      `typed disabled reason: ${probe.lastResult?.disabledReason}`,
+    ).to.include(probe.lastResult?.disabledReason);
+    expect(probe.status, 'store status mirrors typed updater result').to.equal('disabled');
+    expect(probe.updaterSettings?.lastCheckAt, 'manual check writes lastCheckAt to Settings').to.be.a('string').and.not.equal('');
+    expect(probe.updaterSettings?.lastStatus, 'Settings stores typed updater status').to.equal('disabled');
+    expect(probe.updaterSettings?.lastDisabledReason, 'Settings stores typed disabled reason')
+      .to.equal(probe.lastResult.disabledReason);
+    expect(probe.actionMessage?.type, 'manual disabled result is surfaced as informational feedback').to.equal('info');
+    expect(probe.actionMessage?.text, 'manual command surfaces a user-visible updater message')
+      .to.be.a('string').and.not.equal('');
+    expect(probe.sectionText, 'Settings updater section remains explicit about not installing updates')
+      .to.include('install/download/relaunch API');
+
+    expect(
+      afterAudit.counts['updater.user-check'],
+      'manual updater check writes updater.user-check audit evidence',
+    ).to.be.greaterThan(beforeAudit.counts['updater.user-check']);
+    expect(
+      afterAudit.latest['updater.user-check']?.payload?.source,
+      'updater audit payload records manual source',
+    ).to.equal('manual');
+    expect(
+      afterAudit.latest['updater.user-check']?.payload?.status,
+      'updater audit payload records the typed disabled result',
+    ).to.equal('disabled');
+    expect(
+      afterAudit.counts['command.execute'],
+      'Command Palette records successful command execution through the audit ledger',
+    ).to.be.greaterThan(beforeAudit.counts['command.execute']);
+    expect(
+      afterAudit.latest['command.execute']?.payload?.commandId,
+      'command audit payload records the updater command id',
+    ).to.equal('updater.checkUpdates');
   });
 
   it('desktop store calls real native commands and fails closed for unsafe or missing inputs', async () => {

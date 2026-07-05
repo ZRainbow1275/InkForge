@@ -171,6 +171,7 @@ and still run the narrow checks for the touched scope.
 - Release-note rendering must pass through the updater markdown sanitizer and the shared security HTML sanitizer before display. Non-whitelisted image URLs must be stripped instead of trusted.
 - Required commands before closing an updater task: `pnpm exec vitest run src/services/updater/updater.test.ts`, `pnpm exec vue-tsc --noEmit`, `pnpm exec eslint src --ext .ts,.tsx,.vue --quiet`, `pnpm vitest run`, and `NODE_OPTIONS=--max-old-space-size=4096 pnpm build` when the default heap cannot complete the production build.
 - Browser smoke must use the real Settings UI and real Command Palette path. At minimum verify `Settings > About > Tauri Updater`, command `Updater: Check for Updates`, disabled/unavailable web behavior, audit/activity log evidence, fresh console-error logs, and no updater toast unless a real signed update exists.
+- Command Palette updater commands must keep command metadata, icon registration, Settings route state, store status, persisted Settings status, and audit evidence in one regression. If a command declares a Lucide icon name, register the component in `CommandPalette.vue` instead of accepting a fallback icon as proof.
 
 ## DesktopRuntime Quality Gate
 
