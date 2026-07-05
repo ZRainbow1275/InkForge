@@ -131,6 +131,76 @@ async function runDesktopStoreProbe() {
   });
 }
 
+async function runClipboardTextProbe() {
+  return browser.execute(async () => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      const provides = app && app._context && app._context.provides;
+      if (!provides) return null;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    const pinia = findPinia();
+    const desktopStore = pinia && pinia._s.get('desktop');
+    if (!desktopStore) {
+      return {
+        ok: false,
+        reason: 'DESKTOP-STORE-MISSING',
+      };
+    }
+
+    const original = await desktopStore.readClipboardText();
+    const canRestoreOriginalText = Boolean(original && original.ok && typeof original.value === 'string');
+    const restoreText = canRestoreOriginalText ? original.value : '';
+    const sample = `InkForge desktop clipboard text probe ${Date.now()} ${Math.random().toString(16).slice(2)}`;
+    let writeResult;
+    let readResult;
+    let restoreResult;
+    let restoreReadResult;
+
+    try {
+      writeResult = await desktopStore.writeClipboardText(sample);
+      readResult = await desktopStore.readClipboardText();
+    } finally {
+      restoreResult = await desktopStore.writeClipboardText(restoreText);
+      if (canRestoreOriginalText) {
+        restoreReadResult = await desktopStore.readClipboardText();
+      }
+    }
+
+    return {
+      ok: true,
+      originalReadOk: Boolean(original && original.ok),
+      originalWasText: canRestoreOriginalText,
+      writeOk: Boolean(writeResult && writeResult.ok),
+      readOk: Boolean(readResult && readResult.ok),
+      readMatches: Boolean(readResult && readResult.ok && readResult.value === sample),
+      readLength: readResult && readResult.ok && typeof readResult.value === 'string'
+        ? readResult.value.length
+        : null,
+      restoreOk: Boolean(restoreResult && restoreResult.ok),
+      restoreWasExactText: canRestoreOriginalText
+        ? Boolean(restoreReadResult && restoreReadResult.ok && restoreReadResult.value === restoreText)
+        : null,
+      writeSource: writeResult && writeResult.source,
+      readSource: readResult && readResult.source,
+      restoreSource: restoreResult && restoreResult.source,
+      restoreReadSource: restoreReadResult && restoreReadResult.source,
+      writeReason: writeResult && !writeResult.ok ? writeResult.reason : null,
+      readReason: readResult && !readResult.ok ? readResult.reason : null,
+      restoreReason: restoreResult && !restoreResult.ok ? restoreResult.reason : null,
+      restoreReadReason: restoreReadResult && !restoreReadResult.ok ? restoreReadResult.reason : null,
+    };
+  });
+}
+
 describe('InkForge — native desktop runtime boundary', () => {
   before(async () => {
     await waitForMainWindow();
@@ -217,5 +287,27 @@ describe('InkForge — native desktop runtime boundary', () => {
       source: 'tauri',
     });
     expect(probe.malformedUrl.message, 'malformed URL message').to.include('URL format is invalid');
+  });
+
+  it('desktop store writes and reads real Tauri clipboard text without claiming rich clipboard support', async () => {
+    const probe = await runClipboardTextProbe();
+
+    expect(probe.ok, probe.reason || 'clipboard text probe').to.equal(true);
+    expect(probe.originalReadOk, 'original clipboard readText command should complete').to.equal(true);
+    expect(probe.writeOk, probe.writeReason || 'clipboard writeText should succeed').to.equal(true);
+    expect(probe.readOk, probe.readReason || 'clipboard readText should succeed').to.equal(true);
+    expect(probe.readMatches, 'readText returns exactly the text written through the native API').to.equal(true);
+    expect(probe.readLength, 'probe text length').to.be.a('number').and.greaterThan(20);
+    expect(probe.restoreOk, probe.restoreReason || 'clipboard should be restored through writeText').to.equal(true);
+    if (probe.originalWasText) {
+      expect(
+        probe.restoreWasExactText,
+        probe.restoreReadReason || 'clipboard restore should be read back exactly when original content was text',
+      ).to.equal(true);
+      expect(probe.restoreReadSource, 'restore readback source').to.equal('tauri');
+    }
+    expect(probe.writeSource, 'write source').to.equal('tauri');
+    expect(probe.readSource, 'read source').to.equal('tauri');
+    expect(probe.restoreSource, 'restore source').to.equal('tauri');
   });
 });

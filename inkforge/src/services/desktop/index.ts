@@ -173,6 +173,68 @@ export async function openExternalUrl(url: string): Promise<DesktopCommandResult
   return { ok: true, value: undefined, source: runtime.kind }
 }
 
+function isBrowserClipboardSecure(): boolean {
+  return typeof window === 'undefined' || window.isSecureContext !== false
+}
+
+function getBrowserClipboard(): Pick<Clipboard, 'readText' | 'writeText'> | null {
+  if (typeof navigator === 'undefined' || !navigator.clipboard) {
+    return null
+  }
+
+  return navigator.clipboard
+}
+
+export async function writeClipboardText(text: string): Promise<DesktopCommandResult<void>> {
+  const runtime = detectDesktopRuntime()
+
+  if (runtime.kind === 'tauri') {
+    try {
+      const { writeText } = await import('@tauri-apps/api/clipboard')
+      await writeText(text)
+      return { ok: true, value: undefined, source: runtime.kind }
+    } catch (error) {
+      return failed<void>(normalizeError(error), runtime.kind)
+    }
+  }
+
+  const clipboard = getBrowserClipboard()
+  if (!clipboard || typeof clipboard.writeText !== 'function' || !isBrowserClipboardSecure()) {
+    return unavailable<void>('Browser Clipboard.writeText is unavailable in this runtime.', runtime.kind)
+  }
+
+  try {
+    await clipboard.writeText(text)
+    return { ok: true, value: undefined, source: runtime.kind }
+  } catch (error) {
+    return failed<void>(normalizeError(error), runtime.kind)
+  }
+}
+
+export async function readClipboardText(): Promise<DesktopCommandResult<string | null>> {
+  const runtime = detectDesktopRuntime()
+
+  if (runtime.kind === 'tauri') {
+    try {
+      const { readText } = await import('@tauri-apps/api/clipboard')
+      return { ok: true, value: await readText(), source: runtime.kind }
+    } catch (error) {
+      return failed<string | null>(normalizeError(error), runtime.kind)
+    }
+  }
+
+  const clipboard = getBrowserClipboard()
+  if (!clipboard || typeof clipboard.readText !== 'function' || !isBrowserClipboardSecure()) {
+    return unavailable<string | null>('Browser Clipboard.readText is unavailable in this runtime.', runtime.kind)
+  }
+
+  try {
+    return { ok: true, value: await clipboard.readText(), source: runtime.kind }
+  } catch (error) {
+    return failed<string | null>(normalizeError(error), runtime.kind)
+  }
+}
+
 export async function openMarkdownFiles(options: FilePickerOptions = {}): Promise<DesktopCommandResult<PickedFile[]>> {
   try {
     const files = await pickFiles({

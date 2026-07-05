@@ -2,7 +2,9 @@ import { defineStore } from 'pinia'
 import {
   getDesktopRuntimeSnapshot,
   openExternalUrl,
+  readClipboardText as readDesktopClipboardText,
   revealPathInFileManager,
+  writeClipboardText as writeDesktopClipboardText,
   type DesktopCapabilityStatus,
   type DesktopCommandResult,
   type DesktopRuntimeSnapshot,
@@ -12,7 +14,7 @@ interface DesktopState {
   snapshot: DesktopRuntimeSnapshot | null
   loading: boolean
   error: string | null
-  lastCommand: DesktopCommandResult<void> | null
+  lastCommand: DesktopCommandResult<void | string | null> | null
 }
 
 export const useDesktopStore = defineStore('desktop', {
@@ -56,6 +58,18 @@ export const useDesktopStore = defineStore('desktop', {
 
     async openUrl(url: string): Promise<DesktopCommandResult<void>> {
       const result = await openExternalUrl(url)
+      this.lastCommand = result
+      return result
+    },
+
+    async writeClipboardText(text: string): Promise<DesktopCommandResult<void>> {
+      const result = await writeDesktopClipboardText(text)
+      this.lastCommand = result
+      return result
+    },
+
+    async readClipboardText(): Promise<DesktopCommandResult<string | null>> {
+      const result = await readDesktopClipboardText()
       this.lastCommand = result
       return result
     },

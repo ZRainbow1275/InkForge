@@ -127,8 +127,10 @@ Partial. A real Tauri/WebDriver run now starts the packaged WebView2 shell and c
 window controls, brand mark, visual tokens, theme cascade, SVG export surface, desktop runtime
 snapshot, capability matrix, Rust window-list readback, and safe fail-closed native boundary paths.
 Native file-dialog selection/cancel, valid Explorer reveal, valid external shell-open, clipboard
-permission flow, and other shell-only side effects still require dedicated/manual rows before the
-whole `05-12` task can close.
+text read/write/restore, and other safe shell-only boundaries are now covered. Native file-dialog
+selection/cancel, valid Explorer reveal, valid external shell-open, clipboard permission-prompt
+variants, and other OS-window side effects still require dedicated/manual rows before the whole
+`05-12` task can close.
 
 ## 2026-07-05 Continuation Gate Replay
 
@@ -176,3 +178,22 @@ Boundary: this Tauri/WebDriver proof strengthens the desktop-shell evidence for 
 | 2026-07-05 | Final full native e2e replay: `pnpm -C inkforge test:e2e` | PASS: 3 real Tauri/WebDriver specs / 19 tests. `native-runtime.spec.cjs` passed 2/2, `svg-render.spec.cjs` passed 6/6, and `visual.spec.cjs` passed 11/11. |
 
 Boundary: this closes the Desktop runtime detection drift and proves safe native command boundaries in the real Tauri shell. It does not automate OS file-picker selection/cancel, valid Explorer reveal, valid external URL/mail client opening, clipboard permission flows, signed updater endpoint behavior, global shortcuts, tray behavior, or package-signing verification.
+
+### 2026-07-05 Tauri Clipboard Text Boundary Replay
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Code audit of `DSK-006` | The real Tauri config already allowed clipboard text access, but the Desktop service/store did not expose a typed clipboard boundary. Other UI surfaces used raw browser clipboard APIs, which did not prove the Tauri native allowlist path behind the Desktop capability matrix. |
+| 2026-07-05 | External/current API check | Context7 and the local `@tauri-apps/api/clipboard.d.ts` package confirmed the Tauri 1 API shape: `writeText(text): Promise<void>` and `readText(): Promise<string | null>`. |
+| 2026-07-05 | GitNexus impact: `npx gitnexus impact buildDesktopCapabilityMatrix -r InkForge -d upstream --depth 3` | LOW risk; one direct upstream caller (`getDesktopRuntimeSnapshot`), Desktop module only, 0 affected processes. |
+| 2026-07-05 | GitNexus impact: `npx gitnexus impact useDesktopStore -r InkForge -d upstream --depth 3` | LOW risk; 0 impacted processes. `DesktopCommandResult` was not found as a GitNexus target, so type safety was compensated with `vue-tsc` and targeted tests. |
+| 2026-07-05 | Repair | Added typed `writeClipboardText()` and `readClipboardText()` functions to `services/desktop/index.ts`; Tauri uses `@tauri-apps/api/clipboard`, web uses real `navigator.clipboard` only when available/secure, and unavailable/failure states return typed `DesktopCommandResult` values. Exposed both methods through `useDesktopStore`. |
+| 2026-07-05 | Targeted unit test: `pnpm -C inkforge exec vitest run src/services/desktop/environment.test.ts src/services/desktop/index.test.ts --reporter=default` | PASS: 2 files / 8 tests. Coverage includes Tauri read/write calls, web unavailable state, degraded browser Clipboard API path, and failed Tauri clipboard API mapping. |
+| 2026-07-05 | Targeted lint: `pnpm -C inkforge exec eslint src/services/desktop/environment.ts src/services/desktop/index.ts src/services/desktop/types.ts src/services/desktop/environment.test.ts src/services/desktop/index.test.ts src/stores/desktop.ts tests/e2e/specs/native-runtime.spec.cjs --quiet` | PASS. |
+| 2026-07-05 | Typecheck: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` | PASS. |
+| 2026-07-05 | Production web build: `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` | PASS; required before the packaged Tauri debug binary could load the new frontend store/service methods. |
+| 2026-07-05 | First targeted native replay before build refresh | Failed because the packaged debug shell still loaded the previous frontend bundle, so the Pinia store did not yet have `readClipboardText()`. This proved the test was exercising the real packaged shell rather than a hot, mocked module surface. |
+| 2026-07-05 | Targeted native replay after build refresh: `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/native-runtime.spec.cjs` | PASS: `native-runtime.spec.cjs` 3/3. The new clipboard probe read the current text clipboard, wrote a unique probe string through `desktopStore.writeClipboardText()`, read it back exactly through `desktopStore.readClipboardText()`, restored the original text through the same Tauri source, and read the restored text back exactly when the original clipboard content was text. It returned `writeSource/readSource/restoreSource/restoreReadSource = tauri` without exposing the original clipboard content. |
+| 2026-07-05 | Final full Tauri/WebDriver replay: `pnpm -C inkforge test:e2e` | PASS: 3 specs / 20 tests. `native-runtime.spec.cjs` passed 3/3 including exact clipboard write/read/restore-readback, `svg-render.spec.cjs` passed 6/6, and `visual.spec.cjs` passed 11/11. |
+
+Boundary: this closes `DSK-006` for the text clipboard boundary only. It does not claim rich HTML clipboard, image clipboard preservation, OS permission-prompt UX, or WeChat rich paste proof.
