@@ -1580,6 +1580,7 @@ async function buildExportSettingsPreviewHtml(): Promise<string> {
       enableMacCodeBlock: settings.value.export.macCodeBlock,
       enableTextIndent: settings.value.export.textIndent,
       codeTheme: settings.value.export.codeTheme as CodeTheme,
+      customCss: settings.value.export.customCss,
     },
     overrides: {
       primaryColor: settings.value.appearance.accentColor,
@@ -1587,7 +1588,9 @@ async function buildExportSettingsPreviewHtml(): Promise<string> {
     },
   })
 
-  return appendCustomCssToExportHtml(html)
+  return getCurrentExportPlatform() === 'wechat'
+    ? html
+    : appendCustomCssToExportHtml(html)
 }
 
 function setExportPreviewCopyStatus(status: 'idle' | 'copied' | 'error'): void {

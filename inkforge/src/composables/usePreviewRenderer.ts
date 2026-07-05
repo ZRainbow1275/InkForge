@@ -229,6 +229,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           '@/services/rendering/lazy-optional-renderer'
         )
         const { getPresetById, generateThemeCSS } = await import('@/services/export')
+        const { sanitizeCSSString } = await import('@/services/security/css-sanitizer')
         const { renderWechatMockHtml } = await import(
           '@/services/export/preview-fidelity/wechat-mock'
         )
@@ -237,7 +238,16 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
         if (isStale()) return
 
         const preset = presetId ? getPresetById(presetId) : undefined
-        const wechatThemeCSS = preset ? generateThemeCSS(preset, 'preview') : undefined
+        const presetThemeCSS = preset ? generateThemeCSS(preset, 'preview') : ''
+        const exportCustomCss = typeof exportSettings.customCss === 'string'
+          ? sanitizeCSSString(exportSettings.customCss)
+            .replace(/[^{};]*\/\*\s*\[REMOVED\]\s*\*\/[^{};]*;?/gi, '')
+            .replace(/<\/?[a-z][^>]*>/gi, '')
+            .trim()
+          : ''
+        const wechatThemeCSS = [presetThemeCSS, exportCustomCss]
+          .filter(css => css.length > 0)
+          .join('\n/* inkforge-export-custom-css-preview */\n')
 
         previewHtml.value = renderWechatMockHtml(
           { html: renderedHtml },

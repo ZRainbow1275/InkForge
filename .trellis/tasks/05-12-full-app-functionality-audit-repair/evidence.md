@@ -220,3 +220,21 @@ Boundary: this closes `DSK-006` for the text clipboard boundary only. It does no
 | 2026-07-05 | Full real Tauri/WebDriver replay | `pnpm -C inkforge test:e2e` PASS: 3 specs / 21 tests. `native-runtime.spec.cjs` 3/3, `svg-render.spec.cjs` 7/7, `visual.spec.cjs` 11/11. |
 
 Boundary: this closes the default export platform local-application path only. It does not claim XHS/Zhihu publish, WeChat phone preview, scheduled send, account upload, or external platform success.
+
+### 2026-07-05 Settings Export Custom CSS Boundary
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Current-round user boundary | XHS/Zhihu publish automation is cancelled for this round and remains manual/operator-owned. Automated acceptance is narrowed to local application of SVG/style rules and WeChat-compatible export/rendering paths. |
+| 2026-07-05 | Reproduction for `SET-EXPORT-002` | Code audit found `SettingsView` persisted `settings.export.customCss`, but the real Workstation/ExportModal export renderer consumed only the modal-local `exportOptions`; the Settings CSS path existed as a Settings preview append helper, not as a first-class renderer input. |
+| 2026-07-05 | GitNexus impact | `convertToPlatform` LOW / 2 impacted / 0 processes; `ExportOptions` MEDIUM / 12 direct importing files / 0 processes; `convertToWechat` LOW / 4 impacted / 0 processes; `convertToWechatWithStats` LOW / 8 impacted / 0 processes; `usePreviewRenderer` LOW / 1 direct caller / 0 processes. |
+| 2026-07-05 | Repair | Added `ExportOptions.customCss`; `convertToWechatWithStats` sanitizes Settings export CSS and merges it before `juice` so WeChat HTML carries inline CSS. `ExportModal` receives `exportCustomCss` from `WorkstationView`, computes effective export options, and sends the same options to styled and native export paths. Stage WeChat preview also sanitizes and scopes the export CSS through the mock preview stylesheet. |
+| 2026-07-05 | Runtime separation | `settings.export.customCss` remains separate from `settings.advanced.customCss`; the repair does not create or mutate `#inkforge-custom-css`, and text/Markdown native platforms are not claimed to support CSS publishing. |
+| 2026-07-05 | Targeted lint | `pnpm -C inkforge exec eslint src/services/export/types.ts src/services/export/wechat.ts src/components/export/ExportModal.vue src/views/WorkstationView.vue src/views/SettingsView.vue src/composables/usePreviewRenderer.ts src/services/export/platform-export-rendering.test.ts tests/e2e/specs/svg-render.spec.cjs --quiet` PASS. |
+| 2026-07-05 | Service regression | `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default` PASS: 1 file / 377 tests. New assertions prove export-only custom CSS is inlined into WeChat HTML and dangerous CSS/tag payloads are sanitized before the inline pass. |
+| 2026-07-05 | Full export service regression | `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism` PASS: 41 files / 1366 tests. |
+| 2026-07-05 | Type/build | `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` PASS. `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` PASS. |
+| 2026-07-05 | Targeted real Tauri/WebDriver replay | `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs` PASS: 8/8. The new test writes `export.customCss` through the real Settings Pinia store, opens a real seeded Workstation article in WeChat ExportModal, reads back inline paragraph `color:#123456` and `letter-spacing:1px`, verifies the export CSS did not enter runtime `#inkforge-custom-css`, and restores the original setting. |
+| 2026-07-05 | Full real Tauri/WebDriver replay | `pnpm -C inkforge test:e2e` PASS: 3 specs / 22 tests. `native-runtime.spec.cjs` 3/3, `svg-render.spec.cjs` 8/8, `visual.spec.cjs` 11/11. |
+
+Boundary: this closes the Settings export custom CSS local renderer path for WeChat-compatible HTML only. It does not claim XHS/Zhihu publish, WeChat phone preview, scheduled send, account upload, external sync, or public rendering success.

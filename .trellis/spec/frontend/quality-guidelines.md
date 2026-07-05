@@ -146,12 +146,16 @@ and still run the narrow checks for the touched scope.
 
 - Settings `export.defaultPlatform` is the authority for initial export platform selection. Do not hardcode `wechat` as the initial Workstation Stage or ExportModal platform when a persisted Settings value exists.
 - ExportModal may accept an initial platform from the host surface, but it must not keep overriding the platform after the user manually switches platform while the modal remains open. Re-seed from Settings only on modal open or route/surface initialization.
+- Settings `export.customCss` is an export-only renderer input, not runtime editor CustomCSS. WeChat HTML export must receive it through `ExportOptions.customCss`, sanitize it, and merge it before the `juice` inline pass so copied WeChat HTML carries inline styles.
+- `settings.export.customCss` must never create, replace, or mutate the runtime `<style id="inkforge-custom-css">`; that tag belongs only to `settings.advanced.customCss`.
+- Pure text/Markdown native platforms must not be claimed to publish arbitrary CSS. If XHS/Zhihu publish-side checks are operator-owned for the current round, keep automated evidence limited to local renderer output and document the manual boundary.
 - Browser smoke must use a real Workstation article and real Settings/Pinia persistence. At minimum set a non-WeChat default platform, remount Workstation, verify Stage and ExportModal initial platform, restore the original setting, and verify no XHS/Zhihu/WeChat publish action or external upload is claimed.
+- For export CSS changes, browser smoke must write a real `settings.export.customCss` value through Settings/Pinia, open WeChat ExportModal from a real Workstation article, verify a body paragraph carries inline style in `.preview-render #nice`, restore the original setting, and verify runtime `#inkforge-custom-css` did not receive the export CSS.
 
 ## CustomCSS Quality Gate
 
 - Do not accept a CustomCSS change unless runtime CSS is scoped to `.editor-content` through `src/services/custom-css/sandbox.ts`; raw string concatenation or direct chrome-wide selector injection is forbidden.
-- `Settings > Advanced` CustomCSS must stay separate from `settings.export.customCss` and the legacy theme `customCSS` field. Export-only CSS must keep its existing HTML export semantics.
+- `Settings > Advanced` CustomCSS must stay separate from `settings.export.customCss` and the legacy theme `customCSS` field. Export-only CSS must keep its WeChat HTML inline export semantics and must not be routed through the runtime editor CSS injector.
 - Runtime injection must use exactly one `<style id="inkforge-custom-css">` in `document.head`; disabling CustomCSS, SafeMode detection, or suspension must remove that tag while preserving the user draft and last published source.
 - The sandbox must reject `@import`, remote URLs, active protocols, `!important`, `behavior`, `:host`, and `:host-context`; warnings for frozen design tokens, `position: fixed`, and `contain: strict` must not block apply.
 - Required commands before closing a CustomCSS task: `pnpm vitest run src/services/custom-css/custom-css.test.ts`, `pnpm exec vue-tsc --noEmit`, `pnpm lint`, `pnpm vitest run`, and `NODE_OPTIONS=--max-old-space-size=4096 pnpm build` when the default heap cannot complete the production build.

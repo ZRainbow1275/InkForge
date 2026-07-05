@@ -134,6 +134,14 @@ export interface ExportOptions {
   /** 微信文章主题色覆盖，必须为 6 位 HEX 色值 */
   primaryColor?: string
   /**
+   * 导出专用自定义 CSS。
+   *
+   * - 仅在导出/平台预览管线中消费，不注入运行时编辑器 CustomCSS。
+   * - 微信 HTML 导出会在 juice 内联前净化并合入主题 CSS，使规则能随复制内容进入微信公众号编辑器。
+   * - 纯文本/Markdown 原生格式平台不会伪造 CSS 发布能力。
+   */
+  customCss?: string
+  /**
    * 启用微信安全 inline-SVG 高级排版模块（svg-modules 注入）。
    * 默认 undefined/false：完全保留现有行为，零回归（不注入任何 SVG）。
    */

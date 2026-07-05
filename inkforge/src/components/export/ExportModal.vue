@@ -180,6 +180,7 @@ const props = defineProps<{
   visible: boolean
   content: string
   initialPlatform?: Platform
+  exportCustomCss?: string
 }>()
 
 const emit = defineEmits<{
@@ -1208,6 +1209,17 @@ const exportOptions = ref<ExportOptions>({
   fontSize: normalizeExportFontSize(defaultWechatPreset.fontSize),
 })
 
+const effectiveExportOptions = computed<ExportOptions>(() => {
+  const nextOptions: ExportOptions = { ...exportOptions.value }
+  const exportCustomCss = props.exportCustomCss?.trim()
+  if (exportCustomCss) {
+    nextOptions.customCss = exportCustomCss
+  } else {
+    delete nextOptions.customCss
+  }
+  return nextOptions
+})
+
 function svgModuleFamilyLabel(family: SvgModuleFamily): string {
   const labels: Record<SvgModuleFamily, string> = {
     header: '标题',
@@ -1531,7 +1543,7 @@ watch(
 )
 
 watch(
-  [() => props.content, () => props.visible, selectedPlatform, selectedPresetId, exportOptions],
+  [() => props.content, () => props.visible, selectedPlatform, selectedPresetId, effectiveExportOptions],
   async () => {
     if (!props.visible || !props.content?.trim()) {
       previewHtml.value = ''
@@ -1554,16 +1566,18 @@ watch(
     qualityReport.value = detectQuality(props.content, platform)
 
     try {
+      const renderExportOptions = effectiveExportOptions.value
+
       if (platform === 'wechat') {
         const preset = themePresets.find(p => p.id === presetId) || getDefaultPreset()
-        const result = await markdownToWechatWithStats(props.content, preset, exportOptions.value)
+        const result = await markdownToWechatWithStats(props.content, preset, renderExportOptions)
         if (renderVersion !== thisVersion) return
         previewHtml.value = result.html
         wechatStats.value = result.stats
       } else {
         const html = await convertToPlatform(props.content, platform, {
           presetId,
-          exportOptions: exportOptions.value,
+          exportOptions: renderExportOptions,
         })
         if (renderVersion !== thisVersion) return
         previewHtml.value = html
@@ -1572,7 +1586,7 @@ watch(
 
       const native = await convertToNativeFormat(props.content, platform, {
         presetId,
-        exportOptions: exportOptions.value,
+        exportOptions: renderExportOptions,
       })
       if (renderVersion !== thisVersion) return
       nativeResult.value = native

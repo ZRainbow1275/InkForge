@@ -43,6 +43,7 @@ import {
 import { enforcePlatformCSS } from './css-validator'
 import { REDOS_PROTECTION, CSS_INJECTION_PATTERNS } from '@/config/security'
 import { logger } from '@/services/error'
+import { sanitizeCSSString } from '@/services/security/css-sanitizer'
 
 // ═══════════════════════════════════════════════════════════════════
 // CSS 变量处理
@@ -1142,6 +1143,22 @@ function applyWechatStyleOptions(
 }
 
 /**
+ * Settings Export 专用 CSS 进入微信导出前必须先净化，再由 juice 内联。
+ * 该 helper 只返回 CSS 规则文本，不生成 <style>，避免把设置页/编辑器运行时
+ * CustomCSS 与可复制的微信公众号 HTML 混在一起。
+ */
+function normalizeWechatExportCustomCss(customCss: string | undefined): string {
+  const rawCss = typeof customCss === 'string' ? customCss.trim() : ''
+  if (!rawCss) return ''
+
+  return sanitizeCSSString(rawCss)
+    .replace(/[^{};]*\/\*\s*\[REMOVED\]\s*\*\/[^{};]*;?/gi, '')
+    .replace(/<\/?[a-z][^>]*>/gi, '')
+    .replace(/<\/style/gi, '<\\/style')
+    .trim()
+}
+
+/**
  * HTML转微信格式 (P1/P2增强版)
  * 1. DOMPurify XSS防护
  * 2. 代码语法高亮 (highlight.js) + 可选行号
@@ -1179,6 +1196,7 @@ export function convertToWechatWithStats(
     enableAlertBlocks = true,
     enableEnhancedTable = true,
     enableCodeLanguageLabel = true,
+    customCss,
     // ─── P2-T6 platform-rules/wechat 合规化开关 ──────────────────────
     enableCjkSpacing = true,
     maxContentWidth = 677,
@@ -1322,6 +1340,11 @@ export function convertToWechatWithStats(
     css += '\n#nice p { text-indent: 2em; }'
   } else if (enableTextIndent === false) {
     css = css.replace(/text-indent:\s*2em;?/g, '')
+  }
+
+  const exportCustomCss = normalizeWechatExportCustomCss(customCss)
+  if (exportCustomCss) {
+    css += `\n/* inkforge-export-custom-css */\n${exportCustomCss}`
   }
 
   // 添加样式

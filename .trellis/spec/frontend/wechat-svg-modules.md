@@ -16415,6 +16415,61 @@ summary:
 当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明
 ```
 
+## 322. Settings Export Custom CSS Must Enter WeChat Inline Renderer - 2026-07-05
+
+### 1. Problem
+
+`settings.export.customCss` belongs to the export surface. It must affect local WeChat export
+HTML and application previews without being confused with `settings.advanced.customCss`, which is
+runtime editor CSS.
+
+The current round explicitly cancels automated XHS/Zhihu publish-side testing. Those checks are
+operator-owned manual tests. Automated acceptance for this contract is narrowed to local
+SVG/style application and WeChat-compatible HTML export.
+
+### 2. Required Data Flow
+
+```text
+SettingsView settings.export.customCss
+  -> settingsStore.settings.export.customCss
+  -> WorkstationView <ExportModal exportCustomCss>
+  -> ExportModal effective ExportOptions.customCss
+  -> markdownToWechatWithStats / convertToPlatform / convertToNativeFormat
+  -> convertToWechatWithStats
+  -> sanitizeCSSString + removed-fragment/tag cleanup
+  -> theme CSS before juice()
+  -> inline style attributes in #nice body HTML
+```
+
+### 3. Contracts
+
+- `ExportOptions` must expose optional `customCss?: string`.
+- WeChat HTML export must sanitize `customCss` before it enters a `<style>` block.
+- WeChat HTML export must merge sanitized export CSS before the `juice()` inline pass so CSS is
+  copied as inline styles, not as a dangling Settings-only `<style>` tag.
+- Settings preview for WeChat must use the same renderer path. Legacy append-only `<style>` output
+  may remain only for non-WeChat HTML previews; it must not be used as WeChat proof.
+- Workstation Stage WeChat preview may render export CSS as a scoped preview stylesheet, but that
+  is preview-only and does not replace the inline export proof.
+- `settings.export.customCss` must never create or mutate `<style id="inkforge-custom-css">`.
+  That runtime tag is reserved for `settings.advanced.customCss`.
+- XHS/Zhihu native text or Markdown outputs must not claim arbitrary CSS publish support.
+- The contract proves local render/export behavior only. It does not prove WeChat phone preview,
+  Dark Mode phone rendering, cover-thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, or publish success.
+
+### 4. Validation
+
+- Unit/service test: call `convertToNativeFormat(..., 'wechat', { exportOptions: { customCss } })`
+  and assert the resulting HTML contains inline style rules from the custom CSS.
+- Sanitization test: include dangerous URL/style/script fragments in `customCss` and assert the
+  final WeChat HTML contains the safe declaration but no `javascript:`, `<script`, or `</style>`.
+- Real app smoke: through the real Pinia Settings store, set `export.customCss`, open a real
+  Workstation article in ExportModal on WeChat, and assert a `.preview-render #nice p` paragraph
+  carries the inline style while `#inkforge-custom-css` does not contain the export CSS.
+- Manual boundary: do not add automated XHS/Zhihu publish claims for this round; the user will run
+  those platform publish tests manually.
+
 The row must use a component-owned class name:
 
 ```text

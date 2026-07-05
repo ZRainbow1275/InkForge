@@ -471,6 +471,39 @@ async function setDefaultExportPlatform(platform) {
   }, platform);
 }
 
+async function setExportCustomCss(css) {
+  return browser.execute((nextCss) => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      if (!app || !app._context || !app._context.provides) return null;
+      const provides = app._context.provides;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    const pinia = findPinia();
+    const settingsStore = pinia && pinia._s.get('settings');
+    if (!settingsStore || !settingsStore.settings || typeof settingsStore.save !== 'function') {
+      return { ok: false, reason: 'SETTINGS-STORE-MISSING' };
+    }
+
+    const original = settingsStore.settings.export.customCss;
+    settingsStore.settings.export.customCss = nextCss;
+    settingsStore.save();
+    return {
+      ok: true,
+      original,
+      current: settingsStore.settings.export.customCss,
+    };
+  }, css);
+}
+
 async function getActiveStagePlatformLabel() {
   return browser.execute(() => {
     const active = document.querySelector('.panel-stage .stage-tab.active');
@@ -599,6 +632,58 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       });
       await browser.pause(300);
       await reachWorkstationExport(seededArticleId);
+    }
+  });
+
+  it('applies Settings export-only custom CSS to the real WeChat export preview without runtime CustomCSS leakage', async function () {
+    if (!exportReady) {
+      // eslint-disable-next-line no-console
+      console.warn(`[svg-render] export custom CSS skip — ${seedFailureReason}`);
+      return this.skip();
+    }
+
+    const setResult = await setExportCustomCss('#nice p { color: #123456; letter-spacing: 1px; }');
+    expect(setResult.ok, setResult.reason || 'settings export.customCss write').to.equal(true);
+    const originalCss = setResult.original || '';
+
+    try {
+      await closeExportModalIfOpen();
+      await openExportPanel('微信');
+
+      await browser.waitUntil(
+        async () =>
+          browser.execute(() => {
+            const para = Array.from(document.querySelectorAll('.export-panel .preview-render #nice p'))
+              .find((p) => !p.closest('[data-ink-svg]'));
+            if (!para) return false;
+            const style = para.getAttribute('style') || '';
+            return /(?:^|;)color:\s*#123456(?:;|$)/.test(style) &&
+              /(?:^|;)letter-spacing:\s*1px(?:;|$)/.test(style);
+          }),
+        {
+          timeout: 12_000,
+          interval: 300,
+          timeoutMsg: 'Settings export.customCss did not inline into the WeChat ExportModal preview paragraph',
+        },
+      );
+
+      const probe = await browser.execute(() => {
+        const para = Array.from(document.querySelectorAll('.export-panel .preview-render #nice p'))
+          .find((p) => !p.closest('[data-ink-svg]'));
+        const runtimeStyle = document.getElementById('inkforge-custom-css');
+        return {
+          style: para ? para.getAttribute('style') || '' : '',
+          hasRuntimeCustomCss: Boolean(runtimeStyle),
+          runtimeStyleContainsExportCss: Boolean(runtimeStyle && runtimeStyle.textContent && runtimeStyle.textContent.includes('#123456')),
+        };
+      });
+
+      expect(probe.style, 'export preview paragraph carries inline export custom CSS').to.match(/(?:^|;)color:\s*#123456(?:;|$)/);
+      expect(probe.style, 'export preview paragraph carries inline letter spacing').to.match(/(?:^|;)letter-spacing:\s*1px(?:;|$)/);
+      expect(probe.runtimeStyleContainsExportCss, 'export custom CSS must not be injected into runtime editor CustomCSS style tag').to.equal(false);
+    } finally {
+      await closeExportModalIfOpen();
+      await setExportCustomCss(originalCss);
     }
   });
 

@@ -2089,6 +2089,33 @@ function hasNonAscii(text: string): boolean {
 }
 
 describe('platform native export rendering rules', () => {
+  it('inlines Settings export-only custom CSS into WeChat HTML without runtime style tags', async () => {
+    const html = await convertToNativeFormat('# 自定义样式\n\n正文导出样式验证。', 'wechat', {
+      exportOptions: {
+        customCss: '#nice p { color: #123456; letter-spacing: 1px; }',
+        enableReadingTime: false,
+      },
+    })
+
+    expect(html.format).toBe('html')
+    expect(html.content).toMatch(/color:\s*#123456/)
+    expect(html.content).toMatch(/letter-spacing:\s*1px/)
+    expect(html.content).not.toContain('data-inkforge-custom-css="settings"')
+    expect(html.content).not.toContain('inkforge-export-custom-css-preview')
+  })
+
+  it('sanitizes export-only custom CSS before the WeChat inline pass', () => {
+    const result = convertToWechatWithStats('<p>安全正文</p>', getDefaultPreset(), {
+      customCss: '#nice p { background-image: url(javascript:alert(1)); color: #234567; } </style><script>alert(1)</script>',
+      enableReadingTime: false,
+    })
+
+    expect(result.html).toMatch(/color:\s*#234567/)
+    expect(result.html.toLowerCase()).not.toContain('javascript:')
+    expect(result.html.toLowerCase()).not.toContain('<script')
+    expect(result.html.toLowerCase()).not.toContain('</style>')
+  })
+
   it('exposes a gate-aware style choice catalog for all target platforms', () => {
     const catalog = getStyleChoiceCatalog()
     const ids = catalog.map(choice => choice.id)

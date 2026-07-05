@@ -3436,6 +3436,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
       :visible="showExportModal"
       :content="normalizedBody"
       :initial-platform="settingsStore.settings.export.defaultPlatform"
+      :export-custom-css="settingsStore.settings.export.customCss"
       @close="showExportModal = false"
     />
     <FocusSessionSummaryModal
