@@ -13212,3 +13212,27 @@ Boundary:
   ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
   credentialed sync, scheduled send, platform preview, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+### Follow-up: current-round package script entrypoint
+
+- Added `style-proof:current-round` to `inkforge/package.json` as the single copy-safe package
+  entrypoint for this narrowed round.
+- The script maps to:
+  `tsx scripts/style-proof-application-acceptance.ts --json`.
+- Current direct smoke:
+  - `pnpm --silent -C inkforge style-proof:current-round` exits 0;
+  - `status=application-acceptance-ready`;
+  - `currentRoundTarget.status=current-round-ready`;
+  - `currentRoundTarget.canClaimCurrentRoundTarget=true`;
+  - `canClaimReleaseComplete=false`;
+  - `wechatRenderedStyleChoiceCount=13`;
+  - `wechatStyleSampleIssueCount=0`;
+  - `actionableLocalRows=0`.
+- Verification passed: focused package-entrypoint regression, related 4-file script regression
+  with 28 tests, full scripts-suite regression with 7 files / 53 tests, full export-service
+  regression with 41 files / 1364 tests, focused ESLint, `vue-tsc`, production build, and direct
+  `style-proof:current-round` smoke.
+- Boundary: this is a convenience acceptance entrypoint only. It does not prove WeChat ordinary
+  paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync,
+  scheduled send, platform preview, public rendering, or publish success. Xiaohongshu and Zhihu
+  publish-side tests remain manually deferred to the user.

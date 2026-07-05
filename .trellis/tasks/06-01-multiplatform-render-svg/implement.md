@@ -547,6 +547,61 @@ Boundary:
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
 
+## 2026-07-05 Current-Round Package Script Entry Slice
+
+Context:
+- `style-proof:application-acceptance --json` now exposes the narrowed current-round target, but
+  operators still had to remember the longer application-acceptance command.
+- The current round needs one stable package-level entry point that reports the machine-readable
+  target without weakening strict release proof.
+
+Implementation:
+- Added `style-proof:current-round` to `inkforge/package.json`.
+- The package script maps to:
+  `tsx scripts/style-proof-application-acceptance.ts --json`.
+- Extended `scripts/style-proof-application-acceptance.test.ts` to validate the package script
+  mapping and the resulting current-round JSON shape.
+
+TDD:
+- Initial focused package-entrypoint test failed because `style-proof:current-round` was missing
+  from `package.json`.
+- After adding the package script, the focused test passed and the real package command smoke
+  returned `currentRoundTarget.status=current-round-ready`.
+
+Current smoke:
+- `pnpm --silent -C inkforge style-proof:current-round` exits 0 with:
+  - `status=application-acceptance-ready`;
+  - `currentRoundTarget.status=current-round-ready`;
+  - `currentRoundTarget.canClaimCurrentRoundTarget=true`;
+  - `currentRoundTarget.releaseProofNotClaimed=true`;
+  - `currentRoundTarget.strictReleaseBlockedByExternal=true`;
+  - `currentRoundTarget.xhsZhihuPublishAutomationDeferred=true`;
+  - `currentRoundTarget.remainingExternalProofOwnedByOperator=true`;
+  - `canClaimReleaseComplete=false`;
+  - `wechatRenderedStyleChoiceCount=13`;
+  - `wechatStyleSampleIssueCount=0`;
+  - `actionableLocalRows=0`.
+
+Verification:
+- Focused package-entrypoint regression passed with 1 selected test.
+- Related 4-file script regression passed with 4 files and 28 tests.
+- Full scripts-suite regression passed with 7 files and 53 tests.
+- Full export-service regression passed with 41 files and 1364 tests.
+- Focused ESLint passed for `scripts/style-proof-application-acceptance.ts` and its test.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build` passed; restored
+  `inkforge/tsconfig.tsbuildinfo` afterward.
+- `npx gitnexus impact package.json -r InkForge -d upstream --include-tests` returned an
+  ambiguous package target (`package.json` and `inkforge/package.json`), so package-script
+  symbol-level impact was unavailable; staged detect-changes is still required before commit.
+
+Boundary:
+- This slice adds a convenience acceptance entrypoint only.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 ## 2026-07-03 Style Proof External Handoff Manifest Drafts Slice
 
 Source:

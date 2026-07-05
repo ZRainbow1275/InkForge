@@ -1,4 +1,5 @@
 import { execFile, type ExecFileException } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
@@ -7,6 +8,10 @@ interface ApplicationAcceptanceCliResult {
   exitCode: number
   stdout: string
   stderr: string
+}
+
+interface PackageJsonScripts {
+  scripts?: Record<string, string>
 }
 
 interface ApplicationAcceptanceJsonReport {
@@ -74,6 +79,12 @@ const currentFilePath = fileURLToPath(import.meta.url)
 const projectRoot = resolve(dirname(currentFilePath), '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
 const acceptanceScriptPath = resolve(projectRoot, 'scripts', 'style-proof-application-acceptance.ts')
+const packageJsonPath = resolve(projectRoot, 'package.json')
+
+function readPackageJsonScripts(): Record<string, string> {
+  const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as PackageJsonScripts
+  return parsed.scripts ?? {}
+}
 
 function getCliEnvironment(): NodeJS.ProcessEnv {
   const environment: NodeJS.ProcessEnv = {}
@@ -318,6 +329,32 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(report.checks.find(check => check.id === 'wechat-manual-manifest-drafts')).toMatchObject({
       status: 'manual-manifest-drafts-ready',
       command: 'style-proof:wechat-manual-manifest-drafts',
+    })
+  })
+
+  it('exposes a package-level current-round acceptance entrypoint', async () => {
+    const scripts = readPackageJsonScripts()
+
+    expect(scripts['style-proof:current-round']).toBe('tsx scripts/style-proof-application-acceptance.ts --json')
+
+    const result = await runAcceptanceCli(['--json'])
+    expect(result.exitCode).toBe(0)
+    expect(result.stderr.trim()).toBe('')
+
+    const report = parseAcceptanceJson(result.stdout)
+    expect(report).toMatchObject({
+      status: 'application-acceptance-ready',
+      canClaimApplicationReady: true,
+      canClaimReleaseComplete: false,
+      currentRoundTarget: {
+        scope: 'application-svg-style-wechat-local',
+        status: 'current-round-ready',
+        canClaimCurrentRoundTarget: true,
+        releaseProofNotClaimed: true,
+        strictReleaseBlockedByExternal: true,
+        xhsZhihuPublishAutomationDeferred: true,
+        remainingExternalProofOwnedByOperator: true,
+      },
     })
   })
 

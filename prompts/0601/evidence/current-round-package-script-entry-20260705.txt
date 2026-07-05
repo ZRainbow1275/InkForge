@@ -1,0 +1,62 @@
+Current-Round Package Script Entry - 2026-07-05
+
+Scope:
+- Copy-safe package-level entrypoint for the narrowed current-round acceptance target.
+- The target remains local application SVG/style availability plus WeChat local
+  export/checklist/preflight readiness.
+- Xiaohongshu and Zhihu publish-side automation remains cancelled for this round and will be
+  tested manually by the operator.
+
+Implemented:
+- Added style-proof:current-round to inkforge/package.json.
+- The package script maps to:
+  tsx scripts/style-proof-application-acceptance.ts --json
+- Extended style-proof-application-acceptance.test.ts so package.json must expose this exact
+  script mapping.
+
+Current smoke:
+- pnpm --silent -C inkforge style-proof:current-round exits 0.
+- status=application-acceptance-ready.
+- currentRoundTarget.scope=application-svg-style-wechat-local.
+- currentRoundTarget.status=current-round-ready.
+- currentRoundTarget.canClaimCurrentRoundTarget=true.
+- currentRoundTarget.releaseProofNotClaimed=true.
+- currentRoundTarget.strictReleaseBlockedByExternal=true.
+- currentRoundTarget.xhsZhihuPublishAutomationDeferred=true.
+- currentRoundTarget.remainingExternalProofOwnedByOperator=true.
+- canClaimReleaseComplete=false.
+- wechatRenderedStyleChoiceCount=13.
+- wechatStyleSampleIssueCount=0.
+- actionableLocalRows=0.
+
+TDD:
+- The package-entrypoint test was added before implementation.
+- Initial focused run failed because scripts['style-proof:current-round'] was undefined.
+- After adding the package script the focused test passed.
+- The real package command smoke also returned current-round-ready.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts -t "package-level current-round" --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 selected test
+- pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-wechat-style-samples.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 28 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 53 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 41 files / 1364 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-application-acceptance.ts scripts/style-proof-application-acceptance.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS
+- npx gitnexus impact package.json -r InkForge -d upstream --include-tests
+  RESULT: ambiguous between root package.json and inkforge/package.json; package-script symbol-level impact unavailable.
+
+Boundary:
+- This proves a package-level convenience entrypoint only.
+- It proves neither WeChat ordinary paste nor phone preview.
+- It proves neither mobile Dark Mode nor mobile SMIL/click interaction.
+- It proves neither cover thumbnail acceptance nor credentialed sync.
+- It proves neither scheduled send nor platform preview/public rendering/publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

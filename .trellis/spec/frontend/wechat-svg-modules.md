@@ -16024,7 +16024,8 @@ real exporter and carry at least one WeChat-safe SVG module.
 
 ### 2. JSON Contract
 
-`style-proof:application-acceptance --json` must expose:
+`style-proof:application-acceptance --json` and the package alias
+`style-proof:current-round` must expose:
 
 ```json
 {
@@ -16073,17 +16074,22 @@ currentRoundRemainingExternalProofOwnedByOperator: true
 - If `strictRelease.canClaimComplete=true` appears in this report without real external proof, the
   report is invalid.
 - Missing `currentRoundTarget` in JSON or text output -> regression failure.
+- Missing `style-proof:current-round` in `package.json` -> regression failure.
+- `style-proof:current-round` must map to
+  `tsx scripts/style-proof-application-acceptance.ts --json`.
 
 ### 5. Tests Required
 
 - `style-proof-application-acceptance.test.ts` must validate the JSON shape and exact current
   good values for `currentRoundTarget`.
+- The same test must validate the package-level `style-proof:current-round` entrypoint mapping.
 - The help output must mention `current-round target readiness`.
 - Direct smoke must confirm:
 
 ```bash
 pnpm --silent -C inkforge style-proof:application-acceptance --json
 pnpm --silent -C inkforge style-proof:application-acceptance
+pnpm --silent -C inkforge style-proof:current-round
 ```
 
 ### 6. Cannot-Claim Boundary

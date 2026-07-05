@@ -9214,3 +9214,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
   credentialed sync, scheduled send, platform preview, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 Current-Round Package Script Entry
+
+- [x] current-round-package-script-entry-20260705.txt
+- Scope: copy-safe package-level entrypoint for the narrowed current-round acceptance target.
+- Added `style-proof:current-round` to `inkforge/package.json` as:
+  `tsx scripts/style-proof-application-acceptance.ts --json`.
+- Current smoke exits 0 with `status=application-acceptance-ready`,
+  `currentRoundTarget.status=current-round-ready`, `canClaimCurrentRoundTarget=true`,
+  `canClaimReleaseComplete=false`, `wechatRenderedStyleChoiceCount=13`,
+  `wechatStyleSampleIssueCount=0`, and `actionableLocalRows=0`.
+- Verification passed: focused package-entrypoint regression, related 4-file script regression
+  with 28 tests, full scripts-suite regression with 7 files / 53 tests, full export-service
+  regression with 41 files / 1364 tests, focused ESLint, `vue-tsc`, production build, and direct
+  `style-proof:current-round` smoke.
+- Boundary: this proves only the convenience package entrypoint and the narrowed local
+  current-round acceptance payload. It does not prove WeChat ordinary paste, phone preview,
+  mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send,
+  platform preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
+  tests remain manually deferred to the user.
