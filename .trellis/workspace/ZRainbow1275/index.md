@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
-- **Last Active**: 2026-06-08
+- **Total Sessions**: 17
+- **Last Active**: 2026-07-05
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~589 | Active |
+| `journal-1.md` | ~630 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 17 | 2026-07-05 | 06-01 current-round SVG/style acceptance closeout | `b7d0f9e`, `247acc2`, `3f89e84`, `f56cab4`, `be85f4f`, `ce6a599`, `4a8339f`, `31b0a01`, `d7a4fc5` | `dev/visual-fixes` |
 | 16 | 2026-06-08 | SVG R5 flagship element slice | `a01eee3` | `dev/visual-fixes` |
 | 15 | 2026-06-08 | Multiplatform rendering rules closeout | `70f5622` | `dev/visual-fixes` |
 | 14 | 2026-05-28 | Tauri e2e harness — real WebView2 binary verified 9/9 passing | `bf9bb2a` | `dev/visual-fixes` |

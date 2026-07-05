@@ -587,3 +587,60 @@ Added R5 flagship marker blocks, i-stretch interaction, SMIL chain support, gene
 ### Next Steps
 
 - None - task complete
+
+
+## Session 17: 06-01 current-round SVG/style acceptance closeout
+
+**Date**: 2026-07-05
+**Task**: 06-01 current-round SVG/style acceptance closeout
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Closed the current-round WeChat SVG/style application target: current-round and application-scope gates are green, ExportModal exposes the local readiness boundary, completion audit evidence is recorded, and strict release remains blocked for manual phone/account proof.
+
+### Main Changes
+
+- Added a machine-readable current-round target through `style-proof:current-round`.
+- Aligned application-scope release preflight with local WeChat SVG/style readiness.
+- Added the WeChat style export samples gate and local-gates-first manual handoff checks.
+- Fixed WeChat style preset label mojibake in ExportModal rows.
+- Surfaced the current-round local readiness boundary in the real ExportModal UI.
+- Added the final current-round completion audit evidence file.
+- Preserved the strict release cannot-claim boundary: phone/account/publish proof remains manual.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b7d0f9e` | (see git log) |
+| `247acc2` | (see git log) |
+| `3f89e84` | (see git log) |
+| `f56cab4` | (see git log) |
+| `be85f4f` | (see git log) |
+| `ce6a599` | (see git log) |
+| `4a8339f` | (see git log) |
+| `31b0a01` | (see git log) |
+| `d7a4fc5` | (see git log) |
+
+### Testing
+
+- [OK] `pnpm --silent style-proof:current-round`
+- [OK] `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`
+- [OK] strict `pnpm --silent -C inkforge style-proof:release-preflight --json` remains expected-blocked with `status=blocked-by-external` and `canClaimComplete=false`
+- [OK] Focused ExportModal/source tests, related application/release tests, ESLint, `vue-tsc`, production build, and CloakBrowser live ExportModal readback were recorded in the linked evidence files.
+
+### Status
+
+[OK] **Current-round local target completed**
+
+Strict release completion remains intentionally unclaimed until the operator provides WeChat phone
+preview / credentialed channel proof. Xiaohongshu and Zhihu publish-side proof remains manually
+deferred to the operator for this round.
+
+### Next Steps
+
+- Operator may collect external WeChat phone/account proof later using the generated manual
+  checklist/template/manifest-draft commands.
+- Operator will manually test Xiaohongshu and Zhihu publish-side flows outside this automatic
+  current-round gate.
