@@ -13082,3 +13082,15 @@ Boundary:
   `wechat-manual-checklist`, `strict-release-boundary`.
 - Current direct smoke confirms the new row passes with `status=wechat-style-ready` while
   `canClaimReleaseComplete=false` remains preserved.
+
+### Follow-up: WeChat manual manifest draft packet gate
+
+- Added `wechat-manual-manifest-drafts` to `style-proof:application-acceptance` so the aggregate
+  now verifies the structured WeChat manifest draft packet as well as the human checklist.
+- The current check order is now:
+  `application-preflight`, `wechat-style-readiness`, `application-gallery`,
+  `wechat-manual-checklist`, `wechat-manual-manifest-drafts`, `strict-release-boundary`.
+- The aggregate summary now includes `wechatManualManifestDraftsExitCode`.
+- Current direct smoke confirms `wechatManualManifestDraftsExitCode=0`,
+  `wechat-manual-manifest-drafts` has `status=manual-manifest-drafts-ready`, and
+  `canClaimReleaseComplete=false` remains preserved.

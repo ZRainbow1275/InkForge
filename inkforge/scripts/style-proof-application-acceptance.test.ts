@@ -19,6 +19,7 @@ interface ApplicationAcceptanceJsonReport {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
     wechatManualChecklistExitCode: number
+    wechatManualManifestDraftsExitCode: number
     strictReleaseExitCode: number
     svgModuleCount: number
     renderedModulePersonaPairs: number
@@ -138,6 +139,7 @@ function isApplicationAcceptanceJsonReport(value: unknown): value is Application
       'applicationPreflightExitCode',
       'applicationGalleryExitCode',
       'wechatManualChecklistExitCode',
+      'wechatManualManifestDraftsExitCode',
       'strictReleaseExitCode',
       'svgModuleCount',
       'renderedModulePersonaPairs',
@@ -203,6 +205,7 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
         applicationPreflightExitCode: 0,
         applicationGalleryExitCode: 0,
         wechatManualChecklistExitCode: 0,
+        wechatManualManifestDraftsExitCode: 0,
         svgModuleCount: 27,
         renderedModulePersonaPairs: 108,
         applicationGalleryRenderedModulePersonaPairs: 108,
@@ -238,6 +241,7 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
       'wechat-style-readiness',
       'application-gallery',
       'wechat-manual-checklist',
+      'wechat-manual-manifest-drafts',
       'strict-release-boundary',
     ])
     expect(report.checks.every(check => check.passed)).toBe(true)
@@ -252,6 +256,10 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(report.checks.find(check => check.id === 'wechat-manual-checklist')).toMatchObject({
       status: 'manual-checklist-ready',
       command: 'style-proof:wechat-manual-checklist',
+    })
+    expect(report.checks.find(check => check.id === 'wechat-manual-manifest-drafts')).toMatchObject({
+      status: 'manual-manifest-drafts-ready',
+      command: 'style-proof:wechat-manual-manifest-drafts',
     })
   })
 

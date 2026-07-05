@@ -25579,3 +25579,58 @@ Boundary:
   Mode, mobile interaction, cover-thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, platform preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+## 2026-07-05 Application Acceptance WeChat Manifest Drafts Check Slice
+
+Context:
+- The remaining release next rows are WeChat phone-preview and credentialed-channel proof rows.
+- The operator will collect those external proofs manually, so the local app must keep both the
+  human checklist and the structured manifest-draft packet healthy. The previous aggregate checked
+  the checklist but not the manifest draft packet.
+
+Changes:
+- Extended `scripts/style-proof-application-acceptance.ts` so it also runs:
+  `style-proof:external-handoff --manifest-drafts --platform=wechat --next-only --handoff-ok-exit-zero`.
+- Added `wechatManualManifestDraftsExitCode` to the aggregate summary.
+- Added a dedicated `wechat-manual-manifest-drafts` check row with:
+  - `status=manual-manifest-drafts-ready` when the draft packet exits 0;
+  - `command=style-proof:wechat-manual-manifest-drafts`.
+- The new validator requires:
+  - `draftOnly=true`;
+  - `notProof=true`;
+  - `canClaimComplete=false`;
+  - `status=blocked-by-external`;
+  - current WeChat `cover-thumbnail-check` phone-preview source row;
+  - current WeChat `credentialed-channel-response` credentialed-channel source row;
+  - positive `manifestCount` matching `manifests.length`;
+  - every manifest is a WeChat `style-choice` draft with empty `claimedEvidence` and `artifacts`
+    arrays.
+- Updated focused tests so the aggregate now has six check rows:
+  `application-preflight`, `wechat-style-readiness`, `application-gallery`,
+  `wechat-manual-checklist`, `wechat-manual-manifest-drafts`, `strict-release-boundary`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` rule 314 and removed a duplicate tail
+  cannot-claim paragraph after rule 315.
+- Updated evidence file:
+  `prompts/0601/evidence/application-acceptance-wechat-style-count-readback-20260705.txt`.
+
+Verification:
+- `npx gitnexus impact style-proof-application-acceptance -r InkForge -d upstream --include-tests`
+  and `npx gitnexus impact ApplicationAcceptanceCheck -r InkForge -d upstream --include-tests`
+  both reported that the targets were not found in the GitNexus index, so symbol-level impact was
+  unavailable for this script slice.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files / 9 tests.
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json` exited 0 with:
+  - `status=application-acceptance-ready`;
+  - `canClaimApplicationReady=true`;
+  - `canClaimReleaseComplete=false`;
+  - `wechatManualChecklistExitCode=0`;
+  - `wechatManualManifestDraftsExitCode=0`;
+  - passing `wechat-manual-manifest-drafts` row;
+  - strict release boundary still passed as `blocked-by-external`.
+
+Boundary:
+- This proves the local aggregate verifies both the human WeChat checklist and structured
+  manifest-draft packet needed after manual external proof collection.
+- It does not create proof artifacts, mutate platform state, open a browser, upload content, sync
+  drafts, schedule sends, publish articles, or claim release completion.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
