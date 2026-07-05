@@ -188,3 +188,32 @@ and still run the narrow checks for the touched scope.
 - Heavy editor/rendering dependencies must be grouped by real runtime responsibility in `manualChunks`: Vue runtime, ProseMirror, CodeMirror core, CodeMirror language data, markdown rendering, lowlight/highlight grammar groups, KaTeX, data runtime, icon runtime, and diagram layout engines. Do not raise `chunkSizeWarningLimit` as the only fix.
 - Keep the chunk warning gate evidence-driven. Save the production build log and a top chunk size report under the UI/UX evidence folder, and require zero Vite warning matches for `warning`, `larger than`, and `dynamically imported` unless a documented upstream tool limitation remains.
 - After build chunk changes, run real route smokes for Workstation desktop and 390px mobile, plus at least Hub, Publish, and Settings desktop. Verify fresh console errors are empty, no mojibake is visible, and Workstation Source mode still has no horizontal page overflow.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real verification commands from the current project
+
+```bash
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+```
+
+```bash
+pnpm -C inkforge run style-proof:current-round
+pnpm -C inkforge build
+```
+
+### Anti-patterns
+
+```ts
+// Bad: paper over a failing test with a weak truthiness assertion.
+expect(result).toBeTruthy()
+
+// Good: assert the business contract and cannot-claim boundary.
+expect(report.canClaimCurrentRoundTarget).toBe(true)
+expect(report.canClaimReleaseComplete).toBe(false)
+```
+
+A green unit test is not a substitute for visible rendering proof when UI changed. Do not replace real platform/export proof with mock artifacts.

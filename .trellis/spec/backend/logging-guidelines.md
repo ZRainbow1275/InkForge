@@ -65,3 +65,37 @@ when evidence must survive reloads or support later investigation.
 - Unredacted diagnostic objects from external providers.
 - Repeated duplicate errors when one visible error and one structured record are
   enough.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/services/activity-logger/logger.ts
+const NORMAL_RETENTION_MS = 7 * 24 * 60 * 60 * 1000
+const CRITICAL_RETENTION_MS = 30 * 24 * 60 * 60 * 1000
+const DEFAULT_BATCH_SIZE = 100
+```
+
+```ts
+// inkforge/src/services/activity-logger/logger.ts
+trace(event: string, data: DiagnosticPayload = {}): ActivityLogRecord {
+  const record = this.buildRecord('trace', event, data)
+  publishActivityLogRecord(record)
+  return record
+}
+```
+
+### Anti-patterns
+
+```ts
+// Bad: leaking local runtime state or secrets.
+logger.info('wechat session', { rawCredential: 'browser-secret', localProfileLabel: 'redacted-runtime-profile' })
+
+// Good: log redacted business state only.
+logger.info('wechat export proof collected', { platform: 'wechat', artifactCount: 3 })
+```
+
+Every log payload must be structured and redaction-safe. Do not add ad-hoc `console.log` debugging in committed code.

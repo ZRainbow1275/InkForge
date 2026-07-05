@@ -86,3 +86,35 @@ inkforge/src/
 - `inkforge/src/stores/article.ts`: Pinia orchestration around repository
   writes, Zod DTO validation, audit log, sync dirty tracking, and wiki-link
   repair.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/services/repository.ts
+import { db } from '@/utils/db'
+import { logger, ErrorCode, AppError } from './error'
+import { encryptSensitiveFields, decryptSensitiveFields } from '@/utils/crypto'
+```
+
+```ts
+// inkforge/src/services/security/html-sanitizer.ts
+import DOMPurify, { type Config } from 'dompurify'
+import { HTML_SECURITY } from '@/config/security'
+import { TimeoutMutex } from '@/utils/async-manager'
+```
+
+### Anti-patterns
+
+```ts
+// Bad: a store reaches into low-level crypto and Dexie details.
+await db.articles.add(await encryptSensitiveFields(article))
+
+// Good: a store calls a repository/service boundary.
+await articleRepository.create(article)
+```
+
+`utils/` contains shared primitives; `services/` owns workflows, security, persistence, export, and parser boundaries; stores call service/repository contracts.

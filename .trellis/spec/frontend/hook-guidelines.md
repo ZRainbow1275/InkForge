@@ -58,3 +58,49 @@ Example: `usePreviewRenderer()` accepts typed refs/options, owns debounce and
   owns the rule.
 - Do not create global mutable singletons inside composables unless the feature
   explicitly needs shared process state.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/composables/useSyncScroll.ts
+export interface UseSyncScrollOptions {
+  enabled: Ref<boolean> | ComputedRef<boolean>
+  active: Ref<boolean> | ComputedRef<boolean>
+  leftScrollElement: () => HTMLElement | null
+  rightScrollElement: () => HTMLElement | null
+}
+```
+
+```ts
+// inkforge/src/composables/useSyncScroll.ts
+export interface UseSyncScrollReturn {
+  anchorCount: Readonly<Ref<number>>
+  rebuildAnchors: () => void
+  scheduleRebuild: (delayMs?: number) => void
+  dispose: () => void
+}
+```
+
+### Anti-patterns
+
+```ts
+// Bad: listener without cleanup.
+export function useWindowProbe() {
+  window.addEventListener('resize', () => console.log(window.innerWidth))
+}
+
+// Good: expose dispose and register teardown.
+export function useWindowProbe() {
+  const onResize = () => undefined
+  window.addEventListener('resize', onResize)
+  const dispose = () => window.removeEventListener('resize', onResize)
+  onBeforeUnmount(dispose)
+  return { dispose }
+}
+```
+
+Composables that allocate listeners, observers, timers, or animation frames must expose or register cleanup and guard browser-only APIs for tests/builds.

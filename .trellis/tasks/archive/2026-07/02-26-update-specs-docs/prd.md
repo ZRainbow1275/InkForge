@@ -40,3 +40,24 @@
 - 基于实际代码库分析填充，不是理想化描述
 - 每个 spec 文档至少包含 2-3 个真实代码示例
 - 完成 bootstrap-guidelines 任务的要求
+
+---
+
+## Closeout evidence - 2026-07-05
+
+This documentation task is closed by current repository verification and targeted spec repair:
+
+- Required frontend spec files exist under `.trellis/spec/frontend/`.
+- Required backend spec files exist under `.trellis/spec/backend/`.
+- Required docs files exist under `docs/`.
+- A verification probe confirmed every required spec now has at least two fenced code examples and an explicit anti-pattern/forbidden-pattern section.
+- The examples are based on current project files such as `inkforge/src/stores/settings.ts`, `inkforge/src/composables/useSyncScroll.ts`, `inkforge/src/services/repository.ts`, and `inkforge/src/services/activity-logger/logger.ts`.
+- No product source code was changed for this documentation closeout.
+
+Verification commands:
+
+```bash
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+```
+
+Result: exit code `0`.

@@ -90,3 +90,51 @@ const emit = defineEmits<{
   exercise real UI actions and inspect storage read-only.
 - Do not put service contracts or Zod validation rules only in components.
 - Do not use emoji icons; use the installed icon library.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```vue
+<!-- inkforge/src/components/editor/EditorStatusBar.vue -->
+<script setup lang="ts">
+import type { Editor } from '@tiptap/core'
+import type { ArticleStatus } from '@/types'
+import type { EditorMode } from '@/extensions/TyporaMode'
+
+const props = defineProps<{
+  editor?: Editor
+  lastRenderTime?: number
+  editorMode: EditorMode
+  articleStatus?: ArticleStatus | null
+}>()
+</script>
+```
+
+```vue
+<!-- inkforge/src/components/editor/EditorStatusBar.vue -->
+<script setup lang="ts">
+const emit = defineEmits<{
+  (e: 'set-mode', value: EditorMode): void
+  (e: 'open-editor-settings'): void
+}>()
+</script>
+```
+
+### Anti-patterns
+
+```vue
+<script setup lang="ts">
+// Bad: untyped payload and Emoji icon leak into UI.
+const emit = defineEmits(['change'])
+const icon = 'sparkles'
+
+// Good: typed emit plus installed icon component.
+import { FileText } from 'lucide-vue-next'
+const typedEmit = defineEmits<{ (e: 'set-mode', value: EditorMode): void }>()
+</script>
+```
+
+Do not use Emoji as UI icons. Use installed icon libraries such as `lucide-vue-next`. Do not emit untyped payloads or hide store-owned state inside leaf components.

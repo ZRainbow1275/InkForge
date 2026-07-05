@@ -71,3 +71,35 @@ inkforge/src/
   timers, cleanup, and platform-specific dynamic imports.
 - `src/stores/article.ts` shows store orchestration across repositories, audit,
   sync dirty tracking, and derived state.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/stores/settings.ts
+import { defineStore } from 'pinia'
+import { z } from 'zod'
+import { createActivityLogger } from '@/services/activity-logger'
+```
+
+```ts
+// inkforge/src/composables/useSyncScroll.ts
+import type { ComputedRef, Ref } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import type { Editor } from '@tiptap/core'
+```
+
+### Anti-patterns
+
+```ts
+// Bad: a view imports a private component implementation detail.
+import { privateHelper } from '@/components/editor/internal/private-helper'
+
+// Good: a view uses public store/service/composable contracts.
+import { useSettingsStore } from '@/stores/settings'
+```
+
+Views coordinate state and shell layout; components stay reusable; composables own browser lifecycle; services own persistence, parser, export, and security boundaries.

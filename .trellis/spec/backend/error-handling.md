@@ -69,3 +69,44 @@ equivalent boundary contracts are:
   needs to branch on a code.
 - Do not make unsupported remote operations look successful; use a typed
   unsupported error or an explicit paused/unavailable state.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/services/repository.ts
+try {
+  const item = await this.table.get(id)
+  return item
+} catch (error) {
+  logger.error(`${this.tableName} findById failed`, error, { id })
+  throw new AppError(ErrorCode.DB_READ_FAILED, `读取${this.tableName}失败`, { id })
+}
+```
+
+```ts
+// inkforge/src/services/activity-logger/logger.ts
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+```
+
+### Anti-patterns
+
+```ts
+// Bad: swallow operational failures and make UI think the write succeeded.
+try {
+  await db.articles.put(article)
+} catch {}
+
+// Good: log context and throw a business-level error.
+catch (error) {
+  logger.error('article save failed', error, { articleId: article.id })
+  throw new AppError(ErrorCode.DB_WRITE_FAILED, '保存文章失败', { articleId: article.id })
+}
+```
+
+Boundary services convert unknown errors into business errors with actionable context. UI code should receive domain errors, not raw low-level stack traces.

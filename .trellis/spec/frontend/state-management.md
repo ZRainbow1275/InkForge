@@ -1352,3 +1352,42 @@ layoutPersistenceStore.scheduleSave({
   activeTabId: workstationTabsStore.activeTabId,
 })
 ```
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/stores/settings.ts
+const EDITOR_MODE_VALUES = ['typora', 'source', 'preview'] as const
+const EDITOR_WIDTH_VALUES = ['narrow', 'medium', 'wide', 'full'] as const
+export type EditorMode = typeof EDITOR_MODE_VALUES[number]
+export type EditorWidth = typeof EDITOR_WIDTH_VALUES[number]
+```
+
+```ts
+// inkforge/src/stores/settings.ts
+export interface SettingsRegistryItem {
+  id: string
+  tab: SettingsTabId
+  path: string
+  scope: SettingScope
+  resettable: boolean
+}
+```
+
+### Anti-patterns
+
+```ts
+// Bad: duplicated string unions and unvalidated setting paths.
+type Mode = string
+const settingPath = 'editor.mode.typo'
+
+// Good: derive unions from source-of-truth const arrays.
+const MODE_VALUES = ['typora', 'source', 'preview'] as const
+type Mode = typeof MODE_VALUES[number]
+```
+
+Stores must not duplicate service constants, invent unregistered persisted settings, or swallow action failures silently.

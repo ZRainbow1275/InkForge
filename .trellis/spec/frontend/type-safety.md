@@ -154,3 +154,43 @@ inferred from Zod schemas when the schema is the source of truth.
 - DOM serialization must use typed `HTMLElement` guards before reading `dataset`, `classList`, or `tagName`. Do not introduce `any` casts for ProseMirror, DOMParser, citation marks, or footnote list items.
 - Platform degradation helpers must return strings produced from parsed citation/footnote structures, not regex-only lossy payloads that bypass parser validation.
 - Do not introduce `any` or free-form records for BibTeX parser output, citation formatter payloads, Markdown renderer options, sanitizer allow-list additions, export degradation evidence, or browser smoke evidence.
+
+---
+
+## 2026-07-05 executable examples and anti-patterns
+
+### Real code examples from the current tree
+
+```ts
+// inkforge/src/stores/settings.ts
+export const FEATURE_FLAG_KEYS = [
+  'markdown-hints',
+  'multi-tab',
+  'ai-autocomplete',
+  'performance-metrics',
+] as const
+export type FeatureFlagKey = typeof FEATURE_FLAG_KEYS[number]
+```
+
+```ts
+// inkforge/src/services/security/html-sanitizer.ts
+export type HTMLSanitizeMode =
+  | 'strict'
+  | 'standard'
+  | 'wechat-export'
+  | 'markdown-render'
+  | 'permissive'
+  | 'custom'
+```
+
+### Anti-patterns
+
+```ts
+// Bad: weak type erases accepted platform/style values.
+function setExportTarget(platform: any, preset: string) {}
+
+// Good: use explicit domain unions or exported service types.
+function setExportTarget(platform: 'wechat' | 'xhs' | 'zhihu', preset: string): void {}
+```
+
+Do not introduce `any` for convenience. Prefer `unknown`, discriminated unions, Zod schemas, or existing exported types.
