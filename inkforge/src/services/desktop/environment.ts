@@ -23,6 +23,22 @@ export function detectTauriRuntimeSignal(source: unknown = typeof window !== 'un
     return 'tauri-v2-internals'
   }
 
+  if (probe.__TAURI_INVOKE__ !== undefined) {
+    return 'tauri-v1-invoke'
+  }
+
+  if (probe.__TAURI_IPC__ !== undefined) {
+    return 'tauri-v1-ipc'
+  }
+
+  if (probe.__TAURI_METADATA__ !== undefined) {
+    return 'tauri-v1-metadata'
+  }
+
+  if (probe.__TAURI_POST_MESSAGE__ !== undefined) {
+    return 'tauri-v1-post-message'
+  }
+
   return 'none'
 }
 

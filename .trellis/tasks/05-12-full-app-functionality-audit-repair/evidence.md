@@ -124,9 +124,11 @@ Targeted non-mutating ESLint has passed for `PublishView.vue`, `ThemesView.vue`,
 ## Tauri Evidence
 
 Partial. A real Tauri/WebDriver run now starts the packaged WebView2 shell and covers the chrome
-window controls, brand mark, visual tokens, theme cascade, and SVG export surface. Native dialogs,
-updater, file-system/runtime boundaries, file reveal, shell-open, and other shell-only controls
-still require dedicated rows before the whole `05-12` task can close.
+window controls, brand mark, visual tokens, theme cascade, SVG export surface, desktop runtime
+snapshot, capability matrix, Rust window-list readback, and safe fail-closed native boundary paths.
+Native file-dialog selection/cancel, valid Explorer reveal, valid external shell-open, clipboard
+permission flow, and other shell-only side effects still require dedicated/manual rows before the
+whole `05-12` task can close.
 
 ## 2026-07-05 Continuation Gate Replay
 
@@ -156,3 +158,21 @@ The package build gate is now green. Interactive Tauri shell evidence for native
 | 2026-07-05 | Final Tauri/WebDriver replay: `pnpm -C inkforge test:e2e` | PASS: 2 spec files / 17 tests. `svg-render.spec.cjs` passed 6/6 with real draft seeding, real ExportModal, WeChat/XHS/Zhihu local style capability readback, flagship Kiln/Tempera/Amber SVG injection, and mobile-comfort CJK line-width check. `visual.spec.cjs` passed 11/11 with TitleBar controls, IPC click round-trips, brand mark, tokens, and theme cascade in the Tauri WebView2 shell. |
 
 Boundary: this Tauri/WebDriver proof strengthens the desktop-shell evidence for chrome and SVG/export UI. It does not complete native dialogs, updater, file-system/runtime boundaries, file reveal, shell-open, external credentials, platform upload, platform sync, public rendering, or publish rows.
+
+### 2026-07-05 Tauri/Desktop Runtime Boundary Replay
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Code audit against `utils/platform.ts` and `services/desktop/environment.ts` | Found a real native-boundary drift: the central platform detector already recognizes Tauri 1 IPC-only globals such as `__TAURI_INVOKE__` and `__TAURI_IPC__`, but the Desktop runtime detector recognized only `__TAURI__` and `__TAURI_INTERNALS__`. A Tauri 1 build with `withGlobalTauri=false` could therefore be misclassified as web by Settings/About desktop diagnostics. |
+| 2026-07-05 | GitNexus impact: `npx gitnexus impact detectTauriRuntimeSignal -r InkForge -d upstream --depth 3` | LOW risk; direct upstream `detectDesktopRuntime`; Desktop module only; 0 affected processes. |
+| 2026-07-05 | GitNexus impact: `npx gitnexus impact detectDesktopRuntime -r InkForge -d upstream --depth 3` | MEDIUM risk; direct upstream Desktop service methods and SettingsView; Desktop module only; 0 affected processes. Proceeded because this is the exact native-boundary row under audit and the fix is additive detection. |
+| 2026-07-05 | Repair | Extended `DesktopRuntimeSignal` and `detectTauriRuntimeSignal()` to recognize `__TAURI_INVOKE__`, `__TAURI_IPC__`, `__TAURI_METADATA__`, and `__TAURI_POST_MESSAGE__`, matching the existing Tauri 1 platform detector semantics without weakening web fallback. |
+| 2026-07-05 | Targeted unit test: `pnpm -C inkforge exec vitest run src/services/desktop/environment.test.ts --reporter=default` | PASS: 1 file / 3 tests. Covers web/no-signal, classic `__TAURI__`, v2 internals, and IPC-only Tauri 1 globals. |
+| 2026-07-05 | Targeted lint: `pnpm -C inkforge exec eslint src/services/desktop/environment.ts src/services/desktop/types.ts src/services/desktop/environment.test.ts tests/e2e/specs/native-runtime.spec.cjs --quiet` | PASS. |
+| 2026-07-05 | Production web build: `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` | PASS; refreshes the frontend bundle embedded by the Tauri debug binary. |
+| 2026-07-05 | First full native e2e replay: `pnpm -C inkforge test:e2e` | Failed once because the new test probe selected the first `.sv-section-note` instead of the runtime status note. The actual UI already showed Tauri runtime and the native command note; only the test selector was wrong. |
+| 2026-07-05 | Targeted native replay: `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/native-runtime.spec.cjs` | PASS: `native-runtime.spec.cjs` 2/2. Verified Settings About reports `Tauri Desktop`, explicit Tauri signal, current window `main`, a native app-data value without recording the local path, available native capability rows, planned unsupported rows, and no missing button types in the Desktop Runtime section. |
+| 2026-07-05 | Native command/fail-closed probe inside the same real Tauri shell | PASS. Through the real Pinia `desktop` store, `desktopStore.refresh()` loaded the Tauri Rust runtime snapshot and window list. `desktopStore.revealPath('   ')` returned typed `invalid-input`; a definitely missing path called the real `reveal_in_explorer` command and returned typed `failed` with `path does not exist`; `desktopStore.openUrl('javascript:...')` and malformed URL both returned typed `invalid-input` before `shell.open`. |
+| 2026-07-05 | Final full native e2e replay: `pnpm -C inkforge test:e2e` | PASS: 3 real Tauri/WebDriver specs / 19 tests. `native-runtime.spec.cjs` passed 2/2, `svg-render.spec.cjs` passed 6/6, and `visual.spec.cjs` passed 11/11. |
+
+Boundary: this closes the Desktop runtime detection drift and proves safe native command boundaries in the real Tauri shell. It does not automate OS file-picker selection/cancel, valid Explorer reveal, valid external URL/mail client opening, clipboard permission flows, signed updater endpoint behavior, global shortcuts, tray behavior, or package-signing verification.

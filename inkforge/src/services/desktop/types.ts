@@ -1,6 +1,13 @@
 export type DesktopRuntimeKind = 'tauri' | 'web'
 
-export type DesktopRuntimeSignal = 'tauri-v1' | 'tauri-v2-internals' | 'none'
+export type DesktopRuntimeSignal =
+  | 'tauri-v1'
+  | 'tauri-v1-invoke'
+  | 'tauri-v1-ipc'
+  | 'tauri-v1-metadata'
+  | 'tauri-v1-post-message'
+  | 'tauri-v2-internals'
+  | 'none'
 
 export type DesktopCapabilityId =
   | 'app-info'

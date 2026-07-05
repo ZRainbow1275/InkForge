@@ -162,6 +162,14 @@ and still run the narrow checks for the touched scope.
 - Required commands before closing an updater task: `pnpm exec vitest run src/services/updater/updater.test.ts`, `pnpm exec vue-tsc --noEmit`, `pnpm exec eslint src --ext .ts,.tsx,.vue --quiet`, `pnpm vitest run`, and `NODE_OPTIONS=--max-old-space-size=4096 pnpm build` when the default heap cannot complete the production build.
 - Browser smoke must use the real Settings UI and real Command Palette path. At minimum verify `Settings > About > Tauri Updater`, command `Updater: Check for Updates`, disabled/unavailable web behavior, audit/activity log evidence, fresh console-error logs, and no updater toast unless a real signed update exists.
 
+## DesktopRuntime Quality Gate
+
+- Do not accept desktop runtime detection that only checks `window.__TAURI__`. Tauri 1 builds may run with `withGlobalTauri=false` and still expose IPC-only globals such as `__TAURI_INVOKE__`, `__TAURI_IPC__`, `__TAURI_METADATA__`, or `__TAURI_POST_MESSAGE__`.
+- `services/desktop/environment.ts` must stay aligned with `utils/platform.ts` for Tauri detection semantics. If a new Tauri marker is added to one detector, update the other detector and its tests in the same change.
+- Settings > About > Desktop Runtime must never classify a real Tauri WebView2 shell as `Web Runtime` merely because `__TAURI__` is absent. The UI should show an explicit Tauri signal and keep web fallback honest when no Tauri marker exists.
+- Safe native-boundary automation should prefer fail-closed probes that do not open OS windows: invalid/missing `reveal_in_explorer` paths, malformed or disallowed shell URLs, and runtime snapshot/window-list readback. Do not automate valid Explorer reveal, system file-picker selection, external URL opening, mail client opening, or clipboard permission prompts unless the test environment owns those OS side effects.
+- Required commands after changing desktop runtime detection: `pnpm exec vitest run src/services/desktop/environment.test.ts`, targeted ESLint for touched desktop files, `NODE_OPTIONS=--max-old-space-size=4096 pnpm build` before Tauri e2e, and a real Tauri/WebDriver check for Settings > About > Desktop Runtime.
+
 ## CitationBaseline Quality Gate
 
 - Do not accept citation/footnote changes unless Markdown remains the authority. Preview, Typora, cache, and export HTML must be derived from Markdown and must not write generated HTML back as canonical document body.
