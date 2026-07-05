@@ -13005,3 +13005,37 @@ Boundary:
   readiness. It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform preview, or
   publish success.
+
+---
+
+## 2026-07-05 CloakBrowser Workstation ExportModal Visual Readback Addendum
+
+- Ran a latest-code local Workstation visual/DOM readback through CloakBrowser.
+- Started the local Vite dev server with:
+  `pnpm -C inkforge dev --host 127.0.0.1 --port 3005`.
+- Opened `http://127.0.0.1:3005/workstation`, selected a local draft, and opened the ExportModal.
+- Verified the active WeChat Official Account export tab.
+- Runtime text readback contained:
+  - `当前可用 8/17`;
+  - `可应用渲染样式 13/13`;
+  - `canClaimComplete=false`;
+  - `blocked-by-external`;
+  - `外部证明清单`.
+- Style-card counts from live DOM:
+  - total cards: 17;
+  - proof-available cards: 8;
+  - renderable but proof-blocked cards: 5;
+  - unavailable/publish-checklist cards: 4;
+  - renderable cards: 13;
+  - disabled renderable cards: 0.
+- Renderable click sweep:
+  - clicked renderable cards: 13;
+  - active-after-click count: 13;
+  - click failures: 0;
+  - runtime errors captured during sweep: 0.
+- Added sanitized evidence:
+  `prompts/0601/evidence/cloakbrowser-workstation-exportmodal-visual-readback-20260705.txt`.
+- Boundary: this proves local UI application of all renderable WeChat SVG/style rows in the app.
+  It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.

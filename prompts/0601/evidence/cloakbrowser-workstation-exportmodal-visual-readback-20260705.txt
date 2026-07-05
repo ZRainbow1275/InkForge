@@ -1,0 +1,99 @@
+CloakBrowser Workstation ExportModal Visual Readback - 2026-07-05
+
+Scope:
+- Real local UI/DOM readback after the latest application-acceptance and WeChat checklist gates.
+- CloakBrowser only; Playwright fallback was not used.
+- No WeChat/Xiaohongshu/Zhihu account action, phone preview, upload, sync, scheduled send, or
+  publish.
+- No browser-runtime artifacts, account state, request captures, or local machine paths are
+  committed.
+
+Setup:
+- Local dev server:
+  - pnpm -C inkforge dev --host 127.0.0.1 --port 3005
+- Browser route:
+  - http://127.0.0.1:3005/workstation
+- A local draft was selected from the Workstation sidebar.
+- The top-bar Export action opened the ExportModal.
+- The active platform tab was WeChat Official Account.
+
+CloakBrowser readback:
+- Page title: InkForge - 工作站
+- Export modal open: true
+- ARIA dialog count: 1
+- Viewport: 1202 x 797
+- Device pixel ratio: 1.5
+- Modal text length: 11381
+- Modal SVG count: 31
+- Modal image count: 0
+- Platform tabs present:
+  - 微信公众号
+  - 小红书
+  - 知乎
+- Summary text present:
+  - 当前可用 8/17
+  - 可应用渲染样式 13/13
+  - canClaimComplete=false
+  - blocked-by-external
+  - 外部证明清单
+
+Style-card readback:
+- Total WeChat style cards: 17
+- Proof-available cards: 8
+- Renderable but proof-blocked cards: 5
+- Unavailable/publish-checklist cards: 4
+- Disabled cards: 4
+- Renderable cards: 13
+- Disabled renderable cards: 0
+
+Renderable-card click sweep:
+- Clicked renderable cards: 13
+- Active-after-click count: 13
+- Click failures: 0
+- New runtime errors captured during sweep: 0
+
+Renderable rows clicked:
+- Classic WeChat inline preset
+- Quiet Press editorial blocks
+- Toolbar typography parameter map
+- Static cover seal and divider SVG
+- Rich cards and timeline blocks
+- Kiln creative flagship
+- Kiln ordinary-paste compatibility candidate
+- Tempera academic flagship
+- Amber business flagship
+- Click reveal SVG candidate
+- Mobile-only SVG effect candidate
+- Carousel and switch SVG candidate
+- Market SVG/H5 fallback matrix
+
+Unavailable rows intentionally left disabled:
+- Official widget publish checklist
+- Plugin transfer channel checklist
+- Credentialed draft sync checklist
+- H5 and design artifact boundary
+
+Related local gate readback:
+- pnpm --silent -C inkforge style-proof:application-acceptance --json
+  PASS: exit 0
+  Key fields:
+  - status: application-acceptance-ready
+  - canClaimApplicationReady: true
+  - canClaimReleaseComplete: false
+  - wechatManualChecklistExitCode: 0
+  - checks: application-preflight, application-gallery, wechat-manual-checklist,
+    strict-release-boundary
+  - strictReleaseBoundaryPreserved: true
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  PASS: expected exit 1
+  Key fields:
+  - status: blocked-by-external
+  - canClaimComplete: false
+
+Boundary:
+- This proves the latest local Workstation ExportModal can display and apply all 13 renderable
+  WeChat SVG/style rows in the app without runtime errors.
+- This does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

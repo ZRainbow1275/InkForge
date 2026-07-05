@@ -9083,3 +9083,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves only local application/checklist readiness. It does not prove WeChat
   phone preview, credentialed sync, scheduled send, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 CloakBrowser Workstation ExportModal Visual Readback
+
+- [x] cloakbrowser-workstation-exportmodal-visual-readback-20260705.txt
+- Scope: latest local Workstation ExportModal UI/DOM readback through CloakBrowser.
+- Verified the WeChat Official Account export tab after selecting a local draft and opening the
+  ExportModal.
+- Runtime text contained `当前可用 8/17`, `可应用渲染样式 13/13`,
+  `canClaimComplete=false`, `blocked-by-external`, and `外部证明清单`.
+- Style-card readback: 17 total cards, 8 proof-available cards, 5 renderable but proof-blocked
+  cards, 4 unavailable/publish-checklist cards, 13 renderable cards, and 0 disabled renderable
+  cards.
+- Renderable click sweep: clicked all 13 renderable cards, 13 became active after click, 0 click
+  failures, and 0 runtime errors captured during the sweep.
+- Boundary: this proves local UI application of all renderable WeChat SVG/style rows only. It
+  does not prove WeChat phone preview, credentialed sync, scheduled send, public rendering, or
+  publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

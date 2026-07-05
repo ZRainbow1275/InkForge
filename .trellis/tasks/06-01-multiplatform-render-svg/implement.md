@@ -25425,3 +25425,51 @@ Scope:
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 CloakBrowser Workstation ExportModal Visual Readback Slice
+
+Scope:
+- Current-code local UI/DOM verification through CloakBrowser.
+- No WeChat/Xiaohongshu/Zhihu account action, phone preview, upload, sync, scheduled send,
+  public rendering, or publish.
+- No browser-runtime artifact, account state, request capture, or local machine path is committed.
+
+Setup:
+- Started local Vite dev server with:
+  `pnpm -C inkforge dev --host 127.0.0.1 --port 3005`.
+- Opened `http://127.0.0.1:3005/workstation` in CloakBrowser.
+- Selected a local draft from the Workstation sidebar.
+- Opened the ExportModal from the top-bar export action.
+
+Readback:
+- Export modal open: true.
+- Active platform: WeChat Official Account.
+- Runtime summary contained:
+  - `当前可用 8/17`;
+  - `可应用渲染样式 13/13`;
+  - `canClaimComplete=false`;
+  - `blocked-by-external`;
+  - `外部证明清单`.
+- Style-card counts:
+  - total cards: 17;
+  - proof-available cards: 8;
+  - renderable but proof-blocked cards: 5;
+  - unavailable/publish-checklist cards: 4;
+  - renderable cards: 13;
+  - disabled renderable cards: 0.
+- Renderable click sweep:
+  - clicked renderable cards: 13;
+  - active-after-click count: 13;
+  - click failures: 0;
+  - runtime errors captured during sweep: 0.
+
+Evidence:
+- Added `prompts/0601/evidence/cloakbrowser-workstation-exportmodal-visual-readback-20260705.txt`.
+
+Scope boundary:
+- This proves the latest local Workstation ExportModal can display and apply all 13 renderable
+  WeChat SVG/style rows in the app without runtime errors.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover-thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
