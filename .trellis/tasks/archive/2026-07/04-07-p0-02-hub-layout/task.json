@@ -1,0 +1,62 @@
+{
+  "id": "p0-02-hub-layout",
+  "name": "p0-02-hub-layout",
+  "title": "P0 Hub Layout Closeout",
+  "description": "Closeout for the Hub hero, creation-tools card, recent card entry consolidation, template market, quick actions, and responsive verification across desktop, tablet, and mobile.",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "hub",
+  "package": null,
+  "priority": "P0",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-07",
+  "completedAt": "2026-07-05",
+  "branch": "feature/v21-hub-layout",
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "Keep the hero card centered on the creation-flow signal instead of brand-only chrome",
+    "Re-scope the old card-new area into a creation-tools card without deleting existing module surface",
+    "Keep recent articles plus inline blank/template actions in card-recent",
+    "Use the minimalist inspiration card style while preserving AI and local quote flows",
+    "Expose template market and quick actions on the second screen through real creation links",
+    "Verify responsive Hub rendering on desktop, tablet, and mobile without mock data",
+    "Preserve all existing Hub modules and creation entry points while reducing duplicate blank-create emphasis"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/views/HubView.vue",
+    "inkforge/src/components/template/TemplatePicker.vue",
+    "inkforge/src/stores/article.ts",
+    "inkforge/src/stores/settings.ts"
+  ],
+  "notes": "Closed on 2026-04-23 after rewriting the PRD to match current Hub truth and re-verifying the homepage in desktop, iPhone 13, and iPad Pro 11 viewports. The old card-new area is retained as a creation-tools card instead of being physically deleted, which aligns with the repo-wide no-deletion constraint.",
+  "meta": {
+    "spec": "prompts/0327/02-hub-layout-spec.md",
+    "phase": "P0",
+    "order": 2
+  }
+}

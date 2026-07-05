@@ -1,0 +1,62 @@
+{
+  "id": "p1-05-toolbar-context-menu",
+  "name": "p1-05-toolbar-context-menu",
+  "title": "浮动工具栏 + 上下文菜单 + 斜杠命令",
+  "description": "FloatingToolbar 溢出修复 + 24 按钮快捷键 title 补全，EditorContextMenu 15 项菜单，斜杠命令从 11 扩展到 21+",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "editor",
+  "package": null,
+  "priority": "P1",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-07",
+  "completedAt": "2026-07-05",
+  "branch": "feature/v21-toolbar-context-menu",
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "FloatingToolbar 溢出修复 (左右/上边界检测 + 窄屏 flex-wrap)",
+    "FloatingToolbar 24 个按钮 title 快捷键提示补全 + 修正 3 个错误映射",
+    "EditorContextMenu.vue 集成到 EditorPanel (contextmenu 事件 + 边界检测)",
+    "斜杠命令扩展到 21+: 新增 h4/paragraph/link/highlight/textColor/align/callout/details/clearFormat",
+    "SlashCommandMenu 按 5 分类分组显示 (heading/block/list/insert/advanced)",
+    "图片插入改用文件选择器替代 window.prompt()"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/components/editor/FloatingToolbar.vue",
+    "inkforge/src/components/editor/EditorContextMenu.vue",
+    "inkforge/src/extensions/SlashCommands.ts",
+    "inkforge/src/components/editor/SlashCommandMenu.vue",
+    "inkforge/src/components/editor/EditorPanel.vue"
+  ],
+  "notes": "规范文档: prompts/0327/05-toolbar-complete-spec.md | 与 04 规范共享 EditorContextMenu | 禁止创建 EditorToolbar.vue | 2026-04-29 verified: P1-05 acceptance complete; 0420 command-registry super-spec remains separate future architecture scope.",
+  "meta": {
+    "spec": "prompts/0327/05-toolbar-complete-spec.md",
+    "phase": "P1",
+    "order": 5
+  }
+}

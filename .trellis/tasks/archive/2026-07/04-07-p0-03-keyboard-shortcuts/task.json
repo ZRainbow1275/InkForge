@@ -1,0 +1,68 @@
+{
+  "id": "p0-03-keyboard-shortcuts",
+  "name": "p0-03-keyboard-shortcuts",
+  "title": "33 条键盘快捷键体系",
+  "description": "创建 KeyboardShortcuts.ts TipTap 扩展，实现 33 条快捷键 (5 组: 格式化8/标题5/块级7/编辑6/视图7)，含 FindReplace.vue 新组件和 Settings 快捷键 Tab 扩展",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "editor",
+  "package": null,
+  "priority": "P0",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-07",
+  "completedAt": "2026-07-05",
+  "branch": "feature/v21-keyboard-shortcuts",
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "创建 KeyboardShortcuts.ts TipTap 扩展 (Mod- 前缀, 33 条绑定)",
+    "创建 FindReplace.vue (Ctrl+F/H 触发, 大小写/正则/全词/计数/替换)",
+    "WorkstationView 全局 keydown handler (视图快捷键 7 条)",
+    "Ctrl+\\ 双重用途 (有选区=清除格式, 无选区=切换编辑模式)",
+    "Ctrl+K 链接插入走 FloatingToolbar (禁止 window.prompt)",
+    "输入法兼容 (event.isComposing 检查)",
+    "Settings 快捷键 Tab: 33 条分 5 组 + 搜索过滤 + 冲突检测"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/extensions/KeyboardShortcuts.ts",
+    "inkforge/src/components/editor/FindReplace.vue",
+    "inkforge/src/components/editor/EditorPanel.vue",
+    "inkforge/src/views/WorkstationView.vue",
+    "inkforge/src/components/editor/FloatingToolbar.vue",
+    "inkforge/src/stores/settings.ts",
+    "inkforge/src/views/SettingsView.vue",
+    "inkforge/src/components/settings/ShortcutInput.vue",
+    "inkforge/src/utils/shortcuts.ts"
+  ],
+  "notes": "规范文档: prompts/0327/03-keyboard-shortcuts-spec.md + prompts/0420/specs/03-keyboard-shortcuts-spec.md | 完成范围: 33 键位基线升级为 38 条可配置快捷键；Chord/120+ keymap/帮助面板由 0420 后续 keymap 与 command palette specs 继续承接。",
+  "meta": {
+    "spec": "prompts/0420/specs/03-keyboard-shortcuts-spec.md",
+    "phase": "P0",
+    "order": 3,
+    "legacy_spec": "prompts/0327/03-keyboard-shortcuts-spec.md"
+  }
+}

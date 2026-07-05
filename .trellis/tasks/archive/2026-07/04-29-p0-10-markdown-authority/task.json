@@ -1,0 +1,75 @@
+{
+  "id": "p0-10-markdown-authority",
+  "name": "p0-10-markdown-authority",
+  "title": "P0 Markdown Authority Model",
+  "description": "Implement prompts/0420 spec 10 baseline: markdownSource/htmlCache/sourceHash/cacheVersion authority contract, frontmatter mirror helpers, and real write/read path validation without mock data.",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "authority-model",
+  "package": null,
+  "priority": "P0",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-29",
+  "completedAt": "2026-07-05",
+  "branch": null,
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "ArticleSchema 扩展 markdownSource/htmlCache/sourceHash/cacheVersion/cacheGeneratedAt baseline 字段",
+    "新增 src/core/authority hash/cache/frontmatter/article 真实权威模块",
+    "新建、URL 导入、文件导入、草稿创建、编辑保存、分类移动路径同步 authority 字段",
+    "loadArticles 对 legacy/缺失 authority 文章执行真实修复并落库",
+    "markdownSource/htmlCache 纳入敏感字段加密，分类查询路径补齐解密",
+    "浏览器 runtime 与 Pinia/Dexie repository 自检通过，测试文章已清理"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/core/authority/hash.ts",
+    "inkforge/src/core/authority/cache.ts",
+    "inkforge/src/core/authority/frontmatter.ts",
+    "inkforge/src/core/authority/article.ts",
+    "inkforge/src/core/authority/index.ts",
+    "inkforge/src/schemas/article.ts",
+    "inkforge/src/stores/article.ts",
+    "inkforge/src/utils/crypto/types.ts",
+    "inkforge/src/services/repository.ts",
+    ".trellis/tasks/04-29-p0-10-markdown-authority/prd.md",
+    ".trellis/tasks/04-29-p0-10-markdown-authority/implement.jsonl",
+    ".trellis/tasks/04-29-p0-10-markdown-authority/check.jsonl",
+    "prompts/0420/specs/10-markdown-authority-spec.md",
+    "prompts/0420/acceptance-matrix.md"
+  ],
+  "notes": "完成 prompts/0420 spec 10 baseline slice: markdownSource/htmlCache/sourceHash/cacheVersion 权威字段、frontmatter mirror helpers、真实 store/repository 写入更新读取链路、敏感字段加密覆盖与浏览器自检。未宣称完整 round-trip fuzz、全部 exporter 切换、activity_logs、版本历史与数据完整性 Worker 全量完成。",
+  "meta": {
+    "spec": "prompts/0420/specs/10-markdown-authority-spec.md",
+    "phase": "P0",
+    "order": 10,
+    "baselineCompleted": true,
+    "fullSpecRemaining": [
+      "round-trip fuzz and golden corpus",
+      "all exporter inputs switched to markdownSource",
+      "activity_logs write path",
+      "version history authority bundle",
+      "integrity worker and stale cache flags"
+    ]
+  },
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement-next-0420-spec"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    }
+  ]
+}

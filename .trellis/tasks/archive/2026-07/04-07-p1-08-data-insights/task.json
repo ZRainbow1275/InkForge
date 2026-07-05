@@ -1,0 +1,73 @@
+{
+  "id": "p1-08-data-insights",
+  "name": "p1-08-data-insights",
+  "title": "数据洞察丰富 (3 → 9 图表)",
+  "description": "新增 6 个数据可视化组件 (WritingTimeline/ProductivityInsights/WordDistribution/TagCloud/RecentActivity/ExportFrequency)，统一卡片风格，Section 3 四行布局",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "hub",
+  "package": null,
+  "priority": "P1",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-07",
+  "completedAt": "2026-07-05",
+  "branch": "feature/v21-data-insights",
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "现有 3 组件 (ContributionHeatmap/WordCountTrend/CategoryDistribution) 添加空状态 UI",
+    "WritingTimeline.vue: 垂直时间轴 7-14 天写作活动 (创建=红/编辑=蓝)",
+    "ProductivityInsights.vue: 6 项指标 2x3 网格 + useCountUp 动画",
+    "WordDistribution.vue: 文章字数分布直方图 6 桶 (纯 SVG)",
+    "TagCloud.vue: flex-wrap 词云 (12-28px 按频率缩放)",
+    "RecentActivity.vue: 最近 10 条活动日志 (activity_logs 表/articles 推断)",
+    "ExportFrequency.vue: 6 平台导出频率水平柱状图",
+    "HubView Section 3 四行响应式布局重排"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/components/hub/insights/DataInsightsSection.vue",
+    "inkforge/src/components/hub/insights/ContributionHeatmap.vue",
+    "inkforge/src/components/hub/insights/WordCountTrend.vue",
+    "inkforge/src/components/hub/insights/CategoryDistribution.vue",
+    "inkforge/src/components/hub/insights/WritingTimeline.vue",
+    "inkforge/src/components/hub/insights/ProductivityInsights.vue",
+    "inkforge/src/components/hub/insights/WordDistribution.vue",
+    "inkforge/src/components/hub/insights/TagCloud.vue",
+    "inkforge/src/components/hub/insights/RecentActivity.vue",
+    "inkforge/src/components/hub/insights/ExportFrequency.vue",
+    "inkforge/src/components/hub/insights/InsightEmptyState.vue",
+    "inkforge/src/components/hub/insights/types.ts",
+    "inkforge/src/composables/useCountUp.ts",
+    "inkforge/src/views/HubView.vue"
+  ],
+  "notes": "完成 P1-08 本地 Hub 数据洞察 baseline: 9 张真实数据图表、纯 SVG/CSS、无 mock；activity_logs/export_logs 未落库时不造假，展示推断或空状态。规范文档: prompts/0327/08-data-insights-spec.md; prompts/0420/specs/08-data-insights-spec.md",
+  "meta": {
+    "spec": "prompts/0327/08-data-insights-spec.md",
+    "phase": "P1",
+    "order": 8
+  }
+}

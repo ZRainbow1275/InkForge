@@ -1,0 +1,62 @@
+{
+  "id": "04-30-p1-15-export-publish",
+  "name": "04-30-p1-15-export-publish",
+  "title": "P1 Export Publish Baseline",
+  "description": "Implement prompts/0420 spec 15 compatible export/publish baseline with real current export pipeline validation and docs.",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "export-publish-baseline",
+  "package": null,
+  "priority": "P1",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-30",
+  "completedAt": "2026-07-05",
+  "branch": null,
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "export_preflight_panel_added",
+    "native_format_output_added",
+    "native_copy_download_added",
+    "direct_publish_truthful_blocker_added",
+    "clipboard_timeout_and_fallback_added",
+    "real_browser_three_platform_validation_completed",
+    "typecheck_lint_build_completed",
+    "spec_and_acceptance_matrix_updated"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/components/export/ExportModal.vue",
+    "inkforge/src/services/export/utils.ts",
+    "inkforge/src/services/export/index.ts",
+    "prompts/0420/specs/15-export-publish-spec.md",
+    "prompts/0420/acceptance-matrix.md",
+    ".trellis/tasks/04-30-04-30-p1-15-export-publish/prd.md",
+    ".trellis/tasks/04-30-04-30-p1-15-export-publish/implement.jsonl",
+    ".trellis/tasks/04-30-04-30-p1-15-export-publish/check.jsonl"
+  ],
+  "notes": "Baseline_only;real_platform_API_publishing_and_export_history_remain_pending_without_mock_success.",
+  "meta": {
+    "order": 15,
+    "baselineOnly": true,
+    "baselineCompleted": true
+  },
+  "fullSpecRemaining": [
+    "standard_html_platform_entry",
+    "standard_markdown_platform_entry",
+    "export_logs_history",
+    "one_click_reexport",
+    "preset_persistence",
+    "worker_offloading",
+    "asset_snapshot_base64_inlining",
+    "five_platform_19_element_3_sample_matrix",
+    "settings_export_preset_management",
+    "custom_channel_configuration",
+    "real_platform_api_publish",
+    "audit_log_persistence"
+  ]
+}

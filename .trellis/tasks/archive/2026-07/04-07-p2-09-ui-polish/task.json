@@ -1,0 +1,70 @@
+{
+  "id": "p2-09-ui-polish",
+  "name": "p2-09-ui-polish",
+  "title": "UI 打磨与溢出修复",
+  "description": "全局溢出修复 (9 个检查点)、卡片设计系统 (card-base/interactive/accent/empty)、暗色模式完整适配 (14 组件检查矩阵 + CSS 变量扩展)、页面切换动画 (3 种)、reducedMotion 支持",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "global",
+  "package": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-07",
+  "completedAt": "2026-07-05",
+  "branch": "feature/v21-ui-polish",
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "全局溢出工具类: .text-truncate / .text-clamp-2 / .text-clamp-3",
+    "9 个溢出点逐一修复 (HubHeader/StatsDashboard/InspirationCard/WritingFlowCard/ArticleWaterfall/SettingsView/TabBar/EditorStatusBar)",
+    "TabBar 溢出: 横向滚动 + 右端渐变遮罩 + 隐藏滚动条",
+    "卡片设计系统: .card-base/.card-interactive/.card-accent/.card-empty + 统一 label/title/stat 样式",
+    "暗色模式 CSS 变量扩展: 新增 --bg-surface-elevated/--bg-input/--bg-hover/--shadow-color/--code-bg 等",
+    "14 个组件暗色模式检查矩阵逐一验证",
+    "页面切换动画: page-fade/page-slide-left/page-slide-right + 路由 meta.transition",
+    "reducedMotion: data-reduced-motion attribute + CSS 强制抑制所有 animation/transition",
+    "WCAG AA 对比度验证 (4.5:1 文字对比度)"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/styles/design-system.css",
+    "inkforge/src/App.vue",
+    "inkforge/src/router/index.ts",
+    "inkforge/src/views/HubView.vue",
+    "inkforge/src/views/SettingsView.vue",
+    "inkforge/src/components/editor/EditorStatusBar.vue",
+    ".trellis/tasks/04-07-p2-09-ui-polish/implement.jsonl",
+    ".trellis/tasks/04-07-p2-09-ui-polish/check.jsonl",
+    "prompts/0327/09-ui-polish-spec.md",
+    "prompts/0420/specs/09-spec-ui-polish.md"
+  ],
+  "notes": "完成 P2-09 UI polish baseline: design-system 全局溢出工具、卡片类、暗色变量、router transition、reducedMotion、Hub/Settings/EditorStatusBar 溢出修复、WCAG AA 抽样和真实浏览器横向溢出验证。FloatingToolbar 视口边界沿用 P1-05 已完成逻辑；未删除任何既有入口或组件。",
+  "meta": {
+    "spec": "prompts/0327/09-ui-polish-spec.md",
+    "phase": "P2",
+    "order": 9
+  }
+}
