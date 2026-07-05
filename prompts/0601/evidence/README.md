@@ -9277,3 +9277,29 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send, platform
   preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side tests remain
   manually deferred to the user.
+
+## 2026-07-05 Current-Round Completion Audit
+
+- [x] current-round-completion-audit-20260705.txt
+- Scope: requirement-by-requirement closeout audit for the 2026-07-04 narrowed round target.
+- The audit maps each current-round PRD amendment item to direct evidence:
+  - all 27 SVG modules available in the local WeChat-safe application surface;
+  - 108 rendered module/persona pairs in the application gallery;
+  - all 27 modules injected through WeChat application options with zero injection failures;
+  - 17 WeChat style rows, 13 selectable/rendered rows, zero style-sample issues, and zero
+    usable-but-unselectable WeChat choices;
+  - live ExportModal readback with 17 cards, 13 non-disabled rows, zero runtime error toasts,
+    and all 13 rows selected after click;
+  - application-scope preflight ready while strict release completion remains unclaimed.
+- Direct audit commands:
+  - `pnpm --silent style-proof:current-round` passed with
+    `currentRoundTarget.status=current-round-ready`.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` passed
+    with `status=application-ready`, `canClaimApplicationReady=true`, and
+    `canClaimReleaseComplete=false`.
+  - strict `pnpm --silent -C inkforge style-proof:release-preflight --json` remained expected
+    blocked with `status=blocked-by-external` and `canClaimComplete=false`.
+- Boundary: this closes the current-round local application target only. It does not claim WeChat
+  phone preview, Dark Mode, interaction, cover thumbnail, credentialed sync, scheduled send,
+  platform preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
+  proof remains manually deferred to the user.

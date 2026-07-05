@@ -13288,3 +13288,25 @@ Boundary:
   not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover
   thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or publish
   success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+### Follow-up: current-round completion audit
+
+- Added `prompts/0601/evidence/current-round-completion-audit-20260705.txt` as the closeout audit
+  for the 2026-07-04 narrowed round target.
+- The audit maps the PRD amendment to direct evidence:
+  - 27 SVG modules in the local WeChat-safe application surface;
+  - 108 rendered module/persona pairs;
+  - 27 WeChat option-injected modules with zero injection failures;
+  - 17 WeChat style rows, 13 selectable/rendered rows, zero style-sample issues, and zero
+    usable-but-unselectable WeChat choices;
+  - live ExportModal clickability for all 13 non-disabled rows;
+  - application-scope readiness while strict release completion remains blocked externally.
+- Fresh audit commands passed:
+  - `pnpm --silent style-proof:current-round`;
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`.
+- Fresh strict release boundary check remained expected-blocked:
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json` exited 1 with
+    `status=blocked-by-external` and `canClaimComplete=false`.
+- Current-round conclusion: the local application target is complete and proven. The broader
+  external release proof is not complete and is deliberately not claimed. Xiaohongshu and Zhihu
+  publish-side proof remains manually deferred to the user.

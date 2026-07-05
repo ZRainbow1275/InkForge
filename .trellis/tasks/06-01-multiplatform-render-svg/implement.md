@@ -26138,3 +26138,43 @@ Boundary:
   cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 Current-Round Completion Audit Slice
+
+Context:
+- After the ExportModal readiness slice, the code and UI evidence showed the narrowed
+  current-round target was ready, but the task still needed a requirement-by-requirement closeout
+  audit so future sessions do not confuse local application readiness with strict release proof.
+
+Audit evidence:
+- Added `prompts/0601/evidence/current-round-completion-audit-20260705.txt`.
+- The audit maps the 2026-07-04 PRD amendment to current evidence:
+  - all 27 project-owned SVG modules are available in the local WeChat-safe application surface;
+  - application gallery renders 108 module/persona pairs;
+  - all 27 modules are injectable through WeChat application options with zero injection failures;
+  - WeChat style catalog has 17 rows, 13 selectable/rendered rows, zero style-sample issues, and
+    zero usable-but-unselectable WeChat choices;
+  - live ExportModal readback showed 17 cards, 13 non-disabled rows, no runtime error toasts, and
+    all 13 non-disabled style rows selected after click;
+  - application-scope readiness is green while strict release completion remains externally
+    blocked.
+
+Fresh verification:
+- `pnpm --silent style-proof:current-round` exited 0 with
+  `currentRoundTarget.status=current-round-ready`, `canClaimCurrentRoundTarget=true`,
+  `canClaimReleaseComplete=false`, `wechatRenderedStyleChoiceCount=13`,
+  `wechatStyleSampleIssueCount=0`, and `actionableLocalRows=0`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with `status=application-ready`, `canClaimApplicationReady=true`, and
+  `canClaimReleaseComplete=false`.
+- Strict `pnpm --silent -C inkforge style-proof:release-preflight --json` exited 1 as expected
+  with `status=blocked-by-external` and `canClaimComplete=false`.
+
+Boundary:
+- The current-round local application target is complete and proven.
+- Strict release completion remains unclaimed.
+- Remaining external/manual proof is outside this round's automatic completion claim:
+  WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public rendering, and publish success;
+  Xiaohongshu/Zhihu account upload, platform preview, scheduled send, public-host acceptance, and
+  publish success.

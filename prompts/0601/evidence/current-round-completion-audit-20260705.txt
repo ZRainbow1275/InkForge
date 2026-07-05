@@ -1,0 +1,99 @@
+Current-Round Completion Audit - 2026-07-05
+
+Scope audited:
+- PRD amendment dated 2026-07-04.
+- User follow-up: Xiaohongshu and Zhihu publish tests are cancelled for this round and will be
+  tested manually by the operator.
+- Current-round target: application-level SVG/style availability and WeChat local HTML/SVG export
+  readiness without claiming phone, sync, schedule, account, public rendering, or publish proof.
+
+Requirement-to-evidence matrix:
+
+1. The application can apply all project-owned SVG rendering modules in the local WeChat-safe
+   rendering surface.
+   - Evidence:
+     - `pnpm --silent style-proof:current-round` exited 0.
+     - `summary.svgModuleCount=27`.
+     - `summary.renderedModulePersonaPairs=108`.
+     - `summary.applicationGalleryRenderedModulePersonaPairs=108`.
+     - `summary.wechatOptionInjectedModuleCount=27`.
+     - `summary.wechatOptionInjectionFailureCount=0`.
+     - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`
+       exited 0 with `status=application-ready`.
+   - Audit result: complete for the current local application scope.
+
+2. Every currently usable WeChat style-catalog row under default local evidence is selectable
+   through an InkForge-owned application mapping.
+   - Evidence:
+     - `summary.wechatStyleChoiceCount=17`.
+     - `summary.wechatUsableChoiceCount=8`.
+     - `summary.wechatSelectableChoiceCount=13`.
+     - `summary.usableButUnselectableWechatChoices=0`.
+     - `summary.wechatRenderedStyleChoiceCount=13`.
+     - `summary.wechatStyleSampleIssueCount=0`.
+     - Live ExportModal readback reported `totalCards=17`, `renderableCards=13`,
+       `disabledCards=4`, and all 13 non-disabled style rows selected after click with
+       `failed=[]`.
+   - Audit result: complete for default local evidence and live application clickability.
+
+3. The WeChat application surface remains safe and applicable to the official-account HTML/SVG
+   export/copy pipeline without claiming account, phone, sync, schedule, or publish proof.
+   - Evidence:
+     - `style-proof:release-preflight --scope=application --json` exited 0 with
+       `canClaimApplicationReady=true` and `canClaimReleaseComplete=false`.
+     - `summary.wechatApplicationSvgSlotFailureCount=0`.
+     - `summary.wechatApplicationSurfaceFailureCount=0`.
+     - `summary.wechatExportPipelineFailureCount=0`.
+     - `summary.actionableLocalRows=0`.
+     - Live ExportModal readback showed:
+       `当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明`.
+   - Audit result: complete for local application and WeChat-safe export readiness; external
+     release proof remains unclaimed.
+
+4. The machine-readable gate for the narrowed local target is available and passing.
+   - Evidence:
+     - Root command `pnpm --silent style-proof:current-round` exited 0.
+     - `currentRoundTarget.scope=application-svg-style-wechat-local`.
+     - `currentRoundTarget.status=current-round-ready`.
+     - `currentRoundTarget.canClaimCurrentRoundTarget=true`.
+     - `currentRoundTarget.releaseProofNotClaimed=true`.
+     - `currentRoundTarget.strictReleaseBlockedByExternal=true`.
+     - `currentRoundTarget.xhsZhihuPublishAutomationDeferred=true`.
+     - `currentRoundTarget.remainingExternalProofOwnedByOperator=true`.
+   - Audit result: complete for the current-round machine-readable gate.
+
+5. Xiaohongshu and Zhihu publish-side testing is not part of this round's automatic claim.
+   - Evidence:
+     - PRD amendment records that the operator will test those publish paths manually.
+     - `currentRoundTarget.xhsZhihuPublishAutomationDeferred=true`.
+     - Documentation and evidence keep stating that XHS/Zhihu account upload, platform preview,
+       scheduled send, public-host acceptance, and publish success remain manual/outside this
+       round.
+   - Audit result: complete for scope control. No XHS/Zhihu renderer, manifest, or lower-level
+     proof contract was removed or weakened.
+
+6. Strict release completion remains blocked rather than falsely claimed.
+   - Evidence:
+     - Strict command `pnpm --silent -C inkforge style-proof:release-preflight --json` exited 1.
+     - `status=blocked-by-external`.
+     - `canClaimComplete=false`.
+     - Remaining next rows are WeChat phone-preview proof and WeChat credentialed-channel proof.
+     - `summary.actionableLocalRows=0`.
+   - Audit result: complete for the cannot-claim boundary.
+
+Validation commands run in this audit slice:
+- `pnpm --silent style-proof:current-round`
+  - PASS: `currentRoundTarget.status=current-round-ready`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`
+  - PASS: `status=application-ready`, `canClaimApplicationReady=true`,
+    `canClaimReleaseComplete=false`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json`
+  - EXPECTED BLOCKED: exit 1 with `status=blocked-by-external` and `canClaimComplete=false`.
+
+Current-round conclusion:
+- The current-round local application target is complete and proven.
+- The broader external release proof is not complete and is deliberately not claimed.
+- Xiaohongshu and Zhihu publish-side proof remains manually deferred to the operator.
+- WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, and publish success
+  remain outside this automatic completion claim.
