@@ -72,7 +72,7 @@ interface StrictReleaseJsonReport {
 }
 
 interface ApplicationAcceptanceCheck {
-  id: 'application-preflight' | 'application-gallery' | 'strict-release-boundary'
+  id: 'application-preflight' | 'application-gallery' | 'wechat-manual-checklist' | 'strict-release-boundary'
   passed: boolean
   exitCode: number
   status: string
@@ -88,6 +88,7 @@ interface ApplicationAcceptanceReport {
   summary: {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
+    wechatManualChecklistExitCode: number
     strictReleaseExitCode: number
     svgModuleCount: number
     renderedModulePersonaPairs: number
@@ -109,6 +110,7 @@ const projectRoot = resolve(dirname(currentFilePath), '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
 const releasePreflightScriptPath = resolve(projectRoot, 'scripts', 'style-proof-release-preflight.ts')
 const galleryScriptPath = resolve(projectRoot, 'scripts', 'style-proof-application-gallery.ts')
+const externalHandoffScriptPath = resolve(projectRoot, 'scripts', 'style-proof-external-handoff.ts')
 
 function printHelp(): void {
   console.log([
@@ -117,6 +119,7 @@ function printHelp(): void {
     'Runs the current local InkForge application acceptance gate:',
     '- application preflight;',
     '- application SVG gallery readiness;',
+    '- WeChat manual proof checklist readiness;',
     '- strict release boundary preservation.',
     '',
     'This command is read-only except for a temporary gallery file that is removed before exit.',
@@ -293,6 +296,18 @@ function getApplicationIssueCount(report: ApplicationPreflightJsonReport | null)
     report.choiceIssues.length
 }
 
+function isWechatManualChecklistReady(result: CliRunResult): boolean {
+  return result.exitCode === 0 &&
+    result.stderr.trim() === '' &&
+    result.stdout.includes('# WeChat Manual Style Proof Checklist') &&
+    result.stdout.includes('- notProof: true') &&
+    result.stdout.includes('- canClaimComplete: false') &&
+    result.stdout.includes('cover-thumbnail-check') &&
+    result.stdout.includes('credentialed-channel-response') &&
+    !result.stdout.includes('"canClaimComplete":true') &&
+    !result.stdout.includes('"artifacts":[{')
+}
+
 function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceReport): string {
   const lines = [
     'InkForge style-proof application acceptance',
@@ -302,6 +317,7 @@ function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceRepo
     `canClaimReleaseComplete: ${report.canClaimReleaseComplete ? 'true' : 'false'}`,
     `applicationPreflightExitCode: ${report.summary.applicationPreflightExitCode}`,
     `applicationGalleryExitCode: ${report.summary.applicationGalleryExitCode}`,
+    `wechatManualChecklistExitCode: ${report.summary.wechatManualChecklistExitCode}`,
     `strictReleaseExitCode: ${report.summary.strictReleaseExitCode}`,
     `svgModuleCount: ${report.summary.svgModuleCount}`,
     `renderedModulePersonaPairs: ${report.summary.renderedModulePersonaPairs}`,
@@ -340,6 +356,10 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       galleryScriptPath,
       ['--json', '--out', galleryOutputPath],
     )
+    const wechatManualChecklistResult = await runTsxScript(
+      externalHandoffScriptPath,
+      ['--checklist', '--platform=wechat', '--next-only', '--handoff-ok-exit-zero'],
+    )
     const strictReleaseResult = await runTsxScript(releasePreflightScriptPath, ['--json'])
 
     const applicationPreflightJson = parseJsonOutput<unknown>(applicationPreflightResult)
@@ -358,6 +378,7 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
 
     const applicationIssueCount = getApplicationIssueCount(applicationPreflight)
     const galleryIssueCount = applicationGallery?.issues.length ?? 1
+    const wechatManualChecklistReady = isWechatManualChecklistReady(wechatManualChecklistResult)
     const strictReleaseBoundaryPreserved = strictReleaseResult.exitCode !== 0 &&
       strictRelease?.canClaimComplete === false &&
       strictRelease.status === 'blocked-by-external'
@@ -381,6 +402,13 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         exitCode: applicationGalleryResult.exitCode,
         status: applicationGallery?.status ?? 'invalid-json',
         command: 'style-proof:application-gallery --json --out <temporary>',
+      },
+      {
+        id: 'wechat-manual-checklist',
+        passed: wechatManualChecklistReady,
+        exitCode: wechatManualChecklistResult.exitCode,
+        status: wechatManualChecklistReady ? 'manual-checklist-ready' : 'manual-checklist-invalid',
+        command: 'style-proof:wechat-manual-checklist',
       },
       {
         id: 'strict-release-boundary',
@@ -407,6 +435,7 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       summary: {
         applicationPreflightExitCode: applicationPreflightResult.exitCode,
         applicationGalleryExitCode: applicationGalleryResult.exitCode,
+        wechatManualChecklistExitCode: wechatManualChecklistResult.exitCode,
         strictReleaseExitCode: strictReleaseResult.exitCode,
         svgModuleCount: applicationPreflight?.summary.svgModuleCount ?? applicationGallery?.summary.svgModuleCount ?? 0,
         renderedModulePersonaPairs: applicationPreflight?.summary.renderedModulePersonaPairs ?? 0,

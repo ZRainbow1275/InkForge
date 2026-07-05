@@ -9065,3 +9065,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves only a human checklist entry exists. It does not prove WeChat phone
   preview, credentialed sync, scheduled send, public rendering, or publish success.
   Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 Application Acceptance Manual Checklist Gate
+
+- [x] application-acceptance-manual-checklist-gate-20260705.txt
+- Scope: local application acceptance also verifies WeChat manual checklist readiness.
+- Added `wechat-manual-checklist` as the fourth `style-proof:application-acceptance` check.
+- Added `summary.wechatManualChecklistExitCode`.
+- The check invokes the existing external-handoff checklist path and requires cannot-claim
+  markers plus the current WeChat next rows.
+- Verification passed: TDD red/green focused application-acceptance test with 1 file / 2 tests,
+  full scripts-suite regression with 6 files / 50 tests, focused ESLint, direct
+  `style-proof:application-acceptance --json` smoke with
+  `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, `wechatManualChecklistExitCode=0`, and four passing checks,
+  expected blocked strict release-preflight smoke, `vue-tsc`, and production build.
+- Boundary: this proves only local application/checklist readiness. It does not prove WeChat
+  phone preview, credentialed sync, scheduled send, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

@@ -25364,3 +25364,64 @@ Scope:
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 Application Acceptance Manual Checklist Gate Slice
+
+Source:
+- The local application acceptance command was already green, but it did not verify that the new
+  WeChat manual checklist entry point was available.
+- The narrowed current-round gate should prove both local app readiness and operator-handoff
+  readiness without claiming release proof.
+
+Impact:
+- `npx gitnexus impact buildApplicationAcceptanceReport -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk because scripts are not indexed as application symbols.
+- `npx gitnexus impact formatApplicationAcceptanceReportText -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk for the same scripts-only boundary.
+- `npx gitnexus impact ApplicationAcceptanceReport -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk for the same scripts-only boundary.
+- The slice is limited to the local application-acceptance CLI, its focused test, docs, and
+  sanitized evidence. It does not change renderer output, export HTML, account sync, upload,
+  schedule, or publish behavior.
+
+Implementation:
+- Extended `style-proof:application-acceptance` so it runs the existing external-handoff script
+  with `--checklist --platform=wechat --next-only --handoff-ok-exit-zero`.
+- Added a fourth acceptance check:
+  `wechat-manual-checklist`.
+- Added `summary.wechatManualChecklistExitCode`.
+- The checklist child check requires exit 0, empty stderr, cannot-claim markers, and the current
+  WeChat next rows `cover-thumbnail-check` and `credentialed-channel-response`.
+- The acceptance command still requires strict release to remain blocked externally before it can
+  report application acceptance ready.
+
+Verification:
+- Initial TDD run failed because application acceptance did not include
+  `wechatManualChecklistExitCode`, the `wechat-manual-checklist` check, or the new help text.
+- After implementation,
+  `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 2 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 6 files and 50 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-application-acceptance.ts scripts/style-proof-application-acceptance.test.ts --quiet`
+  passed.
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json` exited 0 with
+  `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, `wechatManualChecklistExitCode=0`, four passing checks, and
+  strict release boundary preserved.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exited 1 as expected
+  with `status=blocked-by-external` and `canClaimComplete=false`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Evidence:
+- Added `prompts/0601/evidence/application-acceptance-manual-checklist-gate-20260705.txt`.
+
+Scope:
+- This proves the local application acceptance gate now also verifies manual WeChat checklist
+  readiness.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover-thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

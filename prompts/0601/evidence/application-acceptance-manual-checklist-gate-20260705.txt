@@ -1,0 +1,74 @@
+Application Acceptance Manual Checklist Gate - 2026-07-05
+
+Scope:
+- Local application acceptance now also verifies WeChat manual checklist readiness.
+- No browser automation, account action, phone preview, upload, sync, scheduled send, or publish.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+Implemented:
+- Extended style-proof:application-acceptance with a fourth check:
+  - wechat-manual-checklist
+- Added summary.wechatManualChecklistExitCode.
+- The check invokes the existing external-handoff checklist path:
+  - --checklist --platform=wechat --next-only --handoff-ok-exit-zero
+- The check requires:
+  - exit 0
+  - empty stderr
+  - notProof: true
+  - canClaimComplete: false
+  - cover-thumbnail-check present
+  - credentialed-channel-response present
+  - no completed artifact rows
+  - no release-complete claims
+
+Behavior:
+- style-proof:application-acceptance can report application-acceptance-ready only when:
+  - application preflight passes
+  - application gallery readiness passes
+  - WeChat manual checklist readiness passes
+  - strict release remains blocked externally
+- The command still reports canClaimReleaseComplete=false while external proof is missing.
+- The command does not create proof artifacts and does not mark release completion.
+
+TDD:
+- Initial focused run failed because application acceptance did not include:
+  - summary.wechatManualChecklistExitCode
+  - checks[].id=wechat-manual-checklist
+  - help text for WeChat manual proof checklist readiness
+- After implementation, the focused test passed.
+
+Smoke:
+- pnpm --silent -C inkforge style-proof:application-acceptance --json
+  PASS: exit 0
+  Key readback:
+  - status: application-acceptance-ready
+  - canClaimApplicationReady: true
+  - canClaimReleaseComplete: false
+  - wechatManualChecklistExitCode: 0
+  - checks: application-preflight, application-gallery, wechat-manual-checklist,
+    strict-release-boundary
+  - strictReleaseExitCode: 1
+  - strictReleaseBoundaryPreserved: true
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 2 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 6 files / 50 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-application-acceptance.ts scripts/style-proof-application-acceptance.test.ts --quiet
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  PASS: expected exit 1, status=blocked-by-external, canClaimComplete=false
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves only that the local application acceptance gate also verifies manual WeChat
+  checklist readiness.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- It does not prove Xiaohongshu/Zhihu publish success; those tests are manually deferred to the
+  user for this round.

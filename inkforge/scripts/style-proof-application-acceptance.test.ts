@@ -18,6 +18,7 @@ interface ApplicationAcceptanceJsonReport {
   summary: {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
+    wechatManualChecklistExitCode: number
     strictReleaseExitCode: number
     svgModuleCount: number
     renderedModulePersonaPairs: number
@@ -123,6 +124,7 @@ function isApplicationAcceptanceJsonReport(value: unknown): value is Application
     hasNumberKeys(value.summary, [
       'applicationPreflightExitCode',
       'applicationGalleryExitCode',
+      'wechatManualChecklistExitCode',
       'strictReleaseExitCode',
       'svgModuleCount',
       'renderedModulePersonaPairs',
@@ -174,6 +176,7 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
       summary: {
         applicationPreflightExitCode: 0,
         applicationGalleryExitCode: 0,
+        wechatManualChecklistExitCode: 0,
         svgModuleCount: 27,
         renderedModulePersonaPairs: 108,
         applicationGalleryRenderedModulePersonaPairs: 108,
@@ -191,12 +194,17 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(report.checks.map(check => check.id)).toEqual([
       'application-preflight',
       'application-gallery',
+      'wechat-manual-checklist',
       'strict-release-boundary',
     ])
     expect(report.checks.every(check => check.passed)).toBe(true)
     expect(report.checks.find(check => check.id === 'strict-release-boundary')).toMatchObject({
       status: 'blocked-by-external',
       command: 'style-proof:release-preflight --json',
+    })
+    expect(report.checks.find(check => check.id === 'wechat-manual-checklist')).toMatchObject({
+      status: 'manual-checklist-ready',
+      command: 'style-proof:wechat-manual-checklist',
     })
   })
 
@@ -205,6 +213,7 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
     expect(help.exitCode).toBe(0)
     expect(help.stderr.trim()).toBe('')
     expect(help.stdout).toContain('Usage: pnpm style-proof:application-acceptance [--json]')
+    expect(help.stdout).toContain('WeChat manual proof checklist readiness')
     expect(help.stdout).toContain('does not open a browser')
 
     const invalid = await runAcceptanceCli(['--unknown-acceptance-flag'])

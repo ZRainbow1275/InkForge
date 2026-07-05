@@ -15660,3 +15660,92 @@ and merge after real, redacted external proof exists.
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 314. Application Acceptance Includes Manual WeChat Checklist - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: once `style-proof:wechat-manual-checklist` exists, the local application acceptance
+  gate must also verify that the manual WeChat checklist entry point still works. Otherwise the
+  application could report ready while the operator handoff path is broken.
+- This rule applies to `scripts/style-proof-application-acceptance.ts` and its tests.
+- The check is read-only. It must not create proof artifacts, mutate platform state, open a
+  browser, upload content, sync drafts, schedule sends, publish articles, or claim release
+  completion.
+
+### 2. Signatures
+
+- `style-proof:application-acceptance --json` summary must include:
+  - `wechatManualChecklistExitCode:number`.
+- `checks[]` must include:
+  - `id:"wechat-manual-checklist"`;
+  - `status:"manual-checklist-ready"` when the checklist command exits 0 and includes the current
+    WeChat next rows;
+  - `command:"style-proof:wechat-manual-checklist"`.
+- The acceptance command must invoke the existing external-handoff script with:
+  `--checklist --platform=wechat --next-only --handoff-ok-exit-zero`.
+
+### 3. Contracts
+
+- Application acceptance remains `notProof:true`.
+- `canClaimApplicationReady` may be true only when application preflight, gallery readiness,
+  WeChat manual checklist readiness, and strict release-boundary preservation all pass.
+- `canClaimReleaseComplete` must remain false while strict release proof is blocked externally.
+- The manual checklist child check must validate:
+  - checklist exit code is 0;
+  - stderr is empty;
+  - output contains `notProof: true` and `canClaimComplete: false`;
+  - output contains the current WeChat next rows `cover-thumbnail-check` and
+    `credentialed-channel-response`;
+  - output does not contain completed artifact rows or release-complete claims.
+
+### 4. Validation & Error Matrix
+
+- Checklist command exits non-zero -> `wechat-manual-checklist` check fails and application
+  acceptance becomes `application-acceptance-blocked`.
+- Checklist output misses cannot-claim markers -> check fails.
+- Checklist output misses the current WeChat next rows -> check fails.
+- Strict release unexpectedly exits 0 or claims complete -> strict release-boundary check fails.
+
+### 5. Good/Base/Bad Cases
+
+- Good: `style-proof:application-acceptance --json` exits 0 with four passing checks, including
+  `wechat-manual-checklist`.
+- Base: `style-proof:wechat-manual-checklist` remains separately runnable for operators.
+- Bad: application acceptance reports ready while omitting the manual checklist check.
+
+### 6. Tests Required
+
+- Regression tests must assert the new summary field, the four-check order, the checklist command,
+  and help text mentioning WeChat manual checklist readiness.
+- Direct smoke must confirm application acceptance exits 0 with
+  `wechatManualChecklistExitCode=0`, `status=application-acceptance-ready`,
+  `canClaimApplicationReady=true`, and `canClaimReleaseComplete=false`.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```json
+{"checks":[{"id":"application-preflight"},{"id":"application-gallery"},{"id":"strict-release-boundary"}]}
+```
+
+This omits the operator handoff readiness path from the narrowed local acceptance gate.
+
+#### Correct
+
+```json
+{"checks":[{"id":"application-preflight"},{"id":"application-gallery"},{"id":"wechat-manual-checklist"},{"id":"strict-release-boundary"}]}
+```
+
+The local application gate now proves the app is ready and the manual WeChat proof worksheet is
+available, while strict release proof remains unclaimed.
+
+### 8. Cannot-Claim Boundary
+
+- Passing this rule proves only that local application readiness and manual checklist readiness
+  are green.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

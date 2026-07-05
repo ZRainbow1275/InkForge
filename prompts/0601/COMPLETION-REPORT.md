@@ -12962,3 +12962,46 @@ Boundary:
   checklist entry point. It does not prove WeChat phone preview, mobile Dark Mode, mobile
   interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   platform preview, or publish success.
+
+---
+
+## 2026-07-05 Application Acceptance Manual Checklist Gate Addendum
+
+- Extended `style-proof:application-acceptance` so the narrowed local application gate also
+  verifies the WeChat manual checklist entry point.
+- Added the fourth acceptance check:
+  `wechat-manual-checklist`.
+- Added `summary.wechatManualChecklistExitCode`.
+- The application acceptance command now runs the same external-handoff script behind
+  `style-proof:wechat-manual-checklist` and requires:
+  - exit 0;
+  - empty stderr;
+  - `notProof: true`;
+  - `canClaimComplete: false`;
+  - `cover-thumbnail-check`;
+  - `credentialed-channel-response`;
+  - no completed artifact rows or release-complete claims.
+- The command still requires strict release to remain externally blocked before local application
+  acceptance can be reported ready.
+- TDD/regression:
+  - Initial focused test failed because the application acceptance JSON shape and help text did
+    not include the checklist gate.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 1 file / 2 tests passed after implementation.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 6 files / 50 tests passed.
+  - Focused ESLint for `style-proof-application-acceptance.ts` and its test: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated
+    `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Direct smoke:
+  - `pnpm --silent -C inkforge style-proof:application-acceptance --json`: exited 0 with
+    `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
+    `canClaimReleaseComplete=false`, `wechatManualChecklistExitCode=0`, four passing checks, and
+    strict release boundary preserved.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: still exited 1 as expected
+    with `status=blocked-by-external` and `canClaimComplete=false`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-acceptance-manual-checklist-gate-20260705.txt`.
+- Boundary: this proves only that local application acceptance now covers WeChat manual checklist
+  readiness. It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform preview, or
+  publish success.
