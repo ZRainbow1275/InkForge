@@ -12,6 +12,8 @@ Implemented:
   counts are regression-tested.
 - Added a dedicated wechat-style-readiness check row so WeChat SVG/style count failures are
   reported as a separate aggregate gate.
+- Added a dedicated wechat-manual-template check row so the structured WeChat proof template
+  packet is verified before the aggregate reports local readiness.
 - Added a dedicated wechat-manual-manifest-drafts check row so the structured WeChat draft packet
   is verified before the aggregate reports local readiness.
 - Updated .trellis/spec/frontend/wechat-svg-modules.md with rule 315.
@@ -41,6 +43,7 @@ Readiness rule:
   - wechat-style-readiness
   - application-gallery
   - wechat-manual-checklist
+  - wechat-manual-template
   - wechat-manual-manifest-drafts
   - strict-release-boundary
 
@@ -56,6 +59,8 @@ Verification:
   - canClaimApplicationReady: true
   - canClaimReleaseComplete: false
   - wechat-style-readiness check: status wechat-style-ready
+  - wechat-manual-template check: status manual-template-ready
+  - wechatManualTemplateExitCode: 0
   - wechat-manual-manifest-drafts check: status manual-manifest-drafts-ready
   - wechatManualManifestDraftsExitCode: 0
   - wechatApplicationSvgSlotCount: 5

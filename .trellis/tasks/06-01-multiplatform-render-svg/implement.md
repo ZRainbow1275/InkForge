@@ -25634,3 +25634,45 @@ Boundary:
 - It does not create proof artifacts, mutate platform state, open a browser, upload content, sync
   drafts, schedule sends, publish articles, or claim release completion.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+## 2026-07-05 Application Acceptance WeChat Manual Template Check Slice
+
+Context:
+- After the checklist and manifest-drafts gates, one WeChat manual proof entry point remained
+  outside the aggregate: `style-proof:wechat-manual-handoff`, the structured proof template packet.
+- If that template packet breaks, the operator can still see a checklist but may lose the exact
+  machine-readable field guidance needed before collecting external proof.
+
+Changes:
+- Extended `scripts/style-proof-application-acceptance.ts` so it also runs:
+  `style-proof:external-handoff --template --platform=wechat --next-only --handoff-ok-exit-zero`.
+- Added `wechatManualTemplateExitCode` to the aggregate summary.
+- Added a dedicated `wechat-manual-template` check row with:
+  - `status=manual-template-ready` when the template packet exits 0 and validates;
+  - `command=style-proof:wechat-manual-handoff`.
+- The new validator requires:
+  - `templateOnly=true`;
+  - `notProof=true`;
+  - `canClaimComplete=false`;
+  - `status=blocked-by-external`;
+  - current WeChat `cover-thumbnail-check` phone-preview row;
+  - current WeChat `credentialed-channel-response` credentialed-channel row;
+  - same-requirement artifact templates with required channels/actions/readbacks/fields;
+  - same-requirement manifest draft templates with empty WeChat `style-choice` draft manifests.
+- Updated focused tests so the aggregate now has seven check rows:
+  `application-preflight`, `wechat-style-readiness`, `application-gallery`,
+  `wechat-manual-checklist`, `wechat-manual-template`, `wechat-manual-manifest-drafts`,
+  `strict-release-boundary`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` rule 314.
+- Updated evidence file:
+  `prompts/0601/evidence/application-acceptance-wechat-style-count-readback-20260705.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 2 files / 9 tests after implementation.
+
+Boundary:
+- This proves the local aggregate verifies the WeChat human checklist, structured proof template,
+  and empty manifest draft packet.
+- It does not create proof artifacts, mutate platform state, open a browser, upload content, sync
+  drafts, schedule sends, publish articles, or claim release completion.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

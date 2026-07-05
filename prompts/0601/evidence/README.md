@@ -9120,6 +9120,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - The aggregate also includes `wechat-manual-manifest-drafts` between
   `wechat-manual-checklist` and `strict-release-boundary`, with
   `status=manual-manifest-drafts-ready` and `wechatManualManifestDraftsExitCode=0`.
+- The aggregate now includes `wechat-manual-template` between `wechat-manual-checklist` and
+  `wechat-manual-manifest-drafts`, with `status=manual-template-ready` and
+  `wechatManualTemplateExitCode=0`.
 - Focused regression passed with 2 files / 9 tests.
 - Boundary: this proves local aggregate reporting of WeChat app-level SVG/style readiness. It does
   not prove WeChat phone preview, credentialed sync, scheduled send, public rendering, or publish

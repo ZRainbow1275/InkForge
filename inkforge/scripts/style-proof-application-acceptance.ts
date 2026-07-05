@@ -84,6 +84,7 @@ interface ApplicationAcceptanceCheck {
     | 'wechat-style-readiness'
     | 'application-gallery'
     | 'wechat-manual-checklist'
+    | 'wechat-manual-template'
     | 'wechat-manual-manifest-drafts'
     | 'strict-release-boundary'
   passed: boolean
@@ -102,6 +103,7 @@ interface ApplicationAcceptanceReport {
     applicationPreflightExitCode: number
     applicationGalleryExitCode: number
     wechatManualChecklistExitCode: number
+    wechatManualTemplateExitCode: number
     wechatManualManifestDraftsExitCode: number
     strictReleaseExitCode: number
     svgModuleCount: number
@@ -342,6 +344,13 @@ function isWechatManualChecklistReady(result: CliRunResult): boolean {
     !result.stdout.includes('"artifacts":[{')
 }
 
+function hasStringArrayKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return keys.every(key =>
+    Array.isArray(value[key]) &&
+    (value[key] as readonly unknown[]).every(item => typeof item === 'string')
+  )
+}
+
 function hasCurrentWechatNextRows(value: unknown): boolean {
   if (!Array.isArray(value)) {
     return false
@@ -361,6 +370,67 @@ function hasCurrentWechatNextRows(value: unknown): boolean {
       row.gate === 'credentialed-channel' &&
       row.status === 'unsafe-to-automate'
     )
+}
+
+function isWechatManualTemplateReady(result: CliRunResult): boolean {
+  const parsedOutput = parseJsonOutput<unknown>(result)
+
+  if (
+    result.exitCode !== 0 ||
+    result.stderr.trim() !== '' ||
+    !isRecord(parsedOutput) ||
+    parsedOutput.templateOnly !== true ||
+    parsedOutput.notProof !== true ||
+    parsedOutput.status !== 'blocked-by-external' ||
+    parsedOutput.canClaimComplete !== false ||
+    !hasCurrentWechatNextRows(parsedOutput.rows)
+  ) {
+    return false
+  }
+
+  const rows = parsedOutput.rows as readonly unknown[]
+  return rows.every(row => {
+    if (!isRecord(row)) {
+      return false
+    }
+
+    const artifactTemplate = row.artifactTemplate
+    const manifestDraftTemplate = row.manifestDraftTemplate
+
+    return row.templateOnly === true &&
+      row.notProof === true &&
+      row.platform === 'wechat' &&
+      row.cannotClaim === true &&
+      typeof row.requirementId === 'string' &&
+      typeof row.gate === 'string' &&
+      isRecord(artifactTemplate) &&
+      artifactTemplate.requirementId === row.requirementId &&
+      hasStringArrayKeys(artifactTemplate, [
+        'requiredChannels',
+        'requiredActions',
+        'requiredReadbacks',
+        'requiredFields',
+        'forbiddenFields',
+      ]) &&
+      isRecord(manifestDraftTemplate) &&
+      manifestDraftTemplate.draftOnly === true &&
+      manifestDraftTemplate.notProof === true &&
+      manifestDraftTemplate.canClaimComplete === false &&
+      manifestDraftTemplate.platform === 'wechat' &&
+      manifestDraftTemplate.targetRequirementId === row.requirementId &&
+      Array.isArray(manifestDraftTemplate.drafts) &&
+      manifestDraftTemplate.drafts.length > 0 &&
+      manifestDraftTemplate.drafts.every(draft =>
+        isRecord(draft) &&
+        draft.platform === 'wechat' &&
+        draft.scope === 'style-choice' &&
+        typeof draft.choiceId === 'string' &&
+        Array.isArray(draft.claimedEvidence) &&
+        draft.claimedEvidence.length === 0 &&
+        Array.isArray(draft.artifacts) &&
+        draft.artifacts.length === 0
+      )
+  })
 }
 
 function isWechatManualManifestDraftsReady(result: CliRunResult): boolean {
@@ -405,6 +475,7 @@ function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceRepo
     `applicationPreflightExitCode: ${report.summary.applicationPreflightExitCode}`,
     `applicationGalleryExitCode: ${report.summary.applicationGalleryExitCode}`,
     `wechatManualChecklistExitCode: ${report.summary.wechatManualChecklistExitCode}`,
+    `wechatManualTemplateExitCode: ${report.summary.wechatManualTemplateExitCode}`,
     `wechatManualManifestDraftsExitCode: ${report.summary.wechatManualManifestDraftsExitCode}`,
     `strictReleaseExitCode: ${report.summary.strictReleaseExitCode}`,
     `svgModuleCount: ${report.summary.svgModuleCount}`,
@@ -461,6 +532,10 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
       externalHandoffScriptPath,
       ['--checklist', '--platform=wechat', '--next-only', '--handoff-ok-exit-zero'],
     )
+    const wechatManualTemplateResult = await runTsxScript(
+      externalHandoffScriptPath,
+      ['--template', '--platform=wechat', '--next-only', '--handoff-ok-exit-zero'],
+    )
     const wechatManualManifestDraftsResult = await runTsxScript(
       externalHandoffScriptPath,
       ['--manifest-drafts', '--platform=wechat', '--next-only', '--handoff-ok-exit-zero'],
@@ -484,6 +559,7 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
     const applicationIssueCount = getApplicationIssueCount(applicationPreflight)
     const galleryIssueCount = applicationGallery?.issues.length ?? 1
     const wechatManualChecklistReady = isWechatManualChecklistReady(wechatManualChecklistResult)
+    const wechatManualTemplateReady = isWechatManualTemplateReady(wechatManualTemplateResult)
     const wechatManualManifestDraftsReady = isWechatManualManifestDraftsReady(
       wechatManualManifestDraftsResult,
     )
@@ -536,6 +612,13 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         command: 'style-proof:wechat-manual-checklist',
       },
       {
+        id: 'wechat-manual-template',
+        passed: wechatManualTemplateReady,
+        exitCode: wechatManualTemplateResult.exitCode,
+        status: wechatManualTemplateReady ? 'manual-template-ready' : 'manual-template-invalid',
+        command: 'style-proof:wechat-manual-handoff',
+      },
+      {
         id: 'wechat-manual-manifest-drafts',
         passed: wechatManualManifestDraftsReady,
         exitCode: wechatManualManifestDraftsResult.exitCode,
@@ -570,6 +653,7 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         applicationPreflightExitCode: applicationPreflightResult.exitCode,
         applicationGalleryExitCode: applicationGalleryResult.exitCode,
         wechatManualChecklistExitCode: wechatManualChecklistResult.exitCode,
+        wechatManualTemplateExitCode: wechatManualTemplateResult.exitCode,
         wechatManualManifestDraftsExitCode: wechatManualManifestDraftsResult.exitCode,
         strictReleaseExitCode: strictReleaseResult.exitCode,
         svgModuleCount: applicationPreflight?.summary.svgModuleCount ?? applicationGallery?.summary.svgModuleCount ?? 0,

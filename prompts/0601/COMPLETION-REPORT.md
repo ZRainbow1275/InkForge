@@ -13094,3 +13094,17 @@ Boundary:
 - Current direct smoke confirms `wechatManualManifestDraftsExitCode=0`,
   `wechat-manual-manifest-drafts` has `status=manual-manifest-drafts-ready`, and
   `canClaimReleaseComplete=false` remains preserved.
+
+### Follow-up: WeChat manual template packet gate
+
+- Added `wechat-manual-template` to `style-proof:application-acceptance` so the aggregate now
+  verifies the structured WeChat proof template packet in addition to the checklist and manifest
+  draft packet.
+- The current check order is now:
+  `application-preflight`, `wechat-style-readiness`, `application-gallery`,
+  `wechat-manual-checklist`, `wechat-manual-template`, `wechat-manual-manifest-drafts`,
+  `strict-release-boundary`.
+- The aggregate summary now includes `wechatManualTemplateExitCode`.
+- Current focused regression confirms `wechatManualTemplateExitCode=0`,
+  `wechat-manual-template` has `status=manual-template-ready`, and
+  `canClaimReleaseComplete=false` remains preserved.
