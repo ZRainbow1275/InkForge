@@ -29,3 +29,15 @@ This file records verified failures only. Do not add speculative findings withou
 - `medium`: secondary workflow broken, accessibility/keyboard issue, or recoverable service error not surfaced.
 - `low`: polish issue with no functional loss.
 - `info`: planning or evidence note.
+
+## F-AI-001 — AI chat textarea DOM type trips full lint
+
+- Severity: low
+- Status: fixed
+- Area: Workstation / AIChatPanel
+- File: `inkforge/src/components/ai/AIChatPanel.vue`
+- Reproduction: `pnpm -C inkforge exec eslint src --ext .ts,.tsx,.vue --quiet`
+- Failure: `HTMLTextAreaElement is not defined` from ESLint `no-undef`.
+- Root cause: the component used the concrete DOM constructor type `HTMLTextAreaElement` in a ref annotation, while the current lint globals do not expose that name.
+- Fix: use `HTMLElement | null`, which is sufficient for the actual operations (`style.height` and `scrollHeight`) and does not change runtime behavior.
+- Verification: targeted lint, full lint, typecheck, full Vitest, web build, and Tauri package build all passed on 2026-07-05.

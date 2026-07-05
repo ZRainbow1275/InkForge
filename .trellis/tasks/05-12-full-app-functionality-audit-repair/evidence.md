@@ -124,3 +124,21 @@ Targeted non-mutating ESLint has passed for `PublishView.vue`, `ThemesView.vue`,
 ## Tauri Evidence
 
 Pending. Tauri desktop shell has not been started yet.
+
+## 2026-07-05 Continuation Gate Replay
+
+| Time | Action | Result |
+| --- | --- | --- |
+| 2026-07-05 | Full lint gate: `pnpm -C inkforge exec eslint src --ext .ts,.tsx,.vue --quiet` | Failed on `inkforge/src/components/ai/AIChatPanel.vue:33:24` with `HTMLTextAreaElement is not defined` (`no-undef`). |
+| 2026-07-05 | GitNexus impact before repair: `npx gitnexus impact AIChatPanel.vue -r InkForge -d upstream --depth 2` | LOW risk; 1 direct upstream file (`WorkstationView.vue`); 0 affected processes. |
+| 2026-07-05 | Minimal repair | `AIChatPanel.vue` textarea ref type narrowed from `HTMLTextAreaElement | null` to `HTMLElement | null`; runtime behavior unchanged because code only uses `style` and `scrollHeight`. |
+| 2026-07-05 | Targeted lint: `pnpm -C inkforge exec eslint src/components/ai/AIChatPanel.vue --ext .vue --quiet` | PASS. |
+| 2026-07-05 | Full lint replay: `pnpm -C inkforge exec eslint src --ext .ts,.tsx,.vue --quiet` | PASS. |
+| 2026-07-05 | Typecheck replay: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` | PASS. |
+| 2026-07-05 | Full Vitest replay: `pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism` | PASS: 102 files / 1769 tests. Expected warning/error logs from existing hardening tests were non-failing test output. |
+| 2026-07-05 | Production web build: `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` | PASS; Vite built successfully in 26.75s. `inkforge/tsconfig.tsbuildinfo` was restored and is not part of the repair commit. |
+| 2026-07-05 | Tauri package build: `pnpm -C inkforge tauri:build` | PASS; produced `src-tauri/target/release/bundle/msi/InkForge_0.1.0_x64_en-US.msi` and `src-tauri/target/release/bundle/nsis/InkForge_0.1.0_x64-setup.exe`. |
+
+### Current native-boundary status
+
+The package build gate is now green. Interactive Tauri shell evidence for native dialogs, updater, file-system/runtime boundaries, and shell-only controls is still not complete in this continuation slice. Those rows remain active and must not be counted as passed until a real desktop-shell run is recorded.

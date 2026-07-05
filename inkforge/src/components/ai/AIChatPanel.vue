@@ -30,7 +30,7 @@ const editorStore = useEditorStore()
 const draft = ref('')
 const attachDoc = ref(false)
 const scrollEl = ref<HTMLElement | null>(null)
-const textareaEl = ref<HTMLTextAreaElement | null>(null)
+const textareaEl = ref<HTMLElement | null>(null)
 
 const hasTurns = computed(() => turns.value.length > 0)
 const prefersReducedMotion =
