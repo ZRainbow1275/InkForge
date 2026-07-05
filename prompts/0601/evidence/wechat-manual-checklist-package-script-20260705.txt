@@ -1,0 +1,74 @@
+WeChat Manual Proof Checklist Package Script - 2026-07-05
+
+Scope:
+- Human-readable checklist for the remaining WeChat manual proof rows.
+- No browser automation, account action, phone preview, upload, sync, scheduled send, or publish.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+Implemented:
+- Added CLI output mode:
+  - style-proof:external-handoff --checklist
+- Added package script:
+  - style-proof:wechat-manual-checklist
+  - command: tsx scripts/style-proof-external-handoff.ts --checklist --platform=wechat --next-only --handoff-ok-exit-zero
+- The checklist renders a human markdown worksheet from the same filtered rows as the JSON
+  template packet.
+- The checklist includes:
+  - notProof: true
+  - canClaimComplete: false
+  - filtered row counts
+  - current WeChat next rows
+  - accepted channels/actions/readbacks
+  - required fields
+  - forbidden fields
+  - redaction boundaries
+  - manifest intake and merge commands for use only after real proof exists
+
+Behavior:
+- Without --handoff-ok-exit-zero, --checklist exits non-zero while release proof is incomplete.
+- With --handoff-ok-exit-zero, --checklist exits 0 to indicate successful worksheet generation.
+- Raw JSON and default markdown remain strict cannot-claim exits while release proof is
+  incomplete.
+- The checklist does not create proof artifacts and does not mark release completion.
+
+Smoke:
+- pnpm --silent -C inkforge style-proof:wechat-manual-checklist
+  PASS: exit 0
+  Key readback:
+  - notProof: true
+  - canClaimComplete: false
+  - status: blocked-by-external
+  - filteredRows: 2
+  - filteredNextRows: 2
+  - phoneRows: 1
+  - externalAccountRows: 1
+  - cover-thumbnail-check present
+  - credentialed-channel-response present
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 2 files / 23 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 6 files / 50 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 40 files / 1363 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+- pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+  PASS: exit 0, status=application-ready, canClaimApplicationReady=true,
+  canClaimReleaseComplete=false, wechatSelectableChoiceCount=13, choiceIssues=[]
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  PASS: expected exit 1, status=blocked-by-external, canClaimComplete=false
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves only that the remaining WeChat external proof rows have a human checklist entry
+  point.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- It does not prove Xiaohongshu/Zhihu publish success; those tests are manually deferred to the
+  user for this round.

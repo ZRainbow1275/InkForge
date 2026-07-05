@@ -681,7 +681,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       moduleSentinelFailureCount: 0,
       wechatStyleChoiceCount: 17,
       wechatUsableChoiceCount: 8,
-      wechatSelectableChoiceCount: 8,
+      wechatSelectableChoiceCount: 13,
       usableButUnselectableWechatChoices: 0,
       actionableLocalRows: 0,
       manualDeferredOpenSteps: 7,
@@ -799,6 +799,9 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       'tsx scripts/style-proof-application-acceptance.ts',
     )
     expect(scripts['style-proof:application-gallery']).toBe('tsx scripts/style-proof-application-gallery.ts')
+    expect(scripts['style-proof:wechat-manual-checklist']).toBe(
+      'tsx scripts/style-proof-external-handoff.ts --checklist --platform=wechat --next-only --handoff-ok-exit-zero',
+    )
     expect(scripts['style-proof:wechat-manual-handoff']).toBe(
       'tsx scripts/style-proof-external-handoff.ts --template --platform=wechat --next-only --handoff-ok-exit-zero',
     )

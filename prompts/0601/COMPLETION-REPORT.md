@@ -12913,3 +12913,52 @@ Boundary:
   InkForge output paths only. It does not prove WeChat ordinary paste, phone preview, mobile Dark
   Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, platform preview, or publish success.
+
+---
+
+## 2026-07-05 WeChat Manual Proof Checklist Addendum
+
+- Added a human-readable WeChat manual proof checklist entry point:
+  `style-proof:wechat-manual-checklist`.
+- Added `--checklist` output mode to `scripts/style-proof-external-handoff.ts`.
+- The package script runs:
+  `tsx scripts/style-proof-external-handoff.ts --checklist --platform=wechat --next-only --handoff-ok-exit-zero`.
+- The checklist is a markdown worksheet for the current WeChat next rows. It includes:
+  - `notProof: true`;
+  - `canClaimComplete: false`;
+  - filtered row counts;
+  - phone-preview and credentialed-channel next rows;
+  - required channels/actions/readbacks;
+  - required and forbidden fields;
+  - redaction boundaries;
+  - manifest intake and merge commands for use only after real proof exists.
+- `--handoff-ok-exit-zero` can now make checklist generation exit 0, matching the operator packet
+  behavior already used by template and manifest-draft modes. Raw JSON and default markdown still
+  use strict cannot-claim exits while release proof is incomplete.
+- Related TDD/regression:
+  - Initial related run exposed a stale `wechatSelectableChoiceCount` expectation of 8 in
+    `style-proof-release-preflight.test.ts`.
+  - The expected value was updated to 13, matching the current WeChat renderable fallback
+    application surface.
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 2 files / 23 tests passed.
+  - `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 6 files / 50 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`: 40 files / 1363 tests passed.
+  - Focused ESLint for the changed external-handoff and preflight test files: passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`: passed; generated
+    `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Direct smoke:
+  - `pnpm --silent -C inkforge style-proof:wechat-manual-checklist`: exited 0 and printed
+    `notProof: true`, `canClaimComplete: false`, `filteredRows: 2`,
+    `filteredNextRows: 2`, `cover-thumbnail-check`, and `credentialed-channel-response`.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json`:
+    exited 0 with `status=application-ready`, `canClaimApplicationReady=true`,
+    `canClaimReleaseComplete=false`, `wechatSelectableChoiceCount=13`, and no choice issues.
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`: still exited 1 as
+    expected with `status=blocked-by-external` and `canClaimComplete=false`.
+- Added sanitized evidence:
+  `prompts/0601/evidence/wechat-manual-checklist-package-script-20260705.txt`.
+- Boundary: this proves only that the remaining WeChat manual proof rows have a human-readable
+  checklist entry point. It does not prove WeChat phone preview, mobile Dark Mode, mobile
+  interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  platform preview, or publish success.

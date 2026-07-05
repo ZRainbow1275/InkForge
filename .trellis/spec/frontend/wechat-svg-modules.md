@@ -15551,3 +15551,112 @@ return child.status === 'application-ready' && getApplicationIssueCount(child) =
   cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 313. WeChat Manual Proof Checklist CLI - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: after local application readiness is green, the remaining release blockers are
+  operator-run WeChat phone/account proof rows. The existing template and manifest-draft packets
+  are machine-friendly JSON, but operators also need a concise human checklist that exits
+  successfully when generated.
+- This rule applies to `scripts/style-proof-external-handoff.ts`, `inkforge/package.json`, and
+  focused external-handoff/release-preflight tests.
+- The checklist is an operator worksheet only. It must not create proof artifacts, mutate platform
+  state, open a browser, upload content, sync drafts, schedule sends, publish articles, or mark
+  release completion.
+
+### 2. Signatures
+
+- `style-proof:external-handoff --checklist` prints a human markdown checklist generated from the
+  same filtered rows used by the JSON template packet.
+- `style-proof:wechat-manual-checklist` must run:
+  `tsx scripts/style-proof-external-handoff.ts --checklist --platform=wechat --next-only --handoff-ok-exit-zero`.
+- The checklist must include:
+  - `notProof: true`;
+  - `canClaimComplete: false`;
+  - filter summary and current row counts;
+  - the current WeChat next rows;
+  - required channels/actions/readbacks/fields;
+  - forbidden fields;
+  - redaction boundaries and "never include" guidance;
+  - manifest intake and merge commands for use after real proof exists.
+- `--handoff-ok-exit-zero` may return exit 0 for `--checklist`, `--template`, and
+  `--manifest-drafts` packet generation only. Raw JSON and default markdown remain strict
+  cannot-claim exits while release proof is incomplete.
+
+### 3. Contracts
+
+- Input filters are inherited from `style-proof:external-handoff`: `--platform`, `--kind`,
+  `--status`, `--issue`, `--freshness-only`, and `--next-only`.
+- `--checklist` is mutually exclusive with `--markdown`, `--json`, `--template`, and
+  `--manifest-drafts`.
+- Checklist output must be markdown text, not JSON proof. It must repeat the cannot-claim fields
+  `notProof: true` and `canClaimComplete: false`.
+- The WeChat package script must apply `--platform=wechat --next-only` so it only describes the
+  current WeChat next rows.
+- The command has no environment-variable contract and must not depend on local browser state,
+  platform credentials, account sessions, phone devices, or network mutation.
+
+### 4. Validation & Error Matrix
+
+- Multiple output modes -> exit 2 with usage text; do not print completion claims.
+- Unknown filter value -> exit 2 with usage text; do not read or create manifests.
+- `--checklist` with incomplete external proof and without `--handoff-ok-exit-zero` -> strict
+  non-zero exit while still printing the worksheet.
+- `--checklist` with `--handoff-ok-exit-zero` -> exit 0 only for worksheet-generation success;
+  keep `notProof` and `canClaimComplete:false`.
+- Raw JSON or default markdown with `--handoff-ok-exit-zero` -> strict cannot-claim exit remains
+  non-zero while release proof is incomplete.
+
+### 5. Good/Base/Bad Cases
+
+- Good: `pnpm --silent -C inkforge style-proof:wechat-manual-checklist` exits 0 and lists the
+  current WeChat phone-preview and credentialed-channel next rows without artifacts.
+- Base: `pnpm --silent -C inkforge style-proof:external-handoff --checklist --platform=wechat --next-only`
+  prints the same checklist but exits non-zero because it is not proof.
+- Bad: `pnpm --silent -C inkforge style-proof:external-handoff --json --checklist` exits 2 before
+  any completion claim is printed.
+
+### 6. Tests Required
+
+- Tests must prove:
+  - strict checklist mode without `--handoff-ok-exit-zero` exits non-zero while release proof is
+    incomplete;
+  - package checklist mode exits 0 and keeps `notProof` / `canClaimComplete:false`;
+  - checklist output includes phone-preview and credentialed-channel next rows;
+  - no completed artifact rows are emitted;
+  - invalid output-mode combinations reject `--checklist` conflicts before reading or claiming
+    proof.
+- Keep the package-script source-contract test pinned to the exact `style-proof:wechat-manual-checklist`
+  string.
+- Run focused external-handoff/release-preflight tests, focused ESLint, package-script smoke,
+  application-scope preflight smoke, strict release-preflight smoke, type-check, production build,
+  GitNexus detect, diff checks, and sensitive scans before committing this class of change.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```bash
+pnpm --silent -C inkforge style-proof:external-handoff --json --handoff-ok-exit-zero
+```
+
+Treating raw JSON as a successful handoff would blur the cannot-claim boundary.
+
+#### Correct
+
+```bash
+pnpm --silent -C inkforge style-proof:wechat-manual-checklist
+```
+
+Use the dedicated checklist package script for operator guidance, then only run manifest intake
+and merge after real, redacted external proof exists.
+
+### 8. Cannot-Claim Boundary
+
+- Passing this rule proves only that a human-readable manual proof checklist can be generated.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

@@ -737,6 +737,47 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(result.stdout)
   })
 
+  it('prints a human WeChat checklist for manual proof collection without creating proof', async () => {
+    const strictResult = await runExternalHandoffCli(['--checklist', '--platform=wechat', '--next-only'])
+    expect(strictResult.exitCode).toBe(1)
+    expect(strictResult.stderr.trim()).toBe('')
+
+    const result = await runExternalHandoffCli([
+      '--checklist',
+      '--platform=wechat',
+      '--next-only',
+      '--handoff-ok-exit-zero',
+    ])
+
+    expect(result.exitCode).toBe(0)
+    expect(result.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(result.stdout)
+
+    expect(result.stdout).toContain('# WeChat Manual Style Proof Checklist')
+    expect(result.stdout).toContain('This checklist is not proof.')
+    expect(result.stdout).toContain('- notProof: true')
+    expect(result.stdout).toContain('- canClaimComplete: false')
+    expect(result.stdout).toContain('- committedCanClaimComplete: false')
+    expect(result.stdout).toContain('- filteredRows: 2')
+    expect(result.stdout).toContain('- filteredNextRows: 2')
+    expect(result.stdout).toContain('- phoneRows: 1')
+    expect(result.stdout).toContain('- externalAccountRows: 1')
+    expect(result.stdout).toContain('cover-thumbnail-check')
+    expect(result.stdout).toContain('credentialed-channel-response')
+    expect(result.stdout).toContain('Required proof values:')
+    expect(result.stdout).toContain('Artifact draft fields to fill only after real external proof:')
+    expect(result.stdout).toContain('- exactArtifact: true')
+    expect(result.stdout).toContain('- safeForCommit: true')
+    expect(result.stdout).toContain('Never include:')
+    expect(result.stdout).toContain('raw account session material')
+    expect(result.stdout).toContain('local browser-runtime directories')
+    expect(result.stdout).toContain(
+      'pnpm --silent -C inkforge style-proof:manifest-intake --file REDACTED_MANIFEST.json --json',
+    )
+    expect(result.stdout).not.toContain('"canClaimComplete":true')
+    expect(result.stdout).not.toContain('"artifacts":[{')
+  })
+
   it('emits the raw handoff packet JSON without claiming external proof completion', async () => {
     const result = await runExternalHandoffCli(['--json'])
 
@@ -791,7 +832,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.exitCode).toBe(0)
     expect(result.stderr.trim()).toBe('')
     expect(result.stdout).toContain(
-      'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
+      'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts|--checklist] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only]'
     )
     expect(result.stdout).toContain('--markdown')
     expect(result.stdout).toContain('--json')
@@ -800,6 +841,8 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('empty StyleProofManifest draft skeletons for intake')
     expect(result.stdout).toContain('--manifest-drafts')
     expect(result.stdout).toContain('redacted { manifests: [...] } draft pack')
+    expect(result.stdout).toContain('--checklist')
+    expect(result.stdout).toContain('human manual proof checklist')
     expect(result.stdout).toContain('--platform')
     expect(result.stdout).toContain('--kind')
     expect(result.stdout).toContain('--status')
@@ -815,23 +858,35 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     const result = await runExternalHandoffCli(['--markdown', '--json'])
     const templateConflict = await runExternalHandoffCli(['--json', '--template'])
     const draftPackConflict = await runExternalHandoffCli(['--template', '--manifest-drafts'])
+    const checklistConflict = await runExternalHandoffCli(['--json', '--checklist'])
 
     expect(result.exitCode).toBe(2)
-    expect(result.stderr).toContain('Choose only one output mode: --markdown, --json, --template, or --manifest-drafts')
+    expect(result.stderr).toContain(
+      'Choose only one output mode: --markdown, --json, --template, --manifest-drafts, or --checklist',
+    )
     expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(result.stdout).not.toContain('Can claim complete')
 
     expect(templateConflict.exitCode).toBe(2)
-    expect(templateConflict.stderr).toContain('Choose only one output mode: --markdown, --json, --template, or --manifest-drafts')
+    expect(templateConflict.stderr).toContain(
+      'Choose only one output mode: --markdown, --json, --template, --manifest-drafts, or --checklist',
+    )
     expect(templateConflict.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(templateConflict.stdout).not.toContain('Can claim complete')
 
     expect(draftPackConflict.exitCode).toBe(2)
     expect(draftPackConflict.stderr).toContain(
-      'Choose only one output mode: --markdown, --json, --template, or --manifest-drafts',
+      'Choose only one output mode: --markdown, --json, --template, --manifest-drafts, or --checklist',
     )
     expect(draftPackConflict.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(draftPackConflict.stdout).not.toContain('Can claim complete')
+
+    expect(checklistConflict.exitCode).toBe(2)
+    expect(checklistConflict.stderr).toContain(
+      'Choose only one output mode: --markdown, --json, --template, --manifest-drafts, or --checklist',
+    )
+    expect(checklistConflict.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(checklistConflict.stdout).not.toContain('Can claim complete')
     expectNoSensitiveFragments([
       result.stdout,
       result.stderr,
@@ -839,6 +894,8 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       templateConflict.stderr,
       draftPackConflict.stdout,
       draftPackConflict.stderr,
+      checklistConflict.stdout,
+      checklistConflict.stderr,
     ].join('\n'))
   })
 
@@ -1351,6 +1408,22 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(draftPack.manifests.every(manifest => manifest.claimedEvidence.length === 0)).toBe(true)
     expect(draftPackResult.stdout).not.toContain('"canClaimComplete":true')
     expect(draftPackResult.stdout).not.toContain('"artifacts":[{')
+
+    const checklistResult = await runExternalHandoffCli([
+      '--checklist',
+      '--platform=wechat',
+      '--next-only',
+      '--handoff-ok-exit-zero',
+    ])
+    expect(checklistResult.exitCode).toBe(0)
+    expect(checklistResult.stderr.trim()).toBe('')
+    expectNoSensitiveFragments(checklistResult.stdout)
+    expect(checklistResult.stdout).toContain('# WeChat Manual Style Proof Checklist')
+    expect(checklistResult.stdout).toContain('- canClaimComplete: false')
+    expect(checklistResult.stdout).toContain('cover-thumbnail-check')
+    expect(checklistResult.stdout).toContain('credentialed-channel-response')
+    expect(checklistResult.stdout).not.toContain('"canClaimComplete":true')
+    expect(checklistResult.stdout).not.toContain('"artifacts":[{')
   })
 
   it('feeds manifest-drafts output directly into manifest-intake as an incomplete draft pack', async () => {

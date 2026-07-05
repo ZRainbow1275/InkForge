@@ -25294,3 +25294,73 @@ Scope:
   cover-thumbnail acceptance, credentialed sync, scheduled send, public rendering, platform
   preview, or publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 2026-07-05 WeChat Manual Proof Checklist CLI Slice
+
+Source:
+- The local application gate is green, but strict release still correctly blocks on external
+  WeChat phone/account proof rows.
+- The existing WeChat handoff and manifest-draft commands are machine-readable JSON. The operator
+  also needs a concise human checklist for manual phone/credentialed-channel collection.
+
+Impact:
+- `npx gitnexus impact "style-proof-external-handoff" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk because package-script/script names are not indexed.
+- `npx gitnexus impact "getExternalHandoffExitCode" -r InkForge --depth 3` returned
+  target-not-found with UNKNOWN risk for the same scripts-only boundary.
+- The slice is limited to the external-handoff CLI, package script, focused tests, docs, and
+  sanitized evidence. It does not change renderer output, export HTML, account sync, upload,
+  schedule, or publish behavior.
+
+Implementation:
+- Added `--checklist` output mode to `scripts/style-proof-external-handoff.ts`.
+- Added `style-proof:wechat-manual-checklist` to `inkforge/package.json`:
+  `tsx scripts/style-proof-external-handoff.ts --checklist --platform=wechat --next-only --handoff-ok-exit-zero`.
+- The checklist is human markdown and includes:
+  - `notProof: true`;
+  - `canClaimComplete: false`;
+  - filtered row counts;
+  - current WeChat next rows;
+  - accepted channels/actions/readbacks;
+  - required and forbidden fields;
+  - redaction boundaries;
+  - manifest intake/merge commands for use only after real proof exists.
+- `--handoff-ok-exit-zero` now permits exit 0 for checklist generation in addition to template
+  and manifest-draft generation. Raw JSON and default markdown remain strict cannot-claim exits.
+- Fixed the release-preflight application-scope test expectation so the current selectable
+  WeChat style count is 13, matching the renderable fallback slice.
+
+Verification:
+- Initial related regression failed in `style-proof-release-preflight.test.ts` because
+  `wechatSelectableChoiceCount` still expected the old value 8.
+- After syncing that expectation, related regression passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  with 2 files and 23 tests.
+- `pnpm --silent -C inkforge style-proof:wechat-manual-checklist` exited 0 and printed a human
+  checklist with `notProof: true`, `canClaimComplete: false`, `filteredRows: 2`,
+  `filteredNextRows: 2`, `cover-thumbnail-check`, and `credentialed-channel-response`.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exited 0
+  with `status=application-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, `wechatSelectableChoiceCount=13`, and no choice issues.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exited 1 as expected
+  with `status=blocked-by-external` and `canClaimComplete=false`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 6 files and 50 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 40 files and 1363 tests.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-manual-checklist-package-script-20260705.txt`.
+
+Scope:
+- This proves only that the remaining WeChat manual proof rows have a human-readable checklist
+  entry point.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover-thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

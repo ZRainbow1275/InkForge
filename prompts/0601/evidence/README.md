@@ -9047,3 +9047,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves local app application of renderable WeChat SVG/style rows only. It does
   not prove WeChat paste, phone preview, credentialed sync, scheduled send, public rendering, or
   publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 WeChat Manual Proof Checklist Package Script
+
+- [x] wechat-manual-checklist-package-script-20260705.txt
+- Scope: human-readable checklist entry for the remaining WeChat manual proof rows.
+- Added `style-proof:wechat-manual-checklist` as:
+  `tsx scripts/style-proof-external-handoff.ts --checklist --platform=wechat --next-only --handoff-ok-exit-zero`.
+- Added `--checklist` output mode to the existing external-handoff CLI. It renders the same
+  filtered rows as the template packet, but as a human markdown checklist.
+- The checklist exits 0 only when `--handoff-ok-exit-zero` is present and still prints
+  `notProof: true`, `canClaimComplete: false`, and cannot-claim row details.
+- Verification passed: related external-handoff/release-preflight regression with 2 files / 23
+  tests, full scripts-suite regression with 6 files / 50 tests, full export-service regression
+  with 40 files / 1363 tests, focused ESLint, `vue-tsc`, production build, direct checklist
+  smoke, application-scope preflight smoke, and expected blocked strict release-preflight smoke.
+- Boundary: this proves only a human checklist entry exists. It does not prove WeChat phone
+  preview, credentialed sync, scheduled send, public rendering, or publish success.
+  Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

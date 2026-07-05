@@ -15,7 +15,7 @@ import {
 } from '../src/services/export/style-catalog.ts'
 import type { Platform } from '../src/services/export/types.ts'
 
-type ExternalHandoffOutputMode = 'markdown' | 'json' | 'template' | 'manifest-drafts'
+type ExternalHandoffOutputMode = 'markdown' | 'json' | 'template' | 'manifest-drafts' | 'checklist'
 type ExternalHandoffIssueFilter = CommittedStyleProofExternalProofChecklistRow['issueIds'][number]
 type ExternalHandoffArtifactTemplate =
   CommittedStyleProofExternalProofChecklistRow['artifactTemplate']
@@ -256,7 +256,7 @@ const ISSUE_ID_FILTER_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 function printHelp(): void {
   console.log([
-    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only] [--handoff-ok-exit-zero]',
+    'Usage: pnpm style-proof:external-handoff [--markdown|--json|--template|--manifest-drafts|--checklist] [--platform <platform>] [--kind <kind>] [--status <status>] [--issue <issue-id>] [--freshness-only] [--next-only] [--handoff-ok-exit-zero]',
     '',
     'Prints the committed InkForge style-proof external handoff packet for',
     'operator-run phone, account, public-host, sync, scheduled-send, upload,',
@@ -276,6 +276,9 @@ function printHelp(): void {
     '               Print a redacted { manifests: [...] } draft pack for the visible rows.',
     '               The pack contains only empty drafts and exits non-zero unless',
     '               --handoff-ok-exit-zero is set.',
+    '  --checklist',
+    '               Print a human manual proof checklist for the visible rows.',
+    '               This is not proof and exits non-zero unless --handoff-ok-exit-zero is set.',
     '  --platform   Limit rows to one platform: wechat, xiaohongshu, zhihu.',
     '  --kind       Limit rows to one gate kind: phone-preview, external-account,',
     '               public-host, unsafe-to-automate, mutating-platform.',
@@ -348,6 +351,7 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
   let sawJson = false
   let sawTemplate = false
   let sawManifestDrafts = false
+  let sawChecklist = false
   let platform: Platform | null = null
   let kind: CommittedStyleProofExternalHandoffNextRowKind | null = null
   let status: StyleProofAcceptanceAuditStatus | null = null
@@ -370,6 +374,9 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     } else if (arg === '--manifest-drafts') {
       sawManifestDrafts = true
       outputMode = 'manifest-drafts'
+    } else if (arg === '--checklist') {
+      sawChecklist = true
+      outputMode = 'checklist'
     } else if (arg === '--next-only') {
       nextOnly = true
     } else if (arg === '--freshness-only') {
@@ -401,9 +408,17 @@ function parseArgs(args: readonly string[]): ExternalHandoffCliArgs {
     }
   }
 
-  const selectedOutputModeCount = [sawMarkdown, sawJson, sawTemplate, sawManifestDrafts].filter(Boolean).length
+  const selectedOutputModeCount = [
+    sawMarkdown,
+    sawJson,
+    sawTemplate,
+    sawManifestDrafts,
+    sawChecklist,
+  ].filter(Boolean).length
   if (selectedOutputModeCount > 1) {
-    exitWithUsageError('Choose only one output mode: --markdown, --json, --template, or --manifest-drafts')
+    exitWithUsageError(
+      'Choose only one output mode: --markdown, --json, --template, --manifest-drafts, or --checklist',
+    )
   }
 
   return {
@@ -1012,6 +1027,122 @@ function buildManifestDraftPack(
   }
 }
 
+function formatChecklistList(values: readonly string[]): string {
+  if (values.length === 0) {
+    return 'none'
+  }
+
+  return values.join(', ')
+}
+
+function formatChecklistBoolean(value: boolean): 'true' | 'false' {
+  return value ? 'true' : 'false'
+}
+
+function formatChecklistFilters(filters: ExternalHandoffCliFilters): string[] {
+  return [
+    `- platform: ${filters.platform ?? 'all'}`,
+    `- kind: ${filters.kind ?? 'all'}`,
+    `- status: ${filters.status ?? 'all'}`,
+    `- issueId: ${filters.issueId ?? 'all'}`,
+    `- nextOnly: ${formatChecklistBoolean(filters.nextOnly)}`,
+    `- freshnessOnly: ${formatChecklistBoolean(filters.freshnessOnly)}`,
+  ]
+}
+
+function formatChecklistRow(row: ExternalHandoffTemplateRow, index: number): string[] {
+  const artifactDraft = row.operatorWorksheet.artifactDraftTemplate
+
+  return [
+    `### ${index + 1}. ${row.platform} / ${row.requirementId}`,
+    '',
+    `- status: ${row.status}`,
+    `- gate: ${row.gate}`,
+    `- boundary: ${row.boundary}`,
+    `- cannotClaim: ${formatChecklistBoolean(row.cannotClaim)}`,
+    `- issueIds: ${formatChecklistList(row.issueIds)}`,
+    `- blockerKinds: ${formatChecklistList(row.blockerKinds)}`,
+    `- choiceIds: ${formatChecklistList(row.choiceIds)}`,
+    `- nextOperatorAction: ${row.nextOperatorAction}`,
+    '',
+    'Required proof values:',
+    `- channels: ${formatChecklistList(row.operatorWorksheet.requiredChannels)}`,
+    `- actions: ${formatChecklistList(row.operatorWorksheet.requiredActions)}`,
+    `- readbacks: ${formatChecklistList(row.operatorWorksheet.requiredReadbacks)}`,
+    `- requiredFields: ${formatChecklistList(row.operatorWorksheet.requiredFields)}`,
+    `- forbiddenFields: ${formatChecklistList(row.operatorWorksheet.forbiddenFields)}`,
+    `- maxFreshnessDays: ${row.operatorWorksheet.maxFreshnessDays ?? 'none'}`,
+    '',
+    'Artifact draft fields to fill only after real external proof:',
+    `- requirementId: ${artifactDraft.baseFields.requirementId}`,
+    `- platform: ${artifactDraft.baseFields.platform}`,
+    '- id: <redacted-stable-id>',
+    '- kind: <proof-kind>',
+    '- label: <redacted-label>',
+    '- choiceId: <matching-style-choice-id-or-null>',
+    '- channel: <one accepted channel above>',
+    '- action: <one accepted action above>',
+    '- readback: <one accepted readback above>',
+    '- artifactFingerprint: <exact exported artifact fingerprint>',
+    '- artifactRef: <redacted reference only>',
+    '- exactArtifact: true',
+    '- collectedAt: <ISO timestamp>',
+    '- safeForCommit: true',
+    '- committed: false until merged through manifest tooling',
+    '- sensitive: false after redaction review',
+    '',
+    'Success criteria:',
+    ...row.artifactTemplate.successCriteria.map(item => `- ${item}`),
+    '',
+    'Failure signals:',
+    ...row.artifactTemplate.failureSignals.map(item => `- ${item}`),
+    '',
+    'Never include:',
+    ...row.operatorWorksheet.doNotInclude.map(item => `- ${item}`),
+    '',
+  ]
+}
+
+function formatManualProofChecklist(packet: ExternalHandoffTemplatePacket): string {
+  const rows = packet.rows.flatMap(formatChecklistRow)
+
+  return [
+    '# WeChat Manual Style Proof Checklist',
+    '',
+    'This checklist is not proof. It is a human worksheet for collecting external WeChat phone/account proof.',
+    'Do not paste account secrets, QR payloads, cookies, auth secrets, HAR files, local browser-runtime directories, or unredacted platform URLs into committed evidence.',
+    '',
+    '## Claim Boundary',
+    '',
+    '- notProof: true',
+    '- canClaimComplete: false',
+    `- committedCanClaimComplete: ${formatChecklistBoolean(packet.committedCanClaimComplete)}`,
+    `- status: ${packet.status}`,
+    `- filteredRows: ${packet.filteredSummary.filteredRows}`,
+    `- filteredNextRows: ${packet.filteredSummary.filteredNextRows}`,
+    `- filteredNextRowRefs: ${packet.filteredSummary.filteredNextRowRefs}`,
+    `- phoneRows: ${packet.filteredSummary.phoneRows}`,
+    `- externalAccountRows: ${packet.filteredSummary.externalAccountRows}`,
+    `- safeExternalRows: ${packet.filteredSummary.safeExternalRows}`,
+    `- cannotClaimRows: ${packet.filteredSummary.cannotClaimRows}`,
+    '',
+    '## Filters',
+    '',
+    ...formatChecklistFilters(packet.filters),
+    '',
+    '## Intake Commands After Real Proof Exists',
+    '',
+    '- Draft pack: pnpm --silent -C inkforge style-proof:wechat-manual-manifest-drafts',
+    '- Intake: pnpm --silent -C inkforge style-proof:manifest-intake --file REDACTED_MANIFEST.json --json',
+    '- Merge preview: pnpm --silent -C inkforge style-proof:manifest-merge --file REDACTED_MANIFEST.json --json',
+    '- Release check: pnpm --silent -C inkforge style-proof:release-preflight --json',
+    '',
+    '## Rows To Collect',
+    '',
+    ...(rows.length > 0 ? rows : ['No rows match the selected filters.', '']),
+  ].join('\n')
+}
+
 function getExternalHandoffExitCode(
   packet: CommittedStyleProofExternalHandoffPacket,
   outputMode: ExternalHandoffOutputMode,
@@ -1021,7 +1152,10 @@ function getExternalHandoffExitCode(
     return 0
   }
 
-  if (handoffOkExitZero && (outputMode === 'template' || outputMode === 'manifest-drafts')) {
+  if (
+    handoffOkExitZero &&
+    (outputMode === 'template' || outputMode === 'manifest-drafts' || outputMode === 'checklist')
+  ) {
     return 0
   }
 
@@ -1044,6 +1178,11 @@ function main(): void {
 
   if (outputMode === 'manifest-drafts') {
     console.log(JSON.stringify(buildManifestDraftPack(packet, filters)))
+    process.exit(getExternalHandoffExitCode(packet, outputMode, handoffOkExitZero))
+  }
+
+  if (outputMode === 'checklist') {
+    console.log(formatManualProofChecklist(buildTemplatePacket(packet, filters)).trimEnd())
     process.exit(getExternalHandoffExitCode(packet, outputMode, handoffOkExitZero))
   }
 
