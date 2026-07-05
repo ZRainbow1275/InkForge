@@ -16125,3 +16125,102 @@ const canClaimApplicationReady = wechatStyleSamples.status === 'wechat-style-sam
   cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
+## 318. WeChat Manual Checklist Must Require Local Gates First - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: the remaining WeChat proof rows are manual phone/account rows. Operators must not
+  collect or merge external proof against a stale local renderer, stale style-sample gate, or
+  broken current-round application gate.
+- Applies to `scripts/style-proof-external-handoff.ts` checklist output and
+  `scripts/style-proof-external-handoff.test.ts`.
+- This is operator guidance only; it does not create, import, mutate, or validate external proof.
+
+### 2. Signatures
+
+```bash
+pnpm --silent -C inkforge style-proof:wechat-manual-checklist
+pnpm --silent -C inkforge style-proof:external-handoff --checklist --platform=wechat --next-only --handoff-ok-exit-zero
+```
+
+Checklist output must include a section:
+
+```markdown
+## Local Gates Before External Collection
+
+- Application preflight: pnpm --silent -C inkforge style-proof:application-preflight --json
+- Application acceptance: pnpm --silent -C inkforge style-proof:application-acceptance --json
+- WeChat style samples: pnpm --silent -C inkforge style-proof:wechat-style-samples --json
+- Strict release boundary: pnpm --silent -C inkforge style-proof:release-preflight --json
+```
+
+### 3. Contracts
+
+- The checklist must state that external proof should only be collected after:
+  - `application-ready`;
+  - `application-acceptance-ready`;
+  - `wechat-style-samples-ready`.
+- The checklist must also state that strict release should still report `blocked-by-external` and
+  `canClaimComplete=false` until real phone/account proof is merged.
+- The section belongs before the intake/merge commands so the operator sees local preconditions
+  before filling or merging manifests.
+
+### 4. Validation & Error Matrix
+
+- Missing local-gate section -> checklist regression fails.
+- Missing any of the three local ready commands -> checklist regression fails.
+- Missing strict release boundary command -> checklist regression fails.
+- Checklist claims release completion or external proof success -> invalid; it must remain
+  `notProof` and `canClaimComplete:false`.
+
+### 5. Good / Base / Bad Cases
+
+- Good: WeChat checklist exits 0 in handoff-ok mode, prints the local gate section, then prints
+  current next rows for phone-preview and credentialed-channel proof.
+- Base: strict checklist invocation without `--handoff-ok-exit-zero` still exits non-zero when
+  proof remains missing.
+- Bad: operator checklist starts directly with manifest-intake commands and omits the local
+  application/style-sample gate preconditions.
+
+### 6. Tests Required
+
+- `style-proof-external-handoff.test.ts` must assert:
+  - the checklist contains `## Local Gates Before External Collection`;
+  - it contains the application-preflight, application-acceptance, WeChat style-samples, and
+    strict release commands;
+  - it still contains the current WeChat phone-preview and credentialed-channel rows;
+  - it still never prints `canClaimComplete:true` or committed artifacts.
+- Direct smoke:
+
+```bash
+pnpm --silent -C inkforge style-proof:wechat-manual-checklist
+```
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```markdown
+## Intake Commands After Real Proof Exists
+```
+
+This lets operators skip checking that the local renderer and current-round application gate are
+still valid before collecting account/phone proof.
+
+#### Correct
+
+```markdown
+## Local Gates Before External Collection
+...
+## Intake Commands After Real Proof Exists
+```
+
+### 8. Cannot-Claim Boundary
+
+- Passing this rule proves only that the manual checklist instructs operators to run local gates
+  before external proof collection.
+- It does not prove WeChat ordinary paste, phone preview, mobile Dark Mode, mobile interaction,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

@@ -1,0 +1,72 @@
+WeChat Manual Checklist Local Gates First - 2026-07-05
+
+Scope:
+- Local/manual proof checklist safety for the narrowed current-round target.
+- Xiaohongshu and Zhihu publish-side automation remains cancelled for this round and will be
+  tested manually by the operator.
+- No browser profile, platform account, phone preview, upload, sync, scheduled send, or publish
+  action is performed by this evidence item.
+
+Implemented:
+- Added a Local Gates Before External Collection section to
+  scripts/style-proof-external-handoff.ts checklist output.
+- style-proof:wechat-manual-checklist now prints the local gate section before the manifest
+  intake/merge commands.
+- The checklist tells the operator to run:
+  - pnpm --silent -C inkforge style-proof:application-preflight --json
+  - pnpm --silent -C inkforge style-proof:application-acceptance --json
+  - pnpm --silent -C inkforge style-proof:wechat-style-samples --json
+  - pnpm --silent -C inkforge style-proof:release-preflight --json
+
+Required local preconditions:
+- application-ready must be true.
+- application-acceptance-ready must be true.
+- wechat-style-samples-ready must be true.
+- strict release must still be treated as blocked-by-external with canClaimComplete=false until
+  real phone/account proof is merged.
+
+TDD:
+- The focused human WeChat checklist test was first tightened to require the local-gates-first
+  section and local gate commands.
+- That focused test failed before implementation because the checklist jumped from filters
+  directly to intake commands.
+- After implementation the focused test passed.
+
+Current smoke:
+- pnpm --silent -C inkforge style-proof:wechat-manual-checklist exits 0.
+- The output starts with the WeChat Manual Style Proof Checklist, then Claim Boundary, Filters,
+  the new Local Gates Before External Collection section, and only then Intake Commands After Real
+  Proof Exists.
+- The current checklist continues to report notProof and canClaimComplete=false.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 16 tests
+- pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 3 files / 25 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 52 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 41 files / 1364 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS
+- pnpm --silent -C inkforge style-proof:wechat-style-samples --json
+  PASS: status=wechat-style-samples-ready, renderedStyleChoiceCount=13, svgBearingStyleChoiceCount=13, issueCount=0
+- pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+  PASS: status=application-ready, canClaimApplicationReady=true, actionableLocalRows=0
+- pnpm --silent -C inkforge style-proof:application-acceptance --json
+  PASS: status=application-acceptance-ready, canClaimApplicationReady=true, wechat-style-export-samples=wechat-style-samples-ready
+- pnpm --silent -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exitCode=1, status=blocked-by-external, canClaimComplete=false, uniqueNextRows=2
+
+Boundary:
+- This proves checklist sequencing and cannot-claim messaging only.
+- It proves neither WeChat ordinary paste nor phone preview.
+- It proves neither mobile Dark Mode nor mobile SMIL/click interaction.
+- It proves neither cover thumbnail acceptance nor credentialed sync.
+- It proves neither scheduled send nor platform preview/public rendering/publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.

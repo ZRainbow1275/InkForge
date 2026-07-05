@@ -412,6 +412,69 @@ Boundary:
   publish success.
 - Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
 
+## 2026-07-05 WeChat Manual Checklist Local-Gates-First Slice
+
+Context:
+- Current strict release next rows are limited to WeChat phone-preview and WeChat external-account
+  proof.
+- The manual checklist previously jumped from claim boundary/filters directly to intake commands.
+  That made it possible for an operator to collect phone/account evidence against a stale local
+  renderer or stale style-samples gate.
+
+Implementation:
+- Extended `scripts/style-proof-external-handoff.ts` checklist output with
+  `## Local Gates Before External Collection`.
+- The new section requires operators to run:
+  - `pnpm --silent -C inkforge style-proof:application-preflight --json`;
+  - `pnpm --silent -C inkforge style-proof:application-acceptance --json`;
+  - `pnpm --silent -C inkforge style-proof:wechat-style-samples --json`;
+  - `pnpm --silent -C inkforge style-proof:release-preflight --json`.
+- It states that external proof should only be collected after `application-ready`,
+  `application-acceptance-ready`, and `wechat-style-samples-ready` are true, while strict release
+  must still report `blocked-by-external` with `canClaimComplete=false` until real phone/account
+  proof is merged.
+
+TDD:
+- Initial focused `style-proof-external-handoff.test.ts -t "human WeChat checklist"` failed because
+  the checklist omitted the local gates section.
+- After implementation the focused test passed.
+
+Current smoke:
+- `pnpm --silent -C inkforge style-proof:wechat-manual-checklist` exits 0 and prints the new
+  local-gates-first section before intake commands.
+- `pnpm --silent -C inkforge style-proof:wechat-style-samples --json` exits 0 with
+  `status=wechat-style-samples-ready`, `renderedStyleChoiceCount=13`,
+  `svgBearingStyleChoiceCount=13`, and `issueCount=0`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json` exits 0
+  with `status=application-ready`, `canClaimApplicationReady=true`, and
+  `actionableLocalRows=0`.
+- `pnpm --silent -C inkforge style-proof:application-acceptance --json` exits 0 with
+  `status=application-acceptance-ready`, `canClaimApplicationReady=true`, and
+  `wechat-style-export-samples=wechat-style-samples-ready`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` exits 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, and `uniqueNextRows=2`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 1 file and 16 tests.
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 3 files and 25 tests.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 7 files and 52 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 41 files and 1364 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build` passed; restored
+  `inkforge/tsconfig.tsbuildinfo` afterward.
+
+Boundary:
+- This slice is operator guidance only. It does not prove WeChat ordinary paste, phone preview,
+  mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send,
+  platform preview, public rendering, or publish success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 Scope:
 - This is local operator-command guidance only. It does not create artifacts, write manifests,
   open a browser, upload, sync, schedule, publish, mutate platform state, collect phone proof, or

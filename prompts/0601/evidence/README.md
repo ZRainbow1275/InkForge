@@ -9168,3 +9168,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   export-sample readiness. It does not prove WeChat ordinary paste, phone preview, credentialed
   sync, scheduled send, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
   tests remain manually deferred to the user.
+
+## 2026-07-05 WeChat Manual Checklist Local Gates First
+
+- [x] wechat-manual-checklist-local-gates-first-20260705.txt
+- Scope: manual WeChat proof checklist safety for the narrowed round target.
+- Added `## Local Gates Before External Collection` to `style-proof:wechat-manual-checklist`
+  before the manifest intake/merge commands.
+- The checklist now tells operators to run:
+  `style-proof:application-preflight --json`,
+  `style-proof:application-acceptance --json`,
+  `style-proof:wechat-style-samples --json`, and
+  `style-proof:release-preflight --json`.
+- The checklist requires `application-ready`, `application-acceptance-ready`, and
+  `wechat-style-samples-ready` before external WeChat proof collection, while preserving the
+  strict release cannot-claim boundary until real phone/account proof is merged.
+- Verification passed: focused external-handoff regression with 1 file / 16 tests, related
+  application/release/checklist regression with 3 files / 25 tests, full scripts-suite regression
+  with 7 files / 52 tests, full export-service regression with 41 files / 1364 tests, focused
+  ESLint, `vue-tsc`, production build, direct checklist smoke, direct WeChat style-samples smoke,
+  application-scope preflight smoke, application-acceptance smoke, and expected blocked strict
+  release-preflight smoke.
+- Boundary: this proves operator checklist sequencing only. It does not prove WeChat ordinary
+  paste, phone preview, mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync,
+  scheduled send, platform preview, public rendering, or publish success. Xiaohongshu and Zhihu
+  publish-side tests remain manually deferred to the user.

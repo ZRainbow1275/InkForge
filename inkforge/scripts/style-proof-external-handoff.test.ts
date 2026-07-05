@@ -762,6 +762,19 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('- filteredNextRows: 2')
     expect(result.stdout).toContain('- phoneRows: 1')
     expect(result.stdout).toContain('- externalAccountRows: 1')
+    expect(result.stdout).toContain('## Local Gates Before External Collection')
+    expect(result.stdout).toContain(
+      '- Application preflight: pnpm --silent -C inkforge style-proof:application-preflight --json',
+    )
+    expect(result.stdout).toContain(
+      '- Application acceptance: pnpm --silent -C inkforge style-proof:application-acceptance --json',
+    )
+    expect(result.stdout).toContain(
+      '- WeChat style samples: pnpm --silent -C inkforge style-proof:wechat-style-samples --json',
+    )
+    expect(result.stdout).toContain(
+      'Only collect external proof after application-ready, application-acceptance-ready, and wechat-style-samples-ready are all true.',
+    )
     expect(result.stdout).toContain('cover-thumbnail-check')
     expect(result.stdout).toContain('credentialed-channel-response')
     expect(result.stdout).toContain('Required proof values:')
@@ -1420,6 +1433,10 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expectNoSensitiveFragments(checklistResult.stdout)
     expect(checklistResult.stdout).toContain('# WeChat Manual Style Proof Checklist')
     expect(checklistResult.stdout).toContain('- canClaimComplete: false')
+    expect(checklistResult.stdout).toContain('## Local Gates Before External Collection')
+    expect(checklistResult.stdout).toContain('style-proof:application-preflight --json')
+    expect(checklistResult.stdout).toContain('style-proof:application-acceptance --json')
+    expect(checklistResult.stdout).toContain('style-proof:wechat-style-samples --json')
     expect(checklistResult.stdout).toContain('cover-thumbnail-check')
     expect(checklistResult.stdout).toContain('credentialed-channel-response')
     expect(checklistResult.stdout).not.toContain('"canClaimComplete":true')

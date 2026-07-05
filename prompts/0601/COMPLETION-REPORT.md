@@ -13167,3 +13167,24 @@ Boundary:
   mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync, scheduled send,
   platform preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
   tests remain manually deferred to the user.
+
+### Follow-up: WeChat manual checklist local gates first
+
+- Added `## Local Gates Before External Collection` to `style-proof:wechat-manual-checklist`.
+- The checklist now requires operators to run the local application preflight, application
+  acceptance, WeChat style samples, and strict release boundary commands before collecting or
+  merging any external WeChat proof.
+- The local precondition is explicit: only collect external proof after `application-ready`,
+  `application-acceptance-ready`, and `wechat-style-samples-ready` are all true.
+- The cannot-claim boundary is also explicit: strict release must still report
+  `blocked-by-external` with `canClaimComplete=false` until real phone/account proof is merged.
+- Verification passed: focused external-handoff regression with 1 file / 16 tests, related
+  application/release/checklist regression with 3 files / 25 tests, full scripts-suite regression
+  with 7 files / 52 tests, full export-service regression with 41 files / 1364 tests, focused
+  ESLint, `vue-tsc`, production build, direct checklist smoke, direct WeChat style-samples smoke,
+  application-scope preflight smoke, application-acceptance smoke, and expected blocked strict
+  release-preflight smoke.
+- Boundary: this proves operator checklist safety only. It does not prove WeChat ordinary paste,
+  phone preview, mobile Dark Mode, mobile interaction, cover thumbnail, credentialed sync,
+  scheduled send, platform preview, public rendering, or publish success. Xiaohongshu and Zhihu
+  publish-side tests remain manually deferred to the user.

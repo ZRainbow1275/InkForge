@@ -1050,6 +1050,20 @@ function formatChecklistFilters(filters: ExternalHandoffCliFilters): string[] {
   ]
 }
 
+function formatLocalGatePreflightCommands(): string[] {
+  return [
+    '## Local Gates Before External Collection',
+    '',
+    '- Application preflight: pnpm --silent -C inkforge style-proof:application-preflight --json',
+    '- Application acceptance: pnpm --silent -C inkforge style-proof:application-acceptance --json',
+    '- WeChat style samples: pnpm --silent -C inkforge style-proof:wechat-style-samples --json',
+    '- Strict release boundary: pnpm --silent -C inkforge style-proof:release-preflight --json',
+    '',
+    'Only collect external proof after application-ready, application-acceptance-ready, and wechat-style-samples-ready are all true.',
+    'The strict release boundary must still report blocked-by-external with canClaimComplete=false until real phone/account proof is merged.',
+  ]
+}
+
 function formatChecklistRow(row: ExternalHandoffTemplateRow, index: number): string[] {
   const artifactDraft = row.operatorWorksheet.artifactDraftTemplate
 
@@ -1129,6 +1143,8 @@ function formatManualProofChecklist(packet: ExternalHandoffTemplatePacket): stri
     '## Filters',
     '',
     ...formatChecklistFilters(packet.filters),
+    '',
+    ...formatLocalGatePreflightCommands(),
     '',
     '## Intake Commands After Real Proof Exists',
     '',
