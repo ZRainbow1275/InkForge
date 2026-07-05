@@ -15738,6 +15738,77 @@ This omits the operator handoff readiness path from the narrowed local acceptanc
 {"checks":[{"id":"application-preflight"},{"id":"application-gallery"},{"id":"wechat-manual-checklist"},{"id":"strict-release-boundary"}]}
 ```
 
+## 315. Application Acceptance Exposes WeChat Style Readiness Counts - 2026-07-05
+
+### 1. Scope / Trigger
+
+- Trigger: the narrowed local round target is specifically that all renderable WeChat SVG/style
+  rows can be applied in the app, while Xiaohongshu/Zhihu publish-side checks remain manually
+  owned by the operator. A green aggregate status alone is too weak unless the machine-readable
+  report also exposes the WeChat application counts that prove that target.
+- This rule applies to `scripts/style-proof-application-acceptance.ts` and
+  `scripts/style-proof-application-acceptance.test.ts`.
+- This rule does not expand release scope. It strengthens the local application gate only.
+
+### 2. Summary Contract
+
+- `style-proof:application-acceptance --json` summary must include these copied-through
+  application-preflight fields:
+  - `wechatApplicationSvgSlotCount`;
+  - `wechatApplicationSvgSlotFailureCount`;
+  - `wechatApplicationSurfaceCount`;
+  - `wechatApplicationSurfaceFailureCount`;
+  - `wechatExportPipelineContractCount`;
+  - `wechatExportPipelineFailureCount`;
+  - `wechatOptionInjectedModuleCount`;
+  - `wechatOptionInjectionFailureCount`;
+  - `wechatStyleChoiceCount`;
+  - `wechatUsableChoiceCount`;
+  - `wechatSelectableChoiceCount`;
+  - `usableButUnselectableWechatChoices`;
+  - `actionableLocalRows`.
+- `canClaimApplicationReady` may be true only when:
+  - all WeChat SVG slot, UI surface, export pipeline, and option injection failure counts are 0;
+  - `wechatStyleChoiceCount > 0`;
+  - `wechatSelectableChoiceCount > 0`;
+  - `usableButUnselectableWechatChoices === 0`;
+  - `actionableLocalRows === 0`;
+  - `boundary.xhsZhihuPublishAutomationDeferred === true`;
+  - strict release remains blocked externally with `canClaimReleaseComplete:false`.
+- Text output should include the same counts so an operator can read the WeChat style readiness
+  surface without parsing child CLI output.
+
+### 3. Good / Base / Bad Cases
+
+- Good: application acceptance exits 0 with
+  `wechatStyleChoiceCount=17`, `wechatUsableChoiceCount=8`, `wechatSelectableChoiceCount=13`,
+  all WeChat application failure counts 0, `usableButUnselectableWechatChoices=0`, and
+  `actionableLocalRows=0`.
+- Base: strict release remains `blocked-by-external`; the aggregate can report local application
+  readiness but cannot report release completion.
+- Bad: the aggregate omits these fields, reports selectable WeChat rows as 0, has any WeChat
+  application failure count, or loses the XHS/Zhihu manual deferral boundary.
+
+### 4. Tests Required
+
+- Regression tests must assert:
+  - the JSON shape requires every WeChat style/readiness count;
+  - the current good counts are present in the aggregate report;
+  - `wechatSelectableChoiceCount` is greater than proof-usable choices but lower than all style
+    choices, proving local fallback application is distinct from proof completion;
+  - `usableButUnselectableWechatChoices` remains 0.
+- Direct smoke must confirm `style-proof:application-acceptance --json` exits 0 with
+  `application-acceptance-ready`, `canClaimApplicationReady=true`,
+  `canClaimReleaseComplete=false`, and the WeChat style readiness counts above.
+
+### 5. Cannot-Claim Boundary
+
+- Passing this rule proves only local app-level WeChat SVG/style application readiness.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user for this round.
+
 The local application gate now proves the app is ready and the manual WeChat proof worksheet is
 available, while strict release proof remains unclaimed.
 

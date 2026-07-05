@@ -9100,3 +9100,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves local UI application of all renderable WeChat SVG/style rows only. It
   does not prove WeChat phone preview, credentialed sync, scheduled send, public rendering, or
   publish success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.
+
+## 2026-07-05 Application Acceptance WeChat Style Count Readback
+
+- [x] application-acceptance-wechat-style-count-readback-20260705.txt
+- Scope: local application-acceptance aggregate JSON/text readback, focused on WeChat SVG/style
+  readiness counts for the narrowed round target.
+- The aggregate now reports WeChat application slot, UI surface, export pipeline, option
+  injection, style-choice, selectable-choice, and local-actionable-row counts directly.
+- Current application-acceptance smoke exited 0 with `status=application-acceptance-ready`,
+  `canClaimApplicationReady=true`, `canClaimReleaseComplete=false`,
+  `wechatApplicationSvgSlotFailureCount=0`, `wechatApplicationSurfaceFailureCount=0`,
+  `wechatExportPipelineFailureCount=0`, `wechatOptionInjectionFailureCount=0`,
+  `wechatStyleChoiceCount=17`, `wechatUsableChoiceCount=8`,
+  `wechatSelectableChoiceCount=13`, `usableButUnselectableWechatChoices=0`, and
+  `actionableLocalRows=0`.
+- Focused regression passed with 2 files / 9 tests.
+- Boundary: this proves local aggregate reporting of WeChat app-level SVG/style readiness. It does
+  not prove WeChat phone preview, credentialed sync, scheduled send, public rendering, or publish
+  success. Xiaohongshu and Zhihu publish-side tests remain manually deferred to the user.

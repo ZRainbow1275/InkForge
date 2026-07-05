@@ -28,10 +28,17 @@ interface ApplicationPreflightJsonReport {
     applicationGalleryRenderedModulePersonaPairs: number
     applicationIssueCount?: number
     applicationGalleryIssueCount: number
+    wechatApplicationSvgSlotCount: number
     wechatApplicationSvgSlotFailureCount: number
+    wechatApplicationSurfaceCount: number
     wechatApplicationSurfaceFailureCount: number
+    wechatExportPipelineContractCount: number
     wechatExportPipelineFailureCount: number
+    wechatOptionInjectedModuleCount: number
     wechatOptionInjectionFailureCount: number
+    wechatStyleChoiceCount: number
+    wechatUsableChoiceCount: number
+    wechatSelectableChoiceCount: number
     usableButUnselectableWechatChoices: number
     actionableLocalRows: number
   }
@@ -95,6 +102,19 @@ interface ApplicationAcceptanceReport {
     applicationGalleryRenderedModulePersonaPairs: number
     applicationIssueCount: number
     galleryIssueCount: number
+    wechatApplicationSvgSlotCount: number
+    wechatApplicationSvgSlotFailureCount: number
+    wechatApplicationSurfaceCount: number
+    wechatApplicationSurfaceFailureCount: number
+    wechatExportPipelineContractCount: number
+    wechatExportPipelineFailureCount: number
+    wechatOptionInjectedModuleCount: number
+    wechatOptionInjectionFailureCount: number
+    wechatStyleChoiceCount: number
+    wechatUsableChoiceCount: number
+    wechatSelectableChoiceCount: number
+    usableButUnselectableWechatChoices: number
+    actionableLocalRows: number
     strictReleaseBoundaryPreserved: boolean
   }
   checks: readonly ApplicationAcceptanceCheck[]
@@ -218,10 +238,17 @@ function isApplicationPreflightSummary(value: unknown): value is ApplicationPref
       'renderedModulePersonaPairs',
       'applicationGalleryRenderedModulePersonaPairs',
       'applicationGalleryIssueCount',
+      'wechatApplicationSvgSlotCount',
       'wechatApplicationSvgSlotFailureCount',
+      'wechatApplicationSurfaceCount',
       'wechatApplicationSurfaceFailureCount',
+      'wechatExportPipelineContractCount',
       'wechatExportPipelineFailureCount',
+      'wechatOptionInjectedModuleCount',
       'wechatOptionInjectionFailureCount',
+      'wechatStyleChoiceCount',
+      'wechatUsableChoiceCount',
+      'wechatSelectableChoiceCount',
       'usableButUnselectableWechatChoices',
       'actionableLocalRows',
     ]) &&
@@ -324,6 +351,19 @@ function formatApplicationAcceptanceReportText(report: ApplicationAcceptanceRepo
     `applicationGalleryRenderedModulePersonaPairs: ${report.summary.applicationGalleryRenderedModulePersonaPairs}`,
     `applicationIssueCount: ${report.summary.applicationIssueCount}`,
     `galleryIssueCount: ${report.summary.galleryIssueCount}`,
+    `wechatApplicationSvgSlotCount: ${report.summary.wechatApplicationSvgSlotCount}`,
+    `wechatApplicationSvgSlotFailureCount: ${report.summary.wechatApplicationSvgSlotFailureCount}`,
+    `wechatApplicationSurfaceCount: ${report.summary.wechatApplicationSurfaceCount}`,
+    `wechatApplicationSurfaceFailureCount: ${report.summary.wechatApplicationSurfaceFailureCount}`,
+    `wechatExportPipelineContractCount: ${report.summary.wechatExportPipelineContractCount}`,
+    `wechatExportPipelineFailureCount: ${report.summary.wechatExportPipelineFailureCount}`,
+    `wechatOptionInjectedModuleCount: ${report.summary.wechatOptionInjectedModuleCount}`,
+    `wechatOptionInjectionFailureCount: ${report.summary.wechatOptionInjectionFailureCount}`,
+    `wechatStyleChoiceCount: ${report.summary.wechatStyleChoiceCount}`,
+    `wechatUsableChoiceCount: ${report.summary.wechatUsableChoiceCount}`,
+    `wechatSelectableChoiceCount: ${report.summary.wechatSelectableChoiceCount}`,
+    `usableButUnselectableWechatChoices: ${report.summary.usableButUnselectableWechatChoices}`,
+    `actionableLocalRows: ${report.summary.actionableLocalRows}`,
     `strictReleaseBoundaryPreserved: ${report.summary.strictReleaseBoundaryPreserved ? 'true' : 'false'}`,
     '',
     'checks:',
@@ -382,6 +422,16 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
     const strictReleaseBoundaryPreserved = strictReleaseResult.exitCode !== 0 &&
       strictRelease?.canClaimComplete === false &&
       strictRelease.status === 'blocked-by-external'
+    const wechatStyleApplicationReady = applicationPreflight !== null &&
+      applicationPreflight.summary.wechatApplicationSvgSlotFailureCount === 0 &&
+      applicationPreflight.summary.wechatApplicationSurfaceFailureCount === 0 &&
+      applicationPreflight.summary.wechatExportPipelineFailureCount === 0 &&
+      applicationPreflight.summary.wechatOptionInjectionFailureCount === 0 &&
+      applicationPreflight.summary.wechatStyleChoiceCount > 0 &&
+      applicationPreflight.summary.wechatSelectableChoiceCount > 0 &&
+      applicationPreflight.summary.usableButUnselectableWechatChoices === 0 &&
+      applicationPreflight.summary.actionableLocalRows === 0 &&
+      applicationPreflight.externalProof.xhsZhihuPublishAutomationDeferred === true
 
     const checks: ApplicationAcceptanceCheck[] = [
       {
@@ -389,7 +439,8 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
         passed: applicationPreflightResult.exitCode === 0 &&
           applicationPreflight?.status === 'application-ready' &&
           applicationPreflight.canClaimApplicationReady === true &&
-          applicationIssueCount === 0,
+          applicationIssueCount === 0 &&
+          wechatStyleApplicationReady,
         exitCode: applicationPreflightResult.exitCode,
         status: applicationPreflight?.status ?? 'invalid-json',
         command: 'style-proof:application-preflight --json',
@@ -445,6 +496,22 @@ async function buildApplicationAcceptanceReport(): Promise<ApplicationAcceptance
           0,
         applicationIssueCount,
         galleryIssueCount,
+        wechatApplicationSvgSlotCount: applicationPreflight?.summary.wechatApplicationSvgSlotCount ?? 0,
+        wechatApplicationSvgSlotFailureCount:
+          applicationPreflight?.summary.wechatApplicationSvgSlotFailureCount ?? 1,
+        wechatApplicationSurfaceCount: applicationPreflight?.summary.wechatApplicationSurfaceCount ?? 0,
+        wechatApplicationSurfaceFailureCount:
+          applicationPreflight?.summary.wechatApplicationSurfaceFailureCount ?? 1,
+        wechatExportPipelineContractCount: applicationPreflight?.summary.wechatExportPipelineContractCount ?? 0,
+        wechatExportPipelineFailureCount: applicationPreflight?.summary.wechatExportPipelineFailureCount ?? 1,
+        wechatOptionInjectedModuleCount: applicationPreflight?.summary.wechatOptionInjectedModuleCount ?? 0,
+        wechatOptionInjectionFailureCount: applicationPreflight?.summary.wechatOptionInjectionFailureCount ?? 1,
+        wechatStyleChoiceCount: applicationPreflight?.summary.wechatStyleChoiceCount ?? 0,
+        wechatUsableChoiceCount: applicationPreflight?.summary.wechatUsableChoiceCount ?? 0,
+        wechatSelectableChoiceCount: applicationPreflight?.summary.wechatSelectableChoiceCount ?? 0,
+        usableButUnselectableWechatChoices:
+          applicationPreflight?.summary.usableButUnselectableWechatChoices ?? 1,
+        actionableLocalRows: applicationPreflight?.summary.actionableLocalRows ?? 1,
         strictReleaseBoundaryPreserved,
       },
       checks,

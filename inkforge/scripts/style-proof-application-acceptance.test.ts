@@ -25,6 +25,19 @@ interface ApplicationAcceptanceJsonReport {
     applicationGalleryRenderedModulePersonaPairs: number
     applicationIssueCount: number
     galleryIssueCount: number
+    wechatApplicationSvgSlotCount: number
+    wechatApplicationSvgSlotFailureCount: number
+    wechatApplicationSurfaceCount: number
+    wechatApplicationSurfaceFailureCount: number
+    wechatExportPipelineContractCount: number
+    wechatExportPipelineFailureCount: number
+    wechatOptionInjectedModuleCount: number
+    wechatOptionInjectionFailureCount: number
+    wechatStyleChoiceCount: number
+    wechatUsableChoiceCount: number
+    wechatSelectableChoiceCount: number
+    usableButUnselectableWechatChoices: number
+    actionableLocalRows: number
     strictReleaseBoundaryPreserved: boolean
   }
   checks: Array<{
@@ -131,6 +144,19 @@ function isApplicationAcceptanceJsonReport(value: unknown): value is Application
       'applicationGalleryRenderedModulePersonaPairs',
       'applicationIssueCount',
       'galleryIssueCount',
+      'wechatApplicationSvgSlotCount',
+      'wechatApplicationSvgSlotFailureCount',
+      'wechatApplicationSurfaceCount',
+      'wechatApplicationSurfaceFailureCount',
+      'wechatExportPipelineContractCount',
+      'wechatExportPipelineFailureCount',
+      'wechatOptionInjectedModuleCount',
+      'wechatOptionInjectionFailureCount',
+      'wechatStyleChoiceCount',
+      'wechatUsableChoiceCount',
+      'wechatSelectableChoiceCount',
+      'usableButUnselectableWechatChoices',
+      'actionableLocalRows',
     ]) &&
     typeof value.summary.strictReleaseBoundaryPreserved === 'boolean' &&
     Array.isArray(value.checks) &&
@@ -182,6 +208,19 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
         applicationGalleryRenderedModulePersonaPairs: 108,
         applicationIssueCount: 0,
         galleryIssueCount: 0,
+        wechatApplicationSvgSlotCount: 5,
+        wechatApplicationSvgSlotFailureCount: 0,
+        wechatApplicationSurfaceCount: 2,
+        wechatApplicationSurfaceFailureCount: 0,
+        wechatExportPipelineContractCount: 3,
+        wechatExportPipelineFailureCount: 0,
+        wechatOptionInjectedModuleCount: 27,
+        wechatOptionInjectionFailureCount: 0,
+        wechatStyleChoiceCount: 17,
+        wechatUsableChoiceCount: 8,
+        wechatSelectableChoiceCount: 13,
+        usableButUnselectableWechatChoices: 0,
+        actionableLocalRows: 0,
         strictReleaseBoundaryPreserved: true,
       },
       issues: [],
@@ -191,6 +230,9 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
       },
     })
     expect(report.summary.strictReleaseExitCode).not.toBe(0)
+    expect(report.summary.wechatSelectableChoiceCount).toBeGreaterThan(report.summary.wechatUsableChoiceCount)
+    expect(report.summary.wechatSelectableChoiceCount).toBeLessThan(report.summary.wechatStyleChoiceCount)
+    expect(report.summary.usableButUnselectableWechatChoices).toBe(0)
     expect(report.checks.map(check => check.id)).toEqual([
       'application-preflight',
       'application-gallery',

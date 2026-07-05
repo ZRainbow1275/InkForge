@@ -1,0 +1,69 @@
+Application Acceptance WeChat Style Count Readback - 2026-07-05
+
+Scope:
+- Local application-acceptance aggregate readback for the narrowed round target.
+- No platform account action, phone preview, upload, sync, scheduled send, or publish.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the operator for this round.
+
+Implemented:
+- Extended scripts/style-proof-application-acceptance.ts so the aggregate report now exposes
+  WeChat SVG/style application readiness counts from the application-preflight child report.
+- Extended scripts/style-proof-application-acceptance.test.ts so JSON shape and current good
+  counts are regression-tested.
+- Updated .trellis/spec/frontend/wechat-svg-modules.md with rule 315.
+
+Aggregate summary fields added:
+- wechatApplicationSvgSlotCount
+- wechatApplicationSvgSlotFailureCount
+- wechatApplicationSurfaceCount
+- wechatApplicationSurfaceFailureCount
+- wechatExportPipelineContractCount
+- wechatExportPipelineFailureCount
+- wechatOptionInjectedModuleCount
+- wechatOptionInjectionFailureCount
+- wechatStyleChoiceCount
+- wechatUsableChoiceCount
+- wechatSelectableChoiceCount
+- usableButUnselectableWechatChoices
+- actionableLocalRows
+
+Readiness rule:
+- canClaimApplicationReady may be true only when all local checks pass, strict release remains
+  blocked externally, WeChat application failure counts are 0, there is at least one WeChat style
+  choice, there is at least one selectable WeChat application row, usableButUnselectableWechatChoices
+  is 0, actionableLocalRows is 0, and xhsZhihuPublishAutomationDeferred is true.
+
+Verification:
+- npx gitnexus impact buildApplicationAcceptanceReport -r InkForge -d upstream --include-tests
+  Result: GitNexus did not find this script symbol, so symbol-level blast radius was unavailable.
+- pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 2 files / 9 tests.
+- pnpm --silent -C inkforge style-proof:application-acceptance --json
+  PASS: exit 0.
+  Key fields:
+  - status: application-acceptance-ready
+  - canClaimApplicationReady: true
+  - canClaimReleaseComplete: false
+  - wechatApplicationSvgSlotCount: 5
+  - wechatApplicationSvgSlotFailureCount: 0
+  - wechatApplicationSurfaceCount: 2
+  - wechatApplicationSurfaceFailureCount: 0
+  - wechatExportPipelineContractCount: 3
+  - wechatExportPipelineFailureCount: 0
+  - wechatOptionInjectedModuleCount: 27
+  - wechatOptionInjectionFailureCount: 0
+  - wechatStyleChoiceCount: 17
+  - wechatUsableChoiceCount: 8
+  - wechatSelectableChoiceCount: 13
+  - usableButUnselectableWechatChoices: 0
+  - actionableLocalRows: 0
+  - strictReleaseBoundaryPreserved: true
+  - xhsZhihuPublishAutomationDeferred: true
+
+Boundary:
+- This proves the local application-acceptance aggregate directly reports WeChat SVG/style
+  readiness counts for the narrowed round target.
+- This does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
+  success.
+- Xiaohongshu and Zhihu publish-side tests remain manually deferred to the operator for this round.

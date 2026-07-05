@@ -13039,3 +13039,36 @@ Boundary:
   It does not prove WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail
   acceptance, credentialed sync, scheduled send, public rendering, platform preview, or publish
   success.
+
+---
+
+## 2026-07-05 Application Acceptance WeChat Style Count Readback Addendum
+
+- Strengthened `style-proof:application-acceptance` so its own JSON/text summary now directly
+  reports the WeChat SVG/style application readiness counts, instead of requiring the operator to
+  inspect child `style-proof:application-preflight` output.
+- The aggregate now requires zero WeChat SVG slot, UI surface, export pipeline, and option
+  injection failures before `canClaimApplicationReady` may be true.
+- The aggregate now also requires `wechatStyleChoiceCount > 0`, `wechatSelectableChoiceCount > 0`,
+  `usableButUnselectableWechatChoices=0`, `actionableLocalRows=0`, and the current
+  `xhsZhihuPublishAutomationDeferred=true` boundary.
+- Current direct smoke:
+  - `pnpm --silent -C inkforge style-proof:application-acceptance --json`: exited 0 with
+    `status=application-acceptance-ready`, `canClaimApplicationReady=true`,
+    `canClaimReleaseComplete=false`, `wechatApplicationSvgSlotCount=5`,
+    `wechatApplicationSvgSlotFailureCount=0`, `wechatApplicationSurfaceCount=2`,
+    `wechatApplicationSurfaceFailureCount=0`, `wechatExportPipelineContractCount=3`,
+    `wechatExportPipelineFailureCount=0`, `wechatOptionInjectedModuleCount=27`,
+    `wechatOptionInjectionFailureCount=0`, `wechatStyleChoiceCount=17`,
+    `wechatUsableChoiceCount=8`, `wechatSelectableChoiceCount=13`,
+    `usableButUnselectableWechatChoices=0`, `actionableLocalRows=0`, and
+    `strictReleaseBoundaryPreserved=true`.
+- Focused regression:
+  - `pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`: 2 files / 9 tests passed.
+- Added sanitized evidence:
+  `prompts/0601/evidence/application-acceptance-wechat-style-count-readback-20260705.txt`.
+- Boundary: this proves the local application-acceptance aggregate directly reports the WeChat
+  style/SVG readiness counts for the narrowed round target. It does not prove WeChat phone
+  preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, platform preview, or publish success. Xiaohongshu and Zhihu
+  publish-side tests remain manually deferred to the user for this round.
