@@ -8,14 +8,18 @@ Scope:
   tested manually by the operator.
 
 Implemented:
-- Added style-proof:current-round to inkforge/package.json.
-- The package script maps to:
+- Added nested style-proof:current-round to inkforge/package.json.
+- The nested package script maps to:
   tsx scripts/style-proof-application-acceptance.ts --json
-- Extended style-proof-application-acceptance.test.ts so package.json must expose this exact
-  script mapping.
+- Added root-level style-proof:current-round to workspace package.json.
+- The root-level package script maps to:
+  pnpm --silent -C inkforge style-proof:current-round
+- Extended style-proof-application-acceptance.test.ts so both package.json files must expose
+  these exact script mappings.
 
 Current smoke:
 - pnpm --silent -C inkforge style-proof:current-round exits 0.
+- pnpm --silent style-proof:current-round exits 0 from the workspace root.
 - status=application-acceptance-ready.
 - currentRoundTarget.scope=application-svg-style-wechat-local.
 - currentRoundTarget.status=current-round-ready.
@@ -31,9 +35,10 @@ Current smoke:
 
 TDD:
 - The package-entrypoint test was added before implementation.
-- Initial focused run failed because scripts['style-proof:current-round'] was undefined.
-- After adding the package script the focused test passed.
-- The real package command smoke also returned current-round-ready.
+- Initial focused run failed because nested scripts['style-proof:current-round'] was undefined.
+- A follow-up focused run failed because root scripts['style-proof:current-round'] was undefined.
+- After adding both package scripts the focused test passed.
+- The real nested and root package command smokes also returned current-round-ready.
 
 Verification:
 - pnpm -C inkforge exec vitest run scripts/style-proof-application-acceptance.test.ts -t "package-level current-round" --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism

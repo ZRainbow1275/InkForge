@@ -77,12 +77,14 @@ interface ApplicationAcceptanceJsonReport {
 
 const currentFilePath = fileURLToPath(import.meta.url)
 const projectRoot = resolve(dirname(currentFilePath), '..')
+const workspaceRoot = resolve(projectRoot, '..')
 const tsxCliPath = resolve(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs')
 const acceptanceScriptPath = resolve(projectRoot, 'scripts', 'style-proof-application-acceptance.ts')
 const packageJsonPath = resolve(projectRoot, 'package.json')
+const rootPackageJsonPath = resolve(workspaceRoot, 'package.json')
 
-function readPackageJsonScripts(): Record<string, string> {
-  const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as PackageJsonScripts
+function readPackageJsonScripts(path = packageJsonPath): Record<string, string> {
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as PackageJsonScripts
   return parsed.scripts ?? {}
 }
 
@@ -334,8 +336,10 @@ describe('style-proof application acceptance CLI', { timeout: 90_000 }, () => {
 
   it('exposes a package-level current-round acceptance entrypoint', async () => {
     const scripts = readPackageJsonScripts()
+    const rootScripts = readPackageJsonScripts(rootPackageJsonPath)
 
     expect(scripts['style-proof:current-round']).toBe('tsx scripts/style-proof-application-acceptance.ts --json')
+    expect(rootScripts['style-proof:current-round']).toBe('pnpm --silent -C inkforge style-proof:current-round')
 
     const result = await runAcceptanceCli(['--json'])
     expect(result.exitCode).toBe(0)

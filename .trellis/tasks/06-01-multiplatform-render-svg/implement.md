@@ -556,16 +556,19 @@ Context:
   target without weakening strict release proof.
 
 Implementation:
-- Added `style-proof:current-round` to `inkforge/package.json`.
-- The package script maps to:
+- Added nested `style-proof:current-round` to `inkforge/package.json`.
+- The nested package script maps to:
   `tsx scripts/style-proof-application-acceptance.ts --json`.
+- Added root-level `style-proof:current-round` to workspace `package.json`.
+- The root-level package script proxies to:
+  `pnpm --silent -C inkforge style-proof:current-round`.
 - Extended `scripts/style-proof-application-acceptance.test.ts` to validate the package script
-  mapping and the resulting current-round JSON shape.
+  mappings and the resulting current-round JSON shape.
 
 TDD:
-- Initial focused package-entrypoint test failed because `style-proof:current-round` was missing
-  from `package.json`.
-- After adding the package script, the focused test passed and the real package command smoke
+- Initial focused package-entrypoint test failed because the nested package script was missing.
+- A follow-up focused run then failed because the root-level package script was also missing.
+- After adding both package scripts, the focused test passed and the real package command smoke
   returned `currentRoundTarget.status=current-round-ready`.
 
 Current smoke:
@@ -581,6 +584,8 @@ Current smoke:
   - `wechatRenderedStyleChoiceCount=13`;
   - `wechatStyleSampleIssueCount=0`;
   - `actionableLocalRows=0`.
+- `pnpm --silent style-proof:current-round` from the workspace root exits 0 with the same
+  current-round-ready payload.
 
 Verification:
 - Focused package-entrypoint regression passed with 1 selected test.

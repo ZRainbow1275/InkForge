@@ -13215,12 +13215,15 @@ Boundary:
 
 ### Follow-up: current-round package script entrypoint
 
-- Added `style-proof:current-round` to `inkforge/package.json` as the single copy-safe package
+- Added `style-proof:current-round` to `inkforge/package.json` as the nested copy-safe package
   entrypoint for this narrowed round.
-- The script maps to:
+- The nested script maps to:
   `tsx scripts/style-proof-application-acceptance.ts --json`.
+- Added root-level `style-proof:current-round` to workspace `package.json` as a proxy to:
+  `pnpm --silent -C inkforge style-proof:current-round`.
 - Current direct smoke:
   - `pnpm --silent -C inkforge style-proof:current-round` exits 0;
+  - `pnpm --silent style-proof:current-round` exits 0 from the workspace root;
   - `status=application-acceptance-ready`;
   - `currentRoundTarget.status=current-round-ready`;
   - `currentRoundTarget.canClaimCurrentRoundTarget=true`;

@@ -16074,15 +16074,19 @@ currentRoundRemainingExternalProofOwnedByOperator: true
 - If `strictRelease.canClaimComplete=true` appears in this report without real external proof, the
   report is invalid.
 - Missing `currentRoundTarget` in JSON or text output -> regression failure.
-- Missing `style-proof:current-round` in `package.json` -> regression failure.
-- `style-proof:current-round` must map to
+- Missing `style-proof:current-round` in nested `inkforge/package.json` -> regression failure.
+- Nested `style-proof:current-round` must map to
   `tsx scripts/style-proof-application-acceptance.ts --json`.
+- Missing root-level `style-proof:current-round` in workspace `package.json` -> regression failure.
+- Root-level `style-proof:current-round` must proxy to
+  `pnpm --silent -C inkforge style-proof:current-round`.
 
 ### 5. Tests Required
 
 - `style-proof-application-acceptance.test.ts` must validate the JSON shape and exact current
   good values for `currentRoundTarget`.
-- The same test must validate the package-level `style-proof:current-round` entrypoint mapping.
+- The same test must validate both nested and root-level `style-proof:current-round` entrypoint
+  mappings.
 - The help output must mention `current-round target readiness`.
 - Direct smoke must confirm:
 
@@ -16090,6 +16094,7 @@ currentRoundRemainingExternalProofOwnedByOperator: true
 pnpm --silent -C inkforge style-proof:application-acceptance --json
 pnpm --silent -C inkforge style-proof:application-acceptance
 pnpm --silent -C inkforge style-proof:current-round
+pnpm --silent style-proof:current-round
 ```
 
 ### 6. Cannot-Claim Boundary

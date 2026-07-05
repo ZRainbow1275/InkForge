@@ -9221,7 +9221,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Scope: copy-safe package-level entrypoint for the narrowed current-round acceptance target.
 - Added `style-proof:current-round` to `inkforge/package.json` as:
   `tsx scripts/style-proof-application-acceptance.ts --json`.
-- Current smoke exits 0 with `status=application-acceptance-ready`,
+- Added root-level `style-proof:current-round` to workspace `package.json` as:
+  `pnpm --silent -C inkforge style-proof:current-round`.
+- Current nested and root smoke both exit 0 with `status=application-acceptance-ready`,
   `currentRoundTarget.status=current-round-ready`, `canClaimCurrentRoundTarget=true`,
   `canClaimReleaseComplete=false`, `wechatRenderedStyleChoiceCount=13`,
   `wechatStyleSampleIssueCount=0`, and `actionableLocalRows=0`.
