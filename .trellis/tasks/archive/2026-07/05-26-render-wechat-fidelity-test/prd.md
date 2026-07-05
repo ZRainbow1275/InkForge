@@ -117,3 +117,20 @@
 - 文章里出现 `e-CNY` / `M0` / `M1` / `M2` / `mBridge` / `wCBDC` / `USDC` 等英文术语穿插中文 — CJK/Latin thin-space 的核心测试场景。
 - 没有图片、代码块、Mermaid、LaTeX → 部分降级路径（image clamp、mermaid fallback、katex fallback）走不到 — 报告里要标注未覆盖。
 - 输出 HTML 在 `.trellis/tasks/.../output/` 不纳入 lint/test 范围，避免污染主测试链。
+
+---
+
+## Closeout evidence - 2026-07-05
+
+This WeChat fidelity planning task is closed by current local artifact verification:
+
+- `output/正文1.0-wechat.html` exists and is a complete browser-openable HTML file.
+- `fidelity_report.md` exists and records the full compliance/UX review, including hard compliance PASS and known UX concerns.
+- Local verification confirmed `<!DOCTYPE html>`, `section#nice`, `data-wechat-clamp="1"`, CJK/Latin thin-space insertion, and absence of script/iframe/form/event-handler/javascript URL/CSS blacklist hits.
+- The task is WeChat-only by design. Xiaohongshu and Zhihu publish testing remains manual per the current user instruction.
+- No product source code was changed for this closeout.
+
+Boundary:
+
+- This proves local WeChat HTML fidelity artifact readiness, not a real WeChat public-account publish.
+- Account-bound publication, phone preview, and external platform upload remain outside this task.

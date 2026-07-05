@@ -1,21 +1,26 @@
 {
-  "version": "v5",
-  "brand": "InkForge Structural",
-  "presetId": "inkforge-v5",
+  "version": "v4",
+  "brand": "InkForge Signature",
+  "presetId": "inkforge-signature",
+  "presetName": "InkForge Signature（墨锻）",
   "palette": {
     "graphite": "#252933",
     "kiln": "#D95B3F",
+    "tempera": "#3B7A6B",
+    "amber": "#C19A56",
     "vellum": "#F5F0E6",
     "ash": "#6E7580",
+    "smoke": "#9B958D",
     "hairline": "#DED7CA",
     "hearth": "#EDE7DB",
-    "ink": "#1A1D24"
+    "char": "#1A1D24",
+    "ink": "#1C1F26"
   },
-  "generatedAt": "2026-06-01T11:14:08.342Z",
+  "generatedAt": "2026-07-02T20:22:27.077Z",
   "markdownBytesOriginal": 88670,
   "markdownBytesPreprocessed": 92090,
-  "htmlBytes": 300136,
-  "innerHtmlBytes": 298624,
+  "htmlBytes": 264596,
+  "innerHtmlBytes": 262284,
   "preprocStats": {
     "boldReplacements": 272,
     "italicReplacements": 4,
@@ -33,13 +38,13 @@
     "tableCount": 1
   },
   "decorations": {
-    "seal": 1,
-    "nums": 6,
+    "chapterNumerals": 6,
+    "forgeLines": 6,
+    "h1OrnamentTop": 1,
+    "h1Divider": 1,
+    "dropCap": 1,
     "toc": 1,
-    "dc": 1,
-    "pqs": 0,
-    "endmark": 1,
-    "badge": 1,
+    "ornaments": 5,
     "strayBold": 0
   }
 }
