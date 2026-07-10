@@ -1443,7 +1443,7 @@ function handleExportCustomCss(): void {
     ' * InkForge Custom CSS',
     ` * Exported at: ${exportedAt}`,
     ' * InkForge version: 2.1',
-    ' * Notes: Scoped to .editor-content; @import/remote url/!important are forbidden.',
+    ' * Notes: Scoped to .editor-content and the live ProseMirror editor; @import/remote url/!important are forbidden.',
     ' */',
     '',
     sourceCss,
@@ -5696,7 +5696,7 @@ onUnmounted(() => {
             高级
           </h2>
           <p class="sv-tab-desc">
-            面向高级用户的真实运行时控制；CustomCSS 只作用于 .editor-content，不会定制应用外壳。
+            面向高级用户的真实运行时控制；CustomCSS 只作用于 .editor-content 与真实 ProseMirror 编辑区，不会定制应用外壳。
           </p>
 
           <div
@@ -5709,7 +5709,7 @@ onUnmounted(() => {
                   CustomCSS
                 </h3>
                 <p class="sv-section-note">
-                  自动限定到 .editor-content；禁止 @import、远程 url、主动内容协议和 !important。关闭后不注入 style，但保留草稿。
+                  自动限定到 .editor-content 与真实 ProseMirror 编辑区；禁止 @import、远程 url、主动内容协议和 !important。关闭后不注入 style，但保留草稿。
                 </p>
               </div>
               <span

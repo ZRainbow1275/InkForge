@@ -100,7 +100,7 @@ const editorStyle = computed(() => ({ minHeight: props.minHeight }))
   >
     <div class="editor-header">
       <span>{{ title }}</span>
-      <span class="editor-header__meta">CSS / .editor-content</span>
+      <span class="editor-header__meta">CSS / .editor-content + ProseMirror</span>
     </div>
     <Codemirror
       v-model="code"

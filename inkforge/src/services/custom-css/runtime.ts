@@ -32,6 +32,8 @@ export interface CustomCssErrorLogInput {
   snippet?: string
 }
 
+const adoptedCustomCssSheets = new WeakMap<Document, CSSStyleSheet>()
+
 function runtimeDocument(documentRef?: Document): Document | null {
   if (documentRef) {
     return documentRef
@@ -44,15 +46,218 @@ function runtimeNow(now?: number): number {
   return typeof now === 'number' && Number.isFinite(now) ? now : Date.now()
 }
 
+function removeAdoptedCustomCssSheet(doc: Document | null): void {
+  if (!doc || !('adoptedStyleSheets' in doc)) {
+    return
+  }
+
+  const sheet = adoptedCustomCssSheets.get(doc)
+  if (!sheet) {
+    return
+  }
+
+  doc.adoptedStyleSheets = doc.adoptedStyleSheets.filter(item => item !== sheet)
+  adoptedCustomCssSheets.delete(doc)
+}
+
 export function removeCustomCssStyle(documentRef?: Document): boolean {
   const doc = runtimeDocument(documentRef)
   const style = doc?.getElementById(CUSTOM_CSS_STYLE_ID)
+  removeAdoptedCustomCssSheet(doc)
   if (!style) {
     return false
   }
 
   style.remove()
   return true
+}
+
+function countStyleSheetRules(sheet: CSSStyleSheet | null): number {
+  if (!sheet) {
+    return 0
+  }
+
+  try {
+    return sheet.cssRules.length
+  } catch {
+    return 0
+  }
+}
+
+function splitCssRulesForRuntime(css: string): string[] {
+  const rules: string[] = []
+  let current = ''
+  let quote: string | null = null
+  let escaped = false
+  let braceDepth = 0
+  let inComment = false
+
+  for (let index = 0; index < css.length; index += 1) {
+    const char = css[index]
+    const next = css[index + 1]
+
+    if (inComment) {
+      current += char
+      if (char === '*' && next === '/') {
+        current += next
+        index += 1
+        inComment = false
+      }
+      continue
+    }
+
+    if (!quote && char === '/' && next === '*') {
+      current += char + next
+      index += 1
+      inComment = true
+      continue
+    }
+
+    if (escaped) {
+      current += char
+      escaped = false
+      continue
+    }
+
+    if (char === '\\') {
+      current += char
+      escaped = true
+      continue
+    }
+
+    if (quote) {
+      current += char
+      if (char === quote) {
+        quote = null
+      }
+      continue
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char
+      current += char
+      continue
+    }
+
+    if (char === '{') {
+      braceDepth += 1
+      current += char
+      continue
+    }
+
+    if (char === '}') {
+      braceDepth = Math.max(0, braceDepth - 1)
+      current += char
+      if (braceDepth === 0 && current.trim()) {
+        rules.push(current.trim())
+        current = ''
+      }
+      continue
+    }
+
+    current += char
+  }
+
+  if (current.trim()) {
+    rules.push(current.trim())
+  }
+
+  return rules
+}
+
+function clearStyleSheetRules(sheet: CSSStyleSheet): boolean {
+  try {
+    while (sheet.cssRules.length > 0) {
+      sheet.deleteRule(sheet.cssRules.length - 1)
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+function insertStyleSheetRules(sheet: CSSStyleSheet, css: string): boolean {
+  for (const rule of splitCssRulesForRuntime(css)) {
+    try {
+      sheet.insertRule(rule, sheet.cssRules.length)
+    } catch {
+      return countStyleSheetRules(sheet) > 0
+    }
+  }
+
+  return countStyleSheetRules(sheet) > 0
+}
+
+function replaceStyleSheetRules(sheet: CSSStyleSheet, css: string, forceRefresh = false): boolean {
+  let usedReplaceSync = false
+
+  try {
+    const replaceSyncCandidate: unknown = sheet.replaceSync
+    if (typeof replaceSyncCandidate === 'function') {
+      replaceSyncCandidate.call(sheet, css)
+      usedReplaceSync = true
+    }
+  } catch {
+    /* WebView2/Tauri linked style sheets can reject replaceSync; insertRule below is the compatibility path. */
+  }
+
+  if ((usedReplaceSync || !forceRefresh) && countStyleSheetRules(sheet) > 0) {
+    return true
+  }
+
+  if (!clearStyleSheetRules(sheet)) {
+    return false
+  }
+
+  return insertStyleSheetRules(sheet, css)
+}
+
+function ensureCustomCssSheetRules(style: HTMLStyleElement, css: string, forceRefresh: boolean): boolean {
+  if (!css.trim()) {
+    return true
+  }
+
+  if (!('sheet' in style)) {
+    return true
+  }
+
+  const sheet = style.sheet
+  if (!sheet) {
+    return false
+  }
+
+  if (!forceRefresh && countStyleSheetRules(sheet) > 0) {
+    return true
+  }
+
+  return replaceStyleSheetRules(sheet, css, forceRefresh)
+}
+
+function ensureAdoptedCustomCssSheet(doc: Document, css: string): boolean {
+  if (!css.trim() || !('adoptedStyleSheets' in doc)) {
+    return false
+  }
+
+  const StyleSheetConstructor = doc.defaultView?.CSSStyleSheet
+  if (typeof StyleSheetConstructor !== 'function') {
+    return false
+  }
+
+  let sheet = adoptedCustomCssSheets.get(doc)
+  if (!sheet) {
+    sheet = new StyleSheetConstructor()
+    adoptedCustomCssSheets.set(doc, sheet)
+  }
+
+  if (!replaceStyleSheetRules(sheet, css, true)) {
+    return false
+  }
+
+  if (!doc.adoptedStyleSheets.includes(sheet)) {
+    doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet]
+  }
+
+  return countStyleSheetRules(sheet) > 0
 }
 
 export function injectCustomCssStyle(css: string, documentRef?: Document): boolean {
@@ -75,11 +280,17 @@ export function injectCustomCssStyle(css: string, documentRef?: Document): boole
     doc.head.appendChild(style)
   }
 
-  if (style.textContent !== css) {
+  const styleTextChanged = style.textContent !== css
+  if (styleTextChanged) {
     style.textContent = css
   }
 
-  return true
+  if (ensureCustomCssSheetRules(style, css, styleTextChanged)) {
+    removeAdoptedCustomCssSheet(doc)
+    return true
+  }
+
+  return ensureAdoptedCustomCssSheet(doc, css)
 }
 
 export function detectCustomCssSafeModeFromStorage(storage?: Storage): boolean {

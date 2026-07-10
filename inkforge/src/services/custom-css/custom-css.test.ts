@@ -25,15 +25,29 @@ function createSettings(overrides: Partial<Parameters<typeof applyCustomCssRunti
 describe('CustomCSS sandbox', () => {
   it('scopes ordinary selectors to editor-content', () => {
     expect(scopeCustomCssSelector('h1, .note')).toEqual({
-      selector: '.editor-content h1, .editor-content .note',
+      selector: '.editor-content.editor-content.editor-content.editor-content h1, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror h1, .editor-content.editor-content.editor-content.editor-content .note, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror .note',
       rewritten: true,
     })
   })
 
-  it('does not duplicate existing editor-content selectors', () => {
+  it('normalizes existing editor-content selectors to the effective runtime scope', () => {
     expect(scopeCustomCssSelector('.editor-content blockquote')).toEqual({
-      selector: '.editor-content blockquote',
-      rewritten: false,
+      selector: '.editor-content.editor-content.editor-content.editor-content blockquote, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror blockquote',
+      rewritten: true,
+    })
+  })
+
+  it('normalizes the live TipTap ProseMirror selector to the same effective scope', () => {
+    expect(scopeCustomCssSelector('.tiptap-content .ProseMirror p')).toEqual({
+      selector: '.editor-content.editor-content.editor-content.editor-content p, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror p',
+      rewritten: true,
+    })
+  })
+
+  it('normalizes legacy combined :where editor scopes to the effective runtime scope', () => {
+    expect(scopeCustomCssSelector(':where(.editor-content, .tiptap-content .ProseMirror) p')).toEqual({
+      selector: '.editor-content.editor-content.editor-content.editor-content p, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror p',
+      rewritten: true,
     })
   })
 
@@ -41,8 +55,8 @@ describe('CustomCSS sandbox', () => {
     const result = sandboxCustomCss('body { background: red; } html h1, * > p { color: blue; }')
 
     expect(result.ok).toBe(true)
-    expect(result.css).toContain('.editor-content { background: red; }')
-    expect(result.css).toContain('.editor-content h1, .editor-content > p { color: blue; }')
+    expect(result.css).toContain('.editor-content.editor-content.editor-content.editor-content, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror { background: red; }')
+    expect(result.css).toContain('.editor-content.editor-content.editor-content.editor-content h1, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror h1, .editor-content.editor-content.editor-content.editor-content > p, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror > p { color: blue; }')
   })
 
   it('rejects import rules and remote urls', () => {
@@ -152,6 +166,29 @@ class FakeDocument {
   }
 }
 
+class FakeCssomStyleSheet {
+  cssRules: CSSRule[] = []
+
+  deleteRule(index: number): void {
+    this.cssRules.splice(index, 1)
+  }
+
+  insertRule(rule: string, index: number): number {
+    this.cssRules.splice(index, 0, { cssText: rule } as CSSRule)
+    return index
+  }
+}
+
+class FakeCssomStyleElement extends FakeStyleElement {
+  sheet = new FakeCssomStyleSheet() as unknown as CSSStyleSheet
+}
+
+class FakeCssomDocument extends FakeDocument {
+  override createElement(): FakeCssomStyleElement {
+    return new FakeCssomStyleElement()
+  }
+}
+
 describe('CustomCSS runtime', () => {
   it('does not inject a style tag when disabled', () => {
     const fakeDocument = new FakeDocument()
@@ -170,8 +207,42 @@ describe('CustomCSS runtime', () => {
     expect(first.status).toBe('applied')
     expect(second.status).toBe('applied')
     expect(styles).toHaveLength(1)
-    expect(styles[0].textContent).toContain('.editor-content p')
+    expect(styles[0].textContent).toContain('.editor-content.editor-content.editor-content.editor-content p, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror p')
     expect(styles[0].textContent).not.toContain('rgb(1, 2, 3)')
+  })
+
+  it('uses CSSOM insertion when a runtime does not compile dynamic style text into rules', () => {
+    const fakeDocument = new FakeCssomDocument()
+    const result = applyCustomCssRuntime(createSettings({
+      enabled: true,
+      published: 'p { color: rgb(12, 34, 56); }\n.note { letter-spacing: 2px; }',
+    }), { documentRef: fakeDocument as unknown as Document })
+    const style = fakeDocument.getElementById(CUSTOM_CSS_STYLE_ID) as FakeCssomStyleElement | null
+
+    expect(result.status).toBe('applied')
+    expect(style?.textContent).toContain('rgb(12, 34, 56)')
+    expect(style?.sheet.cssRules).toHaveLength(2)
+    expect(Array.from(style?.sheet.cssRules ?? []).map(rule => rule.cssText).join('\n')).toContain('.tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror p')
+  })
+
+  it('refreshes CSSOM rules when the same runtime style receives new compiled CSS', () => {
+    const fakeDocument = new FakeCssomDocument()
+
+    applyCustomCssRuntime(createSettings({
+      enabled: true,
+      published: 'p { color: rgb(12, 34, 56); }',
+    }), { documentRef: fakeDocument as unknown as Document })
+    const result = applyCustomCssRuntime(createSettings({
+      enabled: true,
+      published: 'p { color: rgb(99, 88, 77); }',
+    }), { documentRef: fakeDocument as unknown as Document })
+    const style = fakeDocument.getElementById(CUSTOM_CSS_STYLE_ID) as FakeCssomStyleElement | null
+    const rules = Array.from(style?.sheet.cssRules ?? []).map(rule => rule.cssText).join('\n')
+
+    expect(result.status).toBe('applied')
+    expect(style?.sheet.cssRules).toHaveLength(1)
+    expect(rules).toContain('rgb(99, 88, 77)')
+    expect(rules).not.toContain('rgb(12, 34, 56)')
   })
 
   it('removes runtime style when safe mode is active', () => {

@@ -1,5 +1,11 @@
 export const CUSTOM_CSS_STYLE_ID = 'inkforge-custom-css'
 export const CUSTOM_CSS_SCOPE = '.editor-content'
+export const CUSTOM_CSS_RUNTIME_SCOPE = '.tiptap-content .ProseMirror'
+export const CUSTOM_CSS_EFFECTIVE_SCOPES = [
+  `${CUSTOM_CSS_SCOPE}${CUSTOM_CSS_SCOPE}${CUSTOM_CSS_SCOPE}${CUSTOM_CSS_SCOPE}`,
+  '.tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror',
+] as const
+export const CUSTOM_CSS_EFFECTIVE_SCOPE = CUSTOM_CSS_EFFECTIVE_SCOPES.join(', ')
 export const CUSTOM_CSS_MAX_LENGTH = 50_000
 export const CUSTOM_CSS_MAX_RULES = 1_000
 export const CUSTOM_CSS_MAX_DATA_IMAGE_BYTES = 50 * 1024

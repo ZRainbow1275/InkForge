@@ -100,6 +100,7 @@ const FLAGSHIP_PRESETS = [
   { id: 'flagship-tempera', name: '铜绿旗舰' },
   { id: 'flagship-amber', name: '黄铜旗舰' },
 ];
+const RUNTIME_CUSTOM_CSS_PARAGRAPH_SCOPE = '.editor-content.editor-content.editor-content.editor-content p, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror p';
 
 // Evidence screenshots land here (the repo-root prompts/0601/evidence tree,
 // alongside the PRD + SPEC). __dirname is inkforge/tests/e2e/specs, so four
@@ -294,15 +295,21 @@ async function openFlagshipExportPreview(flagshipName) {
 
   expect(clicked, `flagship preset card "${flagshipName}" must exist in the WeChat preset grid`).to.equal(true);
 
-  // The render watcher is async (markdownToWechatWithStats). Wait for the preview
-  // to render at least one [data-ink-svg] section in `.preview-render`.
+  // The render watcher is async (markdownToWechatWithStats). A reopened modal can
+  // briefly retain the previous preset's SVG DOM, so wait for the requested card
+  // and a laid-out body column instead of accepting any stale SVG sentinel.
   await browser.waitUntil(
     async () =>
-      browser.execute(() => {
+      browser.execute((name) => {
         const render = document.querySelector('.export-panel .preview-render');
         if (!render) return false;
-        return render.querySelectorAll('[data-ink-svg]').length > 0;
-      }),
+        const activeCard = Array.from(document.querySelectorAll('.export-panel .preset-card.active'))
+          .some((card) => (card.textContent || '').includes(name));
+        const body = render.querySelector('#nice, section[id="nice"]');
+        return activeCard &&
+          render.querySelectorAll('[data-ink-svg]').length > 0 &&
+          (body?.getBoundingClientRect().width || 0) >= 280;
+      }, flagshipName),
     {
       timeout: 20_000,
       interval: 500,
@@ -504,6 +511,106 @@ async function setExportCustomCss(css) {
   }, css);
 }
 
+async function setAdvancedCustomCssState(nextState) {
+  return browser.execute((state) => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      if (!app || !app._context || !app._context.provides) return null;
+      const provides = app._context.provides;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    const pinia = findPinia();
+    const settingsStore = pinia && pinia._s.get('settings');
+    if (!settingsStore || !settingsStore.settings || typeof settingsStore.save !== 'function') {
+      return { ok: false, reason: 'SETTINGS-STORE-MISSING' };
+    }
+
+    const original = clone(settingsStore.settings.advanced.customCss);
+    settingsStore.settings.advanced.customCss = {
+      ...settingsStore.settings.advanced.customCss,
+      ...state,
+      errorLog: Array.isArray(state.errorLog)
+        ? state.errorLog
+        : settingsStore.settings.advanced.customCss.errorLog,
+    };
+    settingsStore.save();
+    return {
+      ok: true,
+      original,
+      current: clone(settingsStore.settings.advanced.customCss),
+    };
+  }, nextState);
+}
+
+function collectAdvancedCustomCssProbe() {
+  return browser.execute((runtimeParagraphScope) => {
+    const style = document.getElementById('inkforge-custom-css');
+    const paragraph = document.querySelector('.tiptap-content .ProseMirror p') ||
+      document.querySelector('.editor-content p');
+    const settingsSection = document.querySelector('[data-settings-entry="advanced.customCss"]');
+    const computed = paragraph ? getComputedStyle(paragraph) : null;
+    const styleSheetRules = style?.sheet
+      ? Array.from(style.sheet.cssRules).map((rule) => {
+        const selectorText = 'selectorText' in rule ? rule.selectorText : '';
+        const declaration = 'style' in rule ? rule.style : null;
+        return {
+          selectorText,
+          cssText: rule.cssText,
+          matchesParagraph: Boolean(selectorText && paragraph?.matches?.(selectorText)),
+          color: declaration?.getPropertyValue?.('color') || '',
+          letterSpacing: declaration?.getPropertyValue?.('letter-spacing') || '',
+        };
+      })
+      : [];
+
+    return {
+      pathname: location.pathname,
+      search: location.search,
+      styleExists: Boolean(style),
+      styleText: style?.textContent || '',
+      styleSheetDisabled: Boolean(style?.sheet?.disabled),
+      styleSheetRuleCount: styleSheetRules.length,
+      styleSheetRules,
+      paragraphMatchesRuntimeScope: Boolean(paragraph?.matches?.(runtimeParagraphScope)),
+      paragraphInlineStyle: paragraph?.getAttribute?.('style') || '',
+      paragraphAncestry: paragraph
+        ? Array.from({ length: 6 }, (_, index) => {
+          let node = paragraph;
+          for (let depth = 0; depth < index; depth += 1) {
+            node = node?.parentElement;
+          }
+          if (!node) return '';
+          const id = node.id ? `#${node.id}` : '';
+          const className = typeof node.className === 'string'
+            ? node.className.trim().replace(/\s+/g, '.')
+            : '';
+          return `${node.tagName.toLowerCase()}${id}${className ? `.${className}` : ''}`;
+        }).filter(Boolean).join(' <- ')
+        : '',
+      paragraphText: paragraph?.textContent?.trim().replace(/\s+/g, ' ') || '',
+      paragraphColor: computed?.color || '',
+      paragraphLetterSpacing: computed?.letterSpacing || '',
+      settingsSectionExists: Boolean(settingsSection),
+      settingsText: settingsSection?.textContent?.trim().replace(/\s+/g, ' ') || '',
+      visibleButtonsWithoutType: Array.from(settingsSection?.querySelectorAll('button') ?? [])
+        .filter((button) => button.offsetParent !== null && button.getAttribute('type') !== 'button')
+        .map((button) => button.textContent?.trim().replace(/\s+/g, ' ') || button.className),
+    };
+  }, RUNTIME_CUSTOM_CSS_PARAGRAPH_SCOPE);
+}
+
 async function getActiveStagePlatformLabel() {
   return browser.execute(() => {
     const active = document.querySelector('.panel-stage .stage-tab.active');
@@ -684,6 +791,140 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     } finally {
       await closeExportModalIfOpen();
       await setExportCustomCss(originalCss);
+    }
+  });
+
+  it('applies Settings Advanced runtime CustomCSS to the real editor and removes it without export leakage', async function () {
+    if (!exportReady) {
+      // eslint-disable-next-line no-console
+      console.warn(`[svg-render] runtime CustomCSS skip — ${seedFailureReason}`);
+      return this.skip();
+    }
+
+    const css = 'p { color: rgb(12, 34, 56); letter-spacing: 2px; }';
+    const invalidDraft = 'p { background: url(javascript:alert(1)); color: red !important; }';
+    const setResult = await setAdvancedCustomCssState({
+      enabled: true,
+      draft: css,
+      published: css,
+      confirmedAt: new Date().toISOString(),
+      suspendedReason: null,
+      lastAppliedAt: new Date().toISOString(),
+      errorLog: [],
+    });
+    expect(setResult.ok, setResult.reason || 'settings advanced.customCss write').to.equal(true);
+    const original = setResult.original;
+
+    try {
+      await closeExportModalIfOpen();
+      const reach = await reachWorkstationExport(seededArticleId);
+      expect(reach.ready, reach.reason || 'workstation editor should be ready for runtime CustomCSS').to.equal(true);
+
+      let latestRuntimeProbe = null;
+      await browser.waitUntil(
+        async () => {
+          const probe = await collectAdvancedCustomCssProbe();
+          latestRuntimeProbe = probe;
+          return probe.styleExists &&
+            probe.styleText.includes(RUNTIME_CUSTOM_CSS_PARAGRAPH_SCOPE) &&
+            probe.styleText.includes('rgb(12, 34, 56)') &&
+            probe.paragraphColor === 'rgb(12, 34, 56)' &&
+            probe.paragraphLetterSpacing === '2px';
+        },
+        {
+          timeout: 12_000,
+          interval: 300,
+          timeoutMsg: 'Settings advanced.customCss did not inject scoped runtime CSS into the real editor',
+        },
+      ).catch((error) => {
+        const details = latestRuntimeProbe ? JSON.stringify(latestRuntimeProbe) : 'no probe collected';
+        throw new Error(`${error.message}; last probe: ${details}`);
+      });
+
+      const appliedProbe = await collectAdvancedCustomCssProbe();
+      expect(appliedProbe.styleText, 'runtime CustomCSS is scoped to editor-content and live ProseMirror').to.include(RUNTIME_CUSTOM_CSS_PARAGRAPH_SCOPE);
+      expect(appliedProbe.styleText, 'runtime CustomCSS contains the applied color only after sandboxing').to.include('rgb(12, 34, 56)');
+      expect(appliedProbe.styleText, 'runtime CustomCSS does not create export CSS marker').not.to.include('data-inkforge-custom-css');
+      expect(appliedProbe.paragraphColor, 'real editor paragraph receives runtime CustomCSS color').to.equal('rgb(12, 34, 56)');
+      expect(appliedProbe.paragraphLetterSpacing, 'real editor paragraph receives runtime CustomCSS letter spacing').to.equal('2px');
+
+      await browser.refresh();
+      await waitForMainWindow();
+      const reloadReach = await reachWorkstationExport(seededArticleId);
+      expect(reloadReach.ready, reloadReach.reason || 'workstation editor should reload with persisted runtime CustomCSS').to.equal(true);
+      await browser.waitUntil(
+        async () => {
+          const probe = await collectAdvancedCustomCssProbe();
+          return probe.styleExists && probe.paragraphColor === 'rgb(12, 34, 56)';
+        },
+        {
+          timeout: 12_000,
+          interval: 300,
+          timeoutMsg: 'persisted advanced.customCss did not re-inject after app reload',
+        },
+      );
+
+      const invalidResult = await setAdvancedCustomCssState({
+        enabled: true,
+        draft: invalidDraft,
+        published: css,
+        confirmedAt: new Date().toISOString(),
+        suspendedReason: null,
+      });
+      expect(invalidResult.ok, invalidResult.reason || 'settings advanced.customCss invalid draft write').to.equal(true);
+      await browser.execute(() => {
+        window.history.pushState({}, '', '/settings?tab=advanced');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await browser.waitUntil(
+        async () => {
+          const probe = await collectAdvancedCustomCssProbe();
+          return probe.settingsSectionExists &&
+            probe.settingsText.includes('CustomCSS') &&
+            probe.settingsText.includes('主动内容') &&
+            probe.settingsText.includes('!important');
+        },
+        {
+          timeout: 12_000,
+          interval: 300,
+          timeoutMsg: 'Settings Advanced did not surface CustomCSS sandbox errors for an invalid draft',
+        },
+      );
+
+      const invalidProbe = await collectAdvancedCustomCssProbe();
+      expect(invalidProbe.visibleButtonsWithoutType, 'CustomCSS action buttons keep explicit non-submit type').to.deep.equal([]);
+      expect(invalidProbe.styleText, 'invalid CustomCSS draft must not enter runtime style').not.to.include('javascript:');
+      expect(invalidProbe.styleText, 'invalid CustomCSS draft must not enter runtime style').not.to.include('!important');
+      expect(invalidProbe.styleText, 'last known good published runtime CSS remains scoped').to.include('rgb(12, 34, 56)');
+
+      const disabled = await setAdvancedCustomCssState({
+        enabled: false,
+        draft: '',
+        published: '',
+        confirmedAt: null,
+        suspendedReason: null,
+        lastAppliedAt: null,
+        errorLog: [],
+      });
+      expect(disabled.ok, disabled.reason || 'settings advanced.customCss reset write').to.equal(true);
+      await browser.waitUntil(
+        async () => {
+          const probe = await collectAdvancedCustomCssProbe();
+          return !probe.styleExists && probe.settingsText.includes('未启用');
+        },
+        {
+          timeout: 12_000,
+          interval: 300,
+          timeoutMsg: 'disabled/reset advanced.customCss did not remove the runtime style tag',
+        },
+      );
+    } finally {
+      await setAdvancedCustomCssState(original);
+      await browser.execute((articleId) => {
+        window.history.pushState({}, '', `/workstation?id=${encodeURIComponent(articleId)}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, seededArticleId);
+      await browser.pause(300);
     }
   });
 

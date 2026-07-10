@@ -3,6 +3,9 @@ import {
   CUSTOM_CSS_MAX_DATA_IMAGE_BYTES,
   CUSTOM_CSS_MAX_LENGTH,
   CUSTOM_CSS_MAX_RULES,
+  CUSTOM_CSS_EFFECTIVE_SCOPES,
+  CUSTOM_CSS_EFFECTIVE_SCOPE,
+  CUSTOM_CSS_RUNTIME_SCOPE,
   CUSTOM_CSS_SCOPE,
   type CustomCssIssue,
   type CustomCssIssueCode,
@@ -136,34 +139,72 @@ function stripRootSelector(selector: string): string {
   }
 }
 
+function stripKnownEditorScope(selector: string): string | null {
+  const scopes = [
+    ...CUSTOM_CSS_EFFECTIVE_SCOPES,
+    ':is(.editor-content.editor-content.editor-content.editor-content, .tiptap-content.tiptap-content.tiptap-content.tiptap-content .ProseMirror.ProseMirror.ProseMirror.ProseMirror)',
+    ':is(.editor-content.editor-content, .tiptap-content.tiptap-content .ProseMirror.ProseMirror)',
+    `:is(${CUSTOM_CSS_SCOPE}, ${CUSTOM_CSS_RUNTIME_SCOPE})`,
+    `:where(${CUSTOM_CSS_SCOPE}, ${CUSTOM_CSS_RUNTIME_SCOPE})`,
+    `:is(${CUSTOM_CSS_SCOPE})`,
+    `:is(${CUSTOM_CSS_RUNTIME_SCOPE})`,
+    `:where(${CUSTOM_CSS_SCOPE})`,
+    `:where(${CUSTOM_CSS_RUNTIME_SCOPE})`,
+    CUSTOM_CSS_RUNTIME_SCOPE,
+    CUSTOM_CSS_SCOPE,
+  ]
+  for (const scope of scopes) {
+    if (selector === scope) {
+      return ''
+    }
+
+    if (selector.startsWith(`${scope} `)) {
+      return selector.slice(scope.length).trim()
+    }
+
+    if (selector.startsWith(`${scope} >`) || selector.startsWith(`${scope} +`) || selector.startsWith(`${scope} ~`)) {
+      return selector.slice(scope.length).trim()
+    }
+  }
+
+  return null
+}
+
+function scopeWithEffectiveEditorScopes(selector: string): string {
+  const suffix = selector.trim()
+  if (!suffix) {
+    return CUSTOM_CSS_EFFECTIVE_SCOPE
+  }
+
+  return CUSTOM_CSS_EFFECTIVE_SCOPES
+    .map(scope => `${scope} ${suffix}`)
+    .join(', ')
+}
+
 function scopeSingleSelector(selector: string): { selector: string; rewritten: boolean } {
   const trimmed = selector.trim()
   if (!trimmed) {
-    return { selector: CUSTOM_CSS_SCOPE, rewritten: true }
-  }
-
-  if (trimmed === CUSTOM_CSS_SCOPE || trimmed.startsWith(`${CUSTOM_CSS_SCOPE} `) || trimmed.startsWith(`${CUSTOM_CSS_SCOPE}:`) || trimmed.startsWith(`${CUSTOM_CSS_SCOPE}[`)) {
-    return { selector: trimmed, rewritten: false }
-  }
-
-  if (trimmed.startsWith(`:where(${CUSTOM_CSS_SCOPE})`)) {
-    return { selector: trimmed, rewritten: false }
+    return { selector: scopeWithEffectiveEditorScopes(''), rewritten: true }
   }
 
   const strippedRoot = stripRootSelector(trimmed)
   if (!strippedRoot) {
-    return { selector: CUSTOM_CSS_SCOPE, rewritten: true }
+    return { selector: scopeWithEffectiveEditorScopes(''), rewritten: true }
   }
 
-  if (strippedRoot === CUSTOM_CSS_SCOPE || strippedRoot.startsWith(`${CUSTOM_CSS_SCOPE} `) || strippedRoot.startsWith(`${CUSTOM_CSS_SCOPE}:`) || strippedRoot.startsWith(`${CUSTOM_CSS_SCOPE}[`)) {
-    return { selector: strippedRoot, rewritten: strippedRoot !== trimmed }
+  const strippedKnownScope = stripKnownEditorScope(strippedRoot)
+  if (strippedKnownScope !== null) {
+    return {
+      selector: scopeWithEffectiveEditorScopes(strippedKnownScope),
+      rewritten: true,
+    }
   }
 
   if (strippedRoot.startsWith('>') || strippedRoot.startsWith('+') || strippedRoot.startsWith('~')) {
-    return { selector: `${CUSTOM_CSS_SCOPE} ${strippedRoot}`, rewritten: true }
+    return { selector: scopeWithEffectiveEditorScopes(strippedRoot), rewritten: true }
   }
 
-  return { selector: `${CUSTOM_CSS_SCOPE} ${strippedRoot}`, rewritten: true }
+  return { selector: scopeWithEffectiveEditorScopes(strippedRoot), rewritten: true }
 }
 
 export function scopeCustomCssSelector(selector: string): { selector: string; rewritten: boolean } {
