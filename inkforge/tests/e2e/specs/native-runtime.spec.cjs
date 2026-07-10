@@ -66,6 +66,28 @@ async function openSettingsSync() {
   );
 }
 
+async function openSettingsAudit() {
+  await browser.execute(() => {
+    const target = '/settings?tab=audit';
+    if (location.pathname !== '/settings' || location.search !== '?tab=audit') {
+      window.history.pushState({}, '', target);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  });
+
+  await browser.waitUntil(
+    async () => browser.execute(() => {
+      const section = document.querySelector('[data-settings-tab="audit"]');
+      return Boolean(section && getComputedStyle(section).display !== 'none');
+    }),
+    {
+      timeout: 10_000,
+      interval: 200,
+      timeoutMsg: 'Settings Audit section did not render as the active tab',
+    },
+  );
+}
+
 async function readSyncUi() {
   return browser.execute(() => {
     function clone(value) {
@@ -127,6 +149,106 @@ async function readSyncUi() {
       lastResult: clone(syncStore?.lastResult ?? null),
     };
   });
+}
+
+async function readAuditUi() {
+  return browser.execute(() => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      const provides = app && app._context && app._context.provides;
+      if (!provides) return null;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    const section = document.querySelector('[data-settings-tab="audit"]');
+    const auditStore = findPinia()?._s.get('audit');
+    const cards = Object.fromEntries(
+      Array.from(section?.querySelectorAll('.sv-insight-card') ?? []).map((card) => [
+        card.querySelector('.sv-insight-card__label')?.textContent?.trim() ?? '',
+        card.querySelector('.sv-insight-card__value')?.textContent?.trim() ?? '',
+      ]),
+    );
+    const feedback = Array.from(section?.querySelectorAll('.sv-feedback') ?? [])
+      .map((entry) => entry.textContent?.trim().replace(/\s+/g, ' ') ?? '');
+    const domActions = Array.from(section?.querySelectorAll('.sv-history-row__main strong') ?? [])
+      .map((entry) => entry.textContent?.trim() ?? '');
+    const selects = Array.from(section?.querySelectorAll('select') ?? []);
+    const lastExport = auditStore?.lastExport;
+
+    let jsonValid = false;
+    let jsonEntryCount = null;
+    let jsonTotalCount = null;
+    if (lastExport?.mimeType?.startsWith('application/json')) {
+      try {
+        const parsed = JSON.parse(lastExport.content);
+        jsonValid = Boolean(parsed && Array.isArray(parsed.entries));
+        jsonEntryCount = Array.isArray(parsed?.entries) ? parsed.entries.length : null;
+        jsonTotalCount = typeof parsed?.totalCount === 'number' ? parsed.totalCount : null;
+      } catch {
+        jsonValid = false;
+      }
+    }
+
+    return {
+      active: Boolean(section && getComputedStyle(section).display !== 'none'),
+      storeExists: Boolean(auditStore),
+      cards,
+      feedback,
+      domActions,
+      emptyText: section?.querySelector('.sv-placeholder-card')?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      keywordValue: section?.querySelector('input[type="search"]')?.value ?? '',
+      actionFilter: selects[0]?.value ?? '',
+      severityFilter: selects[1]?.value ?? '',
+      visibleButtonsWithoutType: Array.from(section?.querySelectorAll('button') ?? [])
+        .filter((entry) => entry.offsetParent !== null && entry.getAttribute('type') !== 'button')
+        .map((entry) => entry.textContent?.trim().replace(/\s+/g, ' ') ?? entry.className),
+      totalCount: auditStore?.totalCount ?? null,
+      page: auditStore?.page ?? null,
+      pageCount: auditStore?.pageCount ?? null,
+      queryProfileId: auditStore?.queryParams?.profileId ?? null,
+      queryKeyword: auditStore?.queryParams?.keyword ?? null,
+      queryActions: Array.isArray(auditStore?.queryParams?.actions)
+        ? Array.from(auditStore.queryParams.actions)
+        : [],
+      storeActions: Array.isArray(auditStore?.entries)
+        ? auditStore.entries.map((entry) => entry.action)
+        : [],
+      isLoading: auditStore?.isLoading ?? null,
+      error: auditStore?.error ?? null,
+      integrityStatus: auditStore?.integrityStatus ?? null,
+      integrityMessage: auditStore?.integrityMessage ?? null,
+      lastExport: lastExport
+        ? {
+            fileName: lastExport.fileName,
+            mimeType: lastExport.mimeType,
+            totalCount: lastExport.totalCount,
+            containsSyncPush: lastExport.content.includes('sync.push'),
+            csvHeaderValid: lastExport.content.startsWith('"timestamp","action","actor_profile"'),
+            jsonValid,
+            jsonEntryCount,
+            jsonTotalCount,
+          }
+        : null,
+    };
+  });
+}
+
+async function clickAuditButton(label) {
+  return browser.execute((requestedLabel) => {
+    const section = document.querySelector('[data-settings-tab="audit"]');
+    const button = Array.from(section?.querySelectorAll('button') ?? [])
+      .find((entry) => entry.textContent?.trim().replace(/\s+/g, ' ') === requestedLabel);
+    if (!button || button.disabled) return false;
+    button.click();
+    return true;
+  }, label);
 }
 
 async function readDesktopRuntimeUi() {
@@ -519,6 +641,63 @@ describe('InkForge — native desktop runtime boundary', () => {
     expect(capability('Package Signing')?.state, 'package signing planned/local release boundary').to.equal('planned');
   });
 
+  it('Settings Audit renders an empty real filter result without fabricating ledger rows', async () => {
+    await openSettingsAudit();
+    const noMatch = `inkforge-empty-filter-${Date.now()}`;
+    const keywordInput = await browser.$('[data-settings-tab="audit"] input[type="search"]');
+    await keywordInput.setValue(noMatch);
+    expect(await clickAuditButton('应用过滤'), 'no-match filter action is enabled').to.equal(true);
+
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return probe.storeExists &&
+          !probe.isLoading &&
+          probe.keywordValue === noMatch &&
+          probe.queryKeyword === noMatch &&
+          probe.totalCount === 0;
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'Settings Audit did not resolve the real no-match filter result',
+      },
+    );
+
+    const empty = await readAuditUi();
+    expect(empty.active, 'Settings Audit is the visible active tab').to.equal(true);
+    expect(empty.cards['记录总数'], 'empty filtered count').to.equal('0');
+    expect(empty.domActions, 'empty filter result renders no fake rows').to.deep.equal([]);
+    expect(empty.emptyText, 'empty filter result explains how real rows appear').to.include('暂无审计记录');
+    expect(empty.integrityStatus, 'integrity is not pre-claimed before verification').to.equal('unknown');
+    expect(empty.cards['完整性'], 'overview starts unknown').to.equal('unknown');
+
+    const resetKeywordInput = await browser.$('[data-settings-tab="audit"] input[type="search"]');
+    await resetKeywordInput.click();
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+    await browser.waitUntil(
+      async () => (await readAuditUi()).keywordValue === '',
+      {
+        timeout: 5_000,
+        interval: 150,
+        timeoutMsg: 'Settings Audit keyword input did not clear through Ctrl+A and Backspace',
+      },
+    );
+    expect(await clickAuditButton('应用过滤'), 'clear filter action is enabled').to.equal(true);
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return !probe.isLoading && probe.keywordValue === '' && probe.queryKeyword === null;
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'Settings Audit did not clear the no-match filter through the real input path',
+      },
+    );
+  });
+
   it('Command Palette manual updater check opens Settings About and writes honest audit evidence', async () => {
     const result = await runUpdaterCommandPaletteProbe();
     const { probe, beforeAudit, afterAudit } = result;
@@ -649,6 +828,152 @@ describe('InkForge — native desktop runtime boundary', () => {
     expect(afterAudit.latest['sync.push']?.outcome, 'audit outcome is failure').to.equal('failure');
     expect(afterAudit.latest['sync.push']?.payload?.providerId, 'audit records unconfigured provider').to.equal('unconfigured');
     expect(afterAudit.latest['sync.push']?.payload?.errorCode, 'audit records typed provider error').to.equal('PROVIDER_UNCONFIGURED');
+  });
+
+  it('Settings Audit reads, filters, exports, and verifies the real durable ledger', async () => {
+    await openSettingsSync();
+    const syncBefore = await readSyncUi();
+    expect(syncBefore.providerId, 'audit probe must not call a configured remote provider').to.equal(null);
+
+    const auditBefore = await readAuditActionCounts(['sync.push']);
+    expect(auditBefore.ok, auditBefore.reason || 'pre-audit durable ledger read').to.equal(true);
+
+    const syncClicked = await browser.execute(() => {
+      const button = document.querySelector('[data-settings-entry="sync.manual"] button');
+      if (!button || button.disabled) return false;
+      button.click();
+      return true;
+    });
+    expect(syncClicked, 'real no-provider sync action creates the audit subject').to.equal(true);
+
+    await browser.waitUntil(
+      async () => {
+        const audit = await readAuditActionCounts(['sync.push']);
+        return audit.ok && audit.counts['sync.push'] === auditBefore.counts['sync.push'] + 1;
+      },
+      {
+        timeout: 8_000,
+        interval: 250,
+        timeoutMsg: 'real sync failure did not append exactly one durable audit row',
+      },
+    );
+
+    const createdAudit = await readAuditActionCounts(['sync.push']);
+    expect(createdAudit.latest['sync.push']?.outcome, 'audit subject is a real failure record').to.equal('failure');
+    expect(createdAudit.latest['sync.push']?.payload?.errorCode, 'audit subject keeps typed error metadata')
+      .to.equal('PROVIDER_UNCONFIGURED');
+
+    await openSettingsAudit();
+    expect(await clickAuditButton('刷新审计'), 'visible refresh button is enabled').to.equal(true);
+
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return probe.storeExists &&
+          !probe.isLoading &&
+          probe.queryProfileId === createdAudit.latest['sync.push']?.profileId &&
+          probe.storeActions.includes('sync.push') &&
+          probe.domActions.includes('sync.push');
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'Settings Audit did not render the real profile-scoped ledger row',
+      },
+    );
+
+    const unfiltered = await readAuditUi();
+    expect(unfiltered.active, 'Settings Audit is the visible active tab').to.equal(true);
+    expect(unfiltered.storeExists, 'real audit Pinia store is mounted').to.equal(true);
+    expect(unfiltered.error, 'repository refresh has no hidden error').to.equal(null);
+    expect(unfiltered.totalCount, 'real profile ledger has entries').to.be.a('number').and.greaterThan(0);
+    expect(unfiltered.cards['记录总数'], 'overview count mirrors the store').to.equal(String(unfiltered.totalCount));
+    expect(unfiltered.cards.Profile, 'overview profile mirrors the query').to.equal(unfiltered.queryProfileId);
+    expect(unfiltered.visibleButtonsWithoutType, 'visible Audit buttons keep explicit type').to.deep.equal([]);
+
+    const actionFilter = await browser.$('[data-settings-tab="audit"] select');
+    await actionFilter.selectByAttribute('value', 'sync.push');
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return !probe.isLoading &&
+          probe.actionFilter === 'sync.push' &&
+          probe.queryActions.length === 1 &&
+          probe.queryActions[0] === 'sync.push' &&
+          probe.storeActions.length > 0 &&
+          probe.storeActions.every((action) => action === 'sync.push') &&
+          probe.domActions.every((action) => action === 'sync.push');
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'real action filter did not constrain the ledger to sync.push',
+      },
+    );
+
+    const filtered = await readAuditUi();
+    expect(filtered.totalCount, 'filtered durable count').to.equal(createdAudit.counts['sync.push']);
+    expect(filtered.cards['当前页'], 'filtered result stays on the first page').to.equal('1 / 1');
+    expect(filtered.integrityStatus, 'integrity is not pre-claimed before the user action').to.equal('unknown');
+
+    expect(await clickAuditButton('校验完整性'), 'integrity action is enabled').to.equal(true);
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return probe.integrityStatus === 'valid' && /^已验证 \d+ 条审计链路$/u.test(probe.integrityMessage ?? '');
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'real audit hash-chain integrity result did not become valid',
+      },
+    );
+
+    const integrity = await readAuditUi();
+    expect(integrity.cards['完整性'], 'overview reflects verified integrity').to.equal('valid');
+    expect(integrity.feedback, 'integrity result is visible').to.include(integrity.integrityMessage);
+
+    expect(await clickAuditButton('导出 CSV'), 'CSV export action is enabled').to.equal(true);
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return probe.lastExport?.fileName?.endsWith('.csv') &&
+          probe.feedback.some((message) => message.includes('已导出') && message.includes('.csv'));
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'filtered CSV export did not report the real repository result',
+      },
+    );
+
+    const csv = await readAuditUi();
+    expect(csv.lastExport?.mimeType, 'CSV MIME type').to.equal('text/csv;charset=utf-8');
+    expect(csv.lastExport?.totalCount, 'CSV uses the current filtered count').to.equal(filtered.totalCount);
+    expect(csv.lastExport?.csvHeaderValid, 'CSV has the repository audit header').to.equal(true);
+    expect(csv.lastExport?.containsSyncPush, 'CSV contains the real filtered action').to.equal(true);
+
+    expect(await clickAuditButton('导出 JSON'), 'JSON export action is enabled').to.equal(true);
+    await browser.waitUntil(
+      async () => {
+        const probe = await readAuditUi();
+        return probe.lastExport?.fileName?.endsWith('.json') &&
+          probe.feedback.some((message) => message.includes('已导出') && message.includes('.json'));
+      },
+      {
+        timeout: 10_000,
+        interval: 250,
+        timeoutMsg: 'filtered JSON export did not report the real repository result',
+      },
+    );
+
+    const json = await readAuditUi();
+    expect(json.lastExport?.mimeType, 'JSON MIME type').to.equal('application/json;charset=utf-8');
+    expect(json.lastExport?.totalCount, 'JSON uses the current filtered count').to.equal(filtered.totalCount);
+    expect(json.lastExport?.jsonValid, 'JSON export parses with an entries array').to.equal(true);
+    expect(json.lastExport?.jsonEntryCount, 'JSON exports every filtered entry').to.equal(filtered.totalCount);
+    expect(json.lastExport?.jsonTotalCount, 'JSON metadata reports the same count').to.equal(filtered.totalCount);
+    expect(json.lastExport?.containsSyncPush, 'JSON contains the real filtered action').to.equal(true);
   });
 
   it('desktop store calls real native commands and fails closed for unsafe or missing inputs', async () => {
