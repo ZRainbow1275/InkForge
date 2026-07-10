@@ -44,6 +44,91 @@ async function openSettingsAbout() {
   );
 }
 
+async function openSettingsSync() {
+  await browser.execute(() => {
+    const target = '/settings?tab=sync';
+    if (location.pathname !== '/settings' || location.search !== '?tab=sync') {
+      window.history.pushState({}, '', target);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  });
+
+  await browser.waitUntil(
+    async () => browser.execute(() => {
+      const section = document.querySelector('[data-settings-tab="sync"]');
+      return Boolean(section && getComputedStyle(section).display !== 'none');
+    }),
+    {
+      timeout: 10_000,
+      interval: 200,
+      timeoutMsg: 'Settings Sync section did not render as the active tab',
+    },
+  );
+}
+
+async function readSyncUi() {
+  return browser.execute(() => {
+    function clone(value) {
+      if (value === null || value === undefined) return value;
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch {
+        return null;
+      }
+    }
+
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      const provides = app && app._context && app._context.provides;
+      if (!provides) return null;
+      for (const sym of Object.getOwnPropertySymbols(provides)) {
+        const candidate = provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+          return candidate;
+        }
+      }
+      return null;
+    }
+
+    const section = document.querySelector('[data-settings-tab="sync"]');
+    const manual = document.querySelector('[data-settings-entry="sync.manual"]');
+    const button = manual?.querySelector('button');
+    const syncStore = findPinia()?._s.get('sync');
+    const cards = Array.from(section?.querySelectorAll('.sv-insight-card') ?? []).map((card) => ({
+      label: card.querySelector('.sv-insight-card__label')?.textContent?.trim() ?? '',
+      value: card.querySelector('.sv-insight-card__value')?.textContent?.trim() ?? '',
+      meta: card.querySelector('.sv-insight-card__meta')?.textContent?.trim() ?? '',
+    }));
+    const feedback = Array.from(manual?.querySelectorAll('.sv-feedback') ?? []).map((entry) => ({
+      className: entry.className,
+      text: entry.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+    }));
+
+    return {
+      active: Boolean(section && getComputedStyle(section).display !== 'none'),
+      providerBadge: section?.querySelector('.sv-inline-status')?.textContent?.trim() ?? '',
+      cards,
+      manualText: manual?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      feedback,
+      buttonText: button?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      buttonDisabled: Boolean(button?.disabled),
+      buttonType: button?.getAttribute('type') ?? '',
+      visibleButtonsWithoutType: Array.from(section?.querySelectorAll('button') ?? [])
+        .filter((entry) => entry.offsetParent !== null && entry.getAttribute('type') !== 'button')
+        .map((entry) => entry.textContent?.trim().replace(/\s+/g, ' ') ?? entry.className),
+      storeExists: Boolean(syncStore),
+      status: syncStore?.status ?? null,
+      statusText: syncStore?.statusText ?? null,
+      providerId: syncStore?.providerId ?? null,
+      pendingCount: syncStore?.pendingCount ?? null,
+      conflictCount: syncStore?.conflictCount ?? null,
+      lastError: syncStore?.lastError ?? null,
+      lastResult: clone(syncStore?.lastResult ?? null),
+    };
+  });
+}
+
 async function readDesktopRuntimeUi() {
   return browser.execute(() => {
     const section = document.querySelector('[data-settings-entry="about.desktopRuntime"]');
@@ -73,9 +158,9 @@ async function readDesktopRuntimeUi() {
   });
 }
 
-async function readAuditActionCounts() {
-  return browser.execute(() => {
-    const actions = ['updater.user-check', 'command.execute'];
+async function readAuditActionCounts(actions = ['updater.user-check', 'command.execute']) {
+  return browser.execute((requestedActions) => {
+    const actions = requestedActions;
 
     return new Promise((resolve) => {
       const request = window.indexedDB.open('InkForgeDB');
@@ -133,7 +218,7 @@ async function readAuditActionCounts() {
         };
       };
     });
-  });
+  }, actions);
 }
 
 async function readUpdaterCommandProbe() {
@@ -483,6 +568,87 @@ describe('InkForge — native desktop runtime boundary', () => {
       afterAudit.latest['command.execute']?.payload?.commandId,
       'command audit payload records the updater command id',
     ).to.equal('updater.checkUpdates');
+  });
+
+  it('Settings Sync calls the real unconfigured provider boundary and records one honest failure', async () => {
+    await openSettingsSync();
+    const before = await readSyncUi();
+
+    expect(before.active, 'Settings Sync is the visible active tab').to.equal(true);
+    expect(before.storeExists, 'real sync Pinia store is mounted').to.equal(true);
+    expect(before.providerId, 'test must not trigger an externally configured provider').to.equal(null);
+    expect(before.providerBadge, 'provider badge is honest when unconfigured').to.equal('未配置');
+    expect(before.statusText, 'status text must not claim remote success').to.match(/^同步未配置/);
+    expect(before.pendingCount, 'pending count comes from ChangeTracker state').to.be.a('number').and.at.least(0);
+    expect(before.conflictCount, 'conflict count comes from SyncEngine state').to.be.a('number').and.at.least(0);
+    expect(before.manualText, 'manual sync copy explains the real provider requirement').to.include('不会把本地队列标记为远端成功');
+    expect(before.buttonText, 'manual action is visible').to.equal('立即同步');
+    expect(before.buttonDisabled, 'manual action is enabled before the real call').to.equal(false);
+    expect(before.buttonType, 'manual action is non-submit').to.equal('button');
+    expect(before.visibleButtonsWithoutType, 'visible Sync buttons keep explicit type').to.deep.equal([]);
+
+    const beforeAudit = await readAuditActionCounts(['sync.push']);
+    expect(beforeAudit.ok, beforeAudit.reason || 'pre-sync audit read').to.equal(true);
+
+    const clicked = await browser.execute(() => {
+      const button = document.querySelector('[data-settings-entry="sync.manual"] button');
+      if (!button || button.disabled) return false;
+      button.click();
+      return true;
+    });
+    expect(clicked, 'manual sync button calls the real Settings handler').to.equal(true);
+
+    await browser.waitUntil(
+      async () => {
+        const probe = await readSyncUi();
+        return probe.status === 'paused' &&
+          probe.lastResult?.success === false &&
+          probe.feedback.some((entry) => entry.text.includes('同步提供者未配置')) &&
+          !probe.buttonDisabled;
+      },
+      {
+        timeout: 12_000,
+        interval: 250,
+        timeoutMsg: 'manual sync did not surface the typed unconfigured-provider failure',
+      },
+    );
+
+    await browser.waitUntil(
+      async () => {
+        const audit = await readAuditActionCounts(['sync.push']);
+        return audit.ok && audit.counts['sync.push'] > beforeAudit.counts['sync.push'];
+      },
+      {
+        timeout: 8_000,
+        interval: 250,
+        timeoutMsg: 'manual sync failure did not persist sync.push audit evidence',
+      },
+    );
+
+    const after = await readSyncUi();
+    const afterAudit = await readAuditActionCounts(['sync.push']);
+    const providerErrors = after.feedback.filter((entry) => entry.text.includes('同步提供者未配置'));
+
+    expect(after.status, 'SyncEngine enters the honest unconfigured state').to.equal('paused');
+    expect(after.statusText, 'status card remains explicit after the action').to.match(/^同步未配置/);
+    expect(after.lastResult, 'store retains the real SyncResult').to.include({
+      success: false,
+      uploaded: 0,
+      downloaded: 0,
+      newConflicts: 0,
+    });
+    expect(after.lastResult.error, 'typed result reports the provider boundary').to.include('同步提供者未配置');
+    expect(after.lastError, 'engine state exposes the same real error').to.include('同步提供者未配置');
+    expect(providerErrors, 'UI deduplicates the store and action error surfaces').to.have.length(1);
+    expect(after.feedback.some((entry) => entry.text.includes('同步完成')), 'no fake success feedback is rendered').to.equal(false);
+    expect(after.buttonText, 'manual action returns from busy state').to.equal('立即同步');
+    expect(after.buttonDisabled, 'manual action re-enables after failure').to.equal(false);
+
+    expect(afterAudit.counts['sync.push'], 'one persisted sync.push audit row is added')
+      .to.equal(beforeAudit.counts['sync.push'] + 1);
+    expect(afterAudit.latest['sync.push']?.outcome, 'audit outcome is failure').to.equal('failure');
+    expect(afterAudit.latest['sync.push']?.payload?.providerId, 'audit records unconfigured provider').to.equal('unconfigured');
+    expect(afterAudit.latest['sync.push']?.payload?.errorCode, 'audit records typed provider error').to.equal('PROVIDER_UNCONFIGURED');
   });
 
   it('desktop store calls real native commands and fails closed for unsafe or missing inputs', async () => {
