@@ -99,6 +99,8 @@ and still run the narrow checks for the touched scope.
 - Session restore code must never write article body content. It may select an existing article and hydrate tab skeleton metadata only.
 - `pagehide` and hidden `visibilitychange` must trigger best-effort layout flush. `beforeunload`-only persistence is not acceptable for async IndexedDB.
 - Required commands: `pnpm vitest run src/stores/workstationTabs.test.ts src/services/layout-persistence/layout-persistence.test.ts`, `pnpm exec vue-tsc --noEmit`, `pnpm lint`, `pnpm vitest run`, and `pnpm build`.
+- Real Tauri route-precedence smoke must keep an explicit `/workstation?id=<newArticleId>` target active after asynchronous layout restore. Verify the new article starts with its actual empty/template body instead of accepting a previously active tab merely because the editor reached `ready`.
+- The E2E harness builds the Tauri debug binary by default and must fail on a non-zero Cargo result. After that exact binary has built successfully, bounded serial replays may set `INKFORGE_E2E_SKIP_TAURI_BUILD=1` to avoid redundant high-memory recompilation; this flag must never be used before a successful current-source build.
 - If GitNexus, ABCoder, Serena, Context7, or Grok Search transports are unavailable or return empty results, record that fact and compensate with narrow diffs, targeted tests, full gates, and real browser smoke.
 
 ## EditorKeymap Quality Gate
@@ -109,6 +111,9 @@ and still run the narrow checks for the touched scope.
 - Code-block Tab/Shift+Tab may insert/remove configured indentation, but ordinary paragraph Tab must return false so browser focus is not trapped.
 - IME composition and already-prevented keyboard events must be ignored by structural key handling.
 - EditorPanel must not rehydrate the active editor from same-article, same-content local persistence echoes. A local save echo must not delete transient but valid ProseMirror state such as the root empty paragraph created when exiting a list.
+- `editor.listEnterBehavior=notion` owns structural Enter: non-empty list items split, nested empty items lift one level, and top-level empty items exit. `typora` delegates Enter to the normal editor keymap and must remain observably different instead of being forced through the Notion commands.
+- Settings acceptance must change each mode through the visible Settings control, wait for the real debounced store write, refresh, and then use real keyboard input in Workstation. Direct localStorage/Pinia mutation is not acceptable proof.
+- Persistent desktop E2E must restore the original Settings value through the visible control and move only the articles created by that run through the production trash path. It must also remove their tabs/layout references so serial specs and the operator's real workspace are not polluted.
 - Required commands: `pnpm vitest run src/extensions/EditorKeymap.test.ts`, `pnpm exec vue-tsc --noEmit`, `pnpm lint`, `pnpm vitest run`, and `pnpm build`.
 - Browser smoke must use a real Workstation article and real keyboard input. At minimum verify top-level list exit survives autosave, nested empty list Enter lifts before exiting, code-block Tab/Shift+Tab changes indentation, ordinary paragraph Tab moves focus, Settings exposes the list-enter behavior controls, and fresh console-error logs are clean.
 

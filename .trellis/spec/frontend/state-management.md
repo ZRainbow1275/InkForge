@@ -1255,6 +1255,8 @@ if (!detection.supported) {
 ### 3. Contracts
 - Opening or selecting a document must create or refresh a tab from a real article id/title; never seed sample tabs or placeholder documents.
 - Switching a tab must select the real article through articleStore.selectArticle() and synchronize /workstation?id=<articleId>.
+- An explicit `/workstation?id=<articleId>` target is authoritative over both sessionStorage and IndexedDB layout restore. Async layout hydration may restore the remaining tab/layout metadata, but it must reopen and activate the route article instead of replacing the route with a previously active tab.
+- Hub, Drafts, Command Palette, and template creation flows must land on the exact article id they just created. A persisted active tab must never redirect a newly created blank or template draft to an older document.
 - Closing the active tab must activate a remaining real tab or return to Hub when no tabs remain.
 - Pinned tabs stay before regular tabs; drag reorder may change order inside a group but must not move regular tabs into the pinned group.
 - Ctrl+Tab, Ctrl+Shift+Tab, Ctrl+1..9, Ctrl+W, and Ctrl+Shift+T are Workstation-level shortcuts and must prevent browser defaults only after a matching tab action is available.
@@ -1263,6 +1265,8 @@ if (!detection.supported) {
 
 ### 4. Validation & Error Matrix
 - Route /workstation?id=A with loaded article A -> tab A opens, becomes active, and editor loads A.
+- Route /workstation?id=B while persisted layout active tab is A -> layout fields restore, tab B is reopened/active, route remains B, and editor content belongs to B.
+- Hub creates a blank draft B while persisted layout active tab is A -> B remains selected, B starts with its real empty body, and A is not substituted during async layout initialization.
 - FileManager selects B while in Workstation -> tab B opens/refreshes and route query id becomes B.
 - Close active B with remaining A -> active id falls back to A and route query follows A.
 - Close last tab -> Workstation returns to Hub.
@@ -1280,6 +1284,7 @@ if (!detection.supported) {
 - Run vue-tsc --noEmit after changing WorkstationView or WorkstationTabBar props.
 - Run pnpm lint and document pre-existing warnings separately from new errors.
 - Browser smoke-test a real local draft opened from Hub to Workstation and verify the TabBar renders from real article state.
+- Browser smoke must preload or retain an older active layout tab, create a second real draft through the visible Hub control, and prove route id, selected article id, editor content article id, and empty/template body all remain tied to the newly created draft after layout initialization settles.
 ## Scenario: BlockDragHandle Editor Transaction State
 
 ### 1. Scope / Trigger

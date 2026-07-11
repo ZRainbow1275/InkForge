@@ -42,12 +42,17 @@ exports.config = {
   // Build the Tauri debug binary so the harness has something to launch.
   // The pre-existing wechat.rs clippy errors are NOT promoted to deny here
   // (per PRD risks section) — default warning level is fine for tests.
-  onPrepare: () =>
-    spawnSync(
+  onPrepare: () => {
+    if (process.env.INKFORGE_E2E_SKIP_TAURI_BUILD === '1') return;
+
+    const result = spawnSync(
       'cargo',
       ['build', '--manifest-path=../../src-tauri/Cargo.toml'],
       { cwd: __dirname, stdio: 'inherit' },
-    ),
+    );
+    if (result.error) throw result.error;
+    if (result.status !== 0) throw new Error(`Tauri debug build failed with exit code ${result.status}`);
+  },
 
   // Spawn tauri-driver. It in turn launches msedgedriver on a free port and
   // proxies WebDriver commands into the Tauri WebView2 surface.

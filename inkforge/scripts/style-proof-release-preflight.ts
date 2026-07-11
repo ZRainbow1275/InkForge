@@ -136,7 +136,8 @@ const APPLICATION_WECHAT_SURFACE_CONTRACTS = [
       'getWechatSvgSlotModuleId(slot.id)',
       'exportOptions.enableSvgModules === true',
       'svgInjectionPlan: setWechatSvgApplicationSlot',
-      'markdownToWechatWithStats(props.content, preset, exportOptions.value)',
+      'const renderExportOptions = effectiveExportOptions.value',
+      'markdownToWechatWithStats(props.content, preset, renderExportOptions)',
     ],
   },
   {

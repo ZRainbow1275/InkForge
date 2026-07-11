@@ -725,6 +725,21 @@ function applyPersistedLayoutRecord(record: LayoutStateRecord): void {
     nextActiveArticleId = applyPersistedLayoutTabs(record)
   })
 
+  const requestedArticle = routeArticleId.value
+    ? articleStore.articles.find(article => article.id === routeArticleId.value) ?? null
+    : null
+  if (requestedArticle) {
+    workstationTabsStore.openOrRefreshTab({
+      articleId: requestedArticle.id,
+      title: requestedArticle.title,
+      docType: getWorkstationTabDocType(requestedArticle),
+    })
+    if (selectedArticleId.value !== requestedArticle.id) {
+      articleStore.selectArticle(requestedArticle.id)
+    }
+    return
+  }
+
   if (nextActiveArticleId && hasArticle(nextActiveArticleId)) {
     articleStore.selectArticle(nextActiveArticleId)
   }
