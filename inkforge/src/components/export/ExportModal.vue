@@ -48,6 +48,7 @@ import type {
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
+import { useSettingsStore } from '@/stores/settings'
 
 // ─── Constants ───────────────────────────────────────────
 const FEEDBACK_DURATION = 2000
@@ -179,6 +180,7 @@ interface StyleChoiceDisplay {
 const props = defineProps<{
   visible: boolean
   content: string
+  title?: string
   initialPlatform?: Platform
   exportCustomCss?: string
 }>()
@@ -186,6 +188,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
+
+const settingsStore = useSettingsStore()
 
 // ─── Platform ────────────────────────────────────────────
 function normalizeInitialPlatform(platform: Platform | undefined): Platform {
@@ -1670,6 +1674,16 @@ function downloadArtifact(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url)
 }
 
+function recordExportArtifact(content: string, action: 'copy' | 'download', label: string): void {
+  const title = (props.title?.trim() || inferWechatDraftTitle(props.content) || '未命名文章').slice(0, 120)
+  settingsStore.recordExportHistory({
+    platform: selectedPlatform.value,
+    title: `${title} · ${label}`,
+    bytes: new Blob([content]).size,
+    action,
+  })
+}
+
 async function copyHtmlToPlatformClipboard(content: string): Promise<boolean> {
   return selectedPlatform.value === 'wechat'
     ? copyWechatHtmlToClipboard(content)
@@ -1684,6 +1698,7 @@ async function handleCopy() {
   const success = await copyHtmlToPlatformClipboard(content)
 
   if (success) {
+    recordExportArtifact(content, 'copy', '样式版 HTML')
     copySuccess.value = true
     showOperationFeedback('success', `已复制 ${platformInfo.value.name} 样式版 HTML，可粘贴到平台编辑器。`)
     clearTimeout(copyFeedbackTimer)
@@ -1703,6 +1718,7 @@ async function handleCopyNative() {
     : await copyTextToClipboard(result.content)
 
   if (success) {
+    recordExportArtifact(result.content, 'copy', `${NATIVE_FORMAT_LABELS[result.format]} 原生产物`)
     nativeCopySuccess.value = true
     showOperationFeedback('success', `已复制 ${platformInfo.value.name} ${NATIVE_FORMAT_LABELS[result.format]} 原生产物。`)
     clearTimeout(nativeCopyFeedbackTimer)
@@ -1733,6 +1749,7 @@ function handleDownload() {
 
   try {
     downloadArtifact(content, buildExportFilename('styled'), 'text/html;charset=utf-8')
+    recordExportArtifact(content, 'download', '样式版 HTML')
     showOperationFeedback('success', '已生成样式版 HTML 下载文件。')
   } catch {
     showOperationFeedback('error', '下载失败：浏览器未能创建本地文件，请稍后重试。')
@@ -1745,6 +1762,7 @@ function handleDownloadNative() {
 
   try {
     downloadArtifact(result.content, buildExportFilename('native'), NATIVE_MIME_TYPES[result.format])
+    recordExportArtifact(result.content, 'download', `${NATIVE_FORMAT_LABELS[result.format]} 原生产物`)
     showOperationFeedback('success', `已生成 ${NATIVE_FORMAT_LABELS[result.format]} 原生下载文件。`)
   } catch {
     showOperationFeedback('error', '下载原生产物失败：浏览器未能创建本地文件，请稍后重试。')

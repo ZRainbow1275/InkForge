@@ -286,6 +286,63 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
 </button>
 ```
 
+## Scenario: Export History Store UI State
+
+### 1. Scope / Trigger
+- Trigger: Workstation, ExportModal, Publish Center, or Settings completes an application-level article export/copy action or clears recent export history.
+- Apply this contract when touching `stores/settings.ts`, `components/export/ExportModal.vue`, `views/WorkstationView.vue`, `views/PublishView.vue`, `views/SettingsView.vue`, or rich clipboard helpers under `services/export/`.
+
+### 2. Signatures
+- Store: `useSettingsStore()`.
+- Read field: `settings.export.exportHistory: ExportHistoryEntry[]`.
+- Actions: `recordExportHistory(entry)` and `clearExportHistory()`.
+- Entry fields: `id`, `platform`, `title`, `exportedAt`, `bytes`, and `action` (`copy`, `download`, or `settings-preview`).
+
+### 3. Contracts
+- Keep at most the latest 10 entries and persist them through the existing `inkforge-settings` Settings storage. Do not create a second history repository or demo rows.
+- Record only after the user-facing operation succeeds: Clipboard API returns success, or the local Blob/anchor download trigger completes without throwing. Failed render/copy/download attempts must not create entries.
+- ExportModal styled/native copy and download, Workstation quick copy, Publish Center rich/text copy and HTML download, Settings preview copy, and Settings JSON download must use the same store action.
+- For WeChat styled/rich copy, success requires either `ClipboardItem` rich HTML write or the Publish Center's sanitized DOM-selection fallback with `document.execCommand('copy') === true`. A plain-text fallback cannot preserve SVG/style and therefore must fail closed instead of recording or displaying styled-copy success.
+- `download` means InkForge successfully generated the Blob and triggered the browser/Tauri download boundary. It does not prove the operating system saved a file at a particular path.
+- Clearing history must be an explicit typed-confirm UI action and must not reset articles, presets, CustomCSS, or any other export setting.
+- XHS/Zhihu account upload and publish are outside this history contract and remain operator-owned; local copy/download entries must not be presented as platform publish evidence.
+
+### 4. Validation & Error Matrix
+- Empty history -> Settings shows the honest empty state and no clear button.
+- Successful WeChat rich copy -> one `platform='wechat'`, `action='copy'`, non-zero-byte entry appears and survives reload.
+- Modern rich HTML unavailable but plain text writable -> WeChat style copy succeeds only if the sanitized DOM-selection fallback explicitly returns true; otherwise it shows no success claim and writes no history row.
+- Successful native/styled download trigger -> `action='download'` entry records generated content bytes; UI labels it `下载文件` rather than `下载设置`.
+- More than 10 successful actions -> only the newest 10 persist in newest-first order.
+- Typed clear confirmation -> history becomes empty immediately and remains empty after reload.
+
+### 5. Good/Base/Bad Cases
+- Good: a real WeChat ExportModal copy returns rich clipboard success, appears in Settings history, survives reload, and is cleared through the typed-confirm button.
+- Base: no export action shows zero entries without seeding examples.
+- Bad: recording on button click before clipboard/download success, treating plain-text fallback as WeChat style success, maintaining component-local history, or clearing the whole Export tab to remove history.
+
+### 6. Tests Required
+- Unit-test the 10-entry cap, newest-first order, Settings persistence/reload, and durable clear.
+- Unit-test that WeChat style copy fails closed when only plain-text fallback exists, that the sanitized DOM-selection fallback trusts only an explicit true result, and that ordinary copy retains its compatibility fallback.
+- Type-check and lint every consumer after changing the shared store or clipboard boundary.
+- Real Tauri/WebView2 test: seed a real article, execute WeChat styled copy, read the Store/localStorage/Settings DOM row, reload, typed-confirm clear, reload again, and assert no section overflow or implicit submit button.
+- Do not use XHS/Zhihu publish automation to satisfy this contract.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+```typescript
+const copied = await copyTextToClipboard(wechatHtml)
+settingsStore.recordExportHistory({ platform: 'wechat', action: 'copy' })
+```
+
+#### Correct
+```typescript
+const copied = await copyWechatHtmlToClipboard(wechatHtml)
+if (copied) {
+  settingsStore.recordExportHistory({ platform: 'wechat', action: 'copy', title, bytes })
+}
+```
+
 ## Scenario: Performance SLO Store UI State
 
 ### 1. Scope / Trigger

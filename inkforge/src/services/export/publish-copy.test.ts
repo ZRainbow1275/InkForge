@@ -1,11 +1,15 @@
 /**
  * @vitest-environment happy-dom
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   PUBLISH_COPY_ALLOWED_ATTR,
   PUBLISH_COPY_ALLOWED_TAGS,
+  copyRichHtmlToClipboard,
+  copySanitizedPublishRichHtmlWithExecCommand,
+  copyToClipboard,
+  copyWechatHtmlToClipboard,
   markdownToWechatWithStats,
   sanitizePublishRichCopyHtml,
   themePresets,
@@ -36,6 +40,62 @@ function textContentOf(html: string): string {
 }
 
 describe('Publish Center rich-copy fallback sanitizer', () => {
+  it('does not report WeChat style copy success when only plain-text fallback is available', async () => {
+    const write = vi.fn().mockResolvedValue(undefined)
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { clipboard: { write, writeText } })
+    vi.stubGlobal('ClipboardItem', undefined)
+
+    try {
+      expect(await copyWechatHtmlToClipboard('<p>微信公众号样式</p>')).toBe(false)
+      expect(write).not.toHaveBeenCalled()
+      expect(writeText).not.toHaveBeenCalled()
+      expect(await copyRichHtmlToClipboard('<p>其他平台富文本</p>')).toBe(false)
+      expect(writeText).not.toHaveBeenCalled()
+
+      vi.stubGlobal('ClipboardItem', class {
+        constructor() {
+          throw new Error('rich clipboard unavailable')
+        }
+      })
+      expect(await copyWechatHtmlToClipboard('<p>微信公众号样式</p>')).toBe(false)
+      expect(write).not.toHaveBeenCalled()
+      expect(writeText).not.toHaveBeenCalled()
+
+      expect(await copyToClipboard('<p>普通预览</p>')).toBe(true)
+      expect(writeText).toHaveBeenCalledWith('<p>普通预览</p>')
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
+  it('treats sanitized DOM-selection copy as success only when execCommand returns true', () => {
+    const originalExecCommand = document.execCommand
+    const execCommand = vi.fn()
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(false)
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: execCommand,
+    })
+    const initialChildCount = document.body.childElementCount
+
+    try {
+      expect(copySanitizedPublishRichHtmlWithExecCommand(
+        '<p>安全正文</p><script>alert(1)</script>',
+      )).toBe(true)
+      expect(copySanitizedPublishRichHtmlWithExecCommand('<p>第二次复制</p>')).toBe(false)
+      expect(execCommand).toHaveBeenCalledTimes(2)
+      expect(document.body.childElementCount).toBe(initialChildCount)
+      expect(window.getSelection()?.rangeCount ?? 0).toBe(0)
+    } finally {
+      Object.defineProperty(document, 'execCommand', {
+        configurable: true,
+        value: originalExecCommand,
+      })
+    }
+  })
+
   it('keeps the explicitly supported WeChat-safe SVG tag and attribute subset', () => {
     expect(PUBLISH_COPY_ALLOWED_TAGS).toEqual(expect.arrayContaining([
       'svg',

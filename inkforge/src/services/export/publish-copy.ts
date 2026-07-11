@@ -59,3 +59,36 @@ export function sanitizePublishRichCopyHtml(html: string): string {
 
   return template.innerHTML
 }
+
+export function copySanitizedPublishRichHtmlWithExecCommand(html: string): boolean {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    return false
+  }
+
+  const sanitized = sanitizePublishRichCopyHtml(html)
+  if (!sanitized.trim()) {
+    return false
+  }
+
+  const container = document.createElement('div')
+  container.innerHTML = sanitized
+  container.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none;'
+
+  try {
+    document.body.appendChild(container)
+    const range = document.createRange()
+    range.selectNodeContents(container)
+    const selection = window.getSelection()
+    if (!selection) {
+      return false
+    }
+    selection.removeAllRanges()
+    selection.addRange(range)
+    return document.execCommand('copy') === true
+  } catch {
+    return false
+  } finally {
+    container.remove()
+    window.getSelection()?.removeAllRanges()
+  }
+}

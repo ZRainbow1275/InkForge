@@ -21,6 +21,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { Trash2 } from 'lucide-vue-next'
 import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import ShortcutInput from '@/components/settings/ShortcutInput.vue'
 import UpdateCard from '@/components/settings/UpdateCard.vue'
@@ -1546,11 +1547,11 @@ function getExportPlatformLabel(platform: Platform): string {
 function getExportActionLabel(action: string): string {
   switch (action) {
     case 'copy':
-      return '复制 HTML'
+      return '复制到剪贴板'
     case 'download':
-      return '下载设置'
+      return '下载文件'
     case 'settings-preview':
-      return '设置预览'
+      return '设置预览复制'
     default:
       return action
   }
@@ -1663,6 +1664,15 @@ function handleExportSettings(): void {
     bytes: blob.size,
     action: 'download',
   })
+}
+
+function handleClearExportHistory(): void {
+  showConfirm(
+    '清空导出历史',
+    '仅清空最近 10 次应用内导出与复制记录，不会修改文章、排版预设或导出设置。',
+    () => settingsStore.clearExportHistory(),
+    'CLEAR',
+  )
 }
 
 function formatSettingsMigrationError(code: string, message: string): string {
@@ -3741,10 +3751,25 @@ onUnmounted(() => {
                   导出历史
                 </h3>
                 <p class="sv-section-note">
-                  保留最近 10 次设置导出或预览复制记录，数据来自真实操作。
+                  保留最近 10 次应用内成功导出或复制记录；下载记录只表示应用已触发文件生成，不代表操作系统已完成落盘。
                 </p>
               </div>
-              <span class="sv-inline-status sv-inline-status--ready">{{ settings.export.exportHistory.length }} / 10</span>
+              <div class="sv-btn-group">
+                <span class="sv-inline-status sv-inline-status--ready">{{ settings.export.exportHistory.length }} / 10</span>
+                <button
+                  v-if="settings.export.exportHistory.length > 0"
+                  type="button"
+                  class="sv-action-btn sv-action-btn-sm"
+                  data-export-history-action="clear"
+                  @click="handleClearExportHistory"
+                >
+                  <Trash2
+                    :size="14"
+                    aria-hidden="true"
+                  />
+                  清空历史
+                </button>
+              </div>
             </div>
 
             <div
@@ -3755,6 +3780,7 @@ onUnmounted(() => {
                 v-for="entry in settings.export.exportHistory"
                 :key="entry.id"
                 class="sv-history-row"
+                data-export-history-entry
               >
                 <div class="sv-history-row__main">
                   <span class="sv-row-label">{{ entry.title }}</span>

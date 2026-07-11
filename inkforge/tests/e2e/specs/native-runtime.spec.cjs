@@ -19,18 +19,83 @@ const TAURI_SIGNAL_VALUES = [
 
 function cancelNativeDirectoryDialog() {
   const script = `
-    Add-Type -AssemblyName System.Windows.Forms
-    $shell = New-Object -ComObject WScript.Shell
+    Add-Type @'
+      using System;
+      using System.Text;
+      using System.Runtime.InteropServices;
+      public static class InkForgeNativeDialog {
+        public delegate bool EnumWindowsProc(IntPtr window, IntPtr parameter);
+        [DllImport("user32.dll")]
+        public static extern bool EnumWindows(EnumWindowsProc callback, IntPtr parameter);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetWindowText(IntPtr window, StringBuilder text, int maxCount);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetClassName(IntPtr window, StringBuilder className, int maxCount);
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowVisible(IntPtr window);
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);
+        [DllImport("user32.dll")]
+        public static extern bool PostMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll")]
+        public static extern bool IsWindow(IntPtr window);
+      }
+'@
+
+    function Get-InkForgeVisibleWindows {
+      $windows = [Collections.Generic.List[object]]::new()
+      $callback = [InkForgeNativeDialog+EnumWindowsProc]{
+        param([IntPtr]$window, [IntPtr]$parameter)
+        if (-not [InkForgeNativeDialog]::IsWindowVisible($window)) {
+          return $true
+        }
+
+        $titleBuffer = [Text.StringBuilder]::new(512)
+        $classBuffer = [Text.StringBuilder]::new(256)
+        [void][InkForgeNativeDialog]::GetWindowText($window, $titleBuffer, $titleBuffer.Capacity)
+        [void][InkForgeNativeDialog]::GetClassName($window, $classBuffer, $classBuffer.Capacity)
+        [uint32]$ownerProcessId = 0
+        [void][InkForgeNativeDialog]::GetWindowThreadProcessId($window, [ref]$ownerProcessId)
+        $processName = try { (Get-Process -Id $ownerProcessId -ErrorAction Stop).ProcessName } catch { '' }
+        $windows.Add([pscustomobject]@{
+          Handle = $window
+          Title = $titleBuffer.ToString()
+          ClassName = $classBuffer.ToString()
+          ProcessName = $processName
+        })
+        return $true
+      }
+      [void][InkForgeNativeDialog]::EnumWindows($callback, [IntPtr]::Zero)
+      return $windows
+    }
+
     $deadline = [DateTime]::UtcNow.AddSeconds(5)
+    $title = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('6YCJ5oup5bel5L2c5Yy65paH5Lu25qC555uu5b2V'))
     do {
-      if ($shell.AppActivate('选择工作区文件根目录')) {
-        Start-Sleep -Milliseconds 250
-        [System.Windows.Forms.SendKeys]::SendWait('{ESC}')
-        exit 0
+      $windows = Get-InkForgeVisibleWindows
+      $candidate = $windows | Where-Object {
+        $_.Title -eq $title -or ($_.ClassName -eq '#32770' -and $_.ProcessName -eq 'InkForge')
+      } | Select-Object -First 1
+      if ($candidate) {
+        [void][InkForgeNativeDialog]::PostMessage($candidate.Handle, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero)
+        $closeDeadline = [DateTime]::UtcNow.AddSeconds(2)
+        while ([InkForgeNativeDialog]::IsWindow($candidate.Handle) -and [DateTime]::UtcNow -lt $closeDeadline) {
+          Start-Sleep -Milliseconds 50
+        }
+        if (-not [InkForgeNativeDialog]::IsWindow($candidate.Handle)) {
+          exit 0
+        }
+        Write-Error 'Native directory dialog received WM_CLOSE but remained open.'
+        exit 1
       }
       Start-Sleep -Milliseconds 100
     } while ([DateTime]::UtcNow -lt $deadline)
-    Write-Error 'Native directory dialog was not found by title.'
+    $diagnostic = (Get-InkForgeVisibleWindows | Where-Object {
+      $_.ProcessName -in @('InkForge', 'explorer') -or $_.ClassName -eq '#32770'
+    } | ForEach-Object {
+      "process=$($_.ProcessName); class=$($_.ClassName); titleLength=$($_.Title.Length); configuredTitle=$($_.Title -eq $title)"
+    }) -join ' | '
+    Write-Error "Native directory dialog was not found. Candidate windows: $diagnostic"
     exit 1
   `;
 

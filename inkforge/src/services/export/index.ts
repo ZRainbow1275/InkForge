@@ -269,6 +269,7 @@ export {
   encodeNonAsciiHtmlEntities,
   copyTextToClipboard,
   copyToClipboard,
+  copyRichHtmlToClipboard,
   copyWechatHtmlToClipboard,
   prepareWechatClipboardHtml,
   prepareWechatClipboardPlainText,
@@ -303,6 +304,7 @@ export {
 } from './wechat-svg-application'
 
 export {
+  copySanitizedPublishRichHtmlWithExecCommand,
   PUBLISH_COPY_ALLOWED_ATTR,
   PUBLISH_COPY_ALLOWED_TAGS,
   sanitizePublishRichCopyHtml,

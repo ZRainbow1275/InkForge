@@ -834,22 +834,33 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
   }
 }
 
-async function copyHtmlToClipboard(html: string, plainText: string): Promise<boolean> {
+async function copyHtmlToClipboard(
+  html: string,
+  plainText: string,
+  allowPlainTextFallback = true,
+): Promise<boolean> {
   // 优先使用现代 Clipboard API
-  if (typeof navigator !== 'undefined' && typeof navigator.clipboard?.write === 'function') {
-    const written = await attemptClipboardWrite(navigator.clipboard.write([
-      new ClipboardItem({
+  if (
+    typeof navigator !== 'undefined' &&
+    typeof navigator.clipboard?.write === 'function' &&
+    typeof ClipboardItem === 'function'
+  ) {
+    try {
+      const item = new ClipboardItem({
         'text/html': new Blob([html], { type: 'text/html' }),
         'text/plain': new Blob([plainText], { type: 'text/plain' })
       })
-    ]))
-    if (written) {
-      return true
+      const written = await attemptClipboardWrite(navigator.clipboard.write([item]))
+      if (written) {
+        return true
+      }
+    } catch {
+      // Unsupported MIME types or synchronous ClipboardItem/write failures fall through.
     }
   }
 
-  // 降级方案：使用传统 execCommand（兼容旧浏览器）
-  return copyTextToClipboard(plainText)
+  // 普通复制可降级到纯文本；微信公众号样式复制必须富文本成功，否则失败闭合。
+  return allowPlainTextFallback ? copyTextToClipboard(plainText) : false
 }
 
 /**
@@ -863,6 +874,14 @@ export async function copyToClipboard(html: string): Promise<boolean> {
 }
 
 /**
+ * Copy HTML only when a real rich-clipboard write succeeds.
+ * Unlike copyToClipboard(), this never reports a plain-text fallback as rich success.
+ */
+export async function copyRichHtmlToClipboard(html: string): Promise<boolean> {
+  return copyHtmlToClipboard(html, prepareWechatClipboardPlainText(html), false)
+}
+
+/**
  * 复制微信公众号富文本 HTML 到剪贴板。
  *
  * This keeps the ordinary `copyToClipboard()` behavior unchanged for previews,
@@ -871,5 +890,5 @@ export async function copyToClipboard(html: string): Promise<boolean> {
  */
 export async function copyWechatHtmlToClipboard(html: string): Promise<boolean> {
   const preparedHtml = prepareWechatClipboardHtml(html)
-  return copyHtmlToClipboard(preparedHtml, prepareWechatClipboardPlainText(preparedHtml))
+  return copyHtmlToClipboard(preparedHtml, prepareWechatClipboardPlainText(preparedHtml), false)
 }

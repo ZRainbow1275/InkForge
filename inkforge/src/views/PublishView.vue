@@ -10,10 +10,15 @@ import { storeToRefs } from 'pinia'
 import DOMPurify from 'dompurify'
 import { useArticleStore } from '@/stores/article'
 import { useEditorStore } from '@/stores/editor'
+import { useSettingsStore } from '@/stores/settings'
 import { useThemeStore } from '@/stores/theme'
 import { marked } from 'marked'
 import {
   themePresets,
+  copySanitizedPublishRichHtmlWithExecCommand,
+  copyTextToClipboard,
+  copyRichHtmlToClipboard,
+  copyWechatHtmlToClipboard,
   markdownToWechatWithStats,
   convertToXiaohongshu,
   convertToZhihu,
@@ -30,7 +35,6 @@ import type {
   SvgModuleFamily,
   WechatSvgApplicationSlotId,
 } from '@/services/export'
-import { sanitizePublishRichCopyHtml } from '@/services/export/publish-copy'
 import { logger } from '@/services/error'
 import { isLikelyHtmlContent, serializeHtmlToMarkdown } from '@/extensions/TyporaMode'
 
@@ -38,6 +42,7 @@ const router = useRouter()
 const route = useRoute()
 const articleStore = useArticleStore()
 const editorStore = useEditorStore()
+const settingsStore = useSettingsStore()
 const themeStore = useThemeStore()
 
 const { currentContent } = storeToRefs(editorStore)
@@ -303,6 +308,16 @@ watch(() => route.query.id, () => {
 
 watch([publishSourceMarkdown, selectedPreset, exportOptions, platform, xhsPreset], generateHtml, { deep: true, immediate: true })
 
+function recordPublishExportHistory(label: string, action: 'copy' | 'download'): void {
+  const title = publishTitle.value.slice(0, 120)
+  settingsStore.recordExportHistory({
+    platform: platform.value,
+    title: `${title} · ${label}`,
+    bytes: new Blob([generatedHtml.value]).size,
+    action,
+  })
+}
+
 // 复制富文本
 async function copyRichText() {
   if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
@@ -311,42 +326,19 @@ async function copyRichText() {
   }
 
   const info = platformInfo[platform.value]
-  try {
-    const blob = new Blob([generatedHtml.value], { type: 'text/html' })
-    const clipboardItem = new ClipboardItem({ 'text/html': blob })
-    await navigator.clipboard.write([clipboardItem])
-    copySuccess.value = true
-    showToastMessage(`已复制! ${info.tip}`)
-  } catch {
-    // Fallback: 使用 execCommand（防御性纵深：再次净化）
-    const container = document.createElement('div')
-    container.innerHTML = sanitizePublishRichCopyHtml(generatedHtml.value)
-    container.style.position = 'fixed'
-    container.style.left = '-9999px'
-    try {
-      document.body.appendChild(container)
-
-      const range = document.createRange()
-      range.selectNodeContents(container)
-      const selection = window.getSelection()
-      selection?.removeAllRanges()
-      selection?.addRange(range)
-
-      const copied = document.execCommand('copy')
-      if (!copied) {
-        throw new Error('Publish rich-copy fallback execCommand returned false')
-      }
-
-      copySuccess.value = true
-      showToastMessage(`已复制! ${info.tip}`)
-    } catch (error) {
-      logger.error('Publish rich-copy fallback failed', error)
-      showToastMessage('复制失败，请手动复制')
-    } finally {
-      container.remove()
-      window.getSelection()?.removeAllRanges()
-    }
+  const copiedWithModernApi = platform.value === 'wechat'
+    ? await copyWechatHtmlToClipboard(generatedHtml.value)
+    : await copyRichHtmlToClipboard(generatedHtml.value)
+  const copied = copiedWithModernApi || copySanitizedPublishRichHtmlWithExecCommand(generatedHtml.value)
+  if (!copied) {
+    logger.error('Publish rich-copy failed')
+    showToastMessage('复制失败，请使用下载文件或检查富文本剪贴板权限')
+    return
   }
+
+  recordPublishExportHistory('发布中心富文本', 'copy')
+  copySuccess.value = true
+  showToastMessage(`已复制! ${info.tip}`)
   setTimeout(() => { copySuccess.value = false }, 2000)
 }
 
@@ -357,13 +349,14 @@ async function copyHtmlCode() {
     return
   }
 
-  try {
-    await navigator.clipboard.writeText(generatedHtml.value)
-    showToastMessage('HTML 代码已复制到剪贴板')
-  } catch {
-    logger.error('复制失败')
+  const copied = await copyTextToClipboard(generatedHtml.value)
+  if (!copied) {
     showToastMessage('复制失败，请手动复制')
+    return
   }
+
+  recordPublishExportHistory('HTML 代码', 'copy')
+  showToastMessage('HTML 代码已复制到剪贴板')
 }
 
 function buildDownloadFileName(title: string): string {
@@ -387,16 +380,22 @@ function downloadHtmlFile() {
     return
   }
 
-  const blob = new Blob([generatedHtml.value], { type: 'text/html;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = buildDownloadFileName(publishTitle.value)
-  document.body.appendChild(anchor)
-  anchor.click()
-  anchor.remove()
-  URL.revokeObjectURL(url)
-  showToastMessage('HTML 文件已生成并下载')
+  try {
+    const blob = new Blob([generatedHtml.value], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = buildDownloadFileName(publishTitle.value)
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    URL.revokeObjectURL(url)
+    recordPublishExportHistory('发布中心 HTML', 'download')
+    showToastMessage('HTML 文件已生成并触发下载')
+  } catch (error) {
+    logger.error('发布中心 HTML 下载失败', error)
+    showToastMessage('下载失败，请稍后重试')
+  }
 }
 
 function showToastMessage(message: string) {

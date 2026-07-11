@@ -22,7 +22,7 @@ describe('ExportModal WeChat SVG option UI contract', () => {
   it('binds the UI controls to the same exportOptions object used by the WeChat renderer', () => {
     expect(EXPORT_MODAL_SOURCE).toContain('exportOptions.enableSvgModules === true')
     expect(EXPORT_MODAL_SOURCE).toContain('svgInjectionPlan: setWechatSvgApplicationSlot')
-    expect(EXPORT_MODAL_SOURCE).toContain('markdownToWechatWithStats(props.content, preset, exportOptions.value)')
+    expect(EXPORT_MODAL_SOURCE).toContain('markdownToWechatWithStats(props.content, preset, renderExportOptions)')
   })
 
   it('surfaces current-round local WeChat readiness without claiming external proof', () => {

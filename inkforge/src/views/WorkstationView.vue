@@ -25,6 +25,7 @@ import type { WorkstationTabDocType } from '@/stores/workstationTabs'
 import type { WorkstationCommandBridge } from '@/types/command-palette'
 import {
   copyToClipboard,
+  copyWechatHtmlToClipboard,
   getPlatformPresets,
   type Platform,
 } from '@/services/export'
@@ -1551,8 +1552,18 @@ async function handleSave() {
 
 async function handleCopyToClipboard() {
   if (!previewHtml.value) return
-  const ok = await copyToClipboard(previewHtml.value)
+  const content = previewHtml.value
+  const ok = selectedPlatform.value === 'wechat'
+    ? await copyWechatHtmlToClipboard(content)
+    : await copyToClipboard(content)
   if (ok) {
+    const title = (currentContent.value?.title?.trim() || '未命名文章').slice(0, 120)
+    settingsStore.recordExportHistory({
+      platform: selectedPlatform.value,
+      title: `${title} · 快速预览`,
+      bytes: new Blob([content]).size,
+      action: 'copy',
+    })
     copySuccess.value = true
     clearTimeout(copyFeedbackTimer)
     copyFeedbackTimer = setTimeout(() => {
@@ -3435,6 +3446,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     <ExportModal
       :visible="showExportModal"
       :content="normalizedBody"
+      :title="currentContent?.title"
       :initial-platform="settingsStore.settings.export.defaultPlatform"
       :export-custom-css="settingsStore.settings.export.customCss"
       @close="showExportModal = false"

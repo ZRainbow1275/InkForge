@@ -445,6 +445,83 @@ async function closeExportModalIfOpen() {
   }
 }
 
+async function openSettingsExportHistory() {
+  await browser.execute(() => {
+    window.history.pushState({}, '', '/settings?tab=export');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await browser.waitUntil(
+    async () => browser.execute(() => Boolean(document.querySelector('[data-settings-entry="export.history"]'))),
+    {
+      timeout: 12_000,
+      interval: 200,
+      timeoutMsg: 'Settings Export history section did not render',
+    },
+  );
+}
+
+function collectExportHistoryProbe() {
+  return browser.execute(() => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      if (!app || !app._context || !app._context.provides) return null;
+      for (const symbol of Object.getOwnPropertySymbols(app._context.provides)) {
+        const candidate = app._context.provides[symbol];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') return candidate;
+      }
+      return null;
+    }
+
+    const settingsStore = findPinia()?._s.get('settings');
+    const storeHistory = settingsStore?.settings?.export?.exportHistory ?? [];
+    const section = document.querySelector('[data-settings-entry="export.history"]');
+    let persistedHistory;
+    try {
+      persistedHistory = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}')?.export?.exportHistory ?? [];
+    } catch {
+      persistedHistory = [];
+    }
+
+    return {
+      storeHistory: JSON.parse(JSON.stringify(storeHistory)),
+      persistedHistory,
+      domRows: Array.from(document.querySelectorAll('[data-export-history-entry]'))
+        .map(row => (row.textContent || '').trim().replace(/\s+/g, ' ')),
+      emptyText: (document.querySelector('[data-settings-entry="export.history"] .sv-placeholder-card')?.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' '),
+      sectionOverflowPx: section ? Math.max(0, section.scrollWidth - section.clientWidth) : null,
+      visibleButtonsWithoutType: Array.from(section?.querySelectorAll('button') ?? [])
+        .filter(button => button.offsetParent !== null && button.getAttribute('type') !== 'button')
+        .map(button => (button.textContent || '').trim().replace(/\s+/g, ' ')),
+    };
+  });
+}
+
+async function clearExportHistoryThroughUi() {
+  const clearButton = await browser.$('[data-export-history-action="clear"]');
+  if (!(await clearButton.isExisting())) return false;
+
+  await clearButton.click();
+  const input = await browser.$('.sv-confirm-dialog input[aria-label="确认操作校验文本"]');
+  await input.waitForDisplayed({ timeout: 5_000 });
+  await input.setValue('CLEAR');
+  await (await browser.$('.sv-confirm-ok')).click();
+  await browser.waitUntil(
+    async () => browser.execute(() => (
+      !document.querySelector('.sv-confirm-dialog') &&
+      document.querySelectorAll('[data-export-history-entry]').length === 0
+    )),
+    {
+      timeout: 5_000,
+      interval: 100,
+      timeoutMsg: 'Export history did not clear after typed confirmation',
+    },
+  );
+  return true;
+}
+
 async function setDefaultExportPlatform(platform) {
   return browser.execute((nextPlatform) => {
     function findPinia() {
@@ -925,6 +1002,89 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         window.dispatchEvent(new PopStateEvent('popstate'));
       }, seededArticleId);
       await browser.pause(300);
+    }
+  });
+
+  it('persists a successful WeChat rich copy in Settings history and clears it through the real UI', async function () {
+    if (!exportReady) {
+      // eslint-disable-next-line no-console
+      console.warn(`[svg-render] export history skip — ${seedFailureReason}`);
+      return this.skip();
+    }
+
+    try {
+      await closeExportModalIfOpen();
+      await openSettingsExportHistory();
+      await clearExportHistoryThroughUi();
+      const initial = await collectExportHistoryProbe();
+      expect(initial.storeHistory, 'history starts empty through the real clear action').to.deep.equal([]);
+      expect(initial.persistedHistory, 'empty history is durable before the copy action').to.deep.equal([]);
+
+      const reach = await reachWorkstationExport(seededArticleId);
+      expect(reach.ready, reach.reason || 'workstation export button should be ready for history proof').to.equal(true);
+      await openExportPanel('微信');
+
+      const richClipboardAvailable = await browser.execute(() => (
+        typeof window.navigator.clipboard?.write === 'function' && typeof window.ClipboardItem === 'function'
+      ));
+      expect(richClipboardAvailable, 'real WebView2 must expose rich ClipboardItem.write for WeChat style copy').to.equal(true);
+
+      const copyButton = await browser.$('.export-panel .act-btn.act-primary');
+      await copyButton.waitForEnabled({ timeout: 12_000 });
+      await copyButton.click();
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          (document.querySelector('.export-panel .feedback-success')?.textContent || '').includes('已复制')
+        )),
+        {
+          timeout: 8_000,
+          interval: 100,
+          timeoutMsg: 'WeChat rich clipboard write did not return success',
+        },
+      );
+
+      await closeExportModal();
+      await openSettingsExportHistory();
+      const recorded = await collectExportHistoryProbe();
+      expect(recorded.storeHistory, 'one successful app copy is recorded').to.have.length(1);
+      expect(recorded.persistedHistory, 'the copy record is persisted').to.have.length(1);
+      expect(recorded.domRows, 'Settings renders the same real history row').to.have.length(1);
+      expect(recorded.storeHistory[0]).to.include({ platform: 'wechat', action: 'copy' });
+      expect(recorded.storeHistory[0].title).to.include(SEED_TITLE);
+      expect(recorded.storeHistory[0].title).to.include('样式版 HTML');
+      expect(recorded.storeHistory[0].bytes).to.be.greaterThan(0);
+      expect(recorded.domRows[0]).to.include('微信公众号');
+      expect(recorded.domRows[0]).to.include('复制到剪贴板');
+      expect(recorded.sectionOverflowPx, 'history section must not overflow horizontally').to.equal(0);
+      expect(recorded.visibleButtonsWithoutType, 'history actions keep explicit button semantics').to.deep.equal([]);
+
+      await browser.refresh();
+      await waitForMainWindow();
+      await openSettingsExportHistory();
+      const reloaded = await collectExportHistoryProbe();
+      expect(reloaded.storeHistory, 'history survives a real app reload').to.have.length(1);
+      expect(reloaded.persistedHistory[0].id).to.equal(recorded.storeHistory[0].id);
+
+      expect(await clearExportHistoryThroughUi(), 'clear history button should exist for a populated list').to.equal(true);
+      const cleared = await collectExportHistoryProbe();
+      expect(cleared.storeHistory).to.deep.equal([]);
+      expect(cleared.persistedHistory).to.deep.equal([]);
+      expect(cleared.emptyText).to.include('暂无导出历史');
+
+      await browser.refresh();
+      await waitForMainWindow();
+      await openSettingsExportHistory();
+      const clearedReload = await collectExportHistoryProbe();
+      expect(clearedReload.storeHistory, 'cleared history remains empty after reload').to.deep.equal([]);
+      expect(clearedReload.persistedHistory).to.deep.equal([]);
+    } finally {
+      await closeExportModalIfOpen();
+      await browser.execute((articleId) => {
+        window.history.pushState({}, '', `/workstation?id=${encodeURIComponent(articleId)}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, seededArticleId);
+      await browser.pause(300);
+      await reachWorkstationExport(seededArticleId);
     }
   });
 

@@ -4,8 +4,6 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  PUBLISH_COPY_ALLOWED_ATTR,
-  PUBLISH_COPY_ALLOWED_TAGS,
   SVG_MODULES,
   WECHAT_SVG_APPLICATION_SLOTS,
   markdownToWechatWithStats,
@@ -59,12 +57,13 @@ describe('PublishView — WeChat preset selector coverage', () => {
     expect(PUBLISH_SOURCE).toContain("router.push({ path: '/workstation', query: { id: routeArticleId } })")
   })
 
-  it('keeps WeChat-safe SVG allowed in the rich-copy fallback sanitizer', () => {
-    expect(PUBLISH_SOURCE).toContain("import { sanitizePublishRichCopyHtml } from '@/services/export/publish-copy'")
-    expect(PUBLISH_SOURCE).toContain('container.innerHTML = sanitizePublishRichCopyHtml(generatedHtml.value)')
-    expect(PUBLISH_SOURCE).toContain('Publish rich-copy fallback execCommand returned false')
-    expect(PUBLISH_COPY_ALLOWED_TAGS).toEqual(expect.arrayContaining(['svg', 'path', 'animateTransform']))
-    expect(PUBLISH_COPY_ALLOWED_ATTR).toEqual(expect.arrayContaining(['data-ink-svg', 'viewBox']))
+  it('routes publish copy through rich-only modern and sanitized DOM boundaries', () => {
+    expect(PUBLISH_SOURCE).toContain('copyWechatHtmlToClipboard')
+    expect(PUBLISH_SOURCE).toContain('copyRichHtmlToClipboard')
+    expect(PUBLISH_SOURCE).toContain('copySanitizedPublishRichHtmlWithExecCommand')
+    expect(PUBLISH_SOURCE).toContain("platform.value === 'wechat'")
+    expect(PUBLISH_SOURCE).toContain("recordPublishExportHistory('发布中心富文本', 'copy')")
+    expect(PUBLISH_SOURCE).not.toContain('copyToClipboard(generatedHtml.value)')
   })
 
   it('exposes the app SVG slot selector in PublishView and forwards it to WeChat export options', () => {

@@ -556,8 +556,14 @@ function normalizeWritingGoalCandidate(input: unknown): WritingGoalSettings {
 }
 
 function normalizeExportHistoryCandidate(input: unknown): ExportHistoryEntry[] {
-  const parsed = z.array(ExportHistoryEntrySchema).safeParse(input)
-  return parsed.success ? parsed.data.slice(0, 10) : []
+  if (!Array.isArray(input)) {
+    return []
+  }
+
+  return input.flatMap((entry) => {
+    const parsed = ExportHistoryEntrySchema.safeParse(entry)
+    return parsed.success ? [parsed.data] : []
+  }).slice(0, 10)
 }
 
 function normalizeMigrationSnapshotsCandidate(input: unknown): SettingsMigrationSnapshot[] {
@@ -942,17 +948,28 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   function recordExportHistory(entry: Omit<ExportHistoryEntry, 'id' | 'exportedAt'> & Partial<Pick<ExportHistoryEntry, 'id' | 'exportedAt'>>): void {
+    const parsed = ExportHistoryEntrySchema.safeParse({
+      id: entry.id?.trim() || 'export-' + Date.now(),
+      exportedAt: entry.exportedAt?.trim() || new Date().toISOString(),
+      platform: entry.platform,
+      title: entry.title.trim().slice(0, 160) || '未命名导出',
+      bytes: entry.bytes,
+      action: entry.action,
+    })
+    if (!parsed.success) {
+      logger.warn('忽略无效导出历史记录', { issueCount: parsed.error.issues.length })
+      return
+    }
+
     settings.value.export.exportHistory = [
-      {
-        id: entry.id ?? 'export-' + Date.now(),
-        exportedAt: entry.exportedAt ?? new Date().toISOString(),
-        platform: entry.platform,
-        title: entry.title,
-        bytes: entry.bytes,
-        action: entry.action,
-      },
-      ...settings.value.export.exportHistory,
+      parsed.data,
+      ...normalizeExportHistoryCandidate(settings.value.export.exportHistory),
     ].slice(0, 10)
+    save()
+  }
+
+  function clearExportHistory(): void {
+    settings.value.export.exportHistory = []
     save()
   }
 
@@ -1082,6 +1099,7 @@ export const useSettingsStore = defineStore('settings', () => {
     restoreRollbackPoint,
     restoreLatestRollbackPoint,
     recordExportHistory,
+    clearExportHistory,
     markAIConnectionSuccess,
     exportSettings,
     previewImportSettings,
