@@ -1,11 +1,12 @@
 /**
  * native-runtime.spec.cjs — verifies the 05-12 desktop/native boundary against
  * the real Tauri WebView2 shell. The spec intentionally avoids actions that
- * would open Explorer, open an external browser/mail client, or require an OS
- * file picker selection. It proves runtime detection, Settings UI reflection,
+ * would open Explorer or an external browser/mail client. It proves runtime
+ * detection, Settings UI reflection, native directory cancellation,
  * native snapshot commands, and fail-closed invalid/missing-path behavior.
  */
 const { expect } = require('chai');
+const { spawn } = require('child_process');
 
 const TAURI_SIGNAL_VALUES = [
   'tauri-v1',
@@ -15,6 +16,39 @@ const TAURI_SIGNAL_VALUES = [
   'tauri-v1-post-message',
   'tauri-v2-internals',
 ];
+
+function cancelNativeDirectoryDialog() {
+  const script = `
+    Add-Type -AssemblyName System.Windows.Forms
+    $shell = New-Object -ComObject WScript.Shell
+    $deadline = [DateTime]::UtcNow.AddSeconds(5)
+    do {
+      if ($shell.AppActivate('选择工作区文件根目录')) {
+        Start-Sleep -Milliseconds 250
+        [System.Windows.Forms.SendKeys]::SendWait('{ESC}')
+        exit 0
+      }
+      Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $deadline)
+    Write-Error 'Native directory dialog was not found by title.'
+    exit 1
+  `;
+
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      { windowsHide: true },
+    );
+    let stderr = '';
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`Native directory dialog cancellation failed (exit ${code}): ${stderr}`));
+    });
+  });
+}
 
 async function waitForMainWindow() {
   const titlebar = await browser.$('.ink-titlebar');
@@ -86,6 +120,113 @@ async function openSettingsAudit() {
       timeoutMsg: 'Settings Audit section did not render as the active tab',
     },
   );
+}
+
+async function openSettingsProfiles() {
+  await browser.execute(() => {
+    const target = '/settings?tab=profiles';
+    if (location.pathname !== '/settings' || location.search !== '?tab=profiles') {
+      window.history.pushState({}, '', target);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  });
+
+  await browser.waitUntil(
+    async () => browser.execute(() => {
+      const section = document.querySelector('[data-settings-tab="profiles"]');
+      return Boolean(section && getComputedStyle(section).display !== 'none');
+    }),
+    {
+      timeout: 10_000,
+      interval: 200,
+      timeoutMsg: 'Settings Profiles section did not render as the active tab',
+    },
+  );
+}
+
+async function readProfilesUi() {
+  return browser.execute(() => {
+    const section = document.querySelector('[data-settings-tab="profiles"]');
+    const rows = Array.from(section?.querySelectorAll('[data-profile-id]') ?? []).map((row) => ({
+      id: row.getAttribute('data-profile-id'),
+      text: row.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      switchDisabled: Boolean(row.querySelector('[data-profile-action="switch"]')?.disabled),
+      deleteDisabled: Boolean(row.querySelector('[data-profile-action="soft-delete"]')?.disabled),
+    }));
+    const deletedRows = Array.from(section?.querySelectorAll('[data-profile-deleted-id]') ?? []).map((row) => ({
+      id: row.getAttribute('data-profile-deleted-id'),
+      text: row.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+    }));
+
+    return {
+      active: Boolean(section && getComputedStyle(section).display !== 'none'),
+      activeProfileId: section?.querySelector('[data-profile-current-id]')?.textContent?.trim() ?? '',
+      activeDbNamespace: section?.querySelector('[data-profile-current-db]')?.textContent?.trim() ?? '',
+      storedActiveProfileId: window.localStorage.getItem('inkforge.activeProfileId'),
+      rows,
+      deletedRows,
+      feedback: Array.from(section?.querySelectorAll('[data-profile-feedback]') ?? []).map((entry) => ({
+        kind: entry.getAttribute('data-profile-feedback'),
+        className: entry.className,
+        text: entry.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      })),
+      pickerDisabled: Boolean(section?.querySelector('[data-profile-file-root-picker]')?.disabled),
+      pickerStatus: section?.querySelector('[data-profile-file-root-status]')?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      createDisabled: Boolean(section?.querySelector('[data-profile-create]')?.disabled),
+      visibleButtonsWithoutType: Array.from(section?.querySelectorAll('button') ?? [])
+        .filter((entry) => entry.offsetParent !== null && entry.getAttribute('type') !== 'button')
+        .map((entry) => entry.textContent?.trim().replace(/\s+/g, ' ') ?? entry.className),
+    };
+  });
+}
+
+async function readProfilePersistence(profileName) {
+  return browser.execute(async (name) => {
+    const openDatabase = (databaseName) => new Promise((resolve, reject) => {
+      const request = window.indexedDB.open(databaseName);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error(`Failed to open ${databaseName}`));
+    });
+    const requestValue = (request) => new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('IndexedDB request failed'));
+    });
+
+    const registry = await openDatabase('InkForgeDB');
+    const profiles = await requestValue(registry.transaction('profiles', 'readonly').objectStore('profiles').getAll());
+    registry.close();
+    const matches = profiles.filter((profile) => profile.name === name);
+    const profile = matches.find((entry) => entry.status === 'active') ?? matches[0] ?? null;
+    const databaseNames = typeof window.indexedDB.databases === 'function'
+      ? (await window.indexedDB.databases()).map((entry) => entry.name).filter(Boolean)
+      : null;
+    let metadata = null;
+    if (profile && databaseNames?.includes(profile.dbNamespace)) {
+      const profileDatabase = await openDatabase(profile.dbNamespace);
+      metadata = await requestValue(
+        profileDatabase.transaction('metadata', 'readonly').objectStore('metadata').get('profile-meta'),
+      );
+      profileDatabase.close();
+    }
+
+    return {
+      activeMatchCount: matches.filter((entry) => entry.status === 'active').length,
+      totalMatchCount: matches.length,
+      profile,
+      databaseNamesSupported: databaseNames !== null,
+      namespaceExists: Boolean(profile && databaseNames?.includes(profile.dbNamespace)),
+      metadata,
+    };
+  }, profileName);
+}
+
+async function clickProfileAction(profileId, action, deleted = false) {
+  const rowSelector = deleted
+    ? `[data-profile-deleted-id="${profileId}"]`
+    : `[data-profile-id="${profileId}"]`;
+  const button = await browser.$(`${rowSelector} [data-profile-action="${action}"]`);
+  await button.waitForClickable({ timeout: 10_000, interval: 200 });
+  await button.click();
 }
 
 async function readSyncUi() {
@@ -280,8 +421,8 @@ async function readDesktopRuntimeUi() {
   });
 }
 
-async function readAuditActionCounts(actions = ['updater.user-check', 'command.execute']) {
-  return browser.execute((requestedActions) => {
+async function readAuditActionCounts(actions = ['updater.user-check', 'command.execute'], profileId = null) {
+  return browser.execute((requestedActions, requestedProfileId) => {
     const actions = requestedActions;
 
     return new Promise((resolve) => {
@@ -323,7 +464,8 @@ async function readAuditActionCounts(actions = ['updater.user-check', 'command.e
         };
 
         all.onsuccess = () => {
-          const rows = Array.isArray(all.result) ? all.result : [];
+          const rows = (Array.isArray(all.result) ? all.result : [])
+            .filter((row) => !requestedProfileId || row?.profileId === requestedProfileId);
           const counts = Object.fromEntries(actions.map((action) => [
             action,
             rows.filter((row) => row && row.action === action).length,
@@ -340,7 +482,7 @@ async function readAuditActionCounts(actions = ['updater.user-check', 'command.e
         };
       };
     });
-  }, actions);
+  }, actions, profileId);
 }
 
 async function readUpdaterCommandProbe() {
@@ -698,6 +840,144 @@ describe('InkForge — native desktop runtime boundary', () => {
     );
   });
 
+  it('Settings Profiles persists one lifecycle and preserves its database namespace', async () => {
+    const profileName = 'InkForge E2E 工作区';
+    await openSettingsProfiles();
+    await browser.waitUntil(
+      async () => (await readProfilesUi()).rows.length > 0,
+      { timeout: 10_000, interval: 250, timeoutMsg: 'Profile registry did not load' },
+    );
+
+    let evidence = await readProfilePersistence(profileName);
+    if (!evidence.profile) {
+      const nameInput = await browser.$('#profile-name-input');
+      await nameInput.setValue(profileName);
+      const createButton = await browser.$('[data-profile-create]');
+      await createButton.waitForClickable({ timeout: 5_000, interval: 150 });
+      await createButton.click();
+      await browser.waitUntil(
+        async () => (await readProfilePersistence(profileName)).activeMatchCount === 1,
+        { timeout: 10_000, interval: 250, timeoutMsg: 'Profile creation did not persist one active registry row' },
+      );
+      evidence = await readProfilePersistence(profileName);
+    } else if (evidence.profile.status === 'deleted') {
+      await clickProfileAction(evidence.profile.id, 'restore', true);
+      await browser.waitUntil(
+        async () => (await readProfilePersistence(profileName)).profile?.status === 'active',
+        { timeout: 10_000, interval: 250, timeoutMsg: 'Existing E2E Profile did not restore' },
+      );
+      evidence = await readProfilePersistence(profileName);
+    }
+
+    expect(evidence.activeMatchCount, 'exactly one active E2E profile').to.equal(1);
+    expect(evidence.profile?.fileRoot, 'Tauri profile without picker selection keeps a real null root').to.equal(null);
+    expect(evidence.profile?.fileRootStatus, 'Tauri profile without picker selection is unassigned').to.equal('unassigned');
+    expect(evidence.databaseNamesSupported, 'WebView2 exposes readonly database enumeration').to.equal(true);
+    expect(evidence.namespaceExists, 'dynamic Profile namespace exists').to.equal(true);
+    expect(evidence.metadata, 'Profile namespace metadata exists').to.include({
+      id: 'profile-meta',
+      profileId: evidence.profile.id,
+      profileName,
+      dbNamespace: evidence.profile.dbNamespace,
+      schemaVersion: 1,
+    });
+
+    let ui = await readProfilesUi();
+    expect(ui.active, 'Profiles is visible').to.equal(true);
+    expect(ui.pickerDisabled, 'native directory picker is enabled in real Tauri runtime').to.equal(false);
+    expect(ui.pickerStatus, 'unselected native boundary is explicit').to.include('尚未分配文件根');
+    expect(ui.visibleButtonsWithoutType, 'Profile controls keep explicit non-submit type').to.deep.equal([]);
+
+    await (await browser.$('[data-profile-file-root-picker]')).click();
+    await cancelNativeDirectoryDialog();
+    await browser.waitUntil(
+      async () => (await readProfilesUi()).feedback.some((entry) => entry.text.includes('已取消目录选择')),
+      { timeout: 10_000, interval: 250, timeoutMsg: 'Native directory dialog cancellation was not surfaced' },
+    );
+    const cancelledPicker = await readProfilesUi();
+    expect(cancelledPicker.pickerStatus, 'cancel keeps the file root unassigned').to.include('尚未分配文件根');
+
+    const duplicateInput = await browser.$('#profile-name-input');
+    await duplicateInput.setValue(profileName);
+    await (await browser.$('[data-profile-create]')).click();
+    await browser.waitUntil(
+      async () => (await readProfilesUi()).feedback.some((entry) => entry.text.includes('工作区名称已存在')),
+      { timeout: 10_000, interval: 250, timeoutMsg: 'Duplicate Profile name was not rejected visibly' },
+    );
+    evidence = await readProfilePersistence(profileName);
+    expect(evidence.activeMatchCount, 'duplicate submit does not add another active row').to.equal(1);
+
+    ui = await readProfilesUi();
+    if (ui.activeProfileId !== evidence.profile.id) {
+      await clickProfileAction(evidence.profile.id, 'switch');
+      await browser.waitUntil(
+        async () => (await readProfilesUi()).activeProfileId === evidence.profile.id,
+        { timeout: 10_000, interval: 250, timeoutMsg: 'E2E Profile did not become active through UI switch' },
+      );
+    }
+
+    const profileAuditBefore = await readAuditActionCounts(['sync.push']);
+    await openSettingsSync();
+    const profileSyncUi = await readSyncUi();
+    expect(profileSyncUi.providerId, 'Profile attribution probe must not call a configured provider').to.equal(null);
+    const profileSyncClicked = await browser.execute(() => {
+      const button = document.querySelector('[data-settings-entry="sync.manual"] button');
+      if (!button || button.disabled) return false;
+      button.click();
+      return true;
+    });
+    expect(profileSyncClicked, 'Profile-scoped sync probe is enabled').to.equal(true);
+    await browser.waitUntil(
+      async () => {
+        const audit = await readAuditActionCounts(['sync.push']);
+        return audit.ok && audit.counts['sync.push'] === profileAuditBefore.counts['sync.push'] + 1;
+      },
+      { timeout: 8_000, interval: 250, timeoutMsg: 'Profile-scoped sync probe did not append one audit row' },
+    );
+    const profileAuditAfter = await readAuditActionCounts(['sync.push']);
+    expect(profileAuditAfter.latest['sync.push']?.profileId, 'sync audit follows the active Profile id')
+      .to.equal(evidence.profile.id);
+
+    await openSettingsProfiles();
+    ui = await readProfilesUi();
+    const fallback = ui.rows.find((row) => row.id !== evidence.profile.id);
+    expect(fallback?.id, 'another real Profile is available for switch verification').to.be.a('string').and.not.equal('');
+    await clickProfileAction(fallback.id, 'switch');
+    await browser.waitUntil(
+      async () => {
+        const current = await readProfilesUi();
+        return current.activeProfileId === fallback.id && current.storedActiveProfileId === fallback.id;
+      },
+      { timeout: 10_000, interval: 250, timeoutMsg: 'Profile switch did not persist the active pointer' },
+    );
+
+    await clickProfileAction(evidence.profile.id, 'soft-delete');
+    const confirmInput = await browser.$('.sv-confirm-dialog input');
+    await confirmInput.setValue(profileName);
+    const confirmButton = await browser.$('.sv-confirm-ok');
+    await confirmButton.waitForClickable({ timeout: 5_000, interval: 150 });
+    await confirmButton.click();
+    await browser.waitUntil(
+      async () => (await readProfilePersistence(profileName)).profile?.status === 'deleted',
+      { timeout: 10_000, interval: 250, timeoutMsg: 'Profile did not enter the real recovery state' },
+    );
+    const deleted = await readProfilePersistence(profileName);
+    expect(deleted.profile?.deletedAt, 'soft delete writes deletedAt').to.be.a('number');
+    expect(deleted.namespaceExists, 'soft delete preserves the namespace').to.equal(true);
+    expect(deleted.metadata?.profileId, 'soft delete preserves namespace metadata').to.equal(deleted.profile.id);
+
+    await clickProfileAction(deleted.profile.id, 'restore', true);
+    await browser.waitUntil(
+      async () => (await readProfilePersistence(profileName)).profile?.status === 'active',
+      { timeout: 10_000, interval: 250, timeoutMsg: 'Profile did not restore from the recovery state' },
+    );
+    const restored = await readProfilePersistence(profileName);
+    expect(restored.activeMatchCount, 'restore returns one active row').to.equal(1);
+    expect(restored.profile?.deletedAt, 'restore clears the numeric deletion timestamp').to.equal(null);
+    expect(restored.namespaceExists, 'restore keeps the same namespace').to.equal(true);
+    expect(restored.metadata?.dbNamespace, 'restored metadata remains consistent').to.equal(restored.profile.dbNamespace);
+  });
+
   it('Command Palette manual updater check opens Settings About and writes honest audit evidence', async () => {
     const result = await runUpdaterCommandPaletteProbe();
     const { probe, beforeAudit, afterAudit } = result;
@@ -862,8 +1142,16 @@ describe('InkForge — native desktop runtime boundary', () => {
     expect(createdAudit.latest['sync.push']?.outcome, 'audit subject is a real failure record').to.equal('failure');
     expect(createdAudit.latest['sync.push']?.payload?.errorCode, 'audit subject keeps typed error metadata')
       .to.equal('PROVIDER_UNCONFIGURED');
+    const createdProfileAudit = await readAuditActionCounts(
+      ['sync.push'],
+      createdAudit.latest['sync.push']?.profileId ?? null,
+    );
 
     await openSettingsAudit();
+    await browser.waitUntil(
+      async () => !(await readAuditUi()).isLoading,
+      { timeout: 10_000, interval: 200, timeoutMsg: 'Settings Audit did not finish its initial refresh' },
+    );
     expect(await clickAuditButton('刷新审计'), 'visible refresh button is enabled').to.equal(true);
 
     await browser.waitUntil(
@@ -912,7 +1200,7 @@ describe('InkForge — native desktop runtime boundary', () => {
     );
 
     const filtered = await readAuditUi();
-    expect(filtered.totalCount, 'filtered durable count').to.equal(createdAudit.counts['sync.push']);
+    expect(filtered.totalCount, 'filtered durable count').to.equal(createdProfileAudit.counts['sync.push']);
     expect(filtered.cards['当前页'], 'filtered result stays on the first page').to.equal('1 / 1');
     expect(filtered.integrityStatus, 'integrity is not pre-claimed before the user action').to.equal('unknown');
 

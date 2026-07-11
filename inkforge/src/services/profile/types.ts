@@ -152,7 +152,16 @@ export function generateProfileId(): string {
 }
 
 export function normalizeProfileFileRoot(value: string): string {
-  return value.trim().replace(/\+/gu, '/').replace(/\/+/gu, '/').replace(/\/$/u, '')
+  const trimmed = value.trim()
+  const isUncPath = /^(?:\\\\|\/\/)/u.test(trimmed)
+  let normalized = trimmed.replace(/\\+/gu, '/').replace(/\/+/gu, '/')
+  if (isUncPath && normalized.startsWith('/')) {
+    normalized = `/${normalized}`
+  }
+  if (normalized === '/' || /^[a-z]:\/$/iu.test(normalized)) {
+    return normalized
+  }
+  return normalized.replace(/\/$/u, '')
 }
 
 export function normalizeProfileFileRootForComparison(value: string): string {
@@ -189,7 +198,9 @@ export function validateProfileFileRoot(candidate: string | null | undefined, pr
   const conflict = profiles.find(profile => {
     if (profile.id === selfId || !profile.fileRoot) return false
     const other = normalizeProfileFileRootForComparison(profile.fileRoot)
-    return comparable === other || comparable.startsWith(`${other}/`) || other.startsWith(`${comparable}/`)
+    const comparablePrefix = comparable.endsWith('/') ? comparable : `${comparable}/`
+    const otherPrefix = other.endsWith('/') ? other : `${other}/`
+    return comparable === other || comparable.startsWith(otherPrefix) || other.startsWith(comparablePrefix)
   })
 
   if (conflict) {

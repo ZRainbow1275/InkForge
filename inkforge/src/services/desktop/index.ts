@@ -235,6 +235,27 @@ export async function readClipboardText(): Promise<DesktopCommandResult<string |
   }
 }
 
+export async function pickNativeDirectory(title = 'Select workspace directory'): Promise<DesktopCommandResult<string>> {
+  const runtime = detectDesktopRuntime()
+  if (runtime.kind !== 'tauri') {
+    return unavailable<string>('Native directory selection is unavailable in web runtime.', runtime.kind)
+  }
+
+  try {
+    const { open } = await import('@tauri-apps/api/dialog')
+    const selected = await open({ directory: true, multiple: false, title })
+    if (selected === null) {
+      return { ok: false, reason: 'cancelled', message: 'Directory selection was cancelled.', source: runtime.kind }
+    }
+    if (Array.isArray(selected) || selected.trim().length === 0) {
+      return failed<string>('Native directory picker returned an invalid selection.', runtime.kind)
+    }
+    return { ok: true, value: selected, source: runtime.kind }
+  } catch (error) {
+    return failed<string>(normalizeError(error), runtime.kind)
+  }
+}
+
 export async function openMarkdownFiles(options: FilePickerOptions = {}): Promise<DesktopCommandResult<PickedFile[]>> {
   try {
     const files = await pickFiles({

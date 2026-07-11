@@ -48,13 +48,19 @@ export class SyncEngine {
     private readonly conflictResolver: ConflictResolver
     private provider: SyncProvider | null = null
     private autoSyncInterval: ReturnType<typeof setInterval> | null = null
+    private autoSyncIntervalMs: number | null = null
     private stateListeners: Array<(state: SyncState) => void> = []
     private isSyncLock = false
+    private isActive = true
     private onlineHandler: (() => void) | null = null
     private offlineHandler: (() => void) | null = null
 
     constructor(config: Partial<SyncEngineConfig> = {}) {
-        this.config = { ...DEFAULT_CONFIG, ...config }
+        const profileId = config.profileId?.trim() ?? DEFAULT_CONFIG.profileId
+        if (!profileId) {
+            throw new Error('profileId is required')
+        }
+        this.config = { ...DEFAULT_CONFIG, ...config, profileId }
         this.changeTracker = new ChangeTracker(this.config.dedupeWindowMs)
         this.conflictResolver = new ConflictResolver()
         this.state = {
@@ -98,6 +104,26 @@ export class SyncEngine {
         return this.provider
     }
 
+    activate(): void {
+        if (this.isActive) return
+        this.isActive = true
+        this.setupNetworkListeners()
+        if (!this.isOnline()) {
+            this.updateState({ status: 'offline' })
+        } else if (this.state.status === 'offline') {
+            this.updateState({ status: this.provider ? 'idle' : 'paused' })
+            void this.sync()
+        }
+        this.scheduleAutoSync()
+    }
+
+    deactivate(): void {
+        if (!this.isActive) return
+        this.isActive = false
+        this.clearAutoSyncInterval()
+        this.teardownNetworkListeners()
+    }
+
     async markDirty(documentId: string, content?: string, operation: 'create' | 'update' | 'delete' = 'update'): Promise<void> {
         const record = await this.changeTracker.trackChange(documentId, operation, content)
         await syncRepository.enqueueOutbox({
@@ -111,6 +137,9 @@ export class SyncEngine {
     }
 
     async sync(): Promise<SyncResult> {
+        if (!this.isActive) {
+            return { success: false, uploaded: 0, downloaded: 0, newConflicts: 0, error: '同步引擎当前未激活' }
+        }
         if (this.isSyncLock) {
             logger.debug('[SyncEngine] 同步已在进行中，跳过')
             return { success: true, uploaded: 0, downloaded: 0, newConflicts: 0 }
@@ -282,20 +311,17 @@ export class SyncEngine {
     }
 
     startAutoSync(intervalMs?: number): void {
-        if (this.autoSyncInterval) this.stopAutoSync()
         const interval = intervalMs ?? this.config.autoSyncIntervalMs
-        this.autoSyncInterval = setInterval(() => {
-            void this.sync()
-        }, interval)
+        this.clearAutoSyncInterval()
+        this.autoSyncIntervalMs = interval
+        this.scheduleAutoSync()
         this.updateState({ autoSyncEnabled: true })
         logger.info('[SyncEngine] 自动同步已启动', { intervalMs: interval })
     }
 
     stopAutoSync(): void {
-        if (this.autoSyncInterval) {
-            clearInterval(this.autoSyncInterval)
-            this.autoSyncInterval = null
-        }
+        this.clearAutoSyncInterval()
+        this.autoSyncIntervalMs = null
         this.updateState({ autoSyncEnabled: false })
         logger.info('[SyncEngine] 自动同步已停止')
     }
@@ -317,8 +343,8 @@ export class SyncEngine {
     }
 
     dispose(): void {
+        this.deactivate()
         this.stopAutoSync()
-        this.teardownNetworkListeners()
         this.stateListeners = []
         this.changeTracker.clear()
         logger.info('[SyncEngine] 引擎已销毁')
@@ -385,7 +411,7 @@ export class SyncEngine {
     }
 
     private setupNetworkListeners(): void {
-        if (typeof window === 'undefined') return
+        if (typeof window === 'undefined' || !this.isActive || this.onlineHandler || this.offlineHandler) return
         this.onlineHandler = () => {
             logger.info('[SyncEngine] 网络已恢复，尝试同步')
             if (this.state.status === 'offline') {
@@ -411,6 +437,19 @@ export class SyncEngine {
             window.removeEventListener('offline', this.offlineHandler)
             this.offlineHandler = null
         }
+    }
+
+    private scheduleAutoSync(): void {
+        if (!this.isActive || this.autoSyncInterval || this.autoSyncIntervalMs === null) return
+        this.autoSyncInterval = setInterval(() => {
+            void this.sync()
+        }, this.autoSyncIntervalMs)
+    }
+
+    private clearAutoSyncInterval(): void {
+        if (!this.autoSyncInterval) return
+        clearInterval(this.autoSyncInterval)
+        this.autoSyncInterval = null
     }
 
     private updateState(partial: Partial<SyncState>): void {

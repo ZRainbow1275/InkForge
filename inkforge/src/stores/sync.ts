@@ -19,6 +19,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, onScopeDispose } from 'vue'
 import { SyncEngine, type SyncState, type SyncResult } from '@/services/sync/engine'
 import type { ConflictStrategy, SyncConflict } from '@/services/sync/conflict-resolver'
+import { DEFAULT_PROFILE_ID } from '@/services/profile/types'
 import { logger } from '@/services/error'
 
 // ===================================================================
@@ -26,8 +27,18 @@ import { logger } from '@/services/error'
 // ===================================================================
 
 export const useSyncStore = defineStore('sync', () => {
-    // 创建同步引擎实例
-    const syncEngine = new SyncEngine()
+    const syncEngines = new Map<string, SyncEngine>()
+
+    function getOrCreateSyncEngine(profileId: string): SyncEngine {
+        const existing = syncEngines.get(profileId)
+        if (existing) return existing
+        const created = new SyncEngine({ profileId })
+        syncEngines.set(profileId, created)
+        return created
+    }
+
+    let activeProfileId = DEFAULT_PROFILE_ID
+    let syncEngine = getOrCreateSyncEngine(activeProfileId)
 
     // 响应式状态 (从引擎同步)
     const state = ref<SyncState>(syncEngine.getState())
@@ -35,10 +46,14 @@ export const useSyncStore = defineStore('sync', () => {
     // 最后一次同步结果
     const lastResult = ref<SyncResult | null>(null)
 
-    // 监听引擎状态变化，同步到 Vue 响应式
-    const unsubscribe = syncEngine.onStateChange((newState) => {
-        state.value = newState
-    })
+    function subscribeToSyncEngine(engine: SyncEngine): () => void {
+        return engine.onStateChange((newState) => {
+            if (engine === syncEngine) state.value = newState
+        })
+    }
+
+    // 监听当前 Profile 引擎状态变化，同步到 Vue 响应式
+    let unsubscribe = subscribeToSyncEngine(syncEngine)
 
     // ---------------------------------------------------------------
     // 计算属性
@@ -132,13 +147,29 @@ export const useSyncStore = defineStore('sync', () => {
         }
     }
 
+    function setProfile(profileId: string): void {
+        const normalized = profileId.trim()
+        if (!normalized) throw new Error('profileId is required')
+        if (normalized === activeProfileId) return
+
+        unsubscribe()
+        syncEngine.deactivate()
+        activeProfileId = normalized
+        syncEngine = getOrCreateSyncEngine(normalized)
+        syncEngine.activate()
+        state.value = syncEngine.getState()
+        lastResult.value = null
+        unsubscribe = subscribeToSyncEngine(syncEngine)
+    }
+
     /**
      * 手动触发同步
      */
     async function sync(): Promise<SyncResult> {
+        const engine = syncEngine
         try {
-            const result = await syncEngine.sync()
-            lastResult.value = result
+            const result = await engine.sync()
+            if (engine === syncEngine) lastResult.value = result
             return result
         } catch (err) {
             logger.error('[SyncStore] sync 失败', err)
@@ -149,7 +180,7 @@ export const useSyncStore = defineStore('sync', () => {
                 newConflicts: 0,
                 error: err instanceof Error ? err.message : String(err),
             }
-            lastResult.value = errorResult
+            if (engine === syncEngine) lastResult.value = errorResult
             return errorResult
         }
     }
@@ -204,7 +235,8 @@ export const useSyncStore = defineStore('sync', () => {
      */
     function cleanup(): void {
         unsubscribe()
-        syncEngine.dispose()
+        for (const engine of syncEngines.values()) engine.dispose()
+        syncEngines.clear()
         logger.info('[SyncStore] 资源已清理')
     }
 
@@ -238,6 +270,7 @@ export const useSyncStore = defineStore('sync', () => {
         statusText,
 
         // 操作方法
+        setProfile,
         markDirty,
         sync,
         resolveConflict,

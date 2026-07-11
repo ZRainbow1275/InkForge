@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readText as tauriReadText, writeText as tauriWriteText } from '@tauri-apps/api/clipboard'
 import {
   buildDesktopCapabilityMatrix,
+  pickNativeDirectory,
   readClipboardText,
   writeClipboardText,
 } from './index'
@@ -107,6 +108,18 @@ describe('desktop clipboard text boundary', () => {
       reason: 'failed',
       message: 'clipboard unavailable',
       source: 'tauri',
+    })
+  })
+})
+
+describe('desktop directory selection boundary', () => {
+  it('fails closed without opening a native dialog in web runtime', async () => {
+    vi.stubGlobal('window', { isSecureContext: true })
+
+    await expect(pickNativeDirectory()).resolves.toMatchObject({
+      ok: false,
+      reason: 'unavailable',
+      source: 'web',
     })
   })
 })

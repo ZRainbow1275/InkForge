@@ -27,6 +27,7 @@ import UpdateCard from '@/components/settings/UpdateCard.vue'
 import CssEditor from '@/components/editor/CssEditor.vue'
 import { useFeatureFlag } from '@/composables/useFeatureFlag'
 import { LOG_LEVELS, getLogLevel, logger, type LogLevel } from '@/services/error'
+import { detectDesktopRuntime, pickNativeDirectory } from '@/services/desktop'
 import { getProxyPreview } from '@/services/http-proxy'
 import { convertToPlatform, copyToClipboard, type CodeTheme, type Platform } from '@/services/export'
 import {
@@ -135,8 +136,20 @@ const customCssActionMessage = ref<{ type: 'success' | 'error' | 'warning'; text
 const selectedCustomCssSnippet = ref('')
 const customCssStylePresent = ref(false)
 const importFeedback = ref<{ type: 'success' | 'error'; text: string } | null>(null)
-const syncActionBusy = ref(false)
-const syncActionMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null)
+const syncActionBusy = computed(() => syncStore.isSyncing)
+const syncActionMessage = computed<{ type: 'success' | 'error'; text: string } | null>(() => {
+  const result = syncStore.lastResult
+  if (!result) return null
+  return result.success
+    ? {
+        type: 'success',
+        text: `同步完成：上传 ${result.uploaded}，下载 ${result.downloaded}，冲突 ${result.newConflicts}`,
+      }
+    : {
+        type: 'error',
+        text: result.error ?? '同步失败，待同步队列已保留',
+      }
+})
 const auditKeyword = ref('')
 const auditSeverityFilter = ref<'all' | AuditSeverity>('all')
 const auditActionFilter = ref<'all' | AuditAction>('all')
@@ -146,7 +159,10 @@ const extensionActionMessage = ref<{ type: 'success' | 'error'; text: string } |
 const profileNameDraft = ref('')
 const profileAvatarDraft = ref<ProfileAvatarIcon>('User')
 const profileAccentDraft = ref<string>(PROFILE_ACCENT_PRESETS[0])
-const profileActionMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null)
+const profileFileRootDraft = ref<string | null>(null)
+const profileFileRootPickerBusy = ref(false)
+const profileNativeDirectoryAvailable = detectDesktopRuntime().kind === 'tauri'
+const profileActionMessage = ref<{ type: 'success' | 'error' | 'warning'; text: string } | null>(null)
 const latestMigrationSnapshot = computed(() => settings.value.advanced.migrationSnapshots[0] ?? null)
 const smartPunctuationRuleDefinitions: readonly SmartPunctuationRuleDefinition[] = SMART_PUNCTUATION_RULE_DEFINITIONS
 const migrationPreviewSummaryText = computed(() => {
@@ -1727,31 +1743,7 @@ async function handleManualSync(): Promise<void> {
   if (syncActionBusy.value) {
     return
   }
-
-  syncActionBusy.value = true
-  syncActionMessage.value = null
-
-  try {
-    const result = await syncStore.sync()
-    if (result.success) {
-      syncActionMessage.value = {
-        type: 'success',
-        text: `同步完成：上传 ${result.uploaded}，下载 ${result.downloaded}，冲突 ${result.newConflicts}`,
-      }
-    } else {
-      syncActionMessage.value = {
-        type: 'error',
-        text: result.error ?? '同步失败，待同步队列已保留',
-      }
-    }
-  } catch (error) {
-    syncActionMessage.value = {
-      type: 'error',
-      text: getErrorMessage(error),
-    }
-  } finally {
-    syncActionBusy.value = false
-  }
+  await syncStore.sync()
 }
 
 function formatAuditTime(timestamp: number): string {
@@ -1861,6 +1853,26 @@ async function refreshProfiles(): Promise<void> {
   }
 }
 
+async function handlePickProfileDirectory(): Promise<void> {
+  profileActionMessage.value = null
+  profileFileRootPickerBusy.value = true
+  try {
+    const result = await pickNativeDirectory('选择工作区文件根目录')
+    if (result.ok) {
+      profileFileRootDraft.value = result.value
+      profileActionMessage.value = { type: 'success', text: '已选择原生文件根目录。' }
+    } else if (result.reason === 'cancelled') {
+      profileActionMessage.value = { type: 'warning', text: '已取消目录选择，原有选择未更改。' }
+    } else {
+      profileActionMessage.value = { type: 'error', text: result.message }
+    }
+  } catch (error) {
+    profileActionMessage.value = { type: 'error', text: getErrorMessage(error) }
+  } finally {
+    profileFileRootPickerBusy.value = false
+  }
+}
+
 async function handleCreateProfile(): Promise<void> {
   profileActionMessage.value = null
   try {
@@ -1868,10 +1880,13 @@ async function handleCreateProfile(): Promise<void> {
       name: profileNameDraft.value,
       avatarIcon: profileAvatarDraft.value,
       colorAccent: profileAccentDraft.value,
-      fileRoot: null,
-      fileRootStatus: 'native-unavailable',
+      fileRoot: profileFileRootDraft.value,
+      fileRootStatus: profileFileRootDraft.value
+        ? 'selected'
+        : profileNativeDirectoryAvailable ? 'unassigned' : 'native-unavailable',
     }, currentProfileId())
     profileNameDraft.value = ''
+    profileFileRootDraft.value = null
     await syncProfileScopedStores(created.id)
     profileActionMessage.value = { type: 'success', text: `已创建并切换到工作区：${created.name}` }
   } catch (error) {
@@ -4721,10 +4736,10 @@ onUnmounted(() => {
               <button
                 type="button"
                 class="sv-action-btn sv-action-btn-sm"
-                :disabled="syncActionBusy || syncStore.isSyncing"
+                :disabled="syncActionBusy"
                 @click="handleManualSync"
               >
-                {{ syncActionBusy || syncStore.isSyncing ? '同步中...' : '立即同步' }}
+                {{ syncActionBusy ? '同步中...' : '立即同步' }}
               </button>
             </div>
 
@@ -5056,12 +5071,18 @@ onUnmounted(() => {
               </div>
               <div class="sv-insight-card">
                 <span class="sv-insight-card__label">当前 ID</span>
-                <span class="sv-insight-card__value sv-insight-card__value--small">{{ profileStore.activeProfileId || '未加载' }}</span>
+                <span
+                  class="sv-insight-card__value sv-insight-card__value--small"
+                  data-profile-current-id
+                >{{ profileStore.activeProfileId || '未加载' }}</span>
                 <span class="sv-insight-card__meta">active Profile pointer</span>
               </div>
               <div class="sv-insight-card">
                 <span class="sv-insight-card__label">数据库</span>
-                <span class="sv-insight-card__value sv-insight-card__value--small">{{ profileStore.activeProfile?.dbNamespace || '待初始化' }}</span>
+                <span
+                  class="sv-insight-card__value sv-insight-card__value--small"
+                  data-profile-current-db
+                >{{ profileStore.activeProfile?.dbNamespace || '待初始化' }}</span>
                 <span class="sv-insight-card__meta">独立 IndexedDB namespace</span>
               </div>
             </div>
@@ -5080,7 +5101,7 @@ onUnmounted(() => {
                   创建工作区
                 </h3>
                 <p class="sv-section-note">
-                  创建会写入真实 Profile registry、初始化独立 Profile 数据库并记录审计日志。浏览器 runtime 下文件根保持空值并标记原生边界不可用。
+                  创建会写入真实 Profile registry、初始化独立 Profile 数据库并记录审计日志。Tauri 可通过原生选择器绑定文件根；浏览器 runtime 不接受手动路径。
                 </p>
               </div>
             </div>
@@ -5134,15 +5155,48 @@ onUnmounted(() => {
                 </div>
               </div>
               <div class="sv-form-grid__full">
-                <div class="sv-placeholder-card">
-                  文件根目录必须由 Tauri 原生目录选择器返回。本 Web 运行时不会接受手动路径，也不会写入伪造目录；创建后状态将显示为“原生边界不可用”。
+                <label class="sv-row-label">文件根目录（可选）</label>
+                <div class="sv-btn-group">
+                  <button
+                    type="button"
+                    class="sv-action-btn sv-action-btn-sm"
+                    data-profile-file-root-picker
+                    :disabled="!profileNativeDirectoryAvailable || profileFileRootPickerBusy || profileStore.isLoading"
+                    @click="handlePickProfileDirectory"
+                  >
+                    {{ profileFileRootPickerBusy ? '选择中...' : profileFileRootDraft ? '重新选择目录' : '选择原生目录' }}
+                  </button>
+                  <button
+                    v-if="profileFileRootDraft"
+                    type="button"
+                    class="sv-action-btn sv-action-btn-sm"
+                    data-profile-file-root-clear
+                    @click="profileFileRootDraft = null; profileActionMessage = null"
+                  >
+                    清除选择
+                  </button>
+                </div>
+                <div
+                  class="sv-placeholder-card"
+                  data-profile-file-root-status
+                >
+                  <template v-if="profileFileRootDraft">
+                    已选择：{{ profileFileRootDraft }}
+                  </template>
+                  <template v-else-if="profileNativeDirectoryAvailable">
+                    尚未分配文件根；创建后状态为“未分配”。路径只接受 Tauri 原生目录选择器返回值。
+                  </template>
+                  <template v-else>
+                    当前为 Web 运行时，原生目录选择不可用；不会接受手动路径或写入伪造目录。
+                  </template>
                 </div>
               </div>
               <div class="sv-form-grid__full">
                 <button
                   type="button"
                   class="sv-action-btn"
-                  :disabled="profileNameDraft.trim().length === 0 || profileStore.isLoading"
+                  data-profile-create
+                  :disabled="profileNameDraft.trim().length === 0 || profileStore.isLoading || profileFileRootPickerBusy"
                   @click="handleCreateProfile"
                 >
                   {{ profileStore.isLoading ? '创建中...' : '创建真实工作区' }}
@@ -5153,6 +5207,7 @@ onUnmounted(() => {
             <div
               v-if="profileActionMessage"
               class="sv-feedback"
+              data-profile-feedback="action"
               :class="profileActionMessage.type"
             >
               {{ profileActionMessage.text }}
@@ -5160,6 +5215,7 @@ onUnmounted(() => {
             <div
               v-if="profileStore.error"
               class="sv-feedback error"
+              data-profile-feedback="store-error"
             >
               {{ profileStore.error }}
             </div>
@@ -5197,6 +5253,7 @@ onUnmounted(() => {
                 v-for="profile in profileStore.sortedProfiles"
                 :key="profile.id"
                 class="sv-history-row"
+                :data-profile-id="profile.id"
                 open
               >
                 <summary class="sv-history-row__main">
@@ -5208,7 +5265,7 @@ onUnmounted(() => {
                   <span>{{ profile.avatarIcon }} / {{ getProfileFileRootStatusLabel(profile) }}</span>
                   <time class="sv-history-row__time">{{ formatProfileTime(profile.lastActiveAt) }}</time>
                 </summary>
-                <div class="sv-static-card">
+                <div class="sv-static-card sv-profile-detail-card">
                   <div class="sv-inline-grid sv-inline-grid--three">
                     <div class="sv-insight-card">
                       <span class="sv-insight-card__label">Profile ID</span>
@@ -5233,6 +5290,7 @@ onUnmounted(() => {
                     <button
                       type="button"
                       class="sv-action-btn sv-action-btn-sm"
+                      data-profile-action="switch"
                       :disabled="profile.id === profileStore.activeProfileId || profileStore.isSwitching"
                       @click="handleSwitchProfile(profile)"
                     >
@@ -5241,6 +5299,7 @@ onUnmounted(() => {
                     <button
                       type="button"
                       class="sv-danger-btn"
+                      data-profile-action="soft-delete"
                       :disabled="!profileStore.canDeleteActiveProfile"
                       @click="handleSoftDeleteProfile(profile)"
                     >
@@ -5270,6 +5329,7 @@ onUnmounted(() => {
                 v-for="profile in profileStore.deletedProfiles"
                 :key="profile.id"
                 class="sv-history-row"
+                :data-profile-deleted-id="profile.id"
               >
                 <div class="sv-history-row__main">
                   <span
@@ -5281,6 +5341,7 @@ onUnmounted(() => {
                   <button
                     type="button"
                     class="sv-action-btn sv-action-btn-sm"
+                    data-profile-action="restore"
                     @click="handleRestoreProfile(profile)"
                   >
                     恢复
@@ -7961,6 +8022,45 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 800;
   box-shadow: 0 8px 18px rgba(38, 50, 56, 0.16);
+}
+
+.sv-static-card.sv-profile-detail-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.sv-profile-detail-card > .sv-inline-grid {
+  grid-column: 1 / -1;
+}
+
+.sv-profile-detail-card > .sv-placeholder-card {
+  min-width: 0;
+}
+
+.sv-profile-detail-card > .sv-btn-group {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.sv-profile-detail-card .sv-action-btn,
+.sv-profile-detail-card .sv-danger-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .sv-profile-detail-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sv-profile-detail-card > * {
+    grid-column: 1;
+  }
+
+  .sv-profile-detail-card > .sv-btn-group {
+    justify-content: flex-start;
+  }
 }
 
 .sv-account-grid {

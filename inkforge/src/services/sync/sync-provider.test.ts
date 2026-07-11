@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import { buildAuthHeaders, SyncProviderError, validateSyncConfig, type SyncConfig } from './provider'
 import { compareClocks, incrementClock, mergeClock } from './vector-clock'
 
@@ -74,6 +75,17 @@ describe('SyncEngine no-provider contract', () => {
     expect(engine.getState().lastSyncAt).toBeNull()
   })
 
+  it('keeps each engine bound to its construction profile', async () => {
+    const { SyncEngine } = await import('./engine')
+    const { syncRepository } = await import('./repository')
+    const engine = new SyncEngine({ profileId: '  profile-2  ' })
+
+    await engine.sync()
+
+    expect(syncRepository.addLog).toHaveBeenLastCalledWith(expect.objectContaining({ profileId: 'profile-2' }))
+    expect(() => new SyncEngine({ profileId: '   ' })).toThrow('profileId is required')
+  })
+
   it('preserves pending changes and reports failure when no provider is configured', async () => {
     const { SyncEngine } = await import('./engine')
     const engine = new SyncEngine({ profileId: 'profile-1' })
@@ -85,5 +97,132 @@ describe('SyncEngine no-provider contract', () => {
     expect(result.error).toContain('同步提供者未配置')
     expect(engine.getChangeTracker().getPendingChanges()).toHaveLength(1)
     expect(engine.getState().status).toBe('paused')
+  })
+
+  it('detaches and restores network listeners with the engine lifecycle', async () => {
+    let online = true
+    const addEventListener = vi.fn()
+    const removeEventListener = vi.fn()
+    vi.stubGlobal('window', { addEventListener, removeEventListener })
+    vi.stubGlobal('navigator', {
+      get onLine() {
+        return online
+      },
+    })
+    const { SyncEngine } = await import('./engine')
+    const engine = new SyncEngine({ profileId: 'profile-1' })
+    const syncSpy = vi.spyOn(engine, 'sync')
+
+    try {
+      expect(addEventListener).toHaveBeenCalledTimes(2)
+      engine.deactivate()
+      expect(removeEventListener).toHaveBeenCalledTimes(2)
+
+      online = false
+      engine.activate()
+      expect(addEventListener).toHaveBeenCalledTimes(4)
+      expect(engine.getState().status).toBe('offline')
+      expect(syncSpy).not.toHaveBeenCalled()
+      engine.activate()
+      expect(addEventListener).toHaveBeenCalledTimes(4)
+
+      engine.deactivate()
+      online = true
+      engine.activate()
+      expect(engine.getState().status).toBe('paused')
+      expect(syncSpy).toHaveBeenCalledTimes(1)
+    } finally {
+      engine.dispose()
+      vi.unstubAllGlobals()
+    }
+  })
+})
+
+describe('Sync store profile isolation', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('keeps pending queues and outbox attribution isolated when switching profiles', async () => {
+    const { syncRepository } = await import('./repository')
+    const { useSyncStore } = await import('@/stores/sync')
+    const store = useSyncStore()
+
+    store.setProfile('profile-a')
+    await store.markDirty('doc-a', 'content-a')
+    expect(store.pendingCount).toBe(1)
+
+    store.setProfile('profile-b')
+    expect(store.pendingCount).toBe(0)
+    await store.markDirty('doc-b', 'content-b')
+    expect(store.pendingCount).toBe(1)
+
+    store.setProfile('profile-a')
+    expect(store.pendingCount).toBe(1)
+    expect(syncRepository.enqueueOutbox).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ articleId: 'doc-a', profileId: 'profile-a' }),
+    )
+    expect(syncRepository.enqueueOutbox).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ articleId: 'doc-b', profileId: 'profile-b' }),
+    )
+    expect(() => store.setProfile('   ')).toThrow('profileId is required')
+
+    store.cleanup()
+  })
+
+  it('does not let an old profile sync completion overwrite the active result', async () => {
+    const { syncRepository } = await import('./repository')
+    const { useSyncStore } = await import('@/stores/sync')
+    const store = useSyncStore()
+    let releaseOldLog: (() => void) | undefined
+    vi.mocked(syncRepository.addLog).mockImplementationOnce(() => new Promise<void>((resolve) => {
+      releaseOldLog = resolve
+    }))
+
+    store.setProfile('profile-a')
+    await store.markDirty('doc-a', 'content-a')
+    const oldSync = store.sync()
+    await vi.waitFor(() => expect(releaseOldLog).toBeTypeOf('function'))
+
+    store.setProfile('profile-b')
+    const activeResult = await store.sync()
+    expect(activeResult.error).toBe('同步提供者未配置')
+    expect(store.lastResult?.error).toBe(activeResult.error)
+
+    releaseOldLog?.()
+    const oldResult = await oldSync
+    expect(oldResult.error).toContain('已保留待同步队列')
+    expect(store.lastResult?.error).toBe(activeResult.error)
+
+    store.cleanup()
+  })
+
+  it('pauses inactive profile auto-sync and resumes it when that profile is active again', async () => {
+    vi.useFakeTimers()
+    const { syncRepository } = await import('./repository')
+    const { useSyncStore } = await import('@/stores/sync')
+    const store = useSyncStore()
+
+    try {
+      store.setProfile('profile-a')
+      store.startAutoSync(100)
+      store.setProfile('profile-b')
+      await vi.advanceTimersByTimeAsync(300)
+      expect(syncRepository.addLog).not.toHaveBeenCalled()
+
+      store.setProfile('profile-a')
+      await vi.advanceTimersByTimeAsync(100)
+      expect(syncRepository.addLog).toHaveBeenCalledTimes(1)
+
+      store.stopAutoSync()
+      await vi.advanceTimersByTimeAsync(300)
+      expect(syncRepository.addLog).toHaveBeenCalledTimes(1)
+    } finally {
+      store.cleanup()
+      vi.useRealTimers()
+    }
   })
 })

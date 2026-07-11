@@ -228,42 +228,60 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
 - Store: `useProfileStore()`.
 - Read fields: `profiles`, `activeProfileId`, `previousProfileId`, `sortedProfiles`, `deletedProfiles`, `activeProfile`, `profileCount`, `deletedProfileCount`, `isLoading`, `isSwitching`, `error`, `lastActionMessage`, and `canDeleteActiveProfile`.
 - Actions: `loadProfiles`, `createProfile`, `switchProfile`, `softDeleteProfile`, `restoreProfile`, `daysUntilPermanentDelete`, and `getById`.
+- Native directory boundary: `pickNativeDirectory(title?: string): Promise<DesktopCommandResult<string>>`.
+- Path normalization: `normalizeProfileFileRoot(value: string): string` and `normalizeProfileFileRootForComparison(value: string): string`.
+- Sync binding: `useSyncStore().setProfile(profileId: string): void` switches to a dedicated `SyncEngine` whose Profile ID is immutable after construction.
 
 ### 3. Contracts
 - UI must display only real Profile records loaded from Dexie through `ProfileRepository`. Do not seed sample workspaces or fake registry rows.
 - `loadProfiles` must mirror the current account into the Profile registry before choosing the active Profile.
 - Create/switch/delete/restore buttons must call the Profile store/repository path so validation, per-profile DB initialization, and audit logging are not bypassed.
 - File-root UI in web runtime must show a clear unavailable native boundary and must not offer manual path persistence as a fake replacement for Tauri directory selection.
-- Profile switch changes active Profile state and Profile-scoped audit/extension views, but must not pretend to close or migrate currently open documents.
+- Tauri file-root UI must call the single-directory native picker. Only an `ok: true` native result may populate the draft; cancellation must preserve the previous draft and surface a non-success message.
+- Profile creation maps a native selection to `fileRootStatus='selected'`, a Tauri profile without a selection to `unassigned`, and a web profile to `native-unavailable`.
+- Windows `\` separators and repeated `/` separators must normalize to `/` before case-insensitive equality/parent-child overlap validation. Preserve drive roots, UNC prefixes, POSIX roots, and literal `+` characters.
+- Profile activation and switching must select a dedicated SyncEngine before the action resolves. Pending changes, provider state, conflicts, sync locks, timestamps, and results must not cross Profile boundaries; an in-flight operation from the previous Profile must retain its original attribution and must not overwrite the newly active Profile state or Settings message.
+- Inactive Profile engines must detach network listeners and pause their auto-sync interval without clearing pending/conflict/provider state. Reactivation must reconcile the current `navigator.onLine` value so network transitions missed while inactive cannot leave stale online/offline state; an offline-to-online recovery resumes the same Profile's normal recovery sync. Reactivation may resume a previously enabled interval; explicit stop or store cleanup must not resume it. Profile switching must not pretend to close or migrate currently open documents.
 
 ### 4. Validation & Error Matrix
 - Empty registry with existing account -> `loadProfiles` creates/mirrors `local-default` and shows count 1.
 - Create valid Profile -> active count increments, active Profile changes, and `lastActionMessage` reports the real result.
 - Duplicate name -> show store error; no card is added.
 - Runtime file-root unavailable -> `fileRootStatus` remains `native-unavailable` and UI explains the boundary.
+- Tauri picker cancelled -> typed `reason='cancelled'`; draft and persisted Profile remain unchanged.
+- Tauri picker returns an empty value or array -> typed `reason='failed'`; no Profile receives that value.
+- Tauri Profile created without a selected directory -> `fileRoot=null` and `fileRootStatus='unassigned'`.
+- Native Windows path with `\` separators -> normalize to `/`; drive roots, UNC prefixes, and POSIX roots retain their absolute-path meaning; equality or parent-child overlap with an existing Profile root is rejected.
+- Profile A has pending sync work, then switch to Profile B -> B starts with its own pending/provider/conflict state; switching back restores A state, and any late A completion cannot replace B's current result.
+- Profile A has auto-sync enabled, then switch/delete A -> A performs no new timer/network-triggered sync while inactive; switching back reconciles the live browser network state, resumes the enabled interval, and performs recovery sync only when the retained state was offline and the browser is now online, while explicit stop keeps the interval stopped.
 - Last active Profile delete -> button/repository prevents deletion and surfaces an error.
 - Deleted Profile within 7 days -> appears under recovery list with restore action.
 
 ### 5. Good/Base/Bad Cases
 - Good: `/settings?tab=profiles` shows current active Profile, DB namespace, create form, list rows, and recovery rows from the store.
 - Base: default local account shows one active Profile and no deleted Profiles.
-- Bad: displaying mock workspaces, setting `activeProfileId` directly in the component, or writing to `db.profiles` from Vue template handlers.
+- Bad: displaying mock workspaces, accepting a typed manual path, setting `activeProfileId` directly in the component, or writing to `db.profiles` from Vue template handlers.
 
 ### 6. Tests Required
 - Unit-test Profile store/repository lifecycle before browser smoke.
+- Unit-test web-unavailable native picker results plus Windows separator, duplicate-root, and parent/child overlap normalization.
+- Unit-test per-Profile SyncEngine queue/outbox attribution, late-completion isolation, inactive listener detachment, missed network-state reconciliation, and auto-sync pause/resume/stop lifecycle.
 - Type-check Settings template after adding Profile store usage.
-- Browser smoke-test `/settings?tab=profiles`: create a real Profile, assert count 2, assert independent IndexedDB namespace, assert native-boundary text, and assert console errors stay at zero.
+- Real Tauri smoke-test `/settings?tab=profiles`: create a real Profile, reject duplicate creation, assert count 2, assert independent IndexedDB namespace/metadata, switch, soft-delete, restore, open and cancel the OS directory picker, and assert cancellation leaves the root unassigned.
+- OS directory selection success may remain an operator step when the automation stack cannot reliably choose a real folder; do not convert a cancel proof into a selection-success claim.
 
 ### 7. Wrong vs Correct
 
 #### Wrong
 ```vue
+<input v-model="profileFileRootDraft" placeholder="输入文件根路径">
 <button @click="profileStore.activeProfileId = profile.id">切换</button>
 ```
 
 #### Correct
 ```vue
-<button @click="handleSwitchProfile(profile)">
+<button type="button" @click="handlePickProfileDirectory">选择原生目录</button>
+<button type="button" @click="handleSwitchProfile(profile)">
   {{ profile.id === profileStore.activeProfileId ? '当前工作区' : '切换到此工作区' }}
 </button>
 ```

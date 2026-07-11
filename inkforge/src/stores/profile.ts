@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { DEFAULT_ACCOUNT_ID, useAccountStore } from '@/stores/account'
+import { useSyncStore } from '@/stores/sync'
 import type { AccountRecord } from '@/utils/db'
 import {
   DEFAULT_PROFILE_ID,
@@ -43,6 +44,14 @@ export const useProfileStore = defineStore('profile', () => {
   const deletedProfileCount = computed(() => deletedProfiles.value.length)
   const canDeleteActiveProfile = computed(() => profileCount.value > 1)
 
+  const syncStore = useSyncStore()
+
+  function setActiveProfile(profileId: string): void {
+    syncStore.setProfile(profileId)
+    activeProfileId.value = profileId
+    setStoredActiveProfileId(profileId)
+  }
+
   function getById(profileId: string): ProfileRecord | undefined {
     return profiles.value.find(profile => profile.id === profileId)
   }
@@ -67,8 +76,7 @@ export const useProfileStore = defineStore('profile', () => {
     const storedId = getStoredActiveProfileId()
     const stored = storedId ? profiles.value.find(profile => profile.id === storedId && profile.status === 'active') : undefined
     const chosen = stored ?? profiles.value.find(profile => profile.id === defaultProfile.id && profile.status === 'active') ?? sortedProfiles.value[0] ?? defaultProfile
-    activeProfileId.value = chosen.id
-    setStoredActiveProfileId(chosen.id)
+    setActiveProfile(chosen.id)
     return chosen
   }
 
@@ -99,8 +107,7 @@ export const useProfileStore = defineStore('profile', () => {
       const created = await profileRepository.createProfile(input, actor)
       await refreshLists()
       previousProfileId.value = activeProfileId.value
-      activeProfileId.value = created.id
-      setStoredActiveProfileId(created.id)
+      setActiveProfile(created.id)
       lastActionMessage.value = `已创建并切换到工作区：${created.name}`
       return created
     } catch (caught) {
@@ -127,8 +134,7 @@ export const useProfileStore = defineStore('profile', () => {
     try {
       const switched = await profileRepository.switchProfile(profileId, actorId ?? activeProfileId.value ?? profileId)
       previousProfileId.value = activeProfileId.value
-      activeProfileId.value = switched.id
-      setStoredActiveProfileId(switched.id)
+      setActiveProfile(switched.id)
       await refreshLists()
       lastActionMessage.value = `已切换到工作区：${switched.name}`
       return switched
@@ -150,8 +156,7 @@ export const useProfileStore = defineStore('profile', () => {
       await refreshLists()
       if (activeProfileId.value === profileId) {
         const fallback = sortedProfiles.value[0]
-        activeProfileId.value = fallback?.id ?? DEFAULT_PROFILE_ID
-        setStoredActiveProfileId(activeProfileId.value)
+        setActiveProfile(fallback?.id ?? DEFAULT_PROFILE_ID)
       }
       lastActionMessage.value = `工作区已进入 7 天恢复期：${deleted.name}`
       return deleted

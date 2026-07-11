@@ -6,6 +6,7 @@ import {
   buildProfileDatabaseNamespace,
   generateProfileId,
   isRecoverableDeletedProfile,
+  normalizeProfileFileRoot,
   validateProfileFileRoot,
   type ProfileRecord,
 } from './types'
@@ -98,12 +99,29 @@ describe('profile id and namespace', () => {
 
 describe('profile validation helpers', () => {
   it('rejects duplicate and nested file roots', () => {
-    const profiles = [createProfile({ fileRoot: 'C:/Users/HP/Documents/InkForge/Work', fileRootStatus: 'selected' })]
+    const profiles = [createProfile({ fileRoot: 'C:/Workspace/InkForge/Work', fileRootStatus: 'selected' })]
 
-    expect(() => validateProfileFileRoot('C:/Users/HP/Documents/InkForge/Work', profiles)).toThrow('重叠')
-    expect(() => validateProfileFileRoot('C:/Users/HP/Documents/InkForge/Work/Drafts', profiles)).toThrow('重叠')
-    expect(() => validateProfileFileRoot('C:/Users/HP/Documents/InkForge', profiles)).toThrow('重叠')
-    expect(validateProfileFileRoot('C:/Users/HP/Documents/InkForge/Personal', profiles)).toBe('C:/Users/HP/Documents/InkForge/Personal')
+    expect(() => validateProfileFileRoot('C:/Workspace/InkForge/Work', profiles)).toThrow('重叠')
+    expect(() => validateProfileFileRoot('C:/Workspace/InkForge/Work/Drafts', profiles)).toThrow('重叠')
+    expect(() => validateProfileFileRoot('C:/Workspace/InkForge', profiles)).toThrow('重叠')
+    expect(validateProfileFileRoot('C:/Workspace/InkForge/Personal', profiles)).toBe('C:/Workspace/InkForge/Personal')
+  })
+
+  it('normalizes native Windows separators before overlap checks', () => {
+    const profiles = [createProfile({ fileRoot: 'C:/Workspace/InkForge/Work', fileRootStatus: 'selected' })]
+
+    expect(normalizeProfileFileRoot('C:\\Workspace\\InkForge\\Personal\\')).toBe('C:/Workspace/InkForge/Personal')
+    expect(normalizeProfileFileRoot('C:\\C++\\Docs\\')).toBe('C:/C++/Docs')
+    expect(() => validateProfileFileRoot('C:\\Workspace\\InkForge\\Work\\Drafts', profiles)).toThrow('重叠')
+  })
+
+  it('preserves drive, UNC, and filesystem roots', () => {
+    expect(normalizeProfileFileRoot('C:\\')).toBe('C:/')
+    expect(normalizeProfileFileRoot('\\\\Server\\Share\\')).toBe('//Server/Share')
+    expect(normalizeProfileFileRoot('/')).toBe('/')
+
+    const profiles = [createProfile({ fileRoot: 'C:/', fileRootStatus: 'selected' })]
+    expect(() => validateProfileFileRoot('C:\\Workspace', profiles)).toThrow('重叠')
   })
 
   it('filters deleted profiles within the seven-day recovery window', () => {
