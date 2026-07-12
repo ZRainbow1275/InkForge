@@ -5,8 +5,23 @@
 /* global after */
 const { expect } = require('chai');
 
+const SMART_PUNCTUATION_CASES = [
+  { id: 'curlyQuotes', label: '弯引号', input: '"', expected: '“' },
+  { id: 'emDash', label: '破折号', input: 'A--', expected: 'A—' },
+  { id: 'ellipsis', label: '省略号', input: 'Wait...', expected: 'Wait…' },
+  { id: 'arrows', label: '箭头符号', input: 'A ->', expected: 'A →' },
+  { id: 'fractions', label: '分数符号', input: '1/2', expected: '½' },
+  { id: 'multiplication', label: '乘号', input: '2x3', expected: '2×3' },
+  { id: 'copyrightSymbols', label: '版权符号', input: '(tm)', expected: '™' },
+  { id: 'degree', label: '度数符号', input: '45 deg', expected: '45°' },
+  { id: 'spacedDash', label: '空格连字符', input: 'A - - B', expected: 'A — B' },
+  { id: 'panguSpacing', label: '中英文空格', input: '使用V', expected: '使用 V' },
+];
+
 const createdArticleIds = new Set();
 let originalListEnterBehavior = null;
+let originalSmartPunctuationSettings = null;
+let originalSettingsStorage;
 
 async function waitForMainWindow() {
   const titlebar = await browser.$('.ink-titlebar');
@@ -46,6 +61,78 @@ async function readListEnterBehavior() {
       : null;
     return pinia?._s.get('settings')?.settings?.editor?.listEnterBehavior ?? null;
   });
+}
+
+async function readSmartPunctuationSettings() {
+  return browser.execute((ruleDefinitions) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const editorSettings = pinia?._s.get('settings')?.settings?.editor;
+    const persisted = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}')?.editor;
+    const masterInput = document.querySelector('input[aria-label="智能标点"]');
+    const visibleRules = Object.fromEntries(ruleDefinitions.map((rule) => [
+      rule.id,
+      document.querySelector(`input[aria-label="智能标点规则：${rule.label}"]`)?.checked ?? null,
+    ]));
+    return {
+      store: editorSettings ? {
+        enabled: editorSettings.smartPunctuation,
+        rules: { ...editorSettings.smartPunctuationRules },
+      } : null,
+      persisted: persisted ? {
+        enabled: persisted.smartPunctuation,
+        rules: { ...persisted.smartPunctuationRules },
+      } : null,
+      visible: {
+        enabled: masterInput?.checked ?? null,
+        rules: visibleRules,
+      },
+    };
+  }, SMART_PUNCTUATION_CASES);
+}
+
+async function applySmartPunctuationSettings(target) {
+  await openRoute('/settings?tab=editor', '[data-settings-tab="editor"]');
+  const changed = await browser.execute((next, ruleDefinitions) => {
+    const masterInput = document.querySelector('input[aria-label="智能标点"]');
+    if (!masterInput) return { missing: ['智能标点'], toggled: 0 };
+    let toggled = 0;
+    if (masterInput.checked !== next.enabled) {
+      masterInput.click();
+      toggled += 1;
+    }
+    const missing = [];
+    for (const rule of ruleDefinitions) {
+      const input = document.querySelector(`input[aria-label="智能标点规则：${rule.label}"]`);
+      if (!input) {
+        missing.push(rule.label);
+      } else if (input.checked !== next.rules[rule.id]) {
+        input.click();
+        toggled += 1;
+      }
+    }
+    return { missing, toggled };
+  }, target, SMART_PUNCTUATION_CASES);
+  expect(changed.missing, 'every smart punctuation rule has a visible Settings control').to.deep.equal([]);
+
+  await browser.pause(5_200);
+  await browser.refresh();
+  await browser.waitUntil(
+    async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="editor"]'))),
+    { timeout: 10_000, interval: 200, timeoutMsg: 'Settings Editor did not recover after punctuation reload' },
+  );
+
+  const actual = await readSmartPunctuationSettings();
+  expect(actual.store, 'smart punctuation store matches the visible selection').to.deep.equal(target);
+  expect(actual.persisted, 'smart punctuation persists through the real debounced settings write')
+    .to.deep.equal(target);
+  expect(actual.visible, 'smart punctuation controls retain their checked state after reload')
+    .to.deep.equal(target);
 }
 
 async function readLayoutState() {
@@ -408,6 +495,92 @@ async function prepareListEnterScenario(expectedBehavior) {
   );
 }
 
+async function typeSmartPunctuationInput(input, expectedText) {
+  const editor = await browser.$('.ProseMirror');
+  await editor.waitForDisplayed({ timeout: 10_000, interval: 200 });
+  await browser.execute((surface) => surface.focus(), editor);
+  await browser.keys(['Control', 'a']);
+  await browser.keys('Backspace');
+  await browser.waitUntil(
+    async () => browser.execute(() => document.querySelector('.ProseMirror')?.textContent === ''),
+    { timeout: 5_000, interval: 100, timeoutMsg: 'smart punctuation test could not clear the editor' },
+  );
+  for (const character of Array.from(input)) {
+    await browser.keys(character);
+  }
+  let actualText = null;
+  try {
+    await browser.waitUntil(
+      async () => {
+        actualText = await browser.execute(() => document.querySelector('.ProseMirror')?.textContent ?? null);
+        return actualText === expectedText;
+      },
+      {
+        timeout: 5_000,
+        interval: 100,
+        timeoutMsg: `smart punctuation input ${JSON.stringify(input)} did not render ${JSON.stringify(expectedText)}`,
+      },
+    );
+  } catch (error) {
+    throw new Error(
+      `smart punctuation input ${JSON.stringify(input)} expected ${JSON.stringify(expectedText)}, got ${JSON.stringify(actualText)} (${Array.from(actualText ?? '').map(character => character.codePointAt(0)).join(',')})`,
+      { cause: error },
+    );
+  }
+  return browser.execute(() => document.querySelector('.ProseMirror')?.textContent ?? null);
+}
+
+async function pressConfiguredShortcut(shortcutId, fallback) {
+  const binding = await browser.execute((id, defaultBinding) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    return pinia?._s.get('settings')?.settings?.shortcuts?.[id] || defaultBinding;
+  }, shortcutId, fallback);
+  const aliases = { Ctrl: 'Control', Cmd: 'Meta', Option: 'Alt' };
+  const keys = binding.split('+').map((key) => aliases[key] || (key.length === 1 ? key.toLowerCase() : key));
+  await browser.keys(keys);
+  return binding;
+}
+
+async function startSmartPunctuationErrorProbe() {
+  await browser.execute(() => {
+    const entries = [];
+    const stringify = (value) => value instanceof Error ? value.message : String(value);
+    const onError = (event) => entries.push(`error:${event.message}`);
+    const onRejection = (event) => entries.push(`rejection:${stringify(event.reason)}`);
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      entries.push(`console:${args.map(stringify).join(' ')}`);
+      originalConsoleError(...args);
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+    window.__inkforgeSmartPunctuationErrorProbe = {
+      entries,
+      onError,
+      onRejection,
+      originalConsoleError,
+    };
+  });
+}
+
+async function stopSmartPunctuationErrorProbe() {
+  return browser.execute(() => {
+    const probe = window.__inkforgeSmartPunctuationErrorProbe;
+    if (!probe) return [];
+    window.removeEventListener('error', probe.onError);
+    window.removeEventListener('unhandledrejection', probe.onRejection);
+    console.error = probe.originalConsoleError;
+    delete window.__inkforgeSmartPunctuationErrorProbe;
+    return [...probe.entries];
+  });
+}
+
 async function readListShape() {
   return browser.execute(() => {
     const editor = document.querySelector('.ProseMirror');
@@ -559,13 +732,29 @@ async function cleanupCreatedArticles() {
 describe('Settings editor preferences in the real Tauri runtime', () => {
   before(async () => {
     await waitForMainWindow();
+    await openRoute('/settings?tab=editor', '[data-settings-tab="editor"]');
+    originalSettingsStorage = await browser.execute(() => window.localStorage.getItem('inkforge-settings'));
     originalListEnterBehavior = await readListEnterBehavior();
     expect(['notion', 'typora'], 'the original list Enter preference is valid')
       .to.include(originalListEnterBehavior);
+    originalSmartPunctuationSettings = (await readSmartPunctuationSettings()).store;
+    expect(originalSmartPunctuationSettings?.enabled, 'the original smart punctuation master value is valid')
+      .to.be.a('boolean');
+    expect(Object.keys(originalSmartPunctuationSettings?.rules ?? {}).sort(), 'the original rule matrix is complete')
+      .to.deep.equal(SMART_PUNCTUATION_CASES.map((rule) => rule.id).sort());
   });
 
   after(async () => {
     const cleanupErrors = [];
+    try {
+      const currentSettings = (await readSmartPunctuationSettings()).store;
+      if (originalSmartPunctuationSettings
+        && JSON.stringify(currentSettings) !== JSON.stringify(originalSmartPunctuationSettings)) {
+        await applySmartPunctuationSettings(originalSmartPunctuationSettings);
+      }
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
     try {
       const currentBehavior = await readListEnterBehavior();
       if (originalListEnterBehavior && currentBehavior !== originalListEnterBehavior) {
@@ -573,6 +762,22 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
           originalListEnterBehavior === 'notion' ? '逐级减缩' : 'Typora 默认',
           originalListEnterBehavior,
         );
+      }
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+    try {
+      if (originalSettingsStorage !== undefined) {
+        const restoredStorage = await browser.execute((original) => {
+          if (original === null) {
+            window.localStorage.removeItem('inkforge-settings');
+          } else {
+            window.localStorage.setItem('inkforge-settings', original);
+          }
+          return window.localStorage.getItem('inkforge-settings');
+        }, originalSettingsStorage);
+        expect(restoredStorage, 'Settings cleanup restores the original localStorage value and key presence')
+          .to.equal(originalSettingsStorage);
       }
     } catch (error) {
       cleanupErrors.push(error);
@@ -614,5 +819,82 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       nestedListCount: notion.nestedListCount,
       topLevelItemCount: notion.topLevelItemCount,
     });
+  });
+
+  it('persists the smart punctuation matrix and applies every rule through real keyboard input', async () => {
+    const allRulesDisabled = Object.fromEntries(SMART_PUNCTUATION_CASES.map((rule) => [rule.id, false]));
+    const allRulesEnabled = Object.fromEntries(SMART_PUNCTUATION_CASES.map((rule) => [rule.id, true]));
+
+    await applySmartPunctuationSettings({ enabled: false, rules: allRulesDisabled });
+    const listEnterBehavior = await readListEnterBehavior();
+    const articleId = await createBlankDraft(listEnterBehavior);
+    expect(await typeSmartPunctuationInput('A--', 'A--'), 'master off preserves raw punctuation').to.equal('A--');
+
+    await applySmartPunctuationSettings({ enabled: true, rules: allRulesDisabled });
+    await openRoute(`/workstation?id=${articleId}`, '.ProseMirror');
+    await waitForCurrentDraftReady(articleId);
+    expect(await typeSmartPunctuationInput('A--', 'A--'), 'disabled em dash rule preserves raw punctuation')
+      .to.equal('A--');
+
+    await applySmartPunctuationSettings({ enabled: true, rules: allRulesEnabled });
+    await openRoute(`/workstation?id=${articleId}`, '.ProseMirror');
+    await waitForCurrentDraftReady(articleId);
+    await startSmartPunctuationErrorProbe();
+    let probeStopped = false;
+    try {
+      for (const rule of SMART_PUNCTUATION_CASES) {
+        expect(
+          await typeSmartPunctuationInput(rule.input, rule.expected),
+          `${rule.id} transforms through the mounted production editor`,
+        ).to.equal(rule.expected);
+      }
+
+      const urlInput = 'https://example.test/A--';
+      expect(await typeSmartPunctuationInput(urlInput, urlInput), 'URL-like text remains raw').to.equal(urlInput);
+      expect(
+        await browser.execute(() => document.querySelector('.ProseMirror a') === null),
+        'autolink stays disabled for URL-like text',
+      ).to.equal(true);
+
+      await typeSmartPunctuationInput('', '');
+      for (const character of '``` ') await browser.keys(character);
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('.ProseMirror pre'))),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Markdown code-fence input did not create a code block' },
+      );
+      for (const character of 'A--') await browser.keys(character);
+      expect(
+        await browser.execute(() => document.querySelector('.ProseMirror pre')?.textContent ?? null),
+        'code block keeps smart punctuation raw',
+      ).to.equal('A--');
+
+      const sourceShortcut = await pressConfiguredShortcut('setSourceMode', 'Ctrl+Alt+S');
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('.source-mode-layout .cm-content'))),
+        { timeout: 5_000, interval: 100, timeoutMsg: `${sourceShortcut} did not open Source mode` },
+      );
+      const sourceEditor = await browser.$('.source-mode-layout .cm-content');
+      await sourceEditor.click();
+      await browser.keys(['Control', 'a']);
+      await browser.keys('Backspace');
+      for (const character of 'A--') await browser.keys(character);
+      expect(
+        await browser.execute(() => document.querySelector('.source-mode-layout .cm-content')?.textContent ?? null),
+        'Source mode keeps smart punctuation raw',
+      ).to.equal('A--');
+      await pressConfiguredShortcut('setTyporaMode', 'Ctrl+Alt+T');
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('.editor-mode-shell.mode-typora .ProseMirror'))),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Typora mode did not recover after Source-mode proof' },
+      );
+
+      const errors = await stopSmartPunctuationErrorProbe();
+      probeStopped = true;
+      expect(errors, 'fresh SmartPunctuation browser errors').to.deep.equal([]);
+    } finally {
+      if (!probeStopped) await stopSmartPunctuationErrorProbe();
+    }
+    await browser.keys(['Control', 's']);
+    await browser.pause(1_000);
   });
 });

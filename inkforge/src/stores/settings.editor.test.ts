@@ -4,6 +4,7 @@
 import { nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { SMART_PUNCTUATION_RULE_IDS } from '@/services/smart-punctuation'
 import { useSettingsStore } from './settings'
 
 describe('settings editor preferences', () => {
@@ -42,5 +43,22 @@ describe('settings editor preferences', () => {
     setActivePinia(createPinia())
     const reloaded = useSettingsStore()
     expect(reloaded.settings.editor.listEnterBehavior).toBe('notion')
+  })
+
+  it('persists the smart punctuation master switch and complete rule matrix', async () => {
+    const store = useSettingsStore()
+    store.settings.editor.smartPunctuation = false
+    for (const ruleId of SMART_PUNCTUATION_RULE_IDS) {
+      store.settings.editor.smartPunctuationRules[ruleId] = false
+    }
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(5000)
+
+    setActivePinia(createPinia())
+    const reloaded = useSettingsStore()
+    expect(reloaded.settings.editor.smartPunctuation).toBe(false)
+    expect(reloaded.settings.editor.smartPunctuationRules).toEqual(
+      Object.fromEntries(SMART_PUNCTUATION_RULE_IDS.map(ruleId => [ruleId, false])),
+    )
   })
 })

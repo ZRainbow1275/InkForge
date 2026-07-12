@@ -132,7 +132,8 @@ function makeReplacement(
   matchedLength: number,
   replacementText: string,
 ): SmartPunctuationReplacement | null {
-  const replaceFrom = context.from - (matchedLength - context.text.length)
+  const insertedPrefixLength = Math.max(0, context.text.length - matchedLength)
+  const replaceFrom = context.from - Math.max(0, matchedLength - context.text.length)
   const parentStart = context.from - context.state.doc.resolve(context.from).parentOffset
 
   if (replaceFrom < parentStart) {
@@ -143,7 +144,7 @@ function makeReplacement(
     ruleId,
     from: replaceFrom,
     to: context.to,
-    text: replacementText,
+    text: context.text.slice(0, insertedPrefixLength) + replacementText,
   }
 }
 
@@ -186,7 +187,7 @@ function findRuleReplacement(
     }
   }
 
-  if (context.text === '-' && isRuleEnabled(runtimeOptions, 'spacedDash')) {
+  if (context.text.endsWith('-') && isRuleEnabled(runtimeOptions, 'spacedDash')) {
     const match = matchPatternReplacement(context, 'spacedDash', /- -$/, '—')
     if (match) return match
   }
@@ -248,7 +249,10 @@ function findRuleReplacement(
 
 export function createSmartPunctuationTransaction(context: SmartPunctuationInputContext): Transaction | null {
   const runtimeOptions = resolveSmartPunctuationRuntimeOptions(context.options)
-  if (!runtimeOptions.enabled || context.composing || context.text.length !== 1) {
+  const supportsBatchedSpacedDash = context.text.length > 1
+    && context.text.endsWith('-')
+    && runtimeOptions.rules.spacedDash
+  if (!runtimeOptions.enabled || context.composing || (context.text.length !== 1 && !supportsBatchedSpacedDash)) {
     return null
   }
 

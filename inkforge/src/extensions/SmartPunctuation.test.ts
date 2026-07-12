@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { getSchema } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { EditorState, TextSelection, type Transaction } from '@tiptap/pm/state'
 import {
@@ -13,7 +14,7 @@ import {
 } from './SmartPunctuation'
 import { getDefaultSmartPunctuationRuleSettings } from '@/services/smart-punctuation'
 
-const schema = getSchema([StarterKit])
+const schema = getSchema([StarterKit, Link])
 
 const defaultOptions: SmartPunctuationOptions = {
   enabled: true,
@@ -48,11 +49,18 @@ function createCodeBlockState(text = ''): EditorState {
   return createState(doc, 1 + text.length)
 }
 
-function createInlineCodeState(text: string): EditorState {
+function createInlineCodeState(text: string, selectionOffset = text.length): EditorState {
   const doc = schema.nodes.doc.create(null, [
     schema.nodes.paragraph.create(null, schema.text(text, [schema.marks.code.create()])),
   ])
-  return createState(doc, 1 + text.length)
+  return createState(doc, 1 + selectionOffset)
+}
+
+function createLinkState(text: string, selectionOffset = text.length): EditorState {
+  const doc = schema.nodes.doc.create(null, [
+    schema.nodes.paragraph.create(null, schema.text(text, [schema.marks.link.create({ href: 'https://example.test' })])),
+  ])
+  return createState(doc, 1 + selectionOffset)
 }
 
 function runTextInput(
@@ -146,6 +154,51 @@ describe('SmartPunctuation rule matching', () => {
     rules.emDash = true
     expect(runTextInput(createParagraphState('A-'), '-', dynamicOptions).state.doc.textContent).toBe('A—')
   })
+
+  it.each([
+    ['curlyQuotes', '"', '“'],
+    ['emDash', 'A--', 'A—'],
+    ['ellipsis', 'Wait...', 'Wait…'],
+    ['spacedDash', 'A - -', 'A —'],
+    ['arrows', 'A ->', 'A →'],
+    ['fractions', '1/2', '½'],
+    ['multiplication', '2x3', '2×3'],
+    ['copyrightSymbols', '(tm)', '™'],
+    ['degree', '45 deg', '45°'],
+    ['panguSpacing', '使用V', '使用 V'],
+  ])('applies enabled %s through its complete input sequence', (_ruleId, input, expected) => {
+    const enabledRules = Object.fromEntries(
+      Object.keys(getDefaultSmartPunctuationRuleSettings()).map(ruleId => [ruleId, true]),
+    ) as ReturnType<typeof getDefaultSmartPunctuationRuleSettings>
+    const result = runTextInput(
+      createParagraphState(input.slice(0, -1)),
+      input.slice(-1),
+      { enabled: true, rules: enabledRules },
+    )
+
+    expect(result.handled).toBe(true)
+    expect(result.state.doc.textContent).toBe(expected)
+  })
+
+  it.each([
+    ['A -', ' -', 'A —'],
+    ['A ', '- -', 'A —'],
+    ['', 'A - -', 'A —'],
+  ])('handles a WebView-batched spaced dash from %j + %j', (existing, inserted, expected) => {
+    const enabledRules = {
+      ...getDefaultSmartPunctuationRuleSettings(),
+      spacedDash: true,
+    }
+    const result = runTextInput(
+      createParagraphState(existing),
+      inserted,
+      { enabled: true, rules: enabledRules },
+    )
+
+    expect(result.handled).toBe(true)
+    expect(result.state.doc.textContent).toBe(expected)
+    expect(result.transaction?.getMeta(SMART_PUNCTUATION_META)).toBe('spacedDash')
+  })
 })
 
 describe('SmartPunctuation context safeguards', () => {
@@ -159,6 +212,18 @@ describe('SmartPunctuation context safeguards', () => {
     expect(isLikelyUrlContext('https://example.test/-', '-')).toBe(true)
     expect(isLikelyUrlContext('[site](https://example.test/-', '-')).toBe(true)
     expect(runTextInput(createParagraphState('https://example.test/-'), '-').handled).toBe(false)
+  })
+
+  it('keeps batched spaced dash input raw in every suppressed context', () => {
+    const options = {
+      enabled: true,
+      rules: { ...getDefaultSmartPunctuationRuleSettings(), spacedDash: true },
+    }
+
+    expect(runTextInput(createParagraphState('A -'), ' -', options, true).handled).toBe(false)
+    expect(runTextInput(createCodeBlockState('A -'), ' -', options).handled).toBe(false)
+    expect(runTextInput(createInlineCodeState('A -x', 3), ' -', options).handled).toBe(false)
+    expect(runTextInput(createLinkState('A -x', 3), ' -', options).handled).toBe(false)
   })
 
   it('does not scan or transform ordinary text that has no rule match', () => {
