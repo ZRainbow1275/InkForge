@@ -137,6 +137,17 @@ and still run the narrow checks for the touched scope.
 - Workstation writing-window entries must count an active article exactly once. Presence checks belong against the real article collection before mapping to `WritingWindowEntry`; never search an id-less mapped entry for an article id.
 - Persistent Tauri E2E must clean only run-created article/tab/layout state and must not inject Settings, article, IndexedDB, or localStorage proof data directly.
 
+## AISettings Quality Gate
+
+- `settings.ai.provider === 'none'` and every non-Ollama provider with an empty Key must remain explicit unavailable states. A local rejection must never update `lastConnectionAt`, render connection success, or create generated content.
+- `settings.ai.systemPrompt` must enter the shared message path used by every non-streaming and streaming AI writing task, not only the standalone chat panel. The global constraint precedes the task-specific constraint and is omitted when it contains only whitespace.
+- Provider-facing writing requests must contain one combined `system` message. Chat global constraints and bounded document context must also be combined into one system message because an adapter may consume only the first system entry.
+- A valid chat send with document context must retain at most the supported context limit for regeneration of that same reply. `regenerateLast()` must reuse it, while `clear()` and a later valid send without document context must remove it; do not expose the raw context as public diagnostic state.
+- Do not duplicate prompt composition in every outline/polish/title/summary/transcript/continuation method. Keep one typed composer and one shared writing-task message builder so provider behavior cannot drift.
+- Unit coverage must prove provider/prompt debounce persistence, AI-tab reset, disabled and missing-Key failure messages, unchanged connection-success timestamps, whitespace-empty behavior, global-before-task composition, and first-send/regeneration document-context parity. A provider-payload test may instrument native fetch only if it forwards the real request and accepts the real failure; it must not construct a provider success response.
+- Real Tauri/WebView2 smoke must use visible provider/Key/prompt controls, wait the production debounce, reload, inspect only a non-secret Settings projection, and restore the exact original localStorage value inside the WebView. Never return, print, screenshot, or commit an API Key as test evidence.
+- A green unavailable-state test does not prove an external AI provider works. Live provider success requires a separately authorized credentialed request and must never be inferred from local persistence, a pure message test, or a fake response.
+
 ## TableV2 Quality Gate
 
 - Do not accept a TableV2 change unless existing Tiptap table creation, row/column operations, header row, merge/split, deletion, undo, and built-in column resizing remain available.

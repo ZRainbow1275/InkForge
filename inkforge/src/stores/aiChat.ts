@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ChatMessage } from '@/services/ai/types'
-import { useAIStore } from '@/stores/ai'
+import { composeAISystemPrompt, useAIStore } from '@/stores/ai'
 import { useSettingsStore } from '@/stores/settings'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -40,6 +40,8 @@ export const useAIChatStore = defineStore('aiChat', () => {
     const error = ref<string | null>(null)
     /** 用户主动停止标记：停止时将进行中的回合视为正常完成而非错误 */
     let stopping = false
+    /** 最近一次有效发送所附的文档上下文，供重新生成同一回复时复用。 */
+    let lastDocContext: string | undefined
 
     /** 是否可发送：AI 可用且当前无流式进行 */
     const canSend = computed(() => useAIStore().isAvailable && !isStreaming.value)
@@ -80,16 +82,14 @@ export const useAIChatStore = defineStore('aiChat', () => {
         const settingsStore = useSettingsStore()
         const messages: ChatMessage[] = []
 
-        const systemPrompt = settingsStore.settings.ai.systemPrompt
+        const systemPrompt = composeAISystemPrompt(
+            settingsStore.settings.ai.systemPrompt,
+            docContext
+                ? '当前文档内容供参考：\n\n' + docContext.slice(0, DOC_CONTEXT_MAX_CHARS)
+                : undefined
+        )
         if (systemPrompt) {
             messages.push({ role: 'system', content: systemPrompt })
-        }
-
-        if (docContext) {
-            messages.push({
-                role: 'system',
-                content: '当前文档内容供参考：\n\n' + docContext.slice(0, DOC_CONTEXT_MAX_CHARS),
-            })
         }
 
         for (const turn of turns.value) {
@@ -108,6 +108,8 @@ export const useAIChatStore = defineStore('aiChat', () => {
         const trimmed = text.trim()
         if (!trimmed || !canSend.value) return
 
+        lastDocContext = opts?.docContext?.slice(0, DOC_CONTEXT_MAX_CHARS)
+
         turns.value.push({
             id: nextId(),
             role: 'user',
@@ -116,7 +118,7 @@ export const useAIChatStore = defineStore('aiChat', () => {
             createdAt: Date.now(),
         })
 
-        const messages = buildMessages(opts?.docContext)
+        const messages = buildMessages(lastDocContext)
 
         const assistantTurn: ChatTurn = {
             id: nextId(),
@@ -145,6 +147,7 @@ export const useAIChatStore = defineStore('aiChat', () => {
     function clear(): void {
         turns.value = []
         error.value = null
+        lastDocContext = undefined
     }
 
     /** 重新生成：丢弃末尾助手回合，从最后一条用户消息重新请求 */
@@ -160,7 +163,7 @@ export const useAIChatStore = defineStore('aiChat', () => {
 
         if (turns.value.length === 0) return
 
-        const messages = buildMessages()
+        const messages = buildMessages(lastDocContext)
 
         const assistantTurn: ChatTurn = {
             id: nextId(),

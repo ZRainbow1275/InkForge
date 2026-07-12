@@ -67,6 +67,16 @@ const SYSTEM_PROMPTS = {
 - 直接续写，不要添加任何说明`,
 } as const
 
+/**
+ * 将多个系统约束合并为单条消息，兼容仅消费首条 system 消息的 Provider。
+ */
+export function composeAISystemPrompt(...prompts: Array<string | undefined>): string {
+    return prompts
+        .map(prompt => prompt?.trim() ?? '')
+        .filter(prompt => prompt.length > 0)
+        .join('\n\n')
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // Store
 // ═══════════════════════════════════════════════════════════════════
@@ -188,7 +198,13 @@ export const useAIStore = defineStore('ai', () => {
     /** 构建消息列表 */
     function buildMessages(systemPrompt: string, userContent: string): ChatMessage[] {
         return [
-            { role: 'system', content: systemPrompt },
+            {
+                role: 'system',
+                content: composeAISystemPrompt(
+                    settingsStore.settings.ai.systemPrompt,
+                    systemPrompt
+                ),
+            },
             { role: 'user', content: userContent },
         ]
     }
