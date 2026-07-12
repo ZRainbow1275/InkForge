@@ -64,6 +64,7 @@ import {
   SETTINGS_REGISTRY,
   SHORTCUT_DEFINITIONS,
   SHORTCUT_GROUPS,
+  normalizeWritingGoalValue,
   type SettingsRegistryItem,
   type WritingGoalSettings,
   useSettingsStore,
@@ -198,6 +199,16 @@ type SettingsSectionId = 'writing-goal' | 'updater'
 type WritingGoalField = keyof WritingGoalSettings
 
 const currentTab = ref<TabId>('appearance')
+const writingGoalErrors = ref<Record<WritingGoalField, string>>({
+  documentTarget: '',
+  dailyTarget: '',
+  weeklyTarget: '',
+})
+const writingGoalDrafts = ref<Record<WritingGoalField, string>>({
+  documentTarget: formatWritingGoalValue('documentTarget'),
+  dailyTarget: formatWritingGoalValue('dailyTarget'),
+  weeklyTarget: formatWritingGoalValue('weeklyTarget'),
+})
 
 interface TabDef {
   id: TabId
@@ -386,24 +397,49 @@ async function focusSettingsRegistryItem(item: SettingsRegistryItem): Promise<vo
   }, 2200)
 }
 
-function sanitizeWritingGoalValue(value: string): number | undefined {
-  const digitsOnly = value.replace(/[^\d]/g, '')
-  if (!digitsOnly) {
-    return undefined
-  }
-
-  const normalized = Number.parseInt(digitsOnly, 10)
-  return Number.isFinite(normalized) && normalized >= 1 ? normalized : undefined
-}
-
 function formatWritingGoalValue(field: WritingGoalField): string {
   const value = settings.value.writingGoal[field]
   return typeof value === 'number' ? String(value) : ''
 }
 
 function updateWritingGoal(field: WritingGoalField, rawValue: string): void {
-  settings.value.writingGoal[field] = sanitizeWritingGoalValue(rawValue)
+  if (!rawValue.trim()) {
+    writingGoalErrors.value[field] = ''
+    return
+  }
+
+  const normalized = normalizeWritingGoalValue(rawValue)
+  if (normalized === undefined) {
+    writingGoalErrors.value[field] = '请输入大于等于 1 的整数'
+    return
+  }
+
+  writingGoalErrors.value[field] = ''
+  settings.value.writingGoal[field] = normalized
 }
+
+function commitWritingGoal(field: WritingGoalField, rawValue: string): void {
+  if (!rawValue.trim()) {
+    writingGoalErrors.value[field] = ''
+    settings.value.writingGoal[field] = undefined
+    return
+  }
+
+  updateWritingGoal(field, rawValue)
+}
+
+watch(
+  () => settings.value.writingGoal,
+  () => {
+    writingGoalDrafts.value.documentTarget = formatWritingGoalValue('documentTarget')
+    writingGoalDrafts.value.dailyTarget = formatWritingGoalValue('dailyTarget')
+    writingGoalDrafts.value.weeklyTarget = formatWritingGoalValue('weeklyTarget')
+    writingGoalErrors.value.documentTarget = ''
+    writingGoalErrors.value.dailyTarget = ''
+    writingGoalErrors.value.weeklyTarget = ''
+  },
+  { deep: true },
+)
 
 function resetSmartPunctuationRule(rule: SmartPunctuationRuleDefinition): void {
   settings.value.editor.smartPunctuationRules[rule.id] = rule.defaultEnabled
@@ -3183,12 +3219,23 @@ onUnmounted(() => {
                 <input
                   id="writing-goal-document"
                   class="sv-input"
+                  type="number"
                   inputmode="numeric"
                   min="1"
+                  step="1"
                   placeholder="例如 3000"
-                  :value="formatWritingGoalValue('documentTarget')"
+                  :aria-invalid="Boolean(writingGoalErrors.documentTarget)"
+                  :aria-describedby="writingGoalErrors.documentTarget ? 'writing-goal-document-error' : undefined"
+                  v-model="writingGoalDrafts.documentTarget"
                   @input="updateWritingGoal('documentTarget', ($event.target as HTMLInputElement).value)"
+                  @blur="commitWritingGoal('documentTarget', ($event.target as HTMLInputElement).value)"
                 >
+                <span
+                  v-if="writingGoalErrors.documentTarget"
+                  id="writing-goal-document-error"
+                  class="sv-field-error"
+                  role="alert"
+                >{{ writingGoalErrors.documentTarget }}</span>
                 <span class="sv-row-desc">用于工作台底部状态栏展示当前文稿的实时达成进度。</span>
               </div>
 
@@ -3200,12 +3247,23 @@ onUnmounted(() => {
                 <input
                   id="writing-goal-daily"
                   class="sv-input"
+                  type="number"
                   inputmode="numeric"
                   min="1"
+                  step="1"
                   placeholder="例如 1200"
-                  :value="formatWritingGoalValue('dailyTarget')"
+                  :aria-invalid="Boolean(writingGoalErrors.dailyTarget)"
+                  :aria-describedby="writingGoalErrors.dailyTarget ? 'writing-goal-daily-error' : undefined"
+                  v-model="writingGoalDrafts.dailyTarget"
                   @input="updateWritingGoal('dailyTarget', ($event.target as HTMLInputElement).value)"
+                  @blur="commitWritingGoal('dailyTarget', ($event.target as HTMLInputElement).value)"
                 >
+                <span
+                  v-if="writingGoalErrors.dailyTarget"
+                  id="writing-goal-daily-error"
+                  class="sv-field-error"
+                  role="alert"
+                >{{ writingGoalErrors.dailyTarget }}</span>
                 <span class="sv-row-desc">按真实文章更新时间窗口统计今日累计字数，不使用 mock 或虚构日志。</span>
               </div>
 
@@ -3217,12 +3275,23 @@ onUnmounted(() => {
                 <input
                   id="writing-goal-weekly"
                   class="sv-input"
+                  type="number"
                   inputmode="numeric"
                   min="1"
+                  step="1"
                   placeholder="例如 8000"
-                  :value="formatWritingGoalValue('weeklyTarget')"
+                  :aria-invalid="Boolean(writingGoalErrors.weeklyTarget)"
+                  :aria-describedby="writingGoalErrors.weeklyTarget ? 'writing-goal-weekly-error' : undefined"
+                  v-model="writingGoalDrafts.weeklyTarget"
                   @input="updateWritingGoal('weeklyTarget', ($event.target as HTMLInputElement).value)"
+                  @blur="commitWritingGoal('weeklyTarget', ($event.target as HTMLInputElement).value)"
                 >
+                <span
+                  v-if="writingGoalErrors.weeklyTarget"
+                  id="writing-goal-weekly-error"
+                  class="sv-field-error"
+                  role="alert"
+                >{{ writingGoalErrors.weeklyTarget }}</span>
                 <span class="sv-row-desc">首页优先展示每日目标进度；若未配置每日目标，则回退为本周目标进度。</span>
               </div>
             </div>
@@ -7182,6 +7251,18 @@ onUnmounted(() => {
 .sv-input:focus-visible {
   border-color: transparent;
   box-shadow: var(--focus-ring);
+}
+
+.sv-input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.sv-field-error {
+  display: block;
+  margin-top: 4px;
+  color: var(--error);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .sv-textarea {

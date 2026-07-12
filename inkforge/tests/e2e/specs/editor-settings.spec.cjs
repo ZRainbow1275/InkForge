@@ -18,9 +18,16 @@ const SMART_PUNCTUATION_CASES = [
   { id: 'panguSpacing', label: '中英文空格', input: '使用V', expected: '使用 V' },
 ];
 
+const WRITING_GOAL_FIELDS = [
+  { key: 'documentTarget', selector: '#writing-goal-document', errorSelector: '#writing-goal-document-error' },
+  { key: 'dailyTarget', selector: '#writing-goal-daily', errorSelector: '#writing-goal-daily-error' },
+  { key: 'weeklyTarget', selector: '#writing-goal-weekly', errorSelector: '#writing-goal-weekly-error' },
+];
+
 const createdArticleIds = new Set();
 let originalListEnterBehavior = null;
 let originalSmartPunctuationSettings = null;
+let originalWritingGoalSettings = null;
 let originalSettingsStorage;
 
 async function waitForMainWindow() {
@@ -94,6 +101,117 @@ async function readSmartPunctuationSettings() {
       },
     };
   }, SMART_PUNCTUATION_CASES);
+}
+
+async function readWritingGoalSettings() {
+  return browser.execute((fields) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const storeGoal = pinia?._s.get('settings')?.settings?.writingGoal;
+    const persistedGoal = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}')?.writingGoal;
+    const normalize = (goal) => Object.fromEntries(fields.map(({ key }) => [key, goal?.[key] ?? null]));
+    return {
+      store: normalize(storeGoal),
+      persisted: normalize(persistedGoal),
+      visible: Object.fromEntries(fields.map(({ key, selector }) => [
+        key,
+        document.querySelector(selector)?.value ?? null,
+      ])),
+      errors: Object.fromEntries(fields.map(({ key, errorSelector }) => [
+        key,
+        document.querySelector(errorSelector)?.textContent?.trim() ?? '',
+      ])),
+      controls: Object.fromEntries(fields.map(({ key, selector }) => {
+        const input = document.querySelector(selector);
+        return [key, input ? { type: input.type, min: input.min, step: input.step } : null];
+      })),
+      status: document.querySelector('#writing-goal-section .sv-inline-status')?.textContent?.trim() ?? null,
+    };
+  }, WRITING_GOAL_FIELDS);
+}
+
+async function applyWritingGoalSettings(target) {
+  await openRoute('/settings?tab=editor&section=writing-goal', '#writing-goal-section');
+  for (const { key, selector } of WRITING_GOAL_FIELDS) {
+    const input = await browser.$(selector);
+    await input.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await input.waitForDisplayed({ timeout: 5_000, interval: 100 });
+    await browser.execute((element) => element.focus(), input);
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+    if (target[key] === null) {
+      await browser.execute((element) => element.blur(), input);
+    } else {
+      for (const character of String(target[key])) await browser.keys(character);
+    }
+  }
+
+  const enabledCount = Object.values(target).filter((value) => value !== null).length;
+  const expectedStatus = enabledCount === 0 ? '未配置' : `已配置 ${enabledCount} 项`;
+  await browser.waitUntil(
+    async () => (await readWritingGoalSettings()).status === expectedStatus,
+    { timeout: 5_000, interval: 100, timeoutMsg: 'writing goal status did not reflect visible inputs' },
+  );
+
+  await browser.pause(5_200);
+  await browser.refresh();
+  await browser.waitUntil(
+    async () => browser.execute(() => Boolean(document.querySelector('#writing-goal-section'))),
+    { timeout: 10_000, interval: 200, timeoutMsg: 'writing goal settings did not recover after reload' },
+  );
+
+  const actual = await readWritingGoalSettings();
+  const expectedVisible = Object.fromEntries(WRITING_GOAL_FIELDS.map(({ key }) => [
+    key,
+    target[key] === null ? '' : String(target[key]),
+  ]));
+  const expectedControl = Object.fromEntries(WRITING_GOAL_FIELDS.map(({ key }) => [
+    key,
+    { type: 'number', min: '1', step: '1' },
+  ]));
+  expect(actual.store, 'writing goal store matches the visible Settings values').to.deep.equal(target);
+  expect(actual.persisted, 'writing goals persist through the real debounced settings write').to.deep.equal(target);
+  expect(actual.visible, 'writing goal inputs retain their values after reload').to.deep.equal(expectedVisible);
+  expect(actual.errors, 'valid writing goals have no validation errors').to.deep.equal({
+    documentTarget: '',
+    dailyTarget: '',
+    weeklyTarget: '',
+  });
+  expect(actual.controls, 'writing goals use positive integer native controls').to.deep.equal(expectedControl);
+  expect(actual.status, 'writing goal status survives reload').to.equal(expectedStatus);
+}
+
+async function readHubWritingGoalCard() {
+  return browser.execute(() => {
+    const label = document.querySelector('.workflow-progress-kicker')?.textContent?.trim() ?? null;
+    const summary = document.querySelector('.workflow-progress-copy')?.textContent?.trim() ?? '';
+    const percentText = document.querySelector('.workflow-progress-value')?.textContent?.trim() ?? '';
+    return {
+      label,
+      summary,
+      percent: Number.parseInt(percentText, 10),
+      numbers: (summary.match(/[\d,]+/g) ?? []).map((value) => Number(value.replaceAll(',', ''))),
+    };
+  });
+}
+
+async function readWorkstationGoalPills() {
+  return browser.execute(() => Array.from(document.querySelectorAll('.goal-pill')).map((pill) => {
+    const title = pill.getAttribute('title') ?? '';
+    const numbers = (title.match(/[\d,]+/g) ?? []).map((value) => Number(value.replaceAll(',', '')));
+    return {
+      label: pill.querySelector('.goal-pill__label')?.textContent?.trim() ?? null,
+      title,
+      current: numbers[0] ?? null,
+      target: numbers[1] ?? null,
+      percent: Number.parseInt(pill.querySelector('strong')?.textContent ?? '', 10),
+    };
+  }));
 }
 
 async function applySmartPunctuationSettings(target) {
@@ -742,10 +860,22 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       .to.be.a('boolean');
     expect(Object.keys(originalSmartPunctuationSettings?.rules ?? {}).sort(), 'the original rule matrix is complete')
       .to.deep.equal(SMART_PUNCTUATION_CASES.map((rule) => rule.id).sort());
+    originalWritingGoalSettings = (await readWritingGoalSettings()).store;
+    expect(Object.keys(originalWritingGoalSettings ?? {}).sort(), 'the original writing goal shape is complete')
+      .to.deep.equal(WRITING_GOAL_FIELDS.map(({ key }) => key).sort());
   });
 
   after(async () => {
     const cleanupErrors = [];
+    try {
+      const currentWritingGoal = (await readWritingGoalSettings()).store;
+      if (originalWritingGoalSettings
+        && JSON.stringify(currentWritingGoal) !== JSON.stringify(originalWritingGoalSettings)) {
+        await applyWritingGoalSettings(originalWritingGoalSettings);
+      }
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
     try {
       const currentSettings = (await readSmartPunctuationSettings()).store;
       if (originalSmartPunctuationSettings
@@ -874,7 +1004,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 5_000, interval: 100, timeoutMsg: `${sourceShortcut} did not open Source mode` },
       );
       const sourceEditor = await browser.$('.source-mode-layout .cm-content');
-      await sourceEditor.click();
+      await browser.execute((surface) => surface.focus(), sourceEditor);
       await browser.keys(['Control', 'a']);
       await browser.keys('Backspace');
       for (const character of 'A--') await browser.keys(character);
@@ -896,5 +1026,147 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     }
     await browser.keys(['Control', 's']);
     await browser.pause(1_000);
+  });
+
+  it('persists writing goals and reflects real Hub and Workstation progress', async () => {
+    const configured = { documentTarget: 10, dailyTarget: 20, weeklyTarget: 100 };
+    await applyWritingGoalSettings(configured);
+
+    await startSmartPunctuationErrorProbe();
+    let probeStopped = false;
+    try {
+      await openRoute('/', '.hub-page');
+      const dailyBaseline = await readHubWritingGoalCard();
+      expect(dailyBaseline.label, 'Hub prioritizes the configured daily goal').to.equal('今日写作目标');
+      expect(dailyBaseline.numbers[1], 'Hub renders the configured daily target from real settings').to.equal(20);
+      expect(dailyBaseline.numbers, 'daily summary exposes today, target, and weekly counts').to.have.length(3);
+      const baselineTodayWords = dailyBaseline.numbers[0];
+      const baselineWeeklyWords = dailyBaseline.numbers[2];
+
+      const listEnterBehavior = await readListEnterBehavior();
+      const articleId = await createBlankDraft(listEnterBehavior);
+      const editor = await browser.$('.ProseMirror');
+      await editor.click();
+      await browser.keys('alpha beta gamma delta');
+      await browser.waitUntil(
+        async () => (await readWorkstationGoalPills())
+          .some((goal) => goal.label === '文稿' && goal.current === 4 && goal.target === 10 && goal.percent === 40),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Workstation did not update document goal progress' },
+      );
+      await browser.keys(['Control', 's']);
+      const expectedTodayWords = baselineTodayWords + 4;
+      const expectedWeeklyWords = baselineWeeklyWords + 4;
+      const expectedDailyPercent = Math.max(0, Math.min(100, Math.round((expectedTodayWords / 20) * 100)));
+      await browser.waitUntil(
+        async () => (await readWorkstationGoalPills())
+          .some((goal) => goal.label === '今日'
+            && goal.current === expectedTodayWords
+            && goal.target === 20
+            && goal.percent === expectedDailyPercent),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'saved draft did not update daily Workstation progress' },
+      );
+
+      const dailyWorkstation = await readWorkstationGoalPills();
+      expect(dailyWorkstation, 'Workstation shows real document and daily progress').to.deep.equal([
+        { label: '文稿', title: '文稿目标：4 / 10 字', current: 4, target: 10, percent: 40 },
+        {
+          label: '今日',
+          title: `今日目标：${expectedTodayWords} / 20 字`,
+          current: expectedTodayWords,
+          target: 20,
+          percent: expectedDailyPercent,
+        },
+      ]);
+
+      await openRoute('/', '.hub-page');
+      await browser.waitUntil(
+        async () => {
+          const card = await readHubWritingGoalCard();
+          return card.numbers[0] === expectedTodayWords && card.numbers[2] === expectedWeeklyWords;
+        },
+        { timeout: 10_000, interval: 200, timeoutMsg: 'Hub did not reflect the saved writing totals' },
+      );
+      const dailyHub = await readHubWritingGoalCard();
+      expect(dailyHub.numbers, 'Hub daily summary uses the saved real article').to.deep.equal([
+        expectedTodayWords,
+        20,
+        expectedWeeklyWords,
+      ]);
+      expect(dailyHub.percent, 'Hub daily percent matches the saved real count').to.equal(expectedDailyPercent);
+
+      const errors = await stopSmartPunctuationErrorProbe();
+      probeStopped = true;
+      expect(errors, 'fresh daily writing-goal browser errors').to.deep.equal([]);
+
+      await applyWritingGoalSettings({ documentTarget: 10, dailyTarget: null, weeklyTarget: 100 });
+      await startSmartPunctuationErrorProbe();
+      probeStopped = false;
+      await openRoute('/', '.hub-page');
+      const weeklyHub = await readHubWritingGoalCard();
+      const expectedWeeklyPercent = Math.max(0, Math.min(100, Math.round((expectedWeeklyWords / 100) * 100)));
+      expect(weeklyHub.label, 'Hub falls back to the configured weekly goal').to.equal('本周写作目标');
+      expect(weeklyHub.numbers, 'Hub weekly summary keeps saved week and day totals').to.deep.equal([
+        expectedWeeklyWords,
+        100,
+        expectedTodayWords,
+      ]);
+      expect(weeklyHub.percent, 'Hub weekly percent matches the saved real count').to.equal(expectedWeeklyPercent);
+
+      await openRoute(`/workstation?id=${articleId}`, '.ProseMirror');
+      await waitForCurrentDraftReady(articleId);
+      const weeklyWorkstation = await readWorkstationGoalPills();
+      expect(weeklyWorkstation[0], 'Workstation retains the real document progress').to.deep.equal({
+        label: '文稿',
+        title: '文稿目标：4 / 10 字',
+        current: 4,
+        target: 10,
+        percent: 40,
+      });
+      expect(weeklyWorkstation[1], 'Workstation falls back to real weekly progress').to.deep.equal({
+        label: '本周',
+        title: `本周目标：${expectedWeeklyWords} / 100 字`,
+        current: expectedWeeklyWords,
+        target: 100,
+        percent: expectedWeeklyPercent,
+      });
+
+      const weeklyErrors = await stopSmartPunctuationErrorProbe();
+      probeStopped = true;
+      expect(weeklyErrors, 'fresh weekly writing-goal browser errors').to.deep.equal([]);
+
+      await openRoute('/settings?tab=editor&section=writing-goal', '#writing-goal-section');
+      const documentInput = await browser.$('#writing-goal-document');
+      await documentInput.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await documentInput.waitForDisplayed({ timeout: 5_000, interval: 100 });
+      await browser.execute((element) => element.focus(), documentInput);
+      await browser.keys(['Control', 'a']);
+      await browser.keys('-2');
+      await browser.waitUntil(
+        async () => (await readWritingGoalSettings()).errors.documentTarget === '请输入大于等于 1 的整数',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'invalid writing goal did not show validation feedback' },
+      );
+      await browser.pause(5_200);
+      const invalid = await readWritingGoalSettings();
+      const expectedPreserved = { documentTarget: 10, dailyTarget: null, weeklyTarget: 100 };
+      expect(invalid.store, 'invalid negative goal preserves the live target').to.deep.equal(expectedPreserved);
+      expect(invalid.persisted, 'invalid negative goal does not overwrite the persisted target')
+        .to.deep.equal(expectedPreserved);
+      expect(invalid.visible.documentTarget, 'invalid text remains visible for correction').to.equal('-2');
+      expect(invalid.errors.documentTarget, 'invalid goal exposes actionable feedback')
+        .to.equal('请输入大于等于 1 的整数');
+
+      await browser.refresh();
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('#writing-goal-section'))),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'writing goal settings did not recover after invalid input' },
+      );
+      const reloaded = await readWritingGoalSettings();
+      expect(reloaded.store, 'reload retains the last valid target').to.deep.equal(expectedPreserved);
+      expect(reloaded.persisted, 'reload reads the last valid target').to.deep.equal(expectedPreserved);
+      expect(reloaded.visible.documentTarget, 'reload restores the last valid visible value').to.equal('10');
+      expect(reloaded.errors.documentTarget, 'validation feedback clears after reload').to.equal('');
+    } finally {
+      if (!probeStopped) await stopSmartPunctuationErrorProbe();
+    }
   });
 });

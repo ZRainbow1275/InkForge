@@ -31,7 +31,7 @@ import {
   useWritingAssistStore,
   type AmbientSoundType,
 } from '@/stores/writingAssist'
-import { useSettingsStore } from '@/stores/settings'
+import { normalizeWritingGoalValue, useSettingsStore } from '@/stores/settings'
 import { formatDuration, computeWpm } from '@/services/writing-assist/stats'
 
 const props = defineProps<{
@@ -107,6 +107,7 @@ const showPomodoroConfig = ref(false)
 const showSessionHistory = ref(false)
 const editingGoalKey = ref<GoalRowKey | null>(null)
 const editingGoalValue = ref<string>('')
+const goalEditError = ref('')
 
 const goalRows = computed<GoalRow[]>(() => [
   {
@@ -257,6 +258,7 @@ async function applySoundPreset(preset: SoundPreset): Promise<void> {
 function startEditGoal(row: GoalRow): void {
   editingGoalKey.value = row.key
   editingGoalValue.value = row.target ? String(row.target) : ''
+  goalEditError.value = ''
 }
 
 function commitGoalEdit(): void {
@@ -264,8 +266,11 @@ function commitGoalEdit(): void {
     return
   }
   const raw = editingGoalValue.value.trim()
-  const parsed = Number.parseInt(raw, 10)
-  const next: number | undefined = Number.isFinite(parsed) && parsed >= 1 ? parsed : undefined
+  const next = normalizeWritingGoalValue(raw)
+  if (raw && next === undefined) {
+    goalEditError.value = '请输入大于等于 1 的整数'
+    return
+  }
 
   const goal = settingsStore.settings.writingGoal
   switch (editingGoalKey.value) {
@@ -281,11 +286,13 @@ function commitGoalEdit(): void {
   }
   editingGoalKey.value = null
   editingGoalValue.value = ''
+  goalEditError.value = ''
 }
 
 function cancelGoalEdit(): void {
   editingGoalKey.value = null
   editingGoalValue.value = ''
+  goalEditError.value = ''
 }
 
 const sparklinePoints = computed(() => {
@@ -457,16 +464,27 @@ function ringOffset(percent: number | undefined): number {
               </template>
               <template v-else>
                 /
-                <input
-                  v-model="editingGoalValue"
-                  type="number"
-                  min="1"
-                  class="goal-target-input"
-                  :aria-label="`${row.label}目标`"
-                  @blur="commitGoalEdit"
-                  @keydown.enter.prevent="commitGoalEdit"
-                  @keydown.escape.prevent="cancelGoalEdit"
-                >
+                <span class="goal-target-editor">
+                  <input
+                    v-model="editingGoalValue"
+                    type="number"
+                    min="1"
+                    step="1"
+                    class="goal-target-input"
+                    :aria-label="`${row.label}目标`"
+                    :aria-invalid="Boolean(goalEditError)"
+                    :aria-describedby="goalEditError ? `goal-target-error-${row.key}` : undefined"
+                    @blur="commitGoalEdit"
+                    @keydown.enter.prevent="commitGoalEdit"
+                    @keydown.escape.prevent="cancelGoalEdit"
+                  >
+                  <span
+                    v-if="goalEditError"
+                    :id="`goal-target-error-${row.key}`"
+                    class="goal-target-error"
+                    role="alert"
+                  >{{ goalEditError }}</span>
+                </span>
               </template>
             </span>
           </div>
@@ -1003,6 +1021,24 @@ function ringOffset(percent: number | undefined): number {
 .goal-target-input:focus {
   outline: none;
   border-color: #607D8B;
+}
+
+.goal-target-editor {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.goal-target-input[aria-invalid="true"] {
+  border-color: #C62828;
+}
+
+.goal-target-error {
+  color: #C62828;
+  font-size: 9px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .goal-ring-wrap {

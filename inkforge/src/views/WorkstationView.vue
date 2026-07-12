@@ -1248,7 +1248,7 @@ const writingWindowEntries = computed<WritingWindowEntry[]>(() => {
 
   if (
     activeArticleId
-    && !entries.some(entry => 'id' in entry && entry.id === activeArticleId)
+    && !articles.value.some(article => article.id === activeArticleId)
     && normalizedBody.value.trim().length > 0
   ) {
     entries.push({

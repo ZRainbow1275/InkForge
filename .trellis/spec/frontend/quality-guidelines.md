@@ -128,6 +128,15 @@ and still run the narrow checks for the touched scope.
 - Required commands: `pnpm vitest run src/extensions/SmartPunctuation.test.ts`, `pnpm exec vue-tsc --noEmit`, `pnpm lint`, `pnpm vitest run`, and `pnpm build`.
 - Browser smoke must use a real Workstation article and real keyboard input. At minimum verify em dash, ellipsis, Pangu spacing, disabled-rule behavior, code-block suppression, Source-mode suppression, Settings rule toggles, autolink disabled, and fresh console-error logs are clean.
 
+## WritingGoal Quality Gate
+
+- `normalizeWritingGoalValue()` is the single positive-integer boundary for Settings persistence and Workstation inline editing. Accept only safe positive decimal integers; reject signs, exponents, fractions, unsafe integers, and non-numeric text.
+- Explicit empty input may disable a goal only when the field is committed or blurred. A non-empty invalid value must preserve the last valid goal, remain available for correction, and expose visible `aria-invalid` feedback instead of silently clearing the persisted target.
+- Settings acceptance must cover document, daily, and weekly targets through visible native number controls, the real five-second debounced write, reload, Pinia/localStorage/DOM agreement, invalid input, original-state restoration, and exact `inkforge-settings` key-presence restoration.
+- Hub and Workstation proof must use a real UI-created article and a known text delta. Record the existing daily/weekly baseline, save the article through the production editor path, and assert the exact count and percentage delta on both surfaces; checking only labels or target denominators is insufficient.
+- Workstation writing-window entries must count an active article exactly once. Presence checks belong against the real article collection before mapping to `WritingWindowEntry`; never search an id-less mapped entry for an article id.
+- Persistent Tauri E2E must clean only run-created article/tab/layout state and must not inject Settings, article, IndexedDB, or localStorage proof data directly.
+
 ## TableV2 Quality Gate
 
 - Do not accept a TableV2 change unless existing Tiptap table creation, row/column operations, header row, merge/split, deletion, undo, and built-in column resizing remain available.

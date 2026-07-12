@@ -519,27 +519,23 @@ function getDefaultSettings(): Settings {
   }
 }
 
-function normalizeWritingGoalValue(value: unknown): number | undefined {
+export function normalizeWritingGoalValue(value: unknown): number | undefined {
   if (value === '' || value === null || value === undefined) {
     return undefined
   }
 
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    const normalized = Math.trunc(value)
-    return normalized >= 1 ? normalized : undefined
+  if (typeof value === 'number') {
+    return Number.isSafeInteger(value) && value >= 1 ? value : undefined
   }
 
   if (typeof value === 'string') {
     const trimmed = value.trim()
-    if (!trimmed) {
+    if (!/^\d+$/.test(trimmed)) {
       return undefined
     }
 
     const parsed = Number(trimmed)
-    if (Number.isFinite(parsed)) {
-      const normalized = Math.trunc(parsed)
-      return normalized >= 1 ? normalized : undefined
-    }
+    return Number.isSafeInteger(parsed) && parsed >= 1 ? parsed : undefined
   }
 
   return undefined

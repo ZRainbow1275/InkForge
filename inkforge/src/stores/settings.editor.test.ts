@@ -5,7 +5,7 @@ import { nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { SMART_PUNCTUATION_RULE_IDS } from '@/services/smart-punctuation'
-import { useSettingsStore } from './settings'
+import { normalizeWritingGoalValue, useSettingsStore } from './settings'
 
 describe('settings editor preferences', () => {
   beforeEach(() => {
@@ -60,5 +60,50 @@ describe('settings editor preferences', () => {
     expect(reloaded.settings.editor.smartPunctuationRules).toEqual(
       Object.fromEntries(SMART_PUNCTUATION_RULE_IDS.map(ruleId => [ruleId, false])),
     )
+  })
+
+  it('accepts only safe positive decimal writing goals', () => {
+    expect(normalizeWritingGoalValue(1200)).toBe(1200)
+    expect(normalizeWritingGoalValue('001200')).toBe(1200)
+    expect(normalizeWritingGoalValue('')).toBeUndefined()
+    expect(normalizeWritingGoalValue('-1')).toBeUndefined()
+    expect(normalizeWritingGoalValue('1.5')).toBeUndefined()
+    expect(normalizeWritingGoalValue('1e3')).toBeUndefined()
+    expect(normalizeWritingGoalValue(Number.MAX_SAFE_INTEGER + 1)).toBeUndefined()
+  })
+
+  it('persists all writing goals and rejects invalid stored values', async () => {
+    const store = useSettingsStore()
+    store.settings.writingGoal = {
+      documentTarget: 3000,
+      dailyTarget: 1200,
+      weeklyTarget: 8000,
+    }
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(5000)
+
+    setActivePinia(createPinia())
+    const reloaded = useSettingsStore()
+    expect(reloaded.settings.writingGoal).toEqual({
+      documentTarget: 3000,
+      dailyTarget: 1200,
+      weeklyTarget: 8000,
+    })
+
+    const persisted = JSON.parse(localStorage.getItem('inkforge-settings') || '{}')
+    persisted.writingGoal = {
+      documentTarget: '4500',
+      dailyTarget: '-500',
+      weeklyTarget: 2.5,
+    }
+    localStorage.setItem('inkforge-settings', JSON.stringify(persisted))
+
+    setActivePinia(createPinia())
+    const normalized = useSettingsStore()
+    expect(normalized.settings.writingGoal).toEqual({
+      documentTarget: 4500,
+      dailyTarget: undefined,
+      weeklyTarget: undefined,
+    })
   })
 })
