@@ -201,7 +201,8 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
 ### 6. Tests Required
 - Unit-test extension manifest, repository, host lifecycle, and command registration before browser smoke.
 - Type-check Settings templates after adding extension store usage.
-- Browser smoke-test `/settings?tab=extensions`: import a valid local manifest, assert installed count 1, click enable, assert blocked state and no console errors.
+- Real Tauri/WebView2 test `/settings?tab=extensions`: reject an invalid non-empty manifest without a live or IndexedDB record; install a unique valid manifest through visible UI; require matching Pinia/IndexedDB lifecycle and permission fields; require durable install, failed-enable, and uninstall audit rows; require unavailable Worker activation to persist `blocked` with `enabled=false`; then uninstall through visible UI and require record/card/storage cleanup. Read IndexedDB only as evidence and never mutate proof rows directly.
+- The desktop harness must verify its native driver-owned temporary WebView2 data root once for each WebDriver session, then fail every test closed unless that session verification succeeded. This proof must not write extension or audit rows into a production user profile. Teardown may remove only the verified temporary scope after observing driver exit; an exit timeout must fail closed and skip deletion.
 
 ### 7. Wrong vs Correct
 
@@ -216,6 +217,33 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
   {{ record.enabled ? '停用' : '启用' }}
 </button>
 ```
+
+
+## Scenario: Settings Shortcut Registry UI State
+
+### 1. Scope / Trigger
+- Trigger: Settings lists, searches, records, resets, migrates, or persists keyboard shortcuts, or `ShortcutInput` changes focus/keyboard handling.
+- Apply this contract when touching `components/settings/ShortcutInput.vue`, `views/SettingsView.vue`, the Settings shortcut schema/store, or shortcut consumers.
+
+### 2. Contracts
+- The Settings store and its validated `shortcuts` object remain the only registry. Do not create a second shortcut store or write localStorage directly from `ShortcutInput`.
+- A recorder must accept a valid modifier chord, reject reserved/invalid input, name the conflicting action, and leave both bindings unchanged after a conflict.
+- The trigger must expose the action it edits through an accessible name. Search must have an accessible name and filter the real registry rather than a duplicate display list.
+- A true focus departure, Escape, accepted input, disabled state, or unmount ends recording. A transient Tauri/WebView2 blur/refocus caused by rendering the focused trigger must not cancel recording; defer one animation frame and confirm `document.activeElement` left the same trigger.
+- Per-row and global reset must use the production settings actions and persist immediately. Ordinary accepted edits must use the existing debounced Settings persistence path.
+
+### 3. Validation Matrix
+- Unused chord -> live Settings registry changes once and rendered keys match.
+- Duplicate chord -> visible message names the existing action; competing and original bindings remain unchanged.
+- Wait beyond the production debounce and reload -> Pinia, validated localStorage, and rendered keys agree.
+- Search -> only matching real registry rows remain visible; clearing search restores the complete registry.
+- Per-row reset and global reset -> defaults persist and survive reload with no duplicate bindings.
+- WebView2 transient blur/refocus -> recording remains active; actual focus departure -> recording stops.
+
+### 4. Tests Required
+- Unit-test shortcut schema normalization/migration and conflict helpers when changing registry behavior.
+- Real Tauri/WebView2 acceptance must use a visible trigger plus native key input, a dynamically selected unused binding, the real debounce, reload, visible search, both reset paths, and zero fresh runtime errors. Direct store/localStorage mutation and programmatic `focus()` are not acceptance evidence.
+- Acceptance must separately prove both sides of the focus contract: transient same-trigger blur/refocus keeps recording active, while visible focus transfer and native window focus loss stop recording. All persisted shortcut changes must run inside the verified temporary WebView2 data root.
 
 
 ## Scenario: Profile Store UI State

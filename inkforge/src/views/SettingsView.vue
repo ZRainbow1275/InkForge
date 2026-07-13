@@ -5654,6 +5654,7 @@ onUnmounted(() => {
                 <button
                   type="button"
                   class="sv-action-btn"
+                  data-extension-action="install"
                   :disabled="extensionManifestText.trim().length === 0"
                   @click="handleInstallExtensionManifest"
                 >
@@ -5665,6 +5666,7 @@ onUnmounted(() => {
                 <textarea
                   v-model="extensionManifestText"
                   class="sv-textarea sv-code-textarea"
+                  aria-label="扩展 manifest JSON"
                   rows="8"
                   placeholder="{\n  &quot;id&quot;: &quot;local.word-counter&quot;,\n  &quot;name&quot;: &quot;Word Counter&quot;,\n  &quot;version&quot;: &quot;1.0.0&quot;,\n  &quot;author&quot;: &quot;local&quot;,\n  &quot;entry&quot;: &quot;./dist/index.js&quot;,\n  &quot;inkforgeVersion&quot;: &quot;&gt;=0.1.0&quot;,\n  &quot;permissions&quot;: [&quot;storage:read&quot;],\n  &quot;sandboxLevel&quot;: &quot;strict&quot;\n}"
                 />
@@ -5708,6 +5710,7 @@ onUnmounted(() => {
                 v-for="record in extensionStore.records"
                 :key="record.id"
                 class="sv-history-row"
+                :data-extension-id="record.extensionId"
                 open
               >
                 <summary class="sv-history-row__main">
@@ -5774,6 +5777,7 @@ onUnmounted(() => {
                     <button
                       type="button"
                       class="sv-action-btn sv-action-btn-sm"
+                      data-extension-action="toggle"
                       @click="handleToggleExtension(record)"
                     >
                       {{ record.enabled ? '停用' : '启用' }}
@@ -5781,6 +5785,7 @@ onUnmounted(() => {
                     <button
                       type="button"
                       class="sv-danger-btn"
+                      data-extension-action="uninstall"
                       @click="handleUninstallExtension(record)"
                     >
                       卸载
@@ -5821,6 +5826,7 @@ onUnmounted(() => {
                 v-model.trim="shortcutSearch"
                 type="text"
                 class="sv-input"
+                aria-label="搜索快捷键"
                 placeholder="搜索操作、描述或快捷键"
               >
             </div>

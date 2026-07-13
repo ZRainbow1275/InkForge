@@ -90,6 +90,18 @@ const emit = defineEmits<{
   exercise real UI actions and inspect storage read-only.
 - Do not put service contracts or Zod validation rules only in components.
 - Do not use emoji icons; use the installed icon library.
+- Do not synchronously cancel a focus-sensitive recorder solely because one
+  `blur` event fired after its focused DOM changed. Tauri/WebView2 may emit a
+  transient blur/refocus pair; defer one animation frame and confirm
+  `document.activeElement` actually left the trigger while preserving normal
+  focus-loss and unmount cleanup.
+- Desktop keyboard acceptance must click the visible trigger, send the real key
+  chord, and inspect the production store/persistence boundary. Programmatic
+  `focus()` or direct settings mutation cannot prove the native recorder works.
+- Stateful Tauri/WebView2 E2E must fail closed unless the harness verifies the
+  launched app is using the native driver-owned temporary
+  `%TEMP%/scoped_dir*/EBWebView` data root. Stop the driver before deleting only
+  that verified scoped directory; never reuse or clean the production profile.
 
 ---
 

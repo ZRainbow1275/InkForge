@@ -1243,6 +1243,185 @@ async function cleanupCreatedArticles() {
   await openRoute('/', '.hub-page');
 }
 
+async function readExtensionRegistryEvidence(extensionId) {
+  return browser.execute(async (targetExtensionId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const extensionStore = pinia?._s.get('extensions');
+    const liveRecord = extensionStore?.records?.find((record) => record.extensionId === targetExtensionId) ?? null;
+    const row = Array.from(document.querySelectorAll('[data-extension-id]'))
+      .find((element) => element.getAttribute('data-extension-id') === targetExtensionId);
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    const readAll = (storeName) => new Promise((resolve, reject) => {
+      const request = database.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+    });
+
+    try {
+      const [extensionRows, storageRows, auditRows] = await Promise.all([
+        readAll('extensions'),
+        readAll('extensionStorage'),
+        readAll('auditLogs'),
+      ]);
+      const persistedRecord = extensionRows.find((record) => record.extensionId === targetExtensionId) ?? null;
+      return {
+        installedCount: extensionStore?.installedCount ?? null,
+        enabledCount: extensionStore?.enabledCount ?? null,
+        blockedCount: extensionStore?.blockedCount ?? null,
+        live: liveRecord ? {
+          id: liveRecord.id,
+          profileId: liveRecord.profileId,
+          extensionId: liveRecord.extensionId,
+          status: liveRecord.status,
+          enabled: liveRecord.enabled,
+          grantedPermissions: [...liveRecord.grantedPermissions],
+          commandPermissions: [...liveRecord.commandPermissions],
+          runtimeBlockedReason: liveRecord.runtimeBlockedReason ?? null,
+        } : null,
+        persisted: persistedRecord ? {
+          id: persistedRecord.id,
+          profileId: persistedRecord.profileId,
+          extensionId: persistedRecord.extensionId,
+          status: persistedRecord.status,
+          enabled: persistedRecord.enabled,
+          grantedPermissions: [...persistedRecord.grantedPermissions],
+          commandPermissions: [...persistedRecord.commandPermissions],
+          runtimeBlockedReason: persistedRecord.runtimeBlockedReason ?? null,
+        } : null,
+        storageCount: storageRows.filter((record) => record.extensionId === targetExtensionId).length,
+        auditActions: auditRows
+          .filter((record) => record.resourceId === targetExtensionId)
+          .map((record) => ({ action: record.action, outcome: record.outcome })),
+        ui: row ? {
+          text: row.textContent?.replace(/\s+/gu, ' ').trim() ?? '',
+          permissionChips: Array.from(row.querySelectorAll('.sv-chip-btn__label'))
+            .map((element) => element.textContent?.trim() ?? ''),
+        } : null,
+      };
+    } finally {
+      database.close();
+    }
+  }, extensionId);
+}
+
+async function cleanupExtension(extensionId) {
+  return browser.execute(async (targetExtensionId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const extensionStore = pinia?._s.get('extensions');
+    if (!extensionStore) {
+      return { error: 'extension store unavailable', removed: false };
+    }
+    const record = extensionStore.records.find((candidate) => candidate.extensionId === targetExtensionId);
+    if (!record) {
+      return { error: null, removed: false };
+    }
+    try {
+      await extensionStore.uninstallExtension(record.profileId, record.extensionId, record.profileId);
+      return { error: null, removed: true };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : String(error), removed: false };
+    }
+  }, extensionId);
+}
+
+async function readShortcutRegistryEvidence(shortcutIds) {
+  return browser.execute((targetShortcutIds) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const storeShortcuts = pinia?._s.get('settings')?.settings?.shortcuts ?? {};
+    const persistedShortcuts = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}')?.shortcuts ?? {};
+    const visible = Object.fromEntries(targetShortcutIds.map((shortcutId) => {
+      const trigger = document.querySelector(`[data-shortcut-id="${shortcutId}"]`);
+      return [shortcutId, trigger ? {
+        binding: Array.from(trigger.querySelectorAll('kbd')).map((element) => element.textContent?.trim() ?? '').join('+'),
+        ariaLabel: trigger.getAttribute('aria-label'),
+        conflict: trigger.closest('.shortcut-input')?.querySelector('.shortcut-input__message')?.textContent?.trim() ?? '',
+      } : null];
+    }));
+    return {
+      store: Object.fromEntries(targetShortcutIds.map((shortcutId) => [shortcutId, storeShortcuts[shortcutId] ?? null])),
+      persisted: Object.fromEntries(targetShortcutIds.map((shortcutId) => [shortcutId, persistedShortcuts[shortcutId] ?? null])),
+      allStore: { ...storeShortcuts },
+      visible,
+      duplicateText: document.querySelector('.sv-shortcut-conflict')?.textContent?.replace(/\s+/gu, ' ').trim() ?? '',
+      visibleItemCount: document.querySelectorAll('[data-settings-tab="shortcuts"] .sv-shortcut-item').length,
+      searchAriaLabel: document.querySelector('input[aria-label="搜索快捷键"]')?.getAttribute('aria-label') ?? null,
+    };
+  }, shortcutIds);
+}
+
+async function beginShortcutRecording(shortcutId) {
+  const trigger = await browser.$(`[data-shortcut-id="${shortcutId}"]`);
+  await trigger.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await trigger.click();
+  await browser.waitUntil(
+    async () => browser.execute((element) => (
+      document.activeElement === element
+      && element.classList.contains('shortcut-input__trigger--recording')
+    ), trigger),
+    { timeout: 5_000, interval: 100, timeoutMsg: `${shortcutId} recorder did not enter focused recording mode` },
+  );
+  return trigger;
+}
+
+async function sendShortcutBinding(binding) {
+  const aliases = { Ctrl: 'Control', Cmd: 'Meta', Option: 'Alt' };
+  await browser.keys(binding.split('+').map((key) => aliases[key] || (key.length === 1 ? key.toLowerCase() : key)));
+}
+
+async function recordShortcut(shortcutId, binding) {
+  await beginShortcutRecording(shortcutId);
+  await sendShortcutBinding(binding);
+}
+
+async function exerciseNativeWindowFocusLoss(shortcutId) {
+  const trigger = await beginShortcutRecording(shortcutId);
+  await browser.minimizeWindow();
+  await browser.pause(300);
+  const recordingWhileMinimized = await browser.execute((element) => ({
+    documentHasFocus: document.hasFocus(),
+    recording: element.classList.contains('shortcut-input__trigger--recording'),
+  }), trigger);
+  await browser.maximizeWindow();
+  await browser.waitUntil(
+    async () => browser.execute(() => document.hasFocus()),
+    { timeout: 5_000, interval: 100, timeoutMsg: 'Tauri window did not regain focus after native restore' },
+  );
+  return recordingWhileMinimized;
+}
+
+async function clickShortcutReset(shortcutId) {
+  const clicked = await browser.execute((targetShortcutId) => {
+    const trigger = document.querySelector(`[data-shortcut-id="${targetShortcutId}"]`);
+    const resetButton = Array.from(trigger?.closest('.sv-shortcut-item')?.querySelectorAll('button') ?? [])
+      .find((button) => button.textContent?.trim() === '重置');
+    resetButton?.click();
+    return Boolean(resetButton);
+  }, shortcutId);
+  expect(clicked, `the ${shortcutId} row exposes its real reset action`).to.equal(true);
+}
+
 describe('Settings editor preferences in the real Tauri runtime', () => {
   before(async () => {
     await waitForMainWindow();
@@ -1848,5 +2027,229 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       'the reloaded target currentVersionId equals IndexedDB exactly',
     ).to.equal(true);
 
+  });
+
+  it('validates, persists, blocks, and uninstalls local extensions through real registry boundaries', async function () {
+    this.timeout(90_000);
+    await openRoute('/settings?tab=extensions', '[data-settings-tab="extensions"]');
+    const extensionId = `local.settings-audit-${Date.now()}`;
+    const manifest = {
+      id: extensionId,
+      name: 'InkForge Settings Audit Extension',
+      version: '1.0.0',
+      author: 'local',
+      description: 'Exercises the real local extension registry without executing third-party code.',
+      entry: './dist/index.js',
+      inkforgeVersion: '>=0.1.0',
+      permissions: ['storage:read', 'ui:command'],
+      sandboxLevel: 'strict',
+      commandPermissions: ['document.read'],
+    };
+    const before = await readExtensionRegistryEvidence(extensionId);
+    const textarea = await browser.$('textarea[aria-label="扩展 manifest JSON"]');
+    const installButton = await browser.$('[data-extension-action="install"]');
+    let runtimeErrors;
+
+    await startSmartPunctuationErrorProbe();
+    try {
+      await textarea.setValue(JSON.stringify({ ...manifest, id: 'Bad.Id' }, null, 2));
+      await installButton.click();
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          document.querySelector('[data-settings-tab="extensions"] .sv-feedback.error')?.textContent?.trim().length ?? 0
+        ) > 0),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'invalid extension manifest did not surface validation feedback' },
+      );
+      const invalid = await readExtensionRegistryEvidence('Bad.Id');
+      expect(invalid.live, 'an invalid manifest never enters the live extension registry').to.equal(null);
+      expect(invalid.persisted, 'an invalid manifest never enters IndexedDB').to.equal(null);
+      expect(invalid.installedCount, 'invalid validation leaves the installed count unchanged')
+        .to.equal(before.installedCount);
+
+      await textarea.setValue(JSON.stringify(manifest, null, 2));
+      await installButton.click();
+      await browser.waitUntil(
+        async () => (await readExtensionRegistryEvidence(extensionId)).live?.status === 'installed',
+        { timeout: 10_000, interval: 100, timeoutMsg: 'valid local manifest did not reach the real extension registry' },
+      );
+      const installed = await readExtensionRegistryEvidence(extensionId);
+      expect(installed.installedCount, 'real manifest install increments the profile registry count')
+        .to.equal(before.installedCount + 1);
+      expect(installed.live, 'the live extension record retains the validated permissions').to.deep.include({
+        extensionId,
+        status: 'installed',
+        enabled: false,
+        grantedPermissions: ['storage:read', 'ui:command'],
+        commandPermissions: ['document.read'],
+      });
+      expect(installed.persisted, 'the complete lifecycle fields cross the real IndexedDB boundary')
+        .to.deep.equal(installed.live);
+      expect(installed.ui?.permissionChips, 'permission chips reflect the persisted extension record')
+        .to.include.members(['storage / read', 'ui / command', 'command: document.read']);
+      expect(installed.auditActions, 'real extension install writes a durable success audit row')
+        .to.deep.include({ action: 'system.plugin_install', outcome: 'success' });
+      expect(installed.storageCount, 'install does not fabricate extension storage').to.equal(0);
+
+      const toggleButton = await browser.$(`[data-extension-id="${extensionId}"] [data-extension-action="toggle"]`);
+      await toggleButton.click();
+      await browser.waitUntil(
+        async () => (await readExtensionRegistryEvidence(extensionId)).persisted?.status === 'blocked',
+        { timeout: 10_000, interval: 100, timeoutMsg: 'unavailable Worker runtime did not persist a blocked lifecycle state' },
+      );
+      const blocked = await readExtensionRegistryEvidence(extensionId);
+      expect(blocked.live, 'runtime activation fails closed without a fake enabled state').to.deep.include({
+        extensionId,
+        status: 'blocked',
+        enabled: false,
+        runtimeBlockedReason: 'extension-runtime-unavailable',
+      });
+      expect(blocked.persisted, 'the blocked state is durable and matches the live store').to.deep.equal(blocked.live);
+      expect(blocked.blockedCount, 'the real blocked count includes the unavailable runtime')
+        .to.equal(before.blockedCount + 1);
+      expect(blocked.ui?.text, 'the UI explains the exact fail-closed runtime reason')
+        .to.include('extension-runtime-unavailable');
+      expect(blocked.auditActions, 'runtime denial writes a durable failure audit row')
+        .to.deep.include({ action: 'system.plugin_enable', outcome: 'failure' });
+
+      const uninstallButton = await browser.$(`[data-extension-id="${extensionId}"] [data-extension-action="uninstall"]`);
+      await uninstallButton.click();
+      await browser.waitUntil(
+        async () => {
+          const current = await readExtensionRegistryEvidence(extensionId);
+          return current.live === null && current.persisted === null;
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'extension uninstall did not clear the live and persisted records' },
+      );
+      const removed = await readExtensionRegistryEvidence(extensionId);
+      expect(removed.installedCount, 'uninstall restores the original registry count').to.equal(before.installedCount);
+      expect(removed.storageCount, 'uninstall leaves no extension storage records').to.equal(0);
+      expect(removed.ui, 'the uninstalled extension card disappears').to.equal(null);
+      expect(removed.auditActions, 'real uninstall writes a durable success audit row')
+        .to.deep.include({ action: 'system.plugin_uninstall', outcome: 'success' });
+    } finally {
+      const cleanup = await cleanupExtension(extensionId);
+      expect(cleanup.error, 'extension cleanup remains on the production uninstall path').to.equal(null);
+      runtimeErrors = await stopSmartPunctuationErrorProbe();
+    }
+    expect(runtimeErrors, 'extension validation and lifecycle actions emit no fresh runtime errors').to.deep.equal([]);
+  });
+
+  it('records, rejects conflicts, persists, and resets shortcuts through the real Settings UI', async function () {
+    this.timeout(90_000);
+    await openRoute('/settings?tab=shortcuts', '[data-settings-tab="shortcuts"]');
+    const shortcutIds = ['toggleSidebar', 'togglePreview'];
+    const initial = await readShortcutRegistryEvidence(shortcutIds);
+    const candidate = ['Ctrl+Shift+Y', 'Ctrl+Shift+U', 'Ctrl+Shift+J', 'Ctrl+Shift+K']
+      .find((binding) => !Object.values(initial.allStore).includes(binding));
+    expect(candidate, 'the test finds a real unused shortcut without overwriting another action').to.be.a('string');
+    expect(initial.searchAriaLabel, 'the shortcut search input has an accessible name').to.equal('搜索快捷键');
+    expect(initial.visible.toggleSidebar?.ariaLabel, 'the recorder identifies the action it changes')
+      .to.equal('录制切换侧栏快捷键');
+    let runtimeErrors;
+
+    await startSmartPunctuationErrorProbe();
+    try {
+      const beforeFocusLoss = await readShortcutRegistryEvidence(shortcutIds);
+      await beginShortcutRecording('toggleSidebar');
+      const searchInput = await browser.$('input[aria-label="搜索快捷键"]');
+      await searchInput.click();
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          !document.querySelector('[data-shortcut-id="toggleSidebar"]')
+            ?.classList.contains('shortcut-input__trigger--recording')
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'recorder did not stop after focus moved to search' },
+      );
+      await sendShortcutBinding(candidate);
+      expect((await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar,
+        'real control focus departure disarms the recorder before later key input')
+        .to.equal(beforeFocusLoss.store.toggleSidebar);
+      await searchInput.setValue('');
+
+      const nativeFocusLoss = await exerciseNativeWindowFocusLoss('toggleSidebar');
+      expect(nativeFocusLoss.documentHasFocus, 'native minimize removes document focus').to.equal(false);
+      expect(nativeFocusLoss.recording, 'native window focus loss disarms the recorder').to.equal(false);
+      expect((await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar,
+        'native window focus loss never mutates the binding')
+        .to.equal(beforeFocusLoss.store.toggleSidebar);
+
+      await recordShortcut('toggleSidebar', candidate);
+      await browser.waitUntil(
+        async () => (await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar === candidate,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'shortcut recording did not update the live settings store' },
+      );
+
+      await recordShortcut('togglePreview', candidate);
+      await browser.waitUntil(
+        async () => (await readShortcutRegistryEvidence(shortcutIds)).visible.togglePreview?.conflict.includes('切换侧栏'),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'duplicate shortcut recording did not show the conflicting action' },
+      );
+      const conflicted = await readShortcutRegistryEvidence(shortcutIds);
+      expect(conflicted.store.togglePreview, 'a conflict never mutates the competing shortcut')
+        .to.equal(initial.store.togglePreview);
+      expect(conflicted.store.toggleSidebar, 'the accepted shortcut remains active after a rejected conflict')
+        .to.equal(candidate);
+      expect(conflicted.duplicateText, 'rejected input never creates a persisted duplicate binding').to.equal('');
+      await browser.keys('Escape');
+
+      await browser.pause(5_200);
+      await browser.refresh();
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="shortcuts"]'))),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'shortcut settings did not recover after reload' },
+      );
+      const persisted = await readShortcutRegistryEvidence(shortcutIds);
+      expect(persisted.store.toggleSidebar, 'the recorded binding survives reload in the live store').to.equal(candidate);
+      expect(persisted.persisted.toggleSidebar, 'the recorded binding survives the debounced localStorage write')
+        .to.equal(candidate);
+      expect(persisted.visible.toggleSidebar?.binding, 'the shortcut recorder renders the persisted binding')
+        .to.equal(candidate);
+
+      const persistedSearchInput = await browser.$('input[aria-label="搜索快捷键"]');
+      await persistedSearchInput.setValue('切换侧栏');
+      await browser.waitUntil(
+        async () => (await readShortcutRegistryEvidence(shortcutIds)).visibleItemCount === 1,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'shortcut search did not filter the real registry list' },
+      );
+      await persistedSearchInput.setValue('');
+
+      await clickShortcutReset('toggleSidebar');
+      await browser.waitUntil(
+        async () => (await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar === 'Ctrl+Shift+B',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'per-shortcut reset did not restore the default binding' },
+      );
+      await browser.refresh();
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="shortcuts"]'))),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'shortcut settings did not recover after individual reset' },
+      );
+      const individuallyReset = await readShortcutRegistryEvidence(shortcutIds);
+      expect(individuallyReset.persisted.toggleSidebar, 'individual reset saves immediately').to.equal('Ctrl+Shift+B');
+
+      await recordShortcut('toggleSidebar', candidate);
+      await browser.waitUntil(
+        async () => (await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar === candidate,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'shortcut did not change before the global reset proof' },
+      );
+      const resetAllButton = await browser.$('.sv-shortcuts-footer button');
+      await resetAllButton.click();
+      await browser.waitUntil(
+        async () => (await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar === 'Ctrl+Shift+B',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'global shortcut reset did not restore defaults' },
+      );
+      await browser.refresh();
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="shortcuts"]'))),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'shortcut settings did not recover after global reset' },
+      );
+      const reset = await readShortcutRegistryEvidence(shortcutIds);
+      expect(reset.store.toggleSidebar, 'global reset restores the live default').to.equal('Ctrl+Shift+B');
+      expect(reset.persisted.toggleSidebar, 'global reset persists the default immediately').to.equal('Ctrl+Shift+B');
+      expect(reset.duplicateText, 'the default registry contains no shortcut conflicts').to.equal('');
+    } finally {
+      runtimeErrors = await stopSmartPunctuationErrorProbe();
+    }
+    expect(runtimeErrors, 'shortcut recording, conflict, persistence, and reset emit no fresh runtime errors')
+      .to.deep.equal([]);
   });
 });

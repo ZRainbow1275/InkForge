@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { keyboardEventToShortcut, normalizeShortcutBinding } from '@/utils/shortcuts'
 
 const RESERVED_SHORTCUTS: Record<string, string> = {
@@ -51,18 +51,32 @@ function beginRecording(): void {
     return
   }
 
+  window.addEventListener('blur', stopRecording)
   isRecording.value = true
   localConflict.value = null
   emit('conflict', null)
 }
 
 function stopRecording(): void {
+  window.removeEventListener('blur', stopRecording)
   isRecording.value = false
 }
 
-function handleBlur(): void {
-  stopRecording()
+function handleBlur(event: FocusEvent): void {
+  const trigger = event.currentTarget
+  if (!(trigger instanceof HTMLButtonElement)) {
+    stopRecording()
+    return
+  }
+
+  requestAnimationFrame(() => {
+    if (!document.hasFocus() || document.activeElement !== trigger) {
+      stopRecording()
+    }
+  })
 }
+
+onBeforeUnmount(stopRecording)
 
 function findConflict(nextBinding: string): string | null {
   const normalizedNextBinding = normalizeShortcutBinding(nextBinding) ?? nextBinding
@@ -144,6 +158,8 @@ function handleKeydown(event: KeyboardEvent): void {
       type="button"
       class="shortcut-input__trigger"
       :class="{ 'shortcut-input__trigger--recording': isRecording }"
+      :aria-label="`录制${props.shortcutLabels[props.shortcutId] ?? props.shortcutId}快捷键`"
+      :data-shortcut-id="props.shortcutId"
       :disabled="disabled"
       @click="isRecording ? stopRecording() : beginRecording()"
       @keydown="handleKeydown"
