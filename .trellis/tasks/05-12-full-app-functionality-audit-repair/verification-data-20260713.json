@@ -1,0 +1,116 @@
+{
+  "slice": "SET-DATA-001/002 reviewer closure",
+  "date": "2026-07-13",
+  "scope": {
+    "localDataBackupAndDiagnostics": true,
+    "applicationSvgStyleWechatLocal": true,
+    "wechatExternalAction": false,
+    "xiaohongshuPublishAutomation": false,
+    "zhihuPublishAutomation": false
+  },
+  "commands": [
+    {
+      "command": "node --check inkforge/tests/e2e/specs/editor-settings.spec.cjs",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm -C inkforge exec eslint src/stores/editor.ts src/components/editor/EditorPanel.vue src/composables/useVersionManager.ts src/views/WorkstationView.vue tests/e2e/specs/editor-settings.spec.cjs --quiet",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "node --check inkforge/tests/e2e/specs/editor-settings.spec.cjs && node --check inkforge/tests/e2e/specs/native-runtime.spec.cjs && node --check inkforge/tests/e2e/specs/svg-render.spec.cjs",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm -C inkforge exec eslint tests/e2e/specs/editor-settings.spec.cjs tests/e2e/specs/native-runtime.spec.cjs tests/e2e/specs/svg-render.spec.cjs --quiet",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm -C inkforge exec vue-tsc --noEmit --pretty false",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm -C inkforge exec vitest run src/services/version-bundle/version-bundle.test.ts src/stores/settings.data.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism",
+      "exitCode": 0,
+      "result": "2 files passed; 8 tests passed"
+    },
+    {
+      "command": "NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build",
+      "exitCode": 0,
+      "result": "4660 modules transformed"
+    },
+    {
+      "command": "pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism",
+      "exitCode": 0,
+      "result": "108 files passed; 1820 tests passed"
+    },
+    {
+      "command": "INKFORGE_E2E_SKIP_TAURI_BUILD=1 pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/editor-settings.spec.cjs --mochaOpts.grep 'persists Data backup settings' --mochaOpts.timeout=320000 --logLevel=error",
+      "exitCode": 0,
+      "result": "1 spec passed; 1 Data test passed; failed current route flush blocked visibly then retried; same-document and cross-document queued writes preserved source identity and left the target unchanged; WebView2 150.0.4078.65"
+    },
+    {
+      "command": "INKFORGE_E2E_SKIP_TAURI_BUILD=1 pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/editor-settings.spec.cjs --mochaOpts.timeout=300000 --logLevel=error",
+      "exitCode": 0,
+      "result": "1 spec passed; 4 tests passed; WebView2 150.0.4078.65"
+    },
+    {
+      "command": "INKFORGE_E2E_SKIP_TAURI_BUILD=1 pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/native-runtime.spec.cjs --mochaOpts.grep 'writes and reads real Tauri clipboard text' --mochaOpts.timeout=320000 --logLevel=error",
+      "exitCode": 0,
+      "result": "1 spec passed; 1 native clipboard text test passed; text state used exact write/read/Tauri-source/restore; non-text initial state performs no write and makes no restore claim"
+    },
+    {
+      "command": "INKFORGE_E2E_SKIP_TAURI_BUILD=1 pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs --mochaOpts.timeout=320000 --logLevel=error",
+      "exitCode": 0,
+      "result": "1 spec passed; 10 tests passed; all three flagship presets emitted two responsive SVG modules and mobile density measured 20 CJK characters per line"
+    },
+    {
+      "command": "INKFORGE_E2E_SKIP_TAURI_BUILD=1 pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --mochaOpts.timeout=320000 --logLevel=error",
+      "exitCode": 0,
+      "result": "5 specs passed; 34 tests passed; AI 1, editor settings 4, native 8, SVG 10, visual 11"
+    },
+    {
+      "command": "pnpm -C inkforge style-proof:current-round",
+      "exitCode": 0,
+      "result": "application-acceptance-ready; canClaimCurrentRoundTarget=true; canClaimReleaseComplete=false"
+    }
+  ],
+  "styleProof": {
+    "svgModuleCount": 27,
+    "renderedModulePersonaPairs": 108,
+    "wechatStyleChoiceCount": 17,
+    "wechatUsableChoiceCount": 8,
+    "wechatSelectableChoiceCount": 13,
+    "wechatRenderedStyleChoiceCount": 13,
+    "wechatStyleSampleTotalSvgModuleCount": 45,
+    "applicationIssueCount": 0,
+    "xhsZhihuPublishAutomationDeferred": true
+  },
+  "reviewerClosure": {
+    "serializedContentWrites": true,
+    "queuedBodySaveVersionCreatePruneSwitch": true,
+    "completeLivePersistedVersionEquality": true,
+    "prunedVersionRemovedFromLiveAndPersisted": true,
+    "persistedBodyEqualsLiveBody": true,
+    "queuedWritesCaptureContentIdentity": true,
+    "crossDocumentQueueIsolation": true,
+    "targetPersistedVersionsUnchanged": true,
+    "targetPersistedCurrentVersionUnchanged": true,
+    "targetReloadMatchesPersisted": true,
+    "nonTextClipboardNoOp": true,
+    "failedRouteFlushRemainsOnWorkstation": true,
+    "samePayloadRetryAfterRecovery": true,
+    "routeGuardBlocksCurrentFlushFailureOnly": true,
+    "independentReReview": "P0-P3 none"
+  },
+  "externalBoundary": {
+    "canClaimReleaseComplete": false,
+    "requiresManualWeChatProof": true,
+    "remainingExternalProofOwnedByOperator": true
+  }
+}

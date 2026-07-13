@@ -63,6 +63,22 @@ export const useEditorStore = defineStore('editor', () => {
 
     // 淇濆瓨璇锋眰 ID锛岀敤浜庨槻姝㈢珵鎬佹潯浠?
     const saveRequestId = ref<number>(0)
+    let contentWriteQueue: Promise<void> = Promise.resolve()
+
+    function enqueueContentWrite<T>(operation: () => Promise<T>): Promise<T> {
+        const result = contentWriteQueue.then(operation)
+        contentWriteQueue = result.then(() => undefined, () => undefined)
+        return result
+    }
+
+    async function resolveQueuedContent(contentId: string): Promise<EditedContent | null> {
+        if (currentContent.value?.id === contentId) {
+            return currentContent.value
+        }
+
+        const persisted = await contentRepository.findById(contentId)
+        return persisted ? normalizeEditedContent(EditedContentSchema.parse(persisted)) : null
+    }
 
     // 褰撳墠鐗堟湰
     const currentVersion = computed(() => {
@@ -208,13 +224,18 @@ export const useEditorStore = defineStore('editor', () => {
     }
 
     // 鏇存柊鍐呭
-    async function updateContent(updates: { title?: string; body?: string; transcript?: string }) {
-        if (status.value !== 'ready' && status.value !== 'saving') return
-        if (!currentContent.value) return
+    async function updateContentUnlocked(
+        contentId: string,
+        updates: { title?: string; body?: string; transcript?: string },
+    ) {
+        const sourceContent = await resolveQueuedContent(contentId)
+        if (!sourceContent) return
 
         // 生成新的请求 ID，用于防止竞态条件
         const currentRequestId = ++saveRequestId.value
-        setStatus('saving')
+        if (currentContent.value?.id === contentId) {
+            setStatus('saving')
+        }
         let recoveryCandidate: EditedContent | null = null
 
         try {
@@ -226,7 +247,7 @@ export const useEditorStore = defineStore('editor', () => {
                 }
 
             const updated = {
-                ...currentContent.value,
+                ...sourceContent,
                 ...normalizedUpdates,
                 updatedAt: new Date()
             }
@@ -239,7 +260,9 @@ export const useEditorStore = defineStore('editor', () => {
             // 竞态守卫: 仅当此请求仍为最新时才更新内存状态
             // 防止慢请求覆盖快请求的结果
             if (saveRequestId.value !== currentRequestId) return
-            currentContent.value = validated
+            if (currentContent.value?.id === validated.id) {
+                currentContent.value = validated
+            }
             await syncArticleSnapshot(validated.articleId, validated)
             await updateCachedEmergencySnapshot({
                 profileId: getCurrentProfileId(),
@@ -255,7 +278,11 @@ export const useEditorStore = defineStore('editor', () => {
             const capturedId = currentRequestId
             setTimeout(() => {
                 // 只有当这是最新的保存请求时才更新状态
-                if (status.value === 'saving' && saveRequestId.value === capturedId) {
+                if (
+                    status.value === 'saving' &&
+                    saveRequestId.value === capturedId &&
+                    currentContent.value?.id === contentId
+                ) {
                     setStatus('ready')
                 }
             }, EDITOR_CONFIG.SAVE_STATUS_DELAY_MS)
@@ -291,28 +318,42 @@ export const useEditorStore = defineStore('editor', () => {
                 }
             }
 
-            setStatus('error', '保存失败: ' + msg)
+            if (currentContent.value?.id === contentId) {
+                setStatus('error', '保存失败: ' + msg)
+            }
             // Revert status manually if needed, but error state is safer
         }
     }
 
-    // 创建新版本（带版本数量上限检查）
-    async function createVersion(trigger: VersionTrigger = 'manual_save', label?: string): Promise<Version | null> {
-        if (!currentContent.value) return null
+    function updateContent(updates: { title?: string; body?: string; transcript?: string }): Promise<void> {
+        const contentId = currentContent.value?.id
+        if (!contentId) return Promise.resolve()
+        return enqueueContentWrite(() => updateContentUnlocked(contentId, updates))
+    }
 
-        const currentVersionCount = currentContent.value.versions.length
+    // 创建新版本（带版本数量上限检查）
+    async function createVersionUnlocked(
+        contentId: string,
+        trigger: VersionTrigger,
+        label?: string,
+    ): Promise<Version | null> {
+        const sourceContent = await resolveQueuedContent(contentId)
+        if (!sourceContent) return null
+
+        let sourceVersions = sourceContent.versions
+        const currentVersionCount = sourceVersions.length
         const maxVersions = VERSION_MANAGEMENT.MAX_VERSIONS_PER_DOCUMENT
         const warningThreshold = VERSION_MANAGEMENT.VERSION_WARNING_THRESHOLD
 
         // 妫€鏌ユ槸鍚﹁揪鍒扮増鏈暟閲忎笂闄?
         if (currentVersionCount >= maxVersions) {
             // 鏌ユ壘鏈€鏃х殑闈炲綋鍓嶇増鏈繘琛屽垹闄?
-            const oldestNonCurrentIndex = currentContent.value.versions.findIndex(
-                v => v.id !== currentContent.value!.currentVersionId
+            const oldestNonCurrentIndex = sourceVersions.findIndex(
+                v => v.id !== sourceContent.currentVersionId
             )
 
             if (oldestNonCurrentIndex !== -1) {
-                const deletedVersion = currentContent.value.versions[oldestNonCurrentIndex]
+                const deletedVersion = sourceVersions[oldestNonCurrentIndex]
                 logger.warn('Version limit reached; deleting oldest non-current version', {
                     currentCount: currentVersionCount,
                     maxVersions,
@@ -320,13 +361,10 @@ export const useEditorStore = defineStore('editor', () => {
                     deletedVersionLabel: deletedVersion.label
                 })
                 // 涓嶅彲鍙樺垹闄わ細鍒涘缓鏂版暟缁勬帓闄よ鍒犻櫎鐨勭増鏈?
-                currentContent.value = {
-                    ...currentContent.value,
-                    versions: [
-                        ...currentContent.value.versions.slice(0, oldestNonCurrentIndex),
-                        ...currentContent.value.versions.slice(oldestNonCurrentIndex + 1)
-                    ]
-                }
+                sourceVersions = [
+                    ...sourceVersions.slice(0, oldestNonCurrentIndex),
+                    ...sourceVersions.slice(oldestNonCurrentIndex + 1),
+                ]
             } else {
                 // 鎵€鏈夌増鏈兘鏄綋鍓嶇増鏈紙鐞嗚涓婁笉鍙兘锛屼絾闃插尽鎬у鐞嗭級
                 logger.error('鐗堟湰绠＄悊寮傚父锛氭墍鏈夌増鏈兘鏄綋鍓嶇増鏈紝鏃犳硶鍒犻櫎', {
@@ -344,18 +382,18 @@ export const useEditorStore = defineStore('editor', () => {
             })
         }
 
-        const versionNumber = currentContent.value.versions.length + 1
+        const versionNumber = sourceVersions.length + 1
         const now = new Date()
-        const previousVersion = currentContent.value.versions.find(
-            version => version.id === currentContent.value!.currentVersionId
+        const previousVersion = sourceVersions.find(
+            version => version.id === sourceContent.currentVersionId
         ) ?? null
         const validatedVersion = buildVersionSnapshot(
             {
-                title: currentContent.value.title,
-                body: normalizeMarkdownBody(currentContent.value.body),
-                transcript: currentContent.value.transcript,
-                versions: currentContent.value.versions,
-                currentVersionId: currentContent.value.currentVersionId,
+                title: sourceContent.title,
+                body: normalizeMarkdownBody(sourceContent.body),
+                transcript: sourceContent.transcript,
+                versions: sourceVersions,
+                currentVersionId: sourceContent.currentVersionId,
             },
             {
                 label: label ?? VERSION.generateLabel(versionNumber),
@@ -366,30 +404,74 @@ export const useEditorStore = defineStore('editor', () => {
             previousVersion,
         )
 
-        // 涓嶅彲鍙樻洿鏂帮細鍒涘缓鏂板璞＄敤浜庢寔涔呭寲
-        const updatedContent = {
-            ...currentContent.value,
-            versions: [...currentContent.value.versions, validatedVersion],
-            currentVersionId: validatedVersion.id,
-            updatedAt: validatedVersion.createdAt
-        }
+        const updatedVersions = [...sourceVersions, validatedVersion]
 
-        // 鍏堟寔涔呭寲锛屾垚鍔熷悗鍐嶆洿鏂版湰鍦扮姸鎬侊紙閬垮厤涓嶄竴鑷达級
-        await contentRepository.update(updatedContent.id, updatedContent)
-        currentContent.value = updatedContent
+        // 只持久化版本字段，避免慢版本写入覆盖随后到达的正文保存。
+        await contentRepository.update(sourceContent.id, {
+            versions: updatedVersions,
+            currentVersionId: validatedVersion.id,
+            updatedAt: validatedVersion.createdAt,
+        })
+
+        const liveContent = currentContent.value
+        if (
+            liveContent?.id === sourceContent.id &&
+            liveContent.currentVersionId === sourceContent.currentVersionId
+        ) {
+            currentContent.value = {
+                ...liveContent,
+                versions: updatedVersions,
+                currentVersionId: validatedVersion.id,
+                updatedAt: validatedVersion.createdAt,
+            }
+        }
         return validatedVersion
     }
 
-    // 鍒囨崲鐗堟湰锛堜笉鍙彉鏇存柊锛?
-    async function switchVersion(versionId: string) {
-        if (!currentContent.value) return
+    function createVersion(trigger: VersionTrigger = 'manual_save', label?: string): Promise<Version | null> {
+        const contentId = currentContent.value?.id
+        if (!contentId) return Promise.resolve(null)
+        return enqueueContentWrite(() => createVersionUnlocked(contentId, trigger, label))
+    }
 
-        const version = currentContent.value.versions.find((v: Version) => v.id === versionId)
+    async function pruneVersionsUnlocked(contentId: string, versionIds: readonly string[]): Promise<void> {
+        const sourceContent = await resolveQueuedContent(contentId)
+        if (!sourceContent || versionIds.length === 0) return
+
+        const deleteIds = new Set(versionIds)
+        deleteIds.delete(sourceContent.currentVersionId)
+        const prunedVersions = sourceContent.versions.filter(version => !deleteIds.has(version.id))
+        if (prunedVersions.length === sourceContent.versions.length) return
+
+        await contentRepository.update(sourceContent.id, { versions: prunedVersions })
+
+        const liveContent = currentContent.value
+        if (liveContent?.id === sourceContent.id) {
+            deleteIds.delete(liveContent.currentVersionId)
+            currentContent.value = {
+                ...liveContent,
+                versions: liveContent.versions.filter(version => !deleteIds.has(version.id)),
+            }
+        }
+    }
+
+    function pruneVersions(versionIds: readonly string[]): Promise<void> {
+        const contentId = currentContent.value?.id
+        if (!contentId) return Promise.resolve()
+        return enqueueContentWrite(() => pruneVersionsUnlocked(contentId, versionIds))
+    }
+
+    // 鍒囨崲鐗堟湰锛堜笉鍙彉鏇存柊锛?
+    async function switchVersionUnlocked(contentId: string, versionId: string) {
+        const sourceContent = await resolveQueuedContent(contentId)
+        if (!sourceContent) return
+
+        const version = sourceContent.versions.find((v: Version) => v.id === versionId)
         if (!version) return
 
         // 浣跨敤涓嶅彲鍙樻洿鏂版ā寮?
         const updated = {
-            ...currentContent.value,
+            ...sourceContent,
             currentVersionId: version.id,
             title: version.title,
             body: normalizeMarkdownBody(version.body),
@@ -399,8 +481,16 @@ export const useEditorStore = defineStore('editor', () => {
 
         // 鍏堟寔涔呭寲锛屾垚鍔熷悗鍐嶆洿鏂版湰鍦扮姸鎬侊紙閬垮厤绔炴€佹潯浠讹級
         await contentRepository.update(updated.id, updated)
-        currentContent.value = updated
+        if (currentContent.value?.id === sourceContent.id) {
+            currentContent.value = updated
+        }
         await syncArticleSnapshot(updated.articleId, updated)
+    }
+
+    function switchVersion(versionId: string): Promise<void> {
+        const contentId = currentContent.value?.id
+        if (!contentId) return Promise.resolve()
+        return enqueueContentWrite(() => switchVersionUnlocked(contentId, versionId))
     }
 
     // 鏇存柊閫変腑鐨勯摼鎺ワ紙涓嶅彲鍙樻洿鏂帮級
@@ -474,6 +564,7 @@ export const useEditorStore = defineStore('editor', () => {
         createContent,
         updateContent,
         createVersion,
+        pruneVersions,
         switchVersion,
         updateSelectedLinks,
         updateSelectedImages,

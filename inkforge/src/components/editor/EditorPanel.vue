@@ -641,7 +641,7 @@ watch(editorStatus, (newStatus) => {
 
 // ═══ Auto Save (防抖) ═══
 function schedulePersist(markdown: string) {
-  if (!isReady.value) return
+  if (!isReady.value && editorStatus.value !== 'error') return
 
   setSyncState('syncing')
   const saveSequence = ++pendingSaveSequence
@@ -651,14 +651,15 @@ function schedulePersist(markdown: string) {
   }, 900)
 }
 
-async function persistMarkdown(markdown: string, saveSequence: number) {
-  if (!isReady.value) return
+async function persistMarkdown(markdown: string, saveSequence: number, throwOnFailure = false) {
+  if (!isReady.value && editorStatus.value !== 'error') return
   const currentBody = currentContent.value?.body ?? ''
   const normalizedCurrentBody = isLikelyHtmlContent(currentBody)
     ? serializeHtmlToMarkdown(currentBody)
     : currentBody
 
   if (
+    editorStore.status !== 'error' &&
     normalizedCurrentBody === markdown &&
     titleText.value === (currentContent.value?.title ?? '') &&
     transcriptText.value === (currentContent.value?.transcript ?? '')
@@ -674,6 +675,16 @@ async function persistMarkdown(markdown: string, saveSequence: number) {
     body: markdown,
     transcript: transcriptText.value
   })
+
+  if (editorStore.status === 'error') {
+    if (saveSequence === pendingSaveSequence) {
+      setSyncState('dirty')
+    }
+    if (throwOnFailure) {
+      throw new Error(editorStore.error ?? 'Editor persistence failed')
+    }
+    return
+  }
 
   if (saveSequence === pendingSaveSequence) {
     setSyncState('synced')
@@ -715,13 +726,13 @@ async function flushPendingChanges(): Promise<void> {
 
   if (isSourceMode.value) {
     await projectMarkdownToTypora(sourceMarkdown.value)
-    await persistMarkdown(sourceMarkdown.value, ++pendingSaveSequence)
+    await persistMarkdown(sourceMarkdown.value, ++pendingSaveSequence, true)
     return
   }
 
   const currentMarkdown = serializeHtmlToMarkdown(bodyEditor.value?.getHTML() ?? '')
   sourceMarkdown.value = currentMarkdown
-  await persistMarkdown(currentMarkdown, ++pendingSaveSequence)
+  await persistMarkdown(currentMarkdown, ++pendingSaveSequence, true)
 }
 
 // 暴露编辑器实例供外部组件（如 OutlinePanel）使用

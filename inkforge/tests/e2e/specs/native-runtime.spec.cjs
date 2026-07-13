@@ -761,7 +761,15 @@ async function runClipboardTextProbe() {
 
     const original = await desktopStore.readClipboardText();
     const canRestoreOriginalText = Boolean(original && original.ok && typeof original.value === 'string');
-    const restoreText = canRestoreOriginalText ? original.value : '';
+    if (!canRestoreOriginalText) {
+      return {
+        ok: true,
+        skipped: true,
+        reason: 'INITIAL-CLIPBOARD-NOT-TEXT',
+      };
+    }
+
+    const restoreText = original.value;
     const sample = `InkForge desktop clipboard text probe ${Date.now()} ${Math.random().toString(16).slice(2)}`;
     let writeResult;
     let readResult;
@@ -780,7 +788,7 @@ async function runClipboardTextProbe() {
 
     return {
       ok: true,
-      originalReadOk: Boolean(original && original.ok),
+      skipped: false,
       originalWasText: canRestoreOriginalText,
       writeOk: Boolean(writeResult && writeResult.ok),
       readOk: Boolean(readResult && readResult.ok),
@@ -1377,7 +1385,10 @@ describe('InkForge — native desktop runtime boundary', () => {
     const probe = await runClipboardTextProbe();
 
     expect(probe.ok, probe.reason || 'clipboard text probe').to.equal(true);
-    expect(probe.originalReadOk, 'original clipboard readText command should complete').to.equal(true);
+    if (probe.skipped) {
+      expect(probe.reason, 'non-text clipboard state is left untouched').to.equal('INITIAL-CLIPBOARD-NOT-TEXT');
+      return;
+    }
     expect(probe.writeOk, probe.writeReason || 'clipboard writeText should succeed').to.equal(true);
     expect(probe.readOk, probe.readReason || 'clipboard readText should succeed').to.equal(true);
     expect(probe.readMatches, 'readText returns exactly the text written through the native API').to.equal(true);

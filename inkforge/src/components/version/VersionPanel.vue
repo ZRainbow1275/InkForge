@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
-import { useSettingsStore } from '@/stores/settings'
 import { useVersionManager, computeDiffSummary } from '@/composables/useVersionManager'
 import type { DiffLine, VersionMeta } from '@/composables/useVersionManager'
 import { Save, GitBranch, Clock, ChevronRight, Diff, RotateCcw, Zap, PenLine } from 'lucide-vue-next'
@@ -14,8 +13,10 @@ import type { Version } from '@/schemas/article'
 // ═══════════════════════════════════════════════════════════════════
 
 const editorStore = useEditorStore()
-const settingsStore = useSettingsStore()
 const { currentContent } = storeToRefs(editorStore)
+const props = defineProps<{
+    manager: ReturnType<typeof useVersionManager>
+}>()
 
 const {
     versionList,
@@ -23,27 +24,8 @@ const {
     createManualVersion,
     diffBetween,
     getVersionById,
-    updateAutoSnapshotConfig,
-} = useVersionManager(editorStore)
-
-watch(
-    () => ({
-        enabled: settingsStore.settings.data.autoBackup,
-        interval: settingsStore.settings.data.backupInterval,
-        maxBackups: settingsStore.settings.data.maxBackups,
-    }),
-    ({ enabled, interval, maxBackups }) => {
-        const safeIntervalMinutes = Number.isFinite(interval) ? Math.min(240, Math.max(1, Math.trunc(interval))) : 7
-        const safeMaxBackups = Number.isFinite(maxBackups) ? Math.min(50, Math.max(1, Math.trunc(maxBackups))) : 5
-
-        updateAutoSnapshotConfig({
-            enabled,
-            intervalMs: safeIntervalMinutes * 60 * 1000,
-            maxBackups: safeMaxBackups,
-        })
-    },
-    { immediate: true, deep: true },
-)
+    startAutoSnapshot,
+} = props.manager
 
 // ═══════════════════════════════════════════════════════════════════
 // 状态
@@ -161,6 +143,7 @@ async function confirmSwitch(): Promise<void> {
     if (!pendingSwitchVersion.value) return
 
     await editorStore.switchVersion(pendingSwitchVersion.value.id)
+    startAutoSnapshot()
     showSwitchConfirm.value = false
     pendingSwitchVersion.value = null
     switchDiffSummary.value = null

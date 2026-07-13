@@ -8,7 +8,7 @@
  * 闈㈡澘鎶樺彔/灞曞紑 + 蹇嵎閿?+ 涓撴敞妯″紡 + 澶氬钩鍙伴瑙?
  */
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import type { Editor as TiptapEditor } from '@tiptap/core'
 import { useEditorStore } from '@/stores/editor'
@@ -30,6 +30,7 @@ import {
   type Platform,
 } from '@/services/export'
 import { usePreviewRenderer } from '@/composables/usePreviewRenderer'
+import { useVersionManager } from '@/composables/useVersionManager'
 import {
   computeContentWordCount,
   computeWritingWindowStats,
@@ -87,6 +88,32 @@ const tocStore = useTocStore()
 const workstationTabsStore = useWorkstationTabsStore()
 workstationTabsStore.initialize()
 
+const versionManager = useVersionManager(editorStore)
+const { updateAutoSnapshotConfig } = versionManager
+
+watch(
+  () => ({
+    enabled: settingsStore.settings.data.autoBackup,
+    interval: settingsStore.settings.data.backupInterval,
+    maxBackups: settingsStore.settings.data.maxBackups,
+  }),
+  ({ enabled, interval, maxBackups }) => {
+    const safeIntervalMinutes = Number.isFinite(interval)
+      ? Math.min(240, Math.max(1, Math.trunc(interval)))
+      : 7
+    const safeMaxBackups = Number.isFinite(maxBackups)
+      ? Math.min(50, Math.max(1, Math.trunc(maxBackups)))
+      : 5
+
+    updateAutoSnapshotConfig({
+      enabled,
+      intervalMs: safeIntervalMinutes * 60 * 1000,
+      maxBackups: safeMaxBackups,
+    })
+  },
+  { immediate: true, deep: true },
+)
+
 const {
   status: editorStatus,
   currentContent,
@@ -118,6 +145,24 @@ interface EditorPanelExpose {
 
 const editorPanelRef = ref<EditorPanelExpose | null>(null)
 const outlineEditor = computed(() => editorPanelRef.value?.getBodyEditor?.())
+
+async function flushPendingEditorChangesBeforeRoute(): Promise<boolean> {
+  if (!editorStore.currentContent) {
+    return true
+  }
+
+  try {
+    await editorPanelRef.value?.flushPendingChanges?.()
+    return true
+  } catch (error) {
+    logger.warn('[Workstation] route change blocked because editor flush failed', {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return false
+  }
+}
+
+onBeforeRouteLeave(flushPendingEditorChangesBeforeRoute)
 
 type CompatibleEditorSettings = typeof settingsStore.settings.editor & {
   editorMode?: EditorMode
@@ -1452,17 +1497,6 @@ function openEditorSettings(): void {
 }
 
 async function openDocumentStatusTarget(): Promise<void> {
-  const flushPendingChanges = editorPanelRef.value?.flushPendingChanges
-  if (flushPendingChanges) {
-    try {
-      await flushPendingChanges()
-    } catch (error) {
-      logger.warn('[Workstation] status-bar navigation flush failed; continuing route change', {
-        error: error instanceof Error ? error.message : String(error),
-      })
-    }
-  }
-
   if (activeArticleStatus.value && isDraftBoxStatus(activeArticleStatus.value)) {
     await router.push({ name: 'Drafts' })
     return
@@ -2521,7 +2555,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               v-show="managerTab === 'versions'"
               class="tab-content"
             >
-              <VersionPanel />
+              <VersionPanel :manager="versionManager" />
             </div>
             <div
               v-show="managerTab === 'outline'"

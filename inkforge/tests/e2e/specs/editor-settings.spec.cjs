@@ -28,6 +28,7 @@ const createdArticleIds = new Set();
 let originalListEnterBehavior = null;
 let originalSmartPunctuationSettings = null;
 let originalWritingGoalSettings = null;
+let originalDataSettings = null;
 let originalSettingsStorage;
 
 async function waitForMainWindow() {
@@ -133,6 +134,401 @@ async function readWritingGoalSettings() {
       status: document.querySelector('#writing-goal-section .sv-inline-status')?.textContent?.trim() ?? null,
     };
   }, WRITING_GOAL_FIELDS);
+}
+
+async function readDataSettingsAndDiagnostics() {
+  return browser.execute(() => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const storeData = pinia?._s.get('settings')?.settings?.data;
+    const persistedData = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}')?.data;
+    const backupSection = document.querySelector('[data-settings-entry="data.backup"]');
+    const storageSection = document.querySelector('[data-settings-entry="data.storage"]');
+    const cacheSection = document.querySelector('[data-settings-entry="data.cache"]');
+    const normalize = (data) => data ? {
+      autoBackup: data.autoBackup,
+      backupInterval: data.backupInterval,
+      maxBackups: data.maxBackups,
+    } : null;
+    return {
+      store: normalize(storeData),
+      persisted: normalize(persistedData),
+      visible: {
+        autoBackup: backupSection?.querySelector('input[type="checkbox"]')?.checked ?? null,
+        backupInterval: backupSection?.querySelector('input[aria-label="备份间隔（分钟）"]')?.value ?? null,
+        maxBackups: backupSection?.querySelector('input[aria-label="备份保留数量"]')?.value ?? null,
+      },
+      manualBackupResult: document.querySelector('#data-manual-backup-result')?.textContent?.trim() ?? '',
+      runtimeStatus: document.querySelector('#data-runtime-diagnostics-status')?.textContent?.trim() ?? '',
+      diagnostics: {
+        storageState: storageSection?.getAttribute('data-storage-state') ?? null,
+        storageUsage: Number(storageSection?.getAttribute('data-storage-usage')),
+        storageQuota: Number(storageSection?.getAttribute('data-storage-quota')),
+        localStorageBytes: Number(storageSection?.getAttribute('data-local-storage-bytes')),
+        localStorageKeys: Number(storageSection?.getAttribute('data-local-storage-keys')),
+        indexedDbState: storageSection?.getAttribute('data-indexeddb-state') ?? null,
+        indexedDbRecords: Number(storageSection?.getAttribute('data-indexeddb-records')),
+        indexedDbTables: Number(storageSection?.getAttribute('data-indexeddb-tables')),
+        cacheState: cacheSection?.getAttribute('data-cache-state') ?? null,
+        cacheBuckets: Number(cacheSection?.getAttribute('data-cache-buckets')),
+        serviceWorkerSummary: cacheSection?.getAttribute('data-service-worker-summary') ?? null,
+      },
+    };
+  });
+}
+
+async function applyDataBackupSettings(target) {
+  await openRoute('/settings?tab=data', '[data-settings-tab="data"]');
+  const backupSection = await browser.$('[data-settings-entry="data.backup"]');
+  await backupSection.scrollIntoView({ block: 'center', inline: 'nearest' });
+
+  const autoBackupInput = await backupSection.$('input[type="checkbox"]');
+  if (await autoBackupInput.isSelected() !== target.autoBackup) {
+    await browser.execute((element) => element.click(), autoBackupInput);
+  }
+
+  for (const [selector, value] of [
+    ['input[aria-label="备份间隔（分钟）"]', target.backupInterval],
+    ['input[aria-label="备份保留数量"]', target.maxBackups],
+  ]) {
+    const input = await backupSection.$(selector);
+    await browser.execute((element, nextValue) => {
+      element.scrollIntoView({ block: 'center', inline: 'nearest' });
+      const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      if (!valueSetter) throw new Error('native HTMLInputElement value setter is unavailable');
+      valueSetter.call(element, nextValue);
+      element.dispatchEvent(new window.Event('input', { bubbles: true }));
+      element.dispatchEvent(new window.Event('change', { bubbles: true }));
+      element.blur();
+    }, input, String(value));
+  }
+
+  await browser.waitUntil(
+    async () => {
+      const current = await readDataSettingsAndDiagnostics();
+      return JSON.stringify(current.store) === JSON.stringify(target);
+    },
+    { timeout: 5_000, interval: 100, timeoutMsg: 'Data backup controls did not update the settings store' },
+  );
+
+  await browser.pause(5_200);
+  await browser.refresh();
+  await browser.waitUntil(
+    async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="data"]'))),
+    { timeout: 10_000, interval: 200, timeoutMsg: 'Data settings did not recover after reload' },
+  );
+
+  const actual = await readDataSettingsAndDiagnostics();
+  expect(actual.store, 'Data backup settings reach the live settings store').to.deep.equal(target);
+  expect(actual.persisted, 'Data backup settings survive the real debounced localStorage write')
+    .to.deep.equal(target);
+  expect(actual.visible, 'Data backup controls recover the persisted values after reload').to.deep.equal({
+    autoBackup: target.autoBackup,
+    backupInterval: String(target.backupInterval),
+    maxBackups: String(target.maxBackups),
+  });
+}
+
+async function readVersionPersistence(articleId) {
+  return browser.execute(async (targetArticleId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const currentContent = pinia?._s.get('editor')?.currentContent ?? null;
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    let persistedContent;
+    try {
+      persistedContent = await new Promise((resolve, reject) => {
+        const request = database
+          .transaction('contents', 'readonly')
+          .objectStore('contents')
+          .index('articleId')
+          .get(targetArticleId);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error ?? new Error('content version read failed'));
+      });
+    } finally {
+      database.close();
+    }
+    const normalizeVersions = (content) => JSON.parse(JSON.stringify(content?.versions ?? []));
+    return {
+      storeArticleId: currentContent?.articleId ?? null,
+      persistedArticleId: persistedContent?.articleId ?? null,
+      storeBody: currentContent?.body ?? null,
+      persistedBody: persistedContent?.body ?? null,
+      storeCurrentVersionId: currentContent?.currentVersionId ?? null,
+      persistedCurrentVersionId: persistedContent?.currentVersionId ?? null,
+      storeVersions: normalizeVersions(currentContent),
+      persistedVersions: normalizeVersions(persistedContent),
+    };
+  }, articleId);
+}
+
+async function runRealVersionWriteRace(articleId) {
+  return browser.execute(async (targetArticleId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const editorStore = pinia?._s.get('editor');
+    const currentContent = editorStore?.currentContent ?? null;
+    if (!editorStore || currentContent?.articleId !== targetArticleId) {
+      throw new Error('the production editor store does not own the target article');
+    }
+
+    const targetVersionId = currentContent.versions[0]?.id;
+    if (!targetVersionId) throw new Error('the production draft has no switch target version');
+    const prunedVersionId = currentContent.versions.find((version) => (
+      version.trigger === 'interval' && version.id !== targetVersionId
+    ))?.id;
+    if (!prunedVersionId) throw new Error('the production draft has no interval version to prune');
+
+    const bodyRaceSuffix = ' concurrent body save proof';
+    const [, intervalVersion, manualVersion] = await Promise.all([
+      editorStore.updateContent({ body: `${currentContent.body}${bodyRaceSuffix}` }),
+      editorStore.createVersion('interval', '并发自动备份验收'),
+      editorStore.createVersion('manual_save', '并发手动备份验收'),
+    ]);
+    const [companionVersion] = await Promise.all([
+      editorStore.createVersion('manual_save', '并发切换伴随备份验收'),
+      editorStore.pruneVersions([prunedVersionId]),
+      editorStore.switchVersion(targetVersionId),
+    ]);
+    const createdVersionIds = [intervalVersion, manualVersion, companionVersion]
+      .map((version) => version?.id ?? null)
+      .filter((id) => typeof id === 'string');
+
+    return { bodyRaceSuffix, createdVersionIds, prunedVersionId, targetVersionId };
+  }, articleId);
+}
+
+async function runCrossDocumentWriteQueueIsolation(sourceArticleId, targetArticleId) {
+  return browser.execute(async (sourceId, targetId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const editorStore = pinia?._s.get('editor');
+    const articleStore = pinia?._s.get('article');
+    const sourceContent = editorStore?.currentContent ?? null;
+    if (!editorStore || !articleStore || sourceContent?.articleId !== sourceId) {
+      throw new Error('the production stores do not own the source article');
+    }
+
+    const readPersistedContent = async (articleId) => {
+      const database = await new Promise((resolve, reject) => {
+        const request = window.indexedDB.open('InkForgeDB');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+      });
+      try {
+        return await new Promise((resolve, reject) => {
+          const request = database
+            .transaction('contents', 'readonly')
+            .objectStore('contents')
+            .index('articleId')
+            .get(articleId);
+          request.onsuccess = () => resolve(request.result ?? null);
+          request.onerror = () => reject(request.error ?? new Error('cross-document content read failed'));
+        });
+      } finally {
+        database.close();
+      }
+    };
+
+    const targetBefore = await readPersistedContent(targetId);
+    if (!targetBefore) throw new Error('the production target content does not exist');
+    const targetArticleBodyBefore = articleStore.articles.find((article) => article.id === targetId)?.rawContent ?? null;
+
+    const stamp = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const headBody = `${sourceContent.body} queue-head-${stamp}`;
+    const queuedBody = `${sourceContent.body} queue-final-${stamp}`;
+    const versionLabel = `跨文稿队列隔离 ${stamp}`;
+    const headWrite = editorStore.updateContent({ body: headBody });
+    const queuedWrite = editorStore.updateContent({ body: queuedBody });
+    const queuedVersion = editorStore.createVersion('manual_save', versionLabel);
+
+    articleStore.selectArticle(targetId);
+    const [, , createdVersion] = await Promise.all([headWrite, queuedWrite, queuedVersion]);
+
+    const deadline = Date.now() + 10_000;
+    while (editorStore.currentContent?.articleId !== targetId && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    if (editorStore.currentContent?.articleId !== targetId) {
+      throw new Error('the production editor store did not switch to the target article');
+    }
+
+    const targetLiveBody = editorStore.currentContent.body;
+    const targetLiveVersions = [...editorStore.currentContent.versions];
+    const targetAfter = await readPersistedContent(targetId);
+    const versionId = createdVersion?.id ?? null;
+    articleStore.selectArticle(sourceId);
+    while (editorStore.currentContent?.articleId !== sourceId && Date.now() < deadline + 10_000) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    if (editorStore.currentContent?.articleId !== sourceId) {
+      throw new Error('the production editor store did not reload the source article');
+    }
+    const sourceReloadedBody = editorStore.currentContent.body;
+    const sourceReloadedVersions = [...editorStore.currentContent.versions];
+
+    articleStore.selectArticle(targetId);
+    while (editorStore.currentContent?.articleId !== targetId && Date.now() < deadline + 20_000) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    if (editorStore.currentContent?.articleId !== targetId) {
+      throw new Error('the production editor store did not restore the target article');
+    }
+    const targetReloadedVersions = [...editorStore.currentContent.versions];
+    const targetReloadedCurrentVersionId = editorStore.currentContent.currentVersionId;
+
+    return {
+      queuedBody,
+      versionId,
+      storeArticleId: editorStore.currentContent.articleId,
+      liveTargetBody: targetLiveBody,
+      targetBodyBefore: targetArticleBodyBefore,
+      targetBodyAfter: editorStore.currentContent.body,
+      rawTargetBodyUnchanged: JSON.stringify(targetAfter?.body ?? null) === JSON.stringify(targetBefore.body),
+      rawTargetVersionsUnchanged: JSON.stringify(targetAfter?.versions ?? [])
+        === JSON.stringify(targetBefore.versions ?? []),
+      rawTargetCurrentVersionUnchanged: targetAfter?.currentVersionId === targetBefore.currentVersionId,
+      targetVersionCountBefore: targetBefore.versions?.length ?? 0,
+      targetVersionCountAfter: targetAfter?.versions?.length ?? 0,
+      targetReloadedVersionsMatchPersisted: JSON.stringify(targetReloadedVersions)
+        === JSON.stringify(targetAfter?.versions ?? []),
+      targetReloadedCurrentVersionMatchesPersisted: targetReloadedCurrentVersionId
+        === targetAfter?.currentVersionId,
+      sourceBodyAfter: sourceReloadedBody,
+      sourceVersionMatches: sourceReloadedVersions.filter((version) => version.id === versionId).length,
+      targetVersionMatches: targetLiveVersions.filter((version) => version.id === versionId).length,
+      targetPersistedVersionMatches: targetAfter?.versions?.filter((version) => version.id === versionId).length ?? 0,
+      sourceVersionBody: sourceReloadedVersions.find((version) => version.id === versionId)?.body ?? null,
+      sourceVersionLabel: sourceReloadedVersions.find((version) => version.id === versionId)?.label ?? null,
+      versionLabel,
+    };
+  }, sourceArticleId, targetArticleId);
+}
+
+async function installDataFaultInjection(mode) {
+  return browser.execute((faultMode) => {
+    if (window.__INKFORGE_DATA_FAULTS__) {
+      throw new Error('data fault injection is already active');
+    }
+
+    const restorers = [];
+    const override = (target, key, value) => {
+      const descriptor = Object.getOwnPropertyDescriptor(target, key);
+      Object.defineProperty(target, key, {
+        configurable: true,
+        writable: true,
+        value,
+      });
+      restorers.push(() => {
+        if (descriptor) Object.defineProperty(target, key, descriptor);
+        else delete target[key];
+      });
+    };
+
+    try {
+      if (faultMode === 'backup-write') {
+        override(window.IDBObjectStore.prototype, 'put', () => {
+          throw new window.DOMException('forced backup write failure', 'QuotaExceededError');
+        });
+      } else if (faultMode === 'diagnostics') {
+        override(window.navigator.storage, 'estimate', () => Promise.reject(new Error('forced storage estimate failure')));
+        override(window.caches, 'keys', () => Promise.reject(new Error('forced cache read failure')));
+        override(window.IDBObjectStore.prototype, 'count', () => {
+          throw new window.DOMException('forced IndexedDB count failure', 'UnknownError');
+        });
+      } else {
+        throw new Error(`unknown data fault mode: ${faultMode}`);
+      }
+    } catch (error) {
+      for (const restore of [...restorers].reverse()) restore();
+      throw error;
+    }
+
+    window.__INKFORGE_DATA_FAULTS__ = restorers;
+    return restorers.length;
+  }, mode);
+}
+
+async function restoreDataFaultInjection() {
+  return browser.execute(() => {
+    const restorers = window.__INKFORGE_DATA_FAULTS__ ?? [];
+    for (const restore of [...restorers].reverse()) restore();
+    delete window.__INKFORGE_DATA_FAULTS__;
+    return restorers.length;
+  });
+}
+
+async function readBrowserStorageTruth() {
+  return browser.execute(async () => {
+    let localStorageBytes = 0;
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index) ?? '';
+      const value = window.localStorage.getItem(key) ?? '';
+      localStorageBytes += (key.length + value.length) * 2;
+    }
+
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    let indexedDbRecords = 0;
+    let indexedDbTables;
+    try {
+      const tableNames = Array.from(database.objectStoreNames);
+      indexedDbTables = tableNames.length;
+      for (const tableName of tableNames) {
+        indexedDbRecords += await new Promise((resolve, reject) => {
+          const request = database.transaction(tableName, 'readonly').objectStore(tableName).count();
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error ?? new Error(`${tableName} count failed`));
+        });
+      }
+    } finally {
+      database.close();
+    }
+
+    const estimate = await window.navigator.storage.estimate();
+    const cacheNames = await window.caches.keys();
+    const serviceWorkerRegistrations = await window.navigator.serviceWorker.getRegistrations();
+    return {
+      storageUsage: estimate.usage ?? 0,
+      storageQuota: estimate.quota ?? 0,
+      localStorageBytes,
+      localStorageKeys: window.localStorage.length,
+      indexedDbRecords,
+      indexedDbTables,
+      cacheBuckets: cacheNames.length,
+      serviceWorkerSummary: serviceWorkerRegistrations.length > 0
+        ? `${serviceWorkerRegistrations.length} 个注册`
+        : '未注册 Service Worker',
+    };
+  });
 }
 
 async function applyWritingGoalSettings(target) {
@@ -863,6 +1259,13 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     originalWritingGoalSettings = (await readWritingGoalSettings()).store;
     expect(Object.keys(originalWritingGoalSettings ?? {}).sort(), 'the original writing goal shape is complete')
       .to.deep.equal(WRITING_GOAL_FIELDS.map(({ key }) => key).sort());
+    await openRoute('/settings?tab=data', '[data-settings-tab="data"]');
+    originalDataSettings = (await readDataSettingsAndDiagnostics()).store;
+    expect(originalDataSettings, 'the original Data backup settings are available').to.include.keys(
+      'autoBackup',
+      'backupInterval',
+      'maxBackups',
+    );
   });
 
   after(async () => {
@@ -892,6 +1295,16 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
           originalListEnterBehavior === 'notion' ? '逐级减缩' : 'Typora 默认',
           originalListEnterBehavior,
         );
+      }
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+    try {
+      await openRoute('/settings?tab=data', '[data-settings-tab="data"]');
+      const currentDataSettings = (await readDataSettingsAndDiagnostics()).store;
+      if (originalDataSettings
+        && JSON.stringify(currentDataSettings) !== JSON.stringify(originalDataSettings)) {
+        await applyDataBackupSettings(originalDataSettings);
       }
     } catch (error) {
       cleanupErrors.push(error);
@@ -1168,5 +1581,272 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     } finally {
       if (!probeStopped) await stopSmartPunctuationErrorProbe();
     }
+  });
+
+  it('persists Data backup settings, writes real versions, and reports real storage diagnostics', async function () {
+    this.timeout(300_000);
+    const configured = { autoBackup: true, backupInterval: 1, maxBackups: 2 };
+    await applyDataBackupSettings(configured);
+
+    const listEnterBehavior = await readListEnterBehavior();
+    const articleId = await createBlankDraft(listEnterBehavior);
+    const proofBody = 'InkForge real auto backup proof';
+    const editor = await browser.$('.ProseMirror');
+    await browser.execute((surface) => surface.focus(), editor);
+    for (const character of proofBody) await browser.keys(character);
+    await browser.waitUntil(
+      async () => browser.execute((expected) => {
+        const root = document.getElementById('app');
+        const provides = root?.__vue_app__?._context?.provides;
+        const pinia = provides
+          ? Object.getOwnPropertySymbols(provides)
+            .map((symbol) => provides[symbol])
+            .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+          : null;
+        return pinia?._s.get('editor')?.currentContent?.body?.includes(expected) ?? false;
+      }, proofBody),
+      { timeout: 5_000, interval: 100, timeoutMsg: 'the real editor body did not receive the backup proof text' },
+    );
+
+    let automaticVersionState = null;
+    await browser.waitUntil(
+      async () => {
+        automaticVersionState = await readVersionPersistence(articleId);
+        const stored = automaticVersionState.storeVersions.find((version) => (
+          version.trigger === 'interval' && version.body.includes(proofBody)
+        ));
+        const persisted = stored
+          ? automaticVersionState.persistedVersions.find((version) => version.id === stored.id)
+          : null;
+        return Boolean(stored && persisted?.body.includes(proofBody));
+      },
+      {
+        timeout: 75_000,
+        interval: 500,
+        timeoutMsg: 'the configured one-minute automatic backup never reached IndexedDB',
+      },
+    );
+    expect(automaticVersionState.storeArticleId, 'the auto snapshot belongs to the active production draft')
+      .to.equal(articleId);
+    expect(automaticVersionState.persistedArticleId, 'the auto snapshot reached the production contents table')
+      .to.equal(articleId);
+
+    const liveAutomaticVersions = automaticVersionState.storeVersions.filter((version) => (
+      version.trigger === 'interval' && version.body.includes(proofBody)
+    ));
+    const persistedAutomaticVersions = automaticVersionState.persistedVersions.filter((version) => (
+      version.trigger === 'interval' && version.body.includes(proofBody)
+    ));
+    expect(liveAutomaticVersions, 'the configured timer creates exactly one matching live snapshot')
+      .to.have.length(1);
+    expect(persistedAutomaticVersions, 'the configured timer creates exactly one matching persisted snapshot')
+      .to.have.length(1);
+    expect(persistedAutomaticVersions[0], 'the same automatic snapshot id and payload reach IndexedDB')
+      .to.deep.equal(liveAutomaticVersions[0]);
+
+    const routeFlushSuffix = ' immediate route flush proof';
+    await browser.execute((surface) => surface.focus(), editor);
+    for (const character of routeFlushSuffix) await browser.keys(character);
+
+    expect(await installDataFaultInjection('backup-write'), 'route failure injection replaces one browser API')
+      .to.equal(1);
+    try {
+      await browser.execute(() => {
+        window.history.pushState({}, '', '/settings?tab=data');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          location.pathname === '/workstation'
+          && document.querySelector('.status-pill.error')?.textContent?.trim() === '保存失败'
+        )),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'failed editor persistence did not block route leave visibly' },
+      );
+      const blockedRoute = await browser.execute(() => ({
+        path: location.pathname,
+        status: document.querySelector('.status-pill.error')?.textContent?.trim() ?? '',
+      }));
+      expect(blockedRoute, 'a failed route flush keeps the real Workstation visible').to.deep.equal({
+        path: '/workstation',
+        status: '保存失败',
+      });
+    } finally {
+      await restoreDataFaultInjection();
+    }
+
+    await openRoute('/settings?tab=data', '[data-settings-tab="data"]');
+    const beforeManual = await readVersionPersistence(articleId);
+    expect(beforeManual.storeBody, 'route leave flushes the latest DOM body into the live editor store')
+      .to.include(routeFlushSuffix.trim());
+    const backupButton = await browser.$('[data-data-action="create-backup"]');
+    await backupButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+    expect(await backupButton.isEnabled(), 'an open real draft enables immediate backup').to.equal(true);
+
+    expect(await installDataFaultInjection('backup-write'), 'backup failure injection replaces one browser API')
+      .to.equal(1);
+    try {
+      await backupButton.click();
+      await browser.waitUntil(
+        async () => (await readDataSettingsAndDiagnostics()).manualBackupResult.startsWith('创建备份失败：'),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'immediate backup did not surface the real IndexedDB write failure' },
+      );
+      const afterFailedManual = await readVersionPersistence(articleId);
+      expect(afterFailedManual.storeVersions, 'a failed backup adds no live version')
+        .to.have.length(beforeManual.storeVersions.length);
+      expect(afterFailedManual.persistedVersions, 'a failed backup adds no persisted version')
+        .to.have.length(beforeManual.persistedVersions.length);
+    } finally {
+      await restoreDataFaultInjection();
+    }
+
+    await backupButton.click();
+    await browser.waitUntil(
+      async () => (await readDataSettingsAndDiagnostics()).manualBackupResult.startsWith('已创建备份：'),
+      { timeout: 10_000, interval: 100, timeoutMsg: 'immediate backup did not report a persisted success' },
+    );
+
+    const afterManual = await readVersionPersistence(articleId);
+    expect(afterManual.storeVersions.length, 'immediate backup adds exactly one live version')
+      .to.equal(beforeManual.storeVersions.length + 1);
+    expect(afterManual.persistedVersions.length, 'immediate backup adds exactly one persisted version')
+      .to.equal(beforeManual.persistedVersions.length + 1);
+    const manualVersion = afterManual.storeVersions.at(-1);
+    expect(manualVersion?.trigger, 'immediate backup uses the manual_save trigger').to.equal('manual_save');
+    expect(manualVersion?.body, 'immediate backup captures the active real editor body').to.include(proofBody);
+    expect(manualVersion?.body, 'immediate backup captures text typed immediately before route leave')
+      .to.include(routeFlushSuffix.trim());
+    expect(
+      afterManual.persistedVersions.find((version) => version.id === manualVersion?.id),
+      'the exact immediate-backup version id and payload exist in IndexedDB',
+    ).to.deep.equal(manualVersion);
+
+    const refreshButton = await browser.$('[data-data-action="refresh-diagnostics"]');
+    await refreshButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+
+    expect(await installDataFaultInjection('diagnostics'), 'diagnostic failure injection replaces three browser APIs')
+      .to.equal(3);
+    try {
+      await refreshButton.click();
+      await browser.waitUntil(
+        async () => {
+          const current = await readDataSettingsAndDiagnostics();
+          return current.runtimeStatus.startsWith('部分诊断不可用：')
+            && current.diagnostics.storageState === 'limited'
+            && current.diagnostics.indexedDbState === 'error'
+            && current.diagnostics.cacheState === 'error';
+        },
+        { timeout: 15_000, interval: 200, timeoutMsg: 'runtime diagnostics did not expose the injected failure states' },
+      );
+    } finally {
+      await restoreDataFaultInjection();
+    }
+
+    await refreshButton.click();
+    await browser.waitUntil(
+      async () => {
+        const current = await readDataSettingsAndDiagnostics();
+        return current.runtimeStatus === '诊断已刷新'
+          && current.diagnostics.storageState === 'ready'
+          && current.diagnostics.indexedDbState === 'ready'
+          && ['ready', 'empty'].includes(current.diagnostics.cacheState);
+      },
+      { timeout: 15_000, interval: 200, timeoutMsg: 'runtime storage diagnostics did not reach a complete state' },
+    );
+
+    const diagnostics = (await readDataSettingsAndDiagnostics()).diagnostics;
+    const truth = await readBrowserStorageTruth();
+    expect(diagnostics.localStorageBytes, 'LocalStorage bytes match a direct key/value traversal')
+      .to.equal(truth.localStorageBytes);
+    expect(diagnostics.localStorageKeys, 'LocalStorage key count matches the browser API')
+      .to.equal(truth.localStorageKeys);
+    expect(diagnostics.indexedDbRecords, 'IndexedDB records match direct counts across every object store')
+      .to.equal(truth.indexedDbRecords);
+    expect(diagnostics.indexedDbTables, 'IndexedDB table count matches objectStoreNames')
+      .to.equal(truth.indexedDbTables);
+    expect(diagnostics.cacheBuckets, 'Cache bucket count matches Cache Storage')
+      .to.equal(truth.cacheBuckets);
+    expect(diagnostics.serviceWorkerSummary, 'Service Worker summary matches real registrations')
+      .to.equal(truth.serviceWorkerSummary);
+    expect(diagnostics.storageQuota, 'Storage quota matches a direct StorageManager estimate')
+      .to.equal(truth.storageQuota);
+    expect(Math.abs(diagnostics.storageUsage - truth.storageUsage), 'Storage usage remains stable across adjacent reads')
+      .to.be.lessThan(65_536);
+
+    const beforeUnmountWindow = await readVersionPersistence(articleId);
+    await browser.pause(65_000);
+    const afterUnmountWindow = await readVersionPersistence(articleId);
+    expect(afterUnmountWindow.storeVersions, 'Workstation unmount stops live automatic snapshots')
+      .to.have.length(beforeUnmountWindow.storeVersions.length);
+    expect(afterUnmountWindow.persistedVersions, 'Workstation unmount stops persisted automatic snapshots')
+      .to.have.length(beforeUnmountWindow.persistedVersions.length);
+
+    const race = await runRealVersionWriteRace(articleId);
+    expect(race.createdVersionIds, 'all concurrent production version writes resolve with real ids')
+      .to.have.length(3);
+    const racePersistence = await readVersionPersistence(articleId);
+    for (const versionId of race.createdVersionIds) {
+      expect(
+        racePersistence.storeVersions.filter((version) => version.id === versionId),
+        `concurrent version ${versionId} exists exactly once in the live store`,
+      ).to.have.length(1);
+      expect(
+        racePersistence.persistedVersions.filter((version) => version.id === versionId),
+        `concurrent version ${versionId} exists exactly once in IndexedDB`,
+      ).to.have.length(1);
+      expect(
+        racePersistence.storeVersions.find((version) => version.id === versionId)?.body,
+        `concurrent version ${versionId} captures the serialized body save`,
+      ).to.include(race.bodyRaceSuffix.trim());
+    }
+    expect(racePersistence.storeVersions.some((version) => version.id === race.prunedVersionId),
+      'queued automatic pruning removes the overflow version from the live store').to.equal(false);
+    expect(racePersistence.persistedVersions.some((version) => version.id === race.prunedVersionId),
+      'queued automatic pruning removes the overflow version from IndexedDB').to.equal(false);
+    expect(racePersistence.persistedVersions, 'concurrent version arrays remain identical across Pinia and IndexedDB')
+      .to.deep.equal(racePersistence.storeVersions);
+    expect(racePersistence.persistedBody, 'concurrent body state remains identical across Pinia and IndexedDB')
+      .to.equal(racePersistence.storeBody);
+    expect(racePersistence.persistedCurrentVersionId, 'concurrent currentVersionId remains identical across boundaries')
+      .to.equal(racePersistence.storeCurrentVersionId);
+    expect(racePersistence.storeCurrentVersionId, 'the serialized version switch wins after the companion write')
+      .to.equal(race.targetVersionId);
+
+    const isolationArticleId = await createBlankDraft(listEnterBehavior);
+    const isolation = await runCrossDocumentWriteQueueIsolation(isolationArticleId, articleId);
+    expect(isolation.versionId, 'the queued source-document version resolves with a real id')
+      .to.be.a('string').and.not.equal('');
+    expect(isolation.storeArticleId, 'the production editor finishes on the selected target document')
+      .to.equal(articleId);
+    expect(isolation.sourceBodyAfter, 'the queued source body is persisted to its captured document')
+      .to.equal(isolation.queuedBody);
+    expect(isolation.sourceVersionMatches, 'the queued source version exists exactly once on the source document')
+      .to.equal(1);
+    expect(isolation.sourceVersionBody, 'the queued source version captures the final queued body')
+      .to.equal(isolation.queuedBody);
+    expect(isolation.sourceVersionLabel, 'the queued source version keeps its requested label')
+      .to.equal(isolation.versionLabel);
+    expect(isolation.targetVersionMatches, 'the source version id never leaks into the selected target document')
+      .to.equal(0);
+    expect(isolation.targetPersistedVersionMatches, 'the source version id never leaks into target IndexedDB state')
+      .to.equal(0);
+    expect(isolation.targetBodyAfter, 'the queued source payload never overwrites the target document')
+      .to.equal(isolation.targetBodyBefore);
+    expect(isolation.liveTargetBody, 'the live target body remains equal to its persisted content')
+      .to.equal(isolation.targetBodyBefore);
+    expect(isolation.rawTargetBodyUnchanged, 'the target IndexedDB body remains byte-for-byte equivalent')
+      .to.equal(true);
+    expect(isolation.rawTargetVersionsUnchanged, 'the complete target IndexedDB version array remains unchanged')
+      .to.equal(true);
+    expect(isolation.rawTargetCurrentVersionUnchanged, 'the target IndexedDB currentVersionId remains unchanged')
+      .to.equal(true);
+    expect(isolation.targetVersionCountAfter, 'the queued source version never changes target retention state')
+      .to.equal(isolation.targetVersionCountBefore);
+    expect(isolation.targetReloadedVersionsMatchPersisted, 'the reloaded target versions equal IndexedDB exactly')
+      .to.equal(true);
+    expect(
+      isolation.targetReloadedCurrentVersionMatchesPersisted,
+      'the reloaded target currentVersionId equals IndexedDB exactly',
+    ).to.equal(true);
+
   });
 });

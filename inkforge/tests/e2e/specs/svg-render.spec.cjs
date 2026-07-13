@@ -284,6 +284,21 @@ async function reachWorkstationExport(articleId) {
 async function openFlagshipExportPreview(flagshipName) {
   await openExportPanel('微信');
 
+  await browser.waitUntil(
+    async () => browser.execute((name) => {
+      const activePill = Array.from(document.querySelectorAll('.export-panel .pill-btn.active'))
+        .some((pill) => (pill.textContent || '').includes('微信'));
+      const card = Array.from(document.querySelectorAll('.export-panel .preset-card'))
+        .find((candidate) => (candidate.textContent || '').includes(name));
+      return activePill && Boolean(card?.offsetParent);
+    }, flagshipName),
+    {
+      timeout: 12_000,
+      interval: 200,
+      timeoutMsg: `WeChat preset grid never stabilized for "${flagshipName}"`,
+    },
+  );
+
   // Click the flagship preset card by its visible name.
   const clicked = await browser.execute((name) => {
     const cards = Array.from(document.querySelectorAll('.export-panel .preset-card'));
@@ -1030,7 +1045,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       expect(richClipboardAvailable, 'real WebView2 must expose rich ClipboardItem.write for WeChat style copy').to.equal(true);
 
       const copyButton = await browser.$('.export-panel .act-btn.act-primary');
-      await copyButton.waitForEnabled({ timeout: 12_000 });
+      await copyButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await copyButton.waitForClickable({ timeout: 12_000, interval: 200 });
       await copyButton.click();
       await browser.waitUntil(
         async () => browser.execute(() => (
@@ -1045,7 +1061,18 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
 
       await closeExportModal();
       await openSettingsExportHistory();
-      const recorded = await collectExportHistoryProbe();
+      let recorded;
+      await browser.waitUntil(
+        async () => {
+          recorded = await collectExportHistoryProbe();
+          return recorded.sectionOverflowPx === 0;
+        },
+        {
+          timeout: 5_000,
+          interval: 100,
+          timeoutMsg: 'export history layout retained horizontal overflow after route transition settled',
+        },
+      );
       expect(recorded.storeHistory, 'one successful app copy is recorded').to.have.length(1);
       expect(recorded.persistedHistory, 'the copy record is persisted').to.have.length(1);
       expect(recorded.domRows, 'Settings renders the same real history row').to.have.length(1);

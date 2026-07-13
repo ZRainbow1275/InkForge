@@ -1471,3 +1471,61 @@ type Mode = typeof MODE_VALUES[number]
 ```
 
 Stores must not duplicate service constants, invent unregistered persisted settings, or swallow action failures silently.
+
+## Scenario: Settings Data Backup And Runtime Diagnostics
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing `settings.data`, `SettingsView.vue`, `WorkstationView.vue`, `VersionPanel.vue`, `useVersionManager.ts`, or the Data-tab storage diagnostics.
+- This is a local durability and observability contract. It does not prove cloud sync, external publishing, or OS-level backup destinations.
+
+### 2. Authority And Lifecycle
+
+- `settings.data.autoBackup`, `backupInterval`, and `maxBackups` are the persisted configuration authority.
+- Workstation must own exactly one `useVersionManager(editorStore)` instance for the active editing surface. It must remain mounted when manager/version UI panels are collapsed or switched.
+- `VersionPanel` consumes that same manager instance. Do not create a second timer-owning manager for the same editor store; manual and interval snapshots must share one dedupe baseline.
+- Auto-snapshot lifecycle reacts to stable content identity only. Immutable replacements of the same content object during ordinary body saves must not restart the interval or mark unsnapshotted text as already backed up. A successful explicit version switch must call `startAutoSnapshot()` to reset the baseline without making every snapshot invalidate its own timer.
+- Route leave from Workstation must await `EditorPanel.flushPendingChanges()` for the active document. If that current flush rejects or reports persistence failure, navigation returns `false`; unmounting may not discard the editor's pending debounce. A stale/global store error or the absence of an active document must not lock unrelated navigation. After the persistence boundary recovers, the same pending editor payload must be retryable from the error state instead of leaving the route permanently locked.
+- The timer must be single-flight. `stopAutoSnapshot()` invalidates a lifecycle generation, and every awaited snapshot rechecks that generation plus the captured content id before pruning versions or advancing the dedupe baseline.
+- Immediate backup routes through `editorStore.createVersion('manual_save')`; interval backup routes through `createVersion('interval', autoLabel)` and the existing content repository. Components must not write embedded versions directly to Dexie.
+- `createVersion()` persists only version-owned fields and updates the live store only while the captured document/version identity is still current. A slow old-document snapshot must not replace a newly selected document or overwrite a newer body save.
+- `updateContent()`, `createVersion()`, `pruneVersions()`, and `switchVersion()` share one store-owned content-write queue. Body saves, version creation, retention pruning, and version switching must not overlap stale read-modify-write cycles, and a rejected write must release the queue so a later real retry can proceed.
+- Every queued write captures the content id at the public action boundary. If selection changes before execution, the operation must resolve the latest persisted record for that captured id; it must never read, version, prune, switch, or overwrite the newly selected document.
+
+### 3. Honest States
+
+- No active document: disable immediate backup and explain that an open Workstation document is required.
+- Write failure: keep the existing version list, log the error, and show a user-visible failure message; never emit success before repository persistence resolves.
+- Auto-backup enabled in Settings means the configuration is enabled. It does not claim that a snapshot already exists.
+- IndexedDB diagnostics use explicit `idle`, `ready`, or `error` state. A failed read must not be rendered as a credible zero-record result.
+- Aggregate diagnostics use `ready` only when StorageManager, Cache Storage, and IndexedDB collection completed according to their supported empty/ready states; otherwise show a visible limited/partial message.
+
+### 4. Real Evidence Required
+
+- Settings tests must cover schema bounds, debounce persistence, reload, and `resetTab('data')` without writing invented settings fields.
+- Real Tauri/WebView2 acceptance must use visible Data controls, wait the configured real interval, edit a UI-created document, and read IndexedDB only as evidence. The same `interval` version id/body must exist in the live store and persisted `contents` row.
+- Automatic acceptance must require exactly one matching live and persisted `interval` version, not merely the first matching row.
+- Immediate backup acceptance must type a unique suffix and navigate away without waiting for the editor debounce, then add exactly one `manual_save` version whose exact id/body, including that suffix, is persisted before success is accepted.
+- Unmount acceptance must wait longer than one configured interval outside Workstation and prove that neither the live nor persisted version count changes.
+- Failure-path acceptance may temporarily replace browser API methods only as reversible fault injection. It must restore the original descriptors, create no fake business data, prove failed writes add no version, and then rerun the real success path. A failed route flush must remain on Workstation with a visible save error; after restoration, the same body must persist and navigation must succeed.
+- Concurrent content-write acceptance must call the production store with overlapping body save, version creation, retention pruning, and version switching. It must prove the saved body is identical live/persisted, the pruned non-current version is absent on both sides, the complete live and persisted version arrays plus `currentVersionId` are equal, and every returned concurrent version id exists exactly once on both sides.
+- Cross-document queue acceptance must enqueue a source-document body save and version, switch through the production article store before the queue drains, reload both documents through production repository/store paths, and prove the source payload/version survive exactly once while the target body and version count remain unchanged.
+- Diagnostics acceptance must compare displayed raw counts with independent `navigator.storage.estimate()`, localStorage traversal, IndexedDB object-store counts, Cache Storage keys, and Service Worker registrations. Do not seed fake caches, registrations, or database rows to make the panel look populated.
+- Cleanup must restore the exact original Settings value/key presence and remove only artifacts created through production UI/service boundaries.
+
+### 5. Anti-patterns
+
+```ts
+// Bad: body saves replace currentContent, restarting the timer and swallowing the change.
+watch(() => editorStore.currentContent, startAutoSnapshot)
+
+// Good: restart automatically only when the document changes.
+watch(
+  () => editorStore.currentContent?.id ?? null,
+  refreshSnapshotLifecycle,
+)
+
+// A deliberate version switch resets the baseline explicitly.
+await editorStore.switchVersion(versionId)
+startAutoSnapshot()
+```

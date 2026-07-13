@@ -43,6 +43,7 @@ import { useAIStore } from '@/stores/ai'
 import { useArticleStore } from '@/stores/article'
 import { useAssetStore } from '@/stores/asset'
 import { useDesktopStore } from '@/stores/desktop'
+import { useEditorStore } from '@/stores/editor'
 import { useFTUEStore } from '@/stores/ftue'
 import { DEFAULT_ACCOUNT_ID, useAccountStore } from '@/stores/account'
 import { useProfileStore } from '@/stores/profile'
@@ -102,6 +103,7 @@ const accountStore = useAccountStore()
 const profileStore = useProfileStore()
 const performanceStore = usePerformanceStore()
 const desktopStore = useDesktopStore()
+const editorStore = useEditorStore()
 const ftueStore = useFTUEStore()
 const syncStore = useSyncStore()
 const auditStore = useAuditStore()
@@ -770,6 +772,8 @@ interface CacheHealthSnapshot {
 }
 
 interface RuntimeDiagnosticsSnapshot {
+  state: 'idle' | 'ready' | 'error'
+  message: string
   dbName: string
   dbVersion: number
   tableCounts: Array<{ name: string; count: number }>
@@ -834,6 +838,8 @@ const cacheHealth = ref<CacheHealthSnapshot>({
 })
 
 const runtimeDiagnostics = ref<RuntimeDiagnosticsSnapshot>({
+  state: 'idle',
+  message: '尚未采集 IndexedDB 信息',
   dbName: db.name,
   dbVersion: db.verno,
   tableCounts: [],
@@ -856,7 +862,12 @@ const performanceSnapshot = ref<PerformanceSnapshot>({
 })
 
 const runtimePanelBusy = ref(false)
+const runtimePanelStatus = ref<'idle' | 'ready' | 'limited'>('idle')
+const runtimePanelMessage = ref('尚未刷新诊断')
 const runtimeExportBusy = ref(false)
+const manualBackupStatus = ref<'idle' | 'working' | 'success' | 'error'>('idle')
+const manualBackupMessage = ref('')
+const canCreateManualBackup = computed(() => editorStore.currentContent !== null)
 
 function formatSyncDate(value: Date | null): string {
   if (!value) return '从未同步'
@@ -1144,12 +1155,16 @@ async function refreshRuntimeDiagnostics(): Promise<void> {
 
     runtimeDiagnostics.value = {
       ...snapshotBase,
+      state: 'ready',
+      message: `已读取 ${tableCounts.length} 张 IndexedDB 表`,
       tableCounts,
     }
   } catch (error) {
     logger.error('运行时诊断刷新失败', error instanceof Error ? error : new Error(String(error)))
     runtimeDiagnostics.value = {
       ...snapshotBase,
+      state: 'error',
+      message: `IndexedDB 读取失败：${getErrorMessage(error)}`,
       tableCounts: [],
     }
   }
@@ -1212,6 +1227,8 @@ async function refreshRuntimePanels(): Promise<void> {
   }
 
   runtimePanelBusy.value = true
+  runtimePanelStatus.value = 'idle'
+  runtimePanelMessage.value = '正在刷新诊断...'
 
   try {
     const results = await Promise.allSettled([
@@ -1227,8 +1244,49 @@ async function refreshRuntimePanels(): Promise<void> {
         rejectedCount,
       })
     }
+
+    const unavailableSegments: string[] = []
+    if (storageHealth.value.state !== 'ready') unavailableSegments.push('StorageManager')
+    if (!['ready', 'empty'].includes(cacheHealth.value.state)) unavailableSegments.push('Cache Storage')
+    if (runtimeDiagnostics.value.state !== 'ready') unavailableSegments.push('IndexedDB')
+    if (rejectedCount > 0) unavailableSegments.push(`${rejectedCount} 个未处理诊断`)
+
+    runtimePanelStatus.value = unavailableSegments.length > 0 ? 'limited' : 'ready'
+    runtimePanelMessage.value = unavailableSegments.length > 0
+      ? `部分诊断不可用：${unavailableSegments.join('、')}`
+      : '诊断已刷新'
   } finally {
     runtimePanelBusy.value = false
+  }
+}
+
+async function handleCreateManualBackup(): Promise<void> {
+  if (manualBackupStatus.value === 'working') return
+
+  if (!editorStore.currentContent) {
+    manualBackupStatus.value = 'error'
+    manualBackupMessage.value = '请先在工作台打开文稿，再创建备份。'
+    return
+  }
+
+  manualBackupStatus.value = 'working'
+  manualBackupMessage.value = '正在写入版本历史...'
+
+  try {
+    const version = await editorStore.createVersion('manual_save')
+    if (!version) {
+      manualBackupStatus.value = 'error'
+      manualBackupMessage.value = '当前没有可备份的活动文稿。'
+      return
+    }
+
+    manualBackupStatus.value = 'success'
+    manualBackupMessage.value = `已创建备份：${version.label}`
+  } catch (error) {
+    const message = getErrorMessage(error)
+    logger.error('手动创建备份失败', error instanceof Error ? error : new Error(message))
+    manualBackupStatus.value = 'error'
+    manualBackupMessage.value = `创建备份失败：${message}`
   }
 }
 
@@ -4483,6 +4541,14 @@ onUnmounted(() => {
           <div
             class="sv-section"
             data-settings-entry="data.storage"
+            :data-storage-state="storageHealth.state"
+            :data-storage-usage="storageHealth.usage"
+            :data-storage-quota="storageHealth.quota"
+            :data-local-storage-bytes="storageHealth.localStorageBytes"
+            :data-local-storage-keys="storageHealth.localStorageKeys"
+            :data-indexeddb-state="runtimeDiagnostics.state"
+            :data-indexeddb-records="runtimeDiagnostics.tableCounts.reduce((sum, item) => sum + item.count, 0)"
+            :data-indexeddb-tables="runtimeDiagnostics.tableCounts.length"
             :class="{ 'sv-registry-highlight': activeRegistryMatchId === 'data.storage' }"
           >
             <div class="sv-section-header">
@@ -4494,14 +4560,22 @@ onUnmounted(() => {
                   直接读取 StorageManager、localStorage 与 Dexie 表的真实状态。
                 </p>
               </div>
-              <button
-                type="button"
-                class="sv-action-btn sv-action-btn-sm"
-                :disabled="runtimePanelBusy"
-                @click="refreshRuntimePanels"
-              >
-                {{ runtimePanelBusy ? '刷新中...' : '刷新诊断' }}
-              </button>
+              <div class="sv-btn-group">
+                <span
+                  id="data-runtime-diagnostics-status"
+                  class="sv-inline-status"
+                  :class="runtimePanelStatus === 'ready' ? 'sv-inline-status--ready' : runtimePanelStatus === 'limited' ? 'sv-inline-status--invalid' : 'sv-inline-status--disabled'"
+                >{{ runtimePanelMessage }}</span>
+                <button
+                  type="button"
+                  class="sv-action-btn sv-action-btn-sm"
+                  data-data-action="refresh-diagnostics"
+                  :disabled="runtimePanelBusy"
+                  @click="refreshRuntimePanels"
+                >
+                  {{ runtimePanelBusy ? '刷新中...' : '刷新诊断' }}
+                </button>
+              </div>
             </div>
 
             <div class="sv-meter">
@@ -4525,8 +4599,14 @@ onUnmounted(() => {
               </div>
               <div class="sv-insight-card">
                 <span class="sv-insight-card__label">IndexedDB 记录</span>
-                <span class="sv-insight-card__value">{{ runtimeDiagnostics.tableCounts.reduce((sum, item) => sum + item.count, 0) }}</span>
-                <span class="sv-insight-card__meta">{{ runtimeDiagnostics.tableCounts.length }} 张表</span>
+                <span
+                  id="data-indexeddb-record-count"
+                  class="sv-insight-card__value"
+                >{{ runtimeDiagnostics.state === 'error' ? '读取失败' : runtimeDiagnostics.tableCounts.reduce((sum, item) => sum + item.count, 0) }}</span>
+                <span
+                  id="data-indexeddb-message"
+                  class="sv-insight-card__meta"
+                >{{ runtimeDiagnostics.message }}</span>
               </div>
               <div class="sv-insight-card">
                 <span class="sv-insight-card__label">存储状态</span>
@@ -4570,7 +4650,7 @@ onUnmounted(() => {
                 class="sv-inline-status"
                 :class="settings.data.autoBackup ? 'sv-inline-status--ready' : 'sv-inline-status--disabled'"
               >
-                {{ settings.data.autoBackup ? '已启用' : '未启用' }}
+                {{ settings.data.autoBackup ? '配置已启用' : '未启用' }}
               </span>
             </div>
 
@@ -4620,6 +4700,32 @@ onUnmounted(() => {
                 </div>
               </div>
             </div>
+
+            <div class="sv-section-header sv-section-header--compact">
+              <div>
+                <span class="sv-row-label">立即备份当前文稿</span>
+                <p class="sv-section-note">
+                  {{ canCreateManualBackup ? '通过当前文稿的真实版本历史创建快照。' : '请先在工作台打开文稿；自动备份也只在文稿打开时运行。' }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="sv-action-btn sv-action-btn-sm"
+                data-data-action="create-backup"
+                :disabled="manualBackupStatus === 'working' || !canCreateManualBackup"
+                @click="handleCreateManualBackup"
+              >
+                {{ manualBackupStatus === 'working' ? '备份中...' : '立即创建备份' }}
+              </button>
+            </div>
+            <div
+              v-if="manualBackupMessage"
+              id="data-manual-backup-result"
+              class="sv-test-result"
+              :class="manualBackupStatus"
+            >
+              {{ manualBackupMessage }}
+            </div>
           </div>
 
           <div class="sv-divider" />
@@ -4647,7 +4753,13 @@ onUnmounted(() => {
 
           <div class="sv-divider" />
 
-          <div class="sv-section">
+          <div
+            class="sv-section"
+            data-settings-entry="data.cache"
+            :data-cache-state="cacheHealth.state"
+            :data-cache-buckets="cacheHealth.buckets.length"
+            :data-service-worker-summary="cacheHealth.serviceWorkerSummary"
+          >
             <div class="sv-section-header">
               <div>
                 <h3 class="sv-section-title">

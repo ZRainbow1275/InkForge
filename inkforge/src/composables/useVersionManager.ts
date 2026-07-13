@@ -11,7 +11,6 @@
 import { ref, computed, watch, onUnmounted, type Ref } from 'vue'
 import type { Version, VersionTrigger } from '@/schemas/article'
 import { logger } from '@/services/error'
-import { contentRepository } from '@/services/repository'
 
 // ═══════════════════════════════════════════════════════════════════
 // 类型定义
@@ -61,6 +60,7 @@ interface EditorStoreContract {
     } | null
     currentVersion: Version | null
     createVersion: (trigger?: VersionTrigger, label?: string) => Promise<Version | null>
+    pruneVersions: (versionIds: readonly string[]) => Promise<void>
     switchVersion: (versionId: string) => Promise<void>
 }
 
@@ -247,6 +247,8 @@ export function useVersionManager(
     })
 
     let autoSnapshotTimer: ReturnType<typeof setInterval> | null = null
+    let autoSnapshotInFlight = false
+    let autoSnapshotGeneration = 0
 
     // 上次快照时的 body 内容，用于判断是否有变更
     let lastSnapshotBody: string | null = null
@@ -255,10 +257,17 @@ export function useVersionManager(
      * 执行自动快照
      * 仅当内容发生变化时才创建版本
      */
-    async function performAutoSnapshot(): Promise<void> {
+    async function performAutoSnapshot(generation: number): Promise<void> {
+        if (
+            autoSnapshotInFlight ||
+            generation !== autoSnapshotGeneration ||
+            !autoSnapshotConfig.value.enabled
+        ) return
+
         const store = getStore()
         if (!store.currentContent) return
 
+        const contentId = store.currentContent.id
         const currentBody = store.currentContent.body
 
         // 内容未变化，跳过
@@ -267,31 +276,34 @@ export function useVersionManager(
             return
         }
 
+        autoSnapshotInFlight = true
         try {
             const autoLabel = generateAutoLabel()
             const version = await store.createVersion('interval', autoLabel)
             if (version) {
-                const currentContent = store.currentContent
-                if (currentContent) {
-                    version.label = autoLabel
-                    const labeledVersions = currentContent.versions.map((item) =>
-                        item.id === version.id
-                            ? { ...item, label: autoLabel }
-                            : item
-                    )
+                const currentContent = getStore().currentContent
+                if (
+                    generation !== autoSnapshotGeneration ||
+                    currentContent?.id !== contentId
+                ) {
+                    logger.debug('自动快照：生命周期已变化，跳过后续状态更新')
+                    return
+                }
 
-                    const autoVersions = labeledVersions
-                        .filter(item => isAutoVersion(item.label))
+                if (currentContent) {
+                    const autoVersions = currentContent.versions
+                        .filter(item => item.trigger === 'interval')
                         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
                     const overflowCount = Math.max(0, autoVersions.length - autoSnapshotConfig.value.maxBackups)
-                    const overflowIds = new Set(autoVersions.slice(0, overflowCount).map(item => item.id))
-                    const prunedVersions = labeledVersions.filter(item => !overflowIds.has(item.id))
+                    const overflowIds = autoVersions.slice(0, overflowCount).map(item => item.id)
+                    await store.pruneVersions(overflowIds)
 
-                    currentContent.versions = prunedVersions
-                    await contentRepository.update(currentContent.id, {
-                        versions: prunedVersions,
-                    })
+                    const latestContent = getStore().currentContent
+                    if (
+                        generation !== autoSnapshotGeneration ||
+                        latestContent?.id !== contentId
+                    ) return
                 }
 
                 lastSnapshotBody = currentBody
@@ -302,6 +314,8 @@ export function useVersionManager(
             }
         } catch (err) {
             logger.error('自动快照失败', err instanceof Error ? err : new Error(String(err)))
+        } finally {
+            autoSnapshotInFlight = false
         }
     }
 
@@ -315,12 +329,12 @@ export function useVersionManager(
 
         // 记录当前内容作为基准
         const store = getStore()
-        if (store.currentContent) {
-            lastSnapshotBody = store.currentContent.body
-        }
+        if (!store.currentContent) return
+        lastSnapshotBody = store.currentContent.body
+        const generation = autoSnapshotGeneration
 
         autoSnapshotTimer = setInterval(
-            () => { void performAutoSnapshot() },
+            () => { void performAutoSnapshot(generation) },
             autoSnapshotConfig.value.intervalMs
         )
 
@@ -333,6 +347,7 @@ export function useVersionManager(
      * 停止自动快照定时器
      */
     function stopAutoSnapshot(): void {
+        autoSnapshotGeneration += 1
         if (autoSnapshotTimer !== null) {
             clearInterval(autoSnapshotTimer)
             autoSnapshotTimer = null
@@ -430,32 +445,11 @@ export function useVersionManager(
 
     // ─── 手动创建版本（带自定义标签） ─────────────────────────
 
-    /**
-     * 创建手动版本
-     * 通过 store.createVersion() 创建后，若提供自定义标签，
-     * 会通过覆盖 label 来更新（依赖 store 的不可变更新模式）
-     *
-     * 注意：由于不修改 store 文件的约束，此处直接调用 store.createVersion()
-     * 自定义标签会在 store 创建后通过 currentContent 的不可变更新来应用
-     */
+    /** 创建手动版本，并刷新自动快照的正文基线。 */
     async function createManualVersion(customLabel?: string): Promise<Version | null> {
         const store = getStore()
-        const autoLabel = generateAutoLabel()
-            const version = await store.createVersion('interval', autoLabel)
-
-        if (version && customLabel && customLabel.trim().length > 0) {
-            // 通过不可变方式更新版本标签
-            if (store.currentContent) {
-                const updatedVersions = store.currentContent.versions.map((v) =>
-                    v.id === version.id ? { ...v, label: customLabel.trim() } : v
-                )
-                store.currentContent.versions = updatedVersions
-                version.label = customLabel.trim()
-                await contentRepository.update(store.currentContent.id, {
-                    versions: updatedVersions,
-                })
-            }
-        }
+        const label = customLabel?.trim() || undefined
+        const version = await store.createVersion('manual_save', label)
 
         // 更新 lastSnapshotBody 防止自动快照重复
         if (version && store.currentContent) {
@@ -467,11 +461,12 @@ export function useVersionManager(
 
     // ─── 自动生命周期管理 ─────────────────────────────────────
 
-    // 监听 currentContent 变化，自动启停快照
+    // 仅在切换文稿时重设快照基线；正文保存会替换 currentContent 对象，
+    // 若监听整个对象引用，会不断重启定时器并把最新正文误当作已备份基线。
     const stopWatcher = watch(
-        () => getStore().currentContent,
-        (content) => {
-            if (content && autoSnapshotConfig.value.enabled) {
+        () => getStore().currentContent?.id ?? null,
+        (contentId) => {
+            if (contentId && autoSnapshotConfig.value.enabled) {
                 startAutoSnapshot()
             } else {
                 stopAutoSnapshot()
