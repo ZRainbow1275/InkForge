@@ -2191,7 +2191,7 @@ function openHelpCenter(): void {
 function handleResetFTUE(): void {
   showConfirm(
     '重置首次使用状态',
-    '这会清空欢迎弹窗和帮助已读状态，下次进入会重新显示轻量欢迎流程。该操作不会创建、删除或修改任何文章、素材、账户或设置内容。',
+    '这会清空欢迎弹窗和帮助已读状态，并在确认后立即重新打开轻量欢迎流程；正常启动仍遵循不重复打扰策略。该操作不会创建、删除或修改任何文章、素材、账户或设置内容。',
     async () => {
       await ftueStore.reset()
       importFeedback.value = { type: 'success', text: '首次使用状态已重置' }
@@ -2571,6 +2571,7 @@ onUnmounted(() => {
         <button
           type="button"
           class="sv-action-btn sv-action-btn-sm"
+          data-settings-action="reset-current-tab"
           @click="handleResetCurrentTab"
         >
           重置{{ currentTabName }} Tab
@@ -2613,6 +2614,7 @@ onUnmounted(() => {
               type="button"
               class="sv-settings-search-result"
               :class="{ active: activeRegistryMatchId === item.id }"
+              :data-settings-search-result="item.id"
               @click="focusSettingsRegistryItem(item)"
             >
               <span class="sv-settings-search-result__label">{{ item.label }}</span>
@@ -4261,7 +4263,11 @@ onUnmounted(() => {
 
           <div class="sv-divider" />
 
-          <div class="sv-section">
+          <div
+            class="sv-section"
+            data-settings-entry="about.featureFlags"
+            :class="{ 'sv-registry-highlight': activeRegistryMatchId === 'about.featureFlags' }"
+          >
             <div class="sv-section-header">
               <div>
                 <h3 class="sv-section-title">
@@ -4278,15 +4284,25 @@ onUnmounted(() => {
                 v-for="row in featureFlagRows"
                 :key="row.key"
                 class="sv-flag-card"
+                :data-feature-flag-card="row.key"
               >
                 <div class="sv-flag-card__copy">
                   <span class="sv-row-label">{{ row.label }}</span>
                   <span class="sv-row-desc">{{ row.description }}</span>
+                  <span
+                    class="sv-inline-status"
+                    :class="row.key === 'performance-metrics' ? 'sv-inline-status--ready' : 'sv-inline-status--disabled'"
+                  >
+                    {{ row.key === 'performance-metrics' ? '已接入性能账本' : '预留配置' }}
+                  </span>
                 </div>
                 <label class="sv-switch">
                   <input
                     type="checkbox"
                     :checked="row.isEnabled()"
+                    :aria-label="`功能开关：${row.label}`"
+                    :data-feature-flag="row.key"
+                    :data-feature-flag-consumer="row.key === 'performance-metrics' ? 'performance-slo' : 'reserved'"
                     @change="row.setEnabled(!row.isEnabled())"
                   >
                   <span class="sv-switch-track">
@@ -4299,7 +4315,12 @@ onUnmounted(() => {
 
           <div class="sv-divider" />
 
-          <div class="sv-section">
+          <div
+            class="sv-section"
+            data-settings-entry="about.proxy"
+            :data-proxy-status="proxyPreview.status"
+            :class="{ 'sv-registry-highlight': activeRegistryMatchId === 'about.proxy' }"
+          >
             <div class="sv-section-header">
               <div>
                 <h3 class="sv-section-title">
@@ -4332,6 +4353,8 @@ onUnmounted(() => {
                 <input
                   v-model="settings.proxy.enabled"
                   type="checkbox"
+                  aria-label="启用代理"
+                  data-proxy-field="enabled"
                 >
                 <span class="sv-switch-track">
                   <span class="sv-switch-thumb" />
@@ -4345,6 +4368,8 @@ onUnmounted(() => {
                 <select
                   v-model="settings.proxy.protocol"
                   class="sv-select"
+                  aria-label="代理协议"
+                  data-proxy-field="protocol"
                 >
                   <option
                     v-for="option in proxyProtocolOptions"
@@ -4365,6 +4390,8 @@ onUnmounted(() => {
                   max="65535"
                   class="sv-input"
                   placeholder="7890"
+                  aria-label="代理端口"
+                  data-proxy-field="port"
                 >
               </div>
 
@@ -4375,6 +4402,8 @@ onUnmounted(() => {
                   type="text"
                   class="sv-input"
                   placeholder="127.0.0.1"
+                  aria-label="代理主机地址"
+                  data-proxy-field="host"
                 >
               </div>
 
@@ -4385,6 +4414,8 @@ onUnmounted(() => {
                   type="text"
                   class="sv-input"
                   placeholder="可选"
+                  aria-label="代理用户名"
+                  data-proxy-field="username"
                 >
               </div>
 
@@ -4396,11 +4427,15 @@ onUnmounted(() => {
                     :type="showProxyPassword ? 'text' : 'password'"
                     class="sv-input sv-input-with-btn"
                     placeholder="可选"
+                    aria-label="代理密码"
+                    data-proxy-field="password"
                   >
                   <button
                     type="button"
                     class="sv-input-addon"
                     :title="showProxyPassword ? '隐藏密码' : '显示密码'"
+                    :aria-label="showProxyPassword ? '隐藏代理密码' : '显示代理密码'"
+                    data-proxy-action="toggle-password"
                     @click="showProxyPassword = !showProxyPassword"
                   >
                     <svg
@@ -6286,13 +6321,17 @@ onUnmounted(() => {
                   轻量欢迎、内置帮助和真实快捷键卡片。重置只影响 FTUE 状态，不会改动文章或账户。
                 </p>
               </div>
-              <span class="sv-inline-status sv-inline-status--ready">{{ ftueStore.completedLabel }}</span>
+              <span
+                class="sv-inline-status sv-inline-status--ready"
+                :data-ftue-step="ftueStore.ftueState.step"
+              >{{ ftueStore.completedLabel }}</span>
             </div>
 
             <div class="sv-inline-grid sv-inline-grid--three">
               <button
                 type="button"
                 class="sv-account-card sv-account-card--action"
+                data-ftue-action="open-help"
                 @click="openHelpCenter"
               >
                 <span class="sv-account-card__kicker">帮助中心</span>
@@ -6302,11 +6341,12 @@ onUnmounted(() => {
               <button
                 type="button"
                 class="sv-account-card sv-account-card--action"
+                data-ftue-action="reset"
                 @click="handleResetFTUE"
               >
                 <span class="sv-account-card__kicker">FTUE</span>
                 <strong>重置欢迎流程</strong>
-                <span>下次进入重新显示欢迎弹窗；不会生成示例数据。</span>
+                <span>确认后立即重新打开欢迎弹窗；正常启动仍遵循不重复打扰策略，不会生成示例数据。</span>
               </button>
               <div class="sv-insight-card">
                 <span class="sv-insight-card__label">已读帮助</span>
@@ -6320,6 +6360,9 @@ onUnmounted(() => {
           <div
             class="sv-section"
             data-settings-entry="about.migration"
+            :data-migration-snapshot-count="settings.advanced.migrationSnapshots.length"
+            :data-settings-schema-version="settings.schemaVersion"
+            :data-current-settings-schema-version="CURRENT_SETTINGS_SCHEMA_VERSION"
             :class="{ 'sv-registry-highlight': activeRegistryMatchId === 'about.migration' }"
           >
             <div class="sv-section-header">
@@ -6348,6 +6391,7 @@ onUnmounted(() => {
               <button
                 type="button"
                 class="sv-account-card sv-account-card--action"
+                data-migration-action="create"
                 @click="handleCreateRollbackPoint"
               >
                 <span class="sv-account-card__kicker">手动快照</span>
@@ -6388,6 +6432,7 @@ onUnmounted(() => {
               v-if="latestMigrationSnapshot"
               type="button"
               class="sv-account-card sv-account-card--action"
+              data-migration-action="restore-latest"
               @click="handleRestoreLatestRollbackPoint"
             >
               <span class="sv-account-card__kicker">最近快照</span>
@@ -6412,6 +6457,8 @@ onUnmounted(() => {
                   <button
                     type="button"
                     class="sv-action-btn sv-action-btn-sm"
+                    data-migration-action="restore"
+                    :data-migration-snapshot-id="snapshot.id"
                     @click="handleRestoreRollbackPoint(snapshot.id)"
                   >
                     恢复
@@ -6443,7 +6490,10 @@ onUnmounted(() => {
                   日志级别会实时绑定到统一 logger，并随设置导入导出一并保留。
                 </p>
               </div>
-              <span class="sv-inline-status sv-inline-status--ready">{{ runtimeDiagnostics.currentLogLevel.toUpperCase() }}</span>
+              <span
+                class="sv-inline-status sv-inline-status--ready"
+                :data-runtime-log-level="runtimeDiagnostics.currentLogLevel"
+              >{{ runtimeDiagnostics.currentLogLevel.toUpperCase() }}</span>
             </div>
 
             <div class="sv-form-grid">
@@ -6452,6 +6502,8 @@ onUnmounted(() => {
                 <select
                   v-model="settings.advanced.logLevel"
                   class="sv-select"
+                  aria-label="日志级别"
+                  data-about-log-level
                 >
                   <option
                     v-for="option in logLevelOptions"
@@ -6601,7 +6653,12 @@ onUnmounted(() => {
 
           <div class="sv-divider" />
 
-          <div class="sv-section">
+          <div
+            class="sv-section"
+            data-settings-entry="about.performanceSlo"
+            :data-performance-enabled="String(performanceMetricsFlag.enabled.value)"
+            :class="{ 'sv-registry-highlight': activeRegistryMatchId === 'about.performanceSlo' }"
+          >
             <div class="sv-section-header">
               <div>
                 <h3 class="sv-section-title">
@@ -6662,8 +6719,9 @@ onUnmounted(() => {
             <div
               v-if="performanceMetricsFlag.enabled.value"
               class="sv-section sv-section--nested"
-              data-settings-entry="about.performanceSlo"
-              :class="{ 'sv-registry-highlight': activeRegistryMatchId === 'about.performanceSlo' }"
+              data-performance-slo-ledger
+              :data-performance-sample-count="performanceSloSummary.sampleCount"
+              :data-performance-event-count="performanceSloSummary.eventCount"
             >
               <div class="sv-section-header">
                 <div>
@@ -6738,11 +6796,14 @@ onUnmounted(() => {
               <div
                 v-if="performanceUnsupportedCapabilities.length > 0"
                 class="sv-placeholder-card"
+                data-performance-unsupported
               >
                 <strong>运行时能力受限</strong>
                 <span
                   v-for="item in performanceUnsupportedCapabilities"
                   :key="item.key"
+                  :data-performance-capability="item.key"
+                  :data-performance-support-state="item.supportState"
                 >{{ item.label }}: {{ item.reason }}</span>
               </div>
 

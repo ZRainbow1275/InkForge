@@ -1557,3 +1557,80 @@ watch(
 await editorStore.switchVersion(versionId)
 startAutoSnapshot()
 ```
+
+## Scenario: Settings About Runtime Acceptance
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing `SETTINGS_REGISTRY`, About/AI Settings sections, `advanced.logLevel`, `featureFlags`, `proxy`, performance collection, migration snapshots, or FTUE/help state.
+- This is a local application contract. It does not prove a configured proxy is reachable or that any external platform action succeeded.
+
+### 2. Signatures And Authorities
+
+- Search registry: `SETTINGS_REGISTRY: readonly SettingsRegistryItem[]`; each item's `tab` must equal the tab that actually owns its `data-settings-entry`.
+- Local Settings authority: `useSettingsStore().settings`, persisted under `inkforge-settings` through the existing five-second debounce unless the action has an explicit immediate save contract.
+- Logger boundary: changing `settings.advanced.logLevel` must update the runtime logger and persistence.
+- Performance boundary: only `featureFlags['performance-metrics']` controls the real performance collector and its IndexedDB `performanceSamples` / `performanceDegradationEvents` ledger.
+- Migration boundary: `createRollbackPoint(reason)` and `restoreRollbackPoint(snapshotId)`; restore keeps the existing snapshot ledger and saves the restored Settings immediately.
+- FTUE authority: `useFTUEStore()` plus the IndexedDB `ftue` store. `reset()` immediately opens Welcome; ordinary startup still follows the non-repeat policy.
+- Reset ownership: AI reset owns `settings.ai`, `settings.featureFlags`, and `settings.proxy`. About reset owns `settings.advanced` while preserving `advanced.customCss`; it must not reset the AI-owned feature flags or proxy fields.
+
+### 3. Contracts
+
+- `about.featureFlags` and `about.proxy` route to `ai`; `about.logLevel`, `about.performanceSlo`, `about.migration`, and `about.ftue` route to `about`.
+- A feature flag may claim a production consumer only when code reads it. Currently `performance-metrics` owns `performance-slo`; `markdown-hints`, `multi-tab`, and `ai-autocomplete` are reserved configuration.
+- Proxy UI validates and persists protocol/host/port/optional credentials and renders a masked preview. It must not display credentials or claim connectivity until a real request-stack consumer and live probe exist.
+- Performance acceptance requires an actual new IndexedDB sample and equality between the visible count and production store count; merely toggling the flag is insufficient.
+- Current-schema acceptance compares the live store and visible migration card immediately. A new isolated profile may have no persisted Settings record until the first write; after the first visible write, persisted `schemaVersion` must equal `CURRENT_SETTINGS_SCHEMA_VERSION`.
+- Rollback acceptance must use the visible action, enter the required `RESTORE` text, verify restored business fields, reload, and prove the snapshot ledger remains.
+- Reset acceptance must use the visible tab action, enter `RESET`, verify the tab's complete ownership boundary, and prove the corresponding `reset-tab:<tab>` rollback point. AI reset must disable the performance flag without making its About registry target disappear.
+- FTUE acceptance must prove Help Center state, immediate Welcome after reset, the IndexedDB state row, visible skip persistence, and no Welcome dialog after a normal reload.
+- Tauri E2E may inspect Pinia, localStorage, and IndexedDB read-only for evidence, but state changes must originate from visible UI or production actions. Cleanup relies on the disposable native WebView2 scope and production cleanup actions; tests must not write or delete the Settings `localStorage` key directly.
+
+### 4. Validation And Error Matrix
+
+| Condition | Required state |
+| --- | --- |
+| Registry tab does not own the target section | Defect; fix the registry route instead of accepting a hidden `v-show` node |
+| Enabled proxy has empty host, invalid port, or incomplete endpoint | Visible invalid state; no ready or connected claim |
+| Proxy fields are syntactically valid | Masked ready preview only; no network-success claim |
+| Performance flag is disabled | Collector/panel disabled while the registry target remains addressable |
+| Performance flag is enabled | Collector starts; acceptance waits for a real persisted sample |
+| Runtime API is limited or unsupported | Store and visible capability rows must agree; no supported-state claim is synthesized |
+| Fresh isolated profile has no persisted Settings row | Live/UI schema is current; the first visible Settings write persists the current schema |
+| AI tab reset succeeds | AI settings, feature flags, and proxy return to defaults; About log level remains unchanged |
+| About tab reset succeeds | Advanced settings return to defaults while CustomCSS and AI-owned flags/proxy remain unchanged |
+| Rollback confirmation lacks `RESTORE` | Action remains disabled; test must not bypass it |
+| FTUE reset succeeds | Store and IndexedDB become `not_started`, help-read state clears, Welcome opens immediately |
+| FTUE state is `skipped` or `completed` on ordinary startup | Welcome remains closed |
+
+### 5. Good, Base, And Bad Cases
+
+- Good: search routes to the real control, visible actions mutate production state, debounce/reload matches Pinia/localStorage, performance writes a real sample, rollback restores fields, and FTUE persists through IndexedDB.
+- Base: reserved flags persist honestly without claiming an active consumer; an unconfigured proxy remains disabled or invalid without generating traffic.
+- Bad: treat a hidden tab node as route-ready, click a visually hidden switch input, write store/IndexedDB state directly to make proof pass, render proxy credentials, or label a configuration preview as connected.
+
+### 6. Tests Required
+
+- Run focused Settings/migration/performance Vitest after changing any authority above.
+- Run `node --check tests/e2e/specs/editor-settings.spec.cjs`, targeted ESLint, `vue-tsc --noEmit --pretty false`, serial full Vitest, and the production build.
+- Run the focused About Tauri flow, then the complete `editor-settings.spec.cjs`. Route readiness must require visible layout, switches must be clicked through their visible track, typed confirmation must be honored, and Welcome actions must be scoped to the dialog.
+- Preserve the current-round style gate and its honest external boundary: `canClaimCurrentRoundTarget=true` does not imply `canClaimReleaseComplete=true`.
+
+### 7. Wrong Vs Correct
+
+#### Wrong
+
+```ts
+{ id: 'about.proxy', tab: 'about', path: 'proxy' }
+// A hidden node exists, so navigation is considered ready.
+Boolean(document.querySelector('[data-settings-entry="about.proxy"]'))
+```
+
+#### Correct
+
+```ts
+{ id: 'about.proxy', tab: 'ai', path: 'proxy' }
+const target = document.querySelector('[data-settings-entry="about.proxy"]')
+const visible = Boolean(target && target.getClientRects().length > 0)
+```

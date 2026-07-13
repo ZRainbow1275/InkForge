@@ -1,0 +1,140 @@
+InkForge Settings About Runtime Acceptance Verification
+Date: 2026-07-13
+
+Scope
+-----
+- Local application Settings/About and AI-tab runtime acceptance only.
+- No proxy request, external WeChat action, Xiaohongshu publish, or Zhihu publish was performed.
+- External WeChat paste/readback, phone preview, mobile Dark Mode/interaction, cover acceptance, credentialed sync, scheduling, and publishing remain unclaimed.
+
+Source identity
+---------------
+Base commit:
+454fd54d81e9b3eab349838c352a27ad8f86234b
+
+Candidate diff files, in digest order:
+1. inkforge/src/stores/settings.ts
+2. inkforge/src/stores/settings.ai.test.ts
+3. inkforge/src/views/SettingsView.vue
+4. inkforge/tests/e2e/specs/editor-settings.spec.cjs
+5. .trellis/spec/frontend/state-management.md
+6. .trellis/tasks/05-12-full-app-functionality-audit-repair/audit-matrix.md
+7. .trellis/tasks/05-12-full-app-functionality-audit-repair/findings.md
+8. .trellis/tasks/05-12-full-app-functionality-audit-repair/repair-log.md
+9. .trellis/tasks/05-12-full-app-functionality-audit-repair/evidence.md
+
+Digest command (Git Bash, repository root):
+git diff --binary -- inkforge/src/stores/settings.ts inkforge/src/stores/settings.ai.test.ts inkforge/src/views/SettingsView.vue inkforge/tests/e2e/specs/editor-settings.spec.cjs .trellis/spec/frontend/state-management.md .trellis/tasks/05-12-full-app-functionality-audit-repair/audit-matrix.md .trellis/tasks/05-12-full-app-functionality-audit-repair/findings.md .trellis/tasks/05-12-full-app-functionality-audit-repair/repair-log.md .trellis/tasks/05-12-full-app-functionality-audit-repair/evidence.md | sha256sum
+
+Candidate diff byte count: 92951
+Candidate diff SHA-256: 087baf2e9d0e5d280305a42dfc0457068ad0cc5117d276136b9a3a3699ee0119
+
+Redacted command transcript
+---------------------------
+Working directory for commands 1-10: D:\Desktop\Inkforge\inkforge
+
+1. JavaScript syntax
+Command:
+node --check tests/e2e/specs/editor-settings.spec.cjs
+Exit: 0
+
+2. Targeted lint
+Command:
+pnpm exec eslint src/stores/settings.ts src/stores/settings.ai.test.ts src/views/SettingsView.vue tests/e2e/specs/editor-settings.spec.cjs --quiet
+Exit: 0
+
+3. Focused Settings/migration/performance unit regression
+Command:
+pnpm exec vitest run src/services/settings-migration/settings-migration.test.ts src/services/performance/performance.test.ts src/stores/settings.ai.test.ts src/stores/settings.data.test.ts src/stores/settings.editor.test.ts src/stores/settings.export-history.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+Exit: 0
+Reporter summary:
+Test Files  6 passed (6)
+Tests       24 passed (24)
+
+4. Type check
+Command:
+pnpm exec vue-tsc --noEmit --pretty false
+Exit: 0
+
+5. Production application build
+Command:
+$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm build
+Exit: 0
+Reporter summary:
+4660 modules transformed
+built in 39.31s
+
+6. Current Tauri debug binary build
+Command:
+cargo build --manifest-path=src-tauri/Cargo.toml
+Exit: 0
+Reporter summary:
+Finished dev profile in 7.31s
+
+7. Focused real Tauri/WebView2 About acceptance
+Precondition:
+- The current frontend and Tauri debug binary were built by commands 5 and 6.
+- INKFORGE_E2E_SKIP_TAURI_BUILD=1 skipped only the redundant build inside WDIO.
+Command:
+$env:INKFORGE_E2E_SKIP_TAURI_BUILD='1'; pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/editor-settings.spec.cjs --mochaOpts.grep "routes, persists, samples, previews, rolls back, and resets About settings through real boundaries" --logLevel warn
+Exit: 0
+Reporter summary:
+WebView2 150.0.4078.65
+1 passed / 0 failed
+Elapsed 25.9s
+
+8. Complete real Tauri/WebView2 Settings regression
+Precondition:
+- INKFORGE_E2E_SKIP_TAURI_BUILD=1; the same current binary from command 6 was used.
+Command:
+$env:INKFORGE_E2E_SKIP_TAURI_BUILD='1'; pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/editor-settings.spec.cjs --logLevel warn
+Exit: 0
+Reporter summary:
+WebView2 150.0.4078.65
+7 passed / 0 failed
+Elapsed 4m 23.7s
+
+9. Full serial unit/component regression
+Command:
+pnpm exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism
+Exit: 0
+Reporter summary:
+Test Files  108 passed (108)
+Tests       1820 passed (1820)
+
+10. Current-round SVG/style acceptance
+Command:
+pnpm style-proof:current-round
+Exit: 0
+Reporter summary:
+verdict=application-acceptance-ready
+canClaimCurrentRoundTarget=true
+canClaimApplicationReady=true
+canClaimReleaseComplete=false
+svgModules=27
+renderedModulePersonaPairs=108
+wechatChoices=17
+wechatSelectableRenderedChoices=13
+sampleSvgModules=45
+localApplicationGalleryPipelineStyleIssues=0
+xhsZhihuPublishAutomationDeferred=true
+requiresManualWeChatProof=true
+
+Review-finding closure evidence
+-------------------------------
+- Visible AI reset enters RESET, restores AI plus feature-flag/proxy defaults, and creates reset-tab:ai.
+- Visible latest rollback enters RESTORE and restores all selected AI-owned fields.
+- Visible About reset enters RESET, restores runtime logger/Developer Mode/updater defaults, creates reset-tab:about, preserves the complete visible CustomCSS sentinel and AI-owned flags/proxy, and retains every pre-existing snapshot.
+- A specific visible manual snapshot restore enters RESTORE, restores captured Settings, reloads, and retains the snapshot ledger.
+- The live store and visible migration card expose the current schema. A fresh isolated profile may have no pre-write Settings row; the first visible write persists the current schema.
+- Enabled performance writes a real IndexedDB sample and exposes the real WebView2 support matrix; disabled performance waits for isCollecting=false, remains addressable, and hides its ledger.
+- The About E2E block contains zero localStorage.setItem and zero localStorage.removeItem calls. Production actions own every state change; the disposable native WebView2 scope owns session cleanup.
+
+Final independent re-review
+---------------------------
+Result: P0-P3 none
+Confirmed: diff digest reproducibility, complete About reset ownership, collector stop, manual rollback cleanup, read-only persistence evidence, cwd reproducibility, no feature deletion, no secret/profile leakage, and no external-platform overclaim.
+
+Redaction statement
+-------------------
+This record contains no WebDriver session ID, native scoped/profile directory, browser screenshot or HAR path, account artifact, credential, cookie, authorization header, access/refresh token, or entered proxy secret.

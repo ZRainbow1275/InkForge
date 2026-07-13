@@ -24,12 +24,18 @@ const WRITING_GOAL_FIELDS = [
   { key: 'weeklyTarget', selector: '#writing-goal-weekly', errorSelector: '#writing-goal-weekly-error' },
 ];
 
+const ABOUT_FEATURE_FLAG_KEYS = [
+  'markdown-hints',
+  'multi-tab',
+  'ai-autocomplete',
+  'performance-metrics',
+];
+
 const createdArticleIds = new Set();
 let originalListEnterBehavior = null;
 let originalSmartPunctuationSettings = null;
 let originalWritingGoalSettings = null;
 let originalDataSettings = null;
-let originalSettingsStorage;
 
 async function waitForMainWindow() {
   const titlebar = await browser.$('.ink-titlebar');
@@ -49,11 +55,15 @@ async function openRoute(target, readySelector) {
   }, target);
 
   await browser.waitUntil(
-    async () => browser.execute((selector) => Boolean(document.querySelector(selector)), readySelector),
+    async () => browser.execute((selector) => {
+      const element = document.querySelector(selector);
+      return Boolean(element && element.getClientRects().length > 0
+        && window.getComputedStyle(element).visibility !== 'hidden');
+    }, readySelector),
     {
       timeout: 10_000,
       interval: 200,
-      timeoutMsg: `${target} did not render ${readySelector}`,
+      timeoutMsg: `${target} did not display ${readySelector}`,
     },
   );
 }
@@ -1422,11 +1432,175 @@ async function clickShortcutReset(shortcutId) {
   expect(clicked, `the ${shortcutId} row exposes its real reset action`).to.equal(true);
 }
 
+async function setCheckboxThroughUi(selector, checked) {
+  const input = await browser.$(selector);
+  const track = await browser.$(`${selector} + .sv-switch-track`);
+  await track.scrollIntoView({ block: 'center', inline: 'nearest' });
+  if ((await input.isSelected()) !== checked) {
+    await track.click();
+  }
+  await browser.waitUntil(
+    async () => (await input.isSelected()) === checked,
+    { timeout: 5_000, interval: 100, timeoutMsg: `${selector} did not reach checked=${checked}` },
+  );
+}
+
+async function confirmSettingsAction(verificationWord) {
+  const verification = await browser.$('.sv-confirm-verify input');
+  await verification.waitForDisplayed({ timeout: 5_000 });
+  await verification.setValue(verificationWord);
+  const confirm = await browser.$('.sv-confirm-ok');
+  await confirm.waitForEnabled({ timeout: 5_000 });
+  await confirm.click();
+}
+
+async function readAboutSettingsEvidence() {
+  return browser.execute(async (featureFlagKeys) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const settingsStore = pinia?._s.get('settings');
+    const performanceStore = pinia?._s.get('performance');
+    const ftueStore = pinia?._s.get('ftue');
+    const liveSettings = settingsStore?.settings;
+    const persistedSettings = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}');
+    const clone = (source) => source == null ? null : JSON.parse(JSON.stringify(source));
+    const normalizeFlags = (source) => Object.fromEntries(
+      featureFlagKeys.map((key) => [key, source?.[key] ?? null]),
+    );
+    const normalizeProxy = (source) => ({
+      enabled: source?.enabled ?? null,
+      protocol: source?.protocol ?? null,
+      host: source?.host ?? null,
+      port: source?.port ?? null,
+      username: source?.username ?? null,
+      password: source?.password ?? null,
+    });
+    const normalizeSnapshots = (source) => (source ?? []).map((snapshot) => ({
+      id: snapshot.id,
+      reason: snapshot.reason,
+      schemaVersion: snapshot.schemaVersion,
+    }));
+    const normalizeSupport = (source) => (source ?? []).map((item) => ({
+      key: item.key,
+      label: item.label,
+      supportState: item.supportState,
+      reason: item.reason,
+    }));
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    const readAll = (storeName) => new Promise((resolve, reject) => {
+      const request = database.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+    });
+    const readOne = (storeName, key) => new Promise((resolve, reject) => {
+      const request = database.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+      request.onsuccess = () => resolve(request.result ?? null);
+      request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+    });
+
+    try {
+      const [performanceSamples, performanceEvents, ftueRecord] = await Promise.all([
+        readAll('performanceSamples'),
+        readAll('performanceDegradationEvents'),
+        readOne('ftue', 'state'),
+      ]);
+      const featureFlags = Object.fromEntries(featureFlagKeys.map((key) => {
+        const input = document.querySelector(`[data-feature-flag="${key}"]`);
+        return [key, input ? {
+          checked: input.checked,
+          ariaLabel: input.getAttribute('aria-label'),
+          consumer: input.getAttribute('data-feature-flag-consumer'),
+        } : null];
+      }));
+      const proxySection = document.querySelector('[data-settings-entry="about.proxy"]');
+      const migrationSection = document.querySelector('[data-settings-entry="about.migration"]');
+      const performanceSection = document.querySelector('[data-settings-entry="about.performanceSlo"]');
+      const performanceLedger = document.querySelector('[data-performance-slo-ledger]');
+      return {
+        route: `${window.location.pathname}${window.location.search}`,
+        store: {
+          schemaVersion: liveSettings?.schemaVersion ?? null,
+          logLevel: liveSettings?.advanced?.logLevel ?? null,
+          developerMode: liveSettings?.advanced?.developerMode ?? null,
+          customCss: clone(liveSettings?.advanced?.customCss),
+          updater: clone(liveSettings?.advanced?.updater),
+          featureFlags: normalizeFlags(liveSettings?.featureFlags),
+          proxy: normalizeProxy(liveSettings?.proxy),
+          snapshots: normalizeSnapshots(liveSettings?.advanced?.migrationSnapshots),
+        },
+        persisted: {
+          schemaVersion: persistedSettings?.schemaVersion ?? null,
+          logLevel: persistedSettings?.advanced?.logLevel ?? null,
+          developerMode: persistedSettings?.advanced?.developerMode ?? null,
+          customCss: clone(persistedSettings?.advanced?.customCss),
+          updater: clone(persistedSettings?.advanced?.updater),
+          featureFlags: normalizeFlags(persistedSettings?.featureFlags),
+          proxy: normalizeProxy(persistedSettings?.proxy),
+          snapshots: normalizeSnapshots(persistedSettings?.advanced?.migrationSnapshots),
+        },
+        performance: {
+          databaseSampleCount: performanceSamples.length,
+          databaseEventCount: performanceEvents.length,
+          storeSampleCount: performanceStore?.samples?.length ?? null,
+          storeEventCount: performanceStore?.events?.length ?? null,
+          collecting: performanceStore?.isCollecting ?? null,
+          status: performanceStore?.summary?.status ?? null,
+          supportMatrix: normalizeSupport(performanceStore?.supportMatrix),
+          unsupportedCapabilities: normalizeSupport(performanceStore?.unsupportedCapabilities),
+        },
+        ftue: {
+          storeStep: ftueStore?.ftueState?.step ?? null,
+          persistedStep: ftueRecord?.step ?? null,
+          welcomeVisible: ftueStore?.welcomeVisible ?? null,
+          helpCenterOpen: ftueStore?.helpCenterOpen ?? null,
+          seenHelpCount: ftueStore?.seenHelpKeys?.length ?? null,
+        },
+        ui: {
+          schemaVersion: Number(migrationSection?.getAttribute('data-settings-schema-version') ?? NaN),
+          currentSchemaVersion: Number(migrationSection?.getAttribute('data-current-settings-schema-version') ?? NaN),
+          logLevel: document.querySelector('[data-about-log-level]')?.value ?? null,
+          runtimeLogLevel: document.querySelector('[data-runtime-log-level]')?.getAttribute('data-runtime-log-level') ?? null,
+          developerModeChecked: document.querySelector('[data-settings-entry="about.devPanel"] input[type="checkbox"]')?.checked ?? null,
+          updaterAutoCheckEnabled: document.querySelector('[data-settings-entry="about.updater"] input[type="checkbox"]')?.checked ?? null,
+          featureFlags,
+          proxyStatus: proxySection?.getAttribute('data-proxy-status') ?? null,
+          proxyMessage: proxySection?.querySelector('.sv-form-grid__full:last-child .sv-section-note')?.textContent?.trim() ?? '',
+          performanceEnabled: performanceSection?.getAttribute('data-performance-enabled') ?? null,
+          performanceSectionVisible: Boolean(performanceSection && performanceSection.getClientRects().length > 0),
+          performanceLedgerVisible: Boolean(performanceLedger && performanceLedger.getClientRects().length > 0),
+          performanceSampleCount: performanceLedger?.getAttribute('data-performance-sample-count') ?? null,
+          performanceEventCount: performanceLedger?.getAttribute('data-performance-event-count') ?? null,
+          performanceUnsupportedCapabilities: Array.from(
+            document.querySelectorAll('[data-performance-capability]'),
+          ).map((element) => ({
+            key: element.getAttribute('data-performance-capability'),
+            supportState: element.getAttribute('data-performance-support-state'),
+            text: element.textContent?.trim() ?? '',
+          })),
+          ftueStep: document.querySelector('[data-ftue-step]')?.getAttribute('data-ftue-step') ?? null,
+          welcomeDialogVisible: Boolean(document.querySelector('[aria-labelledby="if-welcome-title"]')),
+          helpDialogVisible: Boolean(document.querySelector('[aria-labelledby="if-help-title"]')),
+        },
+      };
+    } finally {
+      database.close();
+    }
+  }, ABOUT_FEATURE_FLAG_KEYS);
+}
+
 describe('Settings editor preferences in the real Tauri runtime', () => {
   before(async () => {
     await waitForMainWindow();
     await openRoute('/settings?tab=editor', '[data-settings-tab="editor"]');
-    originalSettingsStorage = await browser.execute(() => window.localStorage.getItem('inkforge-settings'));
     originalListEnterBehavior = await readListEnterBehavior();
     expect(['notion', 'typora'], 'the original list Enter preference is valid')
       .to.include(originalListEnterBehavior);
@@ -1484,22 +1658,6 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       if (originalDataSettings
         && JSON.stringify(currentDataSettings) !== JSON.stringify(originalDataSettings)) {
         await applyDataBackupSettings(originalDataSettings);
-      }
-    } catch (error) {
-      cleanupErrors.push(error);
-    }
-    try {
-      if (originalSettingsStorage !== undefined) {
-        const restoredStorage = await browser.execute((original) => {
-          if (original === null) {
-            window.localStorage.removeItem('inkforge-settings');
-          } else {
-            window.localStorage.setItem('inkforge-settings', original);
-          }
-          return window.localStorage.getItem('inkforge-settings');
-        }, originalSettingsStorage);
-        expect(restoredStorage, 'Settings cleanup restores the original localStorage value and key presence')
-          .to.equal(originalSettingsStorage);
       }
     } catch (error) {
       cleanupErrors.push(error);
@@ -2250,6 +2408,413 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       runtimeErrors = await stopSmartPunctuationErrorProbe();
     }
     expect(runtimeErrors, 'shortcut recording, conflict, persistence, and reset emit no fresh runtime errors')
+      .to.deep.equal([]);
+  });
+
+  it('routes, persists, samples, previews, rolls back, and resets About settings through real boundaries', async function () {
+    this.timeout(120_000);
+    const runtimeErrors = [];
+    await startSmartPunctuationErrorProbe();
+    try {
+      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      const settingsSearch = await browser.$('#settings-search-input');
+      await settingsSearch.setValue('Feature Flags');
+      await browser.pause(100);
+      const featureSearchEvidence = await browser.execute(() => ({
+        value: document.querySelector('#settings-search-input')?.value ?? null,
+        results: Array.from(document.querySelectorAll('[data-settings-search-result]')).map((element) => ({
+          id: element.getAttribute('data-settings-search-result'),
+          label: element.querySelector('.sv-settings-search-result__label')?.textContent?.trim() ?? '',
+        })),
+      }));
+      expect(featureSearchEvidence.value, 'visible search input receives the requested query').to.equal('Feature Flags');
+      expect(featureSearchEvidence.results, 'the real Settings registry returns the Feature Flags row')
+        .to.deep.include({ id: 'about.featureFlags', label: 'Feature Flags' });
+      const featureResult = await browser.$('[data-settings-search-result="about.featureFlags"]');
+      await featureResult.waitForDisplayed({ timeout: 5_000 });
+      await featureResult.click();
+      await browser.waitUntil(
+        async () => browser.execute(() => new window.URLSearchParams(window.location.search).get('tab') === 'ai'),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Feature Flags search result did not route to the real AI tab' },
+      );
+      const featureSection = await browser.$('[data-settings-entry="about.featureFlags"]');
+      await featureSection.waitForDisplayed({ timeout: 5_000 });
+
+      await settingsSearch.setValue('代理设置');
+      const proxyResult = await browser.$('[data-settings-search-result="about.proxy"]');
+      await proxyResult.waitForDisplayed({ timeout: 5_000 });
+      await proxyResult.click();
+      const proxySection = await browser.$('[data-settings-entry="about.proxy"]');
+      await proxySection.waitForDisplayed({ timeout: 5_000 });
+      expect(await browser.execute(() => new window.URLSearchParams(window.location.search).get('tab')),
+        'proxy registry navigation stays on the tab that owns the real controls')
+        .to.equal('ai');
+
+      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      const createSnapshot = await browser.$('[data-migration-action="create"]');
+      await createSnapshot.waitForDisplayed({ timeout: 5_000 });
+      const initial = await readAboutSettingsEvidence();
+      expect(initial.store.schemaVersion, 'live Settings schema is current')
+        .to.equal(initial.ui.currentSchemaVersion);
+      expect(initial.ui.schemaVersion, 'visible migration card shows the current schema')
+        .to.equal(initial.ui.currentSchemaVersion);
+      expect(initial.ui.currentSchemaVersion, 'current Settings schema is a positive integer')
+        .to.be.a('number').and.greaterThan(0);
+      await createSnapshot.click();
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).store.snapshots.length === initial.store.snapshots.length + 1,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'manual Settings snapshot was not created' },
+      );
+      const withSnapshot = await readAboutSettingsEvidence();
+      const createdSnapshot = withSnapshot.store.snapshots[0];
+      expect(createdSnapshot.reason, 'the visible action creates the expected real rollback point').to.equal('manual:about');
+      expect(withSnapshot.persisted.snapshots[0]?.id, 'snapshot persistence is immediate').to.equal(createdSnapshot.id);
+      expect(withSnapshot.persisted.schemaVersion, 'the first visible Settings write persists the current schema')
+        .to.equal(withSnapshot.ui.currentSchemaVersion);
+
+      const targetLogLevel = initial.store.logLevel === 'warn' ? 'debug' : 'warn';
+      const logLevelSelect = await browser.$('[data-about-log-level]');
+      await logLevelSelect.selectByAttribute('value', targetLogLevel);
+      await browser.waitUntil(
+        async () => {
+          const evidence = await readAboutSettingsEvidence();
+          return evidence.store.logLevel === targetLogLevel && evidence.ui.runtimeLogLevel === targetLogLevel;
+        },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'log level did not reach the runtime logger boundary' },
+      );
+
+      await openRoute('/settings?tab=ai', '[data-settings-tab="ai"]');
+      await featureSection.waitForDisplayed({ timeout: 5_000 });
+      const targetFlags = Object.fromEntries(ABOUT_FEATURE_FLAG_KEYS.map((key) => [
+        key,
+        key === 'performance-metrics' ? true : !initial.store.featureFlags[key],
+      ]));
+      for (const key of ABOUT_FEATURE_FLAG_KEYS.filter((candidate) => candidate !== 'performance-metrics')) {
+        await setCheckboxThroughUi(`[data-feature-flag="${key}"]`, targetFlags[key]);
+      }
+      if (initial.store.featureFlags['performance-metrics']) {
+        await setCheckboxThroughUi('[data-feature-flag="performance-metrics"]', false);
+      }
+      await setCheckboxThroughUi('[data-feature-flag="performance-metrics"]', true);
+      await browser.waitUntil(
+        async () => {
+          const evidence = await readAboutSettingsEvidence();
+          return evidence.performance.databaseSampleCount > initial.performance.databaseSampleCount
+            && evidence.performance.storeSampleCount > 0
+            && evidence.performance.collecting === true;
+        },
+        { timeout: 20_000, interval: 250, timeoutMsg: 'performance flag did not write real IndexedDB samples' },
+      );
+
+      await setCheckboxThroughUi('[data-proxy-field="enabled"]', true);
+      const proxyHost = await browser.$('[data-proxy-field="host"]');
+      await proxyHost.setValue('');
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).ui.proxyStatus === 'invalid',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'empty enabled proxy did not surface invalid status' },
+      );
+      const proxyProtocol = await browser.$('[data-proxy-field="protocol"]');
+      const proxyPort = await browser.$('[data-proxy-field="port"]');
+      const proxyUsername = await browser.$('[data-proxy-field="username"]');
+      const proxyPassword = await browser.$('[data-proxy-field="password"]');
+      await proxyProtocol.selectByAttribute('value', 'socks5');
+      await proxyPort.setValue('7890');
+      await proxyHost.setValue('127.0.0.1');
+      await proxyUsername.setValue('acceptance-user');
+      await proxyPassword.setValue('acceptance-secret');
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).ui.proxyStatus === 'ready',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'valid proxy fields did not reach ready preview status' },
+      );
+      const readyProxy = await readAboutSettingsEvidence();
+      expect(readyProxy.ui.proxyMessage, 'proxy preview masks visible credentials')
+        .to.include('socks5://***:***@127.0.0.1:7890');
+      expect(readyProxy.ui.proxyMessage, 'proxy preview never renders the entered secret')
+        .not.to.include('acceptance-secret');
+
+      await browser.pause(5_200);
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      await browser.refresh();
+      await (await browser.$('[data-settings-entry="about.featureFlags"]')).waitForDisplayed({ timeout: 10_000 });
+      await startSmartPunctuationErrorProbe();
+      const persisted = await readAboutSettingsEvidence();
+      const targetProxy = {
+        enabled: true,
+        protocol: 'socks5',
+        host: '127.0.0.1',
+        port: 7890,
+        username: 'acceptance-user',
+        password: 'acceptance-secret',
+      };
+      expect(persisted.store.logLevel, 'log level survives reload in Pinia').to.equal(targetLogLevel);
+      expect(persisted.persisted.logLevel, 'log level survives the production debounce').to.equal(targetLogLevel);
+      expect(persisted.ui.runtimeLogLevel, 'the runtime logger badge matches persisted state').to.equal(targetLogLevel);
+      expect(persisted.store.featureFlags, 'all live feature flags retain their selected values').to.deep.equal(targetFlags);
+      expect(persisted.persisted.featureFlags, 'all feature flags survive reload').to.deep.equal(targetFlags);
+      for (const key of ABOUT_FEATURE_FLAG_KEYS) {
+        expect(persisted.ui.featureFlags[key]?.checked, `${key} switch reflects the persisted value`)
+          .to.equal(targetFlags[key]);
+        expect(persisted.ui.featureFlags[key]?.consumer, `${key} exposes an honest consumer classification`)
+          .to.equal(key === 'performance-metrics' ? 'performance-slo' : 'reserved');
+      }
+      expect(persisted.store.proxy, 'proxy fields survive reload in Pinia').to.deep.equal(targetProxy);
+      expect(persisted.persisted.proxy, 'proxy fields survive the production debounce').to.deep.equal(targetProxy);
+      expect(persisted.ui.proxyStatus, 'reloaded proxy preview remains ready without claiming connectivity').to.equal('ready');
+      expect(persisted.ui.performanceEnabled, 'performance panel is controlled by the persisted flag').to.equal('true');
+      expect(persisted.performance.databaseSampleCount, 'the SLO ledger contains real samples after reload')
+        .to.be.greaterThan(initial.performance.databaseSampleCount);
+      expect(Number(persisted.ui.performanceSampleCount), 'the visible SLO count reflects the production store')
+        .to.equal(persisted.performance.storeSampleCount);
+
+      const expectedUnsupported = persisted.performance.supportMatrix
+        .filter((item) => item.supportState !== 'supported');
+      expect(persisted.performance.supportMatrix, 'the production collector exposes its runtime support matrix')
+        .not.to.be.empty;
+      expect(persisted.performance.unsupportedCapabilities, 'limited and unsupported capabilities are derived from the support matrix')
+        .to.deep.equal(expectedUnsupported);
+      expect(persisted.performance.unsupportedCapabilities, 'the current WebView2 reports real limited or unsupported capabilities')
+        .not.to.be.empty;
+      expect(persisted.ui.performanceUnsupportedCapabilities, 'the visible performance card reports the same capability limits')
+        .to.deep.equal(expectedUnsupported.map((item) => ({
+          key: item.key,
+          supportState: item.supportState,
+          text: `${item.label}: ${item.reason}`,
+        })));
+
+      const defaultFlags = {
+        'markdown-hints': true,
+        'multi-tab': false,
+        'ai-autocomplete': false,
+        'performance-metrics': false,
+      };
+      const defaultProxy = {
+        enabled: false,
+        protocol: 'http',
+        host: '',
+        port: 7890,
+        username: '',
+        password: '',
+      };
+      const defaultUpdater = {
+        autoCheckDisabled: false,
+        lastCheckAt: null,
+        lastSuccessfulCheckAt: null,
+        lastStatus: 'idle',
+        lastDisabledReason: null,
+        lastErrorMessage: null,
+        latest: null,
+        notifiedVersions: [],
+      };
+      const resetAiTab = await browser.$('[data-settings-action="reset-current-tab"]');
+      await resetAiTab.waitForDisplayed({ timeout: 5_000 });
+      await resetAiTab.click();
+      await confirmSettingsAction('RESET');
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).store.snapshots[0]?.reason === 'reset-tab:ai',
+        { timeout: 10_000, interval: 150, timeoutMsg: 'AI tab reset did not create its rollback point' },
+      );
+      const aiReset = await readAboutSettingsEvidence();
+      expect(aiReset.store.featureFlags, 'AI reset restores default feature flags').to.deep.equal(defaultFlags);
+      expect(aiReset.store.proxy, 'AI reset restores default proxy fields').to.deep.equal(defaultProxy);
+      expect(aiReset.persisted.featureFlags, 'AI reset persists default feature flags').to.deep.equal(defaultFlags);
+      expect(aiReset.persisted.proxy, 'AI reset persists default proxy fields').to.deep.equal(defaultProxy);
+      expect(aiReset.store.logLevel, 'AI reset does not change the About-owned log level').to.equal(targetLogLevel);
+      expect(aiReset.store.snapshots[0]?.reason, 'AI reset creates a rollback point for its real ownership boundary')
+        .to.equal('reset-tab:ai');
+
+      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).performance.collecting === false,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'disabled performance flag did not stop the production collector' },
+      );
+      const disabledPerformance = await readAboutSettingsEvidence();
+      expect(disabledPerformance.ui.performanceSectionVisible, 'disabled performance remains visibly addressable')
+        .to.equal(true);
+      expect(disabledPerformance.ui.performanceEnabled, 'AI reset disables the performance collector flag')
+        .to.equal('false');
+      expect(disabledPerformance.ui.performanceLedgerVisible, 'disabled performance does not present a live ledger')
+        .to.equal(false);
+      expect(disabledPerformance.performance.collecting, 'disabled performance stops the production collector')
+        .to.equal(false);
+
+      const restoreLatest = await browser.$('[data-migration-action="restore-latest"]');
+      await restoreLatest.waitForDisplayed({ timeout: 5_000 });
+      await restoreLatest.click();
+      await confirmSettingsAction('RESTORE');
+      await browser.waitUntil(
+        async () => {
+          const evidence = await readAboutSettingsEvidence();
+          return evidence.store.featureFlags['performance-metrics'] === true
+            && evidence.store.proxy.enabled === true;
+        },
+        { timeout: 10_000, interval: 150, timeoutMsg: 'AI reset rollback point did not restore its visible sentinels' },
+      );
+      const aiRollback = await readAboutSettingsEvidence();
+      expect(aiRollback.store.logLevel, 'AI rollback preserves the selected About log level').to.equal(targetLogLevel);
+      expect(aiRollback.store.featureFlags, 'AI rollback restores all selected feature flags').to.deep.equal(targetFlags);
+      expect(aiRollback.store.proxy, 'AI rollback restores all selected proxy fields').to.deep.equal(targetProxy);
+
+      await openRoute('/settings?tab=advanced', '[data-settings-tab="advanced"]');
+      const customCssSnippet = await browser.$('.sv-custom-css-snippet');
+      await customCssSnippet.waitForDisplayed({ timeout: 5_000 });
+      await customCssSnippet.selectByIndex(1);
+      await browser.waitUntil(
+        async () => {
+          const evidence = await readAboutSettingsEvidence();
+          return evidence.store.customCss?.draft
+            && evidence.store.customCss.draft !== aiRollback.store.customCss?.draft;
+        },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'visible CustomCSS snippet action did not persist a sentinel draft' },
+      );
+      const customCssSentinel = await readAboutSettingsEvidence();
+      expect(customCssSentinel.persisted.customCss, 'visible CustomCSS sentinel is persisted before About reset')
+        .to.deep.equal(customCssSentinel.store.customCss);
+
+      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      const developerModeInput = await browser.$('[data-settings-entry="about.devPanel"] input[type="checkbox"]');
+      if (!await developerModeInput.isSelected()) {
+        await (await browser.$('[data-settings-entry="about.devPanel"] label.sv-toggle-row')).click();
+      }
+      const updaterAutoCheckInput = await browser.$('[data-settings-entry="about.updater"] input[type="checkbox"]');
+      if (await updaterAutoCheckInput.isSelected()) {
+        await (await browser.$('[data-settings-entry="about.updater"] label.sv-toggle-row')).click();
+      }
+      await browser.waitUntil(
+        async () => {
+          const evidence = await readAboutSettingsEvidence();
+          return evidence.store.developerMode === true
+            && evidence.store.updater?.autoCheckDisabled === true;
+        },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'visible About controls did not establish advanced reset sentinels' },
+      );
+      const aboutSentinels = await readAboutSettingsEvidence();
+      expect(aboutSentinels.ui.developerModeChecked, 'Developer Mode sentinel is visible').to.equal(true);
+      expect(aboutSentinels.ui.updaterAutoCheckEnabled, 'Updater disabled sentinel is visible').to.equal(false);
+      const snapshotsBeforeAboutReset = aboutSentinels.store.snapshots;
+
+      const resetAboutTab = await browser.$('[data-settings-action="reset-current-tab"]');
+      await resetAboutTab.click();
+      await confirmSettingsAction('RESET');
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).store.snapshots[0]?.reason === 'reset-tab:about',
+        { timeout: 10_000, interval: 150, timeoutMsg: 'About reset did not create its rollback point' },
+      );
+      const aboutReset = await readAboutSettingsEvidence();
+      expect(aboutReset.persisted.logLevel, 'About reset persists the default runtime log level')
+        .to.equal(aboutReset.store.logLevel);
+      expect(aboutReset.store.logLevel, 'About reset changes the selected non-default log level')
+        .not.to.equal(targetLogLevel);
+      expect(aboutReset.ui.runtimeLogLevel, 'About reset applies the default level to the runtime logger')
+        .to.equal(aboutReset.store.logLevel);
+      expect(aboutReset.store.developerMode, 'About reset restores the Developer Mode default').to.equal(false);
+      expect(aboutReset.persisted.developerMode, 'About reset persists the Developer Mode default').to.equal(false);
+      expect(aboutReset.ui.developerModeChecked, 'About reset updates the visible Developer Mode control').to.equal(false);
+      expect(aboutReset.store.updater, 'About reset restores the complete updater defaults').to.deep.equal(defaultUpdater);
+      expect(aboutReset.persisted.updater, 'About reset persists the complete updater defaults').to.deep.equal(defaultUpdater);
+      expect(aboutReset.ui.updaterAutoCheckEnabled, 'About reset updates the visible updater control').to.equal(true);
+      expect(aboutReset.store.customCss, 'About reset preserves the complete CustomCSS state')
+        .to.deep.equal(customCssSentinel.store.customCss);
+      expect(aboutReset.persisted.customCss, 'About reset persists the preserved CustomCSS state')
+        .to.deep.equal(customCssSentinel.store.customCss);
+      expect(aboutReset.store.featureFlags, 'About reset preserves AI-owned feature flags').to.deep.equal(targetFlags);
+      expect(aboutReset.store.proxy, 'About reset preserves AI-owned proxy fields').to.deep.equal(targetProxy);
+      expect(aboutReset.store.snapshots[0]?.reason, 'About reset creates its own rollback point')
+        .to.equal('reset-tab:about');
+      expect(snapshotsBeforeAboutReset.every((snapshot) => (
+        aboutReset.store.snapshots.some((retained) => retained.id === snapshot.id)
+      )), 'About reset retains every pre-existing migration snapshot').to.equal(true);
+      expect(aboutReset.persisted.snapshots, 'About reset persists the retained snapshot ledger')
+        .to.deep.equal(aboutReset.store.snapshots);
+      expect(aboutReset.store.schemaVersion, 'About reset retains the current Settings schema')
+        .to.equal(aboutReset.ui.currentSchemaVersion);
+      expect(aboutReset.persisted.schemaVersion, 'About reset persists the current Settings schema')
+        .to.equal(aboutReset.ui.currentSchemaVersion);
+
+      const restoreManual = await browser.$(
+        `[data-migration-action="restore"][data-migration-snapshot-id="${createdSnapshot.id}"]`,
+      );
+      await restoreManual.waitForDisplayed({ timeout: 5_000 });
+      await restoreManual.click();
+      await confirmSettingsAction('RESTORE');
+      await browser.waitUntil(
+        async () => {
+          const evidence = await readAboutSettingsEvidence();
+          return evidence.store.logLevel === initial.store.logLevel
+            && JSON.stringify(evidence.store.featureFlags) === JSON.stringify(initial.store.featureFlags)
+            && JSON.stringify(evidence.store.proxy) === JSON.stringify(initial.store.proxy);
+        },
+        { timeout: 10_000, interval: 150, timeoutMsg: 'manual rollback point did not restore the captured Settings state' },
+      );
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      await browser.refresh();
+      const aboutSection = await browser.$('[data-settings-entry="about.migration"]');
+      await aboutSection.waitForDisplayed({ timeout: 10_000 });
+      await startSmartPunctuationErrorProbe();
+      const restored = await readAboutSettingsEvidence();
+      expect(restored.persisted.logLevel, 'rollback saves the restored log level immediately')
+        .to.equal(initial.store.logLevel);
+      expect(restored.persisted.featureFlags, 'rollback saves the restored feature flags immediately')
+        .to.deep.equal(initial.store.featureFlags);
+      expect(restored.persisted.proxy, 'rollback saves the restored proxy fields immediately')
+        .to.deep.equal(initial.store.proxy);
+      expect(restored.store.developerMode, 'manual rollback restores the captured Developer Mode state')
+        .to.equal(initial.store.developerMode);
+      expect(restored.persisted.developerMode, 'manual rollback persists the captured Developer Mode state')
+        .to.equal(initial.store.developerMode);
+      expect(restored.store.updater, 'manual rollback restores the captured updater state')
+        .to.deep.equal(initial.store.updater);
+      expect(restored.persisted.updater, 'manual rollback persists the captured updater state')
+        .to.deep.equal(initial.store.updater);
+      expect(restored.store.customCss, 'manual rollback restores the captured CustomCSS state')
+        .to.deep.equal(initial.store.customCss);
+      expect(restored.persisted.customCss, 'manual rollback persists the captured CustomCSS state')
+        .to.deep.equal(initial.store.customCss);
+      expect(restored.store.snapshots.some((snapshot) => snapshot.id === createdSnapshot.id),
+        'rollback retains the real snapshot ledger').to.equal(true);
+
+      const openHelp = await browser.$('[data-ftue-action="open-help"]');
+      await openHelp.click();
+      const helpDialog = await browser.$('[aria-labelledby="if-help-title"]');
+      await helpDialog.waitForDisplayed({ timeout: 5_000 });
+      expect((await readAboutSettingsEvidence()).ftue.helpCenterOpen,
+        'Help Center visibility is owned by the real FTUE store').to.equal(true);
+      const closeHelp = await browser.$('[aria-label="关闭帮助中心"]');
+      await closeHelp.click();
+      await helpDialog.waitForDisplayed({ timeout: 5_000, reverse: true });
+
+      const resetFtue = await browser.$('[data-ftue-action="reset"]');
+      await resetFtue.click();
+      const confirmFtue = await browser.$('.sv-confirm-ok');
+      await confirmFtue.waitForDisplayed({ timeout: 5_000 });
+      await confirmFtue.click();
+      const welcomeDialog = await browser.$('[aria-labelledby="if-welcome-title"]');
+      await welcomeDialog.waitForDisplayed({ timeout: 10_000 });
+      const resetState = await readAboutSettingsEvidence();
+      expect(resetState.ftue.storeStep, 'FTUE reset reaches the live store').to.equal('not_started');
+      expect(resetState.ftue.persistedStep, 'FTUE reset reaches the IndexedDB ftue table').to.equal('not_started');
+      expect(resetState.ftue.welcomeVisible, 'FTUE reset immediately opens the welcome flow').to.equal(true);
+      expect(resetState.ftue.seenHelpCount, 'FTUE reset clears only help-read state').to.equal(0);
+
+      const skipWelcome = await welcomeDialog.$('.if-welcome__ghost');
+      await skipWelcome.waitForClickable({ timeout: 5_000 });
+      await skipWelcome.click();
+      await welcomeDialog.waitForDisplayed({ timeout: 10_000, reverse: true });
+      await browser.waitUntil(
+        async () => (await readAboutSettingsEvidence()).ftue.persistedStep === 'skipped',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'welcome skip did not persist through the FTUE service' },
+      );
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      await browser.refresh();
+      await (await browser.$('[data-settings-entry="about.migration"]')).waitForDisplayed({ timeout: 10_000 });
+      await startSmartPunctuationErrorProbe();
+      const reloadedFtue = await readAboutSettingsEvidence();
+      expect(reloadedFtue.ftue.storeStep, 'skipped FTUE state survives reload in the store').to.equal('skipped');
+      expect(reloadedFtue.ftue.persistedStep, 'skipped FTUE state survives reload in IndexedDB').to.equal('skipped');
+      expect(reloadedFtue.ui.welcomeDialogVisible, 'normal reload follows the non-repeat welcome policy').to.equal(false);
+    } finally {
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+    }
+    expect(runtimeErrors, 'About navigation, persistence, rollback, performance, proxy, and FTUE emit no fresh runtime errors')
       .to.deep.equal([]);
   });
 });

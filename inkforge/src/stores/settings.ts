@@ -101,9 +101,9 @@ export const SETTINGS_REGISTRY: readonly SettingsRegistryItem[] = [
   { id: 'about.updater', tab: 'about', path: 'advanced.updater', label: 'Tauri Updater', description: '仅检查通知、不自动下载的桌面更新状态、跳过版本和禁用策略。', scope: 'device', keywords: ['updater', 'release', 'tauri', 'version', '更新', '版本'], resettable: true },
   { id: 'about.logLevel', tab: 'about', path: 'advanced.logLevel', label: '日志级别', description: '统一 logger 的 runtime 日志级别。', scope: 'device', keywords: ['log', 'debug', 'logger', '日志'], resettable: true },
   { id: 'about.devPanel', tab: 'about', path: 'advanced.developerMode', label: 'Developer Mode', description: '启用生产保留的 InkForge DevPanel 诊断抽屉。', scope: 'device', keywords: ['developer', 'devpanel', 'diagnostics', 'debug', '开发者', '诊断'], resettable: true },
-  { id: 'about.featureFlags', tab: 'about', path: 'featureFlags', label: 'Feature Flags', description: 'Markdown hints、多标签、AI autocomplete、性能监测开关。', scope: 'device', keywords: ['feature', 'flag', 'toggle', '功能开关'], resettable: true },
+  { id: 'about.featureFlags', tab: 'ai', path: 'featureFlags', label: 'Feature Flags', description: '预留灰度配置与已接入的性能监测开关；未接入的消费者会如实标注。', scope: 'device', keywords: ['feature', 'flag', 'toggle', '功能开关'], resettable: true },
   { id: 'about.performanceSlo', tab: 'about', path: 'performance.slo', label: '性能 SLO 账本', description: '真实 PerformanceObserver、Navigation、FPS、IndexedDB 与内存采样的本地阈值和降级事件。', scope: 'device', keywords: ['performance', 'slo', 'longtask', 'fps', '性能', '降级'], resettable: false },
-  { id: 'about.proxy', tab: 'about', path: 'proxy', label: '代理设置', description: 'HTTP、HTTPS、SOCKS5 本机代理配置。', scope: 'device', keywords: ['proxy', 'http', 'socks', '代理'], resettable: true },
+  { id: 'about.proxy', tab: 'ai', path: 'proxy', label: '代理设置', description: 'HTTP、HTTPS、SOCKS5 本机代理配置与脱敏预览；不声明请求链已接入。', scope: 'device', keywords: ['proxy', 'http', 'socks', '代理'], resettable: true },
   { id: 'about.migration', tab: 'about', path: 'advanced.migrationSnapshots', label: 'Schema 与回滚点', description: 'Settings schema version、迁移证据和回滚快照。', scope: 'account', keywords: ['schema', 'migration', 'rollback', '迁移', '回滚'], resettable: false },
   { id: 'about.ftue', tab: 'about', path: 'ftue', label: '首次使用与帮助', description: '欢迎弹窗、帮助中心和引导重置。', scope: 'device', keywords: ['ftue', 'help', 'onboarding', '帮助', '引导'], resettable: true },
 ] as const
@@ -146,17 +146,17 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     key: 'markdown-hints',
     label: 'Markdown 提示',
-    description: '在编辑流程中显示更明确的 Markdown 语义提示。',
+    description: '保留 Markdown 提示的灰度配置；当前没有独立受控面板。',
   },
   {
     key: 'multi-tab',
     label: '多标签草稿',
-    description: '为后续多文稿并行编辑预留状态开关。',
+    description: '保留多文稿灰度配置；当前工作台标签能力不受此预留开关控制。',
   },
   {
     key: 'ai-autocomplete',
     label: 'AI 自动补全',
-    description: '控制 AI 自动补全链路的灰度启用状态。',
+    description: '保留 AI 自动补全灰度配置；当前请求链尚未接入。',
   },
   {
     key: 'performance-metrics',
@@ -889,6 +889,8 @@ export const useSettingsStore = defineStore('settings', () => {
         break
       case 'ai':
         settings.value.ai = defaults.ai
+        settings.value.featureFlags = defaults.featureFlags
+        settings.value.proxy = defaults.proxy
         break
       case 'data':
         settings.value.data = defaults.data
@@ -912,8 +914,6 @@ export const useSettingsStore = defineStore('settings', () => {
           ...defaults.advanced,
           customCss: settings.value.advanced.customCss,
         }
-        settings.value.featureFlags = defaults.featureFlags
-        settings.value.proxy = defaults.proxy
         break
       default: {
         const exhaustive: never = tabId

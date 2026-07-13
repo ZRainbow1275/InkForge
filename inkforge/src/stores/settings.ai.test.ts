@@ -33,9 +33,20 @@ describe('AI settings and writing-task prompts', () => {
   it('persists provider and system prompt, then resets the complete AI tab', async () => {
     const store = useSettingsStore()
     const defaultAISettings = structuredClone(toRaw(store.settings.ai))
+    const defaultFeatureFlags = structuredClone(toRaw(store.settings.featureFlags))
+    const defaultProxySettings = structuredClone(toRaw(store.settings.proxy))
     store.settings.ai.provider = 'deepseek'
     store.settings.ai.apiKey = ''
     store.settings.ai.systemPrompt = '只引用可核验事实，并明确区分事实与观点。'
+    store.settings.featureFlags['performance-metrics'] = true
+    store.settings.proxy = {
+      enabled: true,
+      protocol: 'socks5',
+      host: '127.0.0.1',
+      port: 7890,
+      username: 'reset-proof',
+      password: 'masked-value',
+    }
 
     await nextTick()
     await vi.advanceTimersByTimeAsync(5000)
@@ -44,13 +55,19 @@ describe('AI settings and writing-task prompts', () => {
     const reloaded = useSettingsStore()
     expect(reloaded.settings.ai.provider).toBe('deepseek')
     expect(reloaded.settings.ai.systemPrompt).toBe('只引用可核验事实，并明确区分事实与观点。')
+    expect(reloaded.settings.featureFlags['performance-metrics']).toBe(true)
+    expect(reloaded.settings.proxy.enabled).toBe(true)
 
     reloaded.resetTab('ai')
     expect(reloaded.settings.ai).toEqual(defaultAISettings)
+    expect(reloaded.settings.featureFlags).toEqual(defaultFeatureFlags)
+    expect(reloaded.settings.proxy).toEqual(defaultProxySettings)
 
     setActivePinia(createPinia())
     const resetReloaded = useSettingsStore()
     expect(resetReloaded.settings.ai).toEqual(defaultAISettings)
+    expect(resetReloaded.settings.featureFlags).toEqual(defaultFeatureFlags)
+    expect(resetReloaded.settings.proxy).toEqual(defaultProxySettings)
   })
 
   it('returns honest disabled and missing-key states without recording success', async () => {
