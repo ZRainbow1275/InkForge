@@ -200,6 +200,14 @@ and still run the narrow checks for the touched scope.
 - Browser smoke must use the real Settings UI and real Command Palette path. At minimum verify `Settings > About > Tauri Updater`, command `Updater: Check for Updates`, disabled/unavailable web behavior, audit/activity log evidence, fresh console-error logs, and no updater toast unless a real signed update exists.
 - Command Palette updater commands must keep command metadata, icon registration, Settings route state, store status, persisted Settings status, and audit evidence in one regression. If a command declares a Lucide icon name, register the component in `CommandPalette.vue` instead of accepting a fallback icon as proof.
 
+## Help/FTUE Quality Gate
+
+- Help search must derive from shipped Markdown/topics and the current Settings shortcut bindings; do not seed sample result rows.
+- Search acceptance must cover a real hit, navigation to its source tab and section, and an honest no-result state.
+- FTUE reset must use the production store/service boundary and change only FTUE/help-read records, not article, account, or Settings business data.
+- Native proof must exercise visible open/search/result/close/reset controls, read IndexedDB only for evidence, and verify reload persistence without directly writing proof state.
+- A 390px CloakBrowser pass must prove the dialog fits the viewport, has no page-width overflow or unnamed visible controls, and emits no fresh console errors.
+
 ## DesktopRuntime Quality Gate
 
 - Do not accept desktop runtime detection that only checks `window.__TAURI__`. Tauri 1 builds may run with `withGlobalTauri=false` and still expose IPC-only globals such as `__TAURI_INVOKE__`, `__TAURI_IPC__`, `__TAURI_METADATA__`, or `__TAURI_POST_MESSAGE__`.

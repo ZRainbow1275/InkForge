@@ -3255,6 +3255,65 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       await helpDialog.waitForDisplayed({ timeout: 5_000 });
       expect((await readAboutSettingsEvidence()).ftue.helpCenterOpen,
         'Help Center visibility is owned by the real FTUE store').to.equal(true);
+
+      const helpTabs = await helpDialog.$$('.if-help__tab');
+      let helpSearchTab = null;
+      for (const tab of helpTabs) {
+        if ((await tab.getText()).trim() === '搜索') {
+          helpSearchTab = tab;
+          break;
+        }
+      }
+      expect(helpSearchTab, 'Help exposes the real search tab by its visible label').to.not.equal(null);
+      await helpSearchTab.click();
+      const helpSearchInput = await helpDialog.$('.if-help__search input[type="search"]');
+      await helpSearchInput.waitForDisplayed({ timeout: 5_000 });
+      await helpSearchInput.click();
+      await browser.keys('加粗');
+      await browser.waitUntil(
+        async () => browser.execute(() => Array.from(document.querySelectorAll('.if-help__result'))
+          .some((element) => element.querySelector('span')?.textContent?.trim() === '文字格式')),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Help search did not return the real Markdown formatting result' },
+      );
+      const helpResults = await helpDialog.$$('.if-help__result');
+      let formattingResult = null;
+      for (const result of helpResults) {
+        const resultTitle = await result.$('span');
+        if ((await resultTitle.getText()).trim() === '文字格式') {
+          formattingResult = result;
+          break;
+        }
+      }
+      expect(formattingResult, 'Help search exposes the exact shipped Markdown formatting result').to.not.equal(null);
+      await formattingResult.click();
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          document.querySelector('.if-help__tab[aria-selected="true"]')?.textContent?.trim() === 'Markdown 速查'
+          && Array.from(document.querySelectorAll('.if-help__section h3'))
+            .some((heading) => heading.textContent?.trim() === '文字格式')
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Help search result did not open its real Markdown section' },
+      );
+
+      await helpSearchTab.click();
+      await helpSearchInput.click();
+      await browser.keys(['Control', 'a']);
+      await browser.keys('Backspace');
+      const missingHelpQuery = 'inkforge-no-such-help-topic-20260715';
+      await browser.keys(missingHelpQuery);
+      await browser.waitUntil(
+        async () => browser.execute((expectedQuery) => {
+          const input = document.querySelector('.if-help__search input[type="search"]');
+          const emptyState = document.querySelector('.if-help__empty');
+          return input?.value === expectedQuery
+            && document.querySelectorAll('.if-help__result').length === 0
+            && emptyState?.textContent?.trim() === '输入关键词后显示真实帮助内容和当前快捷键绑定。'
+            && emptyState.getClientRects().length > 0
+            && window.getComputedStyle(emptyState).visibility !== 'hidden';
+        }, missingHelpQuery),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Help search did not expose an honest no-result state' },
+      );
+
       const closeHelp = await browser.$('[aria-label="关闭帮助中心"]');
       await closeHelp.click();
       await helpDialog.waitForDisplayed({ timeout: 5_000, reverse: true });
