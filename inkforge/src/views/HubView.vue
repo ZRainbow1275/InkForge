@@ -296,7 +296,6 @@ const latestImportStatusLabel = computed(() => {
 })
 const quickActionRef = ref<HTMLElement | null>(null)
 const headerQuickActionTriggerRef = ref<HTMLButtonElement | null>(null)
-// FAB removed; keep ref placeholder null for legacy lookup paths
 const fabQuickActionTriggerRef = ref<HTMLButtonElement | null>(null)
 const quickActionMenuId = 'hub-quick-action-menu'
 const headerQuickActionTriggerId = 'hub-quick-action-header-trigger'
@@ -773,6 +772,12 @@ function handleHubKeydown(event: KeyboardEvent): void {
   const quickActionTriggerSource = getQuickActionTriggerSource(event.target)
 
   if (!showQuickActionMenu.value && quickActionTriggerSource) {
+    if (normalizedKey === 'enter' || normalizedKey === ' ') {
+      event.preventDefault()
+      openQuickActionMenu(quickActionTriggerSource, 'first')
+      return
+    }
+
     if (normalizedKey === 'arrowdown') {
       event.preventDefault()
       openQuickActionMenu(quickActionTriggerSource, 'first')
@@ -1077,6 +1082,25 @@ onMounted(async () => {
         </div>
 
         <button
+          :id="headerQuickActionTriggerId"
+          ref="headerQuickActionTriggerRef"
+          type="button"
+          class="icon-btn"
+          title="快速创建"
+          :aria-label="showQuickActionMenu && lastQuickActionTrigger === 'header' ? '关闭快速创建菜单' : '打开快速创建菜单'"
+          aria-haspopup="menu"
+          :aria-expanded="showQuickActionMenu && lastQuickActionTrigger === 'header'"
+          :aria-controls="quickActionMenuId"
+          @click.stop="showQuickActionMenu && lastQuickActionTrigger === 'header' ? closeQuickActionMenu(true) : openQuickActionMenu('header')"
+        >
+          <Plus
+            :size="20"
+            :stroke-width="2.2"
+            aria-hidden="true"
+          />
+        </button>
+
+        <button
           type="button"
           class="icon-btn"
           title="帮助中心"
@@ -1189,16 +1213,22 @@ onMounted(async () => {
               </button>
             </div>
             <div class="chart-container">
-              <div
+              <button
                 v-for="(count, i) in weeklyChartData"
                 :key="i"
                 class="chart-bar"
+                type="button"
                 :class="{ active: i === todayIndex, selected: i === selectedDayIndex }"
                 :style="{ height: getBarHeight(count) }"
+                :aria-label="`${weekDayLabels[i]}，${count} 篇文章`"
+                :aria-pressed="i === selectedDayIndex"
                 @click="(e: MouseEvent) => toggleDaySelection(i, e)"
               >
-                <span class="tooltip">{{ weekDayLabels[i] }} · {{ count }} 篇</span>
-              </div>
+                <span
+                  class="tooltip"
+                  aria-hidden="true"
+                >{{ weekDayLabels[i] }} · {{ count }} 篇</span>
+              </button>
             </div>
             <div class="chart-labels">
               <span
@@ -1371,8 +1401,9 @@ onMounted(async () => {
               我的分类
             </h3>
             <div class="categories-actions">
-              <span
+              <button
                 class="categories-add"
+                type="button"
                 @click.stop="showAddCategoryModal = true"
               >
                 <svg
@@ -1398,23 +1429,27 @@ onMounted(async () => {
                   />
                 </svg>
                 添加
-              </span>
-              <span
+              </button>
+              <button
                 class="categories-manage"
+                type="button"
                 @click.stop="goToSettings()"
-              >管理</span>
+              >管理</button>
             </div>
           </div>
           <div class="categories-grid">
-            <div
+            <button
               v-for="(cat, i) in displayCategories"
               :key="cat.id"
               class="category-cell"
+              type="button"
               :style="{
                 background: cat.scheme.bg,
                 color: cat.scheme.color,
                 '--hover-border': cat.scheme.hoverBorder,
               }"
+              :aria-label="`按分类 ${cat.name} 筛选，${cat.articleCount} 篇文章`"
+              :aria-pressed="filterMode === 'category' && filterCategoryId === cat.id"
               @click.stop="setFilterMode('category'); filterCategoryId = cat.id"
             >
               <svg
@@ -1461,18 +1496,19 @@ onMounted(async () => {
                   /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                 </template>
               </svg>
-              <div>
-                <div class="category-name">
+              <span class="category-cell-copy">
+                <span class="category-name">
                   {{ cat.name }}
-                </div>
-                <div class="category-count">
+                </span>
+                <span class="category-count">
                   {{ cat.articleCount }} 篇文章
-                </div>
-              </div>
-            </div>
-            <div
+                </span>
+              </span>
+            </button>
+            <button
               v-if="displayCategories.length === 0"
               class="categories-empty"
+              type="button"
               @click.stop="showAddCategoryModal = true"
             >
               <svg
@@ -1490,7 +1526,7 @@ onMounted(async () => {
               </svg>
               <span class="categories-empty-copy">为文字归档 — 先建一个分类</span>
               <span class="categories-empty-cta">+ 新建分类</span>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -2051,12 +2087,14 @@ onMounted(async () => {
         v-if="displayArticles.length > 0"
         class="waterfall-grid"
       >
-        <div
+        <a
           v-for="(article, index) in displayArticles"
           :key="article.id"
           class="article-card"
+          :href="`/workstation?id=${encodeURIComponent(article.id)}`"
+          :aria-label="`打开文章：${article.title || '未命名文稿'}`"
           :style="{ '--i': index }"
-          @click="openArticle(article.id)"
+          @click.prevent="openArticle(article.id)"
         >
           <div
             class="card-accent"
@@ -2108,7 +2146,7 @@ onMounted(async () => {
               <span class="meta-time">{{ formatRelativeTime(article.updatedAt || article.createdAt) }}</span>
             </div>
           </div>
-        </div>
+        </a>
       </div>
 
       <!-- 空状态 -->
@@ -2242,6 +2280,24 @@ onMounted(async () => {
           </div>
         </button>
       </div>
+      <button
+        :id="fabQuickActionTriggerId"
+        ref="fabQuickActionTriggerRef"
+        type="button"
+        class="quick-action-fab"
+        :class="{ expanded: showQuickActionMenu && lastQuickActionTrigger === 'fab' }"
+        :aria-label="showQuickActionMenu && lastQuickActionTrigger === 'fab' ? '关闭快速创建菜单' : '打开快速创建菜单'"
+        aria-haspopup="menu"
+        :aria-expanded="showQuickActionMenu && lastQuickActionTrigger === 'fab'"
+        :aria-controls="quickActionMenuId"
+        @click.stop="showQuickActionMenu && lastQuickActionTrigger === 'fab' ? closeQuickActionMenu(true) : openQuickActionMenu('fab')"
+      >
+        <Plus
+          :size="24"
+          :stroke-width="2.4"
+          aria-hidden="true"
+        />
+      </button>
     </div>
 
     <TemplatePicker
@@ -2687,6 +2743,34 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.quick-action-fab {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ember);
+  color: white;
+  box-shadow: var(--elev-3);
+  cursor: pointer;
+  transition: transform var(--motion-base) var(--ease-out-quart),
+              background var(--motion-base) var(--ease-out-quart),
+              box-shadow var(--motion-base) var(--ease-out-quart);
+}
+
+.quick-action-fab:hover {
+  background: #B71C1C;
+  box-shadow: var(--elev-3);
+  transform: translateY(-1px);
+}
+
+.quick-action-fab.expanded {
+  transform: rotate(45deg);
 }
 
 .quick-action-item {
@@ -3340,7 +3424,10 @@ onMounted(async () => {
 }
 
 .chart-bar {
+  appearance: none;
   flex: 1;
+  padding: 0;
+  border: 0;
   background: rgba(37, 41, 51, 0.08);
   border-radius: var(--radius-small) var(--radius-small) 0 0;
   transition: background var(--motion-slow) var(--ease-out-quart),
@@ -3922,7 +4009,14 @@ onMounted(async () => {
 .template-market-item:focus-visible,
 .quick-link-btn:focus-visible,
 .quick-action-item:focus-visible,
-.account-avatar-btn:focus-visible {
+.quick-action-fab:focus-visible,
+.account-avatar-btn:focus-visible,
+.chart-bar:focus-visible,
+.categories-add:focus-visible,
+.categories-manage:focus-visible,
+.category-cell:focus-visible,
+.categories-empty:focus-visible,
+.article-card:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.18);
 }
@@ -4190,6 +4284,11 @@ onMounted(async () => {
 }
 
 .categories-add {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -4205,6 +4304,11 @@ onMounted(async () => {
 }
 
 .categories-manage {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
   font-size: 12px;
   font-weight: 500;
   color: #D32F2F;
@@ -4224,6 +4328,8 @@ onMounted(async () => {
 }
 
 .category-cell {
+  appearance: none;
+  width: 100%;
   border-radius: var(--radius-large);
   padding: 16px;
   display: flex;
@@ -4235,6 +4341,13 @@ onMounted(async () => {
               transform var(--motion-fast) var(--ease-out-quart),
               box-shadow var(--motion-fast) var(--ease-out-quart);
   cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.category-cell-copy {
+  display: flex;
+  flex-direction: column;
 }
 
 .category-cell:hover {
@@ -4249,17 +4362,21 @@ onMounted(async () => {
 }
 
 .category-name {
+  display: block;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .category-count {
+  display: block;
   font-size: 11px;
   opacity: 0.7;
 }
 
 .categories-empty {
+  appearance: none;
+  width: 100%;
   grid-column: span 3;
   display: flex;
   flex-direction: column;
@@ -4776,6 +4893,8 @@ onMounted(async () => {
   animation: fadeInUp 0.5s var(--ease-out-quart) backwards;
   animation-delay: calc(min(var(--i), 10) * 50ms);
   display: flex;
+  color: inherit;
+  text-decoration: none;
   flex-direction: column;
 }
 

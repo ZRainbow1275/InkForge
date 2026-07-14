@@ -1,27 +1,11 @@
 ﻿<script setup lang="ts">
-import { computed } from 'vue'
 import { Tag } from 'lucide-vue-next'
 import type { TagCloudItem } from './types'
 
 const props = defineProps<{ tags: TagCloudItem[] }>()
 
-const FALLBACK_TAGS = ['草稿', '已发布', '灵感', '笔记', '待整理']
-const FALLBACK_WEIGHTS = [1, 0.78, 0.62, 0.48, 0.36] as const
-const FALLBACK_PALETTE = ['#D32F2F', '#1565C0', '#F57C00', '#6A1B9A', '#2E7D32']
 const MIN_TAG_FONT_SIZE = 12
 const MAX_TAG_FONT_SIZE = 28
-
-const displayTags = computed<TagCloudItem[]>(() => {
-  if (props.tags.length > 0) return props.tags
-  return FALLBACK_TAGS.map((tag, index) => ({
-    tag,
-    count: 0,
-    weight: FALLBACK_WEIGHTS[index % FALLBACK_WEIGHTS.length],
-    color: FALLBACK_PALETTE[index % FALLBACK_PALETTE.length],
-  }))
-})
-
-const isEmpty = computed<boolean>(() => props.tags.length === 0)
 
 function fontSizeFromWeight(weight: number): number {
   const clamped = Math.max(0, Math.min(1, weight))
@@ -50,11 +34,11 @@ function fontSizeFor(item: TagCloudItem): string {
     </header>
 
     <div
-      v-if="!isEmpty"
+      v-if="props.tags.length > 0"
       class="tag-cloud"
     >
       <span
-        v-for="item in displayTags"
+        v-for="item in props.tags"
         :key="item.tag"
         :style="{
           fontSize: fontSizeFor(item),
@@ -67,17 +51,6 @@ function fontSizeFor(item: TagCloudItem): string {
       v-else
       class="tag-cloud-empty"
     >
-      <div class="tag-cloud tag-cloud--placeholder">
-        <span
-          v-for="(item, index) in displayTags"
-          :key="item.tag"
-          :style="{
-            fontSize: fontSizeFor(item),
-            color: item.color,
-            opacity: 0.42 - index * 0.05,
-          }"
-        >{{ item.tag }}</span>
-      </div>
       <p class="tag-empty-hint">
         <Tag
           :size="13"
@@ -122,11 +95,6 @@ function fontSizeFor(item: TagCloudItem): string {
   padding-top: 6px;
   flex: 1;
   justify-content: center;
-}
-.tag-cloud--placeholder {
-  min-height: 0;
-  padding: 0;
-  filter: blur(0.4px);
 }
 .tag-empty-hint {
   display: inline-flex;

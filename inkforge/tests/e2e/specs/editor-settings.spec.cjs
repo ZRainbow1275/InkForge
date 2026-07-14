@@ -1751,6 +1751,222 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     }
   });
 
+  it('keeps Hub insights truthful and quick actions keyboard-operable with real article data', async function () {
+    this.timeout(90_000);
+    await startSmartPunctuationErrorProbe();
+    let probeStopped = false;
+
+    try {
+      await openRoute('/', '.hub-page');
+      const initialState = await browser.execute(() => {
+        const articleCards = Array.from(document.querySelectorAll('.article-card'));
+        const categoryCells = Array.from(document.querySelectorAll('.category-cell'));
+        const emptyCategory = document.querySelector('.categories-empty');
+        const tagEmpty = document.querySelector('.tag-cloud-empty');
+        return {
+          headerTriggerTag: document.querySelector('#hub-quick-action-header-trigger')?.tagName ?? null,
+          fabTriggerTag: document.querySelector('#hub-quick-action-fab-trigger')?.tagName ?? null,
+          menuVisible: Boolean(document.querySelector('#hub-quick-action-menu')),
+          chartButtonCount: Array.from(document.querySelectorAll('.chart-container .chart-bar'))
+            .filter((element) => element.tagName === 'BUTTON').length,
+          categoryActionTags: Array.from(document.querySelectorAll('.categories-actions > *'))
+            .map((element) => element.tagName),
+          categoryCellsAreButtons: categoryCells.every((element) => element.tagName === 'BUTTON'),
+          emptyCategoryTag: emptyCategory?.tagName ?? null,
+          articleCardsAreAnchors: articleCards.every((element) => element.tagName === 'A'),
+          placeholderCloudCount: document.querySelectorAll('.tag-cloud--placeholder').length,
+          emptyCloudNestedTagCount: tagEmpty?.querySelectorAll('.tag-cloud span').length ?? 0,
+          emptyCloudHint: tagEmpty?.querySelector('.tag-empty-hint')?.textContent?.trim() ?? null,
+        };
+      });
+
+      expect(initialState.headerTriggerTag, 'the header quick-action trigger is a native button').to.equal('BUTTON');
+      expect(initialState.fabTriggerTag, 'the floating quick-action trigger is a native button').to.equal('BUTTON');
+      expect(initialState.menuVisible, 'the quick-action menu starts closed').to.equal(false);
+      expect(initialState.chartButtonCount, 'all seven weekly bars are keyboard-reachable buttons').to.equal(7);
+      expect(initialState.categoryActionTags, 'category header actions use native buttons')
+        .to.deep.equal(['BUTTON', 'BUTTON']);
+      expect(initialState.categoryCellsAreButtons, 'rendered category cards use native buttons').to.equal(true);
+      if (initialState.emptyCategoryTag !== null) {
+        expect(initialState.emptyCategoryTag, 'the empty-category action uses a native button').to.equal('BUTTON');
+      }
+      expect(initialState.articleCardsAreAnchors, 'existing article cards expose real links').to.equal(true);
+      expect(initialState.placeholderCloudCount, 'the empty Tag Cloud renders no fabricated placeholder cloud')
+        .to.equal(0);
+      expect(initialState.emptyCloudNestedTagCount, 'the empty Tag Cloud renders no fabricated tag labels')
+        .to.equal(0);
+      if (initialState.emptyCloudHint !== null) {
+        expect(initialState.emptyCloudHint, 'the empty Tag Cloud explains its real-data boundary')
+          .to.equal('为文档添加标签后将展示真实标签云');
+      }
+
+      const headerTrigger = await browser.$('#hub-quick-action-header-trigger');
+      await headerTrigger.scrollIntoView({ block: 'center', inline: 'center' });
+      await browser.execute((element) => element.focus(), headerTrigger);
+      await browser.keys('Enter');
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          location.pathname === '/'
+          && document.querySelectorAll('#hub-quick-action-menu [role="menuitem"]').length === 3
+          && document.activeElement === document.querySelector('#hub-quick-action-menu [role="menuitem"]')
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Enter did not open and focus the header quick-action menu' },
+      );
+      expect(
+        await browser.execute(() => document.querySelector('#hub-quick-action-menu')?.getAttribute('aria-labelledby')),
+        'the menu is labelled by the owning header trigger',
+      ).to.equal('hub-quick-action-header-trigger');
+
+      await browser.keys('ArrowDown');
+      expect(
+        await browser.execute(() => Array.from(document.querySelectorAll('#hub-quick-action-menu [role="menuitem"]'))
+          .indexOf(document.activeElement)),
+        'ArrowDown moves to the second quick action',
+      ).to.equal(1);
+      await browser.keys('End');
+      expect(
+        await browser.execute(() => Array.from(document.querySelectorAll('#hub-quick-action-menu [role="menuitem"]'))
+          .indexOf(document.activeElement)),
+        'End moves to the last quick action',
+      ).to.equal(2);
+      await browser.keys('Home');
+      expect(
+        await browser.execute(() => Array.from(document.querySelectorAll('#hub-quick-action-menu [role="menuitem"]'))
+          .indexOf(document.activeElement)),
+        'Home returns to the first quick action',
+      ).to.equal(0);
+      await browser.keys('Escape');
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          !document.querySelector('#hub-quick-action-menu')
+          && document.activeElement?.id === 'hub-quick-action-header-trigger'
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Escape did not close the menu and restore header focus' },
+      );
+
+      const fabTrigger = await browser.$('#hub-quick-action-fab-trigger');
+      await browser.execute((element) => element.focus(), fabTrigger);
+      await browser.keys(' ');
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          location.pathname === '/'
+          && document.querySelector('#hub-quick-action-menu')?.getAttribute('aria-labelledby')
+            === 'hub-quick-action-fab-trigger'
+          && document.activeElement === document.querySelector('#hub-quick-action-menu [role="menuitem"]')
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Space did not open and focus the floating quick-action menu' },
+      );
+      await browser.keys('Escape');
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          !document.querySelector('#hub-quick-action-menu')
+          && document.activeElement?.id === 'hub-quick-action-fab-trigger'
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Escape did not restore floating-trigger focus' },
+      );
+
+      await browser.execute((element) => element.focus(), headerTrigger);
+      await browser.keys('Enter');
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          document.activeElement === document.querySelector('#hub-quick-action-menu [role="menuitem"]')
+        )),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'header menu did not reopen for the create action' },
+      );
+      await browser.keys('Enter');
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          location.pathname === '/workstation'
+          && Boolean(new window.URLSearchParams(location.search).get('id'))
+          && Boolean(document.querySelector('.ProseMirror'))
+        )),
+        { timeout: 15_000, interval: 200, timeoutMsg: 'the keyboard quick action did not create a real draft' },
+      );
+      const articleId = await browser.execute(() => new window.URLSearchParams(location.search).get('id'));
+      expect(articleId, 'the real quick action exposes the created article id').to.be.a('string').and.not.equal('');
+      createdArticleIds.add(articleId);
+      await waitForCurrentDraftReady(articleId, true);
+
+      const articleBody = Array.from({ length: 105 }, (_, index) => `hub${index}`).join(' ');
+      const editor = await browser.$('.ProseMirror');
+      await browser.execute((element) => element.focus(), editor);
+      await browser.keys(articleBody);
+      await browser.keys(['Control', 's']);
+      await browser.waitUntil(
+        async () => browser.execute((expectedText) => {
+          const root = document.getElementById('app');
+          const provides = root?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          const articleIdFromRoute = new window.URLSearchParams(location.search).get('id');
+          const article = pinia?._s.get('article')?.articles
+            ?.find((candidate) => candidate.id === articleIdFromRoute);
+          return article?.rawContent?.includes(expectedText) ?? false;
+        }, articleBody),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'the real article content did not persist through save' },
+      );
+
+      await openRoute('/', '.hub-page');
+      await browser.waitUntil(
+        async () => browser.execute((expectedId) => {
+          const cards = Array.from(document.querySelectorAll('a.article-card'));
+          const exactCard = cards.find((card) => new window.URL(card.href).searchParams.get('id') === expectedId);
+          return Boolean(
+            exactCard
+            && document.querySelector('.heatmap-body')
+            && document.querySelector('.trend-bars:not(.trend-bars--placeholder)')
+            && document.querySelector('.bucket-list')
+            && document.querySelector('.timeline-list .timeline-item'),
+          );
+        }, articleId),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'Hub insights did not render the saved real article' },
+      );
+      const populatedState = await browser.execute((expectedId) => {
+        const card = Array.from(document.querySelectorAll('a.article-card'))
+          .find((candidate) => new window.URL(candidate.href).searchParams.get('id') === expectedId);
+        return {
+          cardTag: card?.tagName ?? null,
+          cardHrefId: card ? new window.URL(card.href).searchParams.get('id') : null,
+          heatmapVisible: Boolean(document.querySelector('.heatmap-body')),
+          trendVisible: Boolean(document.querySelector('.trend-bars:not(.trend-bars--placeholder)')),
+          distributionVisible: Boolean(document.querySelector('.bucket-list')),
+          timelineVisible: Boolean(document.querySelector('.timeline-list .timeline-item')),
+          placeholderCloudCount: document.querySelectorAll('.tag-cloud--placeholder').length,
+        };
+      }, articleId);
+      expect(populatedState, 'the populated Hub uses the saved article across card and insight views').to.deep.equal({
+        cardTag: 'A',
+        cardHrefId: articleId,
+        heatmapVisible: true,
+        trendVisible: true,
+        distributionVisible: true,
+        timelineVisible: true,
+        placeholderCloudCount: 0,
+      });
+
+      const articleCard = await browser.$(`a.article-card[href*="${articleId}"]`);
+      await browser.execute((element) => element.focus(), articleCard);
+      await browser.keys('Enter');
+      await browser.waitUntil(
+        async () => browser.execute((expectedId) => (
+          location.pathname === '/workstation'
+          && new window.URLSearchParams(location.search).get('id') === expectedId
+          && Boolean(document.querySelector('.ProseMirror'))
+        ), articleId),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'keyboard activation did not follow the article card link' },
+      );
+
+      const errors = await stopSmartPunctuationErrorProbe();
+      probeStopped = true;
+      expect(errors, 'fresh Hub quick-action, insight, and article-card runtime errors').to.deep.equal([]);
+    } finally {
+      if (!probeStopped) await stopSmartPunctuationErrorProbe();
+    }
+  });
+
   it('persists both list Enter modes and applies distinct nested-list behavior', async () => {
     await selectListEnterBehavior('逐级减缩', 'notion');
     const seedArticleId = await createBlankDraft('notion');

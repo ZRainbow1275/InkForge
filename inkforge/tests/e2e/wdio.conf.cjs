@@ -58,6 +58,36 @@ function verifyIsolatedWebViewUserDataDir() {
   console.log(`[InkForge E2E] isolated WebView2 data verified in ${path.basename(scopedDriverDirectory)}`);
 }
 
+async function selectMainApplicationWindow() {
+  const deadline = Date.now() + 15_000;
+  let lastError = null;
+  let lastHandles = [];
+
+  while (Date.now() < deadline) {
+    try {
+      lastHandles = await global.browser.getWindowHandles();
+      for (const handle of lastHandles) {
+        try {
+          await global.browser.switchToWindow(handle);
+          const isMainWindow = await global.browser.execute(() => Boolean(document.querySelector('.ink-titlebar')));
+          if (isMainWindow) {
+            console.log(`[InkForge E2E] selected main WebView from ${lastHandles.length} window handle(s)`);
+            return;
+          }
+        } catch (error) {
+          lastError = error;
+        }
+      }
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  const detail = lastError instanceof Error ? lastError.message : String(lastError ?? 'none');
+  throw new Error(`Unable to select the InkForge main WebView from ${lastHandles.length} handle(s): ${detail}`);
+}
+
 async function stopTauriDriver() {
   const driver = tauriDriver;
   tauriDriver = undefined;
@@ -169,7 +199,10 @@ exports.config = {
     );
   },
 
-  before: verifyIsolatedWebViewUserDataDir,
+  before: async () => {
+    verifyIsolatedWebViewUserDataDir();
+    await selectMainApplicationWindow();
+  },
   beforeTest: () => {
     if (!global.__INKFORGE_E2E_DATA_ISOLATED__) {
       throw new Error('E2E requires the native driver scoped WebView2 data root');

@@ -78,6 +78,13 @@ const emit = defineEmits<{
   possible.
 - Keyboard affordances already present in a component must be preserved, for
   example `@keydown.enter.prevent`.
+- Clickable chart bars, category cards, article cards, and similar visual
+  surfaces must be native `button` or `a` controls. Preserve the visual design
+  with local CSS instead of recreating keyboard semantics on `div`/`span`.
+- Menu triggers must be mounted, named, and expose `aria-haspopup`,
+  `aria-expanded`, and `aria-controls`. When Enter or Space opens a menu and
+  focus moves to its first item, consume that opening event so the same native
+  activation cannot execute the newly focused item.
 
 ---
 
@@ -88,6 +95,9 @@ const emit = defineEmits<{
   not add more.
 - Do not inject mock IndexedDB/localStorage rows for proof. Browser smoke should
   exercise real UI actions and inspect storage read-only.
+- Insight empty states must not invent tags, trends, counts, or other
+  product-looking rows. Render only store/caller data plus a truthful empty-state
+  explanation.
 - Do not put service contracts or Zod validation rules only in components.
 - Do not use emoji icons; use the installed icon library.
 - Do not synchronously cancel a focus-sensitive recorder solely because one
@@ -102,6 +112,14 @@ const emit = defineEmits<{
   launched app is using the native driver-owned temporary
   `%TEMP%/scoped_dir*/EBWebView` data root. Stop the driver before deleting only
   that verified scoped directory; never reuse or clean the production profile.
+- Tauri apps with both splash and main WebViews must select the surviving main
+  application handle before spec-level hooks run; identify it by an application
+  invariant such as `.ink-titlebar`, use a bounded wait, and fail closed when it
+  cannot be found.
+- A custom-protocol Tauri E2E run uses bundled `dist` assets. After frontend
+  changes, rebuild both the production frontend and the debug binary before
+  setting `INKFORGE_E2E_SKIP_TAURI_BUILD=1`; Vite/HMR evidence alone does not
+  refresh the bundled desktop assets.
 
 ---
 
