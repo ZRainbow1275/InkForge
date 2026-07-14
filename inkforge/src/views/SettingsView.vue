@@ -134,6 +134,7 @@ const shortcutSearch = ref('')
 const settingsSearch = ref('')
 const activeRegistryMatchId = ref<string | null>(null)
 const exportPreviewCopyStatus = ref<'idle' | 'copied' | 'error'>('idle')
+const settingsImportInput = ref<HTMLInputElement | null>(null)
 const customCssImportInput = ref<HTMLInputElement | null>(null)
 const customCssSandboxResult = ref<CustomCssSandboxResult | null>(null)
 const customCssActionMessage = ref<{ type: 'success' | 'error' | 'warning'; text: string } | null>(null)
@@ -1798,43 +1799,45 @@ function formatMigrationDiffKindLabel(kind: 'added' | 'removed' | 'changed'): st
   return labels[kind]
 }
 
-function handleImportSettings(): void {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.json'
-  input.onchange = async (e: Event) => {
-    const file = (e.target as HTMLInputElement).files?.[0]
-    if (!file) return
-    try {
-      const text = await file.text()
-      const preview = settingsStore.previewImportSettings(text)
-      if (!preview.ok) {
-        importFeedback.value = {
-          type: 'error',
-          text: formatSettingsMigrationError(preview.error.code, preview.error.message),
-        }
-        clearFeedbackTimer()
-        return
-      }
+function triggerSettingsImport(): void {
+  settingsImportInput.value?.click()
+}
 
-      showConfirm(
-        '确认导入 Settings',
-        `将导入 Settings schema v${preview.preview.fromVersion} → v${preview.preview.toVersion}。${migrationPreviewSummaryText.value}。导入前会自动创建回滚点，并保留最近 10 个快照。`,
-        () => {
-          const success = settingsStore.importSettings(text)
-          importFeedback.value = success
-            ? { type: 'success', text: `设置导入成功：${migrationPreviewSummaryText.value}` }
-            : { type: 'error', text: '设置文件迁移或校验失败，当前设置未被覆盖' }
-          clearFeedbackTimer()
-        },
-        'IMPORT',
-      )
-    } catch {
-      importFeedback.value = { type: 'error', text: '读取文件失败' }
+async function handleImportSettings(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+
+  if (!file) return
+
+  try {
+    const text = await file.text()
+    const preview = settingsStore.previewImportSettings(text)
+    if (!preview.ok) {
+      importFeedback.value = {
+        type: 'error',
+        text: formatSettingsMigrationError(preview.error.code, preview.error.message),
+      }
       clearFeedbackTimer()
+      return
     }
+
+    showConfirm(
+      '确认导入 Settings',
+      `将导入 Settings schema v${preview.preview.fromVersion} → v${preview.preview.toVersion}。${migrationPreviewSummaryText.value}。导入前会自动创建回滚点，并保留最近 10 个快照。`,
+      () => {
+        const success = settingsStore.importSettings(text)
+        importFeedback.value = success
+          ? { type: 'success', text: `设置导入成功：${migrationPreviewSummaryText.value}` }
+          : { type: 'error', text: '设置文件迁移或校验失败，当前设置未被覆盖' }
+        clearFeedbackTimer()
+      },
+      'IMPORT',
+    )
+  } catch {
+    importFeedback.value = { type: 'error', text: '读取文件失败' }
+    clearFeedbackTimer()
   }
-  input.click()
 }
 function clearFeedbackTimer(): void {
   if (feedbackTimer) clearTimeout(feedbackTimer)
@@ -4512,6 +4515,7 @@ onUnmounted(() => {
               <button
                 type="button"
                 class="sv-action-btn"
+                data-settings-action="export"
                 @click="handleExportSettings"
               >
                 <svg
@@ -4538,7 +4542,8 @@ onUnmounted(() => {
               <button
                 type="button"
                 class="sv-action-btn"
-                @click="handleImportSettings"
+                data-settings-action="import"
+                @click="triggerSettingsImport"
               >
                 <svg
                   width="16"
@@ -4561,6 +4566,17 @@ onUnmounted(() => {
                 </svg>
                 导入设置
               </button>
+              <input
+                ref="settingsImportInput"
+                class="sv-visually-hidden-input"
+                type="file"
+                data-settings-import-input
+                aria-label="导入 Settings JSON 文件"
+                aria-hidden="true"
+                tabindex="-1"
+                accept="application/json,.json"
+                @change="handleImportSettings"
+              >
             </div>
             <div
               v-if="importFeedback"

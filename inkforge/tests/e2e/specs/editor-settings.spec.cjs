@@ -4,6 +4,9 @@
  */
 /* global after */
 const { expect } = require('chai');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 const SMART_PUNCTUATION_CASES = [
   { id: 'curlyQuotes', label: '弯引号', input: '"', expected: '“' },
@@ -1454,6 +1457,81 @@ async function confirmSettingsAction(verificationWord) {
   await confirm.click();
 }
 
+async function activateSettingsImport() {
+  const button = await browser.$('[data-settings-action="import"]');
+  await button.waitForDisplayed({ timeout: 5_000 });
+  await browser.execute((element) => {
+    element.scrollIntoView({ block: 'center', inline: 'nearest' });
+    element.focus();
+  }, button);
+  await browser.waitUntil(
+    async () => browser.execute(() => document.activeElement?.matches('[data-settings-action="import"]') ?? false),
+    { timeout: 5_000, interval: 100, timeoutMsg: 'Settings import action did not receive focus' },
+  );
+  await browser.keys('Enter');
+}
+
+async function readSettingsTransferEvidence() {
+  return browser.execute(() => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const settingsStore = pinia?._s.get('settings');
+    const live = settingsStore?.settings;
+    const persisted = JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}');
+    const normalizeSnapshots = (source) => (source ?? []).map((snapshot) => ({
+      id: snapshot.id,
+      reason: snapshot.reason,
+      schemaVersion: snapshot.schemaVersion,
+    }));
+    const normalizeExportHistory = (source) => (source ?? []).map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      bytes: entry.bytes,
+      action: entry.action,
+    }));
+    const dataTab = document.querySelector('[data-settings-tab="data"]');
+    const feedback = Array.from(dataTab?.querySelectorAll('.sv-feedback') ?? [])
+      .find((element) => element.getClientRects().length > 0);
+    const importInput = document.querySelector('[data-settings-import-input]');
+
+    return {
+      exportedJson: typeof settingsStore?.exportSettings === 'function'
+        ? settingsStore.exportSettings()
+        : null,
+      store: {
+        schemaVersion: live?.schemaVersion ?? null,
+        reducedMotion: live?.appearance?.reducedMotion ?? null,
+        snapshots: normalizeSnapshots(live?.advanced?.migrationSnapshots),
+        exportHistory: normalizeExportHistory(live?.export?.exportHistory),
+      },
+      persisted: {
+        schemaVersion: persisted?.schemaVersion ?? null,
+        reducedMotion: persisted?.appearance?.reducedMotion ?? null,
+        snapshots: normalizeSnapshots(persisted?.advanced?.migrationSnapshots),
+        exportHistory: normalizeExportHistory(persisted?.export?.exportHistory),
+      },
+      ui: {
+        importInputExists: Boolean(importInput),
+        importInputAccept: importInput?.getAttribute('accept') ?? null,
+        importInputAriaHidden: importInput?.getAttribute('aria-hidden') ?? null,
+        importInputTabIndex: importInput?.tabIndex ?? null,
+        importPickerClickCount: window.__inkforgeSettingsImportPickerClicks ?? 0,
+        importValueCleared: importInput?.value === '',
+        feedbackText: feedback?.textContent?.trim() ?? '',
+        feedbackType: feedback?.classList.contains('error')
+          ? 'error'
+          : feedback?.classList.contains('success') ? 'success' : null,
+        reducedMotionChecked: document.querySelector('input[aria-label="减弱动效"]')?.checked ?? null,
+      },
+    };
+  });
+}
+
 async function readAboutSettingsEvidence() {
   return browser.execute(async (featureFlagKeys) => {
     const root = document.getElementById('app');
@@ -1796,7 +1874,15 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       const listEnterBehavior = await readListEnterBehavior();
       const articleId = await createBlankDraft(listEnterBehavior);
       const editor = await browser.$('.ProseMirror');
-      await editor.click();
+      await editor.waitForDisplayed({ timeout: 10_000, interval: 200 });
+      await browser.execute((surface) => {
+        surface.scrollIntoView({ block: 'center', inline: 'center' });
+        surface.focus();
+      }, editor);
+      await browser.waitUntil(
+        async () => browser.execute(() => document.activeElement?.classList.contains('ProseMirror') ?? false),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'writing-goal editor surface did not receive focus' },
+      );
       await browser.keys('alpha beta gamma delta');
       await browser.waitUntil(
         async () => (await readWorkstationGoalPills())
@@ -1919,6 +2005,181 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       if (!probeStopped) await stopSmartPunctuationErrorProbe();
     }
   });
+
+  async function verifySettingsTransfer() {
+    this.timeout(120_000);
+    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'inkforge-settings-import-'));
+    const settingsPath = path.join(tempDirectory, 'settings.json');
+    const runtimeErrors = [];
+
+    fs.writeFileSync(settingsPath, '{"schemaVersion":', 'utf8');
+    await startSmartPunctuationErrorProbe();
+    let errorProbeActive = true;
+    let rollbackNeeded = false;
+
+    try {
+      await openRoute('/settings?tab=data', '[data-settings-tab="data"]');
+      const before = await readSettingsTransferEvidence();
+      expect(before.ui.importInputExists, 'the real Settings file input remains addressable').to.equal(true);
+      expect(before.ui.importInputAccept, 'the Settings input accepts JSON files').to.equal('application/json,.json');
+      expect(before.ui.importInputAriaHidden, 'the hidden picker is not duplicated in the accessibility tree')
+        .to.equal('true');
+      expect(before.ui.importInputTabIndex, 'the hidden picker is excluded from keyboard tab order').to.equal(-1);
+      expect(before.exportedJson, 'the production store exports Settings JSON').to.be.a('string').and.not.equal('');
+
+      const exportButton = await browser.$('[data-settings-action="export"]');
+      await exportButton.waitForDisplayed({ timeout: 5_000 });
+      await browser.execute((button) => {
+        button.scrollIntoView({ block: 'center', inline: 'nearest' });
+        button.focus();
+      }, exportButton);
+      await browser.waitUntil(
+        async () => browser.execute(() => document.activeElement?.matches('[data-settings-action="export"]') ?? false),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Settings export action did not receive focus' },
+      );
+      await browser.keys('Enter');
+      await browser.waitUntil(
+        async () => (await readSettingsTransferEvidence()).store.exportHistory.length
+          === Math.min(before.store.exportHistory.length + 1, 10),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Settings export did not write the real export history' },
+      );
+      const exported = await readSettingsTransferEvidence();
+      expect(exported.store.exportHistory[0], 'the visible export action records the generated Settings Blob')
+        .to.include({ title: 'Settings JSON', action: 'download' });
+      expect(exported.store.exportHistory[0]?.bytes, 'the generated Settings JSON Blob is non-empty')
+        .to.be.greaterThan(0);
+      expect(exported.persisted.exportHistory[0], 'the Settings export history persists immediately')
+        .to.deep.equal(exported.store.exportHistory[0]);
+
+      await browser.execute(() => {
+        const input = document.querySelector('[data-settings-import-input]');
+        window.__inkforgeSettingsImportPickerClicks = 0;
+        input?.addEventListener('click', () => {
+          window.__inkforgeSettingsImportPickerClicks += 1;
+        });
+      });
+      const importInput = await browser.$('[data-settings-import-input]');
+      await activateSettingsImport();
+      await importInput.addValue(settingsPath);
+      await browser.waitUntil(
+        async () => (await readSettingsTransferEvidence()).ui.feedbackText
+          === 'Settings JSON 解析失败，请确认文件内容完整。',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'invalid Settings JSON did not surface parse feedback' },
+      );
+      const afterInvalid = await readSettingsTransferEvidence();
+      expect(afterInvalid.ui.feedbackType, 'invalid Settings JSON is visibly rejected').to.equal('error');
+      expect(afterInvalid.store.reducedMotion, 'invalid Settings JSON leaves live settings unchanged')
+        .to.equal(before.store.reducedMotion);
+      expect(afterInvalid.store.snapshots, 'invalid Settings JSON creates no rollback point')
+        .to.deep.equal(before.store.snapshots);
+      expect(afterInvalid.ui.importPickerClickCount, 'the visible Import action opened the production picker')
+        .to.equal(1);
+      expect(afterInvalid.ui.importValueCleared, 'the failed file selection is cleared for same-path retry')
+        .to.equal(true);
+
+      const candidate = JSON.parse(exported.exportedJson);
+      candidate.appearance.reducedMotion = !before.store.reducedMotion;
+      fs.writeFileSync(settingsPath, JSON.stringify(candidate, null, 2), 'utf8');
+
+      await activateSettingsImport();
+      await importInput.addValue(settingsPath);
+      await confirmSettingsAction('IMPORT');
+      await browser.waitUntil(
+        async () => {
+          const current = await readSettingsTransferEvidence();
+          return current.store.reducedMotion === !before.store.reducedMotion
+            && current.persisted.reducedMotion === !before.store.reducedMotion
+            && current.store.snapshots[0]?.reason?.startsWith('import:v');
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'valid Settings import did not persist with a rollback point' },
+      );
+      rollbackNeeded = true;
+      const imported = await readSettingsTransferEvidence();
+      expect(imported.ui.feedbackType, 'valid Settings JSON reports visible success').to.equal('success');
+      expect(imported.ui.importPickerClickCount, 'the same visible Import action accepts the same path again')
+        .to.equal(2);
+      expect(imported.ui.importValueCleared, 'the successful file selection is also cleared').to.equal(true);
+      expect(imported.store.snapshots, 'a successful import retains a bounded local rollback ledger')
+        .to.have.length(Math.min(before.store.snapshots.length + 1, 10));
+      expect(before.store.snapshots.map((snapshot) => snapshot.id), 'the import rollback point is newly created')
+        .not.to.include(imported.store.snapshots[0]?.id);
+      expect(imported.persisted.snapshots, 'the complete rollback ledger persists immediately')
+        .to.deep.equal(imported.store.snapshots);
+
+      await openRoute('/settings?tab=appearance', '[data-settings-tab="appearance"]');
+      const reducedMotionInput = await browser.$('input[aria-label="减弱动效"]');
+      expect(await reducedMotionInput.isSelected(), 'the imported value reaches the visible Appearance control')
+        .to.equal(!before.store.reducedMotion);
+
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      errorProbeActive = false;
+      await browser.refresh();
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="appearance"]'))),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'Appearance settings did not recover after import reload' },
+      );
+      await startSmartPunctuationErrorProbe();
+      errorProbeActive = true;
+      const reloadedImport = await readSettingsTransferEvidence();
+      expect(reloadedImport.store.reducedMotion, 'the imported value survives reload in Pinia')
+        .to.equal(!before.store.reducedMotion);
+      expect(reloadedImport.persisted.reducedMotion, 'the imported value survives reload in localStorage')
+        .to.equal(!before.store.reducedMotion);
+      expect(reloadedImport.ui.reducedMotionChecked, 'the reloaded visible control matches persisted Settings')
+        .to.equal(!before.store.reducedMotion);
+
+      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      const restoreLatest = await browser.$('[data-migration-action="restore-latest"]');
+      await restoreLatest.waitForDisplayed({ timeout: 5_000 });
+      await restoreLatest.click();
+      await confirmSettingsAction('RESTORE');
+      await browser.waitUntil(
+        async () => {
+          const current = await readSettingsTransferEvidence();
+          return current.store.reducedMotion === before.store.reducedMotion
+            && current.persisted.reducedMotion === before.store.reducedMotion;
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'the import rollback point did not restore original Settings' },
+      );
+      rollbackNeeded = false;
+
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      errorProbeActive = false;
+      await browser.refresh();
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('[data-settings-tab="about"]'))),
+        { timeout: 10_000, interval: 200, timeoutMsg: 'About settings did not recover after rollback reload' },
+      );
+      await startSmartPunctuationErrorProbe();
+      errorProbeActive = true;
+      const reloadedRollback = await readSettingsTransferEvidence();
+      expect(reloadedRollback.store.reducedMotion, 'rollback survives reload in Pinia')
+        .to.equal(before.store.reducedMotion);
+      expect(reloadedRollback.persisted.reducedMotion, 'rollback survives reload in localStorage')
+        .to.equal(before.store.reducedMotion);
+      expect(reloadedRollback.store.snapshots, 'rollback preserves the local snapshot ledger')
+        .to.deep.equal(imported.store.snapshots);
+    } finally {
+      if (errorProbeActive) runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      if (rollbackNeeded) {
+        const restored = await browser.execute(() => {
+          const root = document.getElementById('app');
+          const provides = root?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          return pinia?._s.get('settings')?.restoreLatestRollbackPoint?.() ?? false;
+        });
+        if (!restored) runtimeErrors.push({ type: 'cleanup', message: 'Settings rollback cleanup failed' });
+      }
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    }
+
+    expect(runtimeErrors, 'Settings export, invalid import, valid import, reload, and rollback emit no fresh runtime errors')
+      .to.deep.equal([]);
+  }
 
   it('persists Data backup settings, writes real versions, and reports real storage diagnostics', async function () {
     this.timeout(300_000);
@@ -2817,4 +3078,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     expect(runtimeErrors, 'About navigation, persistence, rollback, performance, proxy, and FTUE emit no fresh runtime errors')
       .to.deep.equal([]);
   });
+
+  // Import intentionally creates a durable rollback audit row, so keep this in the disposable final session slot.
+  it('exports and imports Settings JSON through the real file and rollback boundaries', verifySettingsTransfer);
 });

@@ -54,4 +54,26 @@ describe('settings data backup preferences', () => {
     setActivePinia(createPinia())
     expect(useSettingsStore().settings.data).toEqual(defaults)
   })
+
+  it('keeps a durable rollback point when importing validated Settings JSON', () => {
+    const store = useSettingsStore()
+    const originalReducedMotion = store.settings.appearance.reducedMotion
+    const candidate = structuredClone(toRaw(store.settings))
+    candidate.appearance.reducedMotion = !originalReducedMotion
+    const snapshotCount = store.settings.advanced.migrationSnapshots.length
+
+    expect(store.importSettings(JSON.stringify(candidate))).toBe(true)
+    expect(store.settings.appearance.reducedMotion).toBe(!originalReducedMotion)
+    expect(store.settings.advanced.migrationSnapshots).toHaveLength(snapshotCount + 1)
+    expect(store.settings.advanced.migrationSnapshots[0]?.reason).toMatch(/^import:v\d+-to-v\d+$/)
+
+    expect(store.restoreLatestRollbackPoint()).toBe(true)
+    expect(store.settings.appearance.reducedMotion).toBe(originalReducedMotion)
+    expect(store.settings.advanced.migrationSnapshots).toHaveLength(snapshotCount + 1)
+
+    setActivePinia(createPinia())
+    const reloaded = useSettingsStore()
+    expect(reloaded.settings.appearance.reducedMotion).toBe(originalReducedMotion)
+    expect(reloaded.settings.advanced.migrationSnapshots).toHaveLength(snapshotCount + 1)
+  })
 })

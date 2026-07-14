@@ -1056,6 +1056,8 @@ const events = devToolsEventBus.snapshot().events
 - Unknown Settings JSON must be parsed, migrated, normalized, and validated before overwriting current Settings.
 - Zod validation must use non-throwing `safeParse` style results at the import boundary.
 - A successful import must create a rollback point before applying the migrated candidate.
+- Imported `advanced.migrationSnapshots` must never replace the local rollback ledger; retain the bounded local ledger, including the newly-created import rollback point, when applying a validated candidate.
+- The visible Import action must be the sole keyboard/accessibility entry to the persistent file picker; keep the visually-hidden input out of tab order and reset its value on every change so the same path can be selected again after invalid or valid content.
 - Future Settings schema versions must be rejected without downgrade or overwrite.
 - Rollback restore must validate the snapshot through the same current Settings candidate path before writing store state.
 - UI must render real migration/snapshot state from the store; do not render sample rollback points, fake migration logs, or mock deprecated fields.

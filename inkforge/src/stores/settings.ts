@@ -1025,7 +1025,9 @@ export const useSettingsStore = defineStore('settings', () => {
       const rollbackSnapshotId = createRollbackPoint(
         `import:v${migrationPreview.fromVersion}-to-v${migrationPreview.toVersion}`,
       )
+      const retainedSnapshots = settings.value.advanced.migrationSnapshots
       settings.value = migrationPreview.candidate
+      settings.value.advanced.migrationSnapshots = retainedSnapshots
       normalizeLiveDataSettings(settings.value)
       setLogLevel(settings.value.advanced.logLevel as LogLevel)
       lastMigrationPreview.value = migrationPreview
