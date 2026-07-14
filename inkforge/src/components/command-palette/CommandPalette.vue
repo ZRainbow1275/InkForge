@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, type Component } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
+  Activity,
   Circle,
   Code2,
   Columns2,
@@ -37,10 +38,12 @@ const emit = defineEmits<{
 }>()
 
 const store = useCommandPaletteStore()
-const { isOpen, query, activeCommandId, groupedResults, quickSections, showQuickPanel, isLoading, lastError } = storeToRefs(store)
+const { isOpen, query, activeCommandId, activeCommand, groupedResults, quickSections, showQuickPanel, isLoading, lastError } = storeToRefs(store)
+const overlayRef = ref<HTMLElement | null>(null)
 const searchInputRef = ref<HTMLInputElement | null>(null)
 
 const commandIconMap: Record<string, Component> = {
+  Activity,
   Circle,
   Code2,
   Columns2,
@@ -64,8 +67,19 @@ const commandIconMap: Record<string, Component> = {
 }
 
 const flattenedResults = computed(() => groupedResults.value.flatMap(group => group.commands))
-const activeOptionId = computed(() => activeCommandId.value ? `command-palette-option-${activeCommandId.value}` : undefined)
-
+const displaySections = computed(() => showQuickPanel.value
+  ? quickSections.value.map(section => ({
+    id: section.id,
+    domId: undefined,
+    label: section.title,
+    commands: section.commands,
+  }))
+  : groupedResults.value.map(group => ({
+    id: group.group,
+    domId: getGroupId(group.group),
+    label: group.label,
+    commands: group.commands,
+  })))
 function resolveIcon(command: Command): Component {
   return commandIconMap[command.icon] ?? Circle
 }
@@ -76,6 +90,12 @@ function getGroupId(group: CommandGroup): string {
 
 function getOptionId(command: Command): string {
   return `command-palette-option-${command.id}`
+}
+
+function getFavoriteLabel(command: Command): string {
+  return store.favorites.includes(command.id)
+    ? `Remove ${command.title} from favorites`
+    : `Add ${command.title} to favorites`
 }
 
 function setQuery(value: string): void {
@@ -91,7 +111,11 @@ async function execute(commandId: string): Promise<void> {
   await store.executeCommand(commandId)
   if (!store.lastError) {
     emit('command-executed', commandId)
+    return
   }
+
+  await nextTick()
+  searchInputRef.value?.focus()
 }
 
 function focusActiveOption(): void {
@@ -100,10 +124,34 @@ function focusActiveOption(): void {
   option?.scrollIntoView({ block: 'nearest' })
 }
 
+function getPaletteFocusableElements(): HTMLElement[] {
+  if (!overlayRef.value) return []
+  return Array.from(overlayRef.value.querySelectorAll<HTMLElement>(
+    'input:not([disabled]), button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+  )).filter(element => element.getClientRects().length > 0)
+}
+
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
     handleClose()
+    return
+  }
+
+  if (event.key === 'Tab') {
+    const focusableElements = getPaletteFocusableElements()
+    if (!focusableElements.length) return
+
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+    const activeElement = document.activeElement
+    if (event.shiftKey && activeElement === firstElement) {
+      event.preventDefault()
+      lastElement.focus()
+    } else if (!event.shiftKey && activeElement === lastElement) {
+      event.preventDefault()
+      firstElement.focus()
+    }
     return
   }
 
@@ -136,18 +184,31 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 
   if (event.key === 'Enter') {
+    const target = event.target as HTMLElement | null
+    if (target?.closest('.cp-close, .cp-favorite-button')) return
+
     event.preventDefault()
-    void store.executeActive().then(() => {
-      if (!store.lastError && activeCommandId.value) {
-        emit('command-executed', activeCommandId.value)
-      }
-    })
+    if (activeCommandId.value) void execute(activeCommandId.value)
+  }
+}
+
+function handleWindowKeydown(event: KeyboardEvent): void {
+  if (!store.isOpen) return
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    handleClose()
     return
   }
 
-  if (event.key === 'Tab') {
+  if (event.key === 'Tab' && !overlayRef.value?.contains(document.activeElement)) {
+    const focusableElements = getPaletteFocusableElements()
+    const target = event.shiftKey
+      ? focusableElements[focusableElements.length - 1]
+      : focusableElements[0]
+    if (!target) return
     event.preventDefault()
-    void store.executeActive()
+    target.focus()
   }
 }
 
@@ -182,6 +243,9 @@ watch(isOpen, async value => {
   searchInputRef.value?.focus()
 })
 
+onMounted(() => window.addEventListener('keydown', handleWindowKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', handleWindowKeydown))
+
 defineExpose({
   open: store.open,
   close: store.close,
@@ -194,6 +258,7 @@ defineExpose({
     <Transition name="cp-overlay">
       <div
         v-if="isOpen"
+        ref="overlayRef"
         class="cp-overlay"
         role="dialog"
         aria-modal="true"
@@ -225,12 +290,11 @@ defineExpose({
                 ref="searchInputRef"
                 class="cp-search-input"
                 type="text"
-                role="combobox"
+                role="searchbox"
+                aria-label="Search commands"
                 autocomplete="off"
                 spellcheck="false"
-                aria-expanded="true"
                 aria-controls="command-palette-results"
-                :aria-activedescendant="activeOptionId"
                 :value="query"
                 placeholder="Search commands..."
                 @input="setQuery(($event.target as HTMLInputElement).value)"
@@ -254,6 +318,16 @@ defineExpose({
               class="cp-help"
             >
               Use arrow keys to navigate, Enter to run, and Escape to close.
+            </p>
+
+            <p
+              id="command-palette-active-status"
+              class="cp-sr-only"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {{ activeCommand ? `Selected command: ${activeCommand.title}` : 'No command selected' }}
             </p>
 
             <p
@@ -281,85 +355,36 @@ defineExpose({
               v-else-if="flattenedResults.length > 0"
               id="command-palette-results"
               class="cp-results"
-              role="listbox"
+              role="list"
               aria-label="Command results"
             >
-              <template v-if="showQuickPanel">
-                <section
-                  v-for="section in quickSections"
-                  :key="section.id"
-                  class="cp-group"
-                  role="group"
-                  :aria-label="section.title"
+              <section
+                v-for="section in displaySections"
+                :id="section.domId"
+                :key="section.id"
+                class="cp-group"
+                role="group"
+                :aria-label="section.label"
+                :data-command-section="section.id"
+              >
+                <div class="cp-group-label">
+                  {{ section.label }}
+                </div>
+                <div
+                  v-for="(result, index) in section.commands"
+                  :key="result.command.id"
+                  class="cp-item-row"
+                  role="listitem"
+                  :style="{ '--cp-stagger-delay': `${Math.min(index * 20, 200)}ms` }"
                 >
-                  <div class="cp-group-label">
-                    {{ section.title }}
-                  </div>
                   <button
-                    v-for="(result, index) in section.commands"
                     :id="getOptionId(result.command)"
-                    :key="result.command.id"
                     class="cp-item"
                     :class="{ active: activeCommandId === result.command.id, destructive: result.command.isDestructive }"
-                    role="option"
                     type="button"
-                    :aria-selected="activeCommandId === result.command.id"
-                    :style="{ '--cp-stagger-delay': `${Math.min(index * 20, 200)}ms` }"
+                    :data-command-id="result.command.id"
                     @mouseenter="activeCommandId = result.command.id"
-                    @click="execute(result.command.id)"
-                  >
-                    <component
-                      :is="resolveIcon(result.command)"
-                      class="cp-item-icon"
-                      :size="18"
-                      aria-hidden="true"
-                    />
-                    <span class="cp-item-copy">
-                      <span class="cp-item-title">{{ result.command.title }}</span>
-                      <span
-                        v-if="result.command.subtitle"
-                        class="cp-item-subtitle"
-                      >{{ result.command.subtitle }}</span>
-                    </span>
-                    <span
-                      v-if="result.command.shortcut"
-                      class="cp-shortcut"
-                      tabindex="-1"
-                    >{{ result.command.shortcut }}</span>
-                    <Star
-                      class="cp-favorite"
-                      :class="{ active: store.favorites.includes(result.command.id) }"
-                      :size="14"
-                      aria-hidden="true"
-                      @click.stop="store.toggleFavorite(result.command.id)"
-                    />
-                  </button>
-                </section>
-              </template>
-
-              <template v-else>
-                <section
-                  v-for="group in groupedResults"
-                  :id="getGroupId(group.group)"
-                  :key="group.group"
-                  class="cp-group"
-                  role="group"
-                  :aria-label="group.label"
-                >
-                  <div class="cp-group-label">
-                    {{ group.label }}
-                  </div>
-                  <button
-                    v-for="(result, index) in group.commands"
-                    :id="getOptionId(result.command)"
-                    :key="result.command.id"
-                    class="cp-item"
-                    :class="{ active: activeCommandId === result.command.id, destructive: result.command.isDestructive }"
-                    role="option"
-                    type="button"
-                    :aria-selected="activeCommandId === result.command.id"
-                    :style="{ '--cp-stagger-delay': `${Math.min(index * 20, 200)}ms` }"
-                    @mouseenter="activeCommandId = result.command.id"
+                    @focus="activeCommandId = result.command.id"
                     @click="execute(result.command.id)"
                   >
                     <component
@@ -391,16 +416,26 @@ defineExpose({
                       class="cp-shortcut"
                       tabindex="-1"
                     >{{ result.command.shortcut }}</span>
+                  </button>
+                  <button
+                    class="cp-favorite-button"
+                    type="button"
+                    :aria-label="getFavoriteLabel(result.command)"
+                    :aria-pressed="store.favorites.includes(result.command.id)"
+                    :data-command-favorite="result.command.id"
+                    @mouseenter="activeCommandId = result.command.id"
+                    @focus="activeCommandId = result.command.id"
+                    @click="store.toggleFavorite(result.command.id)"
+                  >
                     <Star
                       class="cp-favorite"
                       :class="{ active: store.favorites.includes(result.command.id) }"
                       :size="14"
                       aria-hidden="true"
-                      @click.stop="store.toggleFavorite(result.command.id)"
                     />
                   </button>
-                </section>
-              </template>
+                </div>
+              </section>
             </div>
 
             <div
@@ -537,11 +572,18 @@ defineExpose({
   text-transform: uppercase;
 }
 
+.cp-item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 4px;
+}
+
 .cp-item {
   width: 100%;
   min-height: 48px;
   display: grid;
-  grid-template-columns: 26px 1fr auto 20px;
+  grid-template-columns: 26px 1fr auto;
   align-items: center;
   gap: 10px;
   border: 0;
@@ -605,12 +647,35 @@ defineExpose({
 .cp-favorite {
   color: var(--text-muted);
   opacity: 0.55;
+  pointer-events: none;
 }
 
 .cp-favorite.active {
   color: var(--ember);
   opacity: 1;
   fill: currentColor;
+}
+
+.cp-favorite-button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cp-favorite-button:hover {
+  background: var(--ember-soft);
+}
+
+.cp-favorite-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .cp-highlight {

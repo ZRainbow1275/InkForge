@@ -1634,3 +1634,79 @@ Boolean(document.querySelector('[data-settings-entry="about.proxy"]'))
 const target = document.querySelector('[data-settings-entry="about.proxy"]')
 const visible = Boolean(target && target.getClientRects().length > 0)
 ```
+
+## Scenario: Command Palette Runtime And Persistence
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing the command registry, `CommandExecutor`, `useCommandPaletteStore`, `CommandPalette.vue`, favorites/history persistence, route context, or command keyboard behavior.
+- This is a local application contract. A command entry may navigate or invoke an already-authorized local action, but its presence is not proof that an external platform, credentialed channel, or publish action succeeded.
+
+### 2. Authorities And Signatures
+
+- Registry authority: `CommandRegistry`; command ids are globally unique and missing handlers fail explicitly.
+- Execution authority: `CommandExecutor.execute(commandId, context)`; every item in `requiredPermissions` is required. Do not implement a plural requirement with existential matching.
+- UI authority: `useCommandPaletteStore`; route/context filtering happens before display, while `CommandExecutor` repeats permission checks at execution time.
+- Persistence authority: `CommandPalettePersistence`, database `inkforge-command-palette`, object store `kv`, keys `favorites` and `history`. UI tests may inspect these rows read-only but must use production palette actions to change them.
+- Successful history records the executed command id, active query, and execution timestamp only after the handler succeeds. Permission, route, missing-handler, and handler errors must not enter successful history.
+
+### 3. Contracts
+
+- Favorites, Recent, and Featured quick sections must not render the same command more than once. A favorite id belongs to Favorites; Recent and Featured exclude it while the favorite remains active. Favorites are authoritative user state and must not be truncated before that exclusion, otherwise a sixth or later favorite can disappear from every section.
+- Search results use `role="list"` / `role="listitem"`. A command row and its sibling favorite action are separate native `type="button"` controls; do not put sibling action buttons inside `listbox` / `option` ownership. Announce the active command through a polite live region instead of an invalid `aria-activedescendant` relationship.
+- The favorite control has a stable accessible label and `aria-pressed`; it must be keyboard reachable without executing the command. Quick sections and grouped search must expose the same visual order to Arrow/Home/End navigation.
+- Tab uses native focus traversal within the open modal and wraps at the first/last focusable control; Shift+Tab wraps in reverse. Enter executes the active command only when the event did not originate from the close or favorite control.
+- Escape closes an open palette even if an async command temporarily unmounted the formerly focused option and focus fell outside the overlay. Global listeners are open-state guarded and removed on component unmount.
+- Every registered icon name must map to an installed icon-library component. Unknown names may fall back to the neutral library icon; never substitute Emoji.
+- Permission denial remains visible as a typed error and keeps the palette recoverable. Async failure returns focus to the search input; editing the query clears the stale error before a retry. Permission denial must return `auditLogged=false` and must not invoke the handler, open the protected surface, append successful history, or append a successful `command.execute` audit event.
+
+### 4. Validation Matrix
+
+| Condition | Required state |
+| --- | --- |
+| Command requires two permissions and the context has one | `permission_denied`; handler call count remains zero |
+| Route/context excludes a command | Command is absent from visible search results |
+| Favorite toggled by keyboard | Palette remains open, route is unchanged, `aria-pressed` and IndexedDB update |
+| Reload after favorite/history writes | Favorites and successful history rehydrate through production persistence |
+| One command qualifies for multiple quick sections | Exactly one mounted command row; favorite ownership takes precedence |
+| Six or more commands are favorites and also qualify for Recent/Featured | Every favorite remains mounted once; none disappears because lower-priority sections exclude it |
+| Relevance order differs from grouped visual order | Active selection and Home/End follow the rendered group order |
+| Permission preflight rejects execution | `auditLogged=false`; handler and successful-audit call counts remain zero |
+| Async command fails after loading state | Typed error remains visible; search focus returns; query edit clears stale error; native Enter can retry; failed command is absent from success history; Escape still closes |
+| Registered icon exists in Lucide map | The intended Lucide class renders; no text/Emoji icon fallback |
+
+### 5. Tests Required
+
+- Unit-test all-required permission semantics with a denied partial context and an allowed complete context, asserting `auditLogged`, handler calls, successful-audit calls, and returned payloads. Unit-test at least seven overlapping favorites so authoritative favorites cannot be hidden by any presentation cap.
+- Run `node --check tests/e2e/specs/native-runtime.spec.cjs`, targeted ESLint, complete source ESLint without autofix, `vue-tsc --noEmit --pretty false`, focused command Vitest, serial full Vitest, and the compressed production build.
+- Run a focused real Tauri/WebView2 flow using native Ctrl+K, Tab/Shift+Tab, Home/End, Enter, and Escape plus read-only IndexedDB evidence, then run the complete native-runtime spec. Audit-read failures must fail the test rather than fall back to zero counts; establish a non-zero successful `command.execute` baseline before proving denial produces zero count delta. Rebuild `dist` before native replay; a Tauri compile alone does not refresh Vite assets.
+- Preserve the application SVG/style acceptance gate. Command Palette completion does not change `canClaimReleaseComplete`, and no Xiaohongshu/Zhihu publish automation is required for this local contract.
+
+### 6. Wrong Vs Correct
+
+#### Wrong
+
+```ts
+return command.requiredPermissions.some(permission => context.permissions.includes(permission))
+```
+
+```vue
+<Star @click.stop="toggleFavorite(command.id)" />
+```
+
+#### Correct
+
+```ts
+return command.requiredPermissions.every(permission => context.permissions.includes(permission))
+```
+
+```vue
+<button
+  type="button"
+  :aria-label="favoriteLabel"
+  :aria-pressed="isFavorite"
+  @click="toggleFavorite(command.id)"
+>
+  <Star aria-hidden="true" />
+</button>
+```

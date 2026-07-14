@@ -180,22 +180,24 @@ export const useCommandPaletteStore = defineStore('commandPalette', () => {
   const quickSections = computed<QuickCommandSection[]>(() => {
     const visibleCommands = searchEngine.filterByContext(commandContext.value, contextFilter.value)
     const commandById = new Map(visibleCommands.map(command => [command.id, command]))
+    const favoriteCommandIds = new Set(favorites.value)
 
     const recent = uniqueCommandIds(history.value)
       .map(commandId => commandById.get(commandId))
       .filter((command): command is Command => Boolean(command))
+      .filter(command => !favoriteCommandIds.has(command.id))
       .slice(0, 5)
       .map(command => toSearchResult(command, -0.3))
 
-    const favoriteResults = favorites.value
+    const favoriteResults = [...favoriteCommandIds]
       .map(commandId => commandById.get(commandId))
       .filter((command): command is Command => Boolean(command))
-      .slice(0, 5)
       .map(command => toSearchResult(command, -0.2))
 
     const featured = visibleCommands
       .filter(command => command.featured)
       .filter(command => !recent.some(result => result.command.id === command.id))
+      .filter(command => !favoriteCommandIds.has(command.id))
       .slice(0, 5)
       .map(command => toSearchResult(command, -0.1))
 
@@ -215,8 +217,12 @@ export const useCommandPaletteStore = defineStore('commandPalette', () => {
       if (seen.has(result.command.id)) return false
       seen.add(result.command.id)
       return true
-    }).slice(0, 12)
+    })
   })
+
+  const navigationResults = computed<SearchResult[]>(() => showQuickPanel.value
+    ? quickPanelResults.value
+    : groupedResults.value.flatMap(group => group.commands))
 
   function groupResults(source: SearchResult[]): GroupedResults {
     return GROUP_ORDER
@@ -230,8 +236,8 @@ export const useCommandPaletteStore = defineStore('commandPalette', () => {
 
   function rebuildSearchIndex(): void {
     searchEngine.rebuildIndex(registry.getAll())
-    if (!activeCommandId.value || !results.value.some(result => result.command.id === activeCommandId.value)) {
-      activeCommandId.value = results.value[0]?.command.id ?? null
+    if (!activeCommandId.value || !navigationResults.value.some(result => result.command.id === activeCommandId.value)) {
+      activeCommandId.value = navigationResults.value[0]?.command.id ?? null
     }
   }
 
@@ -296,11 +302,12 @@ export const useCommandPaletteStore = defineStore('commandPalette', () => {
 
   function setQuery(nextQuery: string): void {
     query.value = nextQuery
-    activeCommandId.value = results.value[0]?.command.id ?? null
+    lastError.value = null
+    activeCommandId.value = navigationResults.value[0]?.command.id ?? null
   }
 
   function moveFocus(direction: 'up' | 'down' | 'first' | 'last'): void {
-    const commandIds = results.value.map(result => result.command.id)
+    const commandIds = navigationResults.value.map(result => result.command.id)
     if (!commandIds.length) {
       activeCommandId.value = null
       return

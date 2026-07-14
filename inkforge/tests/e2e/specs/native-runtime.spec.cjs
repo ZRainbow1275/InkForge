@@ -676,6 +676,125 @@ async function runUpdaterCommandPaletteProbe() {
   };
 }
 
+async function navigateWithinApp(target) {
+  await browser.execute((nextTarget) => {
+    window.history.pushState({}, '', nextTarget);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, target);
+  await browser.waitUntil(
+    async () => browser.execute((nextTarget) => `${location.pathname}${location.search}` === nextTarget, target),
+    {
+      timeout: 10_000,
+      interval: 200,
+      timeoutMsg: `app route did not settle on ${target}`,
+    },
+  );
+}
+
+async function openCommandPalette(query = '') {
+  await browser.keys(['Control', 'k']);
+  await browser.waitUntil(
+    async () => browser.execute(() => Boolean(document.querySelector('.cp-overlay .cp-search-input'))),
+    {
+      timeout: 8_000,
+      interval: 200,
+      timeoutMsg: 'command palette did not open from Ctrl+K shortcut',
+    },
+  );
+
+  const input = await browser.$('.cp-search-input');
+  if (query) await input.setValue(query);
+  return input;
+}
+
+async function closeCommandPalette() {
+  await browser.keys('Escape');
+  await browser.waitUntil(
+    async () => browser.execute(() => !document.querySelector('.cp-overlay')),
+    {
+      timeout: 5_000,
+      interval: 150,
+      timeoutMsg: 'command palette did not close from Escape',
+    },
+  );
+}
+
+async function readCommandPalettePersistence() {
+  return browser.execute(() => new Promise((resolve) => {
+    const request = window.indexedDB.open('inkforge-command-palette');
+    request.onerror = () => resolve({
+      ok: false,
+      reason: request.error?.message ?? 'command-palette-database-open-failed',
+      history: [],
+      favorites: [],
+    });
+    request.onsuccess = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains('kv')) {
+        database.close();
+        resolve({ ok: false, reason: 'command-palette-kv-store-missing', history: [], favorites: [] });
+        return;
+      }
+
+      const transaction = database.transaction('kv', 'readonly');
+      const store = transaction.objectStore('kv');
+      const historyRequest = store.get('history');
+      const favoritesRequest = store.get('favorites');
+      transaction.oncomplete = () => {
+        const history = Array.isArray(historyRequest.result) ? historyRequest.result : [];
+        const favorites = Array.isArray(favoritesRequest.result) ? favoritesRequest.result : [];
+        database.close();
+        resolve({ ok: true, history, favorites });
+      };
+      transaction.onerror = () => {
+        const reason = transaction.error?.message ?? 'command-palette-read-failed';
+        database.close();
+        resolve({ ok: false, reason, history: [], favorites: [] });
+      };
+    };
+  }));
+}
+
+async function readCommandPaletteSurface() {
+  return browser.execute(() => {
+    const optionIds = Array.from(document.querySelectorAll('[id^="command-palette-option-"]'))
+      .map((element) => element.id);
+    return {
+      pathname: location.pathname,
+      search: location.search,
+      open: Boolean(document.querySelector('.cp-overlay')),
+      emptyText: document.querySelector('.cp-empty')?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      errorText: document.querySelector('.cp-error')?.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      duplicateOptionIds: optionIds.filter((id, index) => optionIds.indexOf(id) !== index),
+      sections: Array.from(document.querySelectorAll('[data-command-section]')).map((section) => ({
+        id: section.getAttribute('data-command-section'),
+        text: section.textContent?.trim().replace(/\s+/g, ' ') ?? '',
+      })),
+      favorites: Array.from(document.querySelectorAll('[data-command-favorite]')).map((button) => ({
+        id: button.getAttribute('data-command-favorite'),
+        type: button.getAttribute('type'),
+        label: button.getAttribute('aria-label'),
+        pressed: button.getAttribute('aria-pressed'),
+      })),
+      developerIconClass: document.querySelector('[data-command-id="dev.togglePanel"] svg')?.getAttribute('class') ?? '',
+      exportOptionExists: Boolean(document.querySelector('[data-command-id="export.openExportModal"]')),
+      exportModalOpen: Boolean(document.querySelector('.export-overlay')),
+      resultsRole: document.querySelector('#command-palette-results')?.getAttribute('role') ?? null,
+      listItemCount: document.querySelectorAll('#command-palette-results [role="listitem"]').length,
+      listboxCount: document.querySelectorAll('#command-palette-results [role="listbox"]').length,
+      optionCount: document.querySelectorAll('#command-palette-results [role="option"]').length,
+      commandIds: Array.from(document.querySelectorAll('[data-command-id]'))
+        .map((button) => button.getAttribute('data-command-id')),
+      activeCommandId: document.querySelector('.cp-item.active')?.getAttribute('data-command-id') ?? null,
+      activeElement: {
+        className: document.activeElement?.className ?? '',
+        commandId: document.activeElement?.getAttribute('data-command-id') ?? null,
+        favoriteId: document.activeElement?.getAttribute('data-command-favorite') ?? null,
+      },
+    };
+  });
+}
+
 async function runDesktopStoreProbe() {
   return browser.execute(async () => {
     function findPinia() {
@@ -1100,6 +1219,268 @@ describe('InkForge — native desktop runtime boundary', () => {
       afterAudit.latest['command.execute']?.payload?.commandId,
       'command audit payload records the updater command id',
     ).to.equal('updater.checkUpdates');
+  });
+
+  it('Command Palette persists accessible favorites and recent history while enforcing route and permission gates', async () => {
+    await navigateWithinApp('/drafts');
+    await openCommandPalette('Open drafts');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('[data-command-favorite="hub.openDrafts"]'))),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Open drafts favorite control did not render' },
+    );
+
+    await browser.keys('Tab');
+    await browser.keys('Tab');
+    await browser.keys('Tab');
+    const focusedFavorite = await browser.execute(() => ({
+      id: document.activeElement?.getAttribute('data-command-favorite') ?? null,
+      type: document.activeElement?.getAttribute('type') ?? null,
+      label: document.activeElement?.getAttribute('aria-label') ?? null,
+    }));
+    expect(focusedFavorite, 'Tab reaches the native favorite button without executing the command').to.deep.equal({
+      id: 'hub.openDrafts',
+      type: 'button',
+      label: 'Add Open drafts to favorites',
+    });
+
+    await browser.keys('Enter');
+    await browser.waitUntil(
+      async () => {
+        const persistence = await readCommandPalettePersistence();
+        return persistence.ok && persistence.favorites.includes('hub.openDrafts');
+      },
+      { timeout: 8_000, interval: 200, timeoutMsg: 'favorite did not persist through the production IndexedDB path' },
+    );
+    let surface = await readCommandPaletteSurface();
+    expect(surface.open, 'favorite activation keeps the palette open').to.equal(true);
+    expect(surface.pathname, 'favorite activation does not execute the route command').to.equal('/drafts');
+    expect(
+      surface.favorites.find((entry) => entry.id === 'hub.openDrafts'),
+      'favorite button exposes stable pressed semantics',
+    ).to.include({ type: 'button', pressed: 'true', label: 'Remove Open drafts from favorites' });
+    expect(surface.resultsRole, 'command rows use list semantics for sibling native actions').to.equal('list');
+    expect(surface.listboxCount, 'favorite buttons are not mixed into a listbox').to.equal(0);
+    expect(surface.optionCount, 'command rows do not claim invalid option ownership').to.equal(0);
+    expect(surface.listItemCount, 'every visible command row is one list item').to.equal(surface.commandIds.length);
+
+    const lastFocusableCommandId = surface.commandIds.at(-1);
+    for (let step = 0; step < surface.commandIds.length * 2; step += 1) {
+      if (surface.activeElement.favoriteId === lastFocusableCommandId) break;
+      await browser.keys('Tab');
+      surface = await readCommandPaletteSurface();
+    }
+    expect(surface.activeElement.favoriteId, 'native Tab reaches the last visible favorite control')
+      .to.equal(lastFocusableCommandId);
+
+    await browser.keys('Tab');
+    surface = await readCommandPaletteSurface();
+    expect(surface.activeElement.className, 'Tab from the last favorite wraps to the search input')
+      .to.include('cp-search-input');
+    await browser.keys(['Shift', 'Tab']);
+    surface = await readCommandPaletteSurface();
+    expect(surface.activeElement.favoriteId, 'Shift+Tab from the first control wraps to the last favorite')
+      .to.equal(lastFocusableCommandId);
+
+    await closeCommandPalette();
+    await browser.refresh();
+    await waitForMainWindow();
+    await openCommandPalette();
+    await browser.waitUntil(
+      async () => {
+        const probe = await readCommandPaletteSurface();
+        return probe.sections.some((section) => section.id === 'favorites' && section.text.includes('Open drafts'));
+      },
+      { timeout: 8_000, interval: 200, timeoutMsg: 'favorite did not reload into the Favorites quick section' },
+    );
+    surface = await readCommandPaletteSurface();
+    expect(surface.duplicateOptionIds, 'quick sections do not duplicate command option ids').to.deep.equal([]);
+    expect(
+      surface.sections.find((section) => section.id === 'favorites')?.text,
+      'Favorites quick section survives a real WebView reload',
+    ).to.include('Open drafts');
+
+    await closeCommandPalette();
+    await navigateWithinApp('/');
+    await openCommandPalette('Open drafts');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('[data-command-id="hub.openDrafts"]'))),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Open drafts command did not render for keyboard execution' },
+    );
+    await browser.keys('Enter');
+    await browser.waitUntil(
+      async () => browser.execute(() => location.pathname === '/drafts' && !document.querySelector('.cp-overlay')),
+      { timeout: 10_000, interval: 200, timeoutMsg: 'Enter did not execute Open drafts and close the palette' },
+    );
+    let persistence = await readCommandPalettePersistence();
+    expect(persistence.ok, persistence.reason || 'command palette persistence read').to.equal(true);
+    expect(persistence.favorites, 'favorite remains persisted after command execution').to.include('hub.openDrafts');
+    expect(persistence.history.at(-1), 'successful command writes its real query and timestamp').to.include({
+      commandId: 'hub.openDrafts',
+      query: 'Open drafts',
+    });
+    expect(persistence.history.at(-1)?.executedAt, 'history timestamp is finite').to.be.a('number');
+
+    await openCommandPalette('Go to Hub');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('[data-command-id="hub.goToHub"]'))),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Go to Hub command did not render' },
+    );
+    await browser.keys('Enter');
+    await browser.waitUntil(
+      async () => browser.execute(() => location.pathname === '/' && !document.querySelector('.cp-overlay')),
+      { timeout: 10_000, interval: 200, timeoutMsg: 'Go to Hub did not execute from Command Palette' },
+    );
+
+    await browser.refresh();
+    await waitForMainWindow();
+    await openCommandPalette();
+    await browser.waitUntil(
+      async () => {
+        const probe = await readCommandPaletteSurface();
+        return probe.sections.some((section) => section.id === 'recent' && section.text.includes('Go to Hub')) &&
+          probe.sections.some((section) => section.id === 'favorites' && section.text.includes('Open drafts'));
+      },
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Recent and Favorites sections did not reload together' },
+    );
+    surface = await readCommandPaletteSurface();
+    expect(surface.duplicateOptionIds, 'Recent/Favorites categorization keeps DOM ids unique').to.deep.equal([]);
+    expect(surface.sections.find((section) => section.id === 'recent')?.text).to.include('Go to Hub');
+    expect(surface.sections.find((section) => section.id === 'favorites')?.text).to.include('Open drafts');
+
+    const quickInput = await browser.$('.cp-search-input');
+    await quickInput.setValue('Open export modal');
+    await browser.waitUntil(
+      async () => (await readCommandPaletteSurface()).emptyText.includes('No matching command'),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Hub route did not hide the Workstation-only export command' },
+    );
+    surface = await readCommandPaletteSurface();
+    expect(surface.exportOptionExists, 'Workstation-only command stays hidden on Hub').to.equal(false);
+
+    await quickInput.setValue('Developer: Toggle Panel');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('[data-command-id="dev.togglePanel"]'))),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Developer command did not render' },
+    );
+    surface = await readCommandPaletteSurface();
+    expect(surface.developerIconClass, 'declared Activity icon is registered instead of falling back to Circle')
+      .to.include('lucide-activity');
+
+    await closeCommandPalette();
+    await navigateWithinApp('/workstation');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('.workstation'))),
+      { timeout: 10_000, interval: 200, timeoutMsg: 'empty Workstation route did not render' },
+    );
+    const bridgeState = await browser.execute(() => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      if (!provides) return null;
+      const pinia = Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function');
+      const store = pinia?._s.get('commandPalette');
+      return store?.workstationBridge
+        ? { activeDocumentId: store.workstationBridge.activeDocumentId, canExport: store.workstationBridge.canExport }
+        : null;
+    });
+    expect(bridgeState, 'empty Workstation exposes the real command bridge').to.deep.equal({
+      activeDocumentId: null,
+      canExport: false,
+    });
+
+    await openCommandPalette('Open export modal');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('[data-command-id="export.openExportModal"]'))),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'editor-context export command did not render in Workstation' },
+    );
+    const commandAuditBeforeDenial = await readAuditActionCounts(['command.execute']);
+    expect(
+      commandAuditBeforeDenial.ok,
+      commandAuditBeforeDenial.reason || 'successful command audit baseline read',
+    ).to.equal(true);
+    expect(
+      commandAuditBeforeDenial.counts['command.execute'],
+      'successful palette commands establish a real command audit baseline before denial',
+    ).to.be.greaterThan(0);
+    const exportCommand = await browser.$('[data-command-id="export.openExportModal"]');
+    await exportCommand.click();
+    await browser.waitUntil(
+      async () => {
+        const probe = await readCommandPaletteSurface();
+        return probe.errorText === 'permission_denied' && probe.activeElement.className.includes('cp-search-input');
+      },
+      { timeout: 8_000, interval: 200, timeoutMsg: 'permission failure did not restore searchable keyboard focus' },
+    );
+    surface = await readCommandPaletteSurface();
+    expect(surface.open, 'permission failure keeps the palette available for recovery').to.equal(true);
+    expect(surface.errorText, 'permission failure is explicit').to.equal('permission_denied');
+    expect(surface.exportModalOpen, 'permission failure cannot open ExportModal').to.equal(false);
+    expect(surface.activeElement.className, 'async failure restores focus to the search input')
+      .to.include('cp-search-input');
+    let commandAuditAfterDenial = await readAuditActionCounts(['command.execute']);
+    expect(
+      commandAuditAfterDenial.ok,
+      commandAuditAfterDenial.reason || 'command audit read after permission denial',
+    ).to.equal(true);
+    expect(
+      commandAuditAfterDenial.counts['command.execute'],
+      'permission preflight rejection does not append a successful command audit event',
+    ).to.equal(commandAuditBeforeDenial.counts['command.execute']);
+
+    const recoveryInput = await browser.$('.cp-search-input');
+    await recoveryInput.click();
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+    await browser.waitUntil(
+      async () => (await readCommandPaletteSurface()).commandIds.length >= 2,
+      { timeout: 8_000, interval: 200, timeoutMsg: 'quick panel did not recover after permission failure' },
+    );
+    surface = await readCommandPaletteSurface();
+    const firstVisibleCommandId = surface.commandIds[0];
+    const lastVisibleCommandId = surface.commandIds.at(-1);
+    await browser.keys('End');
+    await browser.waitUntil(
+      async () => (await readCommandPaletteSurface()).activeCommandId === lastVisibleCommandId,
+      { timeout: 5_000, interval: 150, timeoutMsg: 'End did not select the last visually rendered command' },
+    );
+    await browser.keys('Home');
+    await browser.waitUntil(
+      async () => (await readCommandPaletteSurface()).activeCommandId === firstVisibleCommandId,
+      { timeout: 5_000, interval: 150, timeoutMsg: 'Home did not select the first visually rendered command' },
+    );
+
+    await recoveryInput.setValue('Open export modal');
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('[data-command-id="export.openExportModal"]'))),
+      { timeout: 8_000, interval: 200, timeoutMsg: 'export command did not return for keyboard retry' },
+    );
+    surface = await readCommandPaletteSurface();
+    expect(surface.errorText, 'editing the query clears the stale permission error before retry').to.equal('');
+    await browser.keys('Enter');
+    await browser.waitUntil(
+      async () => {
+        const probe = await readCommandPaletteSurface();
+        return probe.errorText === 'permission_denied' &&
+          probe.activeElement.className.includes('cp-search-input');
+      },
+      { timeout: 8_000, interval: 200, timeoutMsg: 'Enter retry did not execute and restore keyboard focus' },
+    );
+    commandAuditAfterDenial = await readAuditActionCounts(['command.execute']);
+    expect(
+      commandAuditAfterDenial.ok,
+      commandAuditAfterDenial.reason || 'command audit read after permission retry denial',
+    ).to.equal(true);
+    expect(
+      commandAuditAfterDenial.counts['command.execute'],
+      'repeated permission preflight rejection still does not append a successful command audit event',
+    ).to.equal(commandAuditBeforeDenial.counts['command.execute']);
+
+    persistence = await readCommandPalettePersistence();
+    expect(
+      persistence.history.filter((entry) => entry.commandId === 'export.openExportModal'),
+      'failed permission checks never enter successful command history',
+    ).to.deep.equal([]);
+    await closeCommandPalette();
   });
 
   it('Settings Sync calls the real unconfigured provider boundary and records one honest failure', async () => {

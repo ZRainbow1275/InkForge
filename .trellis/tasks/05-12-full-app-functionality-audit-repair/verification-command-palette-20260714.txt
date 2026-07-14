@@ -1,0 +1,120 @@
+InkForge Command Palette runtime acceptance
+Date: 2026-07-14
+Branch: dev/visual-fixes
+Base commit: 7788b73
+Matrix row: CMP-COMMAND-001
+Finding: F-CMD-006
+
+Scope
+- Local Command Palette registry, search, favorites, recent/success history, route filtering, permission enforcement, grouped visual navigation, accessible list semantics, icon rendering, modal focus containment, and keyboard recovery.
+- Real Tauri/WebView2 execution with a driver-owned disposable native data scope.
+- Read-only IndexedDB inspection only; favorites/history were changed through visible production controls and command execution.
+- No external platform action, credential, upload, sync, schedule, or publish operation.
+
+Pre-edit graph assessment
+- hasRequiredPermission: LOW; 1 direct dependent; 0 affected processes.
+- useCommandPaletteStore: LOW; 3 direct dependents; 0 affected processes.
+- quickSections, navigationResults, handleKeydown, execute, getGroupId, flattenedResults, setQuery, and moveFocus: LOW; 0 affected processes.
+- vite.config.ts: LOW; 0 affected processes.
+- Component/test file targets were not mapped; validation below compensates at runtime and package level.
+
+Final graph assessment
+- Incremental GitNexus analysis completed with 21,282 nodes, 37,606 edges, 1,046 clusters, and 300 flows.
+- Staged detection covered exactly the 12 intended files, returned LOW risk, and reported 0 affected execution flows.
+
+Repair-loop reproduction
+1. The first focused native run used an old Vite dist and failed because the new favorite control was absent; a fresh Vite build transformed 4660 modules.
+2. The next strict run reached the permission-denied state but failed because `isLoading` removed the clicked command, focus fell to body, and overlay-only Escape handling could no longer close the palette.
+3. Independent review found missing async failure-focus restoration and modal focus wrapping, plus grouped visual-order and listbox/option ownership defects.
+4. The strengthened native replay then exposed a test assumption: fuzzy search may render more than one command, so the first favorite is not necessarily the last focusable control. The harness now uses real Tab presses until the actual last visible favorite, then proves Tab/Shift+Tab wrapping.
+5. The next replay showed WebDriver `setValue('')` did not exercise native input clearing. Recovery now uses click, Ctrl+A, and Backspace; Home/End then prove the rendered order.
+6. A permission preflight denial intentionally reports `auditLogged=false`. Retry evidence therefore clears the stale visible error through a real query edit, presses native Enter, and requires a fresh `permission_denied` plus restored search focus. No success audit, timeout, permission gate, or history assertion was fabricated or weakened.
+7. Parallel Terser intermittently failed with `Cannot set property code of which has only a getter`. Minification remains enabled; `terserOptions.maxWorkers=1` produced repeated successful compressed builds within the local memory envelope.
+8. Independent re-review found that capping Favorites at five could hide every later favorite because Recent/Featured correctly exclude favorite ids. The cap was removed and a seven-favorite overlap regression now requires every favorite to remain visible exactly once.
+9. The same re-review required authoritative denial-side audit evidence. The unit regression now separates all-required semantics from runtime proof and asserts denied `auditLogged=false` with zero handler/audit calls; the native replay requires all three audit reads to return `ok=true`, requires a non-zero `command.execute` baseline from earlier successful commands, and then requires zero count delta after both click and Enter retry. IndexedDB read failure therefore fails closed instead of satisfying `0 === 0`.
+
+Commands and results
+
+Command:
+  pnpm -C inkforge exec vite build --minify=false
+Result:
+  PASS; 4660 modules transformed; fresh dist generated.
+
+Command:
+  pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/native-runtime.spec.cjs --mochaOpts.grep=persists.accessible.favorites
+Result:
+  PASS; 1 spec / 1 test; WebView2 150.0.4078.65.
+Assertions include native Ctrl+K, Tab/Shift+Tab modal wrapping, Tab/Enter favorite activation, list/listitem semantics, read-only IndexedDB persistence and reload, unique quick-section ownership, grouped visual-order Home/End, route execution/history, route filtering, typed runtime permission rejection with successful ledger reads, a non-zero success baseline, and unchanged `command.execute` success-audit count, stale-error clearing, Enter retry and focus restoration, failed-history exclusion, Activity icon, and Escape recovery. This runtime command has one required permission; the focused unit suite below is authoritative for plural all-required semantics.
+
+Command:
+  pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/native-runtime.spec.cjs
+Result:
+  PASS; 1 spec / 9 tests; WebView2 150.0.4078.65.
+
+Command:
+  node --check inkforge/tests/e2e/specs/native-runtime.spec.cjs
+Result:
+  PASS.
+
+Command:
+  pnpm -C inkforge exec eslint src/components/command-palette/CommandPalette.vue src/services/command/executor.ts src/services/command/fuzzy-search.test.ts src/stores/command-palette.ts tests/e2e/specs/native-runtime.spec.cjs vite.config.ts --quiet
+Result:
+  PASS.
+
+Command:
+  pnpm -C inkforge exec eslint src --ext .ts,.tsx,.vue --quiet
+Result:
+  PASS; complete production source scope; no autofix.
+
+Command:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+Result:
+  PASS.
+
+Command:
+  pnpm -C inkforge exec vitest run src/services/command/fuzzy-search.test.ts --reporter=default
+Result:
+  PASS; 1 file / 10 tests. The suite includes denied/allowed all-required permission contexts with handler/audit spies and a seven-favorite overlap regression.
+
+Command:
+  pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism
+Result:
+  PASS; 108 files / 1824 tests.
+
+Command:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+Result:
+  PASS; vue-tsc build plus compressed Vite production build; 4660 modules transformed; final Vite phase completed in 55.40 seconds with minification enabled and maxWorkers=1.
+
+Command:
+  pnpm -C inkforge run style-proof:current-round
+Result:
+  PASS for the narrowed local round target.
+  status=application-acceptance-ready
+  canClaimCurrentRoundTarget=true
+  canClaimReleaseComplete=false
+  svgModuleCount=27
+  renderedModulePersonaPairs=108
+  wechatStyleChoiceCount=17
+  wechatSelectableChoiceCount=13
+  wechatRenderedStyleChoiceCount=13
+  wechatStyleSampleTotalSvgModuleCount=45
+  applicationIssueCount=0
+  galleryIssueCount=0
+  wechatStyleSampleIssueCount=0
+  xhsZhihuPublishAutomationDeferred=true
+  requiresManualWeChatProof=true
+
+Non-gate diagnostic
+- `pnpm -C inkforge exec eslint . --quiet` was also sampled and intentionally not used as the project gate: it traverses generated `src-tauri/target` codegen/binary assets and unrelated known fidelity/script lint debt. The production `src` scope and every touched file passed without autofix. No broad cleanup or unrelated file modification was made.
+
+Independent final review
+- PASS; bounded read-only re-review returned `P0-P3 none`.
+- It confirmed all seven overlapping favorites remain visible and that denial audit proof fails closed through three successful ledger reads, a non-zero baseline, and zero count delta after click and Enter retry.
+- Unit all-required authority and Native runtime single-permission authority remain explicitly separate.
+
+Boundary
+- This evidence proves local Command Palette behavior and reconfirms application SVG/style plus WeChat-compatible local renderer readiness.
+- It does not prove external WeChat paste/readback, phone preview, mobile SMIL/click, mobile Dark Mode, cover acceptance, credentialed sync, scheduled send, or publish success.
+- Xiaohongshu and Zhihu publishing are manual/operator-owned and were not automated or claimed.
+- This record contains no WebDriver session id, temporary profile/data path, application data path, screenshot path, account artifact, cookie, token, credential, or secret.

@@ -1,4 +1,5 @@
-﻿import { describe, expect, it } from 'vitest'
+﻿import { describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import {
   CommandContextTag,
   CommandGroup,
@@ -7,8 +8,10 @@ import {
   type CommandContext,
   type CommandHistoryEntry,
 } from '@/types/command-palette'
+import { CommandExecutor } from './executor'
 import { FuzzySearchEngine, calculateHistoryBonus } from './fuzzy-search'
 import { CommandRegistry, isCommandVisible } from './registry'
+import { useCommandPaletteStore } from '@/stores/command-palette'
 
 function createCommand(overrides: Partial<Command>): Command {
   return {
@@ -72,6 +75,134 @@ describe('CommandRegistry', () => {
     expect(isCommandVisible(globalCommand, [CommandContextTag.HubPage])).toBe(true)
     expect(isCommandVisible(editorCommand, [CommandContextTag.HubPage])).toBe(false)
     expect(isCommandVisible(editorCommand, [CommandContextTag.Editor])).toBe(true)
+  })
+})
+
+describe('CommandExecutor', () => {
+  it('requires every declared permission before executing a handler', async () => {
+    const registry = new CommandRegistry()
+    const handler = vi.fn()
+    const command = createCommand({
+      requiredPermissions: ['document.write', 'settings.write'],
+      handler,
+    })
+    const context = createContext([CommandContextTag.Global, CommandContextTag.Editor])
+    registry.register(command)
+    const auditLog = vi.fn()
+    const executor = new CommandExecutor(registry, { auditLog })
+
+    const denied = await executor.execute(command.id, context)
+
+    expect(denied.success).toBe(false)
+    expect(denied.error?.message).toBe('permission_denied')
+    expect(denied.auditLogged).toBe(false)
+    expect(handler).not.toHaveBeenCalled()
+    expect(auditLog).not.toHaveBeenCalled()
+
+    const allowed = await executor.execute(command.id, {
+      ...context,
+      permissions: [...context.permissions, 'settings.write'],
+    })
+
+    expect(allowed.success).toBe(true)
+    expect(allowed.auditLogged).toBe(true)
+    expect(handler).toHaveBeenCalledOnce()
+    expect(auditLog).toHaveBeenCalledOnce()
+    expect(auditLog).toHaveBeenCalledWith({
+      commandId: command.id,
+      status: 'success',
+      executedAt: expect.any(Number),
+    })
+  })
+})
+
+describe('Command Palette quick sections', () => {
+  it('keeps every visible quick-section command in the keyboard navigation results', () => {
+    setActivePinia(createPinia())
+    const store = useCommandPaletteStore()
+    const commands = Array.from({ length: 15 }, (_, index) => createCommand({
+      id: `global.command-${index}`,
+      title: `Global command ${index}`,
+      scope: CommandScope.Global,
+      group: CommandGroup.Hub,
+      contexts: [CommandContextTag.Global],
+      featured: index >= 5 && index < 10,
+    }))
+    store.registerCommands(commands)
+    store.history = commands.slice(0, 5).map((command, index) => ({
+      commandId: command.id,
+      executedAt: index,
+      query: '',
+    }))
+    store.favorites = commands.slice(10).map(command => command.id)
+
+    const visibleQuickCommandIds = store.quickSections
+      .flatMap(section => section.commands)
+      .map(result => result.command.id)
+
+    expect(visibleQuickCommandIds).toHaveLength(15)
+    expect(new Set(visibleQuickCommandIds).size).toBe(15)
+    expect(store.results.map(result => result.command.id)).toEqual(visibleQuickCommandIds)
+  })
+
+  it('keeps every favorite visible when more than five overlap recent and featured commands', () => {
+    setActivePinia(createPinia())
+    const store = useCommandPaletteStore()
+    const commands = Array.from({ length: 7 }, (_, index) => createCommand({
+      id: `global.favorite-${index}`,
+      title: `Favorite command ${index}`,
+      scope: CommandScope.Global,
+      group: CommandGroup.Hub,
+      contexts: [CommandContextTag.Global],
+      featured: true,
+    }))
+    store.registerCommands(commands)
+    store.history = commands.map((command, index) => ({
+      commandId: command.id,
+      executedAt: index,
+      query: '',
+    }))
+    store.favorites = commands.map(command => command.id)
+
+    const favoriteIds = store.quickSections
+      .find(section => section.id === 'favorites')
+      ?.commands.map(result => result.command.id)
+
+    expect(favoriteIds).toEqual(commands.map(command => command.id))
+    expect(store.results.map(result => result.command.id)).toEqual(favoriteIds)
+  })
+
+  it('navigates searched commands in their visually grouped order', () => {
+    setActivePinia(createPinia())
+    const store = useCommandPaletteStore()
+    store.registerCommands([
+      createCommand({
+        id: 'hub.open-exact',
+        title: 'Open',
+        scope: CommandScope.Global,
+        group: CommandGroup.Hub,
+        contexts: [CommandContextTag.Global],
+      }),
+      createCommand({
+        id: 'document.open-archive',
+        title: 'Open document archive',
+        scope: CommandScope.Global,
+        group: CommandGroup.Document,
+        contexts: [CommandContextTag.Global],
+      }),
+    ])
+
+    store.lastError = 'permission_denied'
+    store.setQuery('Open')
+    const relevanceOrder = store.results.map(result => result.command.id)
+    const visualOrder = store.groupedResults.flatMap(group => group.commands.map(result => result.command.id))
+
+    expect(store.lastError).toBeNull()
+    expect(relevanceOrder).toEqual(['hub.open-exact', 'document.open-archive'])
+    expect(visualOrder).toEqual(['document.open-archive', 'hub.open-exact'])
+    expect(store.activeCommandId).toBe(visualOrder[0])
+    store.moveFocus('last')
+    expect(store.activeCommandId).toBe(visualOrder[visualOrder.length - 1])
   })
 })
 

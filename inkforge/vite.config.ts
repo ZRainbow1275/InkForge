@@ -349,6 +349,7 @@ export default defineConfig({
             },
         },
         terserOptions: {
+            maxWorkers: 1,
             compress: {
                 drop_console: true,
                 drop_debugger: true

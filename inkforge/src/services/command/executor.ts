@@ -22,7 +22,7 @@ export interface CommandExecutorOptions {
 
 function hasRequiredPermission(command: Command, context: CommandContext): boolean {
   if (!command.requiredPermissions?.length) return true
-  return command.requiredPermissions.some(permission => context.permissions.includes(permission))
+  return command.requiredPermissions.every(permission => context.permissions.includes(permission))
 }
 
 async function defaultConfirmDestructive(command: Command): Promise<boolean> {
