@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { nextTick, onUnmounted, ref, watch } from 'vue'
 import { X, FolderPlus } from 'lucide-vue-next'
 import { CATEGORY_ICON_OPTIONS } from '@/utils/iconography'
 
 const props = defineProps<{
   visible: boolean
+  pending?: boolean
+  error?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -14,21 +16,21 @@ const emit = defineEmits<{
 
 const categoryName = ref('')
 const selectedIcon = ref('folder')
+const categoryNameInputRef = ref<HTMLInputElement | null>(null)
 
 const iconOptions = CATEGORY_ICON_OPTIONS
 
 function handleConfirm() {
-  if (!categoryName.value.trim()) return
+  if (props.pending || !categoryName.value.trim()) return
   emit('confirm', {
     name: categoryName.value.trim(),
     icon: selectedIcon.value
   })
-  resetForm()
 }
 
 function handleClose() {
+  if (props.pending) return
   emit('close')
-  resetForm()
 }
 
 function resetForm() {
@@ -40,17 +42,22 @@ function resetForm() {
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     handleClose()
-  } else if (e.key === 'Enter' && categoryName.value.trim()) {
-    handleConfirm()
   }
 }
 
-watch(() => props.visible, (visible) => {
+watch(() => props.visible, async (visible) => {
   if (visible) {
     document.addEventListener('keydown', handleKeydown)
+    await nextTick()
+    categoryNameInputRef.value?.focus()
   } else {
     document.removeEventListener('keydown', handleKeydown)
+    resetForm()
   }
+}, { immediate: true })
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -61,14 +68,26 @@ watch(() => props.visible, (visible) => {
       class="modal-overlay"
       @click.self="handleClose"
     >
-      <div class="modal-container">
+      <form
+        class="modal-container"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-category-title"
+        :aria-busy="pending ? 'true' : 'false'"
+        data-category-create-dialog
+        @submit.prevent="handleConfirm"
+      >
         <div class="modal-header">
-          <h3>
+          <h3 id="add-category-title">
             <FolderPlus :size="18" />
             添加分类
           </h3>
           <button
+            type="button"
             class="close-btn"
+            aria-label="关闭添加分类"
+            data-category-create-close
+            :disabled="pending"
             @click="handleClose"
           >
             <X :size="18" />
@@ -83,9 +102,12 @@ watch(() => props.visible, (visible) => {
               <button
                 v-for="option in iconOptions"
                 :key="option.key"
+                type="button"
                 class="icon-btn"
                 :class="{ active: selectedIcon === option.key }"
                 :title="option.label"
+                :aria-pressed="selectedIcon === option.key"
+                :disabled="pending"
                 @click="selectedIcon = option.key"
               >
                 <component
@@ -99,33 +121,52 @@ watch(() => props.visible, (visible) => {
           
           <!-- 名称输入 -->
           <div class="form-group">
-            <label>分类名称</label>
+            <label for="add-category-name">分类名称</label>
             <input 
+              id="add-category-name"
+              ref="categoryNameInputRef"
               v-model="categoryName"
               type="text" 
               class="form-input"
               placeholder="输入分类名称..."
-              autofocus
+              maxlength="50"
+              autocomplete="off"
+              data-category-name-input
+              :aria-invalid="error ? 'true' : 'false'"
+              :aria-describedby="error ? 'add-category-error' : undefined"
+              :disabled="pending"
             >
+            <p
+              v-if="error"
+              id="add-category-error"
+              class="form-error"
+              role="alert"
+              data-category-create-error
+            >
+              {{ error }}
+            </p>
           </div>
         </div>
         
         <div class="modal-footer">
           <button
+            type="button"
             class="btn cancel"
+            :disabled="pending"
             @click="handleClose"
           >
             取消
           </button>
           <button 
+            type="submit"
             class="btn confirm" 
-            :disabled="!categoryName.trim()"
-            @click="handleConfirm"
+            data-category-create-confirm
+            :disabled="pending || !categoryName.trim()"
           >
-            确认添加
+            {{ pending ? '添加中...' : '确认添加' }}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   </Teleport>
 </template>
@@ -254,6 +295,13 @@ watch(() => props.visible, (visible) => {
   border-color: var(--color-primary);
 }
 
+.form-error {
+  margin: 8px 0 0;
+  color: var(--danger, #C62828);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -304,5 +352,12 @@ watch(() => props.visible, (visible) => {
 .btn.confirm:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.close-btn:disabled,
+.icon-btn:disabled,
+.btn.cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 </style>

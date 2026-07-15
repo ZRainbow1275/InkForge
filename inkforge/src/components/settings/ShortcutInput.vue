@@ -33,6 +33,8 @@ const emit = defineEmits<{
 
 const isRecording = ref(false)
 const localConflict = ref<string | null>(null)
+let focusLossTimeout: ReturnType<typeof setTimeout> | null = null
+let blurredTrigger: HTMLButtonElement | null = null
 
 const shortcutParts = computed(() => props.modelValue.split('+').filter(Boolean))
 
@@ -51,15 +53,41 @@ function beginRecording(): void {
     return
   }
 
-  window.addEventListener('blur', stopRecording)
+  window.addEventListener('blur', handleWindowBlur)
   isRecording.value = true
   localConflict.value = null
   emit('conflict', null)
 }
 
 function stopRecording(): void {
-  window.removeEventListener('blur', stopRecording)
+  window.removeEventListener('blur', handleWindowBlur)
+  if (focusLossTimeout !== null) {
+    clearTimeout(focusLossTimeout)
+    focusLossTimeout = null
+  }
+  blurredTrigger = null
   isRecording.value = false
+}
+
+function scheduleFocusLossCheck(trigger: HTMLButtonElement | null = null): void {
+  if (trigger) {
+    blurredTrigger = trigger
+  }
+  if (focusLossTimeout !== null) {
+    clearTimeout(focusLossTimeout)
+  }
+  focusLossTimeout = setTimeout(() => {
+    focusLossTimeout = null
+    const triggerLostFocus = blurredTrigger !== null && document.activeElement !== blurredTrigger
+    blurredTrigger = null
+    if (!document.hasFocus() || triggerLostFocus) {
+      stopRecording()
+    }
+  }, 100)
+}
+
+function handleWindowBlur(): void {
+  scheduleFocusLossCheck()
 }
 
 function handleBlur(event: FocusEvent): void {
@@ -69,11 +97,7 @@ function handleBlur(event: FocusEvent): void {
     return
   }
 
-  requestAnimationFrame(() => {
-    if (!document.hasFocus() || document.activeElement !== trigger) {
-      stopRecording()
-    }
-  })
+  scheduleFocusLossCheck(trigger)
 }
 
 onBeforeUnmount(stopRecording)

@@ -8,10 +8,12 @@ Run a whole-app, evidence-driven functionality audit and repair pass for Inkforg
 
 - The user explicitly corrected the prior scope: WeChat/Xiaohongshu/Zhihu export capability is only one part of the application, not the full goal.
 - The runnable frontend app is the nested package `inkforge/`, not the repository root.
-- The active task is `.trellis/tasks/05-12-full-app-functionality-audit-repair`, status `planning`.
-- The existing export audit task remains useful as imported evidence for the platform-export subdomain:
-  - `.trellis/tasks/05-12-export-platform-rendering-real-capability-audit/`
-  - Known validation from that task includes service export tests and lint/type/build gates.
+- The active task is `.trellis/tasks/05-12-full-app-functionality-audit-repair`, status `in_progress`.
+- Platform-export evidence is owned by this task and its executable local contracts:
+  - `inkforge/scripts/style-proof-application-acceptance.ts`
+  - `inkforge/src/services/export/wechat-svg-application.test.ts`
+  - `inkforge/src/services/export/wechat-style-export-samples.test.ts`
+  - `inkforge/tests/e2e/specs/svg-render.spec.cjs`
 - Existing manual UI/UX evidence lives under `0503/ui-ux-manual-test/` and should be reused as historical context, but it is not enough for this new full-app control-level audit.
 - Current app surfaces discovered from repo inspection include:
   - Views: `HubView`, `WorkstationView`, `SettingsView`, `PublishView`, `ThemesView`, `DraftsView`, `AccountWelcome`, `NotFoundView`, and dev-only `DevPanel`.
@@ -317,6 +319,7 @@ Recommended convergence: use Approach A as the primary workflow and add a lightw
 - Scope boundary: dev-only, hidden, and experimental surfaces are blocking for this task. `DevPanel` and any hidden/feature-flagged controls must be inventoried and verified, not merely noted as non-production evidence.
 - Runtime boundary: Tauri native runtime is a blocking acceptance gate. Web/Vite coverage is still required, but native-dependent workflows are not complete until they are proven in the real desktop shell.
 - External-provider boundary: unconfigured external services may pass through honest unavailable/needs-configuration behavior. Fake success is always a failure; live success requires real credentials/endpoints.
+- Current-round platform boundary: Xiaohongshu and Zhihu publication automation is canceled and remains user-operated. This round may claim its narrowed target only when every registered application SVG/style renders locally and every selectable WeChat style traverses the real WeChat exporter; external WeChat editor, phone, sync, schedule, and publish results remain separate manual proof.
 - Execution shape: keep this as a single end-to-end task. Do not split into Trellis subtasks unless the user later reopens that decision. Use internal execution slices inside this task to control risk.
 
 ## Out of Scope
@@ -332,11 +335,11 @@ Recommended convergence: use Approach A as the primary workflow and add a lightw
 
 ## Technical Notes
 
-- Trellis workflow: remain in planning until PRD is confirmed and `implement.jsonl` / `check.jsonl` are curated.
+- Trellis workflow: the task is active; keep implementation, quality checks, spec updates, and evidence synchronized before each precise commit.
 - App package: `inkforge/`.
 - Non-mutating lint: `pnpm -C inkforge exec eslint src --ext .ts,.tsx,.vue --quiet`.
 - Historical evidence format: `0503/ui-ux-manual-test/test-matrix.md` and `0503/ui-ux-manual-test/evidence.md`.
-- Related subdomain task: `.trellis/tasks/05-12-export-platform-rendering-real-capability-audit/`.
+- Platform subdomain authority: the current task evidence plus `style-proof:current-round`, WeChat SVG/style export tests, and the real Tauri `svg-render.spec.cjs` acceptance.
 - Project frontend specs:
   - `.trellis/spec/frontend/index.md`
   - `.trellis/spec/frontend/directory-structure.md`

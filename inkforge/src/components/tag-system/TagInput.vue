@@ -16,8 +16,8 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  add: [tag: Tag]
-  create: [name: string, color: string]
+  add: [tag: Tag, complete: () => void]
+  create: [name: string, color: string, complete: () => void]
   remove: [tag: Tag]
   search: [query: string]
 }>()
@@ -35,15 +35,19 @@ function updateQuery(value: string): void {
 }
 
 function addTag(tag: Tag): void {
-  emit('add', tag)
-  query.value = ''
+  const submittedQuery = query.value
+  emit('add', tag, () => {
+    if (query.value === submittedQuery) query.value = ''
+  })
 }
 
 function createTag(): void {
   const name = query.value.trim()
   if (!name) return
-  emit('create', name, color.value)
-  query.value = ''
+  const submittedQuery = query.value
+  emit('create', name, color.value, () => {
+    if (query.value === submittedQuery) query.value = ''
+  })
 }
 
 function handleEnter(): void {
@@ -78,6 +82,8 @@ function handleEnter(): void {
         :value="query"
         :disabled="disabled"
         :placeholder="placeholder"
+        aria-label="搜索或创建标签"
+        data-tag-query
         @input="updateQuery(($event.target as HTMLInputElement).value)"
         @keydown.enter.prevent="handleEnter"
       >
@@ -97,6 +103,7 @@ function handleEnter(): void {
       <button
         type="button"
         :disabled="disabled || !canCreate"
+        data-tag-create
         @click="createTag"
       >
         <Plus :size="14" />

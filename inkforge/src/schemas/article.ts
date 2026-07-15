@@ -210,7 +210,7 @@ export const UpdateArticleDTOSchema = z.object({
  * 创建分类的输入 Schema
  */
 export const CreateCategoryDTOSchema = z.object({
-    name: z.string().min(1, '分类名称不能为空'),
+    name: z.string().trim().min(1, '分类名称不能为空').max(50, '分类名称不能超过 50 个字符'),
     icon: z.string().optional(),
 });
 
@@ -218,7 +218,7 @@ export const CreateCategoryDTOSchema = z.object({
  * 更新分类的输入 Schema
  */
 export const UpdateCategoryDTOSchema = z.object({
-    name: z.string().min(1, '分类名称不能为空').optional(),
+    name: z.string().trim().min(1, '分类名称不能为空').max(50, '分类名称不能超过 50 个字符').optional(),
     icon: z.string().optional(),
 });
 

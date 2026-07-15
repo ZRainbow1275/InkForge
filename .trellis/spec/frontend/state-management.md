@@ -1712,3 +1712,157 @@ return command.requiredPermissions.every(permission => context.permissions.inclu
   <Star aria-hidden="true" />
 </button>
 ```
+
+## Scenario: Category CRUD And Article Relation Integrity
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing `schemas/article.ts` category validation, `stores/category.ts`, category dialogs, FileManager category trees/context menus, Hub category controls, or Workstation category-manager routing.
+- This is a local-first relation contract. A category operation must preserve every article unless the user separately invokes an article lifecycle action.
+
+### 2. Authorities And Signatures
+
+- Validation authority: the shared category schema; names are trimmed and length-checked before persistence.
+- State authority: `useCategoryStore()` with `loadCategories`, `addCategory`, `updateCategory`, `deleteCategory`, `selectCategory`, `updateArticleCount`, and `reset`.
+- Persistence authority: the existing category repository plus article repository migration used by `deleteCategory`.
+- Route boundary: Hub category management may deep-link to `/workstation?manager=files`; Workstation must hydrate the visible FileManager without replacing an explicit route intent.
+
+### 3. Contracts
+
+- Duplicate comparison uses one normalized name form for both existing rows and in-flight additions. Reserve a pending normalized name until the write settles so rapid duplicate submissions cannot pass the preflight together.
+- Expected validation/conflict failures populate the typed store error and remain visible in the initiating modal. Rejected create/rename actions must not clear the user's value or close the dialog.
+- FileManager loads categories independently from articles. A category with zero articles remains a visible tree node and a valid context-menu target.
+- Category rename updates the real category row and every current consumer reads the new name after navigation or refresh.
+- Category deletion removes only the category. Every affected article is retained and migrated to `categoryId=null` in live state and durable storage.
+- UI tests may inspect Pinia and IndexedDB read-only for evidence; they must create, rename, filter, and delete through production controls/store actions.
+
+### 4. Validation Matrix
+
+| Condition | Required state |
+| --- | --- |
+| Blank or out-of-range name | Schema error; no row created; entered value remains visible |
+| Existing normalized duplicate | Typed conflict; no second row; modal remains actionable |
+| Same normalized name submitted while first write is pending | One write only; second action receives the same conflict contract |
+| Category has zero articles | FileManager tree still renders the category |
+| Rename succeeds | Store, repository, FileManager, and Hub filter expose the new name |
+| Delete category with articles | Category disappears; articles remain with `categoryId=null` |
+| Refresh after delete | Pinia rehydrates the same null relations from IndexedDB |
+
+### 5. Tests Required
+
+- Run targeted category schema/store/repository tests when those boundaries change.
+- Run `node --check tests/e2e/specs/editor-settings.spec.cjs`, targeted ESLint, `vue-tsc --noEmit --pretty false`, and the production build.
+- Real Tauri/WebView2 acceptance must use visible Hub/Workstation controls, a native context-menu pointer action, read-only Pinia/IndexedDB evidence, refresh persistence, and production cleanup. Do not dispatch a synthetic `contextmenu` event or write proof rows directly.
+
+### 6. Wrong Vs Correct
+
+#### Wrong
+
+```ts
+if (!categories.value.some(category => category.name === name)) {
+  await repository.create({ name })
+}
+```
+
+#### Correct
+
+```ts
+const normalizedName = normalizeCategoryName(name)
+await assertCategoryNameAvailable(normalizedName)
+pendingCategoryNames.add(normalizedName)
+try {
+  await repository.create({ name: normalizedName })
+} finally {
+  pendingCategoryNames.delete(normalizedName)
+}
+```
+
+## Scenario: Tag Relations, Recoverable Actions, And Manager Layout
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing `components/tag-system/**`, `stores/tags.ts`, the tag repository, Hub Tag Cloud consumers, or article-tag compatibility fields.
+- This is a local application contract. It does not prove any external platform metadata, upload, or publish behavior.
+
+### 2. Authorities And Signatures
+
+- Relation authority: durable `docTags`; `Article.tags` is a compatibility mirror and must never become the source of truth.
+- State/action authority: `useTagStore()` with `loadTags`, `createTag`, `updateTag`, `deleteTag`, `mergeTags`, `cleanupOrphans`, `addTagToDoc`, `removeTagFromDoc`, `getDocTags`, and `filterDocumentsBySelection`.
+- UI completion authority: create/add/update/merge controls may clear their transient value only after the parent invokes the supplied success callback following the awaited store action.
+- Dialog boundary: manager overlays use the project's existing `<Teleport to="body">` pattern so fixed positioning is relative to the viewport rather than a transformed Workstation panel.
+
+### 3. Contracts
+
+- Tag create, assignment, rename/color, delete, merge, remove, and cleanup route through the existing store/repository actions. Components do not mutate `tags`, `docTags`, `Article.tags`, or IndexedDB directly.
+- Store/repository errors remain visible with `role="alert"`. Rejected text, edit mode, and selected merge sources remain available for correction and retry.
+- On successful relation changes, update both authoritative `docTags` and the compatibility `Article.tags` mirror through the repository transaction already defined for the action.
+- Tag selection and removal are sibling native buttons. Never nest a remove button inside another button; expose `aria-pressed` for selection and a stable accessible name for removal.
+- A fixed modal must escape side-panel containing blocks. The modal uses a column flex shell with a bounded scrollable content area; narrow viewports stack natural-height sections without flex-shrinking them into overlapping content.
+- Hub Tag Cloud renders only real store-derived tag data. No fallback labels or sample counts may be introduced for an empty state.
+
+### 4. Validation Matrix
+
+| Condition | Required state |
+| --- | --- |
+| Create succeeds | Real tag row exists; query clears through success callback |
+| Create/update conflicts | Error visible; entered value and dialog/edit state remain |
+| Assign or remove | `docTags` and `Article.tags` mirror agree in live and durable state |
+| Refresh | Tags and relations rehydrate from the repository |
+| OR/AND filter | Results follow selected tag ids and the active filter mode |
+| Merge succeeds | Source rows disappear; target owns the deduplicated relations and correct count |
+| Delete assigned tag | Tag and its relations disappear; article mirror no longer contains the name |
+| Cleanup | Only zero-reference tags are removed |
+| Manager opened inside Workstation side panel | Body-teleported dialog remains viewport-sized; native controls do not overlap |
+
+### 5. Tests Required
+
+- Run `pnpm exec vitest run src/services/tag-system/tag-system.test.ts --reporter=default` after changing tag state or persistence behavior.
+- Run targeted ESLint, `node --check tests/e2e/specs/editor-settings.spec.cjs`, `vue-tsc --noEmit --pretty false`, and the production build.
+- Real Tauri/WebView2 acceptance must cover visible create/assign, read-only Pinia/IndexedDB relation proof, refresh, OR and AND filtering, real Hub cloud, rename/color, rejected duplicate retention, delete, merge, visible remove, cleanup, and production cleanup. Native click interception is a product failure; do not replace it with JavaScript click or synthetic events.
+
+### 6. Wrong Vs Correct
+
+#### Wrong
+
+```ts
+emit('update', id, patch)
+editingId.value = null
+```
+
+#### Correct
+
+```ts
+emit('update', id, patch, () => {
+  if (editingId.value === id) editingId.value = null
+})
+```
+
+```vue
+<Teleport to="body">
+  <section v-if="open" class="tag-manager-modal" role="dialog">
+    <!-- real manager controls -->
+  </section>
+</Teleport>
+```
+
+## Scenario: Local Calendar Keys And Stable WebView Focus Loss
+
+### 1. Scope / Trigger
+
+- Apply this contract to local-day analytics and to editable controls whose `blur` handler commits, cancels, or destroys transient state in Tauri/WebView2.
+- Keep the repair local to the affected control. Do not introduce a global focus manager for a browser-shell timing quirk.
+
+### 2. Contracts
+
+- User-facing calendar buckets use local `year/month/day` fields. Do not derive a local-day key from `Date#toISOString()`, because the UTC conversion can move local midnight into the previous date.
+- Treat a WebView element/window blur as a candidate focus departure, not immediate proof. Re-check the stable focus state after one bounded delay before committing or cancelling state.
+- Shortcut recording stops after stable trigger departure or a persistent native-window focus loss, but survives the transient blur/focus pair emitted while the same trigger is activated.
+- Inline rename commits after stable focus moves to another control while the document is focused. A transient or persistent native-window blur must preserve the editable value; Enter and Escape remain immediate explicit actions.
+- Clear pending focus-loss timers on explicit commit, cancel, recorder stop, and component unmount. The delayed callback must be idempotent when its target no longer exists.
+
+### 3. Tests Required
+
+- Exercise the affected controls through visible production UI and real keyboard/pointer input in Tauri/WebView2.
+- Prove both sides of the shortcut boundary: transient same-trigger blur keeps recording, while visible focus departure and the production title-bar minimize action stop recording.
+- Prove category/article inline rename survives the WebView blur/focus pair and still commits through Enter or a stable in-window focus departure.
+- Include a timezone-sensitive Hub insight case whose current local-day article appears in heatmap/trend output without changing product thresholds or injecting analytics rows.

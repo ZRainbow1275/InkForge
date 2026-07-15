@@ -12,6 +12,12 @@ import { logger, ErrorCode, AppError } from '@/services/error'
 import { db } from '@/utils/db'
 import { generateId } from '@/utils/uuid'
 
+const CATEGORY_NAME_CONFLICT_MESSAGE = '分类名称已存在'
+
+function normalizeCategoryName(name: string): string {
+    return name.trim().toLocaleLowerCase('zh-CN')
+}
+
 /**
  * 分类管理 Store
  * 使用 Repository 抽象层访问数据
@@ -22,6 +28,27 @@ export const useCategoryStore = defineStore('category', () => {
     const selectedCategoryId = ref<string | null>(null)
     const loading = ref(false)
     const error = ref<string | null>(null)
+    const pendingCategoryNames = new Set<string>()
+
+    function createCategoryNameConflictError(name: string): AppError {
+        return new AppError(ErrorCode.VALIDATION_ERROR, CATEGORY_NAME_CONFLICT_MESSAGE, { name })
+    }
+
+    async function assertCategoryNameAvailable(name: string, excludedId?: string): Promise<void> {
+        const normalizedName = normalizeCategoryName(name)
+        const persistedCategories = await categoryRepository.findAll()
+        const candidates = new Map<string, Category>()
+        for (const category of [...persistedCategories, ...categories.value]) {
+            candidates.set(category.id, category)
+        }
+        const conflict = Array.from(candidates.values()).some(category => (
+            category.id !== excludedId
+            && normalizeCategoryName(category.name) === normalizedName
+        ))
+        if (conflict) {
+            throw createCategoryNameConflictError(name)
+        }
+    }
 
     // 计算属性
     const totalArticleCount = computed(() => {
@@ -57,41 +84,83 @@ export const useCategoryStore = defineStore('category', () => {
     async function addCategory(name: string, icon?: string) {
         // 运行时校验：确保输入数据符合 Schema
         const validated = CreateCategoryDTOSchema.parse({ name, icon })
-
-        const category: Category = {
-            id: generateId(),
-            name: validated.name,
-            icon: validated.icon || 'folder',
-            articleCount: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+        const normalizedName = normalizeCategoryName(validated.name)
+        if (pendingCategoryNames.has(normalizedName)) {
+            const conflictError = createCategoryNameConflictError(validated.name)
+            error.value = conflictError.message
+            throw conflictError
         }
+        pendingCategoryNames.add(normalizedName)
+        error.value = null
 
-        await categoryRepository.create(category)
-        // 不可变更新：创建新数组而非 push
-        categories.value = [...categories.value, category]
-        return category
+        try {
+            await assertCategoryNameAvailable(validated.name)
+            const category: Category = {
+                id: generateId(),
+                name: validated.name,
+                icon: validated.icon || 'folder',
+                articleCount: 0,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+
+            await categoryRepository.create(category)
+            // 不可变更新：创建新数组而非 push
+            categories.value = [...categories.value, category]
+            return category
+        } catch (err) {
+            error.value = err instanceof Error ? err.message : '添加分类失败'
+            if (!(err instanceof AppError && err.code === ErrorCode.VALIDATION_ERROR)) {
+                logger.error('添加分类失败', err, { name: validated.name })
+            }
+            throw err
+        } finally {
+            pendingCategoryNames.delete(normalizedName)
+        }
     }
 
     // 更新分类（使用精确DTO类型 + Zod 运行时校验，不可变更新）
     async function updateCategory(id: string, updates: UpdateCategoryDTO) {
         // 运行时校验：确保更新数据符合 Schema
         const validated = UpdateCategoryDTOSchema.parse(updates)
+        const normalizedName = validated.name ? normalizeCategoryName(validated.name) : null
+        if (normalizedName && pendingCategoryNames.has(normalizedName)) {
+            const conflictError = createCategoryNameConflictError(validated.name ?? '')
+            error.value = conflictError.message
+            throw conflictError
+        }
+        if (normalizedName) pendingCategoryNames.add(normalizedName)
+        error.value = null
 
-        await categoryRepository.update(id, { ...validated, updatedAt: new Date() })
-        const index = categories.value.findIndex(c => c.id === id)
-        if (index !== -1) {
-            // 不可变更新：创建新数组
-            categories.value = [
-                ...categories.value.slice(0, index),
-                { ...categories.value[index], ...validated },
-                ...categories.value.slice(index + 1)
-            ]
+        try {
+            if (validated.name) {
+                await assertCategoryNameAvailable(validated.name, id)
+            }
+            const updatedAt = new Date()
+            await categoryRepository.update(id, { ...validated, updatedAt })
+            const index = categories.value.findIndex(c => c.id === id)
+            if (index !== -1) {
+                // 不可变更新：创建新数组
+                categories.value = [
+                    ...categories.value.slice(0, index),
+                    { ...categories.value[index], ...validated, updatedAt },
+                    ...categories.value.slice(index + 1)
+                ]
+            }
+        } catch (err) {
+            error.value = err instanceof Error ? err.message : '更新分类失败'
+            if (!(err instanceof AppError && err.code === ErrorCode.VALIDATION_ERROR)) {
+                logger.error('更新分类失败', err, { id })
+            }
+            throw err
+        } finally {
+            if (normalizedName) pendingCategoryNames.delete(normalizedName)
         }
     }
 
     // 删除分类（使用事务保护，先迁移关联资讯）
     async function deleteCategory(id: string) {
+        error.value = null
         try {
             // 使用 Dexie 事务确保原子性
             await db.transaction('rw', [db.categories, db.articles], async () => {
@@ -114,6 +183,7 @@ export const useCategoryStore = defineStore('category', () => {
             logger.info('分类删除成功', { id })
         } catch (err) {
             const msg = err instanceof AppError ? err.toUserMessage() : '删除分类失败'
+            error.value = err instanceof Error ? err.message : msg
             logger.error('删除分类失败', err, { id })
             throw new AppError(ErrorCode.DB_WRITE_FAILED, msg, { id })
         }
@@ -169,6 +239,7 @@ export const useCategoryStore = defineStore('category', () => {
         selectedCategoryId.value = null
         loading.value = false
         error.value = null
+        pendingCategoryNames.clear()
     }
 
     return {

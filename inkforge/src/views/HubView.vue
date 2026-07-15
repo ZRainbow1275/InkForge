@@ -272,6 +272,8 @@ const displayQuote = computed(() => aiInspiration.value || dailyQuote.value)
 
 // ─── 分类创建 Modal ───
 const showAddCategoryModal = ref(false)
+const categoryCreatePending = ref(false)
+const categoryCreateError = ref<string | null>(null)
 const showTemplatePicker = ref(false)
 const showQuickActionMenu = ref(false)
 const importInProgress = ref(false)
@@ -303,12 +305,27 @@ const fabQuickActionTriggerId = 'hub-quick-action-fab-trigger'
 const lastQuickActionTrigger = ref<'header' | 'fab'>('header')
 
 async function handleAddCategory(data: { name: string; icon: string }): Promise<void> {
+  categoryCreatePending.value = true
+  categoryCreateError.value = null
   try {
     await categoryStore.addCategory(data.name, data.icon)
     showAddCategoryModal.value = false
-  } catch {
-    // 静默处理，store 内部有错误日志
+  } catch (error) {
+    categoryCreateError.value = error instanceof Error ? error.message : '添加分类失败'
+  } finally {
+    categoryCreatePending.value = false
   }
+}
+
+function openCategoryCreate(): void {
+  categoryCreateError.value = null
+  showAddCategoryModal.value = true
+}
+
+function closeCategoryCreate(): void {
+  if (categoryCreatePending.value) return
+  categoryCreateError.value = null
+  showAddCategoryModal.value = false
 }
 
 // ─── 图表交互 ───
@@ -869,6 +886,10 @@ function goToSettings(tab?: string, section?: string): void {
   })
 }
 
+function goToWorkstationManager(manager: 'files' | 'tags'): void {
+  void router.push({ path: '/workstation', query: { manager } })
+}
+
 function goToAccount(): void {
   void router.push('/account')
 }
@@ -1404,7 +1425,8 @@ onMounted(async () => {
               <button
                 class="categories-add"
                 type="button"
-                @click.stop="showAddCategoryModal = true"
+                data-hub-category-add
+                @click.stop="openCategoryCreate"
               >
                 <svg
                   width="14"
@@ -1433,7 +1455,8 @@ onMounted(async () => {
               <button
                 class="categories-manage"
                 type="button"
-                @click.stop="goToSettings()"
+                data-hub-category-manage
+                @click.stop="goToWorkstationManager('files')"
               >管理</button>
             </div>
           </div>
@@ -1443,6 +1466,7 @@ onMounted(async () => {
               :key="cat.id"
               class="category-cell"
               type="button"
+              :data-hub-category-id="cat.id"
               :style="{
                 background: cat.scheme.bg,
                 color: cat.scheme.color,
@@ -1509,7 +1533,8 @@ onMounted(async () => {
               v-if="displayCategories.length === 0"
               class="categories-empty"
               type="button"
-              @click.stop="showAddCategoryModal = true"
+              data-hub-category-add
+              @click.stop="openCategoryCreate"
             >
               <svg
                 class="categories-empty-seal"
@@ -1902,7 +1927,7 @@ onMounted(async () => {
           <button
             type="button"
             class="quick-link-btn"
-            @click="goToSettings()"
+            @click="goToWorkstationManager('tags')"
           >
             <span
               class="quick-link-icon"
@@ -2091,6 +2116,7 @@ onMounted(async () => {
           v-for="(article, index) in displayArticles"
           :key="article.id"
           class="article-card"
+          :data-hub-article-id="article.id"
           :href="`/workstation?id=${encodeURIComponent(article.id)}`"
           :aria-label="`打开文章：${article.title || '未命名文稿'}`"
           :style="{ '--i': index }"
@@ -2309,7 +2335,9 @@ onMounted(async () => {
     <!-- 分类创建 Modal -->
     <AddCategoryModal
       :visible="showAddCategoryModal"
-      @close="showAddCategoryModal = false"
+      :pending="categoryCreatePending"
+      :error="categoryCreateError"
+      @close="closeCategoryCreate"
       @confirm="handleAddCategory"
     />
 

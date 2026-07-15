@@ -529,32 +529,53 @@ function dismissImportResult(): void {
 const showNewCategoryInput = ref(false)
 const newCategoryName = ref('')
 const newCategoryInputRef = ref<HTMLInputElement | null>(null)
+const categoryMutationPending = ref(false)
+const categoryActionStatus = ref<{ tone: 'success' | 'error'; message: string } | null>(null)
+
+function getCategoryActionError(error: unknown, fallback: string): string {
+    return error instanceof Error ? error.message : fallback
+}
 
 function startNewCategory(): void {
+    if (categoryMutationPending.value) return
     showNewMenu.value = false
     showNewCategoryInput.value = true
     newCategoryName.value = ''
+    categoryActionStatus.value = null
     nextTick(() => {
         newCategoryInputRef.value?.focus()
     })
 }
 
 async function confirmNewCategory(): Promise<void> {
+    if (categoryMutationPending.value) return
     const name = newCategoryName.value.trim()
     if (!name) {
         showNewCategoryInput.value = false
         return
     }
+    categoryMutationPending.value = true
+    categoryActionStatus.value = null
+    let shouldRefocus = false
     try {
         await categoryStore.addCategory(name)
-    } catch {
-        // 静默失败
+        showNewCategoryInput.value = false
+        newCategoryName.value = ''
+        categoryActionStatus.value = { tone: 'success', message: `已创建分类“${name}”` }
+    } catch (error) {
+        categoryActionStatus.value = { tone: 'error', message: getCategoryActionError(error, '创建分类失败') }
+        shouldRefocus = true
+    } finally {
+        categoryMutationPending.value = false
     }
-    showNewCategoryInput.value = false
-    newCategoryName.value = ''
+    if (shouldRefocus) {
+        await nextTick()
+        newCategoryInputRef.value?.focus()
+    }
 }
 
 function cancelNewCategory(): void {
+    if (categoryMutationPending.value) return
     showNewCategoryInput.value = false
     newCategoryName.value = ''
 }
@@ -656,12 +677,38 @@ function handleGlobalClick(event: MouseEvent): void {
     }
 }
 
-onMounted(() => {
+let renameBlurTimeout: ReturnType<typeof setTimeout> | null = null
+
+function clearRenameBlurTimeout(): void {
+    if (renameBlurTimeout !== null) {
+        clearTimeout(renameBlurTimeout)
+        renameBlurTimeout = null
+    }
+}
+
+function handleStableRenameBlur(
+    event: FocusEvent,
+    confirm: () => void | Promise<void>
+): void {
+    const input = event.currentTarget
+    if (!(input instanceof HTMLInputElement)) return
+    clearRenameBlurTimeout()
+    renameBlurTimeout = setTimeout(() => {
+        renameBlurTimeout = null
+        if (document.hasFocus() && document.activeElement !== input) {
+            void confirm()
+        }
+    }, 100)
+}
+
+onMounted(async () => {
     document.addEventListener('click', handleGlobalClick)
+    await categoryStore.loadCategories()
 })
 
 onUnmounted(() => {
     document.removeEventListener('click', handleGlobalClick)
+    clearRenameBlurTimeout()
     assetStore.cleanup()
 })
 
@@ -683,6 +730,7 @@ function ctxStartRenameArticle(): void {
     if (!id) return
     const article = articles.value.find(a => a.id === id)
     if (!article) return
+    clearRenameBlurTimeout()
     renamingArticleId.value = id
     renameValue.value = article.title
     closeContextMenu()
@@ -693,6 +741,7 @@ function ctxStartRenameArticle(): void {
 }
 
 async function confirmRenameArticle(): Promise<void> {
+    clearRenameBlurTimeout()
     const id = renamingArticleId.value
     if (!id) return
     const newTitle = renameValue.value.trim()
@@ -708,6 +757,7 @@ async function confirmRenameArticle(): Promise<void> {
 }
 
 function cancelRenameArticle(): void {
+    clearRenameBlurTimeout()
     renamingArticleId.value = null
     renameValue.value = ''
 }
@@ -741,18 +791,30 @@ function ctxDeleteArticle(): void {
 }
 
 async function confirmDelete(): Promise<void> {
+    if (categoryMutationPending.value) return
     if (!pendingDeleteId.value) {
         showDeleteConfirm.value = false
         return
     }
+    const deletingCategory = pendingDeleteType.value === 'category'
+    categoryMutationPending.value = true
+    if (deletingCategory) categoryActionStatus.value = null
     try {
         if (pendingDeleteType.value === 'article') {
             await articleStore.deleteArticle(pendingDeleteId.value)
         } else if (pendingDeleteType.value === 'category') {
             await categoryStore.deleteCategory(pendingDeleteId.value)
         }
-    } catch {
-        // 静默
+        if (deletingCategory) {
+            categoryActionStatus.value = { tone: 'success', message: '分类已删除，关联文章已迁移到未分类' }
+        }
+    } catch (error) {
+        if (deletingCategory) {
+            categoryActionStatus.value = { tone: 'error', message: getCategoryActionError(error, '删除分类失败') }
+            return
+        }
+    } finally {
+        categoryMutationPending.value = false
     }
     showDeleteConfirm.value = false
     pendingDeleteType.value = null
@@ -760,6 +822,7 @@ async function confirmDelete(): Promise<void> {
 }
 
 function cancelDelete(): void {
+    if (categoryMutationPending.value) return
     showDeleteConfirm.value = false
     pendingDeleteType.value = null
     pendingDeleteId.value = null
@@ -771,12 +834,15 @@ const renameCategoryValue = ref('')
 const renameCategoryInputRef = ref<HTMLInputElement | null>(null)
 
 function ctxStartRenameCategory(): void {
+    if (categoryMutationPending.value) return
     const id = contextMenu.value.targetCategoryId
     if (!id) return
     const cat = categories.value.find(c => c.id === id)
     if (!cat) return
+    clearRenameBlurTimeout()
     renamingCategoryId.value = id
     renameCategoryValue.value = cat.name
+    categoryActionStatus.value = null
     closeContextMenu()
     nextTick(() => {
         renameCategoryInputRef.value?.focus()
@@ -785,21 +851,39 @@ function ctxStartRenameCategory(): void {
 }
 
 async function confirmRenameCategory(): Promise<void> {
+    clearRenameBlurTimeout()
+    if (categoryMutationPending.value) return
     const id = renamingCategoryId.value
     if (!id) return
     const newName = renameCategoryValue.value.trim()
-    if (newName) {
-        try {
-            await categoryStore.updateCategory(id, { name: newName })
-        } catch {
-            // 静默
-        }
+    if (!newName) {
+        categoryActionStatus.value = { tone: 'error', message: '分类名称不能为空' }
+        return
     }
-    renamingCategoryId.value = null
-    renameCategoryValue.value = ''
+    categoryMutationPending.value = true
+    categoryActionStatus.value = null
+    let shouldRefocus = false
+    try {
+        await categoryStore.updateCategory(id, { name: newName })
+        renamingCategoryId.value = null
+        renameCategoryValue.value = ''
+        categoryActionStatus.value = { tone: 'success', message: `已重命名为“${newName}”` }
+    } catch (error) {
+        categoryActionStatus.value = { tone: 'error', message: getCategoryActionError(error, '重命名分类失败') }
+        shouldRefocus = true
+    } finally {
+        categoryMutationPending.value = false
+    }
+    if (shouldRefocus) {
+        await nextTick()
+        renameCategoryInputRef.value?.focus()
+        renameCategoryInputRef.value?.select()
+    }
 }
 
 function cancelRenameCategory(): void {
+    clearRenameBlurTimeout()
+    if (categoryMutationPending.value) return
     renamingCategoryId.value = null
     renameCategoryValue.value = ''
 }
@@ -1291,6 +1375,40 @@ const deleteConfirmText = computed(() => {
       </div>
     </Transition>
 
+    <Transition name="fm-fade">
+      <div
+        v-if="categoryActionStatus"
+        class="fm-import-result"
+        :class="categoryActionStatus.tone === 'error' ? 'fm-import-warning' : 'fm-import-success'"
+        :role="categoryActionStatus.tone === 'error' ? 'alert' : 'status'"
+        :data-tone="categoryActionStatus.tone"
+        data-category-action-status
+      >
+        <span class="fm-import-text">{{ categoryActionStatus.message }}</span>
+        <button
+          type="button"
+          class="fm-import-close"
+          aria-label="关闭分类操作提示"
+          @click="categoryActionStatus = null"
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </Transition>
+
     <!-- 新建分类 inline 输入 -->
     <div
       v-if="showNewCategoryInput"
@@ -1314,7 +1432,10 @@ const deleteConfirmText = computed(() => {
         type="text"
         class="fm-rename-input"
         placeholder="分类名称..."
-        @keydown.enter="confirmNewCategory"
+        data-category-new-input
+        maxlength="50"
+        :disabled="categoryMutationPending"
+        @keydown.enter.prevent="confirmNewCategory"
         @keydown.escape="cancelNewCategory"
         @blur="confirmNewCategory"
       >
@@ -1448,7 +1569,11 @@ const deleteConfirmText = computed(() => {
         </div>
       </template>
 
-      <template v-else-if="articles.length === 0 && !searchQuery.trim()">
+      <template
+        v-else-if="articles.length === 0
+          && !searchQuery.trim()
+          && (viewMode !== 'tree' || categories.length === 0)"
+      >
         <div class="fm-empty-state">
           <svg
             width="40"
@@ -1495,6 +1620,7 @@ const deleteConfirmText = computed(() => {
             <div
               class="fm-category-row"
               :class="{ 'fm-expanded': node.expanded }"
+              :data-file-category-id="node.category?.id"
               @click="toggleExpand(getCategoryKey(node))"
               @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
             >
@@ -1530,9 +1656,12 @@ const deleteConfirmText = computed(() => {
                   v-model="renameCategoryValue"
                   type="text"
                   class="fm-rename-input fm-rename-inline"
-                  @keydown.enter="confirmRenameCategory"
+                  data-category-rename-input
+                  maxlength="50"
+                  :disabled="categoryMutationPending"
+                  @keydown.enter.prevent="confirmRenameCategory"
                   @keydown.escape="cancelRenameCategory"
-                  @blur="confirmRenameCategory"
+                  @blur="handleStableRenameBlur($event, confirmRenameCategory)"
                   @click.stop
                 >
               </template>
@@ -1588,7 +1717,7 @@ const deleteConfirmText = computed(() => {
                       class="fm-rename-input fm-rename-inline"
                       @keydown.enter="confirmRenameArticle"
                       @keydown.escape="cancelRenameArticle"
-                      @blur="confirmRenameArticle"
+                      @blur="handleStableRenameBlur($event, confirmRenameArticle)"
                       @click.stop
                     >
                   </template>
@@ -1878,6 +2007,7 @@ const deleteConfirmText = computed(() => {
               <button
                 type="button"
                 class="fm-ctx-item"
+                data-category-action="rename"
                 @click="ctxStartRenameCategory"
               >
                 <svg
@@ -1899,6 +2029,7 @@ const deleteConfirmText = computed(() => {
             <button
               type="button"
               class="fm-ctx-item"
+              data-category-action="new-article"
               @click="ctxNewArticleInCategory"
             >
               <svg
@@ -1933,6 +2064,7 @@ const deleteConfirmText = computed(() => {
               <button
                 type="button"
                 class="fm-ctx-item fm-ctx-danger"
+                data-category-action="delete"
                 @click="ctxDeleteCategory"
               >
                 <svg
@@ -1964,10 +2096,19 @@ const deleteConfirmText = computed(() => {
         <div
           v-if="showDeleteConfirm"
           class="fm-confirm-overlay"
+          data-category-delete-confirm
           @click.self="cancelDelete"
         >
-          <div class="fm-confirm-modal">
-            <h3 class="fm-confirm-title">
+          <div
+            class="fm-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="file-manager-delete-title"
+          >
+            <h3
+              id="file-manager-delete-title"
+              class="fm-confirm-title"
+            >
               确认删除
             </h3>
             <p class="fm-confirm-text">
@@ -1977,6 +2118,7 @@ const deleteConfirmText = computed(() => {
               <button
                 type="button"
                 class="fm-btn fm-btn-cancel"
+                :disabled="categoryMutationPending"
                 @click="cancelDelete"
               >
                 取消
@@ -1984,6 +2126,8 @@ const deleteConfirmText = computed(() => {
               <button
                 type="button"
                 class="fm-btn fm-btn-danger"
+                data-category-delete-submit
+                :disabled="categoryMutationPending"
                 @click="confirmDelete"
               >
                 删除

@@ -166,19 +166,24 @@ exports.config = {
   hostname: '127.0.0.1',
   port: 4444,
 
-  // Build the Tauri debug binary so the harness has something to launch.
-  // The pre-existing wechat.rs clippy errors are NOT promoted to deny here
-  // (per PRD risks section) — default warning level is fine for tests.
+  // Build the current frontend and re-embed it in the Tauri debug binary.
+  // Calling cargo directly can reuse an executable with stale dist assets.
   onPrepare: () => {
     if (process.env.INKFORGE_E2E_SKIP_TAURI_BUILD === '1') return;
 
+    const isWindows = process.platform === 'win32';
     const result = spawnSync(
-      'cargo',
-      ['build', '--manifest-path=../../src-tauri/Cargo.toml'],
-      { cwd: __dirname, stdio: 'inherit' },
+      isWindows ? (process.env.ComSpec || 'cmd.exe') : 'pnpm',
+      isWindows
+        ? ['/d', '/s', '/c', 'pnpm exec tauri build --debug --bundles none']
+        : ['exec', 'tauri', 'build', '--debug', '--bundles', 'none'],
+      {
+        cwd: path.resolve(__dirname, '..', '..'),
+        stdio: 'inherit',
+      },
     );
     if (result.error) throw result.error;
-    if (result.status !== 0) throw new Error(`Tauri debug build failed with exit code ${result.status}`);
+    if (result.status !== 0) throw new Error(`Tauri E2E build failed with exit code ${result.status}`);
   },
 
   // Spawn tauri-driver. It in turn launches msedgedriver on a free port and

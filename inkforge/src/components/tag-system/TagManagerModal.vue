@@ -9,13 +9,14 @@ const props = defineProps<{
   open: boolean
   tags: Tag[]
   busy: boolean
+  error: string | null
 }>()
 
 const emit = defineEmits<{
   close: []
-  update: [id: string, patch: { name?: string; color?: string }]
+  update: [id: string, patch: { name?: string; color?: string }, complete: () => void]
   delete: [id: string]
-  merge: [targetId: string, sourceIds: string[]]
+  merge: [targetId: string, sourceIds: string[], complete: () => void]
   cleanup: []
 }>()
 
@@ -43,8 +44,9 @@ function startEdit(tag: Tag): void {
 }
 
 function saveEdit(id: string): void {
-  emit('update', id, { name: editName.value, color: editColor.value })
-  editingId.value = null
+  emit('update', id, { name: editName.value, color: editColor.value }, () => {
+    if (editingId.value === id) editingId.value = null
+  })
 }
 
 function toggleSource(id: string): void {
@@ -56,33 +58,54 @@ function toggleSource(id: string): void {
 
 function requestMerge(): void {
   if (!targetId.value || sourceIds.value.length === 0) return
-  emit('merge', targetId.value, sourceIds.value)
-  sourceIds.value = []
+  const submittedSources = [...sourceIds.value]
+  emit('merge', targetId.value, submittedSources, () => {
+    sourceIds.value = sourceIds.value.filter(id => !submittedSources.includes(id))
+  })
 }
 </script>
 
 <template>
-  <div
-    v-if="open"
-    class="tag-manager-backdrop"
-  >
-    <section class="tag-manager-modal">
-      <header class="tag-manager-head">
-        <div>
-          <p>标签管理</p>
-          <h3>重命名、合并并清理真实标签</h3>
-        </div>
-        <button
-          type="button"
-          class="ghost-btn"
-          @click="emit('close')"
-        >
-          <X :size="16" />
-        </button>
-      </header>
+  <Teleport to="body">
+    <div
+      v-if="open"
+      class="tag-manager-backdrop"
+    >
+      <section
+        class="tag-manager-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tag-manager-title"
+        data-tag-manager-dialog
+      >
+        <header class="tag-manager-head">
+          <div>
+            <p>标签管理</p>
+            <h3 id="tag-manager-title">
+              重命名、合并并清理真实标签
+            </h3>
+          </div>
+          <button
+            type="button"
+            class="ghost-btn"
+            aria-label="关闭标签管理"
+            @click="emit('close')"
+          >
+            <X :size="16" />
+          </button>
+        </header>
 
-      <div class="tag-manager-grid">
-        <section class="tag-manager-section">
+        <p
+          v-if="props.error"
+          class="tag-manager-error"
+          role="alert"
+          data-tag-manager-error
+        >
+          {{ props.error }}
+        </p>
+
+        <div class="tag-manager-grid">
+          <section class="tag-manager-section">
           <h4>全部标签</h4>
           <div class="tag-manager-list">
             <article
@@ -95,10 +118,14 @@ function requestMerge(): void {
                   v-model="editName"
                   :disabled="busy"
                   maxlength="50"
+                  :aria-label="`标签 ${tag.name} 的名称`"
+                  :data-tag-edit-input="tag.id"
                 >
                 <select
                   v-model="editColor"
                   :disabled="busy"
+                  :aria-label="`标签 ${tag.name} 的颜色`"
+                  :data-tag-edit-color="tag.id"
                 >
                   <option
                     v-for="preset in TAG_COLOR_PRESETS"
@@ -112,6 +139,8 @@ function requestMerge(): void {
                   type="button"
                   class="icon-action"
                   :disabled="busy"
+                  :aria-label="`保存标签 ${tag.name}`"
+                  :data-tag-edit-save="tag.id"
                   @click="saveEdit(tag.id)"
                 >
                   <Check :size="14" />
@@ -127,6 +156,8 @@ function requestMerge(): void {
                     type="button"
                     class="icon-action"
                     :disabled="busy"
+                    :aria-label="`编辑标签 ${tag.name}`"
+                    :data-tag-edit-start="tag.id"
                     @click="startEdit(tag)"
                   >
                     <Pencil :size="14" />
@@ -135,6 +166,8 @@ function requestMerge(): void {
                     type="button"
                     class="icon-action danger"
                     :disabled="busy"
+                    :aria-label="`删除标签 ${tag.name}`"
+                    :data-tag-delete="tag.id"
                     @click="emit('delete', tag.id)"
                   >
                     <Trash2 :size="14" />
@@ -149,15 +182,16 @@ function requestMerge(): void {
               还没有任何标签。
             </p>
           </div>
-        </section>
+          </section>
 
-        <section class="tag-manager-section">
+          <section class="tag-manager-section">
           <h4>合并标签</h4>
           <label class="field-label">
             目标标签
             <select
               v-model="targetId"
               :disabled="busy || mergeTargets.length === 0"
+              data-tag-merge-target
             >
               <option
                 v-for="tag in mergeTargets"
@@ -173,6 +207,7 @@ function requestMerge(): void {
               type="button"
               :class="{ active: sourceIds.includes(tag.id) }"
               :disabled="busy"
+              :data-tag-merge-source="tag.id"
               @click="toggleSource(tag.id)"
             >
               {{ tag.name }}
@@ -182,6 +217,7 @@ function requestMerge(): void {
             type="button"
             class="primary-action"
             :disabled="busy || !targetId || sourceIds.length === 0"
+            data-tag-merge-submit
             @click="requestMerge"
           >
             <GitMerge :size="15" />
@@ -191,14 +227,16 @@ function requestMerge(): void {
             type="button"
             class="secondary-action"
             :disabled="busy"
+            data-tag-cleanup
             @click="emit('cleanup')"
           >
             移除零引用孤立标签
           </button>
-        </section>
-      </div>
-    </section>
-  </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -217,12 +255,22 @@ function requestMerge(): void {
   width: min(860px, 100%);
   max-height: min(760px, 92vh);
   overflow: hidden;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   border-radius: 24px;
   background: #fbfcfd;
   border: 1px solid rgba(203, 213, 225, 0.84);
   box-shadow: 0 30px 90px rgba(15, 23, 42, 0.28);
+}
+
+.tag-manager-error {
+  margin: 12px 20px 0;
+  border-radius: 12px;
+  padding: 9px 10px;
+  color: #991b1b;
+  background: #fee2e2;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .tag-manager-head,
@@ -262,6 +310,7 @@ function requestMerge(): void {
 }
 
 .tag-manager-grid {
+  flex: 1 1 auto;
   align-items: stretch;
   gap: 18px;
   min-height: 0;
@@ -394,6 +443,10 @@ button:disabled {
 @media (max-width: 760px) {
   .tag-manager-grid {
     flex-direction: column;
+  }
+
+  .tag-manager-section {
+    flex: 0 0 auto;
   }
 }
 </style>

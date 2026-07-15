@@ -35,6 +35,8 @@ const ABOUT_FEATURE_FLAG_KEYS = [
 ];
 
 const createdArticleIds = new Set();
+const createdCategoryIds = new Set();
+const createdTagIds = new Set();
 let originalListEnterBehavior = null;
 let originalSmartPunctuationSettings = null;
 let originalWritingGoalSettings = null;
@@ -947,6 +949,64 @@ async function createBlankDraft(expectedBehavior, previousLayoutArticleId = null
   return articleId;
 }
 
+async function createBlankDraftThroughHub() {
+  await openRoute('/', '.hub-page');
+  const previousArticleId = await browser.execute(() => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    return pinia?._s.get('article')?.selectedArticleId ?? null;
+  });
+  const selectors = ['.recent-create-btn', '.hero-empty-btn', '.empty-create-btn', '.quick-action-item'];
+  await browser.waitUntil(
+    async () => {
+      for (const selector of selectors) {
+        const candidates = await browser.$$(selector);
+        for (const candidate of candidates) {
+          if (await candidate.isDisplayed()) return true;
+        }
+      }
+      return false;
+    },
+    { timeout: 10_000, interval: 200, timeoutMsg: 'Hub did not render a visible production new-draft control' },
+  );
+  let createButton = null;
+  for (const selector of selectors) {
+    const candidates = await browser.$$(selector);
+    for (const candidate of candidates) {
+      if (await candidate.isDisplayed()) {
+        createButton = candidate;
+        break;
+      }
+    }
+    if (createButton) break;
+  }
+  expect(createButton, 'Hub exposes a visible production new-draft control').to.not.equal(null);
+  await createButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await createButton.waitForClickable({ timeout: 5_000 });
+  await createButton.click();
+
+  await browser.waitUntil(
+    async () => browser.execute((oldArticleId) => {
+      const articleId = new window.URLSearchParams(window.location.search).get('id');
+      return location.pathname === '/workstation'
+        && Boolean(articleId)
+        && articleId !== oldArticleId
+        && Boolean(document.querySelector('.ProseMirror'));
+    }, previousArticleId),
+    { timeout: 15_000, interval: 200, timeoutMsg: 'native Hub draft action did not open a new Workstation article' },
+  );
+  const articleId = await browser.execute(() => new window.URLSearchParams(window.location.search).get('id'));
+  expect(articleId, 'native Hub draft route exposes the created article id').to.be.a('string').and.not.equal('');
+  createdArticleIds.add(articleId);
+  await waitForCurrentDraftReady(articleId, true);
+  return articleId;
+}
+
 async function prepareListEnterScenario(expectedBehavior) {
   const editor = await browser.$('.ProseMirror');
   await editor.waitForDisplayed({ timeout: 10_000, interval: 200 });
@@ -1256,6 +1316,303 @@ async function cleanupCreatedArticles() {
   await openRoute('/', '.hub-page');
 }
 
+async function readCategoryRelation(categoryId, articleId = null) {
+  return browser.execute(async (targetCategoryId, targetArticleId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const categoryStore = pinia?._s.get('category');
+    const articleStore = pinia?._s.get('article');
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    const readRecord = (storeName, key) => {
+      if (!key) return Promise.resolve(null);
+      return new Promise((resolve, reject) => {
+        const request = database.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+      });
+    };
+    const serializeCategory = (category) => category ? {
+      id: category.id,
+      name: category.name,
+    } : null;
+    const serializeArticle = (article) => article ? {
+      id: article.id,
+      categoryId: article.categoryId ?? null,
+    } : null;
+
+    try {
+      const [persistedCategory, persistedArticle] = await Promise.all([
+        readRecord('categories', targetCategoryId),
+        readRecord('articles', targetArticleId),
+      ]);
+      return {
+        storesReady: Boolean(categoryStore && articleStore),
+        store: {
+          category: serializeCategory(categoryStore?.categories?.find((category) => category.id === targetCategoryId)),
+          article: serializeArticle(articleStore?.articles?.find((article) => article.id === targetArticleId)),
+        },
+        persisted: {
+          category: serializeCategory(persistedCategory),
+          article: serializeArticle(persistedArticle),
+        },
+      };
+    } finally {
+      database.close();
+    }
+  }, categoryId, articleId);
+}
+
+async function cleanupCreatedCategories() {
+  const ids = Array.from(createdCategoryIds);
+  if (ids.length === 0) return;
+
+  await openRoute('/', '.hub-page');
+  const result = await browser.execute(async (categoryIds) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const categoryStore = pinia?._s.get('category');
+    const articleStore = pinia?._s.get('article');
+    if (!categoryStore || !articleStore) {
+      return { error: 'required production stores unavailable', remainingCategoryIds: categoryIds, remainingArticleIds: [] };
+    }
+
+    try {
+      const categoryArticleIds = articleStore.articles
+        .filter((article) => categoryIds.includes(article.categoryId))
+        .map((article) => article.id);
+      for (const articleId of categoryArticleIds) {
+        const article = articleStore.articles.find((candidate) => candidate.id === articleId);
+        if (article && article.status !== 'trashed') await articleStore.deleteArticle(articleId);
+      }
+      for (const categoryId of categoryIds) {
+        if (categoryStore.categories.some((category) => category.id === categoryId)) {
+          await categoryStore.deleteCategory(categoryId);
+        }
+      }
+      return {
+        error: null,
+        remainingCategoryIds: categoryStore.categories
+          .filter((category) => categoryIds.includes(category.id))
+          .map((category) => category.id),
+        remainingArticleIds: articleStore.articles
+          .filter((article) => categoryIds.includes(article.categoryId))
+          .map((article) => article.id),
+      };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : String(error),
+        remainingCategoryIds: categoryStore.categories
+          .filter((category) => categoryIds.includes(category.id))
+          .map((category) => category.id),
+        remainingArticleIds: articleStore.articles
+          .filter((article) => categoryIds.includes(article.categoryId))
+          .map((article) => article.id),
+      };
+    }
+  }, ids);
+
+  expect(result.error, 'category cleanup can access the real production stores').to.equal(null);
+  expect(result.remainingArticleIds, 'articles left under created categories are deleted through production actions')
+    .to.deep.equal([]);
+  expect(result.remainingCategoryIds, 'created categories leave the active category collection').to.deep.equal([]);
+  await openRoute('/', '.hub-page');
+}
+
+async function readTagPersistence(articleId, tagIds) {
+  return browser.execute(async (targetArticleId, targetTagIds) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const tagStore = pinia?._s.get('tags');
+    const articleStore = pinia?._s.get('article');
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    const requestValue = (request, message) => new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error(message));
+    });
+    const serializeTag = (tag) => ({
+      id: tag.id,
+      name: tag.name,
+      color: tag.color,
+      docCount: tag.docCount,
+    });
+
+    try {
+      const transaction = database.transaction(['tags', 'docTags', 'articles'], 'readonly');
+      const [persistedTags, persistedRelations, persistedArticle] = await Promise.all([
+        requestValue(transaction.objectStore('tags').getAll(), 'tag rows read failed'),
+        requestValue(transaction.objectStore('docTags').getAll(), 'docTags rows read failed'),
+        requestValue(transaction.objectStore('articles').get(targetArticleId), 'article tag mirror read failed'),
+      ]);
+      const ids = new Set(targetTagIds);
+      const byId = (left, right) => left.id.localeCompare(right.id);
+      return {
+        storesReady: Boolean(tagStore && articleStore),
+        store: {
+          tags: (tagStore?.tags ?? []).filter(tag => ids.has(tag.id)).map(serializeTag).sort(byId),
+          docTagIds: (tagStore?.docTagsByDocId?.[targetArticleId] ?? [])
+            .filter(tag => ids.has(tag.id))
+            .map(tag => tag.id)
+            .sort(),
+          articleTags: [...(articleStore?.articles?.find(article => article.id === targetArticleId)?.tags ?? [])].sort(),
+        },
+        persisted: {
+          tags: persistedTags.filter(tag => ids.has(tag.id)).map(serializeTag).sort(byId),
+          docTagIds: persistedRelations
+            .filter(relation => relation.docId === targetArticleId && ids.has(relation.tagId))
+            .map(relation => relation.tagId)
+            .sort(),
+          articleTags: [...(persistedArticle?.tags ?? [])].sort(),
+        },
+      };
+    } finally {
+      database.close();
+    }
+  }, articleId, tagIds);
+}
+
+async function createVisibleTag(articleId, name) {
+  const query = await browser.$('[data-tag-query]');
+  await query.waitForDisplayed({ timeout: 10_000 });
+  await query.setValue(name);
+  const createButton = await browser.$('[data-tag-create]');
+  await createButton.waitForClickable({ timeout: 5_000 });
+  await createButton.click();
+
+  let tagId = null;
+  await browser.waitUntil(
+    async () => {
+      tagId = await browser.execute((targetArticleId, expectedName) => {
+        const root = document.getElementById('app');
+        const provides = root?.__vue_app__?._context?.provides;
+        const pinia = provides
+          ? Object.getOwnPropertySymbols(provides)
+            .map((symbol) => provides[symbol])
+            .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+          : null;
+        const store = pinia?._s.get('tags');
+        const tag = store?.tags.find(candidate => candidate.name === expectedName);
+        return tag && store.docTagsByDocId[targetArticleId]?.some(candidate => candidate.id === tag.id)
+          ? tag.id
+          : null;
+      }, articleId, name);
+      return typeof tagId === 'string' && tagId.length > 0;
+    },
+    { timeout: 10_000, interval: 100, timeoutMsg: `visible tag creation did not assign ${name} to the real article` },
+  );
+  createdTagIds.add(tagId);
+  await browser.waitUntil(
+    async () => (await (await browser.$('[data-tag-query]')).getValue()) === '',
+    { timeout: 5_000, interval: 100, timeoutMsg: 'successful tag creation did not clear the visible query' },
+  );
+  return tagId;
+}
+
+async function cleanupCreatedTags() {
+  const ids = Array.from(createdTagIds);
+  if (ids.length === 0) return;
+
+  await openRoute('/workstation?manager=tags', '[data-tag-browser]');
+  const result = await browser.execute(async (tagIds) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const tagStore = pinia?._s.get('tags');
+    if (!tagStore) return { error: 'production tag store unavailable', remainingTagIds: tagIds };
+
+    try {
+      await tagStore.loadTags();
+      for (const tagId of tagIds) {
+        if (tagStore.tags.some(tag => tag.id === tagId)) await tagStore.deleteTag(tagId);
+      }
+      return {
+        error: null,
+        remainingTagIds: tagStore.tags.filter(tag => tagIds.includes(tag.id)).map(tag => tag.id),
+      };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : String(error),
+        remainingTagIds: tagStore.tags.filter(tag => tagIds.includes(tag.id)).map(tag => tag.id),
+      };
+    }
+  }, ids);
+
+  expect(result.error, 'tag cleanup can access the real production tag store').to.equal(null);
+  expect(result.remainingTagIds, 'run-created tags leave the production store through tag actions').to.deep.equal([]);
+  createdTagIds.clear();
+}
+
+async function openCategoryContextMenu(categoryId) {
+  const rowSelector = `[data-file-category-id="${categoryId}"]`;
+  let lastError = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const categoryRow = await browser.$(rowSelector);
+    await categoryRow.waitForExist({ timeout: 10_000 });
+    await categoryRow.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await categoryRow.waitForDisplayed({ timeout: 5_000 });
+    const point = await browser.execute((selector) => {
+      const row = document.querySelector(selector);
+      if (!row) return null;
+      const rect = row.getBoundingClientRect();
+      const x = Math.round(rect.left + Math.min(12, rect.width / 2));
+      const y = Math.round(rect.top + rect.height / 2);
+      const hit = document.elementFromPoint(x, y);
+      if (!hit || hit.closest(selector) !== row) return null;
+      return { x, y };
+    }, rowSelector);
+
+    if (!point) {
+      lastError = new Error('category row does not expose an unobscured viewport point');
+      continue;
+    }
+
+    await browser.action('pointer', { parameters: { pointerType: 'mouse' } })
+      .move({ duration: 0, x: point.x, y: point.y })
+      .pause(100)
+      .down({ button: 2 })
+      .pause(50)
+      .up({ button: 2 })
+      .perform();
+
+    try {
+      await (await browser.$('[data-category-action="new-article"]')).waitForDisplayed({ timeout: 2_500 });
+      return;
+    } catch (error) {
+      lastError = error;
+      await browser.keys('Escape');
+    }
+  }
+
+  throw lastError ?? new Error('category context menu did not open after two native right clicks');
+}
+
 async function readExtensionRegistryEvidence(extensionId) {
   return browser.execute(async (targetExtensionId) => {
     const root = document.getElementById('app');
@@ -1410,12 +1767,20 @@ async function recordShortcut(shortcutId, binding) {
 
 async function exerciseNativeWindowFocusLoss(shortcutId) {
   const trigger = await beginShortcutRecording(shortcutId);
-  await browser.minimizeWindow();
-  await browser.pause(300);
-  const recordingWhileMinimized = await browser.execute((element) => ({
-    documentHasFocus: document.hasFocus(),
-    recording: element.classList.contains('shortcut-input__trigger--recording'),
-  }), trigger);
+  const minimizeButton = await browser.$('button[aria-label="最小化"]');
+  await minimizeButton.waitForClickable({ timeout: 5_000 });
+  await minimizeButton.click();
+  let recordingWhileMinimized = null;
+  await browser.waitUntil(
+    async () => {
+      recordingWhileMinimized = await browser.execute((element) => ({
+        documentHasFocus: document.hasFocus(),
+        recording: element.classList.contains('shortcut-input__trigger--recording'),
+      }), trigger);
+      return !recordingWhileMinimized.documentHasFocus && !recordingWhileMinimized.recording;
+    },
+    { timeout: 5_000, interval: 100, timeoutMsg: 'the real Tauri minimize control did not disarm recording' },
+  );
   await browser.maximizeWindow();
   await browser.waitUntil(
     async () => browser.execute(() => document.hasFocus()),
@@ -1741,7 +2106,17 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       cleanupErrors.push(error);
     }
     try {
+      await cleanupCreatedTags();
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+    try {
       await cleanupCreatedArticles();
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+    try {
+      await cleanupCreatedCategories();
     } catch (error) {
       cleanupErrors.push(error);
     }
@@ -3352,6 +3727,471 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     }
     expect(runtimeErrors, 'About navigation, persistence, rollback, performance, proxy, and FTUE emit no fresh runtime errors')
       .to.deep.equal([]);
+  });
+
+  it('runs tag assignment, filtering, management, merge, and cleanup through real persistence', async function () {
+    this.timeout(180_000);
+    const runId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+    const firstName = `E2ETag${runId}A`;
+    const secondName = `E2ETag${runId}B`;
+    const renamedSecondName = `E2ETag${runId}C`;
+    const deletedName = `E2ETag${runId}D`;
+    const articleId = await createBlankDraftThroughHub();
+
+    await openRoute(
+      `/workstation?id=${encodeURIComponent(articleId)}&manager=tags`,
+      '[data-tag-browser]',
+    );
+    const firstId = await createVisibleTag(articleId, firstName);
+    const secondId = await createVisibleTag(articleId, secondName);
+    const managedTagIds = [firstId, secondId];
+
+    let evidence = null;
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        return evidence.storesReady
+          && evidence.store.tags.length === 2
+          && evidence.persisted.tags.length === 2
+          && evidence.store.docTagIds.length === 2
+          && evidence.persisted.docTagIds.length === 2;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'created tags did not reach both Pinia and IndexedDB relations' },
+    );
+    expect(evidence.store.tags.map(tag => tag.name).sort(), 'live tag store keeps both visible creations')
+      .to.deep.equal([firstName, secondName].sort());
+    expect(evidence.persisted.tags.map(tag => tag.name).sort(), 'IndexedDB keeps both real tag rows')
+      .to.deep.equal([firstName, secondName].sort());
+    expect(evidence.store.articleTags, 'live Article.tags mirrors the authoritative relations')
+      .to.deep.equal([firstName, secondName].sort());
+    expect(evidence.persisted.articleTags, 'persisted Article.tags mirrors the authoritative relations')
+      .to.deep.equal([firstName, secondName].sort());
+
+    await browser.refresh();
+    await (await browser.$('[data-tag-browser]')).waitForDisplayed({ timeout: 30_000 });
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        return evidence.store.docTagIds.length === 2 && evidence.persisted.docTagIds.length === 2;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'tag relations did not survive a real Workstation refresh' },
+    );
+
+    await (await browser.$('[data-tag-filter-mode="OR"]')).click();
+    await (await browser.$(`[data-tag-all-list] [data-tag-select-id="${firstId}"]`)).click();
+    await (await browser.$('[data-tag-filter-apply]')).click();
+    await (await browser.$(`[data-tag-filtered-doc-id="${articleId}"]`)).waitForDisplayed({ timeout: 10_000 });
+
+    await (await browser.$(`[data-tag-all-list] [data-tag-select-id="${secondId}"]`)).click();
+    await (await browser.$('[data-tag-filter-mode="AND"]')).click();
+    await (await browser.$('[data-tag-filter-apply]')).click();
+    await (await browser.$(`[data-tag-filtered-doc-id="${articleId}"]`)).waitForDisplayed({ timeout: 10_000 });
+
+    await openRoute('/', '.hub-page');
+    await browser.waitUntil(
+      async () => browser.execute((expectedNames) => {
+        const renderedNames = Array.from(document.querySelectorAll('.tag-cloud span'))
+          .map(element => element.textContent?.trim() ?? '');
+        return expectedNames.every(name => renderedNames.includes(name));
+      }, [firstName, secondName]),
+      { timeout: 10_000, interval: 100, timeoutMsg: 'Hub tag cloud did not render the two real assigned tags' },
+    );
+
+    await openRoute(
+      `/workstation?id=${encodeURIComponent(articleId)}&manager=tags`,
+      '[data-tag-browser]',
+    );
+    await (await browser.$('[data-tag-manager-open]')).click();
+    await (await browser.$('[data-tag-manager-dialog]')).waitForDisplayed({ timeout: 5_000 });
+    await (await browser.$(`[data-tag-edit-start="${secondId}"]`)).click();
+    let editInput = await browser.$(`[data-tag-edit-input="${secondId}"]`);
+    await editInput.waitForDisplayed({ timeout: 5_000 });
+    await editInput.setValue(renamedSecondName);
+    await (await browser.$(`[data-tag-edit-color="${secondId}"]`)).selectByAttribute('value', '#15803d');
+    await (await browser.$(`[data-tag-edit-save="${secondId}"]`)).click();
+    await browser.waitUntil(
+      async () => browser.execute((tagId) => !document.querySelector(`[data-tag-edit-input="${tagId}"]`), secondId),
+      {
+        timeout: 5_000,
+        interval: 100,
+        timeoutMsg: 'successful tag update did not leave edit mode through its completion callback',
+      },
+    );
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        const live = evidence.store.tags.find(tag => tag.id === secondId);
+        const persisted = evidence.persisted.tags.find(tag => tag.id === secondId);
+        return live?.name === renamedSecondName
+          && live?.color === '#15803d'
+          && persisted?.name === renamedSecondName
+          && persisted?.color === '#15803d'
+          && evidence.store.articleTags.includes(renamedSecondName)
+          && evidence.persisted.articleTags.includes(renamedSecondName);
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'tag rename/color did not repair both article mirrors' },
+    );
+
+    await (await browser.$(`[data-tag-edit-start="${secondId}"]`)).click();
+    editInput = await browser.$(`[data-tag-edit-input="${secondId}"]`);
+    await editInput.waitForDisplayed({ timeout: 5_000 });
+    await editInput.setValue(firstName);
+    await (await browser.$(`[data-tag-edit-save="${secondId}"]`)).click();
+    const duplicateError = await browser.$('[data-tag-manager-error]');
+    await duplicateError.waitForDisplayed({ timeout: 5_000 });
+    expect(await duplicateError.getText(), 'duplicate manager rename surfaces the repository conflict')
+      .to.include(`Tag already exists: ${firstName}`);
+    expect(await editInput.getValue(), 'rejected manager rename keeps the entered value visible').to.equal(firstName);
+    expect(await (await browser.$('[data-tag-manager-dialog]')).isDisplayed(), 'rejected manager rename keeps the dialog open')
+      .to.equal(true);
+    evidence = await readTagPersistence(articleId, managedTagIds);
+    expect(evidence.persisted.tags.find(tag => tag.id === secondId)?.name, 'duplicate rejection keeps the persisted prior name')
+      .to.equal(renamedSecondName);
+
+    await (await browser.$('[aria-label="关闭标签管理"]')).click();
+    const deletedId = await createVisibleTag(articleId, deletedName);
+    managedTagIds.push(deletedId);
+    await (await browser.$('[data-tag-manager-open]')).click();
+    await (await browser.$('[data-tag-manager-dialog]')).waitForDisplayed({ timeout: 5_000 });
+    await (await browser.$(`[data-tag-delete="${deletedId}"]`)).click();
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        return !evidence.store.tags.some(tag => tag.id === deletedId)
+          && !evidence.persisted.tags.some(tag => tag.id === deletedId)
+          && !evidence.store.docTagIds.includes(deletedId)
+          && !evidence.persisted.docTagIds.includes(deletedId)
+          && !evidence.store.articleTags.includes(deletedName)
+          && !evidence.persisted.articleTags.includes(deletedName);
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'manager delete did not remove the tag relation and mirrors' },
+    );
+
+    await (await browser.$('[data-tag-merge-target]')).selectByAttribute('value', firstId);
+    await (await browser.$(`[data-tag-merge-source="${secondId}"]`)).click();
+    const mergeButton = await browser.$('[data-tag-merge-submit]');
+    await mergeButton.waitForClickable({ timeout: 5_000 });
+    await mergeButton.click();
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        const firstLive = evidence.store.tags.find(tag => tag.id === firstId);
+        const firstPersisted = evidence.persisted.tags.find(tag => tag.id === firstId);
+        return firstLive?.docCount === 1
+          && firstPersisted?.docCount === 1
+          && !evidence.store.tags.some(tag => tag.id === secondId)
+          && !evidence.persisted.tags.some(tag => tag.id === secondId)
+          && evidence.store.docTagIds.length === 1
+          && evidence.persisted.docTagIds.length === 1
+          && evidence.store.docTagIds[0] === firstId
+          && evidence.persisted.docTagIds[0] === firstId
+          && JSON.stringify(evidence.store.articleTags) === JSON.stringify([firstName])
+          && JSON.stringify(evidence.persisted.articleTags) === JSON.stringify([firstName]);
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'manager merge did not preserve one authoritative target relation' },
+    );
+
+    await (await browser.$('[aria-label="关闭标签管理"]')).click();
+    const removeFirst = await browser.$(`[data-tag-remove-id="${firstId}"]`);
+    await removeFirst.waitForClickable({ timeout: 5_000 });
+    await removeFirst.click();
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        const firstLive = evidence.store.tags.find(tag => tag.id === firstId);
+        const firstPersisted = evidence.persisted.tags.find(tag => tag.id === firstId);
+        return firstLive?.docCount === 0
+          && firstPersisted?.docCount === 0
+          && evidence.store.docTagIds.length === 0
+          && evidence.persisted.docTagIds.length === 0
+          && evidence.store.articleTags.length === 0
+          && evidence.persisted.articleTags.length === 0;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'visible tag removal did not clear authoritative relation and mirrors' },
+    );
+
+    await (await browser.$('[data-tag-manager-open]')).click();
+    await (await browser.$('[data-tag-manager-dialog]')).waitForDisplayed({ timeout: 5_000 });
+    await (await browser.$('[data-tag-cleanup]')).click();
+    await browser.waitUntil(
+      async () => {
+        evidence = await readTagPersistence(articleId, managedTagIds);
+        return evidence.store.tags.length === 0
+          && evidence.persisted.tags.length === 0
+          && evidence.store.docTagIds.length === 0
+          && evidence.persisted.docTagIds.length === 0;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'orphan cleanup did not remove the final zero-reference tag' },
+    );
+  });
+
+  it('runs category CRUD from Hub through the real Workstation file manager', async function () {
+    this.timeout(180_000);
+    const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const categoryName = `E2E-${runId}`;
+    const duplicateCategoryName = `  ${categoryName.toUpperCase()}  `;
+    const renamedCategoryName = `E2E-renamed-${runId}`;
+
+    await openRoute('/', '.hub-page');
+    const addCategory = await browser.$('[data-hub-category-add]');
+    await addCategory.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await addCategory.waitForClickable({ timeout: 5_000 });
+    await addCategory.click();
+
+    const createDialog = await browser.$('[data-category-create-dialog]');
+    await createDialog.waitForDisplayed({ timeout: 5_000 });
+    const categoryNameInput = await browser.$('[data-category-name-input]');
+    await categoryNameInput.waitForDisplayed({ timeout: 5_000 });
+    await categoryNameInput.setValue(categoryName);
+    await (await browser.$('[data-category-create-confirm]')).click();
+
+    let categoryId = null;
+    await browser.waitUntil(
+      async () => {
+        categoryId = await browser.execute((expectedName) => {
+          const root = document.getElementById('app');
+          const provides = root?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          return pinia?._s.get('category')?.categories
+            .find((category) => category.name === expectedName)?.id ?? null;
+        }, categoryName);
+        return typeof categoryId === 'string' && categoryId.length > 0;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'Hub category creation did not reach the production category store' },
+    );
+    createdCategoryIds.add(categoryId);
+    await createDialog.waitForDisplayed({ timeout: 5_000, reverse: true });
+
+    let createdRelation = null;
+    await browser.waitUntil(
+      async () => {
+        createdRelation = await readCategoryRelation(categoryId);
+        return createdRelation.storesReady
+          && createdRelation.store.category?.id === categoryId
+          && createdRelation.persisted.category?.id === categoryId;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'Hub category creation did not persist to IndexedDB' },
+    );
+    expect(createdRelation.store.category, 'Hub creates the category through the live Pinia store')
+      .to.deep.equal({ id: categoryId, name: categoryName });
+    expect(createdRelation.persisted.category, 'Hub category creation reaches the real IndexedDB record')
+      .to.deep.equal({ id: categoryId, name: categoryName });
+
+    await addCategory.click();
+    const duplicateDialog = await browser.$('[data-category-create-dialog]');
+    await duplicateDialog.waitForDisplayed({ timeout: 5_000 });
+    const duplicateCategoryNameInput = await browser.$('[data-category-name-input]');
+    await duplicateCategoryNameInput.waitForDisplayed({ timeout: 5_000 });
+    await duplicateCategoryNameInput.setValue(duplicateCategoryName);
+    await (await browser.$('[data-category-create-confirm]')).click();
+    const duplicateError = await browser.$('[data-category-create-error]');
+    await duplicateError.waitForDisplayed({ timeout: 5_000 });
+    expect(await duplicateError.getText(), 'normalized duplicate category names are rejected').to.equal('分类名称已存在');
+    expect(await duplicateCategoryNameInput.getValue(), 'the rejected category modal retains its entered value')
+      .to.equal(duplicateCategoryName);
+    expect(await duplicateDialog.isDisplayed(), 'the rejected category modal stays open').to.equal(true);
+    await (await browser.$('[data-category-create-close]')).click();
+    await duplicateDialog.waitForDisplayed({ timeout: 5_000, reverse: true });
+
+    const manageCategories = await browser.$('[data-hub-category-manage]');
+    await manageCategories.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await manageCategories.waitForClickable({ timeout: 5_000 });
+    await manageCategories.click();
+    await browser.waitUntil(
+      async () => browser.execute(() => (
+        location.pathname === '/workstation'
+        && new window.URLSearchParams(location.search).get('manager') === 'files'
+      )),
+      {
+        timeout: 10_000,
+        interval: 200,
+        timeoutMsg: 'Hub category-management route boundary did not reach /workstation?manager=files',
+      },
+    );
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('.fm-root')?.getClientRects().length)),
+      {
+        timeout: 30_000,
+        interval: 200,
+        timeoutMsg: 'Workstation hydration boundary did not render a visible FileManager (.fm-root) within 30s',
+      },
+    );
+    await browser.waitUntil(
+      async () => {
+        const relation = await readCategoryRelation(categoryId);
+        return relation.store.category?.id === categoryId && relation.persisted.category?.id === categoryId;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'FileManager did not load the persisted Hub category into Pinia' },
+    );
+    const treeViewTab = await browser.$('[role="tab"][title="树形视图"]');
+    await treeViewTab.waitForClickable({ timeout: 5_000 });
+    if ((await treeViewTab.getAttribute('aria-selected')) !== 'true') await treeViewTab.click();
+
+    const articleIdsBefore = await browser.execute((targetCategoryId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      return pinia?._s.get('article')?.articles
+        .filter((article) => article.categoryId === targetCategoryId)
+        .map((article) => article.id) ?? [];
+    }, categoryId);
+    await openCategoryContextMenu(categoryId);
+    await (await browser.$('[data-category-action="new-article"]')).click();
+
+    let articleId = null;
+    await browser.waitUntil(
+      async () => {
+        articleId = await browser.execute((targetCategoryId, priorArticleIds) => {
+          const root = document.getElementById('app');
+          const provides = root?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          const articleStore = pinia?._s.get('article');
+          return articleStore?.articles.find((article) => (
+            article.categoryId === targetCategoryId && !priorArticleIds.includes(article.id)
+          ))?.id ?? null;
+        }, categoryId, articleIdsBefore);
+        return typeof articleId === 'string' && articleId.length > 0;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'the FileManager context menu did not create a category article' },
+    );
+    createdArticleIds.add(articleId);
+
+    let categoryArticleRelation = null;
+    await browser.waitUntil(
+      async () => {
+        categoryArticleRelation = await readCategoryRelation(categoryId, articleId);
+        return categoryArticleRelation.storesReady
+          && categoryArticleRelation.store.article?.categoryId === categoryId
+          && categoryArticleRelation.persisted.article?.categoryId === categoryId;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'new FileManager article did not persist its category relation' },
+    );
+    expect(categoryArticleRelation.store.article, 'the live article store keeps the FileManager category id')
+      .to.deep.equal({ id: articleId, categoryId });
+    expect(categoryArticleRelation.persisted.article, 'the IndexedDB article record keeps the FileManager category id')
+      .to.deep.equal({ id: articleId, categoryId });
+
+    await openCategoryContextMenu(categoryId);
+    await (await browser.$('[data-category-action="rename"]')).click();
+    const renameInput = await browser.$('[data-category-rename-input]');
+    await renameInput.waitForDisplayed({ timeout: 5_000 });
+    await renameInput.click();
+    await browser.waitUntil(
+      async () => browser.execute(() => document.activeElement?.matches('[data-category-rename-input]') === true),
+      { timeout: 2_000, interval: 50, timeoutMsg: 'category rename input did not receive real keyboard focus' },
+    );
+    await browser.keys(['Control', 'a']);
+    await browser.keys(renamedCategoryName);
+    expect(await renameInput.getValue(), 'the real rename input receives the replacement category name')
+      .to.equal(renamedCategoryName);
+    await browser.keys('Enter');
+
+    let renamedRelation = null;
+    await browser.waitUntil(
+      async () => {
+        renamedRelation = await readCategoryRelation(categoryId, articleId);
+        return renamedRelation.store.category?.name === renamedCategoryName
+          && renamedRelation.persisted.category?.name === renamedCategoryName
+          && renamedRelation.store.article?.categoryId === categoryId
+          && renamedRelation.persisted.article?.categoryId === categoryId;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'category rename did not preserve its article relation id' },
+    );
+    expect(renamedRelation.store.category?.id, 'rename keeps the live category identifier stable').to.equal(categoryId);
+    expect(renamedRelation.persisted.category?.id, 'rename keeps the persisted category identifier stable').to.equal(categoryId);
+    await browser.waitUntil(
+      async () => browser.execute(() => (
+        document.querySelector('[data-category-action-status]')?.getAttribute('data-tone') === 'success'
+      )),
+      { timeout: 5_000, interval: 100, timeoutMsg: 'category rename did not expose its production success status' },
+    );
+
+    await openRoute('/', '.hub-page');
+    const categoryCard = await browser.$(`[data-hub-category-id="${categoryId}"]`);
+    if (await categoryCard.isExisting() && await categoryCard.isDisplayed()) {
+      await categoryCard.click();
+    } else {
+      const categoryFilter = await browser.$('.filter-category-wrapper .filter-tab');
+      await categoryFilter.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await categoryFilter.waitForClickable({ timeout: 5_000 });
+      await categoryFilter.click();
+      let categoryOption = null;
+      await browser.waitUntil(
+        async () => {
+          const categoryOptions = await browser.$$('.category-option');
+          categoryOption = null;
+          for (const option of categoryOptions) {
+            if ((await option.getText()).trim() === renamedCategoryName) {
+              categoryOption = option;
+              break;
+            }
+          }
+          return categoryOption !== null;
+        },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Hub category filter did not render the renamed category' },
+      );
+      await categoryOption.click();
+    }
+    const filteredArticle = await browser.$(`[data-hub-article-id="${articleId}"]`);
+    await filteredArticle.waitForDisplayed({ timeout: 10_000 });
+
+    await openRoute('/workstation?manager=files', '.fm-root');
+    await openCategoryContextMenu(categoryId);
+    await (await browser.$('[data-category-action="delete"]')).click();
+    const deleteConfirmation = await browser.$('[data-category-delete-confirm]');
+    await deleteConfirmation.waitForDisplayed({ timeout: 5_000 });
+    await (await browser.$('[data-category-delete-submit]')).click();
+
+    let deletedRelation = null;
+    await browser.waitUntil(
+      async () => {
+        deletedRelation = await readCategoryRelation(categoryId, articleId);
+        return deletedRelation.storesReady
+          && deletedRelation.store.category === null
+          && deletedRelation.persisted.category === null
+          && deletedRelation.store.article?.categoryId === null
+          && deletedRelation.persisted.article?.categoryId === null;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'deleting a category did not migrate its article to categoryId=null' },
+    );
+    expect(deletedRelation.store.article, 'category deletion updates the live article relation').to.deep.equal({ id: articleId, categoryId: null });
+    expect(deletedRelation.persisted.article, 'category deletion persists the migrated article relation').to.deep.equal({ id: articleId, categoryId: null });
+
+    await browser.refresh();
+    await browser.waitUntil(
+      async () => browser.execute(() => Boolean(document.querySelector('.fm-root')?.getClientRects().length)),
+      {
+        timeout: 30_000,
+        interval: 200,
+        timeoutMsg: 'Workstation refresh hydration boundary did not render a visible FileManager (.fm-root) within 30s',
+      },
+    );
+    let reloadedRelation = null;
+    await browser.waitUntil(
+      async () => {
+        reloadedRelation = await readCategoryRelation(categoryId, articleId);
+        return reloadedRelation.storesReady
+          && reloadedRelation.store.category === null
+          && reloadedRelation.persisted.category === null
+          && reloadedRelation.store.article?.categoryId === null
+          && reloadedRelation.persisted.article?.categoryId === null;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'category deletion migration did not survive refresh' },
+    );
+    expect(reloadedRelation.store.article, 'the reloaded Pinia article keeps categoryId=null').to.deep.equal({ id: articleId, categoryId: null });
+    expect(reloadedRelation.persisted.article, 'the reloaded IndexedDB article keeps categoryId=null').to.deep.equal({ id: articleId, categoryId: null });
   });
 
   // Import intentionally creates a durable rollback audit row, so keep this in the disposable final session slot.

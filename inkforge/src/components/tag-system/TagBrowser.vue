@@ -25,6 +25,19 @@ const currentDocTags = computed(() => {
 const suggestions = computed(() => tagStore.suggestions(localSearch.value, currentDocTags.value.map(tag => tag.id)))
 const selectedTagSet = computed(() => new Set(tagStore.selectedTagIds))
 
+async function runTagAction(
+  action: () => Promise<string | null>,
+  complete?: () => void,
+): Promise<void> {
+  actionMessage.value = null
+  try {
+    actionMessage.value = await action()
+    complete?.()
+  } catch {
+    return
+  }
+}
+
 async function refreshSelectedDocTags(): Promise<void> {
   if (!selectedArticleId.value) return
   await tagStore.getDocTags(selectedArticleId.value)
@@ -39,75 +52,109 @@ async function initializeTags(): Promise<void> {
   await refreshSelectedDocTags()
 }
 
-async function handleCreateTag(name: string, color: string): Promise<void> {
-  if (!selectedArticleId.value) return
-  const tag = await tagStore.createTag({ name, color })
-  await tagStore.addTagToDoc(selectedArticleId.value, tag.id)
-  await refreshArticles()
-  actionMessage.value = `已创建并添加标签：${tag.name}`
+async function handleCreateTag(name: string, color: string, complete: () => void): Promise<void> {
+  const docId = selectedArticleId.value
+  if (!docId) return
+  await runTagAction(async () => {
+    const tag = await tagStore.createTag({ name, color })
+    await tagStore.addTagToDoc(docId, tag.id)
+    await refreshArticles()
+    return `已创建并添加标签：${tag.name}`
+  }, complete)
 }
 
-async function handleAddTag(tag: Tag): Promise<void> {
-  if (!selectedArticleId.value) return
-  await tagStore.addTagToDoc(selectedArticleId.value, tag.id)
-  await refreshArticles()
-  actionMessage.value = `已添加标签：${tag.name}`
+async function handleAddTag(tag: Tag, complete: () => void): Promise<void> {
+  const docId = selectedArticleId.value
+  if (!docId) return
+  await runTagAction(async () => {
+    await tagStore.addTagToDoc(docId, tag.id)
+    await refreshArticles()
+    return `已添加标签：${tag.name}`
+  }, complete)
 }
 
 async function handleRemoveTag(tag: Tag): Promise<void> {
-  if (!selectedArticleId.value) return
-  await tagStore.removeTagFromDoc(selectedArticleId.value, tag.id)
-  await refreshArticles()
-  actionMessage.value = `已移除标签：${tag.name}`
+  const docId = selectedArticleId.value
+  if (!docId) return
+  await runTagAction(async () => {
+    await tagStore.removeTagFromDoc(docId, tag.id)
+    await refreshArticles()
+    return `已移除标签：${tag.name}`
+  })
 }
 
 async function handleFilter(): Promise<void> {
-  await tagStore.filterDocumentsBySelection()
+  await runTagAction(async () => {
+    const documents = await tagStore.filterDocumentsBySelection()
+    return `已找到 ${documents.length} 篇文稿`
+  })
 }
 
 async function handleSelectDocument(id: string): Promise<void> {
-  articleStore.selectArticle(id)
-  await refreshSelectedDocTags()
+  await runTagAction(async () => {
+    articleStore.selectArticle(id)
+    await refreshSelectedDocTags()
+    return null
+  })
 }
 
-async function handleManagerUpdate(id: string, patch: { name?: string; color?: string }): Promise<void> {
-  await tagStore.updateTag(id, patch)
-  await refreshSelectedDocTags()
-  await refreshArticles()
-  actionMessage.value = '标签已更新'
+async function handleManagerUpdate(
+  id: string,
+  patch: { name?: string; color?: string },
+  complete: () => void,
+): Promise<void> {
+  await runTagAction(async () => {
+    await tagStore.updateTag(id, patch)
+    await refreshSelectedDocTags()
+    await refreshArticles()
+    return '标签已更新'
+  }, complete)
 }
 
 async function handleManagerDelete(id: string): Promise<void> {
-  await tagStore.deleteTag(id)
-  await refreshSelectedDocTags()
-  await refreshArticles()
-  actionMessage.value = '标签已删除'
+  await runTagAction(async () => {
+    await tagStore.deleteTag(id)
+    await refreshSelectedDocTags()
+    await refreshArticles()
+    return '标签已删除'
+  })
 }
 
-async function handleManagerMerge(targetId: string, sourceIds: string[]): Promise<void> {
-  await tagStore.mergeTags({ targetId, sourceIds })
-  await refreshSelectedDocTags()
-  await refreshArticles()
-  await handleFilter()
-  actionMessage.value = '标签已合并'
+async function handleManagerMerge(
+  targetId: string,
+  sourceIds: string[],
+  complete: () => void,
+): Promise<void> {
+  await runTagAction(async () => {
+    await tagStore.mergeTags({ targetId, sourceIds })
+    await refreshSelectedDocTags()
+    await refreshArticles()
+    await tagStore.filterDocumentsBySelection()
+    return '标签已合并'
+  }, complete)
 }
 
 async function handleCleanup(): Promise<void> {
-  const count = await tagStore.cleanupOrphans()
-  actionMessage.value = `已清理 ${count} 个孤立标签`
+  await runTagAction(async () => {
+    const count = await tagStore.cleanupOrphans()
+    return `已清理 ${count} 个孤立标签`
+  })
 }
 
 onMounted(() => {
-  void initializeTags()
+  void initializeTags().catch(() => undefined)
 })
 
 watch(selectedArticleId, () => {
-  void refreshSelectedDocTags()
+  void refreshSelectedDocTags().catch(() => undefined)
 })
 </script>
 
 <template>
-  <section class="tag-browser-panel">
+  <section
+    class="tag-browser-panel"
+    data-tag-browser
+  >
     <header class="tag-browser-head">
       <div>
         <p>标签系统</p>
@@ -116,6 +163,7 @@ watch(selectedArticleId, () => {
       <button
         type="button"
         class="manager-button"
+        data-tag-manager-open
         @click="showManager = true"
       >
         <Settings :size="15" />
@@ -126,12 +174,16 @@ watch(selectedArticleId, () => {
     <div
       v-if="tagStore.error"
       class="tag-error"
+      role="alert"
+      data-tag-error
     >
       {{ tagStore.error }}
     </div>
     <div
       v-else-if="actionMessage"
       class="tag-success"
+      role="status"
+      data-tag-success
     >
       {{ actionMessage }}
     </div>
@@ -164,7 +216,10 @@ watch(selectedArticleId, () => {
         placeholder="筛选标签"
         @input="tagStore.setSearchQuery(($event.target as HTMLInputElement).value)"
       >
-      <div class="tag-list">
+      <div
+        class="tag-list"
+        data-tag-all-list
+      >
         <TagBadge
           v-for="tag in tagStore.visibleTags"
           :key="tag.id"
@@ -190,6 +245,7 @@ watch(selectedArticleId, () => {
         <button
           type="button"
           :class="{ active: tagStore.filterMode === 'OR' }"
+          data-tag-filter-mode="OR"
           @click="tagStore.setFilterMode('OR')"
         >
           任一
@@ -197,6 +253,7 @@ watch(selectedArticleId, () => {
         <button
           type="button"
           :class="{ active: tagStore.filterMode === 'AND' }"
+          data-tag-filter-mode="AND"
           @click="tagStore.setFilterMode('AND')"
         >
           全部
@@ -204,6 +261,7 @@ watch(selectedArticleId, () => {
         <button
           type="button"
           :disabled="tagStore.selectedTagIds.length === 0 || tagStore.isLoading"
+          data-tag-filter-apply
           @click="handleFilter"
         >
           应用
@@ -220,6 +278,7 @@ watch(selectedArticleId, () => {
           v-for="doc in tagStore.filteredDocuments"
           :key="doc.id"
           type="button"
+          :data-tag-filtered-doc-id="doc.id"
           @click="handleSelectDocument(doc.id)"
         >
           <span>{{ doc.title }}</span>
@@ -238,6 +297,7 @@ watch(selectedArticleId, () => {
       :open="showManager"
       :tags="tagStore.tags"
       :busy="tagStore.isSaving"
+      :error="tagStore.error"
       @close="showManager = false"
       @update="handleManagerUpdate"
       @delete="handleManagerDelete"

@@ -20,32 +20,40 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <button
-    type="button"
+  <span
     class="tag-badge"
     :class="{ selected: props.selected, muted: props.muted, removable: props.removable }"
     :style="{ '--tag-color': props.tag.color }"
-    @click="emit('select', props.tag)"
+    :data-tag-id="props.tag.id"
   >
-    <span class="tag-dot" />
-    <span class="tag-name">{{ props.tag.name }}</span>
-    <span
-      v-if="props.tag.docCount >= 0"
-      class="tag-count"
-    >{{ props.tag.docCount }}</span>
-    <span
-      v-if="props.removable"
-      class="tag-remove"
-      role="button"
-      tabindex="0"
-      :aria-label="`Remove ${props.tag.name}`"
-      @click.stop="emit('remove', props.tag)"
-      @keydown.enter.stop.prevent="emit('remove', props.tag)"
-      @keydown.space.stop.prevent="emit('remove', props.tag)"
+    <button
+      type="button"
+      class="tag-select"
+      :aria-pressed="props.selected"
+      :data-tag-select-id="props.tag.id"
+      @click="emit('select', props.tag)"
     >
-      <X :size="12" />
-    </span>
-  </button>
+      <span class="tag-dot" />
+      <span class="tag-name">{{ props.tag.name }}</span>
+      <span
+        v-if="props.tag.docCount >= 0"
+        class="tag-count"
+      >{{ props.tag.docCount }}</span>
+    </button>
+    <button
+      v-if="props.removable"
+      type="button"
+      class="tag-remove"
+      :aria-label="`移除标签 ${props.tag.name}`"
+      :data-tag-remove-id="props.tag.id"
+      @click="emit('remove', props.tag)"
+    >
+      <X
+        :size="12"
+        aria-hidden="true"
+      />
+    </button>
+  </span>
 </template>
 
 <style scoped>
@@ -59,11 +67,7 @@ const emit = defineEmits<{
   border-radius: 999px;
   background: color-mix(in srgb, var(--tag-color) 9%, #ffffff);
   color: #24323b;
-  padding: 5px 8px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
+  padding: 0;
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
 
@@ -76,6 +80,26 @@ const emit = defineEmits<{
 
 .tag-badge.muted {
   opacity: 0.72;
+}
+
+.tag-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tag-badge.removable .tag-select {
+  padding-right: 2px;
 }
 
 .tag-dot {
@@ -103,8 +127,13 @@ const emit = defineEmits<{
   justify-content: center;
   width: 16px;
   height: 16px;
+  margin-right: 4px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
+  background: transparent;
   color: #607d8b;
+  cursor: pointer;
 }
 
 .tag-remove:hover {

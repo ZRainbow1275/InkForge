@@ -804,6 +804,7 @@ async function initializeLayoutPersistence(): Promise<void> {
       error: error instanceof Error ? error.message : String(error),
     })
   }
+  applyRequestedManagerTab()
 }
 
 function setSplitViewRatio(nextRatio: number): void {
@@ -1078,7 +1079,24 @@ function toggleTypewriterMode(): void {
 
 // 鈹€鈹€鈹€ 宸︽爮 Tab 鈹€鈹€鈹€
 type ManagerTab = 'files' | 'versions' | 'outline' | 'tags' | 'ai'
+const MANAGER_TABS: readonly ManagerTab[] = ['files', 'versions', 'outline', 'tags', 'ai']
 const managerTab = ref<ManagerTab>('files')
+
+function applyRequestedManagerTab(): void {
+  const rawManager = route.query.manager
+  const normalizedManager = Array.isArray(rawManager) ? rawManager[0] : rawManager
+  if (typeof normalizedManager !== 'string' || !MANAGER_TABS.includes(normalizedManager as ManagerTab)) {
+    return
+  }
+  managerTab.value = normalizedManager as ManagerTab
+  managerCollapsed.value = false
+}
+
+watch(
+  () => route.query.manager,
+  () => applyRequestedManagerTab(),
+  { immediate: true },
+)
 
 // 鈹€鈹€鈹€ 鍙虫爮 Tab 鈹€鈹€鈹€锛堝凡鏀逛负婊氬姩寮?section锛屼笉鍐嶉渶瑕?tab 鍒囨崲锛?
 
@@ -2381,6 +2399,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <button
                 class="panel-tab"
                 :class="{ active: managerTab === 'files' }"
+                data-manager-tab="files"
                 @click="managerTab = 'files'"
               >
                 <svg
@@ -2481,6 +2500,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <button
                 class="panel-tab"
                 :class="{ active: managerTab === 'tags' }"
+                data-manager-tab="tags"
                 @click="managerTab = 'tags'"
               >
                 <svg
