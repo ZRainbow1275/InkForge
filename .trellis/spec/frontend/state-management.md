@@ -1280,22 +1280,37 @@ if (!detection.supported) {
 - Store: useWorkstationTabsStore() exposes orderedTabs, activeTabId, recentlyClosed, openOrRefreshTab(), activateTab(), closeTab(), restoreRecentlyClosed(), togglePinnedTab(), reorderTab(), cycleActiveTab(), and activateTabAtShortcutIndex().
 - Persistence: session scope only through sessionStorage key inkforge.workstation.tabs.v1. Do not write Dexie schema changes for this baseline.
 - Tab identity: WorkstationTab.id and articleId must both be the real Article.id.
-- UI boundary: WorkstationTabBar receives tabs from the store plus active-tab save state from editorStatus. Inactive tabs are clean unless a future durable dirty-state store proves otherwise.
+- UI boundary: WorkstationTabBar receives tabs from the store plus the active tab's save state derived from `editorStatus` and the EditorPanel sync state. Inactive tabs are clean because no per-tab dirty ledger exists; the active tab is `pending` until hydration and durable-save truth allow `clean`.
+- Mount boundary: WorkstationView must render the production WorkstationTabBar whenever orderedTabs is non-empty. Do not leave the component/store implemented but disconnected from the route shell.
 
 ### 3. Contracts
 - Opening or selecting a document must create or refresh a tab from a real article id/title; never seed sample tabs or placeholder documents.
-- Switching a tab must select the real article through articleStore.selectArticle() and synchronize /workstation?id=<articleId>.
+- Switching a tab is a transaction: flush the current EditorPanel, complete `/workstation?id=<articleId>` navigation, and only then activate/select the target real article. A rejected/failed router transition must preserve the previous route, selected article, active tab, editor body, and session payload.
+- FileManager, TagBrowser, and future Workstation child selectors must receive the same async selection request from WorkstationView. They must not select an article directly through Pinia, because route, flush, tab, and error ownership belongs to the route transaction.
+- Query-only Workstation article changes must not remount `WorkstationView`; the route shell key is stable for `/workstation` while route/query watchers perform the transaction.
+- Async editor-store loads must carry a monotonically increasing selection generation. A stale repository read/create/snapshot completion may persist its own valid record, but must never replace `currentContent`, status, or the currently selected article.
+- EditorPanel must expose `clean` only after the selected content has been rendered into the production editor and the hydration generation still matches. Pending flushes must await the matching hydration promise; unmount, loading, article switch, or a newer hydration invalidates the older generation.
+- A scheduled EditorPanel save is an immutable identity/revision request. Before and after the queued store write, content id and article id must still match. Persistence echoes for the same document must not rehydrate the editor while a newer local revision is pending; only the newest completed revision may restore `synced`.
 - An explicit `/workstation?id=<articleId>` target is authoritative over both sessionStorage and IndexedDB layout restore. Async layout hydration may restore the remaining tab/layout metadata, but it must reopen and activate the route article instead of replacing the route with a previously active tab.
+- A persisted layout or Profile switch that proposes a different active article must use the same Workstation flush/navigate/commit transaction as an explicit tab selection. Resolve/filter the layout plan without mutation, flush and obtain router acceptance, then apply layout/tab/article state. Rejection must preserve the source route, selected article, active tab, editor body, session payload, and current layout state.
 - Hub, Drafts, Command Palette, and template creation flows must land on the exact article id they just created. A persisted active tab must never redirect a newly created blank or template draft to an older document.
-- Closing the active tab must activate a remaining real tab or return to Hub when no tabs remain.
+- Closing the active tab must flush first, complete navigation to a remaining real tab (or Hub when none remain), and only then mutate the tab/session store. Rejected navigation leaves the tab and recently-closed queue unchanged.
 - Pinned tabs stay before regular tabs; drag reorder may change order inside a group but must not move regular tabs into the pinned group.
 - Ctrl+Tab, Ctrl+Shift+Tab, Ctrl+1..9, Ctrl+W, and Ctrl+Shift+T are Workstation-level shortcuts and must prevent browser defaults only after a matching tab action is available.
-- Active tab saving/error affordances are derived from editorStatus; do not invent dirty state. Saving close requests wait until editorStatus leaves saving; error closes require explicit confirmation.
+- The ARIA tab itself, pin control, and close control are separate native sibling buttons inside a non-interactive draggable wrapper. The tab button owns ArrowLeft/ArrowRight/Home/End/Delete/Backspace; pin/close buttons retain native Enter/Space activation without invalid nested interactive markup or parent cancellation.
+- Active-tab save affordances use `clean | saving | pending | error`. `clean` requires both ready editor status and synchronized EditorPanel state; loading, hydration, offline, or unsaved content is `pending`. Do not invent per-inactive-tab dirty state.
 - Recently closed tabs are session-scoped and must be discarded if the backing article no longer exists.
 
 ### 4. Validation & Error Matrix
 - Route /workstation?id=A with loaded article A -> tab A opens, becomes active, and editor loads A.
 - Route /workstation?id=B while persisted layout active tab is A -> layout fields restore, tab B is reopened/active, route remains B, and editor content belongs to B.
+- Router guard rejects A -> B -> route, selected article, active tab, editor content, and session payload all remain A.
+- Router guard rejects closing active B -> B remains active/open and the recently-closed queue is unchanged.
+- Router guard rejects restoring B -> B remains in the recently-closed queue and the current tab/session stay unchanged.
+- Profile/layout watcher proposes persisted B while source A is saving and a router guard rejects B -> A is flushed durably, exactly one guarded navigation occurs, and route/article/editor/tab/session/layout truth remains A.
+- Rapid A -> B -> A repository completion inversion -> only the final A generation may set `currentContent`/ready state; B cannot overwrite A after its delayed read resolves.
+- Type revision A1, hold its real IndexedDB write transaction, type A2 before A1 returns, then release -> A1 may become durable, but the visible editor and final reload must retain A2; neither revision may leak into B.
+- Select B from FileManager or a filtered TagBrowser result while A has pending text -> A is flushed before navigation, B retains its own persisted body, and the source marker is absent from B.
 - Hub creates a blank draft B while persisted layout active tab is A -> B remains selected, B starts with its real empty body, and A is not substituted during async layout initialization.
 - FileManager selects B while in Workstation -> tab B opens/refreshes and route query id becomes B.
 - Close active B with remaining A -> active id falls back to A and route query follows A.
@@ -1305,7 +1320,7 @@ if (!detection.supported) {
 - Corrupt sessionStorage payload -> store clears it and boots with no fake tabs.
 
 ### 5. Good/Base/Bad Cases
-- Good: Create a real draft from Hub, open Workstation, see one tab with that draft title, pin it, open another real article, switch with Ctrl+Tab, close and restore with Ctrl+Shift+T.
+- Good: Create a real draft from Hub, open Workstation, see one tab with that draft title, pin it, open another real article, switch with Ctrl+Tab, close and restore with Ctrl+Shift+T, then reload and read both decrypted markers through the production editor.
 - Base: Enter Workstation without an id but with a valid session active tab; the route is restored to that real article id.
 - Bad: Creating demo tabs on empty state, persisting tab sessions to Dexie in this baseline, or showing a dirty dot without a real dirty-state source.
 
@@ -1315,6 +1330,11 @@ if (!detection.supported) {
 - Run pnpm lint and document pre-existing warnings separately from new errors.
 - Browser smoke-test a real local draft opened from Hub to Workstation and verify the TabBar renders from real article state.
 - Browser smoke must preload or retain an older active layout tab, create a second real draft through the visible Hub control, and prove route id, selected article id, editor content article id, and empty/template body all remain tied to the newly created draft after layout initialization settles.
+- The native Tauri case must use real Vue Router guards to reject select/close/restore transitions and prove no store/session/editor mutation; history replacement or direct Pinia mutation is not route-failure evidence.
+- Encrypted IndexedDB content proof must validate the stored envelope structurally, then reload and assert readable markers through the production article/editor path. Tests must not search ciphertext for plaintext or decrypt records through a test-only helper.
+- The full-file Tauri replay must tolerate a retained baseline tab: assert relative pinned/regular order rather than assuming an empty tab list, derive Ctrl+1..9 from current DOM order, and remove only test-created tabs through Ctrl+W before subsequent stateful cases run.
+- Same-document revision ordering must use a real IndexedDB transaction barrier and native editor input, not a repository stub. Settings route tests must wait for the out-in view transition to settle before clicking the active tab content.
+- Persisted-layout rejection proof must create the isolated layout row through `layoutPersistenceStore.save()`, trigger the production Profile/layout watcher, compare the complete pre/post route/store/DOM/session projection, and remove the fixture through the production layout service. Direct `articleStore.selectArticle()` is not acceptance evidence.
 ## Scenario: BlockDragHandle Editor Transaction State
 
 ### 1. Scope / Trigger
@@ -1428,6 +1448,7 @@ await articleStore.loadArticles()
 - `layoutStates.openTabs`, `tabOrder`, `activeTabId`, and `activeArticleId` are the IndexedDB-backed session restore snapshot for Workstation. Do not add a parallel `session_state` table unless the layout persistence architecture is intentionally replaced.
 - Restore must validate persisted article ids against real `articleStore.articles` before hydrating tabs. Missing or deleted article ids are filtered; no blank or fake document may be created.
 - Session restore may select an active article, but it must not write, replace, or repair article body content. Article content remains owned by article/editor/autosave/crash-recovery flows.
+- Session restore may select that article only after the Workstation transition transaction flushes the current source and router navigation succeeds. Layout/tab mutation must be deferred until that commit point; router rejection leaves the prior in-memory and durable layout projection active.
 - Pinia state is a memory/UI cache. IndexedDB is the durable snapshot. `sessionStorage` remains a short-lived fallback for tab interactions and must stay schema-validated.
 - Routine changes use debounced layout saves. Final best-effort persistence must flush on `pagehide` and hidden `visibilitychange`; `beforeunload` cannot be the only trigger for async IndexedDB work.
 

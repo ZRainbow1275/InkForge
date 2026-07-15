@@ -126,8 +126,15 @@ export const useEditorStore = defineStore('editor', () => {
         await articleStore.updateArticle(articleId, articleUpdates)
     }
 
+    let contentLoadSequence = 0
+
+    function isCurrentContentLoad(articleId: string | null, loadSequence: number): boolean {
+        return loadSequence === contentLoadSequence && articleStore.selectedArticleId === articleId
+    }
+
     // 鐩戝惉閫変腑鐨勮祫璁紝鍔犺浇鎴栧垱寤虹紪杈戝唴瀹?
     watch(() => articleStore.selectedArticleId, async (articleId: string | null) => {
+        const loadSequence = ++contentLoadSequence
         if (!articleId) {
             setStatus('idle')
             currentContent.value = null
@@ -138,6 +145,7 @@ export const useEditorStore = defineStore('editor', () => {
         try {
             // 灏濊瘯鍔犺浇宸叉湁鍐呭
             const existing = await contentRepository.findByArticleId(articleId)
+            if (!isCurrentContentLoad(articleId, loadSequence)) return
 
             if (existing) {
                 // 杩愯鏃舵牎楠? 纭繚 DB 鏁版嵁绗﹀悎 Schema (闃茶厫灞?
@@ -147,38 +155,43 @@ export const useEditorStore = defineStore('editor', () => {
 
                     if (normalized !== parsed) {
                         await contentRepository.update(normalized.id, normalized)
+                        if (!isCurrentContentLoad(articleId, loadSequence)) return
                     }
 
                     currentContent.value = normalized;
                     await syncArticleSnapshot(articleId, normalized)
+                    if (!isCurrentContentLoad(articleId, loadSequence)) return
                     setStatus('ready')
                 } catch (validationError) {
+                    if (!isCurrentContentLoad(articleId, loadSequence)) return
                     logger.error('Content integrity validation failed', validationError);
                     setStatus('error', 'Unable to initialize editor state');
                     return; // 鏍￠獙澶辫触鍚庡繀椤昏繑鍥烇紝閬垮厤缁х画鎵ц
                 }
             } else {
                 // 鍒涘缓鏂扮殑缂栬緫鍐呭
-                const article = articleStore.selectedArticle
+                const article = articleStore.articles.find(candidate => candidate.id === articleId)
                 if (article) {
                     await createContent(
                         article.id,
                         article.title,
                         article.rawContent || article.description,
+                        loadSequence,
                     )
-                } else {
+                } else if (isCurrentContentLoad(articleId, loadSequence)) {
                     setStatus('error', "鏃犳硶鎵惧埌瀵瑰簲鐨勬枃绔犲厓鏁版嵁")
                 }
             }
         } catch (err) {
+            if (!isCurrentContentLoad(articleId, loadSequence)) return
             const msg = err instanceof AppError ? err.toUserMessage() : '鍔犺浇鍐呭澶辫触'
             logger.error('鍔犺浇缂栬緫鍐呭澶辫触', err, { articleId })
             setStatus('error', msg)
         }
-    }, { immediate: true })
+    }, { immediate: true, flush: 'sync' })
 
     // 鍒涘缓鏂扮殑缂栬緫鍐呭
-    async function createContent(articleId: string, title: string, body: string) {
+    async function createContent(articleId: string, title: string, body: string, loadSequence?: number) {
         try {
             const now = new Date();
             const normalizedBody = normalizeMarkdownBody(body)
@@ -212,13 +225,21 @@ export const useEditorStore = defineStore('editor', () => {
             const validatedContent = EditedContentSchema.parse(content);
 
             await contentRepository.create(validatedContent)
+            if (loadSequence !== undefined && !isCurrentContentLoad(articleId, loadSequence)) {
+                return validatedContent
+            }
             currentContent.value = validatedContent
             await syncArticleSnapshot(articleId, validatedContent)
+            if (loadSequence !== undefined && !isCurrentContentLoad(articleId, loadSequence)) {
+                return validatedContent
+            }
             setStatus('ready')
             return validatedContent
         } catch (e) {
             logger.error('鍒涘缓鍐呭澶辫触', e);
-            setStatus('error', 'Unable to initialize editor state');
+            if (loadSequence === undefined || isCurrentContentLoad(articleId, loadSequence)) {
+                setStatus('error', 'Unable to initialize editor state');
+            }
             throw e;
         }
     }

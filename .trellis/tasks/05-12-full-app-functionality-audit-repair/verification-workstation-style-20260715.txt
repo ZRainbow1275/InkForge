@@ -1,0 +1,73 @@
+InkForge Workstation and SVG/WeChat Current-Round Verification - 2026-07-15
+
+Scope
+- Real local application and Tauri/WebView2 acceptance.
+- Every registered SVG/style rule must be locally applicable.
+- Every selectable WeChat style must traverse the real WeChat exporter.
+- Xiaohongshu and Zhihu publishing automation is canceled; the user owns manual publication checks.
+- No WeChat phone, sync, scheduling, or publish success is claimed.
+
+Product closure
+- FileManager and TagBrowser use the Workstation-owned flush/navigate/commit selection transaction.
+- Editor saves capture immutable content id, article id, title, transcript, Markdown, and revision.
+- A real IndexedDB readwrite transaction barrier held the first production save while native keyboard input created a newer same-document revision.
+- Older persistence echoes do not overwrite newer editor state or leak source content into the target article.
+- Workstation keyboard focus follows successful route activation; unavailable shortcuts do not consume browser defaults.
+- Empty sensitive string fields remain encrypted under the current native envelope contract.
+- Persisted Profile/layout restoration resolves a typed plan, flushes/navigates through the shared transaction, and mutates layout/tab/article state only after router success.
+- A real router guard rejected the persisted target with exactly one navigation attempt, zero route/store/DOM/session drift, and encrypted readback of the source marker.
+- Dark active styling reaches the actual native tab button rather than stopping at its wrapper.
+- Native E2E selects and maximizes the main WebView, fails closed below an 800x500 viewport, and restores the exact foreground window after real minimize proof.
+
+Verification
+1. pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --logLevel error --spec tests/e2e/specs/editor-settings.spec.cjs
+   PASS: 1 spec / 12 tests, WebView2 150.0.4078.65, 5m15s
+
+2. pnpm -C inkforge run style-proof:current-round
+   PASS: application-acceptance-ready; current-round-ready; canClaimCurrentRoundTarget=true
+   Metrics: 27 SVG modules; 108 module/persona renders; 17 WeChat choices; 13 selectable/rendered choices; 45 sample SVG modules; 0 local issues
+
+3. pnpm -C inkforge exec vitest run src/services/export/wechat-svg-application.test.ts src/services/export/wechat-style-export-samples.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+   PASS: 2 files / 4 tests
+
+4. pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --logLevel error --spec tests/e2e/specs/svg-render.spec.cjs
+   PASS: 1 spec / 10 tests, WebView2 150.0.4078.65, 31.9s test time
+
+5. pnpm -C inkforge exec eslint src tests/e2e/specs/editor-settings.spec.cjs --ext .ts,.tsx,.vue,.cjs --quiet
+   PASS
+
+6. pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+   PASS
+
+7. pnpm -C inkforge exec vitest run --reporter=default --maxWorkers=1 --no-file-parallelism
+   PASS: 109 files / 1826 tests
+
+8. NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+   PASS: 4663 modules transformed
+
+9. pnpm -C inkforge exec tauri build --debug --bundles none
+   PASS: frontend build and Rust dev-profile desktop shell compiled
+
+10. Persisted-layout and native-harness focused regressions
+    PASS: Workstation persisted-layout rejection in the real 12-case native suite
+    PASS: WorkstationTabBar.style.test.ts 1/1
+    PASS: focused Data 1/1 and focused Shortcuts 1/1
+
+11. GitNexus staged change detection and drill-down
+    Re-index: 21,383 nodes; 37,926 edges; 1,062 clusters; 300 flows
+    Aggregate: CRITICAL, 20 files, 95 changed symbols, 25 affected flows
+    Drill-down: persisted-layout, route transaction, save/hydration, editor-store creation, and encryption symbols LOW
+    E2E openRoute: MEDIUM, 12 test callers, 0 production processes; complete native suite passed 12/12
+
+Hygiene
+- inkforge/tsconfig.tsbuildinfo restored after generated build output.
+- No browser profile, credential, cookie, token, HAR, QR code, account screenshot, or runtime screenshot path recorded.
+
+Cannot claim
+- WeChat external editor paste/readback
+- WeChat phone preview
+- WeChat mobile SMIL/click interaction
+- WeChat mobile Dark Mode
+- WeChat cover acceptance
+- Credentialed sync, scheduling, or publish success
+- Xiaohongshu or Zhihu upload/publish success

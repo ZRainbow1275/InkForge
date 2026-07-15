@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { AlertTriangle, FileText, Loader2, Pin, PinOff, RotateCcw, X } from 'lucide-vue-next'
+import { AlertTriangle, CircleDashed, FileText, Loader2, Pin, PinOff, RotateCcw, X } from 'lucide-vue-next'
 import type { WorkstationTab, WorkstationTabSaveState } from '@/stores/workstationTabs'
 
 export interface WorkstationTabBarItem extends WorkstationTab {
@@ -22,10 +22,12 @@ const emit = defineEmits<{
 }>()
 
 const scrollContainerRef = ref<HTMLElement | null>(null)
-const tabRefs = ref<HTMLElement[]>([])
+const tabRefs = ref<HTMLButtonElement[]>([])
 const draggedTabId = ref<string | null>(null)
 const dragOverTabId = ref<string | null>(null)
 const dragInsertPosition = ref<'before' | 'after'>('after')
+const keyboardCloseTabId = ref<string | null>(null)
+const keyboardActivationTabId = ref<string | null>(null)
 
 interface HorizontalWheelEvent extends Event {
   deltaX: number
@@ -37,7 +39,9 @@ function getTabLabel(tab: WorkstationTabBarItem): string {
     ? 'Saving'
     : tab.saveState === 'error'
       ? 'Save failed'
-      : 'Saved'
+      : tab.saveState === 'pending'
+        ? 'Not saved'
+        : 'Saved'
   return `${tab.title} - ${statusText}`
 }
 
@@ -51,17 +55,45 @@ function handleWheel(event: HorizontalWheelEvent): void {
   container.scrollLeft += event.deltaY
 }
 
-function handleTabKeydown(event: KeyboardEvent, tabId: string): void {
-  if (event.key === 'Enter' || event.key === ' ') {
+function requestTabClose(tabId: string): void {
+  keyboardCloseTabId.value = tabId
+  emit('close', tabId)
+}
+
+function handleTabKeydown(event: KeyboardEvent, tabId: string, tabIndex: number): void {
+  if (event.key === 'Delete' || event.key === 'Backspace') {
     event.preventDefault()
-    emit('activate', tabId)
+    requestTabClose(tabId)
     return
   }
 
-  if (event.key === 'Delete' || event.key === 'Backspace') {
-    event.preventDefault()
-    emit('close', tabId)
+  if (props.tabs.length === 0) {
+    return
   }
+
+  let targetIndex: number | null = null
+  if (event.key === 'ArrowLeft') {
+    targetIndex = (tabIndex - 1 + props.tabs.length) % props.tabs.length
+  } else if (event.key === 'ArrowRight') {
+    targetIndex = (tabIndex + 1) % props.tabs.length
+  } else if (event.key === 'Home') {
+    targetIndex = 0
+  } else if (event.key === 'End') {
+    targetIndex = props.tabs.length - 1
+  }
+
+  if (targetIndex === null) {
+    return
+  }
+
+  const targetTab = props.tabs[targetIndex]
+  if (!targetTab) {
+    return
+  }
+
+  event.preventDefault()
+  keyboardActivationTabId.value = targetTab.id
+  emit('activate', targetTab.id)
 }
 
 function handleAuxClick(event: MouseEvent, tabId: string): void {
@@ -70,7 +102,7 @@ function handleAuxClick(event: MouseEvent, tabId: string): void {
   }
 
   event.preventDefault()
-  emit('close', tabId)
+  requestTabClose(tabId)
 }
 
 function handleDragStart(event: DragEvent, tabId: string): void {
@@ -113,8 +145,7 @@ function handleDrop(event: DragEvent, targetTabId: string): void {
 }
 
 function scrollActiveTabIntoView(): void {
-  const activeIndex = props.tabs.findIndex(tab => tab.id === props.activeTabId)
-  const activeEl = tabRefs.value[activeIndex]
+  const activeEl = tabRefs.value.find(tab => tab.dataset.tabId === props.activeTabId)
   activeEl?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
 }
 
@@ -122,6 +153,19 @@ watch(
   () => [props.activeTabId, props.tabs.map(tab => `${tab.id}:${tab.title}:${tab.isPinned}`).join('|')],
   async () => {
     await nextTick()
+    const activationTabId = keyboardActivationTabId.value
+    if (activationTabId) {
+      if (props.activeTabId === activationTabId) {
+        tabRefs.value.find(tab => tab.dataset.tabId === activationTabId)?.focus()
+      }
+      keyboardActivationTabId.value = null
+    }
+
+    const closedTabId = keyboardCloseTabId.value
+    if (closedTabId && !props.tabs.some(tab => tab.id === closedTabId)) {
+      tabRefs.value.find(tab => tab.dataset.tabId === props.activeTabId)?.focus()
+      keyboardCloseTabId.value = null
+    }
     scrollActiveTabIntoView()
   },
   { immediate: true },
@@ -141,10 +185,9 @@ watch(
       @wheel="handleWheel"
     >
       <div
-        v-for="tab in tabs"
+        v-for="(tab, tabIndex) in tabs"
         :key="tab.id"
-        ref="tabRefs"
-        class="workstation-tabbar__tab"
+        class="workstation-tabbar__item"
         :class="{
           'workstation-tabbar__tab--active': tab.id === activeTabId,
           'workstation-tabbar__tab--pinned': tab.isPinned,
@@ -152,51 +195,65 @@ watch(
           'workstation-tabbar__tab--drag-before': dragOverTabId === tab.id && dragInsertPosition === 'before',
           'workstation-tabbar__tab--drag-after': dragOverTabId === tab.id && dragInsertPosition === 'after',
           'workstation-tabbar__tab--saving': tab.saveState === 'saving',
+          'workstation-tabbar__tab--pending': tab.saveState === 'pending',
           'workstation-tabbar__tab--error': tab.saveState === 'error',
         }"
-        role="tab"
-        :aria-selected="tab.id === activeTabId"
-        :aria-controls="`workstation-document-${tab.articleId}`"
-        :aria-label="getTabLabel(tab)"
-        :tabindex="tab.id === activeTabId ? 0 : -1"
         :title="tab.title"
         draggable="true"
-        :data-tab-id="tab.id"
-        @click="emit('activate', tab.id)"
-        @keydown="handleTabKeydown($event, tab.id)"
-        @auxclick="handleAuxClick($event, tab.id)"
+        :data-tab-item-id="tab.id"
         @dragstart="handleDragStart($event, tab.id)"
         @dragover="handleDragOver($event, tab.id)"
         @drop="handleDrop($event, tab.id)"
         @dragend="clearDragState"
       >
-        <FileText
-          class="workstation-tabbar__icon"
-          aria-hidden="true"
-          :size="15"
-        />
-        <span
-          class="workstation-tabbar__state"
-          aria-hidden="true"
+        <button
+          :id="`workstation-tab-${tab.id}`"
+          ref="tabRefs"
+          type="button"
+          class="workstation-tabbar__tab"
+          role="tab"
+          :aria-selected="tab.id === activeTabId"
+          aria-controls="workstation-document-panel"
+          :aria-label="getTabLabel(tab)"
+          :tabindex="tab.id === activeTabId ? 0 : -1"
+          :data-tab-id="tab.id"
+          :data-save-state="tab.saveState"
+          @click="emit('activate', tab.id)"
+          @keydown="handleTabKeydown($event, tab.id, tabIndex)"
+          @auxclick="handleAuxClick($event, tab.id)"
         >
-          <Loader2
-            v-if="tab.saveState === 'saving'"
-            class="workstation-tabbar__spinner"
-            :size="13"
+          <FileText
+            class="workstation-tabbar__icon"
+            aria-hidden="true"
+            :size="15"
           />
-          <AlertTriangle
-            v-else-if="tab.saveState === 'error'"
-            :size="13"
-          />
-        </span>
-        <span
-          v-if="!tab.isPinned"
-          class="workstation-tabbar__title"
-        >{{ tab.title }}</span>
-        <span
-          v-else
-          class="workstation-tabbar__pinned-label"
-        >Pinned</span>
+          <span
+            class="workstation-tabbar__state"
+            aria-hidden="true"
+          >
+            <Loader2
+              v-if="tab.saveState === 'saving'"
+              class="workstation-tabbar__spinner"
+              :size="13"
+            />
+            <AlertTriangle
+              v-else-if="tab.saveState === 'error'"
+              :size="13"
+            />
+            <CircleDashed
+              v-else-if="tab.saveState === 'pending'"
+              :size="13"
+            />
+          </span>
+          <span
+            v-if="!tab.isPinned"
+            class="workstation-tabbar__title"
+          >{{ tab.title }}</span>
+          <span
+            v-else
+            class="workstation-tabbar__pinned-label"
+          >Pinned</span>
+        </button>
         <button
           type="button"
           class="workstation-tabbar__pin"
@@ -219,7 +276,7 @@ watch(
           type="button"
           class="workstation-tabbar__close"
           :aria-label="`Close ${tab.title}`"
-          @click.stop="emit('close', tab.id)"
+          @click.stop="requestTabClose(tab.id)"
         >
           <X
             :size="14"
@@ -282,15 +339,15 @@ watch(
   display: none;
 }
 
-.workstation-tabbar__tab {
+.workstation-tabbar__item {
   position: relative;
   min-width: 0;
   max-width: 220px;
   height: 26px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
+  gap: 2px;
+  padding: 0 4px 0 0;
   border: none;
   border-radius: 999px;
   background: transparent;
@@ -302,9 +359,25 @@ watch(
   transition: background 0.16s ease, color 0.16s ease;
 }
 
-.workstation-tabbar__tab:hover {
+.workstation-tabbar__item:hover {
   background: rgba(207, 216, 220, 0.32);
   color: #455A64;
+}
+
+.workstation-tabbar__tab {
+  min-width: 0;
+  height: 26px;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px 4px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 
 .workstation-tabbar__tab:focus-visible {
@@ -320,10 +393,15 @@ watch(
 }
 
 .workstation-tabbar__tab--pinned {
-  min-width: 32px;
-  max-width: 32px;
+  min-width: 58px;
+  max-width: 58px;
   justify-content: center;
-  padding: 0 6px;
+  padding-right: 2px;
+}
+
+.workstation-tabbar__tab--pinned .workstation-tabbar__tab {
+  justify-content: center;
+  padding: 0 2px 0 6px;
 }
 
 .workstation-tabbar__tab--dragging {
@@ -365,6 +443,10 @@ watch(
 
 .workstation-tabbar__tab--saving .workstation-tabbar__state {
   color: #7a7167;
+}
+
+.workstation-tabbar__tab--pending .workstation-tabbar__state {
+  color: #9a6700;
 }
 
 .workstation-tabbar__tab--error .workstation-tabbar__state {
@@ -476,6 +558,10 @@ watch(
   .workstation-tabbar__tab--active {
     color: #EF9A9A;
     background: rgba(239, 83, 80, 0.18);
+  }
+
+  .workstation-tabbar__tab--active .workstation-tabbar__tab {
+    color: #EF9A9A;
   }
 
   .workstation-tabbar__pin:hover,

@@ -207,6 +207,15 @@ exports.config = {
   before: async () => {
     verifyIsolatedWebViewUserDataDir();
     await selectMainApplicationWindow();
+    await global.browser.maximizeWindow();
+    await global.browser.waitUntil(
+      async () => global.browser.execute(() => window.innerWidth >= 800 && window.innerHeight >= 500),
+      {
+        timeout: 5_000,
+        interval: 100,
+        timeoutMsg: 'The main Tauri WebView did not reach a desktop-interactable viewport after maximize',
+      },
+    );
   },
   beforeTest: () => {
     if (!global.__INKFORGE_E2E_DATA_ISOLATED__) {

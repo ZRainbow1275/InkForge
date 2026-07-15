@@ -66,7 +66,8 @@ inferred from Zod schemas when the schema is the source of truth.
 - WorkstationTab.id and WorkstationTab.articleId must be non-empty strings and represent the same real article id in the baseline.
 - Persisted sessionStorage payloads must be parsed through the store schema before use; corrupt payloads are removed instead of repaired with guessed data.
 - Component props must receive typed tab items; do not pass untyped records or any-shaped tab payloads into WorkstationTabBar.
-- Save-state rendering is a narrow union: clean, saving, error. Do not add dirty or conflict state until a durable source of truth exists.
+- Save-state rendering is the narrow union `clean | saving | pending | error`. `pending` is the honest local state while content is loading, hydrating, offline, or not yet durably saved; it must not be relabeled as `clean`. Do not add conflict state until a durable source of truth exists.
+- A queued editor save request must be an explicit typed snapshot of content id, article id, Markdown, title, transcript, and save sequence. Do not close over mutable `currentContent` or component refs and infer identity after an awaited write.
 ## BlockDragHandle Types
 
 - Drag/drop code must use explicit local types: `BlockInfo`, `DropTarget`, `BlockDropSide`, `BlockMoveDirection`, `BlockDragPluginMeta`, and `MoveBlockResult`.
@@ -91,6 +92,7 @@ inferred from Zod schemas when the schema is the source of truth.
 - `useWorkstationTabsStore.restoreFromLayout()` accepts only validated `SerializedTab` records. Missing article filtering belongs to `LayoutPersistenceService.validateSerializedTabs()` before store hydration.
 - `LayoutStatePatch.openTabs`, `tabOrder`, `activeTabId`, and `activeArticleId` must remain synchronized in type and meaning. When adding a new Workstation tab field, decide explicitly whether it belongs in `SerializedTab` or remains sessionStorage-only metadata.
 - Lifecycle flush handlers must catch unknown errors and convert them to logged messages; do not leak untyped rejected promises from page lifecycle events.
+- Persisted-layout resolution should return one explicit typed plan containing validated `openTabs`, `activeTabId`, removed ids, and the proposed next article id. Applying a record is asynchronous and must return an explicit success boolean after the route transaction; do not hide pre-commit store mutation behind an untyped helper or broad assertion.
 
 ## EditorKeymap Types
 

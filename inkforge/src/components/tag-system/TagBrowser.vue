@@ -9,6 +9,10 @@ import TagBadge from './TagBadge.vue'
 import TagInput from './TagInput.vue'
 import TagManagerModal from './TagManagerModal.vue'
 
+const props = defineProps<{
+  requestArticleSelection: (articleId: string) => Promise<boolean>
+}>()
+
 const articleStore = useArticleStore()
 const tagStore = useTagStore()
 const { selectedArticle, selectedArticleId } = storeToRefs(articleStore)
@@ -92,8 +96,9 @@ async function handleFilter(): Promise<void> {
 
 async function handleSelectDocument(id: string): Promise<void> {
   await runTagAction(async () => {
-    articleStore.selectArticle(id)
-    await refreshSelectedDocTags()
+    if (await props.requestArticleSelection(id)) {
+      await refreshSelectedDocTags()
+    }
     return null
   })
 }

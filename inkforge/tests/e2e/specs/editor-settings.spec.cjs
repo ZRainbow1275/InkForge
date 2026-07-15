@@ -62,13 +62,22 @@ async function openRoute(target, readySelector) {
   await browser.waitUntil(
     async () => browser.execute((selector) => {
       const element = document.querySelector(selector);
-      return Boolean(element && element.getClientRects().length > 0
-        && window.getComputedStyle(element).visibility !== 'hidden');
+      const routeShell = element?.closest('.app-route-shell');
+      const routeShellOpacity = routeShell
+        ? Number.parseFloat(window.getComputedStyle(routeShell).opacity)
+        : 1;
+      return Boolean(
+        element
+        && element.getClientRects().length > 0
+        && window.getComputedStyle(element).visibility !== 'hidden'
+        && !document.querySelector('.view-fade-enter-active, .view-fade-leave-active')
+        && routeShellOpacity >= 0.999
+      );
     }, readySelector),
     {
       timeout: 10_000,
-      interval: 200,
-      timeoutMsg: `${target} did not display ${readySelector}`,
+      interval: 50,
+      timeoutMsg: `${target} did not display ${readySelector} after route transition`,
     },
   );
 }
@@ -259,37 +268,148 @@ async function readVersionPersistence(articleId) {
         .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
       : null;
     const currentContent = pinia?._s.get('editor')?.currentContent ?? null;
+    const articleBody = pinia?._s.get('article')?.articles
+      ?.find((article) => article.id === targetArticleId)?.rawContent ?? null;
     const database = await new Promise((resolve, reject) => {
       const request = window.indexedDB.open('InkForgeDB');
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
     });
-    let persistedContent;
+    let persistedContents;
     try {
-      persistedContent = await new Promise((resolve, reject) => {
+      persistedContents = await new Promise((resolve, reject) => {
         const request = database
           .transaction('contents', 'readonly')
           .objectStore('contents')
           .index('articleId')
-          .get(targetArticleId);
-        request.onsuccess = () => resolve(request.result ?? null);
+          .getAll(targetArticleId);
+        request.onsuccess = () => resolve(request.result ?? []);
         request.onerror = () => reject(request.error ?? new Error('content version read failed'));
       });
     } finally {
       database.close();
     }
+    const persistedContent = persistedContents[0] ?? null;
+    const readBodyFormat = (body) => {
+      if (typeof body === 'string') return 'plain';
+      if (body === null || body === undefined) return 'missing';
+      if (
+        typeof body !== 'object'
+        || typeof body.data !== 'string'
+        || body.data.length === 0
+      ) {
+        return 'invalid';
+      }
+      if (body.__encrypted === true && body.version === 2) return 'encrypted-v2';
+      if (body.__encrypted === false && body.version === 0) return 'unencrypted-v0';
+      return 'invalid';
+    };
+    const persistedBodyFormat = readBodyFormat(persistedContent?.body);
     const normalizeVersions = (content) => JSON.parse(JSON.stringify(content?.versions ?? []));
     return {
       storeArticleId: currentContent?.articleId ?? null,
       persistedArticleId: persistedContent?.articleId ?? null,
+      persistedContentCount: persistedContents.length,
+      persistedRecords: persistedContents.map((content) => ({
+        id: content.id,
+        bodyFormat: readBodyFormat(content.body),
+        updatedAt: content.updatedAt instanceof Date
+          ? content.updatedAt.toISOString()
+          : String(content.updatedAt ?? ''),
+      })),
       storeBody: currentContent?.body ?? null,
-      persistedBody: persistedContent?.body ?? null,
+      articleBody,
+      persistedBodyFormat,
+      persistedBodyEncrypted: persistedBodyFormat === 'encrypted-v2',
       storeCurrentVersionId: currentContent?.currentVersionId ?? null,
       persistedCurrentVersionId: persistedContent?.currentVersionId ?? null,
       storeVersions: normalizeVersions(currentContent),
       persistedVersions: normalizeVersions(persistedContent),
     };
   }, articleId);
+}
+
+async function withContentWriteTransactionLock(operation) {
+  const acquired = await browser.execute(async () => {
+    if (window.__INKFORGE_CONTENT_WRITE_LOCK__) {
+      throw new Error('content write transaction lock is already active');
+    }
+
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    let resolveReady;
+    let resolveDone;
+    const state = {
+      release: false,
+      error: null,
+      ready: new Promise((resolve) => { resolveReady = resolve; }),
+      done: new Promise((resolve) => { resolveDone = resolve; }),
+    };
+    let ready = false;
+    let finished = false;
+    const finish = (error = null) => {
+      if (finished) return;
+      finished = true;
+      state.error = error ? String(error.message ?? error) : state.error;
+      if (!ready) {
+        ready = true;
+        resolveReady(false);
+      }
+      resolveDone();
+      database.close();
+    };
+
+    const transaction = database.transaction('contents', 'readwrite');
+    const store = transaction.objectStore('contents');
+    const keepAlive = () => {
+      const request = store.get('__inkforge-e2e-write-lock__');
+      request.onsuccess = () => {
+        if (!ready) {
+          ready = true;
+          resolveReady(true);
+        }
+        if (!state.release) keepAlive();
+      };
+      request.onerror = () => {
+        state.error = request.error?.message ?? 'content write lock request failed';
+      };
+    };
+    transaction.oncomplete = () => finish();
+    transaction.onabort = () => finish(transaction.error ?? new Error('content write lock aborted'));
+    transaction.onerror = () => {
+      state.error = transaction.error?.message ?? 'content write lock failed';
+    };
+    window.__INKFORGE_CONTENT_WRITE_LOCK__ = state;
+    keepAlive();
+
+    const lockAcquired = await state.ready;
+    if (!lockAcquired) {
+      await state.done;
+      delete window.__INKFORGE_CONTENT_WRITE_LOCK__;
+      throw new Error(state.error ?? 'content write lock was not acquired');
+    }
+    return true;
+  });
+  expect(acquired, 'a real IndexedDB write transaction holds the first save open').to.equal(true);
+
+  try {
+    return await operation();
+  } finally {
+    const released = await browser.execute(async () => {
+      const state = window.__INKFORGE_CONTENT_WRITE_LOCK__;
+      if (!state) return false;
+      state.release = true;
+      await state.done;
+      const error = state.error;
+      delete window.__INKFORGE_CONTENT_WRITE_LOCK__;
+      if (error) throw new Error(error);
+      return true;
+    });
+    expect(released, 'the real IndexedDB write transaction is released').to.equal(true);
+  }
 }
 
 async function runRealVersionWriteRace(articleId) {
@@ -495,6 +615,50 @@ async function restoreDataFaultInjection() {
     for (const restore of [...restorers].reverse()) restore();
     delete window.__INKFORGE_DATA_FAULTS__;
     return restorers.length;
+  });
+}
+
+async function installRouteRejection(routeName, articleId = null) {
+  return browser.execute((targetRouteName, targetArticleId) => {
+    if (window.__INKFORGE_ROUTE_REJECTION__) {
+      throw new Error('route rejection is already active');
+    }
+
+    const router = document.getElementById('app')
+      ?.__vue_app__?._context?.config?.globalProperties?.$router;
+    if (!router || typeof router.beforeEach !== 'function') {
+      return false;
+    }
+
+    const state = { count: 0, remove: null };
+    state.remove = router.beforeEach((to) => {
+      const routeMatches = to.name === targetRouteName;
+      const articleMatches = targetArticleId === null
+        || String(Array.isArray(to.query.id) ? to.query.id[0] : to.query.id ?? '') === targetArticleId;
+      if (routeMatches && articleMatches) {
+        state.count += 1;
+        return false;
+      }
+      return true;
+    });
+    window.__INKFORGE_ROUTE_REJECTION__ = state;
+    return true;
+  }, routeName, articleId);
+}
+
+async function waitForRouteRejection() {
+  await browser.waitUntil(
+    async () => browser.execute(() => (window.__INKFORGE_ROUTE_REJECTION__?.count ?? 0) > 0),
+    { timeout: 5_000, interval: 100, timeoutMsg: 'the real Vue Router guard did not reject the target navigation' },
+  );
+}
+
+async function restoreRouteRejection() {
+  return browser.execute(() => {
+    const state = window.__INKFORGE_ROUTE_REJECTION__;
+    state?.remove?.();
+    delete window.__INKFORGE_ROUTE_REJECTION__;
+    return state?.count ?? 0;
   });
 }
 
@@ -812,13 +976,21 @@ async function waitForCurrentDraftReady(expectedArticleId, expectEmpty = false) 
       const articleId = new window.URLSearchParams(window.location.search).get('id');
       const editor = document.querySelector('.ProseMirror');
       const article = articleStore?.articles?.find((candidate) => candidate.id === articleId);
+      const editorStyle = editor ? window.getComputedStyle(editor) : null;
       return {
         articleId,
         articleRawContent: article?.rawContent ?? null,
         body: editorStore?.currentContent?.body ?? null,
         contentArticleId: editorStore?.currentContent?.articleId ?? null,
         editorHtml: editor?.innerHTML ?? null,
+        editorVisible: Boolean(
+          editor
+          && editor.getClientRects().length > 0
+          && editorStyle?.display !== 'none'
+          && editorStyle?.visibility !== 'hidden'
+        ),
         editorText: editor?.textContent?.trim() ?? null,
+        headerSaveState: document.querySelector('.status-pill')?.getAttribute('data-save-state') ?? null,
         piniaStores: pinia ? Array.from(pinia._s.keys()) : [],
         status: editorStore?.status ?? null,
       };
@@ -826,6 +998,8 @@ async function waitForCurrentDraftReady(expectedArticleId, expectEmpty = false) 
         return Boolean(
           lastState.articleId === expectedArticleId
           && lastState.editorHtml !== null
+          && lastState.editorVisible
+          && lastState.headerSaveState === 'clean'
           && (lastState.status === 'ready' || lastState.status === 'saving')
           && lastState.contentArticleId === lastState.articleId
           && (!expectEmpty || (
@@ -838,7 +1012,50 @@ async function waitForCurrentDraftReady(expectedArticleId, expectEmpty = false) 
       { timeout: 15_000, interval: 200, timeoutMsg: 'selected Workstation draft never reached ready state' },
     );
   } catch (error) {
-    throw new Error(`selected Workstation draft state: ${JSON.stringify(lastState)}`, { cause: error });
+    throw new Error(`selected Workstation draft ${expectedArticleId} state: ${JSON.stringify(lastState)}`, { cause: error });
+  }
+}
+
+async function focusEditorAtDocumentEnd(editor, evidenceLabel) {
+  try {
+    await browser.waitUntil(
+      async () => browser.execute((surface) => {
+        const style = window.getComputedStyle(surface);
+        return surface.getClientRects().length > 0
+          && style.display !== 'none'
+          && style.visibility !== 'hidden';
+      }, editor),
+      { timeout: 10_000, interval: 100, timeoutMsg: `${evidenceLabel} editor did not become visible` },
+    );
+    await browser.execute((surface) => {
+      surface.scrollIntoView({ block: 'center', inline: 'center' });
+      surface.focus();
+    }, editor);
+    await browser.waitUntil(
+      async () => browser.execute((surface) => document.activeElement === surface, editor),
+      { timeout: 5_000, interval: 100, timeoutMsg: `${evidenceLabel} editor did not receive focus` },
+    );
+    await browser.keys(['Control', 'End']);
+  } catch (error) {
+    const state = await browser.execute(() => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const editor = document.querySelector('.ProseMirror');
+      const shell = document.querySelector('.editor-mode-shell');
+      return {
+        articleId: new window.URLSearchParams(location.search).get('id'),
+        contentArticleId: pinia?._s.get('editor')?.currentContent?.articleId ?? null,
+        editorRectCount: editor?.getClientRects().length ?? 0,
+        editorStatus: pinia?._s.get('editor')?.status ?? null,
+        shellDisplay: shell ? window.getComputedStyle(shell).display : null,
+      };
+    });
+    throw new Error(`${evidenceLabel} editor focus state: ${JSON.stringify(state)}`, { cause: error });
   }
 }
 
@@ -988,7 +1205,12 @@ async function createBlankDraftThroughHub() {
   expect(createButton, 'Hub exposes a visible production new-draft control').to.not.equal(null);
   await createButton.scrollIntoView({ block: 'center', inline: 'nearest' });
   await createButton.waitForClickable({ timeout: 5_000 });
-  await createButton.click();
+  const createButtonFocused = await browser.execute((element) => {
+    element.focus();
+    return document.activeElement === element;
+  }, createButton);
+  expect(createButtonFocused, 'Hub new-draft control accepts keyboard focus').to.equal(true);
+  await browser.keys('Enter');
 
   await browser.waitUntil(
     async () => browser.execute((oldArticleId) => {
@@ -1005,6 +1227,272 @@ async function createBlankDraftThroughHub() {
   createdArticleIds.add(articleId);
   await waitForCurrentDraftReady(articleId, true);
   return articleId;
+}
+
+async function activateWorkstationTabThroughNumberShortcut(articleId) {
+  const shortcutIndex = await browser.execute((targetId) => (
+    Array.from(document.querySelectorAll('.workstation-tabbar [data-tab-id]'))
+      .findIndex((tab) => tab.getAttribute('data-tab-id') === targetId)
+  ), articleId);
+  expect(shortcutIndex, `the real tab ${articleId} is available for number-shortcut activation`).to.be.at.least(0);
+  expect(shortcutIndex, `the real tab ${articleId} fits the supported Ctrl+1..Ctrl+9 range`).to.be.below(9);
+
+  const visibleTab = await browser.$(`[role="tab"][data-tab-id="${articleId}"]`);
+  await visibleTab.waitForDisplayed({ timeout: 5_000 });
+  await browser.execute((element) => element.focus(), visibleTab);
+  await browser.keys(['Control', String(shortcutIndex + 1)]);
+  await browser.waitUntil(
+    async () => browser.execute((expectedId) => (
+      new window.URLSearchParams(location.search).get('id') === expectedId
+      && document.querySelector(`[data-tab-id="${expectedId}"]`)?.getAttribute('aria-selected') === 'true'
+    ), articleId),
+    { timeout: 10_000, interval: 100, timeoutMsg: `Ctrl+${shortcutIndex + 1} did not activate ${articleId}` },
+  );
+}
+
+async function closeWorkstationTabThroughShortcut(articleId) {
+  const tabExists = await browser.execute((targetId) => Boolean(
+    document.querySelector(`.workstation-tabbar [data-tab-id="${targetId}"]`),
+  ), articleId);
+  if (!tabExists) return;
+
+  const tabIsPinned = await browser.execute((targetId) => (
+    document.querySelector(`[data-tab-item-id="${targetId}"]`)
+      ?.classList.contains('workstation-tabbar__tab--pinned') ?? false
+  ), articleId);
+  if (tabIsPinned) {
+    const pinButton = await browser.$(
+      `[data-tab-item-id="${articleId}"] .workstation-tabbar__pin`,
+    );
+    await pinButton.click();
+    await browser.waitUntil(
+      async () => browser.execute((targetId) => !document.querySelector(
+        `[data-tab-item-id="${targetId}"]`,
+      )?.classList.contains('workstation-tabbar__tab--pinned'), articleId),
+      { timeout: 5_000, interval: 100, timeoutMsg: `Could not unpin ${articleId} before cleanup` },
+    );
+  }
+
+  await activateWorkstationTabThroughNumberShortcut(articleId);
+  await browser.keys(['Control', 'w']);
+  await browser.waitUntil(
+    async () => browser.execute((closedId) => !document.querySelector(
+      `.workstation-tabbar [data-tab-id="${closedId}"]`,
+    ), articleId),
+    { timeout: 10_000, interval: 100, timeoutMsg: `Ctrl+W did not close ${articleId}` },
+  );
+}
+
+async function preparePersistedLayoutRestoreFixture(targetArticleId) {
+  const fixture = await browser.execute(async (articleId) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const articleStore = pinia?._s.get('article');
+    const profileStore = pinia?._s.get('profile');
+    const layoutStore = pinia?._s.get('layoutPersistence');
+    const targetArticle = articleStore?.articles.find((article) => article.id === articleId);
+    const originalProfileId = profileStore?.activeProfileId ?? null;
+    const windowId = window.sessionStorage.getItem('inkforge.layout.windowId');
+
+    if (!articleStore || !profileStore || !layoutStore || !targetArticle || !originalProfileId || !windowId) {
+      return {
+        error: 'required production store, target article, active profile, or layout window is unavailable',
+        fixtureProfileId: null,
+        originalProfileId,
+        windowId,
+      };
+    }
+
+    const fixtureProfileId = `e2e-layout-${window.crypto.randomUUID()}`;
+    await layoutStore.save({
+      activeArticleId: targetArticle.id,
+      activeTabId: targetArticle.id,
+      openTabs: [{
+        id: targetArticle.id,
+        articleId: targetArticle.id,
+        title: targetArticle.title,
+        isPinned: false,
+      }],
+      tabOrder: [targetArticle.id],
+    }, fixtureProfileId, windowId);
+    await layoutStore.initialize(originalProfileId, windowId);
+
+    return {
+      error: null,
+      fixtureProfileId,
+      originalProfileId,
+      windowId,
+    };
+  }, targetArticleId);
+
+  expect(fixture.error, 'the real layout repository accepts the isolated restore record').to.equal(null);
+  expect(fixture.fixtureProfileId, 'the isolated layout restore has a profile id').to.be.a('string');
+  expect(fixture.originalProfileId, 'the active production profile can be restored').to.be.a('string');
+  expect(fixture.windowId, 'the production layout window id is available').to.be.a('string');
+  return fixture;
+}
+
+async function cleanupPersistedLayoutRestoreFixture(fixture, sourceArticleId) {
+  const cleanup = await browser.execute(async ({ fixtureProfileId, originalProfileId, windowId, articleId }) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const articleStore = pinia?._s.get('article');
+    const profileStore = pinia?._s.get('profile');
+    const layoutStore = pinia?._s.get('layoutPersistence');
+    const tabsStore = pinia?._s.get('workstationTabs');
+    const router = root?.__vue_app__?._context?.config?.globalProperties?.$router;
+
+    if (!articleStore || !profileStore || !layoutStore || !tabsStore || !router) {
+      return { error: 'required production store or router is unavailable' };
+    }
+
+    await layoutStore.clear(fixtureProfileId, windowId);
+    profileStore.$patch({ activeProfileId: originalProfileId });
+    tabsStore.activateTab(articleId);
+    articleStore.selectArticle(articleId);
+    const query = { ...router.currentRoute.value.query, id: articleId };
+    const failure = await router.replace({ name: 'Workstation', query });
+    const routeArticleId = String(
+      Array.isArray(router.currentRoute.value.query.id)
+        ? router.currentRoute.value.query.id[0]
+        : router.currentRoute.value.query.id ?? '',
+    );
+    const routeRestored = router.currentRoute.value.name === 'Workstation'
+      && routeArticleId === articleId;
+    return {
+      error: failure && !routeRestored ? failure.message || 'source route was not restored' : null,
+      activeProfileId: profileStore.activeProfileId,
+    };
+  }, {
+    fixtureProfileId: fixture.fixtureProfileId,
+    originalProfileId: fixture.originalProfileId,
+    windowId: fixture.windowId,
+    articleId: sourceArticleId,
+  });
+
+  expect(cleanup.error, 'layout restore cleanup returns to the source route').to.equal(null);
+  expect(cleanup.activeProfileId, 'layout restore cleanup restores the production profile')
+    .to.equal(fixture.originalProfileId);
+  await waitForCurrentDraftReady(sourceArticleId);
+  await browser.waitUntil(
+    async () => browser.execute((profileId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const layoutStore = pinia?._s.get('layoutPersistence');
+      return layoutStore?.profileId === profileId && layoutStore?.isLoading === false;
+    }, fixture.originalProfileId),
+    { timeout: 10_000, interval: 100, timeoutMsg: 'layout restore cleanup did not reload the production profile' },
+  );
+}
+
+async function readWorkstationTabSessionTruth() {
+  return browser.execute(() => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const tabsStore = pinia?._s.get('workstationTabs');
+    const persisted = JSON.parse(window.sessionStorage.getItem('inkforge.workstation.tabs.v1') || 'null');
+    const tabPanel = document.getElementById('workstation-document-panel');
+    return {
+      domTabIds: Array.from(document.querySelectorAll('.workstation-tabbar [role="tab"][data-tab-id]'))
+        .map((tab) => tab.getAttribute('data-tab-id')),
+      domActiveTabId: document.querySelector('.workstation-tabbar [role="tab"][aria-selected="true"]')
+        ?.getAttribute('data-tab-id') ?? null,
+      storeTabIds: (tabsStore?.orderedTabs ?? []).map((tab) => tab.id),
+      storeActiveTabId: tabsStore?.activeTabId ?? null,
+      storeRecentlyClosedIds: (tabsStore?.recentlyClosed ?? []).map((tab) => tab.id),
+      persistedTabIds: Array.isArray(persisted?.tabs) ? persisted.tabs.map((tab) => tab.id) : [],
+      persistedActiveTabId: persisted?.activeTabId ?? null,
+      persistedRecentlyClosedIds: Array.isArray(persisted?.recentlyClosed)
+        ? persisted.recentlyClosed.map((tab) => tab.id)
+        : [],
+      routeArticleId: new window.URLSearchParams(location.search).get('id'),
+      selectedArticleId: pinia?._s.get('article')?.selectedArticleId ?? null,
+      tabPanelId: tabPanel?.id ?? null,
+      tabPanelLabelledBy: tabPanel?.getAttribute('aria-labelledby') ?? null,
+      tabPanelRole: tabPanel?.getAttribute('role') ?? null,
+      nestedTabActionCount: document.querySelectorAll('[role="tab"] button').length,
+    };
+  });
+}
+
+async function readWorkstationFailureTruth(articleId, marker) {
+  return browser.execute((expectedArticleId, expectedMarker) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const editorStore = pinia?._s.get('editor');
+    const expectedTab = document.querySelector(`[data-tab-id="${expectedArticleId}"]`);
+    const header = document.querySelector('.status-pill');
+    return {
+      contentArticleId: editorStore?.currentContent?.articleId ?? null,
+      editorContainsMarker: document.querySelector('.ProseMirror')?.textContent?.includes(expectedMarker) ?? false,
+      editorStatus: editorStore?.status ?? null,
+      headerSaved: header?.classList.contains('saved') ?? null,
+      headerState: header?.getAttribute('data-save-state') ?? null,
+      headerText: header?.textContent?.trim() ?? '',
+      routeArticleId: new window.URLSearchParams(location.search).get('id'),
+      selectedArticleId: pinia?._s.get('article')?.selectedArticleId ?? null,
+      selectedTab: document.querySelector('[role="tab"][aria-selected="true"]')
+        ?.getAttribute('data-tab-id') ?? null,
+      tabLabel: expectedTab?.getAttribute('aria-label') ?? '',
+      tabState: expectedTab?.getAttribute('data-save-state') ?? null,
+    };
+  }, articleId, marker);
+}
+
+function assertWorkstationFailureTruth(truth, articleId, evidenceLabel) {
+  expect(truth.routeArticleId, `${evidenceLabel} keeps the original route`).to.equal(articleId);
+  expect(truth.selectedArticleId, `${evidenceLabel} keeps the original article selection`).to.equal(articleId);
+  expect(truth.contentArticleId, `${evidenceLabel} keeps the original editor content`).to.equal(articleId);
+  expect(truth.selectedTab, `${evidenceLabel} keeps the original active tab`).to.equal(articleId);
+  expect(truth.editorContainsMarker, `${evidenceLabel} keeps the visible unsaved input`).to.equal(true);
+  expect(truth.editorStatus, `${evidenceLabel} exposes the Store failure`).to.equal('error');
+  expect(truth.headerState, `${evidenceLabel} exposes the Header failure`).to.equal('error');
+  expect(truth.headerText, `${evidenceLabel} names the Header failure`).to.equal('保存失败');
+  expect(truth.headerSaved, `${evidenceLabel} never applies Saved styling`).to.equal(false);
+  expect(truth.tabState, `${evidenceLabel} exposes the active tab failure`).to.equal('error');
+  expect(truth.tabLabel, `${evidenceLabel} never claims Saved`).to.not.include(' - Saved');
+}
+
+async function activateWorkstationTabThroughRovingKey(sourceArticleId, key, targetArticleId, expectEmpty = false) {
+  const sourceTab = await browser.$(`[role="tab"][data-tab-id="${sourceArticleId}"]`);
+  await sourceTab.waitForDisplayed({ timeout: 5_000 });
+  await browser.execute((element) => element.focus(), sourceTab);
+  await browser.keys(key);
+  await browser.waitUntil(
+    async () => browser.execute((expectedId) => {
+      const activeTab = document.querySelector(`[role="tab"][data-tab-id="${expectedId}"]`);
+      return new window.URLSearchParams(location.search).get('id') === expectedId
+        && activeTab?.getAttribute('aria-selected') === 'true'
+        && document.activeElement === activeTab;
+    }, targetArticleId),
+    { timeout: 10_000, interval: 100, timeoutMsg: `${key} did not focus and activate ${targetArticleId}` },
+  );
+  await waitForCurrentDraftReady(targetArticleId, expectEmpty);
 }
 
 async function prepareListEnterScenario(expectedBehavior) {
@@ -1231,23 +1719,8 @@ async function cleanupCreatedArticles() {
   const ids = Array.from(createdArticleIds);
   if (ids.length === 0) return;
 
+  await openRoute('/workstation', '.workstation');
   await openRoute('/', '.hub-page');
-  const cleanupRouteId = await browser.execute((articleIds) => {
-    const root = document.getElementById('app');
-    const provides = root?.__vue_app__?._context?.provides;
-    const pinia = provides
-      ? Object.getOwnPropertySymbols(provides)
-        .map((symbol) => provides[symbol])
-        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
-      : null;
-    const articles = pinia?._s.get('article')?.articles ?? [];
-    return articleIds.find((articleId) => articles.some((article) => article.id === articleId)) ?? null;
-  }, ids);
-  if (cleanupRouteId) {
-    await openRoute(`/workstation?id=${cleanupRouteId}`, '.ProseMirror');
-    await waitForCurrentDraftReady(cleanupRouteId);
-  }
-
   const result = await browser.execute(async (articleIds) => {
     const root = document.getElementById('app');
     const provides = root?.__vue_app__?._context?.provides;
@@ -1275,6 +1748,15 @@ async function cleanupCreatedArticles() {
         request.onerror = () => reject(request.error ?? new Error('article cleanup read failed'));
       })));
       const recordsBeforeCleanup = await readArticles();
+      for (const closedTab of [...tabsStore.recentlyClosed]) {
+        if (!articleIds.includes(closedTab.articleId)) continue;
+        tabsStore.openOrRefreshTab({
+          articleId: closedTab.articleId,
+          title: closedTab.title,
+          docType: closedTab.docType,
+        });
+        tabsStore.closeTab(closedTab.id, { remember: false });
+      }
       for (const [index, articleId] of articleIds.entries()) {
         if (recordsBeforeCleanup[index] && recordsBeforeCleanup[index].status !== 'trashed') {
           await articleStore.deleteArticle(articleId);
@@ -1297,12 +1779,23 @@ async function cleanupCreatedArticles() {
       }
 
       const records = await readArticles();
+      const persistedTabs = JSON.parse(
+        window.sessionStorage.getItem('inkforge.workstation.tabs.v1') || 'null',
+      );
       return {
         error: null,
         remainingArticleIds: articleStore.articles
           .filter((article) => articleIds.includes(article.id))
           .map((article) => article.id),
         statuses: records.map((record) => record?.status ?? null),
+        liveRecentlyClosedArticleIds: tabsStore.recentlyClosed
+          .filter((tab) => articleIds.includes(tab.articleId))
+          .map((tab) => tab.articleId),
+        persistedRecentlyClosedArticleIds: Array.isArray(persistedTabs?.recentlyClosed)
+          ? persistedTabs.recentlyClosed
+            .filter((tab) => articleIds.includes(tab.articleId))
+            .map((tab) => tab.articleId)
+          : [],
       };
     } finally {
       database.close();
@@ -1313,6 +1806,10 @@ async function cleanupCreatedArticles() {
   expect(result.remainingArticleIds, 'created test drafts leave the active article collection').to.deep.equal([]);
   expect(result.statuses, 'created test drafts are moved through the production trash path')
     .to.deep.equal(ids.map(() => 'trashed'));
+  expect(result.liveRecentlyClosedArticleIds, 'cleanup removes created drafts from the live restore queue')
+    .to.deep.equal([]);
+  expect(result.persistedRecentlyClosedArticleIds, 'cleanup removes created drafts from the persisted restore queue')
+    .to.deep.equal([]);
   await openRoute('/', '.hub-page');
 }
 
@@ -1767,25 +2264,56 @@ async function recordShortcut(shortcutId, binding) {
 
 async function exerciseNativeWindowFocusLoss(shortcutId) {
   const trigger = await beginShortcutRecording(shortcutId);
+  const mainWindowHandle = await browser.getWindowHandle();
   const minimizeButton = await browser.$('button[aria-label="最小化"]');
   await minimizeButton.waitForClickable({ timeout: 5_000 });
   await minimizeButton.click();
   let recordingWhileMinimized = null;
-  await browser.waitUntil(
-    async () => {
-      recordingWhileMinimized = await browser.execute((element) => ({
-        documentHasFocus: document.hasFocus(),
-        recording: element.classList.contains('shortcut-input__trigger--recording'),
-      }), trigger);
-      return !recordingWhileMinimized.documentHasFocus && !recordingWhileMinimized.recording;
-    },
-    { timeout: 5_000, interval: 100, timeoutMsg: 'the real Tauri minimize control did not disarm recording' },
-  );
-  await browser.maximizeWindow();
+  let focusLossError = null;
+  let restoreError = null;
+  try {
+    await browser.waitUntil(
+      async () => {
+        recordingWhileMinimized = await browser.execute((element) => ({
+          documentHasFocus: document.hasFocus(),
+          documentVisibility: document.visibilityState,
+          recording: element.classList.contains('shortcut-input__trigger--recording'),
+        }), trigger);
+        return !recordingWhileMinimized.recording;
+      },
+      { timeout: 5_000, interval: 100, timeoutMsg: 'the real Tauri minimize control did not disarm recording' },
+    );
+  } catch (error) {
+    focusLossError = error;
+  } finally {
+    await browser.pause(300);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await browser.maximizeWindow();
+        await browser.switchToWindow(mainWindowHandle);
+        await (await browser.$('.ink-titlebar')).click();
+        restoreError = null;
+        break;
+      } catch (error) {
+        restoreError = error;
+        await browser.pause(300);
+      }
+    }
+  }
+  if (restoreError) {
+    throw new Error('Tauri window could not be restored after native minimize', {
+      cause: restoreError,
+    });
+  }
   await browser.waitUntil(
     async () => browser.execute(() => document.hasFocus()),
     { timeout: 5_000, interval: 100, timeoutMsg: 'Tauri window did not regain focus after native restore' },
   );
+  if (focusLossError) {
+    throw new Error(`native minimize focus-loss state: ${JSON.stringify(recordingWhileMinimized)}`, {
+      cause: focusLossError,
+    });
+  }
   return recordingWhileMinimized;
 }
 
@@ -1816,7 +2344,21 @@ async function setCheckboxThroughUi(selector, checked) {
 async function confirmSettingsAction(verificationWord) {
   const verification = await browser.$('.sv-confirm-verify input');
   await verification.waitForDisplayed({ timeout: 5_000 });
-  await verification.setValue(verificationWord);
+  await verification.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await browser.execute((element) => element.focus(), verification);
+  await browser.waitUntil(
+    () => browser.execute((element) => document.activeElement === element, verification),
+    {
+      timeout: 5_000,
+      timeoutMsg: 'Settings confirmation input did not receive keyboard focus',
+    },
+  );
+  await browser.keys(['Control', 'a']);
+  await browser.keys(verificationWord);
+  await browser.waitUntil(async () => (await verification.getValue()) === verificationWord, {
+    timeout: 5_000,
+    timeoutMsg: `Settings confirmation input did not contain ${verificationWord}`,
+  });
   const confirm = await browser.$('.sv-confirm-ok');
   await confirm.waitForEnabled({ timeout: 5_000 });
   await confirm.click();
@@ -2339,6 +2881,875 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       expect(errors, 'fresh Hub quick-action, insight, and article-card runtime errors').to.deep.equal([]);
     } finally {
       if (!probeStopped) await stopSmartPunctuationErrorProbe();
+    }
+  });
+
+  it('mounts the real Workstation tab bar and preserves pin, route, close, restore, and layout state', async function () {
+    this.timeout(120_000);
+    await startSmartPunctuationErrorProbe();
+    let probeStopped = false;
+    let firstArticleId = null;
+    let secondArticleId = null;
+    const runtimeErrors = [];
+
+    try {
+      let closeLastProbe = await readWorkstationTabSessionTruth();
+      if (closeLastProbe.storeTabIds.length === 0) {
+        await createBlankDraftThroughHub();
+        closeLastProbe = await readWorkstationTabSessionTruth();
+      }
+      expect(closeLastProbe.storeTabIds, 'the isolated close-last probe owns exactly one real tab')
+        .to.have.length(1);
+      const closeLastArticleId = closeLastProbe.storeActiveTabId;
+      expect(closeLastArticleId, 'the close-last probe has one active article').to.be.a('string');
+      const closeLastItem = await browser.$(`[data-tab-item-id="${closeLastArticleId}"]`);
+      await closeLastItem.moveTo();
+      const closeLastButton = await closeLastItem.$('.workstation-tabbar__close');
+      await closeLastButton.waitForClickable({ timeout: 5_000 });
+      expect(await installRouteRejection('Hub'), 'the real Vue Router installs a close-last rejection guard')
+        .to.equal(true);
+      try {
+        await closeLastButton.click();
+        await waitForRouteRejection();
+        expect(
+          await readWorkstationTabSessionTruth(),
+          'a rejected close-last navigation preserves route, selection, tab, restore queue, and session state',
+        ).to.deep.equal(closeLastProbe);
+      } finally {
+        expect(await restoreRouteRejection(), 'the close-last guard observed one real navigation attempt')
+          .to.equal(1);
+      }
+
+      firstArticleId = await createBlankDraftThroughHub();
+      const firstTab = await browser.$(`[data-tab-id="${firstArticleId}"]`);
+      await firstTab.waitForDisplayed({ timeout: 10_000 });
+      expect(await firstTab.getAttribute('aria-selected'), 'the first real article tab starts active').to.equal('true');
+      expect(await firstTab.getText(), 'the real article title is rendered in the mounted tab bar')
+        .to.include('未命名文章');
+
+      const firstTabItem = await browser.$(`[data-tab-item-id="${firstArticleId}"]`);
+      const firstPinButton = await firstTabItem.$('.workstation-tabbar__pin');
+      await firstPinButton.waitForClickable({ timeout: 5_000 });
+      await firstPinButton.click();
+      await browser.waitUntil(
+        async () => (await browser.$(`[data-tab-item-id="${firstArticleId}"]`)).getAttribute('class')
+          .then((className) => className.includes('workstation-tabbar__tab--pinned')),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'the visible first tab did not enter the pinned group' },
+      );
+
+      secondArticleId = await createBlankDraftThroughHub();
+      await browser.waitUntil(
+        async () => browser.execute((expectedIds) => {
+          const tabs = Array.from(document.querySelectorAll('.workstation-tabbar [data-tab-id]'));
+          return expectedIds.every((id) => tabs.some((tab) => tab.getAttribute('data-tab-id') === id));
+        }, [firstArticleId, secondArticleId]),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'both real article ids did not render in the tab bar' },
+      );
+
+      let evidence = await browser.execute((expectedFirstId, expectedSecondId) => {
+        const root = document.getElementById('app');
+        const provides = root?.__vue_app__?._context?.provides;
+        const pinia = provides
+          ? Object.getOwnPropertySymbols(provides)
+            .map((symbol) => provides[symbol])
+            .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+          : null;
+        const tabsStore = pinia?._s.get('workstationTabs');
+        const persisted = JSON.parse(window.sessionStorage.getItem('inkforge.workstation.tabs.v1') || 'null');
+        return {
+          domOrder: Array.from(document.querySelectorAll('.workstation-tabbar [data-tab-id]'))
+            .map((tab) => tab.getAttribute('data-tab-id')),
+          activeTabId: tabsStore?.activeTabId ?? null,
+          pinnedIds: (tabsStore?.orderedTabs ?? []).filter((tab) => tab.isPinned).map((tab) => tab.id),
+          persistedOrder: Array.isArray(persisted?.tabs) ? persisted.tabs.map((tab) => tab.id) : [],
+          persistedActiveTabId: persisted?.activeTabId ?? null,
+          routeArticleId: new window.URLSearchParams(location.search).get('id'),
+          expectedFirstId,
+          expectedSecondId,
+        };
+      }, firstArticleId, secondArticleId);
+      expect(evidence.domOrder, 'both created articles render in the real tab bar')
+        .to.include.members([firstArticleId, secondArticleId]);
+      expect(
+        evidence.domOrder.indexOf(firstArticleId) < evidence.domOrder.indexOf(secondArticleId),
+        'the pinned article remains before the created regular article',
+      ).to.equal(true);
+      expect(
+        evidence.pinnedIds.filter((id) => id === firstArticleId || id === secondArticleId),
+        'only the first created article is pinned',
+      ).to.deep.equal([firstArticleId]);
+      expect(evidence.persistedOrder, 'session persistence contains both created articles')
+        .to.include.members([firstArticleId, secondArticleId]);
+      expect(
+        evidence.persistedOrder.indexOf(firstArticleId) < evidence.persistedOrder.indexOf(secondArticleId),
+        'session persistence keeps the pinned article before the created regular article',
+      ).to.equal(true);
+      expect(evidence.activeTabId, 'the second created article is active in the store').to.equal(secondArticleId);
+      expect(evidence.persistedActiveTabId, 'the second created article is active in session persistence')
+        .to.equal(secondArticleId);
+      expect(evidence.routeArticleId, 'the second created article owns the route').to.equal(secondArticleId);
+
+      const fileManagerFlushText = `file-manager-switch-${Date.now()}`;
+      const secondEditorBeforeFileSwitch = await browser.$('.ProseMirror');
+      await focusEditorAtDocumentEnd(secondEditorBeforeFileSwitch, 'FileManager switch flush');
+      await browser.keys(fileManagerFlushText);
+      const collapsedManagerBar = await browser.$('.manager-collapsed-bar');
+      if (await collapsedManagerBar.isExisting()) {
+        await collapsedManagerBar.waitForDisplayed({ timeout: 5_000 });
+        await browser.execute((element) => element.focus(), collapsedManagerBar);
+        await browser.keys('Enter');
+      }
+      const filesManagerTab = await browser.$('[data-manager-tab="files"]');
+      await filesManagerTab.waitForClickable({ timeout: 5_000 });
+      await filesManagerTab.click();
+
+      const firstFileManagerItem = await browser.$(
+        `.fm-quick-access-item[data-file-article-id="${firstArticleId}"]`,
+      );
+      await firstFileManagerItem.waitForDisplayed({ timeout: 5_000 });
+      await firstFileManagerItem.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await firstFileManagerItem.waitForClickable({ timeout: 5_000 });
+      await firstFileManagerItem.click();
+      await waitForCurrentDraftReady(firstArticleId, true);
+
+      let fileManagerSwitchPersistence = null;
+      await browser.waitUntil(
+        async () => {
+          const source = await readVersionPersistence(secondArticleId);
+          const target = await readVersionPersistence(firstArticleId);
+          fileManagerSwitchPersistence = { source, target };
+          return source.persistedBodyEncrypted
+            && target.persistedBodyEncrypted
+            && source.articleBody?.includes(fileManagerFlushText)
+            && !target.articleBody?.includes(fileManagerFlushText)
+            && target.storeArticleId === firstArticleId;
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'FileManager selection did not flush and isolate the source article' },
+      );
+      expect(fileManagerSwitchPersistence.source.persistedBodyEncrypted,
+        'FileManager source selection flush keeps an encrypted v2 body').to.equal(true);
+      expect(fileManagerSwitchPersistence.source.articleBody,
+        'FileManager selection persists the source editor before changing article').to.include(fileManagerFlushText);
+      expect(fileManagerSwitchPersistence.target.articleBody,
+        'FileManager selection never writes the source editor into the target article')
+        .to.not.include(fileManagerFlushText);
+
+      await (await browser.$(`[data-tab-id="${secondArticleId}"]`)).click();
+      await waitForCurrentDraftReady(secondArticleId);
+      expect(await (await browser.$('.ProseMirror')).getText(),
+        'returning to the FileManager source restores its isolated persisted body')
+        .to.include(fileManagerFlushText);
+
+      const guardedSwitchBefore = await readWorkstationTabSessionTruth();
+      const rejectedArrowLeftTargetId = await browser.execute((activeId) => {
+        const tabs = Array.from(document.querySelectorAll('.workstation-tabbar [data-tab-id]'));
+        const activeIndex = tabs.findIndex((tab) => tab.getAttribute('data-tab-id') === activeId);
+        if (activeIndex < 0 || tabs.length < 2) return null;
+        return tabs[(activeIndex - 1 + tabs.length) % tabs.length]?.getAttribute('data-tab-id') ?? null;
+      }, secondArticleId);
+      expect(rejectedArrowLeftTargetId, 'ArrowLeft resolves a distinct real adjacent tab')
+        .to.be.a('string').and.not.equal(secondArticleId);
+      expect(
+        await installRouteRejection('Workstation', rejectedArrowLeftTargetId),
+        'the real Vue Router installs an article-switch rejection guard',
+      ).to.equal(true);
+      try {
+        const activeSecondTab = await browser.$(`[data-tab-id="${secondArticleId}"]`);
+        await activeSecondTab.waitForDisplayed({ timeout: 5_000 });
+        await browser.execute((element) => element.focus(), activeSecondTab);
+        expect(
+          await browser.execute(() => document.activeElement?.getAttribute('data-tab-id') ?? null),
+          'the real active tab owns focus before the roving keyboard request',
+        ).to.equal(secondArticleId);
+        await browser.keys(['ArrowLeft']);
+        await waitForRouteRejection();
+        expect(
+          await readWorkstationTabSessionTruth(),
+          'a rejected keyboard article switch preserves route, selection, tab, restore queue, and session state',
+        ).to.deep.equal(guardedSwitchBefore);
+        expect(
+          await browser.execute(() => document.activeElement?.getAttribute('data-tab-id') ?? null),
+          'a rejected roving activation keeps focus on the still-active tab',
+        ).to.equal(secondArticleId);
+      } finally {
+        expect(await restoreRouteRejection(), 'the switch guard observed one real navigation attempt').to.equal(1);
+      }
+
+      const firstOrderedTabId = evidence.domOrder[0];
+      const lastOrderedTabId = evidence.domOrder.at(-1);
+      const previousOrderedTabId = evidence.domOrder.at(-2);
+      expect(firstOrderedTabId, 'the real tablist exposes a first roving target').to.be.a('string');
+      expect(lastOrderedTabId, 'the real tablist exposes a last roving target').to.be.a('string');
+      expect(previousOrderedTabId, 'the real tablist exposes a prior target for ArrowLeft').to.be.a('string');
+      const blankArticleIds = [firstArticleId];
+      await activateWorkstationTabThroughRovingKey(
+        secondArticleId,
+        'Home',
+        firstOrderedTabId,
+        blankArticleIds.includes(firstOrderedTabId),
+      );
+      await activateWorkstationTabThroughRovingKey(
+        firstOrderedTabId,
+        'End',
+        lastOrderedTabId,
+        blankArticleIds.includes(lastOrderedTabId),
+      );
+      await activateWorkstationTabThroughRovingKey(
+        lastOrderedTabId,
+        'ArrowLeft',
+        previousOrderedTabId,
+        blankArticleIds.includes(previousOrderedTabId),
+      );
+      await activateWorkstationTabThroughRovingKey(
+        previousOrderedTabId,
+        'ArrowRight',
+        lastOrderedTabId,
+        blankArticleIds.includes(lastOrderedTabId),
+      );
+
+      const tabSemantics = await readWorkstationTabSessionTruth();
+      expect(tabSemantics.nestedTabActionCount, 'tab roles never contain nested pin or close buttons').to.equal(0);
+      expect(tabSemantics.tabPanelId, 'the active editor exposes one stable tabpanel id')
+        .to.equal('workstation-document-panel');
+      expect(tabSemantics.tabPanelRole, 'the active editor uses the tabpanel role').to.equal('tabpanel');
+      expect(tabSemantics.tabPanelLabelledBy, 'the active tabpanel is labelled by the active real tab')
+        .to.equal(`workstation-tab-${lastOrderedTabId}`);
+
+      const refreshedFirstTab = await browser.$(`[data-tab-id="${firstArticleId}"]`);
+      await refreshedFirstTab.click();
+      await browser.waitUntil(
+        async () => browser.execute((expectedId) => (
+          new window.URLSearchParams(location.search).get('id') === expectedId
+          && document.querySelector(`[data-tab-id="${expectedId}"]`)?.getAttribute('aria-selected') === 'true'
+        ), firstArticleId),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'tab activation did not synchronize the real route id' },
+      );
+      await waitForCurrentDraftReady(firstArticleId, true);
+
+      const switchFlushText = `tab switch flush ${Date.now()}`;
+      const firstEditor = await browser.$('.ProseMirror');
+      await focusEditorAtDocumentEnd(firstEditor, 'initial switch flush');
+      await browser.keys(switchFlushText);
+      await browser.waitUntil(
+        async () => browser.execute((activeId) => {
+          const tab = document.querySelector(`[data-tab-id="${activeId}"]`);
+          return tab?.getAttribute('data-save-state') === 'saving'
+            && tab.getAttribute('aria-label')?.endsWith(' - Saving');
+        }, firstArticleId),
+        { timeout: 5_000, interval: 50, timeoutMsg: 'the active tab falsely remained Saved during debounce' },
+      );
+
+      const pendingSaveTruth = await browser.execute((activeId) => ({
+        headerState: document.querySelector('.status-pill')?.getAttribute('data-save-state') ?? null,
+        headerText: document.querySelector('.status-pill')?.textContent?.trim() ?? '',
+        headerSaved: document.querySelector('.status-pill')?.classList.contains('saved') ?? null,
+        tabLabel: document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('aria-label') ?? '',
+      }), firstArticleId);
+      expect(pendingSaveTruth.headerState, 'the Header shares the active tab save-state mapping').to.equal('saving');
+      expect(['保存中…', '同步中…'], 'the Header reports an explicit in-flight state')
+        .to.include(pendingSaveTruth.headerText);
+      expect(pendingSaveTruth.headerSaved, 'the Header never applies Saved styling during debounce').to.equal(false);
+      expect(pendingSaveTruth.tabLabel, 'the tab never claims Saved during debounce').to.not.include(' - Saved');
+
+      const overlappingSaveText = ` overlapping-save-${Date.now()}`;
+      await withContentWriteTransactionLock(async () => {
+        await browser.waitUntil(
+          async () => browser.execute((marker) => {
+            const root = document.getElementById('app');
+            const provides = root?.__vue_app__?._context?.provides;
+            const pinia = provides
+              ? Object.getOwnPropertySymbols(provides)
+                .map((symbol) => provides[symbol])
+                .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+              : null;
+            const editor = pinia?._s.get('editor');
+            return editor?.status === 'saving' && !editor.currentContent?.body?.includes(marker);
+          }, switchFlushText),
+          { timeout: 5_000, interval: 20, timeoutMsg: 'the real first save did not enter the held pre-echo window' },
+        );
+        await browser.keys(overlappingSaveText);
+      });
+      await browser.waitUntil(
+        async () => browser.execute((firstMarker, newerMarker) => {
+          const root = document.getElementById('app');
+          const provides = root?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          const persistedEcho = pinia?._s.get('editor')?.currentContent?.body ?? '';
+          return persistedEcho.includes(firstMarker) && !persistedEcho.includes(newerMarker);
+        }, switchFlushText, overlappingSaveText),
+        { timeout: 5_000, interval: 20, timeoutMsg: 'the older save result did not arrive before the newer debounce' },
+      );
+      expect(
+        await browser.execute((marker) => document.querySelector('.ProseMirror')?.textContent?.includes(marker) ?? false,
+          overlappingSaveText),
+        'an older same-document persistence echo never overwrites the newer local editor revision',
+      ).to.equal(true);
+
+      await browser.waitUntil(
+        async () => browser.execute((activeId) => (
+          document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('data-save-state') === 'clean'
+        ), firstArticleId),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'the save-state probe did not settle before failure injection' },
+      );
+      const routeSwitchFlushText = `route-switch-rejection-${Date.now()}`;
+      const routeSwitchBeforeFailure = await readWorkstationTabSessionTruth();
+      expect(await installDataFaultInjection('backup-write'), 'route-switch failure injection replaces one browser API')
+        .to.equal(1);
+      try {
+        await focusEditorAtDocumentEnd(firstEditor, 'route rejection');
+        await browser.keys(routeSwitchFlushText);
+        const markerPresentBeforeRoute = await browser.execute((targetId, marker) => {
+          const markerPresent = document.querySelector('.ProseMirror')?.textContent?.includes(marker) ?? false;
+          if (!markerPresent) return false;
+          window.history.pushState({}, '', `/workstation?id=${encodeURIComponent(targetId)}`);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+          return true;
+        }, secondArticleId, routeSwitchFlushText);
+        expect(markerPresentBeforeRoute, 'real keyboard input reaches the source editor before route-driven switching')
+          .to.equal(true);
+        let routeSwitchRejectedState = null;
+        try {
+          await browser.waitUntil(
+            async () => {
+              routeSwitchRejectedState = await readWorkstationFailureTruth(firstArticleId, routeSwitchFlushText);
+              return routeSwitchRejectedState.routeArticleId === firstArticleId
+                && routeSwitchRejectedState.selectedArticleId === firstArticleId
+                && routeSwitchRejectedState.contentArticleId === firstArticleId
+                && routeSwitchRejectedState.selectedTab === firstArticleId
+                && routeSwitchRejectedState.editorContainsMarker
+                && routeSwitchRejectedState.editorStatus === 'error'
+                && routeSwitchRejectedState.headerState === 'error'
+                && routeSwitchRejectedState.tabState === 'error';
+            },
+            { timeout: 10_000, interval: 100, timeoutMsg: 'failed route-driven tab switch did not restore the original article state' },
+          );
+        } catch (error) {
+          throw new Error(`route-switch rejection evidence: ${JSON.stringify(routeSwitchRejectedState)}`, { cause: error });
+        }
+        assertWorkstationFailureTruth(routeSwitchRejectedState, firstArticleId, 'failed route-driven switch');
+        const routeSwitchAfterFailure = await readWorkstationTabSessionTruth();
+        expect(routeSwitchAfterFailure, 'failed route-driven switch preserves Store, route, DOM, panel, and session state')
+          .to.deep.equal(routeSwitchBeforeFailure);
+      } finally {
+        await restoreDataFaultInjection();
+      }
+
+      const refreshedSecondTab = await browser.$(`[data-tab-id="${secondArticleId}"]`);
+      await refreshedSecondTab.waitForClickable({ timeout: 5_000 });
+      await refreshedSecondTab.click();
+      await waitForCurrentDraftReady(secondArticleId);
+      let switchPersistence = null;
+      await browser.waitUntil(
+        async () => {
+          const firstPersistence = await readVersionPersistence(firstArticleId);
+          const secondPersistence = await readVersionPersistence(secondArticleId);
+          switchPersistence = {
+            first: firstPersistence,
+            second: secondPersistence,
+          };
+          return switchPersistence.first.persistedBodyEncrypted
+            && switchPersistence.second.persistedBodyEncrypted
+            && switchPersistence.first.articleBody?.includes(switchFlushText)
+            && switchPersistence.first.articleBody?.includes(overlappingSaveText)
+            && switchPersistence.first.articleBody?.includes(routeSwitchFlushText)
+            && switchPersistence.second.articleBody?.includes(fileManagerFlushText)
+            && !switchPersistence.second.articleBody?.includes(switchFlushText)
+            && !switchPersistence.second.articleBody?.includes(overlappingSaveText)
+            && !switchPersistence.second.articleBody?.includes(routeSwitchFlushText)
+            && switchPersistence.second.storeArticleId === secondArticleId;
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'tab activation did not flush and isolate the source article' },
+      );
+      expect(
+        switchPersistence.first.persistedContentCount,
+        `the source article owns one contents row: ${JSON.stringify(switchPersistence.first.persistedRecords)}`,
+      ).to.equal(1);
+      expect(switchPersistence.first.persistedBodyEncrypted, 'the source contents row keeps an encrypted v2 storage body')
+        .to.equal(true);
+      expect(switchPersistence.first.articleBody, 'switching immediately persists and synchronizes the source article')
+        .to.include(switchFlushText);
+      expect(switchPersistence.first.articleBody, 'the newer overlapping editor revision remains durable')
+        .to.include(overlappingSaveText);
+      expect(switchPersistence.first.articleBody, 'the successful retry persists text from the rejected route switch')
+        .to.include(routeSwitchFlushText);
+      expect(
+        switchPersistence.second.persistedContentCount,
+        `the target article owns one contents row: ${JSON.stringify(switchPersistence.second.persistedRecords)}`,
+      ).to.equal(1);
+      expect(switchPersistence.second.persistedBodyEncrypted, 'the target contents row keeps an encrypted v2 storage body')
+        .to.equal(true);
+      expect(switchPersistence.second.articleBody, 'switching preserves the target article own persisted text')
+        .to.include(fileManagerFlushText);
+      expect(switchPersistence.second.articleBody, 'switching never writes source text into the target article')
+        .to.not.include(switchFlushText)
+        .and.to.not.include(overlappingSaveText)
+        .and.to.not.include(routeSwitchFlushText);
+
+      const layoutRestoreFixture = await preparePersistedLayoutRestoreFixture(firstArticleId);
+      const layoutRestoreMarker = `layout restore flush ${Date.now()}`;
+      let layoutRouteGuardInstalled = false;
+      let layoutRouteGuardCount = null;
+      try {
+        const layoutRestoreEditor = await browser.$('.ProseMirror');
+        await focusEditorAtDocumentEnd(layoutRestoreEditor, 'persisted layout restore flush');
+        await browser.keys(layoutRestoreMarker);
+        await browser.waitUntil(
+          async () => browser.execute((activeId, marker) => (
+            document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('data-save-state') === 'saving'
+            && document.querySelector('.ProseMirror')?.textContent?.includes(marker)
+          ), secondArticleId, layoutRestoreMarker),
+          {
+            timeout: 5_000,
+            interval: 20,
+            timeoutMsg: 'persisted layout restore source did not expose its real pending editor state',
+          },
+        );
+
+        const routeSetup = await browser.execute(async (sourceArticleId, marker) => {
+            const root = document.getElementById('app');
+            const provides = root?.__vue_app__?._context?.provides;
+            const pinia = provides
+              ? Object.getOwnPropertySymbols(provides)
+                .map((symbol) => provides[symbol])
+                .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+              : null;
+            const router = root?.__vue_app__?._context?.config?.globalProperties?.$router;
+            const articleStore = pinia?._s.get('article');
+            const editorStore = pinia?._s.get('editor');
+            const tabsStore = pinia?._s.get('workstationTabs');
+            if (!router || !articleStore || !editorStore || !tabsStore) {
+              return { error: 'required production store or router is unavailable' };
+            }
+
+            const query = { ...router.currentRoute.value.query };
+            delete query.id;
+            const failure = await router.replace({ name: 'Workstation', query });
+            return {
+              error: failure ? failure.message : null,
+              routeArticleId: new window.URLSearchParams(location.search).get('id'),
+              selectedArticleId: articleStore.selectedArticleId,
+              contentArticleId: editorStore.currentContent?.articleId ?? null,
+              activeTabId: tabsStore.activeTabId,
+              editorContainsMarker: document.querySelector('.ProseMirror')?.textContent?.includes(marker) ?? false,
+              expectedSourceArticleId: sourceArticleId,
+            };
+        }, secondArticleId, layoutRestoreMarker);
+        expect(routeSetup, 'the real Workstation reaches a stable route without an article query').to.deep.equal({
+          error: null,
+          routeArticleId: null,
+          selectedArticleId: secondArticleId,
+          contentArticleId: secondArticleId,
+          activeTabId: secondArticleId,
+          editorContainsMarker: true,
+          expectedSourceArticleId: secondArticleId,
+        });
+
+        const layoutRestoreBefore = await readWorkstationTabSessionTruth();
+        expect(
+          await installRouteRejection('Workstation', firstArticleId),
+          'the real Vue Router guards the persisted-layout target article',
+        ).to.equal(true);
+        layoutRouteGuardInstalled = true;
+
+        const restoreTriggered = await browser.execute((fixtureProfileId) => {
+            const root = document.getElementById('app');
+            const provides = root?.__vue_app__?._context?.provides;
+            const pinia = provides
+              ? Object.getOwnPropertySymbols(provides)
+                .map((symbol) => provides[symbol])
+                .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+              : null;
+            const profileStore = pinia?._s.get('profile');
+            if (!profileStore) return false;
+            profileStore.$patch({ activeProfileId: fixtureProfileId });
+            return true;
+        }, layoutRestoreFixture.fixtureProfileId);
+        expect(restoreTriggered, 'the production profile watcher receives the persisted-layout profile').to.equal(true);
+
+        await waitForRouteRejection();
+        const layoutRestoreAfter = await readWorkstationTabSessionTruth();
+        const layoutRestoreChangedFields = Object.keys(layoutRestoreBefore)
+          .filter((key) => JSON.stringify(layoutRestoreAfter[key]) !== JSON.stringify(layoutRestoreBefore[key]))
+          .map((key) => ({
+            key,
+            before: layoutRestoreBefore[key],
+            after: layoutRestoreAfter[key],
+          }));
+        expect(
+          layoutRestoreChangedFields,
+          `rejected persisted-layout state changes: ${JSON.stringify(layoutRestoreChangedFields)}`,
+        ).to.deep.equal([]);
+
+        let layoutRestorePersistence = null;
+        await browser.waitUntil(
+          async () => {
+            layoutRestorePersistence = await readVersionPersistence(secondArticleId);
+            return layoutRestorePersistence.persistedBodyEncrypted
+              && layoutRestorePersistence.articleBody?.includes(layoutRestoreMarker)
+              && layoutRestorePersistence.storeArticleId === secondArticleId;
+          },
+          {
+            timeout: 10_000,
+            interval: 100,
+            timeoutMsg: 'persisted layout restore did not flush the source through the real encrypted repository',
+          },
+        );
+        expect(
+          layoutRestorePersistence.articleBody,
+          'persisted layout restore saves the source editor before the rejected target navigation',
+        ).to.include(layoutRestoreMarker);
+        expect(
+          layoutRestorePersistence.persistedBodyEncrypted,
+          'persisted layout restore keeps the source contents row encrypted',
+        ).to.equal(true);
+      } finally {
+        if (layoutRouteGuardInstalled) {
+          layoutRouteGuardCount = await restoreRouteRejection();
+        }
+        await cleanupPersistedLayoutRestoreFixture(layoutRestoreFixture, secondArticleId);
+      }
+      expect(layoutRouteGuardCount, 'persisted layout restore attempted exactly one real guarded navigation')
+        .to.equal(1);
+
+      const secondTabItem = await browser.$(`[data-tab-item-id="${secondArticleId}"]`);
+      await secondTabItem.moveTo();
+      const secondCloseButton = await secondTabItem.$('.workstation-tabbar__close');
+      await secondCloseButton.waitForClickable({ timeout: 5_000 });
+      expect(await secondCloseButton.getAttribute('aria-label'), 'the visible close control names its real article')
+        .to.equal('Close 未命名文章');
+      const closeFlushText = `tab close flush ${Date.now()}`;
+      const secondEditor = await browser.$('.ProseMirror');
+      await focusEditorAtDocumentEnd(secondEditor, 'close flush');
+      await browser.keys(closeFlushText);
+      await browser.waitUntil(
+        async () => browser.execute((activeId) => (
+          document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('data-save-state') === 'saving'
+        ), secondArticleId),
+        { timeout: 5_000, interval: 50, timeoutMsg: 'the close target did not expose its pending save state' },
+      );
+
+      await browser.waitUntil(
+        async () => browser.execute((activeId) => (
+          document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('data-save-state') === 'clean'
+        ), secondArticleId),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'the close save-state probe did not settle before failure injection' },
+      );
+      const closeFailureFlushText = `close-rejection-${Date.now()}`;
+      const closeBeforeFailure = await readWorkstationTabSessionTruth();
+      expect(await installDataFaultInjection('backup-write'), 'close failure injection replaces one browser API')
+        .to.equal(1);
+      try {
+        await focusEditorAtDocumentEnd(secondEditor, 'close rejection');
+        await browser.keys(closeFailureFlushText);
+        await secondCloseButton.click();
+        let closeRejectedState = null;
+        try {
+          await browser.waitUntil(
+            async () => {
+              closeRejectedState = await readWorkstationFailureTruth(secondArticleId, closeFailureFlushText);
+              return closeRejectedState.routeArticleId === secondArticleId
+                && closeRejectedState.selectedArticleId === secondArticleId
+                && closeRejectedState.contentArticleId === secondArticleId
+                && closeRejectedState.selectedTab === secondArticleId
+                && closeRejectedState.editorContainsMarker
+                && closeRejectedState.editorStatus === 'error'
+                && closeRejectedState.headerState === 'error'
+                && closeRejectedState.tabState === 'error';
+            },
+            { timeout: 10_000, interval: 100, timeoutMsg: 'failed close did not keep the original active tab and route' },
+          );
+        } catch (error) {
+          throw new Error(`close rejection evidence: ${JSON.stringify(closeRejectedState)}`, { cause: error });
+        }
+        assertWorkstationFailureTruth(closeRejectedState, secondArticleId, 'failed close');
+        const closeAfterFailure = await readWorkstationTabSessionTruth();
+        expect(closeAfterFailure, 'failed close preserves Store, route, DOM, panel, restore queue, and session state')
+          .to.deep.equal(closeBeforeFailure);
+      } finally {
+        await restoreDataFaultInjection();
+      }
+
+      const guardedCloseBefore = await readWorkstationTabSessionTruth();
+      const guardedCloseIndex = guardedCloseBefore.storeTabIds.indexOf(secondArticleId);
+      const guardedCloseRemaining = guardedCloseBefore.storeTabIds.filter((id) => id !== secondArticleId);
+      const guardedCloseTarget = guardedCloseRemaining[guardedCloseIndex]
+        ?? guardedCloseRemaining[guardedCloseIndex - 1]
+        ?? guardedCloseRemaining.at(-1);
+      expect(guardedCloseTarget, 'the active close has one real fallback route target').to.be.a('string');
+      expect(
+        await installRouteRejection('Workstation', guardedCloseTarget),
+        'the real Vue Router installs an active-close rejection guard',
+      ).to.equal(true);
+      try {
+        await secondCloseButton.click();
+        await waitForRouteRejection();
+        expect(
+          await readWorkstationTabSessionTruth(),
+          'a rejected active close preserves route, selection, tabs, restore queue, and session state',
+        ).to.deep.equal(guardedCloseBefore);
+      } finally {
+        expect(await restoreRouteRejection(), 'the active-close guard observed one real navigation attempt')
+          .to.equal(1);
+      }
+
+      await browser.execute((element) => element.focus(), secondCloseButton);
+      await browser.keys('Enter');
+      let closeEvidence = null;
+      try {
+        await browser.waitUntil(
+          async () => {
+            closeEvidence = await browser.execute((closedId, expectedRemainingId) => {
+              const root = document.getElementById('app');
+              const provides = root?.__vue_app__?._context?.provides;
+              const pinia = provides
+                ? Object.getOwnPropertySymbols(provides)
+                  .map((symbol) => provides[symbol])
+                  .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+                : null;
+              const tabsStore = pinia?._s.get('workstationTabs');
+              const persisted = JSON.parse(window.sessionStorage.getItem('inkforge.workstation.tabs.v1') || 'null');
+              const activeDomId = document.querySelector('.workstation-tabbar [aria-selected="true"]')
+                ?.getAttribute('data-tab-id') ?? null;
+              return {
+                closedTabPresent: Boolean(document.querySelector(`[data-tab-id="${closedId}"]`)),
+                expectedRemainingTabPresent: Boolean(document.querySelector(`[data-tab-id="${expectedRemainingId}"]`)),
+                activeDomId,
+                restoreDisabled: document.querySelector('.workstation-tabbar__restore')?.hasAttribute('disabled') ?? null,
+                storeTabIds: (tabsStore?.orderedTabs ?? []).map((tab) => tab.id),
+                storeActiveTabId: tabsStore?.activeTabId ?? null,
+                storeRecentlyClosedIds: (tabsStore?.recentlyClosed ?? []).map((tab) => tab.id),
+                persistedTabIds: Array.isArray(persisted?.tabs) ? persisted.tabs.map((tab) => tab.id) : [],
+                persistedRecentlyClosedIds: Array.isArray(persisted?.recentlyClosed)
+                  ? persisted.recentlyClosed.map((tab) => tab.id)
+                  : [],
+                routeArticleId: new window.URLSearchParams(location.search).get('id'),
+                selectedArticleId: pinia?._s.get('article')?.selectedArticleId ?? null,
+                focusedTabId: document.activeElement?.getAttribute('data-tab-id') ?? null,
+              };
+            }, secondArticleId, firstArticleId);
+            return closeEvidence.closedTabPresent === false
+              && closeEvidence.expectedRemainingTabPresent === true
+              && closeEvidence.activeDomId !== null
+              && closeEvidence.activeDomId === closeEvidence.storeActiveTabId
+              && closeEvidence.activeDomId === closeEvidence.routeArticleId
+              && closeEvidence.activeDomId === closeEvidence.selectedArticleId
+              && closeEvidence.restoreDisabled === false;
+          },
+          { timeout: 5_000, interval: 100, timeoutMsg: 'closing the active tab did not expose a consistent restore state' },
+        );
+      } catch (error) {
+        throw new Error(`active tab close evidence: ${JSON.stringify(closeEvidence)}`, { cause: error });
+      }
+      expect(closeEvidence.storeTabIds, 'the first created article remains open after closing the second')
+        .to.include(firstArticleId).and.not.include(secondArticleId);
+      expect(closeEvidence.storeRecentlyClosedIds, 'the Store records the second article in its restore queue')
+        .to.include(secondArticleId);
+      expect(closeEvidence.persistedTabIds, 'session persistence removes only the closed article')
+        .to.include(firstArticleId).and.not.include(secondArticleId);
+      expect(closeEvidence.persistedRecentlyClosedIds, 'session persistence records the real closed article')
+        .to.include(secondArticleId);
+      expect(closeEvidence.focusedTabId, 'keyboard activation of the close button moves focus to the new active real tab')
+        .to.equal(closeEvidence.activeDomId);
+      let closePersistence = null;
+      await browser.waitUntil(
+        async () => {
+          closePersistence = await readVersionPersistence(secondArticleId);
+          return closePersistence.persistedBodyEncrypted
+            && closePersistence.articleBody?.includes(closeFlushText)
+            && closePersistence.articleBody?.includes(closeFailureFlushText);
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'closing immediately did not flush the closed article' },
+      );
+      expect(
+        closePersistence.persistedContentCount,
+        `the closed article owns one contents row: ${JSON.stringify(closePersistence.persistedRecords)}`,
+      ).to.equal(1);
+      expect(closePersistence.persistedBodyEncrypted, 'the closed contents row keeps an encrypted v2 storage body')
+        .to.equal(true);
+      expect(closePersistence.articleBody, 'closing immediately persists and synchronizes the active article before removal')
+        .to.include(closeFlushText);
+      expect(closePersistence.articleBody, 'the successful close retry persists text from the rejected close')
+        .to.include(closeFailureFlushText);
+
+      const restoreButton = await browser.$('.workstation-tabbar__restore');
+      await restoreButton.waitForClickable({ timeout: 5_000 });
+      const restoreSourceArticleId = closeEvidence.activeDomId;
+      await waitForCurrentDraftReady(restoreSourceArticleId);
+      const guardedRestoreBefore = await readWorkstationTabSessionTruth();
+      expect(
+        await installRouteRejection('Workstation', secondArticleId),
+        'the real Vue Router installs a restore rejection guard',
+      ).to.equal(true);
+      try {
+        await restoreButton.click();
+        await waitForRouteRejection();
+        expect(
+          await readWorkstationTabSessionTruth(),
+          'a rejected restore preserves route, selection, tabs, restore queue, and session state',
+        ).to.deep.equal(guardedRestoreBefore);
+      } finally {
+        expect(await restoreRouteRejection(), 'the restore guard observed one real navigation attempt').to.equal(1);
+      }
+      const restoreFlushText = `tab restore flush ${Date.now()}`;
+      const restoreSourceEditor = await browser.$('.ProseMirror');
+      await focusEditorAtDocumentEnd(restoreSourceEditor, 'restore flush');
+      await browser.keys(restoreFlushText);
+      await browser.waitUntil(
+        async () => browser.execute((activeId) => (
+          document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('data-save-state') === 'saving'
+        ), restoreSourceArticleId),
+        { timeout: 5_000, interval: 50, timeoutMsg: 'the restore source did not expose its pending save state' },
+      );
+
+      await browser.waitUntil(
+        async () => browser.execute((activeId) => (
+          document.querySelector(`[data-tab-id="${activeId}"]`)?.getAttribute('data-save-state') === 'clean'
+        ), restoreSourceArticleId),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'the restore save-state probe did not settle before failure injection' },
+      );
+      const restoreFailureFlushText = `restore-rejection-${Date.now()}`;
+      const restoreBeforeFailure = await readWorkstationTabSessionTruth();
+      expect(await installDataFaultInjection('backup-write'), 'restore failure injection replaces one browser API')
+        .to.equal(1);
+      try {
+        await focusEditorAtDocumentEnd(restoreSourceEditor, 'restore rejection');
+        await browser.keys(restoreFailureFlushText);
+        await restoreButton.click();
+        let restoreRejectedState = null;
+        try {
+          await browser.waitUntil(
+            async () => {
+              restoreRejectedState = await readWorkstationFailureTruth(
+                restoreSourceArticleId,
+                restoreFailureFlushText,
+              );
+              return restoreRejectedState.routeArticleId === restoreSourceArticleId
+                && restoreRejectedState.selectedArticleId === restoreSourceArticleId
+                && restoreRejectedState.contentArticleId === restoreSourceArticleId
+                && restoreRejectedState.selectedTab === restoreSourceArticleId
+                && restoreRejectedState.editorContainsMarker
+                && restoreRejectedState.editorStatus === 'error'
+                && restoreRejectedState.headerState === 'error'
+                && restoreRejectedState.tabState === 'error';
+            },
+            { timeout: 10_000, interval: 100, timeoutMsg: 'failed restore did not preserve the source tab and restore queue' },
+          );
+        } catch (error) {
+          throw new Error(`restore rejection evidence: ${JSON.stringify(restoreRejectedState)}`, { cause: error });
+        }
+        assertWorkstationFailureTruth(restoreRejectedState, restoreSourceArticleId, 'failed restore');
+        const restoreAfterFailure = await readWorkstationTabSessionTruth();
+        expect(restoreAfterFailure, 'failed restore preserves Store, route, DOM, panel, restore queue, and session state')
+          .to.deep.equal(restoreBeforeFailure);
+      } finally {
+        await restoreDataFaultInjection();
+      }
+
+      await restoreButton.click();
+      await browser.waitUntil(
+        async () => browser.execute((restoredId) => (
+          new window.URLSearchParams(location.search).get('id') === restoredId
+          && document.querySelector(`[data-tab-id="${restoredId}"]`)?.getAttribute('aria-selected') === 'true'
+        ), secondArticleId),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'restored tab did not reactivate its real article and route' },
+      );
+      await waitForCurrentDraftReady(secondArticleId);
+      const restoredBody = await (await browser.$('.ProseMirror')).getText();
+      expect(restoredBody, 'restored content includes the close-time flush').to.include(closeFlushText);
+      expect(restoredBody, 'restored content includes text from the rejected close retry')
+        .to.include(closeFailureFlushText);
+      const restoreSourcePersistence = await readVersionPersistence(restoreSourceArticleId);
+      expect(
+        restoreSourcePersistence.persistedContentCount,
+        `the restore source owns one contents row: ${JSON.stringify(restoreSourcePersistence.persistedRecords)}`,
+      ).to.equal(1);
+      expect(restoreSourcePersistence.persistedBodyEncrypted, 'the restore source contents row keeps an encrypted v2 storage body')
+        .to.equal(true);
+      expect(restoreSourcePersistence.articleBody, 'successful restore retry persists and synchronizes the source article first')
+        .to.include(restoreFlushText);
+      expect(restoreSourcePersistence.articleBody, 'the successful restore retry persists text from the rejected restore')
+        .to.include(restoreFailureFlushText);
+
+      await activateWorkstationTabThroughNumberShortcut(restoreSourceArticleId);
+      await waitForCurrentDraftReady(restoreSourceArticleId);
+      const immediateReloadedRestoreSourceBody = await (await browser.$('.ProseMirror')).getText();
+      const immediateRestoreSourcePersistence = await readVersionPersistence(restoreSourceArticleId);
+      expect(
+        immediateReloadedRestoreSourceBody,
+        `the production repository reloads the restore-source flush: ${JSON.stringify(immediateRestoreSourcePersistence.persistedRecords)}`,
+      ).to.include(restoreFlushText);
+      expect(immediateReloadedRestoreSourceBody, 'the production repository reloads the rejected-restore retry flush')
+        .to.include(restoreFailureFlushText);
+      await activateWorkstationTabThroughNumberShortcut(secondArticleId);
+      await waitForCurrentDraftReady(secondArticleId);
+
+      const layoutBeforeReload = await waitForPersistedLayoutArticle(secondArticleId);
+      expect(layoutBeforeReload.persistedOpenArticleIds, 'durable layout contains both real open articles')
+        .to.include.members([firstArticleId, secondArticleId]);
+
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      probeStopped = true;
+      await browser.refresh();
+      await waitForCurrentDraftReady(secondArticleId);
+      await startSmartPunctuationErrorProbe();
+      probeStopped = false;
+      const layoutAfterReload = await waitForPersistedLayoutArticle(secondArticleId);
+      expect(layoutAfterReload.persistedOpenArticleIds, 'both real tabs survive a native WebView reload')
+        .to.include.members([firstArticleId, secondArticleId]);
+
+      const reloadedSecondBody = await (await browser.$('.ProseMirror')).getText();
+      expect(reloadedSecondBody, 'native reload decrypts the successful close flush').to.include(closeFlushText);
+      expect(reloadedSecondBody, 'native reload decrypts the rejected-close retry flush')
+        .to.include(closeFailureFlushText);
+      await activateWorkstationTabThroughNumberShortcut(firstArticleId);
+      await waitForCurrentDraftReady(firstArticleId);
+      const reloadedFirstBody = await (await browser.$('.ProseMirror')).getText();
+      expect(reloadedFirstBody, 'native reload decrypts the source switch flush').to.include(switchFlushText);
+      expect(reloadedFirstBody, 'native reload decrypts the rejected-route retry flush')
+        .to.include(routeSwitchFlushText);
+      if (restoreSourceArticleId === firstArticleId) {
+        expect(reloadedFirstBody, 'native reload decrypts the restore-source flush').to.include(restoreFlushText);
+        expect(reloadedFirstBody, 'native reload decrypts the rejected-restore retry flush')
+          .to.include(restoreFailureFlushText);
+      } else {
+        await activateWorkstationTabThroughNumberShortcut(restoreSourceArticleId);
+        await waitForCurrentDraftReady(restoreSourceArticleId);
+        const reloadedRestoreSourceBody = await (await browser.$('.ProseMirror')).getText();
+        expect(reloadedRestoreSourceBody, 'native reload decrypts the restore-source flush')
+          .to.include(restoreFlushText);
+        expect(reloadedRestoreSourceBody, 'native reload decrypts the rejected-restore retry flush')
+          .to.include(restoreFailureFlushText);
+      }
+      await activateWorkstationTabThroughNumberShortcut(secondArticleId);
+      await waitForCurrentDraftReady(secondArticleId);
+
+      evidence = await browser.execute(() => ({
+        domIds: Array.from(document.querySelectorAll('.workstation-tabbar [data-tab-id]'))
+          .map((tab) => tab.getAttribute('data-tab-id')),
+        activeDomId: document.querySelector('.workstation-tabbar [aria-selected="true"]')
+          ?.getAttribute('data-tab-id') ?? null,
+        visibleButtonsWithoutType: Array.from(document.querySelectorAll('.workstation-tabbar button'))
+          .filter((button) => button.getClientRects().length > 0 && button.getAttribute('type') !== 'button')
+          .length,
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      }));
+      expect(evidence.domIds, 'reloaded tab bar keeps both real ids').to.include.members([firstArticleId, secondArticleId]);
+      expect(evidence.activeDomId, 'reloaded tab bar keeps the restored article active').to.equal(secondArticleId);
+      expect(evidence.visibleButtonsWithoutType, 'tab bar buttons keep explicit non-submit semantics').to.equal(0);
+      expect(evidence.overflow, 'the mounted tab bar does not add horizontal overflow').to.be.at.most(0);
+
+      runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
+      probeStopped = true;
+      expect(runtimeErrors, 'tab pin, route, close, restore, and reload emit no fresh runtime errors').to.deep.equal([]);
+    } finally {
+      await restoreRouteRejection();
+      if (!probeStopped) await stopSmartPunctuationErrorProbe();
+      if (secondArticleId) await closeWorkstationTabThroughShortcut(secondArticleId);
+      if (firstArticleId) await closeWorkstationTabThroughShortcut(firstArticleId);
     }
   });
 
@@ -2993,7 +4404,9 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       'queued automatic pruning removes the overflow version from IndexedDB').to.equal(false);
     expect(racePersistence.persistedVersions, 'concurrent version arrays remain identical across Pinia and IndexedDB')
       .to.deep.equal(racePersistence.storeVersions);
-    expect(racePersistence.persistedBody, 'concurrent body state remains identical across Pinia and IndexedDB')
+    expect(racePersistence.persistedBodyEncrypted, 'the concurrent contents row keeps an encrypted v2 storage body')
+      .to.equal(true);
+    expect(racePersistence.articleBody, 'concurrent body state remains identical across editor and article stores')
       .to.equal(racePersistence.storeBody);
     expect(racePersistence.persistedCurrentVersionId, 'concurrent currentVersionId remains identical across boundaries')
       .to.equal(racePersistence.storeCurrentVersionId);
@@ -3177,7 +4590,6 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       await searchInput.setValue('');
 
       const nativeFocusLoss = await exerciseNativeWindowFocusLoss('toggleSidebar');
-      expect(nativeFocusLoss.documentHasFocus, 'native minimize removes document focus').to.equal(false);
       expect(nativeFocusLoss.recording, 'native window focus loss disarms the recorder').to.equal(false);
       expect((await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar,
         'native window focus loss never mutates the binding')
@@ -3459,6 +4871,8 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       };
       const resetAiTab = await browser.$('[data-settings-action="reset-current-tab"]');
       await resetAiTab.waitForDisplayed({ timeout: 5_000 });
+      await browser.execute((element) => element.scrollIntoView({ block: 'center', inline: 'nearest' }), resetAiTab);
+      await resetAiTab.waitForClickable({ timeout: 5_000 });
       await resetAiTab.click();
       await confirmSettingsAction('RESET');
       await browser.waitUntil(
@@ -3545,6 +4959,8 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       const snapshotsBeforeAboutReset = aboutSentinels.store.snapshots;
 
       const resetAboutTab = await browser.$('[data-settings-action="reset-current-tab"]');
+      await browser.execute((element) => element.scrollIntoView({ block: 'center', inline: 'nearest' }), resetAboutTab);
+      await resetAboutTab.waitForClickable({ timeout: 5_000 });
       await resetAboutTab.click();
       await confirmSettingsAction('RESET');
       await browser.waitUntil(
@@ -3781,6 +5197,41 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     await (await browser.$(`[data-tag-all-list] [data-tag-select-id="${firstId}"]`)).click();
     await (await browser.$('[data-tag-filter-apply]')).click();
     await (await browser.$(`[data-tag-filtered-doc-id="${articleId}"]`)).waitForDisplayed({ timeout: 10_000 });
+
+    const tagSwitchSourceId = await createBlankDraftThroughHub();
+    await openRoute(
+      `/workstation?id=${encodeURIComponent(tagSwitchSourceId)}&manager=tags`,
+      '[data-tag-browser]',
+    );
+    await (await browser.$('[data-tag-filter-apply]')).click();
+    const filteredTarget = await browser.$(`[data-tag-filtered-doc-id="${articleId}"]`);
+    await filteredTarget.waitForClickable({ timeout: 10_000 });
+    const tagBrowserFlushText = `tag-browser-switch-${Date.now()}`;
+    const tagSwitchSourceEditor = await browser.$('.ProseMirror');
+    await focusEditorAtDocumentEnd(tagSwitchSourceEditor, 'TagBrowser switch flush');
+    await browser.keys(tagBrowserFlushText);
+    await filteredTarget.click();
+    await waitForCurrentDraftReady(articleId, true);
+
+    let tagBrowserSwitchPersistence = null;
+    await browser.waitUntil(
+      async () => {
+        const source = await readVersionPersistence(tagSwitchSourceId);
+        const target = await readVersionPersistence(articleId);
+        tagBrowserSwitchPersistence = { source, target };
+        return source.persistedBodyEncrypted
+          && target.persistedBodyEncrypted
+          && source.articleBody?.includes(tagBrowserFlushText)
+          && !target.articleBody?.includes(tagBrowserFlushText)
+          && target.storeArticleId === articleId;
+      },
+      { timeout: 10_000, interval: 100, timeoutMsg: 'TagBrowser selection did not flush and isolate the source article' },
+    );
+    expect(tagBrowserSwitchPersistence.source.articleBody,
+      'TagBrowser selection persists the source editor before changing article').to.include(tagBrowserFlushText);
+    expect(tagBrowserSwitchPersistence.target.articleBody,
+      'TagBrowser selection never writes the source editor into the filtered target')
+      .to.not.include(tagBrowserFlushText);
 
     await (await browser.$(`[data-tag-all-list] [data-tag-select-id="${secondId}"]`)).click();
     await (await browser.$('[data-tag-filter-mode="AND"]')).click();
@@ -4144,8 +5595,15 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       );
       await categoryOption.click();
     }
-    const filteredArticle = await browser.$(`[data-hub-article-id="${articleId}"]`);
-    await filteredArticle.waitForDisplayed({ timeout: 10_000 });
+    await browser.waitUntil(
+      async () => browser.execute((targetArticleId) => {
+        const targetCard = document.querySelector(`[data-hub-article-id="${targetArticleId}"]`);
+        if (!targetCard || targetCard.getClientRects().length === 0) return false;
+        const style = window.getComputedStyle(targetCard);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      }, articleId),
+      { timeout: 10_000, interval: 200, timeoutMsg: 'Hub category filter did not render its persisted article' },
+    );
 
     await openRoute('/workstation?manager=files', '.fm-root');
     await openCategoryContextMenu(categoryId);

@@ -43,6 +43,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useAssetStore } from '@/stores/asset'
 import { useSnippetStore } from '@/stores/snippet'
 import { useWritingAssistStore } from '@/stores/writingAssist'
+import { logger } from '@/services/error'
 import { ImageV2Extension, ImageDropPaste, type ImageIngressState, type InsertedImageAsset } from '@/extensions/ImageV2'
 import { RichCodeBlock } from '@/extensions/RichCodeBlock'
 import { DetailsBlock } from '@/extensions/DetailsBlock'
@@ -118,13 +119,23 @@ const writingAssistStore = useWritingAssistStore()
 const { currentContent, status: editorStatus, error: editorError } = storeToRefs(editorStore)
 
 // 派生状态
+const isEditorHydrating = ref(false)
 const isReady = computed(() => editorStatus.value === 'ready' || editorStatus.value === 'saving')
-const isLoading = computed(() => editorStatus.value === 'loading')
+const isLoading = computed(() => editorStatus.value === 'loading' || isEditorHydrating.value)
 
 // 本地编辑状态
 const titleText = ref('')
 const transcriptText = ref('')
 const sourceMarkdown = ref('')
+
+interface EditorSaveRequest {
+  contentId: string
+  articleId: string
+  markdown: string
+  title: string
+  transcript: string
+  saveSequence: number
+}
 
 type TyporaExtensionRecord = {
   name: string
@@ -151,8 +162,10 @@ let isApplyingSourceProjection = false
 let saveTimeout: ReturnType<typeof setTimeout> | undefined
 let sourceProjectionTimeout: ReturnType<typeof setTimeout> | undefined
 let pendingSaveSequence = 0
+let completedSaveSequence = 0
 let hydrationSequence = 0
 let hydratedArticleId: string | null = null
+let activeEditorHydration: { content: EditedContent; promise: Promise<void> } | null = null
 
 const syncState = ref<TyporaSyncState>('offline')
 
@@ -488,10 +501,10 @@ function initializeBodyEditor(): void {
   }
   syncDevPanelEditorBridge()
 
-  setSyncState(editorStatus.value === 'ready' || editorStatus.value === 'saving' ? 'synced' : 'offline')
+  setSyncState('offline')
 
   if (currentContent.value && isReady.value) {
-    void hydrateEditorContent(currentContent.value)
+    void requestEditorHydration(currentContent.value)
   }
 }
 
@@ -564,34 +577,91 @@ watch(
 
 async function hydrateEditorContent(content: EditedContent): Promise<void> {
   const currentHydration = ++hydrationSequence
-  const rawBody = content.body ?? ''
-  const markdown = isLikelyHtmlContent(rawBody)
-    ? serializeHtmlToMarkdown(rawBody)
-    : rawBody
-  const html = isLikelyHtmlContent(rawBody)
-    ? rawBody
-    : await renderMarkdownToHtml(markdown)
+  const articleId = content.articleId
+  isEditorHydrating.value = true
+  setSyncState('offline')
 
-  if (hydrationSequence !== currentHydration) {
-    return
-  }
+  try {
+    const rawBody = content.body ?? ''
+    const markdown = isLikelyHtmlContent(rawBody)
+      ? serializeHtmlToMarkdown(rawBody)
+      : rawBody
+    const html = isLikelyHtmlContent(rawBody)
+      ? rawBody
+      : await renderMarkdownToHtml(markdown)
 
-  isHydratingFromStore = true
-  titleText.value = content.title
-  transcriptText.value = content.transcript
-  sourceMarkdown.value = markdown
-  void assetStore.loadAssets(content.articleId)
+    if (
+      hydrationSequence !== currentHydration
+      || currentContent.value?.articleId !== articleId
+      || !isReady.value
+    ) {
+      return
+    }
 
-  if (bodyEditor.value && bodyEditor.value.getHTML() !== html) {
-    bodyEditor.value.commands.setContent(html || '', true)
-  }
-  hydratedArticleId = content.articleId
+    isHydratingFromStore = true
+    titleText.value = content.title
+    transcriptText.value = content.transcript
+    sourceMarkdown.value = markdown
+    void assetStore.loadAssets(content.articleId)
 
-  requestAnimationFrame(() => {
+    if (bodyEditor.value && bodyEditor.value.getHTML() !== html) {
+      bodyEditor.value.commands.setContent(html || '', true)
+    }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    if (
+      hydrationSequence !== currentHydration
+      || currentContent.value?.articleId !== articleId
+      || !isReady.value
+    ) {
+      return
+    }
+
+    hydratedArticleId = articleId
+    completedSaveSequence = pendingSaveSequence
     isHydratingFromStore = false
-  })
+    setSyncState('synced')
+  } finally {
+    if (hydrationSequence === currentHydration) {
+      isHydratingFromStore = false
+      isEditorHydrating.value = false
+    }
+  }
+}
 
-  setSyncState(isReady.value ? 'synced' : 'offline')
+function requestEditorHydration(content: EditedContent): Promise<void> {
+  if (activeEditorHydration?.content === content) {
+    return activeEditorHydration.promise
+  }
+
+  const promise = hydrateEditorContent(content)
+  activeEditorHydration = { content, promise }
+  void promise
+    .catch((error: unknown) => {
+      if (activeEditorHydration?.promise !== promise) {
+        return
+      }
+      setSyncState('offline')
+      logger.warn('[EditorPanel] content hydration failed', {
+        articleId: content.articleId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    })
+    .finally(() => {
+      if (activeEditorHydration?.promise === promise) {
+        activeEditorHydration = null
+      }
+    })
+  return promise
+}
+
+function invalidateEditorHydration(clearHydratedArticle: boolean): void {
+  hydrationSequence += 1
+  activeEditorHydration = null
+  isHydratingFromStore = false
+  isEditorHydrating.value = false
+  if (clearHydratedArticle) {
+    hydratedArticleId = null
+  }
 }
 
 // 同步内容 (仅当 Ready 时)
@@ -605,6 +675,14 @@ watch(currentContent, (content: EditedContent | null) => {
   const normalizedBody = isLikelyHtmlContent(rawBody)
     ? serializeHtmlToMarkdown(rawBody)
     : rawBody
+  const hasNewerLocalRevision =
+    hydratedArticleId === content.articleId &&
+    completedSaveSequence < pendingSaveSequence
+
+  if (hasNewerLocalRevision) {
+    return
+  }
+
   const isLocalPersistenceEcho =
     hydratedArticleId === content.articleId &&
     normalizedBody === sourceMarkdown.value &&
@@ -612,72 +690,141 @@ watch(currentContent, (content: EditedContent | null) => {
     transcriptText.value === content.transcript
 
   if (isLocalPersistenceEcho) {
-    setSyncState('synced')
+    if (!isEditorHydrating.value) {
+      setSyncState('synced')
+    }
     return
   }
 
-  void hydrateEditorContent(content)
+  void requestEditorHydration(content)
 }, { immediate: true })
 
 // 监听状态变化，重置编辑器
 watch(editorStatus, (newStatus) => {
   if (newStatus === 'loading' || newStatus === 'idle') {
+    invalidateEditorHydration(true)
     titleText.value = ''
     transcriptText.value = ''
     sourceMarkdown.value = ''
-    hydratedArticleId = null
     bodyEditor.value?.commands.setContent('')
     setSyncState('offline')
     return
   }
 
   if (newStatus === 'error') {
+    if (isEditorHydrating.value) {
+      invalidateEditorHydration(false)
+    }
     setSyncState('offline')
     return
   }
 
-  setSyncState('synced')
+  if (newStatus === 'saving') {
+    setSyncState('syncing')
+    return
+  }
+
+  if (
+    newStatus === 'ready' &&
+    currentContent.value &&
+    hydratedArticleId !== currentContent.value.articleId
+  ) {
+    void requestEditorHydration(currentContent.value)
+    return
+  }
+
+  if (
+    newStatus === 'ready'
+    && !isEditorHydrating.value
+    && completedSaveSequence >= pendingSaveSequence
+  ) {
+    setSyncState('synced')
+  }
 })
 
 // ═══ Auto Save (防抖) ═══
-function schedulePersist(markdown: string) {
+function createEditorSaveRequest(markdown: string): EditorSaveRequest | null {
+  const content = currentContent.value
+  if (!content) {
+    return null
+  }
+
+  return {
+    contentId: content.id,
+    articleId: content.articleId,
+    markdown,
+    title: titleText.value,
+    transcript: transcriptText.value,
+    saveSequence: ++pendingSaveSequence,
+  }
+}
+
+function schedulePersist(markdown: string): void {
   if (!isReady.value && editorStatus.value !== 'error') return
 
+  const request = createEditorSaveRequest(markdown)
+  if (!request) return
+
   setSyncState('syncing')
-  const saveSequence = ++pendingSaveSequence
   clearTimeout(saveTimeout)
   saveTimeout = setTimeout(() => {
-    void persistMarkdown(markdown, saveSequence)
+    void persistMarkdown(request)
   }, 900)
 }
 
-async function persistMarkdown(markdown: string, saveSequence: number, throwOnFailure = false) {
+async function persistMarkdown(request: EditorSaveRequest, throwOnFailure = false): Promise<void> {
   if (!isReady.value && editorStatus.value !== 'error') return
-  const currentBody = currentContent.value?.body ?? ''
+
+  const content = currentContent.value
+  if (
+    !content
+    || content.id !== request.contentId
+    || content.articleId !== request.articleId
+  ) {
+    if (throwOnFailure) {
+      throw new Error('Editor content changed before save started')
+    }
+    return
+  }
+
+  const currentBody = content.body ?? ''
   const normalizedCurrentBody = isLikelyHtmlContent(currentBody)
     ? serializeHtmlToMarkdown(currentBody)
     : currentBody
 
   if (
     editorStore.status !== 'error' &&
-    normalizedCurrentBody === markdown &&
-    titleText.value === (currentContent.value?.title ?? '') &&
-    transcriptText.value === (currentContent.value?.transcript ?? '')
+    normalizedCurrentBody === request.markdown &&
+    request.title === content.title &&
+    request.transcript === content.transcript
   ) {
-    if (saveSequence === pendingSaveSequence) {
+    completedSaveSequence = Math.max(completedSaveSequence, request.saveSequence)
+    if (request.saveSequence === pendingSaveSequence) {
       setSyncState('synced')
     }
     return
   }
 
   await editorStore.updateContent({
-    title: titleText.value,
-    body: markdown,
-    transcript: transcriptText.value
+    title: request.title,
+    body: request.markdown,
+    transcript: request.transcript,
   })
 
+  const savedContent = currentContent.value
+  if (
+    !savedContent
+    || savedContent.id !== request.contentId
+    || savedContent.articleId !== request.articleId
+  ) {
+    if (throwOnFailure) {
+      throw new Error('Editor content changed before save completed')
+    }
+    return
+  }
+
   if (editorStore.status === 'error') {
-    if (saveSequence === pendingSaveSequence) {
+    if (request.saveSequence === pendingSaveSequence) {
       setSyncState('dirty')
     }
     if (throwOnFailure) {
@@ -686,7 +833,8 @@ async function persistMarkdown(markdown: string, saveSequence: number, throwOnFa
     return
   }
 
-  if (saveSequence === pendingSaveSequence) {
+  completedSaveSequence = Math.max(completedSaveSequence, request.saveSequence)
+  if (request.saveSequence === pendingSaveSequence) {
     setSyncState('synced')
   }
 }
@@ -724,15 +872,35 @@ async function flushPendingChanges(): Promise<void> {
   clearTimeout(saveTimeout)
   clearTimeout(sourceProjectionTimeout)
 
-  if (isSourceMode.value) {
-    await projectMarkdownToTypora(sourceMarkdown.value)
-    await persistMarkdown(sourceMarkdown.value, ++pendingSaveSequence, true)
-    return
+  const content = currentContent.value
+  if (content && (hydratedArticleId !== content.articleId || isEditorHydrating.value)) {
+    if (!isReady.value) {
+      throw new Error('Editor content is not ready to flush')
+    }
+    await requestEditorHydration(content)
+    if (
+      currentContent.value?.articleId !== content.articleId
+      || hydratedArticleId !== content.articleId
+      || isEditorHydrating.value
+    ) {
+      throw new Error('Editor content changed before hydration completed')
+    }
   }
 
-  const currentMarkdown = serializeHtmlToMarkdown(bodyEditor.value?.getHTML() ?? '')
-  sourceMarkdown.value = currentMarkdown
-  await persistMarkdown(currentMarkdown, ++pendingSaveSequence, true)
+  const markdown = isSourceMode.value
+    ? sourceMarkdown.value
+    : serializeHtmlToMarkdown(bodyEditor.value?.getHTML() ?? '')
+
+  if (isSourceMode.value) {
+    await projectMarkdownToTypora(markdown)
+  } else {
+    sourceMarkdown.value = markdown
+  }
+
+  const request = createEditorSaveRequest(markdown)
+  if (request) {
+    await persistMarkdown(request, true)
+  }
 }
 
 // 暴露编辑器实例供外部组件（如 OutlinePanel）使用
@@ -743,6 +911,7 @@ defineExpose({
 })
 
 onBeforeUnmount(() => {
+  invalidateEditorHydration(false)
   cleanupDevPanelEditorBridge?.()
   cleanupDevPanelEditorBridge = null
   bodyEditor.value?.destroy()
@@ -785,7 +954,7 @@ onBeforeUnmount(() => {
       不使用 EditorContent 的元素交换流程，彻底避免 localsInner 崩溃。
     -->
     <div
-      v-else-if="isReady"
+      v-show="isReady && !isEditorHydrating"
       class="editor-mode-shell"
       :class="[`mode-${editorMode}`]"
     >

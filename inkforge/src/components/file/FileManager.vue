@@ -9,6 +9,10 @@ import { resolveCategoryIcon } from '@/utils/iconography'
 import { ARTICLE_STATUS } from '@/constants'
 import { getArticleStatusClass, getArticleStatusLabel, isDraftBoxStatus } from '@/core/lifecycle'
 
+const props = defineProps<{
+    requestArticleSelection: (articleId: string) => Promise<boolean>
+}>()
+
 // ═══════════════════════════════════════════════════════════════════
 // Store 接入（真实数据，零 Mock）
 // ═══════════════════════════════════════════════════════════════════
@@ -476,7 +480,7 @@ async function createBlankArticle(): Promise<void> {
             status: ARTICLE_STATUS.DRAFT,
             categoryId: categoryStore.selectedCategoryId ?? undefined,
         })
-        articleStore.selectArticle(article.id)
+        await props.requestArticleSelection(article.id)
     } catch {
         // 静默失败，store 内部已有错误处理
     }
@@ -584,8 +588,8 @@ function cancelNewCategory(): void {
 // 文章选择
 // ═══════════════════════════════════════════════════════════════════
 
-function handleSelectArticle(id: string): void {
-    articleStore.selectArticle(id)
+async function handleSelectArticle(id: string): Promise<void> {
+    await props.requestArticleSelection(id)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -713,11 +717,12 @@ onUnmounted(() => {
 })
 
 // ─── 右键菜单操作：打开文章 ───
-function ctxOpenArticle(): void {
-    if (contextMenu.value.targetId) {
-        articleStore.selectArticle(contextMenu.value.targetId)
-    }
+async function ctxOpenArticle(): Promise<void> {
+    const targetId = contextMenu.value.targetId
     closeContextMenu()
+    if (targetId) {
+        await props.requestArticleSelection(targetId)
+    }
 }
 
 // ─── 右键菜单操作：重命名文章（inline） ───
@@ -902,7 +907,7 @@ async function ctxNewArticleInCategory(): Promise<void> {
             status: ARTICLE_STATUS.DRAFT,
             categoryId: categoryId ?? undefined,
         })
-        articleStore.selectArticle(article.id)
+        await props.requestArticleSelection(article.id)
     } catch {
         // 静默
     }
@@ -1519,6 +1524,7 @@ const deleteConfirmText = computed(() => {
             type="button"
             class="fm-quick-access-item"
             :class="{ 'fm-quick-access-item--active': selectedArticleId === article.id }"
+            :data-file-article-id="article.id"
             draggable="true"
             @click="handleSelectArticle(article.id)"
             @dragstart="handleQuickAccessDragStart($event, article.id)"
@@ -1689,6 +1695,7 @@ const deleteConfirmText = computed(() => {
                   :class="{
                     'fm-article-active': selectedArticleId === article.id,
                   }"
+                  :data-file-article-id="article.id"
                   @click="handleSelectArticle(article.id)"
                   @contextmenu="openArticleContextMenu($event, article.id)"
                 >

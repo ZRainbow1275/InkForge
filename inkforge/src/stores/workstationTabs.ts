@@ -9,7 +9,7 @@ const MAX_RECENTLY_CLOSED_TABS = 12
 const WORKSTATION_TABS_STORAGE_KEY = 'inkforge.workstation.tabs.v1'
 
 export type WorkstationTabDocType = 'article' | 'draft'
-export type WorkstationTabSaveState = 'clean' | 'saving' | 'error'
+export type WorkstationTabSaveState = 'clean' | 'saving' | 'pending' | 'error'
 
 export interface WorkstationTab {
   id: string

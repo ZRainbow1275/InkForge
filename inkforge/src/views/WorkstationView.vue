@@ -21,7 +21,7 @@ import { useProfileStore } from '@/stores/profile'
 import { useLayoutPersistenceStore } from '@/stores/layoutPersistence'
 import { useTocStore } from '@/stores/toc'
 import { useWorkstationTabsStore } from '@/stores/workstationTabs'
-import type { WorkstationTabDocType } from '@/stores/workstationTabs'
+import type { WorkstationTab, WorkstationTabDocType, WorkstationTabSaveState } from '@/stores/workstationTabs'
 import type { WorkstationCommandBridge } from '@/types/command-palette'
 import {
   copyToClipboard,
@@ -69,6 +69,7 @@ import AssetManager from '@/components/asset/AssetManager.vue'
 import ExportModal from '@/components/export/ExportModal.vue'
 import TagBrowser from '@/components/tag-system/TagBrowser.vue'
 import AIChatPanel from '@/components/ai/AIChatPanel.vue'
+import WorkstationTabBar, { type WorkstationTabBarItem } from '@/components/workstation/WorkstationTabBar.vue'
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 // Router & Stores
@@ -155,7 +156,7 @@ async function flushPendingEditorChangesBeforeRoute(): Promise<boolean> {
     await editorPanelRef.value?.flushPendingChanges?.()
     return true
   } catch (error) {
-    logger.warn('[Workstation] route change blocked because editor flush failed', {
+    logger.warn('[Workstation] navigation blocked because editor flush failed', {
       error: error instanceof Error ? error.message : String(error),
     })
     return false
@@ -726,31 +727,67 @@ const splitSyncScroll = useSyncScroll({
   },
 })
 
-function applyPersistedLayoutTabs(record: LayoutStateRecord): string | null {
+interface ResolvedPersistedLayoutTabs {
+  openTabs: SerializedTab[]
+  activeTabId: string | null
+  removedTabIds: string[]
+  nextActiveArticleId: string | null
+}
+
+function resolvePersistedLayoutTabs(record: LayoutStateRecord): ResolvedPersistedLayoutTabs {
   const articlesById = new Map(articleStore.articles.map(article => [article.id, article]))
-  const validation = layoutPersistenceService.validateSerializedTabs(record.openTabs, record.activeTabId, Array.from(articlesById.keys()))
+  const validation = layoutPersistenceService.validateSerializedTabs(
+    record.openTabs,
+    record.activeTabId,
+    Array.from(articlesById.keys()),
+  )
   const openTabs = validation.openTabs.map(tab => ({
     ...tab,
     title: articlesById.get(tab.articleId)?.title ?? tab.title,
   }))
 
-  workstationTabsStore.restoreFromLayout(openTabs, validation.activeTabId)
-
-  if (validation.removedTabIds.length > 0) {
-    logger.warn('workstation.sessionRestore.removedMissingTabs', {
-      removedTabIds: validation.removedTabIds,
-    })
-  }
-
   const activeTabArticleId = openTabs.find(tab => tab.id === validation.activeTabId)?.articleId ?? null
   const persistedActiveArticleId = record.activeArticleId && articlesById.has(record.activeArticleId)
     ? record.activeArticleId
     : null
-  return activeTabArticleId ?? persistedActiveArticleId ?? openTabs[0]?.articleId ?? null
+
+  return {
+    openTabs,
+    activeTabId: validation.activeTabId,
+    removedTabIds: validation.removedTabIds,
+    nextActiveArticleId: activeTabArticleId ?? persistedActiveArticleId ?? openTabs[0]?.articleId ?? null,
+  }
 }
 
-function applyPersistedLayoutRecord(record: LayoutStateRecord): void {
-  let nextActiveArticleId: string | null = null
+function applyPersistedLayoutTabs(resolvedTabs: ResolvedPersistedLayoutTabs): void {
+  workstationTabsStore.restoreFromLayout(resolvedTabs.openTabs, resolvedTabs.activeTabId)
+
+  if (resolvedTabs.removedTabIds.length > 0) {
+    logger.warn('workstation.sessionRestore.removedMissingTabs', {
+      removedTabIds: resolvedTabs.removedTabIds,
+    })
+  }
+}
+
+async function applyPersistedLayoutRecord(record: LayoutStateRecord): Promise<boolean> {
+  const resolvedTabs = resolvePersistedLayoutTabs(record)
+  const requestedArticle = routeArticleId.value
+    ? articleStore.articles.find(article => article.id === routeArticleId.value) ?? null
+    : null
+  const persistedArticle = resolvedTabs.nextActiveArticleId
+    ? articleStore.articles.find(article => article.id === resolvedTabs.nextActiveArticleId) ?? null
+    : null
+  const nextActiveArticle = requestedArticle ?? persistedArticle ?? selectedArticle.value
+
+  if (
+    nextActiveArticle
+    && !await transitionToWorkstationArticle(nextActiveArticle.id)
+  ) {
+    logger.warn('workstation.layoutPersistence.restore.navigationRejected', {
+      articleId: nextActiveArticle.id,
+    })
+    return false
+  }
 
   withSuspendedLayoutPersistence(() => {
     editorMode.value = record.editorMode
@@ -767,27 +804,18 @@ function applyPersistedLayoutRecord(record: LayoutStateRecord): void {
     splitViewSyncScroll.value = record.splitViewSyncScroll
     splitViewLeftFontScale.value = clampSplitFontScale(record.splitViewLeftFontScale)
     splitViewRightFontScale.value = clampSplitFontScale(record.splitViewRightFontScale)
-    nextActiveArticleId = applyPersistedLayoutTabs(record)
+    applyPersistedLayoutTabs(resolvedTabs)
   })
 
-  const requestedArticle = routeArticleId.value
-    ? articleStore.articles.find(article => article.id === routeArticleId.value) ?? null
-    : null
-  if (requestedArticle) {
+  if (nextActiveArticle) {
     workstationTabsStore.openOrRefreshTab({
-      articleId: requestedArticle.id,
-      title: requestedArticle.title,
-      docType: getWorkstationTabDocType(requestedArticle),
+      articleId: nextActiveArticle.id,
+      title: nextActiveArticle.title,
+      docType: getWorkstationTabDocType(nextActiveArticle),
     })
-    if (selectedArticleId.value !== requestedArticle.id) {
-      articleStore.selectArticle(requestedArticle.id)
-    }
-    return
   }
 
-  if (nextActiveArticleId && hasArticle(nextActiveArticleId)) {
-    articleStore.selectArticle(nextActiveArticleId)
-  }
+  return true
 }
 
 async function initializeLayoutPersistence(): Promise<void> {
@@ -795,7 +823,7 @@ async function initializeLayoutPersistence(): Promise<void> {
   try {
     const result = await layoutPersistenceStore.initialize(profileId)
     if (result.record) {
-      applyPersistedLayoutRecord(result.record)
+      await applyPersistedLayoutRecord(result.record)
     }
     await layoutPersistenceStore.cleanupStaleLayouts(profileId)
   } catch (error) {
@@ -1241,14 +1269,24 @@ function dismissPrimaryRecoveryPayload(): void {
   if (!key) return
   crashRecoveryStore.dismissPayload(key)
 }
+
+const activeWorkstationTabSaveState = computed<WorkstationTabSaveState>(() => {
+  if (editorStatus.value === 'error') return 'error'
+  if (editorStatus.value === 'saving' || editorSyncState.value === 'syncing') return 'saving'
+  if (editorStatus.value === 'ready' && editorSyncState.value === 'synced') return 'clean'
+  return 'pending'
+})
+
 const saveStatusText = computed<string>(() => {
-  if (editorStatus.value === 'error') return '保存失败'
+  if (activeWorkstationTabSaveState.value === 'error') return '保存失败'
+  if (activeWorkstationTabSaveState.value === 'saving') {
+    return editorSyncState.value === 'syncing' ? '同步中…' : '保存中…'
+  }
+  if (activeWorkstationTabSaveState.value === 'clean') return '已同步 · 已保存'
+  if (editorSyncState.value === 'offline') return '离线 · 待同步'
   if (editorStatus.value === 'loading') return '加载中…'
   if (editorStatus.value === 'idle') return '就绪'
-  if (editorStatus.value === 'saving') return '保存中…'
-  if (editorSyncState.value === 'syncing') return '同步中…'
-  if (editorSyncState.value === 'synced') return '已同步 · 已保存'
-  return '已保存'
+  return '未保存'
 })
 
 const normalizedBody = computed(() => {
@@ -1353,7 +1391,16 @@ watch(
 )
 
 const activeArticleStatus = computed(() => selectedArticle.value?.status ?? null)
-const pendingWorkstationCloseTabId = ref<string | null>(null)
+const workstationTabTransitionPending = ref(false)
+
+const workstationTabBarItems = computed<WorkstationTabBarItem[]>(() => (
+  workstationTabsStore.orderedTabs.map(tab => ({
+    ...tab,
+    saveState: tab.id === workstationTabsStore.activeTabId
+      ? activeWorkstationTabSaveState.value
+      : 'clean',
+  }))
+))
 
 function getWorkstationTabDocType(article: Article): WorkstationTabDocType {
   return isDraftBoxStatus(article.status) ? 'draft' : 'article'
@@ -1376,92 +1423,255 @@ function hasArticle(articleId: string): boolean {
   return articles.value.some(article => article.id === articleId)
 }
 
-function replaceWorkstationRouteArticle(articleId: string): void {
+async function replaceWorkstationRouteArticle(articleId: string): Promise<boolean> {
   if (route.name === 'Workstation' && routeArticleId.value === articleId) {
-    return
+    return true
   }
 
-  void router.replace({
-    name: 'Workstation',
-    query: {
-      ...route.query,
-      id: articleId,
-    },
-  })
+  try {
+    const failure = await router.replace({
+      name: 'Workstation',
+      query: {
+        ...route.query,
+        id: articleId,
+      },
+    })
+    if (failure !== undefined) {
+      logger.warn('[Workstation] article route navigation was rejected', {
+        articleId,
+        failure: failure.message,
+      })
+      return false
+    }
+    return route.name === 'Workstation' && routeArticleId.value === articleId
+  } catch (error) {
+    logger.warn('[Workstation] article route navigation failed', {
+      articleId,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return false
+  }
 }
 
-function activateWorkstationTab(tabId: string): void {
+function applyWorkstationTabActivation(tabId: string): boolean {
   const tab = workstationTabsStore.activateTab(tabId)
   if (!tab || !hasArticle(tab.articleId)) {
-    return
+    return false
   }
 
   if (selectedArticleId.value !== tab.articleId) {
     articleStore.selectArticle(tab.articleId)
   }
-  replaceWorkstationRouteArticle(tab.articleId)
+  return true
 }
 
-function closeWorkstationTab(tabId: string): void {
-  if (tabId === selectedArticleId.value && editorStatus.value === 'saving') {
-    pendingWorkstationCloseTabId.value = tabId
+async function transitionToWorkstationArticle(targetArticleId: string, targetTabId?: string): Promise<boolean> {
+  if (!hasArticle(targetArticleId)) {
+    return false
+  }
+
+  if (workstationTabTransitionPending.value) {
+    return false
+  }
+
+  workstationTabTransitionPending.value = true
+  try {
+    if (
+      targetArticleId !== selectedArticleId.value
+      && !await flushPendingEditorChangesBeforeRoute()
+    ) {
+      return false
+    }
+
+    if (!await replaceWorkstationRouteArticle(targetArticleId)) {
+      return false
+    }
+
+    if (targetTabId) {
+      return applyWorkstationTabActivation(targetTabId)
+    }
+
+    if (selectedArticleId.value !== targetArticleId) {
+      articleStore.selectArticle(targetArticleId)
+    }
+    return true
+  } finally {
+    workstationTabTransitionPending.value = false
+  }
+}
+
+async function requestWorkstationArticleSelection(articleId: string): Promise<boolean> {
+  const targetTab = workstationTabsStore.orderedTabs.find(tab => tab.articleId === articleId)
+  return transitionToWorkstationArticle(articleId, targetTab?.id)
+}
+
+async function activateWorkstationTab(tabId: string): Promise<boolean> {
+  const targetTab = workstationTabsStore.orderedTabs.find(tab => tab.id === tabId)
+  if (!targetTab || !hasArticle(targetTab.articleId)) {
+    return false
+  }
+
+  return transitionToWorkstationArticle(targetTab.articleId, tabId)
+}
+
+async function closeWorkstationTab(tabId: string): Promise<void> {
+  const closesActiveArticle = tabId === workstationTabsStore.activeTabId
+  if (closesActiveArticle && workstationTabTransitionPending.value) {
     return
   }
 
-  if (
-    tabId === selectedArticleId.value
-    && editorStatus.value === 'error'
-    && typeof window !== 'undefined'
-    && !window.confirm('The active document save failed. Close this tab anyway?')
-  ) {
-    return
+  if (closesActiveArticle) {
+    workstationTabTransitionPending.value = true
   }
 
-  const result = workstationTabsStore.closeTab(tabId)
-  if (!result) {
-    return
-  }
+  try {
+    if (closesActiveArticle && !await flushPendingEditorChangesBeforeRoute()) {
+      return
+    }
 
-  if (result.nextActiveTabId) {
-    activateWorkstationTab(result.nextActiveTabId)
-    return
-  }
+    if (!closesActiveArticle) {
+      workstationTabsStore.closeTab(tabId)
+      return
+    }
 
-  void router.push({ name: 'Hub' })
+    const orderedTabs = workstationTabsStore.orderedTabs
+    const closingIndex = orderedTabs.findIndex(tab => tab.id === tabId)
+    if (closingIndex === -1) {
+      return
+    }
+    const remainingTabs = orderedTabs.filter(tab => tab.id !== tabId)
+    const nextActiveTab: WorkstationTab | null = (
+      remainingTabs[closingIndex]
+      ?? remainingTabs[closingIndex - 1]
+      ?? remainingTabs[remainingTabs.length - 1]
+      ?? null
+    )
+
+    if (nextActiveTab) {
+      if (!hasArticle(nextActiveTab.articleId)) {
+        return
+      }
+      if (!await replaceWorkstationRouteArticle(nextActiveTab.articleId)) {
+        return
+      }
+    } else {
+      try {
+        const failure = await router.push({ name: 'Hub' })
+        if (failure !== undefined) {
+          logger.warn('[Workstation] closing the last tab was rejected by the router', {
+            tabId,
+            failure: failure.message,
+          })
+          return
+        }
+        if (route.name !== 'Hub') {
+          logger.warn('[Workstation] closing the last tab did not reach Hub', { tabId })
+          return
+        }
+      } catch (error) {
+        logger.warn('[Workstation] closing the last tab could not leave Workstation', {
+          tabId,
+          error: error instanceof Error ? error.message : String(error),
+        })
+        return
+      }
+    }
+
+    const result = workstationTabsStore.closeTab(tabId)
+    if (!result) {
+      return
+    }
+
+    if (result.nextActiveTabId) {
+      applyWorkstationTabActivation(result.nextActiveTabId)
+    }
+  } finally {
+    if (closesActiveArticle) {
+      workstationTabTransitionPending.value = false
+    }
+  }
 }
 
 function closeActiveWorkstationTab(): void {
   const activeId = workstationTabsStore.activeTabId
   if (activeId) {
-    closeWorkstationTab(activeId)
+    void closeWorkstationTab(activeId)
   }
 }
 
-function restoreClosedWorkstationTab(): void {
-  const restored = workstationTabsStore.restoreRecentlyClosed()
-  if (!restored) {
+function togglePinnedWorkstationTab(tabId: string): void {
+  workstationTabsStore.togglePinnedTab(tabId)
+}
+
+function reorderWorkstationTab(payload: { draggedTabId: string; targetTabId: string; position: 'before' | 'after' }): void {
+  workstationTabsStore.reorderTab(payload.draggedTabId, payload.targetTabId, payload.position)
+}
+
+async function restoreClosedWorkstationTab(): Promise<void> {
+  if (workstationTabTransitionPending.value) {
     return
   }
 
-  if (!hasArticle(restored.articleId)) {
-    workstationTabsStore.closeTab(restored.id, { remember: false })
-    return
-  }
+  workstationTabTransitionPending.value = true
+  try {
+    if (!await flushPendingEditorChangesBeforeRoute()) {
+      return
+    }
 
-  activateWorkstationTab(restored.id)
+    const candidate = workstationTabsStore.recentlyClosed[0]
+    if (!candidate) {
+      return
+    }
+
+    if (!hasArticle(candidate.articleId)) {
+      const stale = workstationTabsStore.restoreRecentlyClosed()
+      if (stale) {
+        workstationTabsStore.closeTab(stale.id, { remember: false })
+      }
+      return
+    }
+
+    if (!await replaceWorkstationRouteArticle(candidate.articleId)) {
+      return
+    }
+
+    const restored = workstationTabsStore.restoreRecentlyClosed()
+    if (!restored) {
+      return
+    }
+    applyWorkstationTabActivation(restored.id)
+  } finally {
+    workstationTabTransitionPending.value = false
+  }
 }
 
 function handleWorkstationTabShortcut(event: KeyboardEvent): boolean {
-  if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+  if (
+    !(event.ctrlKey || event.metaKey)
+    || event.altKey
+    || workstationTabTransitionPending.value
+  ) {
     return false
   }
 
   if (event.key === 'Tab') {
-    event.preventDefault()
-    const nextTab = workstationTabsStore.cycleActiveTab(event.shiftKey ? -1 : 1)
-    if (nextTab) {
-      activateWorkstationTab(nextTab.id)
+    const tabs = workstationTabsStore.orderedTabs
+    if (tabs.length < 2) {
+      return false
     }
+
+    const currentIndex = tabs.findIndex(tab => tab.id === workstationTabsStore.activeTabId)
+    const startIndex = currentIndex === -1
+      ? (event.shiftKey ? 0 : -1)
+      : currentIndex
+    const nextIndex = (startIndex + (event.shiftKey ? -1 : 1) + tabs.length) % tabs.length
+    const nextTab = tabs[nextIndex]
+    if (!nextTab) {
+      return false
+    }
+
+    event.preventDefault()
+    void activateWorkstationTab(nextTab.id)
     return true
   }
 
@@ -1471,23 +1681,40 @@ function handleWorkstationTabShortcut(event: KeyboardEvent): boolean {
   }
 
   if (!event.shiftKey && normalizedKey === 'W') {
+    const activeTab = workstationTabsStore.orderedTabs.find(
+      tab => tab.id === workstationTabsStore.activeTabId,
+    )
+    if (!activeTab || activeTab.isPinned) {
+      return false
+    }
+
     event.preventDefault()
     closeActiveWorkstationTab()
     return true
   }
 
   if (event.shiftKey && normalizedKey === 'T') {
+    if (workstationTabsStore.recentlyClosed.length === 0) {
+      return false
+    }
+
     event.preventDefault()
-    restoreClosedWorkstationTab()
+    void restoreClosedWorkstationTab()
     return true
   }
 
   if (!event.shiftKey && /^[1-9]$/u.test(normalizedKey)) {
-    event.preventDefault()
-    const targetTab = workstationTabsStore.activateTabAtShortcutIndex(Number(normalizedKey))
-    if (targetTab) {
-      activateWorkstationTab(targetTab.id)
+    const tabs = workstationTabsStore.orderedTabs
+    const shortcutIndex = Number(normalizedKey)
+    const targetTab = shortcutIndex === 9
+      ? tabs[tabs.length - 1]
+      : tabs[shortcutIndex - 1]
+    if (!targetTab) {
+      return false
     }
+
+    event.preventDefault()
+    void activateWorkstationTab(targetTab.id)
     return true
   }
 
@@ -1867,7 +2094,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
-function syncRouteArticleSelection(targetArticleId: string | null): void {
+async function syncRouteArticleSelection(targetArticleId: string | null): Promise<void> {
   if (!targetArticleId || selectedArticleId.value === targetArticleId) {
     return
   }
@@ -1877,13 +2104,28 @@ function syncRouteArticleSelection(targetArticleId: string | null): void {
     return
   }
 
-  articleStore.selectArticle(targetArticleId)
+  if (workstationTabTransitionPending.value) {
+    return
+  }
+
+  const previousArticleId = selectedArticleId.value
+  const targetTab = workstationTabsStore.orderedTabs.find(tab => tab.articleId === targetArticleId)
+  const activated = await transitionToWorkstationArticle(targetArticleId, targetTab?.id)
+  if (!activated && previousArticleId && routeArticleId.value === targetArticleId) {
+    const restored = await replaceWorkstationRouteArticle(previousArticleId)
+    if (!restored) {
+      logger.warn('[Workstation] rejected route change could not restore the previous article route', {
+        previousArticleId,
+        targetArticleId,
+      })
+    }
+  }
 }
 
 watch(
   [routeArticleId, () => articleStore.articles.length],
   ([nextRouteArticleId]) => {
-    syncRouteArticleSelection(nextRouteArticleId)
+    void syncRouteArticleSelection(nextRouteArticleId)
   },
   { immediate: true },
 )
@@ -1920,21 +2162,10 @@ watch(
       return
     }
 
-    articleStore.selectArticle(activeId)
-    replaceWorkstationRouteArticle(activeId)
+    void syncRouteArticleSelection(activeId)
   },
   { immediate: true },
 )
-
-watch(editorStatus, (nextStatus) => {
-  const pendingTabId = pendingWorkstationCloseTabId.value
-  if (nextStatus === 'saving' || !pendingTabId) {
-    return
-  }
-
-  pendingWorkstationCloseTabId.value = null
-  closeWorkstationTab(pendingTabId)
-})
 
 watch(
   [managerCollapsed, stageCollapsed, inspectorCollapsed],
@@ -2119,7 +2350,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         <!-- 淇濆瓨鐘舵€?Pill -->
         <div
           class="status-pill"
-          :class="editorStatus === 'error' ? 'error' : editorStatus === 'saving' || editorSyncState === 'syncing' ? 'unsaved' : 'saved'"
+          :class="activeWorkstationTabSaveState === 'error' ? 'error' : activeWorkstationTabSaveState === 'clean' ? 'saved' : 'unsaved'"
+          :data-save-state="activeWorkstationTabSaveState"
           :title="saveStatusText"
         >
           <span class="status-dot" />
@@ -2305,6 +2537,19 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
       </div>
     </header>
 
+    <WorkstationTabBar
+      v-if="workstationTabBarItems.length > 0"
+      v-show="!isFocusMode"
+      :tabs="workstationTabBarItems"
+      :active-tab-id="workstationTabsStore.activeTabId"
+      :recently-closed-count="workstationTabsStore.recentlyClosed.length"
+      @activate="activateWorkstationTab"
+      @close="closeWorkstationTab"
+      @toggle-pin="togglePinnedWorkstationTab"
+      @restore-closed="restoreClosedWorkstationTab"
+      @reorder="reorderWorkstationTab"
+    />
+
     <section
       v-if="recoveryBannerPayload"
       class="crash-recovery-banner"
@@ -2383,13 +2628,16 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         :class="{ collapsed: managerCollapsed }"
       >
         <!-- 鎶樺彔鎬佺珫鏍囩 -->
-        <div
+        <button
           v-if="managerCollapsed"
+          type="button"
           class="manager-collapsed-bar"
+          aria-label="展开文件管理面板"
+          @mouseenter="managerCollapsed = false"
           @click="managerCollapsed = false"
         >
-          <div class="manager-collapsed-indicator" />
-        </div>
+          <span class="manager-collapsed-indicator" />
+        </button>
 
         <!-- 灞曞紑鎬佸唴瀹?-->
         <template v-else>
@@ -2569,7 +2817,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               v-show="managerTab === 'files'"
               class="tab-content"
             >
-              <FileManager />
+              <FileManager :request-article-selection="requestWorkstationArticleSelection" />
             </div>
             <div
               v-show="managerTab === 'versions'"
@@ -2587,7 +2835,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               v-show="managerTab === 'tags'"
               class="tab-content"
             >
-              <TagBrowser />
+              <TagBrowser :request-article-selection="requestWorkstationArticleSelection" />
             </div>
             <div
               v-show="managerTab === 'ai'"
@@ -2601,9 +2849,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
       <!-- 鈹€鈹€鈹€ 缂栬緫鍣ㄦ爮 鈹€鈹€鈹€ -->
       <main
-        :id="selectedArticleId ? 'workstation-document-' + selectedArticleId : undefined"
+        id="workstation-document-panel"
         class="panel panel-editor"
         :class="{ 'panel-editor--preview': isPreviewMode, 'panel-editor--split': isSplitViewActive }"
+        :role="workstationTabsStore.activeTabId ? 'tabpanel' : 'region'"
+        :aria-labelledby="workstationTabsStore.activeTabId ? 'workstation-tab-' + workstationTabsStore.activeTabId : undefined"
+        :aria-label="workstationTabsStore.activeTabId ? undefined : 'Document workspace'"
       >
         <!-- Vignette Overlay (暗角聚焦，独立于 focus mode，锚定在编辑区) -->
         <div
@@ -4530,6 +4781,19 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   justify-content: center;
   position: relative;
+}
+
+.manager-collapsed-bar {
+  z-index: 101;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.manager-collapsed-bar:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--ember);
 }
 
 .inspector-collapsed-indicator,

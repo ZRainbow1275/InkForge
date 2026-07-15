@@ -19,7 +19,7 @@
     >
       <component
         :is="Component"
-        :key="route.fullPath"
+        :key="route.path === '/workstation' ? route.path : route.fullPath"
         class="app-route-shell"
       />
     </Transition>

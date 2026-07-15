@@ -44,10 +44,7 @@ export async function encryptSensitiveFields<T extends Record<string, unknown>>(
 
     for (const field of SENSITIVE_FIELDS) {
         if (field in result && typeof result[field] === 'string') {
-            const value = result[field] as string
-            if (value && value.length > 0) {
-                (result as Record<string, unknown>)[field] = await encrypt(value)
-            }
+            (result as Record<string, unknown>)[field] = await encrypt(result[field] as string)
         }
     }
 
