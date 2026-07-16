@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { useAssetStore } from '@/stores/asset'
 import { AppError } from '@/services/error'
+import { AssetPipelineError } from '@/services/asset-pipeline'
 
 const props = defineProps<{
   articleId?: string
@@ -20,6 +21,7 @@ const state = ref<UploadState>('idle')
 const uploadingFiles = ref<Array<{ name: string; progress: number; error?: string }>>([])
 const errorMessage = ref<string | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+let resetTimer: ReturnType<typeof setTimeout> | null = null
 
 /** 支持的文件类型 */
 const ACCEPTED_TYPES = 'image/png,image/jpeg,image/jpg,image/gif,image/svg+xml,image/webp'
@@ -68,12 +70,12 @@ function handleDragLeave(e: DragEvent) {
 
 function handleDrop(e: DragEvent) {
   e.preventDefault()
-  state.value = 'idle'
   if (isUploading.value) return
+  state.value = 'idle'
 
   const files = e.dataTransfer?.files
   if (files && files.length > 0) {
-    processFiles(Array.from(files))
+    void processFiles(Array.from(files))
   }
 }
 
@@ -85,8 +87,12 @@ function triggerFileSelect() {
 
 function handleFileSelect(e: Event) {
   const input = e.target as HTMLInputElement
+  if (isUploading.value) {
+    input.value = ''
+    return
+  }
   if (input.files && input.files.length > 0) {
-    processFiles(Array.from(input.files))
+    void processFiles(Array.from(input.files))
     // 重置 input 允许重复选择同一文件
     input.value = ''
   }
@@ -94,6 +100,11 @@ function handleFileSelect(e: Event) {
 
 // ─── 核心上传逻辑 ───
 async function processFiles(files: File[]) {
+  if (isUploading.value || files.length === 0) return
+  if (resetTimer) {
+    clearTimeout(resetTimer)
+    resetTimer = null
+  }
   errorMessage.value = null
   state.value = 'uploading'
 
@@ -105,15 +116,12 @@ async function processFiles(files: File[]) {
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
     try {
-      // 模拟进度开始（IndexedDB 写入是同步式的，无真实 progress 回调）
-      uploadingFiles.value[i].progress = 30
-
       await assetStore.uploadAsset(file, props.articleId)
 
       uploadingFiles.value[i].progress = 100
       successCount++
     } catch (err) {
-      const message = err instanceof AppError
+      const message = err instanceof AppError || err instanceof AssetPipelineError
         ? err.message
         : `上传失败: ${file.name}`
       uploadingFiles.value[i].error = message
@@ -137,25 +145,36 @@ async function processFiles(files: File[]) {
   }
 
   // 延迟重置
-  setTimeout(() => {
+  resetTimer = setTimeout(() => {
     state.value = 'idle'
     uploadingFiles.value = []
     // 错误信息保留更长时间
     if (!failedCount) {
       errorMessage.value = null
     }
+    resetTimer = null
   }, 1500)
 }
 
 function dismissError() {
   errorMessage.value = null
 }
+
+onUnmounted(() => {
+  if (resetTimer) clearTimeout(resetTimer)
+})
 </script>
 
 <template>
   <div
     class="asset-uploader"
     :class="[state]"
+    role="button"
+    tabindex="0"
+    aria-label="上传素材文件"
+    :aria-disabled="isUploading"
+    @keydown.enter.prevent="triggerFileSelect"
+    @keydown.space.prevent="triggerFileSelect"
     @dragenter="handleDragEnter"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
@@ -169,6 +188,7 @@ function dismissError() {
       :accept="ACCEPTED_TYPES"
       multiple
       class="hidden-input"
+      aria-label="选择素材文件"
       @change="handleFileSelect"
       @click.stop
     >
@@ -238,6 +258,8 @@ function dismissError() {
     <div
       v-if="state === 'uploading'"
       class="uploader-content uploading-content"
+      role="status"
+      aria-live="polite"
       @click.stop
     >
       <div class="upload-progress-header">
@@ -276,6 +298,7 @@ function dismissError() {
     <div
       v-if="errorMessage && state === 'idle'"
       class="error-banner"
+      role="alert"
       @click.stop
     >
       <svg
@@ -308,7 +331,9 @@ function dismissError() {
       </svg>
       <span class="error-text">{{ errorMessage }}</span>
       <button
+        type="button"
         class="error-dismiss"
+        aria-label="关闭上传错误"
         @click.stop="dismissError"
       >
         <svg

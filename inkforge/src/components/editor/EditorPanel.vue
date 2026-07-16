@@ -44,13 +44,20 @@ import { useAssetStore } from '@/stores/asset'
 import { useSnippetStore } from '@/stores/snippet'
 import { useWritingAssistStore } from '@/stores/writingAssist'
 import { logger } from '@/services/error'
-import { ImageV2Extension, ImageDropPaste, type ImageIngressState, type InsertedImageAsset } from '@/extensions/ImageV2'
+import {
+  ImageV2Extension,
+  ImageDropPaste,
+  appendMarkdownImage,
+  type ImageIngressState,
+  type InsertedImageAsset,
+} from '@/extensions/ImageV2'
 import { RichCodeBlock } from '@/extensions/RichCodeBlock'
 import { DetailsBlock } from '@/extensions/DetailsBlock'
 import { CitationMarks } from '@/extensions/CitationMarks'
 import { BlockDragHandle } from '@/extensions/BlockDragHandle'
 import { createInkforgeLowlight } from '@/extensions/codeLanguages'
 import { createInkforgeAssetUrl } from '@/utils/asset-url'
+import type { AssetRecord } from '@/utils/db'
 import type { SnippetContext } from '@/services/snippet'
 import { registerActiveEditor } from '@/services/dev-tools'
 import SlashCommandMenu from './SlashCommandMenu.vue'
@@ -334,6 +341,10 @@ function reportImageIngressError(message: string): void {
 async function uploadEditorImage(file: File): Promise<InsertedImageAsset> {
   const asset = await assetStore.uploadAsset(file, currentContent.value?.articleId)
 
+  return toInsertedImageAsset(asset)
+}
+
+function toInsertedImageAsset(asset: AssetRecord): InsertedImageAsset {
   return {
     assetId: asset.id,
     src: createInkforgeAssetUrl(asset.id),
@@ -364,6 +375,32 @@ function insertUploadedImage(editor: Editor, image: InsertedImageAsset): void {
       link: image.link ?? null,
     },
   }).run()
+}
+
+function insertAssetImage(asset: AssetRecord): boolean {
+  if (asset.type !== 'image' && asset.type !== 'svg') return false
+  if (props.editorMode === 'preview') return false
+
+  const image = toInsertedImageAsset(asset)
+  if (isSourceMode.value) {
+    const nextMarkdown = appendMarkdownImage(sourceMarkdown.value, {
+      src: image.src,
+      alt: image.alt,
+      title: image.title ?? null,
+      width: image.width ?? null,
+      height: image.height ?? null,
+      caption: '',
+      link: null,
+      align: 'center',
+    })
+    if (nextMarkdown === sourceMarkdown.value) return false
+    handleSourceUpdate(nextMarkdown)
+    return true
+  }
+
+  if (!bodyEditor.value) return false
+  insertUploadedImage(bodyEditor.value, image)
+  return true
 }
 
 function requestImageFileInsert(editor: Editor): void {
@@ -907,6 +944,7 @@ async function flushPendingChanges(): Promise<void> {
 defineExpose({
   getBodyEditor: () => bodyEditor.value ?? undefined,
   getEditorScrollElement: () => editorScrollRef.value,
+  insertAssetImage,
   flushPendingChanges,
 })
 

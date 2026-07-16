@@ -49,7 +49,7 @@ vi.mock('../storage', async () => {
     }
 })
 
-import { ensureMasterKeyUnlocked } from '../key-management'
+import { ensureMasterKeyUnlocked, getMasterKey } from '../key-management'
 import { clearKeyCache, getCachedKey, setCachedKey } from '../lifecycle'
 import {
     loadMasterKeyFromTauriKeychain,
@@ -142,15 +142,34 @@ describe('ensureMasterKeyUnlocked', () => {
         expect(getCachedKey()).not.toBeNull()
     })
 
-    it('4b) keychain 无 key 且 save 返回 false → 仍 setCachedKey、返回 true（本次会话可用）', async () => {
+    it('4b) keychain 无 key 且 save 返回 false → 拒绝缓存临时密钥', async () => {
         loadMock.mockResolvedValue(null)
         saveMock.mockResolvedValue(false)
 
         const result = await ensureMasterKeyUnlocked()
 
-        expect(result).toBe(true)
+        expect(result).toBe(false)
         expect(saveMock).toHaveBeenCalledTimes(1)
-        expect(getCachedKey()).not.toBeNull()
+        expect(getCachedKey()).toBeNull()
+    })
+
+    it('4c) cache expiry reloads only an existing key and never generates a replacement', async () => {
+        loadMock.mockResolvedValue(makeStoredKeyBase64())
+
+        const key = await getMasterKey()
+
+        expect(key).toBe(getCachedKey())
+        expect(loadMock).toHaveBeenCalledTimes(1)
+        expect(saveMock).not.toHaveBeenCalled()
+    })
+
+    it('4d) cache expiry fails closed when the persisted key is missing', async () => {
+        loadMock.mockResolvedValue(null)
+
+        await expect(getMasterKey()).rejects.toThrow('已拒绝生成替代密钥')
+        expect(loadMock).toHaveBeenCalledTimes(1)
+        expect(saveMock).not.toHaveBeenCalled()
+        expect(getCachedKey()).toBeNull()
     })
 
     it('5) keychain 抛错 → 返回 false 不抛', async () => {

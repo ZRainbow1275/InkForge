@@ -291,7 +291,7 @@ fn load_env_file_values_from_candidates(candidates: &[PathBuf]) -> HashMap<Strin
         if !candidate.exists() {
             continue;
         }
-        if let Ok(contents) = fs::read_to_string(&candidate) {
+        if let Ok(contents) = fs::read_to_string(candidate) {
             for (key, value) in parse_env_contents(&contents) {
                 values.entry(key).or_insert(value);
             }
@@ -998,12 +998,9 @@ fn extract_img_attribute_value(tag: &str, attribute: &str) -> Option<String> {
         match bytes.get(index).copied() {
             Some(quote @ (b'"' | b'\'')) => {
                 value_start = index + 1;
-                let Some(relative_end) = bytes[value_start..]
+                let relative_end = bytes[value_start..]
                     .iter()
-                    .position(|value| *value == quote)
-                else {
-                    return None;
-                };
+                    .position(|value| *value == quote)?;
                 value_end = value_start + relative_end;
             }
             Some(_) => {
@@ -1107,7 +1104,7 @@ fn ensure_optional_text_max_bytes(
     max_bytes: usize,
 ) -> Result<(), String> {
     if let Some(value) = value {
-        let bytes = value.trim().as_bytes().len();
+        let bytes = value.trim().len();
         if bytes > max_bytes {
             return Err(format!(
                 "wechat draft {} must be at most {} bytes; got {}",
@@ -1157,7 +1154,7 @@ fn validate_draft_article(article: &WechatDraftArticle) -> Result<(), String> {
     if article.content.trim().is_empty() {
         return Err("wechat draft content is required".to_string());
     }
-    if article.content.as_bytes().len() >= WECHAT_ARTICLE_CONTENT_MAX_BYTES {
+    if article.content.len() >= WECHAT_ARTICLE_CONTENT_MAX_BYTES {
         return Err(format!(
             "wechat draft content must be fewer than {} bytes",
             WECHAT_ARTICLE_CONTENT_MAX_BYTES
@@ -1429,6 +1426,7 @@ mod tests {
     const JPEG_BYTES: &[u8] = &[
         0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, b'J', b'F', b'I', b'F', 0x00,
     ];
+    static ACCESS_TOKEN_CACHE_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
     #[test]
     fn parse_env_contents_skips_comments_and_export_prefix() {
@@ -1828,6 +1826,7 @@ mod tests {
 
     #[test]
     fn access_token_cache_reuses_same_app_id_until_skewed_expiry() {
+        let _cache_test_guard = ACCESS_TOKEN_CACHE_TEST_LOCK.lock().unwrap();
         clear_access_token_cache_for_tests();
         let config = WechatApiConfig {
             app_id: "wx-cache".to_string(),
@@ -1847,6 +1846,7 @@ mod tests {
 
     #[test]
     fn access_token_cache_misses_when_app_id_differs() {
+        let _cache_test_guard = ACCESS_TOKEN_CACHE_TEST_LOCK.lock().unwrap();
         clear_access_token_cache_for_tests();
         let first = WechatApiConfig {
             app_id: "wx-first".to_string(),
@@ -1865,6 +1865,7 @@ mod tests {
 
     #[test]
     fn access_token_cache_can_be_cleared_after_endpoint_token_error() {
+        let _cache_test_guard = ACCESS_TOKEN_CACHE_TEST_LOCK.lock().unwrap();
         clear_access_token_cache_for_tests();
         let config = WechatApiConfig {
             app_id: "wx-clear".to_string(),

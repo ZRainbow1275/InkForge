@@ -3,7 +3,7 @@
  * shell without calling an external model or treating a local failure as a
  * provider success.
  */
-/* global after, before */
+/* global after */
 const { expect } = require('chai');
 
 const ORIGINAL_SETTINGS_SNAPSHOT_KEY = 'inkforge.e2e.ai-settings.original';

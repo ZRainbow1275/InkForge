@@ -18,10 +18,11 @@ export const useAssetStore = defineStore('asset', () => {
     const loading = ref(false)
     const error = ref<string | null>(null)
     const urlCache = new AssetBlobUrlCache()
+    let loadSequence = 0
 
     const totalSize = computed(() => assets.value.reduce((sum, asset) => sum + (asset.compressedSizeBytes ?? asset.size), 0))
     const imageAssets = computed(() => assets.value.filter(asset => asset.type === 'image' || asset.type === 'svg'))
-    const cachedUrlCount = computed(() => urlCache.size)
+    const cachedUrlCount = ref(0)
 
     function reportError(err: unknown, fallback: string, context?: Record<string, unknown>): string {
         const message = err instanceof AppError
@@ -47,26 +48,39 @@ export const useAssetStore = defineStore('asset', () => {
         ]
     }
 
+    function replaceLoadedAssets(nextAssets: AssetRecord[]): void {
+        const nextIds = new Set(nextAssets.map(asset => asset.id))
+        for (const asset of assets.value) {
+            if (nextIds.has(asset.id)) continue
+            urlCache.revoke(asset.id)
+            urlCache.revoke(`thumb_${asset.id}`)
+        }
+        assets.value = nextAssets
+        cachedUrlCount.value = urlCache.size
+    }
+
     async function loadAssets(articleId?: string): Promise<void> {
+        const sequence = ++loadSequence
         loading.value = true
         error.value = null
         try {
-            if (articleId) {
-                assets.value = await db.assets
-                    .where('articleId')
-                    .equals(articleId)
-                    .reverse()
-                    .sortBy('createdAt')
-            } else {
-                assets.value = await db.assets
-                    .orderBy('createdAt')
-                    .reverse()
-                    .toArray()
+            const nextAssets = await assetPipeline.listAssets({ articleId })
+            if (sequence === loadSequence) {
+                replaceLoadedAssets(nextAssets)
             }
         } catch (err) {
-            error.value = reportError(err, 'Failed to load assets', { articleId })
+            if (sequence === loadSequence) {
+                error.value = reportError(err, 'Failed to load assets', { articleId })
+            } else {
+                logger.warn('Stale asset load failed after the active article changed', {
+                    articleId,
+                    error: err instanceof Error ? err.message : String(err),
+                })
+            }
         } finally {
-            loading.value = false
+            if (sequence === loadSequence) {
+                loading.value = false
+            }
         }
     }
 
@@ -113,23 +127,37 @@ export const useAssetStore = defineStore('asset', () => {
         return results
     }
 
-    async function deleteAsset(id: string): Promise<void> {
+    async function deleteAsset(id: string, articleId?: string): Promise<void> {
+        if (articleId) {
+            await assetPipeline.removeReference(id, { kind: 'article', id: articleId })
+            const remainingRefs = await db.assetRefs.where('assetId').equals(id).count()
+            if (remainingRefs > 0) {
+                assets.value = assets.value.filter(asset => asset.id !== id)
+                return
+            }
+        }
+
+        await assetPipeline.deleteAsset(id)
         urlCache.revoke(id)
         urlCache.revoke(`thumb_${id}`)
-        await assetPipeline.deleteAsset(id)
+        cachedUrlCount.value = urlCache.size
         assets.value = assets.value.filter(asset => asset.id !== id)
     }
 
     function getAssetUrl(id: string): string | null {
         const asset = assets.value.find(item => item.id === id)
         if (!asset) return null
-        return urlCache.getOrCreate(id, asset.blob)
+        const url = urlCache.getOrCreate(id, asset.blob)
+        cachedUrlCount.value = urlCache.size
+        return url
     }
 
     function getThumbnailUrl(id: string): string | null {
         const asset = assets.value.find(item => item.id === id)
         if (!asset?.thumbnail) return getAssetUrl(id)
-        return urlCache.getOrCreate(`thumb_${id}`, asset.thumbnail)
+        const url = urlCache.getOrCreate(`thumb_${id}`, asset.thumbnail)
+        cachedUrlCount.value = urlCache.size
+        return url
     }
 
     function searchAssets(query: string): AssetRecord[] {
@@ -154,6 +182,7 @@ export const useAssetStore = defineStore('asset', () => {
 
     function cleanup(): void {
         urlCache.clear()
+        cachedUrlCount.value = 0
     }
 
     onScopeDispose(cleanup)

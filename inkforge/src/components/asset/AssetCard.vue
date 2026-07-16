@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import type { AssetRecord } from '@/utils/db'
-import { useAssetStore } from '@/stores/asset'
 
 const props = defineProps<{
   asset: AssetRecord
@@ -12,15 +11,28 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'select', asset: AssetRecord): void
   (e: 'preview', asset: AssetRecord): void
-  (e: 'contextmenu', event: MouseEvent, asset: AssetRecord): void
+  (e: 'contextmenu', event: MouseEvent | KeyboardEvent, asset: AssetRecord): void
 }>()
 
-const assetStore = useAssetStore()
+const thumbnailUrl = ref<string | null>(null)
 
-/** 获取缩略图 URL（使用 Store 的 Object URL 缓存） */
-const thumbnailUrl = computed(() => {
-  return assetStore.getThumbnailUrl(props.asset.id)
-})
+function revokeThumbnailUrl(): void {
+  if (!thumbnailUrl.value) return
+  URL.revokeObjectURL(thumbnailUrl.value)
+  thumbnailUrl.value = null
+}
+
+watch(
+  () => [props.asset.id, props.asset.thumbnail, props.asset.blob] as const,
+  () => {
+    revokeThumbnailUrl()
+    const blob = props.asset.thumbnail ?? props.asset.blob
+    thumbnailUrl.value = URL.createObjectURL(blob)
+  },
+  { immediate: true },
+)
+
+onUnmounted(revokeThumbnailUrl)
 
 /** 文件大小格式化：bytes -> KB/MB */
 function formatFileSize(bytes: number): string {
@@ -67,19 +79,29 @@ function handleDblClick() {
   emit('preview', props.asset)
 }
 
-function handleContextMenu(event: MouseEvent) {
+function handleContextMenu(event: MouseEvent | KeyboardEvent) {
   event.preventDefault()
   emit('contextmenu', event, props.asset)
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+    handleContextMenu(event)
+  }
 }
 </script>
 
 <template>
   <!-- Grid View -->
-  <div
+  <button
     v-if="viewMode === 'grid'"
+    type="button"
     class="asset-card-grid"
     :class="{ selected }"
+    :aria-pressed="selected"
+    :aria-label="`选择素材 ${asset.name}`"
     @click="handleClick"
+    @keydown="handleKeydown"
     @dblclick="handleDblClick"
     @contextmenu="handleContextMenu"
   >
@@ -143,14 +165,18 @@ function handleContextMenu(event: MouseEvent) {
       >{{ asset.name }}</span>
       <span class="file-meta">{{ formattedSize }}</span>
     </div>
-  </div>
+  </button>
 
   <!-- List View -->
-  <div
+  <button
     v-else
+    type="button"
     class="asset-card-list"
     :class="{ selected }"
+    :aria-pressed="selected"
+    :aria-label="`选择素材 ${asset.name}`"
     @click="handleClick"
+    @keydown="handleKeydown"
     @dblclick="handleDblClick"
     @contextmenu="handleContextMenu"
   >
@@ -225,7 +251,7 @@ function handleContextMenu(event: MouseEvent) {
         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
       </svg>
     </div>
-  </div>
+  </button>
 </template>
 
 <style scoped>
@@ -233,6 +259,11 @@ function handleContextMenu(event: MouseEvent) {
 .asset-card-grid {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   border-radius: var(--radius-medium, 8px);
   border: 1px solid var(--border, #ECEFF1);
   background: var(--bg-surface, #FFFFFF);
@@ -331,6 +362,11 @@ function handleContextMenu(event: MouseEvent) {
 .asset-card-list {
   display: flex;
   align-items: center;
+  width: 100%;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   gap: 12px;
   padding: 8px 12px;
   border-radius: var(--radius-medium, 8px);

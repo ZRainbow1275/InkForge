@@ -86,6 +86,7 @@ export interface AssetRecord {
     lifecycle?: AssetLifecycle
     orphanedAt?: number | null
     storageBackend?: 'indexeddb' | 'tauri-mirror-pending'
+    legacyArticleRefMigrated?: boolean
 }
 
 /**

@@ -1,0 +1,52 @@
+InkForge Current-Round Native Acceptance - 2026-07-16
+
+Scope:
+- Application SVG/style rendering and local WeChat HTML/SVG export.
+- Real Tauri/WebView2, IndexedDB, Blob URLs, Windows credential store, and current Rust binary.
+- No Xiaohongshu/Zhihu publication automation.
+- No WeChat phone, sync, scheduling, or publish claim.
+
+Implemented:
+- Host/WebView alignment uses production restore controls at startup and the native Win32 restore/foreground path after a real minimize; no WebDriver-only maximize or resize remains.
+- Every native session compares the real host rectangle with the WebView client. Either absolute axis gap above the 8 px DPI/native-border allowance fails closed. The focused replay recorded host=1401x900, client=1400x900, gap=1x0.
+- Tauri CSP permits blob: for image sources only.
+- Asset pipeline supports genuine SVG upload, deduplication, visual/source insertion, shared-reference-safe deletion, bounded object-URL lifecycle, latest-request-wins listing, keyboard/search/tag flows, and visible unsupported-MIME rejection.
+- Tauri sensitive-field encryption is runtime-gated for release/debug/dev, not Vite PROD-gated.
+- Master-key access rehydrates from the OS credential store after in-memory cache expiry; a missing persisted key or failed first-run save is fail-closed and never creates a usable replacement key.
+- WebDriver Tauri sessions use the dedicated inkforge_e2e_*_v3 OS-credential namespace. Teardown verifies the real entry exists and deletes it through the real Tauri command without returning or logging key material.
+- Rust WeChat access-token cache tests serialize only their shared global-cache mutations.
+
+Verification:
+- node --test tests/e2e/wdio-bounds.test.cjs: 1/1 PASS; 8 px accepted, positive/negative 9 px rejected
+- fresh strict-threshold real WebView2 svg-render.spec.cjs: 10/10 PASS, 33.3s, process exit 0; host/client gap=1x0; isolated OS credential removed
+- editor-settings.spec.cjs: 13/13 PASS, 5m49.6s (fresh current-source replay after native restore, bounds, and credential-isolation remediation)
+- ai-settings.spec.cjs: 1/1 PASS, 13.9s
+- native-runtime.spec.cjs: 9/9 PASS, 15.1s
+- svg-render.spec.cjs: 10/10 PASS, 33.0s
+- visual.spec.cjs: 11/11 PASS, 4.2s
+- Auxiliary native total: 31/31 PASS
+- Focused asset/crypto/Markdown Vitest: 3 files / 31 tests PASS
+- Full Vitest: 109 files / 1834 tests PASS
+- ESLint src/tests: PASS
+- vue-tsc --noEmit: PASS
+- production Vite build: 4663 modules PASS
+- cargo fmt/check/test/clippy: PASS; 22/22 Rust tests
+- tauri build --debug --bundles none: PASS
+- post-build real WebView2 svg-render.spec.cjs: 10/10 PASS, 33.0s, process exit 0
+- style-proof:current-round: PASS
+  - 27 SVG modules
+  - 108 module/persona pairs
+  - 17 WeChat choices
+  - 13 selectable/rendered choices
+  - 8 currently usable choices
+  - 45 sample SVG modules
+  - zero local issues
+  - zero actionable local rows
+  - canClaimCurrentRoundTarget=true
+  - canClaimReleaseComplete=false
+
+Boundary:
+- This proves the narrowed local current-round target and prepares the application for operator rendering tests.
+- It does not prove WeChat ordinary external-editor paste/readback, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, or publication success.
+- Xiaohongshu and Zhihu publication testing is canceled from automation for this round and remains user-manual.
+- No credential, cookie, token, browser profile, runtime data path, QR material, or account screenshot is included.

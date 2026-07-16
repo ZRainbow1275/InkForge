@@ -13337,3 +13337,21 @@ Boundary:
   chrome evidence. It does not prove WeChat phone preview, mobile Dark Mode, credentialed sync,
   scheduled send, platform preview, public rendering, Xiaohongshu/Zhihu account upload, or publish
   success.
+
+---
+
+## 2026-07-16 Native SVG And Current-Round Acceptance Addendum
+
+- Closed the local native SVG asset chain from a real file input through CSP-safe Blob rendering, production asset persistence, visual and Markdown-source insertion, encrypted article reload, duplicate/shared-reference handling, final deletion, and bounded object-URL cleanup.
+- Corrected native encryption availability to follow the actual Tauri runtime for release, debug, and development binaries instead of the Vite PROD flag. Master-key access now rehydrates through the existing OS credential-store path after the in-memory cache expires; failed first-run persistence and a missing persisted key fail closed without a usable replacement. WebDriver uses a dedicated `inkforge_e2e_*_v3` namespace and deletes that real OS credential during teardown without exposing key material.
+- Corrected the native acceptance harness so the borderless host and WebView use application/native restore and foreground paths rather than WebDriver-only maximize/resize. Every session compares native host and WebView-client dimensions and fails closed when either absolute axis gap exceeds the 8 px DPI/native-border allowance; the focused current-source SVG replay recorded host `1401x900`, client `1400x900`, gap `1x0`. A deterministic Node regression accepts the 8 px boundary and rejects positive or negative 9 px drift, making the black-surround geometry from the operator screenshot an executable failure.
+- Final current-binary gates passed:
+  - complete editor-settings native suite: 13/13;
+  - auxiliary native suites: 31/31;
+  - rebuilt Tauri debug binary: passed;
+  - post-build svg-render native suite: 10/10;
+  - host/WebView bounds predicate: 1/1, followed by a fresh strict-threshold WebView2 SVG replay at 10/10;
+  - full Vitest: 109 files / 1834 tests;
+  - ESLint, vue-tsc, production Vite build (4663 modules), Cargo fmt/check/test/clippy (22/22 tests): passed;
+  - style-proof:current-round: current-round-ready with 27 modules, 108 pairs, 13 rendered WeChat style choices, 45 sample SVG modules, zero local issues, and canClaimCurrentRoundTarget=true.
+- Claim boundary remains deliberate: canClaimReleaseComplete=false. This addendum does not claim WeChat phone preview, mobile interaction/Dark Mode, cover acceptance, credentialed sync, scheduling, ordinary external-editor paste/readback, public rendering, or publish success. Xiaohongshu and Zhihu publication tests are user-manual for this round.

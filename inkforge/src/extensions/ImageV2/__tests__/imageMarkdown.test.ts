@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  appendMarkdownImage,
   escapeMarkdownImageAlt,
   parseMarkdownImage,
   serializeMarkdownImage,
@@ -80,6 +81,19 @@ describe('ImageV2 Markdown image utilities', () => {
     expect(escaped).toBe(String.raw`A \\ B \] C`)
     expect(unescapeMarkdownImageAlt(escaped)).toBe(alt)
     expect(parseMarkdownImage(`![${escaped}](inkforge-asset://asset-1)`)).toMatchObject({ alt })
+  })
+
+  it('appends a serialized image to empty and existing Markdown', () => {
+    const imageMarkdown = '![Diagram](inkforge-asset://asset-1)'
+
+    expect(appendMarkdownImage('', baseImage)).toBe(imageMarkdown)
+    expect(appendMarkdownImage('Paragraph', baseImage)).toBe(`Paragraph\n\n${imageMarkdown}`)
+    expect(appendMarkdownImage('Paragraph\n', baseImage)).toBe(`Paragraph\n\n${imageMarkdown}`)
+    expect(appendMarkdownImage('Paragraph\n\n', baseImage)).toBe(`Paragraph\n\n${imageMarkdown}`)
+  })
+
+  it('keeps Markdown unchanged when the image source is invalid', () => {
+    expect(appendMarkdownImage('Paragraph', { ...baseImage, src: '   ' })).toBe('Paragraph')
   })
 
   it('rejects incomplete image targets', () => {

@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import { db, type AssetRecord } from '@/utils/db'
+import { useAssetStore } from '@/stores/asset'
 import {
   AssetPipelineError,
   AssetPipelineRepository,
   AssetPipelineService,
+  assetPipeline,
   buildAssetIdFromHash,
   calculateBlobSha256,
   resolveAssetSnapshot,
@@ -70,6 +73,7 @@ beforeEach(() => {
   refs.clear()
 
   vi.spyOn(db.assets, 'get').mockImplementation((async (key: string) => assets.get(String(key))) as never)
+  vi.spyOn(db.assets, 'bulkGet').mockImplementation((async (keys: string[]) => keys.map(key => assets.get(String(key)))) as never)
   vi.spyOn(db.assets, 'add').mockImplementation((async (record: AssetRecord) => {
     assets.set(record.id, record)
     return record.id
@@ -150,6 +154,30 @@ describe('asset pipeline ingest and dedupe', () => {
     expect(assets.get(first.asset.id)?.blob).toBeInstanceOf(Blob)
   })
 
+  it('lists a deduplicated asset through each article reference and isolates reference removal', async () => {
+    const service = new AssetPipelineService(new AssetPipelineRepository())
+    const first = await service.ingestBlob(new Blob(['shared bytes'], { type: 'text/plain' }), {
+      profileId: 'profile-1',
+      originalName: 'shared-a.txt',
+      referrer: { kind: 'article', id: 'article-1' },
+    })
+    await service.ingestBlob(new Blob(['shared bytes'], { type: 'text/plain' }), {
+      profileId: 'profile-1',
+      originalName: 'shared-b.txt',
+      referrer: { kind: 'article', id: 'article-2' },
+    })
+
+    await expect(service.listAssets({ articleId: 'article-1' })).resolves.toMatchObject([{ id: first.asset.id }])
+    await expect(service.listAssets({ articleId: 'article-2' })).resolves.toMatchObject([{ id: first.asset.id }])
+
+    await service.removeReference(first.asset.id, { kind: 'article', id: 'article-1' })
+
+    await expect(service.listAssets({ articleId: 'article-1' })).resolves.toEqual([])
+    await expect(service.listAssets({ articleId: 'article-2' })).resolves.toMatchObject([{ id: first.asset.id }])
+    expect(assets.has(first.asset.id)).toBe(true)
+    expect(refs.size).toBe(1)
+  })
+
   it('stores attachments without image-only thumbnail processing', async () => {
     const service = new AssetPipelineService(new AssetPipelineRepository())
 
@@ -163,6 +191,82 @@ describe('asset pipeline ingest and dedupe', () => {
     expect(result.asset.thumbnail).toBeUndefined()
     expect(result.asset.contentHash).toHaveLength(64)
     expect(result.asset.originalName).toBe('contacts.csv')
+  })
+
+  it('backfills a legacy article owner before another article reference can remove the asset', async () => {
+    const repository = new AssetPipelineRepository()
+    const service = new AssetPipelineService(repository)
+    const legacy = await service.ingestBlob(new Blob(['legacy shared bytes'], { type: 'text/plain' }), {
+      profileId: 'profile-1',
+      originalName: 'legacy.txt',
+    })
+    assets.set(legacy.asset.id, {
+      ...legacy.asset,
+      articleId: 'article-1',
+      legacyArticleRefMigrated: undefined,
+    })
+    await repository.addRef({
+      assetId: legacy.asset.id,
+      profileId: 'profile-1',
+      kind: 'article',
+      id: 'article-2',
+    })
+
+    await expect(service.listAssets({ articleId: 'article-1' })).resolves.toMatchObject([{ id: legacy.asset.id }])
+    expect(Array.from(refs.values()).map(ref => ref.referrerId).sort()).toEqual(['article-1', 'article-2'])
+
+    await service.removeReference(legacy.asset.id, { kind: 'article', id: 'article-2' })
+
+    await expect(service.listAssets({ articleId: 'article-1' })).resolves.toMatchObject([{ id: legacy.asset.id }])
+    expect(assets.has(legacy.asset.id)).toBe(true)
+    expect(Array.from(refs.values()).map(ref => ref.referrerId)).toEqual(['article-1'])
+  })
+
+  it('returns every matching asset when no explicit page limit is requested', async () => {
+    const service = new AssetPipelineService(new AssetPipelineRepository())
+    for (let index = 0; index < 101; index += 1) {
+      await service.ingestBlob(new Blob([`asset-${index}`], { type: 'text/plain' }), {
+        profileId: 'profile-1',
+        originalName: `asset-${index}.txt`,
+      })
+    }
+
+    await expect(service.listAssets({ profileId: 'profile-1' })).resolves.toHaveLength(101)
+    await expect(service.listAssets({ profileId: 'profile-1', limit: 10, offset: 5 })).resolves.toHaveLength(10)
+  })
+})
+
+describe('asset store article switching', () => {
+  it('keeps the newest article result when older loading finishes later', async () => {
+    const service = new AssetPipelineService(new AssetPipelineRepository())
+    const first = await service.ingestBlob(new Blob(['article-a'], { type: 'text/plain' }), {
+      profileId: 'profile-1',
+      originalName: 'article-a.txt',
+    })
+    const second = await service.ingestBlob(new Blob(['article-b'], { type: 'text/plain' }), {
+      profileId: 'profile-1',
+      originalName: 'article-b.txt',
+    })
+    let resolveFirst: ((records: AssetRecord[]) => void) | undefined
+    let resolveSecond: ((records: AssetRecord[]) => void) | undefined
+    const firstRequest = new Promise<AssetRecord[]>(resolve => { resolveFirst = resolve })
+    const secondRequest = new Promise<AssetRecord[]>(resolve => { resolveSecond = resolve })
+    vi.spyOn(assetPipeline, 'listAssets').mockImplementation(options => (
+      options?.articleId === 'article-a' ? firstRequest : secondRequest
+    ))
+    setActivePinia(createPinia())
+    const store = useAssetStore()
+
+    const olderLoad = store.loadAssets('article-a')
+    const newerLoad = store.loadAssets('article-b')
+    resolveSecond?.([second.asset])
+    await newerLoad
+    resolveFirst?.([first.asset])
+    await olderLoad
+
+    expect(store.assets.map(asset => asset.id)).toEqual([second.asset.id])
+    expect(store.loading).toBe(false)
+    expect(store.error).toBeNull()
   })
 })
 

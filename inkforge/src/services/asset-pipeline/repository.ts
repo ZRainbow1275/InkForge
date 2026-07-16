@@ -97,20 +97,50 @@ export class AssetPipelineRepository {
   }
 
   async listAssets(options: AssetListOptions = {}): Promise<AssetRecord[]> {
-    const { articleId, profileId, limit = 100, offset = 0 } = options
+    const { articleId, profileId, limit, offset = 0 } = options
     let records: AssetRecord[]
 
     if (articleId) {
-      records = await db.assets.where('articleId').equals(articleId).toArray()
+      const refs = await this.listRefsByReferrer({ kind: 'article', id: articleId })
+      const referencedAssetIds = Array.from(new Set(refs.map(ref => ref.assetId)))
+      const referencedAssets = referencedAssetIds.length > 0
+        ? (await db.assets.bulkGet(referencedAssetIds)).filter((asset): asset is AssetRecord => Boolean(asset))
+        : []
+      const referencedIdSet = new Set(referencedAssetIds)
+      const directAssets = await db.assets.where('articleId').equals(articleId).toArray()
+      const migratedLegacyAssets: AssetRecord[] = []
+
+      for (const asset of directAssets) {
+        if (referencedIdSet.has(asset.id)) {
+          if (asset.legacyArticleRefMigrated !== true) {
+            await db.assets.update(asset.id, { legacyArticleRefMigrated: true, updatedAt: new Date() })
+          }
+          continue
+        }
+        if (asset.legacyArticleRefMigrated === true) continue
+
+        await this.addRef({
+          assetId: asset.id,
+          profileId: asset.profileId,
+          kind: 'article',
+          id: articleId,
+          source: 'asset-pipeline.legacy-article-owner',
+        })
+        await db.assets.update(asset.id, { legacyArticleRefMigrated: true, updatedAt: new Date() })
+        migratedLegacyAssets.push(await db.assets.get(asset.id) ?? asset)
+      }
+
+      records = [...referencedAssets, ...migratedLegacyAssets]
     } else if (profileId) {
       records = await db.assets.where('profileId').equals(profileId).toArray()
     } else {
       records = await db.assets.orderBy('createdAt').toArray()
     }
 
-    return records
-      .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
-      .slice(offset, offset + Math.max(1, limit))
+    const sorted = records.sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+    return limit === undefined
+      ? sorted.slice(offset)
+      : sorted.slice(offset, offset + Math.max(1, limit))
   }
 
   async addRef(input: AddAssetRefInput): Promise<AssetRefRecord> {

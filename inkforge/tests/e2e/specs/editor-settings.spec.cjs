@@ -7,6 +7,8 @@ const { expect } = require('chai');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { Buffer } = require('node:buffer');
+const { spawnSync } = require('node:child_process');
 
 const SMART_PUNCTUATION_CASES = [
   { id: 'curlyQuotes', label: '弯引号', input: '"', expected: '“' },
@@ -59,27 +61,60 @@ async function openRoute(target, readySelector) {
     }
   }, target);
 
-  await browser.waitUntil(
-    async () => browser.execute((selector) => {
-      const element = document.querySelector(selector);
-      const routeShell = element?.closest('.app-route-shell');
-      const routeShellOpacity = routeShell
-        ? Number.parseFloat(window.getComputedStyle(routeShell).opacity)
-        : 1;
-      return Boolean(
-        element
-        && element.getClientRects().length > 0
-        && window.getComputedStyle(element).visibility !== 'hidden'
-        && !document.querySelector('.view-fade-enter-active, .view-fade-leave-active')
-        && routeShellOpacity >= 0.999
-      );
-    }, readySelector),
-    {
-      timeout: 10_000,
-      interval: 50,
-      timeoutMsg: `${target} did not display ${readySelector} after route transition`,
-    },
-  );
+  let lastState = null;
+  try {
+    await browser.waitUntil(
+      async () => {
+        lastState = await browser.execute((selector) => {
+          const element = document.querySelector(selector);
+          const routeShell = element?.closest('.app-route-shell');
+          const routeShellOpacity = routeShell
+            ? Number.parseFloat(window.getComputedStyle(routeShell).opacity)
+            : 1;
+          const root = document.getElementById('app');
+          const provides = root?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          const editorStore = pinia?._s.get('editor');
+          const ready = Boolean(
+            element
+            && element.getClientRects().length > 0
+            && window.getComputedStyle(element).visibility !== 'hidden'
+            && !document.querySelector('.view-fade-enter-active, .view-fade-leave-active')
+            && routeShellOpacity >= 0.999
+          );
+          return {
+            ready,
+            actualRoute: `${location.pathname}${location.search}`,
+            elementExists: Boolean(element),
+            elementRectCount: element?.getClientRects().length ?? 0,
+            elementVisibility: element ? window.getComputedStyle(element).visibility : null,
+            routeShellOpacity,
+            activeTransitions: document.querySelectorAll('.view-fade-enter-active, .view-fade-leave-active').length,
+            editorStatus: editorStore?.status ?? null,
+            editorError: editorStore?.error ?? null,
+            statusPill: document.querySelector('.status-pill.error')?.textContent?.trim() ?? null,
+            documentVisibility: document.visibilityState,
+            documentFocused: document.hasFocus(),
+          };
+        }, readySelector);
+        return lastState.ready;
+      },
+      {
+        timeout: 10_000,
+        interval: 50,
+        timeoutMsg: `${target} did not display ${readySelector} after route transition`,
+      },
+    );
+  } catch (error) {
+    throw new Error(
+      `${target} did not display ${readySelector} after route transition; state=${JSON.stringify(lastState)}`,
+      { cause: error },
+    );
+  }
 }
 
 async function readListEnterBehavior() {
@@ -1497,15 +1532,7 @@ async function activateWorkstationTabThroughRovingKey(sourceArticleId, key, targ
 
 async function prepareListEnterScenario(expectedBehavior) {
   const editor = await browser.$('.ProseMirror');
-  await editor.waitForDisplayed({ timeout: 10_000, interval: 200 });
-  await browser.execute((surface) => {
-    surface.scrollIntoView({ block: 'center', inline: 'center' });
-    surface.focus();
-  }, editor);
-  await browser.waitUntil(
-    async () => browser.execute(() => document.activeElement?.classList.contains('ProseMirror') ?? false),
-    { timeout: 5_000, interval: 100, timeoutMsg: 'editor surface did not receive focus' },
-  );
+  await focusEditorForKeyboardInput(editor);
   await browser.keys(['Control', 'a']);
   await browser.keys('Backspace');
   await browser.waitUntil(
@@ -1570,10 +1597,31 @@ async function prepareListEnterScenario(expectedBehavior) {
   );
 }
 
+async function focusControlForKeyboardInput(control, label) {
+  await control.waitForDisplayed({ timeout: 10_000, interval: 200 });
+  const titlebar = await browser.$('.ink-titlebar');
+  await titlebar.click();
+  await control.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await control.waitForClickable({ timeout: 5_000, interval: 100 });
+  await control.click();
+  await browser.waitUntil(
+    async () => browser.execute((element) => (
+      document.activeElement === element || element.contains(document.activeElement)
+    ), control),
+    { timeout: 5_000, interval: 50, timeoutMsg: `${label} did not receive real native-window keyboard focus` },
+  );
+}
+
+async function focusEditorForKeyboardInput(editor, moveToEnd = false) {
+  await focusControlForKeyboardInput(editor, 'the real ProseMirror surface');
+  if (moveToEnd) {
+    await browser.keys(['Control', 'End']);
+  }
+}
+
 async function typeSmartPunctuationInput(input, expectedText) {
   const editor = await browser.$('.ProseMirror');
-  await editor.waitForDisplayed({ timeout: 10_000, interval: 200 });
-  await browser.execute((surface) => surface.focus(), editor);
+  await focusEditorForKeyboardInput(editor);
   await browser.keys(['Control', 'a']);
   await browser.keys('Backspace');
   await browser.waitUntil(
@@ -2065,6 +2113,114 @@ async function cleanupCreatedTags() {
   createdTagIds.clear();
 }
 
+async function readAssetPersistence(articleId, expectedName) {
+  return browser.execute(async (targetArticleId, targetName) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const assetStore = pinia?._s.get('asset');
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('InkForgeDB');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+    });
+    const readAll = (storeName) => new Promise((resolve, reject) => {
+      const request = database.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+    });
+    const matchesName = (asset) => asset.name === targetName || asset.originalName === targetName;
+    const toMeta = (asset) => ({
+      id: asset.id,
+      articleId: asset.articleId,
+      name: asset.name,
+      originalName: asset.originalName ?? null,
+      mimeType: asset.mimeType,
+      size: asset.size,
+      blobSize: asset.blob?.size ?? null,
+      blobType: asset.blob?.type ?? null,
+      contentHashLength: asset.contentHash?.length ?? 0,
+      refCount: asset.refCount ?? null,
+      lifecycle: asset.lifecycle ?? null,
+      storageBackend: asset.storageBackend ?? null,
+      tags: [...(asset.tags ?? [])],
+    });
+
+    try {
+      const [persistedAssets, refs] = await Promise.all([readAll('assets'), readAll('assetRefs')]);
+      const namedPersistedAssets = persistedAssets.filter(matchesName);
+      const namedAssetIds = new Set(namedPersistedAssets.map((asset) => asset.id));
+      const targetRefs = refs.filter((ref) => (
+        namedAssetIds.has(ref.assetId)
+        && ref.referrerKind === 'article'
+        && ref.referrerId === targetArticleId
+      ));
+      const targetAssetIds = new Set(targetRefs.map((ref) => ref.assetId));
+      const live = Array.from(assetStore?.assets ?? [])
+        .filter((asset) => targetAssetIds.has(asset.id) && matchesName(asset));
+      const persisted = namedPersistedAssets.filter((asset) => targetAssetIds.has(asset.id));
+      const cards = Array.from(document.querySelectorAll('.asset-card-grid[aria-label], .asset-card-list[aria-label]'))
+        .filter((card) => card.getAttribute('aria-label') === `选择素材 ${targetName}`)
+        .map((card) => ({
+          ariaPressed: card.getAttribute('aria-pressed'),
+          className: card.className,
+          thumbnailSrc: card.querySelector('img')?.getAttribute('src') ?? '',
+          thumbnailComplete: card.querySelector('img')?.complete ?? false,
+          thumbnailNaturalWidth: card.querySelector('img')?.naturalWidth ?? 0,
+          thumbnailNaturalHeight: card.querySelector('img')?.naturalHeight ?? 0,
+        }));
+      return {
+        storeReady: Boolean(assetStore),
+        storeError: assetStore?.error ?? null,
+        cachedUrlCount: assetStore?.cachedUrlCount ?? null,
+        live: live.map(toMeta),
+        persisted: persisted.map(toMeta),
+        globalPersisted: namedPersistedAssets.map(toMeta),
+        refs: targetRefs
+          .map((ref) => ({ assetId: ref.assetId, referrerKind: ref.referrerKind, referrerId: ref.referrerId })),
+        allRefs: refs
+          .filter((ref) => namedAssetIds.has(ref.assetId))
+          .map((ref) => ({ assetId: ref.assetId, referrerKind: ref.referrerKind, referrerId: ref.referrerId })),
+        cards,
+        emptyText: document.querySelector('.inspector-asset-wrapper .empty-state')?.textContent
+          ?.replace(/\s+/gu, ' ').trim() ?? '',
+        errorText: document.querySelector('.inspector-asset-wrapper .error-banner')?.textContent
+          ?.replace(/\s+/gu, ' ').trim() ?? '',
+      };
+    } finally {
+      database.close();
+    }
+  }, articleId, expectedName);
+}
+
+async function cleanupCreatedAsset(articleId, expectedName) {
+  return browser.execute(async (targetArticleId, targetName) => {
+    const root = document.getElementById('app');
+    const provides = root?.__vue_app__?._context?.provides;
+    const pinia = provides
+      ? Object.getOwnPropertySymbols(provides)
+        .map((symbol) => provides[symbol])
+        .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+      : null;
+    const assetStore = pinia?._s.get('asset');
+    if (!assetStore) return { error: 'production asset store unavailable', removedIds: [] };
+    try {
+      await assetStore.loadAssets(targetArticleId);
+      const matches = Array.from(assetStore.assets).filter((asset) => (
+        asset.name === targetName || asset.originalName === targetName
+      ));
+      for (const asset of matches) await assetStore.deleteAsset(asset.id);
+      return { error: null, removedIds: matches.map((asset) => asset.id) };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : String(error), removedIds: [] };
+    }
+  }, articleId, expectedName);
+}
+
 async function openCategoryContextMenu(categoryId) {
   const rowSelector = `[data-file-category-id="${categoryId}"]`;
   let lastError = null;
@@ -2262,6 +2418,33 @@ async function recordShortcut(shortcutId, binding) {
   await sendShortcutBinding(binding);
 }
 
+function restoreNativeApplicationWindow() {
+  const applicationProcessId = Number(browser.capabilities?.['goog:processID']);
+  if (!Number.isInteger(applicationProcessId) || applicationProcessId <= 0) {
+    throw new Error('The native InkForge process id is unavailable for window restore');
+  }
+
+  const script = [
+    "$ErrorActionPreference = 'Stop'",
+    "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public static class InkForgeNativeWindow { [DllImport(\"user32.dll\")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow); [DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr hWnd); }'",
+    `$process = Get-Process -Id ${applicationProcessId}`,
+    '$handle = $process.MainWindowHandle',
+    "if ($handle -eq [IntPtr]::Zero) { throw 'InkForge native window handle is unavailable' }",
+    '[InkForgeNativeWindow]::ShowWindowAsync($handle, 9) | Out-Null',
+    'Start-Sleep -Milliseconds 150',
+    '[InkForgeNativeWindow]::SetForegroundWindow($handle) | Out-Null',
+  ].join('; ');
+  const result = spawnSync(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', script],
+    { encoding: 'utf8', windowsHide: true },
+  );
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(`Native InkForge window restore failed: ${result.stderr.trim()}`);
+  }
+}
+
 async function exerciseNativeWindowFocusLoss(shortcutId) {
   const trigger = await beginShortcutRecording(shortcutId);
   const mainWindowHandle = await browser.getWindowHandle();
@@ -2289,8 +2472,12 @@ async function exerciseNativeWindowFocusLoss(shortcutId) {
     await browser.pause(300);
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        await browser.maximizeWindow();
+        restoreNativeApplicationWindow();
         await browser.switchToWindow(mainWindowHandle);
+        await browser.waitUntil(
+          async () => (await browser.$('button[aria-label="最大化"]')).isExisting(),
+          { timeout: 5_000, interval: 100, timeoutMsg: 'the Tauri window did not return to normal size after minimize recovery' },
+        );
         await (await browser.$('.ink-titlebar')).click();
         restoreError = null;
         break;
@@ -4192,7 +4379,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     const articleId = await createBlankDraft(listEnterBehavior);
     const proofBody = 'InkForge real auto backup proof';
     const editor = await browser.$('.ProseMirror');
-    await browser.execute((surface) => surface.focus(), editor);
+    await focusEditorForKeyboardInput(editor, true);
     for (const character of proofBody) await browser.keys(character);
     await browser.waitUntil(
       async () => browser.execute((expected) => {
@@ -4245,7 +4432,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       .to.deep.equal(liveAutomaticVersions[0]);
 
     const routeFlushSuffix = ' immediate route flush proof';
-    await browser.execute((surface) => surface.focus(), editor);
+    await focusEditorForKeyboardInput(editor, true);
     for (const character of routeFlushSuffix) await browser.keys(character);
 
     expect(await installDataFaultInjection('backup-write'), 'route failure injection replaces one browser API')
@@ -4281,11 +4468,21 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     const backupButton = await browser.$('[data-data-action="create-backup"]');
     await backupButton.scrollIntoView({ block: 'center', inline: 'nearest' });
     expect(await backupButton.isEnabled(), 'an open real draft enables immediate backup').to.equal(true);
+    const clickBackupButton = async () => {
+      const currentButton = await browser.$('[data-data-action="create-backup"]');
+      await currentButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await currentButton.waitForClickable({
+        timeout: 5_000,
+        interval: 100,
+        timeoutMsg: 'the real immediate-backup button did not become clickable',
+      });
+      await currentButton.click();
+    };
 
     expect(await installDataFaultInjection('backup-write'), 'backup failure injection replaces one browser API')
       .to.equal(1);
     try {
-      await backupButton.click();
+      await clickBackupButton();
       await browser.waitUntil(
         async () => (await readDataSettingsAndDiagnostics()).manualBackupResult.startsWith('创建备份失败：'),
         { timeout: 10_000, interval: 100, timeoutMsg: 'immediate backup did not surface the real IndexedDB write failure' },
@@ -4299,7 +4496,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       await restoreDataFaultInjection();
     }
 
-    await backupButton.click();
+    await clickBackupButton();
     await browser.waitUntil(
       async () => (await readDataSettingsAndDiagnostics()).manualBackupResult.startsWith('已创建备份：'),
       { timeout: 10_000, interval: 100, timeoutMsg: 'immediate backup did not report a persisted success' },
@@ -4452,6 +4649,630 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
 
   });
 
+  it('uploads, deduplicates, searches, reloads, shares, and deletes a real SVG asset through the Workstation UI', async function () {
+    this.timeout(240_000);
+    const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const assetName = `inkforge-asset-${runId}.svg`;
+    const attachmentName = `inkforge-asset-${runId}.txt`;
+    const invalidName = `inkforge-asset-${runId}.exe`;
+    const assetTag = `asset-${runId}`;
+    const assetPath = path.join(os.tmpdir(), assetName);
+    const attachmentPath = path.join(os.tmpdir(), attachmentName);
+    const invalidPath = path.join(os.tmpdir(), invalidName);
+    const svgSource = [
+      '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="96" viewBox="0 0 160 96">',
+      '  <rect width="160" height="96" rx="12" fill="#f6efe2"/>',
+      '  <path d="M24 62 52 30l24 24 18-18 42 42H24Z" fill="#c9473a"/>',
+      '  <circle cx="118" cy="27" r="9" fill="#1e2a32"/>',
+      '</svg>',
+    ].join('\n');
+    let articleId = null;
+    let secondArticleId = null;
+
+    fs.writeFileSync(assetPath, svgSource, 'utf8');
+    fs.writeFileSync(attachmentPath, 'InkForge attachment insertion acceptance fixture.', 'utf8');
+    fs.writeFileSync(invalidPath, Buffer.from('MZ InkForge unsupported MIME acceptance fixture.', 'utf8'));
+
+    const openAssetSurface = async () => {
+      const inspector = await browser.$('.panel-inspector');
+      await inspector.waitForExist({ timeout: 10_000 });
+      let defaultPreset = null;
+      for (const preset of await browser.$$('.layout-preset-btn')) {
+        if ((await preset.getText()).trim() === '默认') {
+          defaultPreset = preset;
+          break;
+        }
+      }
+      if (defaultPreset) {
+        await defaultPreset.scrollIntoView({ block: 'center', inline: 'nearest' });
+        await defaultPreset.waitForClickable({ timeout: 5_000 });
+        await defaultPreset.click();
+      }
+      const collapsedBar = await browser.$('.panel-inspector.collapsed .inspector-collapsed-bar');
+      if (await collapsedBar.isExisting()) {
+        await collapsedBar.waitForClickable({ timeout: 5_000 });
+        await collapsedBar.click();
+      }
+      const inspectorPin = await browser.$('.inspector-pin-btn');
+      await inspectorPin.waitForDisplayed({ timeout: 5_000 });
+      if ((await inspectorPin.getAttribute('aria-pressed')) !== 'true') {
+        await browser.execute((element) => element.focus(), inspectorPin);
+        await browser.keys('Enter');
+        await browser.waitUntil(
+          async () => (await inspectorPin.getAttribute('aria-pressed')) === 'true',
+          { timeout: 5_000, interval: 100, timeoutMsg: 'visible inspector pin did not keep the asset surface mounted' },
+        );
+      }
+      const uploader = await browser.$('.inspector-asset-wrapper .asset-uploader');
+      await uploader.waitForDisplayed({ timeout: 10_000 });
+      await uploader.scrollIntoView({ block: 'center', inline: 'nearest' });
+      return uploader;
+    };
+    const uploadThroughNativeInput = async (filePath, bypassAccept = false) => {
+      const input = await browser.$('.inspector-asset-wrapper input[type="file"]');
+      const originalAccept = await input.getAttribute('accept');
+      await browser.execute((element) => {
+        element.dataset.inkforgeOriginalStyle = element.getAttribute('style') ?? '';
+        Object.assign(element.style, {
+          display: 'block',
+          position: 'fixed',
+          inset: '0 auto auto 0',
+          width: '2px',
+          height: '2px',
+          opacity: '0.01',
+          zIndex: '2147483647',
+        });
+      }, input);
+      if (bypassAccept) {
+        await browser.execute((element) => element.removeAttribute('accept'), input);
+      }
+      try {
+        await input.setValue(filePath);
+      } finally {
+        await browser.execute((element, accept) => {
+          const originalStyle = element.dataset.inkforgeOriginalStyle ?? '';
+          delete element.dataset.inkforgeOriginalStyle;
+          if (originalStyle) element.setAttribute('style', originalStyle);
+          else element.removeAttribute('style');
+          if (accept === null) element.removeAttribute('accept');
+          else element.setAttribute('accept', accept);
+        }, input, originalAccept);
+      }
+    };
+    const waitForDecodedAssetCard = async () => {
+      const card = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await card.waitForDisplayed({ timeout: 10_000 });
+      await card.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await browser.waitUntil(
+        async () => browser.execute((element) => {
+          const image = element.querySelector('img');
+          return Boolean(image?.complete && image.naturalWidth === 160 && image.naturalHeight === 96);
+        }, card),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'visible SVG asset card did not decode at 160 x 96' },
+      );
+      return card;
+    };
+
+    try {
+      articleId = await createBlankDraftThroughHub();
+      const uploader = await openAssetSurface();
+      expect(await uploader.getAttribute('role'), 'the upload surface is keyboard reachable').to.equal('button');
+      expect(await uploader.getAttribute('aria-label'), 'the upload surface has an accessible name').to.equal('上传素材文件');
+
+      await uploadThroughNativeInput(assetPath);
+      let uploaded = null;
+      await browser.waitUntil(
+        async () => {
+          uploaded = await readAssetPersistence(articleId, assetName);
+          return uploaded.live.length === 1
+            && uploaded.persisted.length === 1
+            && uploaded.cards.length === 1
+            && uploaded.persisted[0].blobSize > 0;
+        },
+        { timeout: 20_000, interval: 200, timeoutMsg: 'real SVG upload did not reach Pinia, IndexedDB, and the visible card' },
+      );
+      await browser.waitUntil(
+        async () => {
+          const uploaderClass = await (await browser.$('.inspector-asset-wrapper .asset-uploader')).getAttribute('class');
+          return !uploaderClass.split(/\s+/u).includes('uploading');
+        },
+        { timeout: 10_000, interval: 100, timeoutMsg: 'initial SVG upload did not finish its visible upload cycle' },
+      );
+      await waitForDecodedAssetCard();
+      uploaded = await readAssetPersistence(articleId, assetName);
+      expect(uploaded.storeError, 'successful upload leaves no hidden store error').to.equal(null);
+      expect(uploaded.live[0].id, 'the live and persisted asset use the same content id')
+        .to.equal(uploaded.persisted[0].id);
+      expect(uploaded.persisted[0], 'the real SVG Blob keeps its production metadata').to.include({
+        articleId,
+        name: assetName,
+        originalName: assetName,
+        mimeType: 'image/svg+xml',
+        blobType: 'image/svg+xml',
+        contentHashLength: 64,
+        lifecycle: 'active',
+        storageBackend: 'indexeddb',
+      });
+      expect(uploaded.persisted[0].blobSize, 'stored Blob size matches the real fixture bytes')
+        .to.equal(Buffer.byteLength(svgSource));
+      expect(uploaded.refs, 'the upload creates one durable article reference').to.deep.equal([{
+        assetId: uploaded.persisted[0].id,
+        referrerKind: 'article',
+        referrerId: articleId,
+      }]);
+      expect(uploaded.cards[0].thumbnailSrc.startsWith('blob:'), 'the visible preview uses a real Object URL').to.equal(true);
+      expect(uploaded.cards[0], 'the visible SVG decodes at its real intrinsic dimensions').to.include({
+        thumbnailComplete: true,
+        thumbnailNaturalWidth: 160,
+        thumbnailNaturalHeight: 96,
+      });
+      const cardThumbnailUrl = uploaded.cards[0].thumbnailSrc;
+
+      let assetCard = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await assetCard.waitForDisplayed({ timeout: 5_000 });
+      expect(await assetCard.getTagName(), 'asset cards use native button semantics').to.equal('button');
+      expect(await assetCard.getAttribute('type'), 'asset cards never submit a surrounding form').to.equal('button');
+      await assetCard.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(' ');
+      await browser.waitUntil(
+        async () => (await assetCard.getAttribute('aria-pressed')) === 'true',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'keyboard asset selection did not update aria-pressed' },
+      );
+
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(['Shift', 'F10']);
+      let contextMenu = await browser.$('.context-menu[role="menu"]');
+      await contextMenu.waitForDisplayed({ timeout: 5_000 });
+      const firstMenuAction = await browser.execute(() => document.activeElement?.textContent?.replace(/\s+/gu, ' ').trim() ?? '');
+      expect(firstMenuAction, 'keyboard context menu moves focus to its first native action').to.include('插入到编辑器');
+      await browser.keys('Enter');
+      const insertedImage = await browser.$(`.ProseMirror img.asset-image[alt="${assetName}"]`);
+      await browser.waitUntil(
+        async () => browser.execute((image) => image.complete && image.naturalWidth === 160 && image.naturalHeight === 96, insertedImage),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'the real asset action did not insert and decode the SVG in the editor' },
+      );
+      const insertedImageSrc = await insertedImage.getAttribute('src');
+      expect(insertedImageSrc.startsWith('blob:'), 'the editor resolves the stable asset id through a live Blob URL').to.equal(true);
+      expect(insertedImageSrc, 'the editor and asset card own separate Blob URL lifecycles').to.not.equal(cardThumbnailUrl);
+      const cachedAfterVisualInsert = await readAssetPersistence(articleId, assetName);
+      expect(cachedAfterVisualInsert.cachedUrlCount, 'the editor-owned URL remains represented in the production cache')
+        .to.be.greaterThan(0);
+
+      const sourceShortcut = await pressConfiguredShortcut('setSourceMode', 'Ctrl+Alt+S');
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('.source-mode-layout .cm-content'))),
+        { timeout: 5_000, interval: 100, timeoutMsg: `${sourceShortcut} did not open Source mode for asset insertion` },
+      );
+      await openAssetSurface();
+      assetCard = await waitForDecodedAssetCard();
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(['Shift', 'F10']);
+      contextMenu = await browser.$('.context-menu[role="menu"]');
+      await contextMenu.waitForDisplayed({ timeout: 5_000 });
+      await browser.keys('Enter');
+      const sourceImageMarkdown = `![${assetName}](inkforge-asset://${uploaded.persisted[0].id} "${assetName}")`;
+      try {
+        await browser.waitUntil(
+          async () => browser.execute(
+            (markdown) => (document.querySelector('.source-mode-layout .cm-content')?.textContent ?? '').includes(markdown),
+            sourceImageMarkdown,
+          ),
+          { timeout: 5_000, interval: 100, timeoutMsg: 'source-mode asset insertion did not append the stable Markdown image' },
+        );
+      } catch (error) {
+        const state = await browser.execute(() => ({
+          sourceText: document.querySelector('.source-mode-layout .cm-content')?.textContent ?? '',
+          sourceLayout: document.querySelector('.source-mode-layout')?.className ?? null,
+          visibleMenu: document.querySelector('.context-menu[role="menu"]')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
+          toast: document.querySelector('.transient-toast')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
+          activeElement: document.activeElement?.outerHTML?.slice(0, 500) ?? '',
+        }));
+        throw new Error(`${error.message}; state=${JSON.stringify(state)}`, { cause: error });
+      }
+      await pressConfiguredShortcut('setTyporaMode', 'Ctrl+Alt+T');
+      await browser.waitUntil(
+        async () => browser.execute(
+          (name) => document.querySelectorAll(`.editor-mode-shell.mode-typora .ProseMirror img.asset-image[alt="${name}"]`).length === 2,
+          assetName,
+        ),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'Source-mode asset insertion did not round-trip into two visual image nodes' },
+      );
+
+      await (await browser.$('.panel-inspector .collapse-trigger')).click();
+      await browser.waitUntil(
+        async () => browser.execute(() => !document.querySelector('.inspector-asset-wrapper .asset-uploader')),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'the inspector did not unmount the asset manager after visible collapse' },
+      );
+      const cardPreviewAfterUnmount = await browser.execute(async (url) => {
+        try {
+          const response = await window.fetch(url);
+          return response.ok;
+        } catch {
+          return false;
+        }
+      }, cardThumbnailUrl);
+      expect(cardPreviewAfterUnmount, 'unmounting the asset manager revokes its card-owned Blob URL').to.equal(false);
+      expect(
+        await browser.execute((image) => image.isConnected && image.complete && image.naturalWidth === 160 && image.naturalHeight === 96, insertedImage),
+        'collapsing the inspector does not revoke the editor-owned asset URL',
+      ).to.equal(true);
+
+      await openAssetSurface();
+      assetCard = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await assetCard.waitForDisplayed({ timeout: 5_000 });
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(['Shift', 'F10']);
+      contextMenu = await browser.$('.context-menu[role="menu"]');
+      await contextMenu.waitForDisplayed({ timeout: 5_000 });
+
+      await browser.keys('Escape');
+      await browser.waitUntil(
+        async () => browser.execute((element) => document.activeElement === element, assetCard),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Escape did not restore focus to the asset-card menu opener' },
+      );
+
+      await browser.keys(['Shift', 'F10']);
+      contextMenu = await browser.$('.context-menu[role="menu"]');
+      await contextMenu.waitForDisplayed({ timeout: 5_000 });
+      await browser.keys('ArrowDown');
+      await browser.keys('ArrowDown');
+      const editTagsAction = await browser.execute(() => document.activeElement?.textContent?.replace(/\s+/gu, ' ').trim() ?? '');
+      expect(editTagsAction, 'menu ArrowDown reaches the real tag action').to.include('编辑标签');
+      await browser.keys('Enter');
+      const tagDialog = await browser.$('.tags-edit-overlay[role="dialog"]');
+      try {
+        await tagDialog.waitForDisplayed({ timeout: 5_000 });
+      } catch (error) {
+        const state = await browser.execute(() => ({
+          contextMenuVisible: Boolean(document.querySelector('.context-menu')),
+          tagDialogExists: Boolean(document.querySelector('.tags-edit-overlay')),
+          visibleMenus: Array.from(document.querySelectorAll('[role="menu"]'))
+            .map((menu) => menu.textContent?.replace(/\s+/gu, ' ').trim() ?? ''),
+          activeElement: document.activeElement?.outerHTML?.slice(0, 500) ?? '',
+        }));
+        throw new Error(`${error.message}; state=${JSON.stringify(state)}`, { cause: error });
+      }
+      const tagInput = await tagDialog.$('.tags-input');
+      expect(
+        await browser.execute((element) => document.activeElement === element, tagInput),
+        'the tag dialog receives initial keyboard focus',
+      ).to.equal(true);
+      await browser.keys(['Shift', 'Tab']);
+      expect(
+        await browser.execute(() => document.activeElement?.classList.contains('tags-confirm-btn') ?? false),
+        'Shift+Tab wraps from the first tag field to the last dialog action',
+      ).to.equal(true);
+      await browser.keys('Tab');
+      expect(
+        await browser.execute((element) => document.activeElement === element, tagInput),
+        'Tab wraps from the last tag action back to the first field',
+      ).to.equal(true);
+      await tagInput.setValue(`svg, ${assetTag}`);
+      expect(await tagInput.getValue(), 'the visible tag input receives the exact operator value')
+        .to.equal(`svg, ${assetTag}`);
+      await (await tagDialog.$('.tags-confirm-btn')).click();
+      try {
+        await browser.waitUntil(
+          async () => {
+            const current = await readAssetPersistence(articleId, assetName);
+            return current.live[0]?.tags.includes(assetTag)
+              && current.persisted[0]?.tags.includes(assetTag);
+          },
+          { timeout: 10_000, interval: 100, timeoutMsg: 'visible asset tag edit did not persist' },
+        );
+      } catch (error) {
+        const state = await readAssetPersistence(articleId, assetName);
+        throw new Error(`${error.message}; state=${JSON.stringify(state)}`, { cause: error });
+      }
+
+      assetCard = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(' ');
+      await browser.waitUntil(
+        async () => (await assetCard.getAttribute('aria-pressed')) === 'true',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'asset selection did not recover after inspector remount' },
+      );
+      const searchInput = await browser.$('.inspector-asset-wrapper .search-input');
+      expect(await searchInput.getAttribute('aria-label'), 'asset search has an accessible name').to.equal('搜索素材');
+      await searchInput.setValue(assetTag);
+      await browser.keys('Delete');
+      expect(await browser.$$('.confirm-overlay[role="dialog"]'), 'Delete inside asset search never opens asset deletion').to.have.length(0);
+      expect(await browser.$$(`[aria-label="选择素材 ${assetName}"]`), 'tag search retains the matching real asset')
+        .to.have.length(1);
+      await searchInput.setValue(`missing-${runId}`);
+      await browser.waitUntil(
+        async () => (await readAssetPersistence(articleId, assetName)).emptyText.includes('未找到匹配素材'),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'asset search did not expose the honest no-result state' },
+      );
+      const clearSearchButton = await browser.$('.inspector-asset-wrapper .search-clear');
+      expect(await clearSearchButton.getAttribute('aria-label'), 'asset search exposes a named clear action')
+        .to.equal('清除素材搜索');
+      await clearSearchButton.click();
+      await browser.waitUntil(
+        async () => (await searchInput.getValue()) === '',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'asset search did not clear through the visible action' },
+      );
+      await browser.waitUntil(
+        async () => (await readAssetPersistence(articleId, assetName)).cards.length === 1,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'clearing the asset search did not restore the real asset card' },
+      );
+
+      const listToggle = await browser.$('.inspector-asset-wrapper [title="列表视图"]');
+      await listToggle.click();
+      assetCard = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await assetCard.waitForDisplayed({ timeout: 5_000 });
+      expect(await assetCard.getAttribute('class'), 'asset list view renders the real asset')
+        .to.include('asset-card-list');
+
+      await uploadThroughNativeInput(assetPath);
+      await browser.waitUntil(
+        async () => (await (await browser.$('.inspector-asset-wrapper .asset-uploader')).getAttribute('class'))
+          .split(/\s+/u).includes('uploading'),
+        { timeout: 5_000, interval: 50, timeoutMsg: 'duplicate SVG upload never entered the visible uploading state' },
+      );
+      await browser.waitUntil(
+        async () => {
+          const current = await readAssetPersistence(articleId, assetName);
+          const uploaderClass = await (await browser.$('.inspector-asset-wrapper .asset-uploader')).getAttribute('class');
+          return current.live.length === 1
+            && current.persisted.length === 1
+            && current.cards.length === 1
+            && !uploaderClass.split(/\s+/u).includes('uploading');
+        },
+        { timeout: 15_000, interval: 100, timeoutMsg: 'duplicate SVG upload did not finish as one content-addressed asset' },
+      );
+      const deduplicated = await readAssetPersistence(articleId, assetName);
+      expect(deduplicated.persisted[0].id, 'duplicate upload keeps the original content id')
+        .to.equal(uploaded.persisted[0].id);
+
+      await uploadThroughNativeInput(invalidPath, true);
+      try {
+        await browser.waitUntil(
+          async () => (await readAssetPersistence(articleId, assetName)).errorText.length > 0,
+          { timeout: 10_000, interval: 100, timeoutMsg: 'invalid MIME upload did not surface a visible error' },
+        );
+      } catch (error) {
+        const state = await readAssetPersistence(articleId, assetName);
+        throw new Error(`${error.message}; state=${JSON.stringify(state)}`, { cause: error });
+      }
+      const rejected = await readAssetPersistence(articleId, assetName);
+      expect(rejected.errorText, 'invalid MIME rejection remains visible').to.include('Unsupported asset MIME type');
+      expect(rejected.live, 'invalid MIME creates no extra live asset').to.have.length(1);
+      expect(rejected.persisted, 'invalid MIME creates no extra persisted asset').to.have.length(1);
+
+      await uploadThroughNativeInput(attachmentPath, true);
+      await browser.waitUntil(
+        async () => {
+          const attachment = await readAssetPersistence(articleId, attachmentName);
+          return attachment.live.length === 1
+            && attachment.persisted.length === 1
+            && attachment.cards.length === 1;
+        },
+        { timeout: 15_000, interval: 100, timeoutMsg: 'real text attachment did not reach the production asset store and UI' },
+      );
+      const attachmentCard = await browser.$(`[aria-label="选择素材 ${attachmentName}"]`);
+      await attachmentCard.waitForDisplayed({ timeout: 5_000 });
+      await attachmentCard.doubleClick();
+      const attachmentToast = await browser.$('.mode-switch-toast[role="status"]');
+      await attachmentToast.waitForDisplayed({ timeout: 5_000 });
+      expect(await attachmentToast.getText(), 'non-image insertion fails with visible product feedback')
+        .to.include('仅支持将图片或 SVG 素材插入编辑器');
+      expect(
+        await browser.execute((name) => document.querySelectorAll(`.ProseMirror img[alt="${name}"]`).length, attachmentName),
+        'a supported attachment is never misrepresented as an editor image node',
+      ).to.equal(0);
+
+      await waitForCurrentDraftReady(articleId);
+      await browser.refresh();
+      await waitForCurrentDraftReady(articleId);
+      await browser.waitUntil(
+        async () => browser.execute(
+          (name) => {
+            const images = Array.from(document.querySelectorAll(`.ProseMirror img.asset-image[alt="${name}"]`));
+            return images.length === 2
+              && images.every((image) => image.complete && image.naturalWidth === 160 && image.naturalHeight === 96);
+          },
+          assetName,
+        ),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'visual and Source-mode SVG insertions did not both survive production reload' },
+      );
+      await openAssetSurface();
+      await browser.waitUntil(
+        async () => {
+          const current = await readAssetPersistence(articleId, assetName);
+          return current.live.length === 1
+            && current.persisted.length === 1
+            && current.cards.length === 1
+            && current.persisted[0].tags.includes(assetTag);
+        },
+        { timeout: 15_000, interval: 200, timeoutMsg: 'asset Blob and tags did not survive the production reload path' },
+      );
+      await waitForDecodedAssetCard();
+
+      secondArticleId = await createBlankDraftThroughHub();
+      await openAssetSurface();
+      await uploadThroughNativeInput(assetPath);
+      let sharedInSecondArticle = null;
+      await browser.waitUntil(
+        async () => {
+          sharedInSecondArticle = await readAssetPersistence(secondArticleId, assetName);
+          const uploaderClass = await (await browser.$('.inspector-asset-wrapper .asset-uploader')).getAttribute('class');
+          return sharedInSecondArticle.live.length === 1
+            && sharedInSecondArticle.persisted.length === 1
+            && sharedInSecondArticle.globalPersisted.length === 1
+            && sharedInSecondArticle.refs.length === 1
+            && sharedInSecondArticle.allRefs.length === 2
+            && sharedInSecondArticle.cards.length === 1
+            && !uploaderClass.split(/\s+/u).includes('uploading');
+        },
+        { timeout: 20_000, interval: 200, timeoutMsg: 'same-byte SVG upload did not create one shared asset with two durable article references' },
+      );
+      await waitForDecodedAssetCard();
+      sharedInSecondArticle = await readAssetPersistence(secondArticleId, assetName);
+      expect(sharedInSecondArticle.persisted[0].id, 'cross-article deduplication reuses the original content id')
+        .to.equal(uploaded.persisted[0].id);
+      expect(
+        sharedInSecondArticle.allRefs.map((ref) => ref.referrerId).sort(),
+        'one content-addressed asset keeps both article references',
+      ).to.deep.equal([articleId, secondArticleId].sort());
+
+      await browser.refresh();
+      await waitForCurrentDraftReady(secondArticleId, true);
+      await openAssetSurface();
+      await browser.waitUntil(
+        async () => {
+          const current = await readAssetPersistence(secondArticleId, assetName);
+          return current.live.length === 1
+            && current.persisted.length === 1
+            && current.cards.length === 1;
+        },
+        { timeout: 15_000, interval: 200, timeoutMsg: 'shared asset did not reload through the second article reference' },
+      );
+      await waitForDecodedAssetCard();
+
+      assetCard = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await assetCard.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(' ');
+      await browser.waitUntil(
+        async () => (await assetCard.getAttribute('aria-pressed')) === 'true',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'second-article keyboard selection did not update aria-pressed' },
+      );
+      await browser.keys('Delete');
+      let deleteDialog = await browser.$('.confirm-overlay[role="dialog"]');
+      await deleteDialog.waitForDisplayed({ timeout: 5_000 });
+      const deleteCancel = await deleteDialog.$('.cancel-btn');
+      expect(
+        await browser.execute((element) => document.activeElement === element, deleteCancel),
+        'the delete dialog initially focuses its safe cancel action',
+      ).to.equal(true);
+      await browser.keys(['Shift', 'Tab']);
+      expect(
+        await browser.execute(() => document.activeElement?.classList.contains('delete-confirm-btn') ?? false),
+        'Shift+Tab wraps from cancel to the final destructive action',
+      ).to.equal(true);
+      await browser.keys('Enter');
+      await browser.waitUntil(
+        async () => {
+          const current = await readAssetPersistence(secondArticleId, assetName);
+          return current.live.length === 0
+            && current.persisted.length === 0
+            && current.refs.length === 0
+            && current.cards.length === 0
+            && current.globalPersisted.length === 1
+            && current.allRefs.length === 1
+            && current.allRefs[0].referrerId === articleId;
+        },
+        { timeout: 15_000, interval: 200, timeoutMsg: 'second-article deletion did not remove only its own durable reference' },
+      );
+
+      await openRoute(`/workstation?id=${encodeURIComponent(articleId)}`, '.ProseMirror');
+      await waitForCurrentDraftReady(articleId);
+      await openAssetSurface();
+      let retainedByFirstArticle = null;
+      await browser.waitUntil(
+        async () => {
+          retainedByFirstArticle = await readAssetPersistence(articleId, assetName);
+          return retainedByFirstArticle.live.length === 1
+            && retainedByFirstArticle.persisted.length === 1
+            && retainedByFirstArticle.globalPersisted.length === 1
+            && retainedByFirstArticle.refs.length === 1
+            && retainedByFirstArticle.allRefs.length === 1
+            && retainedByFirstArticle.cards.length === 1;
+        },
+        { timeout: 15_000, interval: 200, timeoutMsg: 'deleting the second reference incorrectly removed the first article asset' },
+      );
+      await waitForDecodedAssetCard();
+      retainedByFirstArticle = await readAssetPersistence(articleId, assetName);
+      expect(retainedByFirstArticle.persisted[0].id, 'the surviving article keeps the original shared asset')
+        .to.equal(uploaded.persisted[0].id);
+
+      const reloadedInsertedImage = await browser.$(`.ProseMirror img.asset-image[alt="${assetName}"]`);
+      await browser.waitUntil(
+        async () => browser.execute(
+          (image) => image.complete && image.naturalWidth === 160 && image.naturalHeight === 96,
+          reloadedInsertedImage,
+        ),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'inserted SVG did not survive article reload through its stable asset id' },
+      );
+      const blobUrlsBeforeDelete = [
+        retainedByFirstArticle.cards[0].thumbnailSrc,
+        await reloadedInsertedImage.getAttribute('src'),
+      ].filter((url, index, urls) => url.startsWith('blob:') && urls.indexOf(url) === index);
+      expect(blobUrlsBeforeDelete, 'the retained card and editor image resolve through live Blob URLs')
+        .to.have.length.greaterThan(0);
+      const cachedUrlCountBeforeDelete = retainedByFirstArticle.cachedUrlCount;
+
+      assetCard = await browser.$(`[aria-label="选择素材 ${assetName}"]`);
+      await assetCard.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await browser.execute((element) => element.focus(), assetCard);
+      await browser.keys(' ');
+      await browser.waitUntil(
+        async () => (await assetCard.getAttribute('aria-pressed')) === 'true',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'first-article keyboard selection did not update aria-pressed' },
+      );
+      await browser.keys('Delete');
+      deleteDialog = await browser.$('.confirm-overlay[role="dialog"]');
+      await deleteDialog.waitForDisplayed({ timeout: 5_000 });
+      expect(
+        await browser.execute(() => document.activeElement?.classList.contains('cancel-btn') ?? false),
+        'the final delete dialog also starts on the safe action',
+      ).to.equal(true);
+      await browser.keys(['Shift', 'Tab']);
+      await browser.keys('Enter');
+
+      let deletedEverywhere = null;
+      await browser.waitUntil(
+        async () => {
+          deletedEverywhere = await readAssetPersistence(articleId, assetName);
+          return deletedEverywhere.live.length === 0
+            && deletedEverywhere.persisted.length === 0
+            && deletedEverywhere.globalPersisted.length === 0
+            && deletedEverywhere.refs.length === 0
+            && deletedEverywhere.allRefs.length === 0
+            && deletedEverywhere.cards.length === 0;
+        },
+        { timeout: 15_000, interval: 200, timeoutMsg: 'last-reference deletion did not clear Pinia, IndexedDB, refs, and UI' },
+      );
+      expect(deletedEverywhere.cachedUrlCount, 'last-reference deletion shrinks the production Object URL cache')
+        .to.be.lessThan(cachedUrlCountBeforeDelete);
+      const revokedUrlStates = await browser.execute(async (urls) => Promise.all(urls.map(async (url) => {
+        try {
+          const response = await window.fetch(url);
+          return { url, reachable: response.ok };
+        } catch {
+          return { url, reachable: false };
+        }
+      })), blobUrlsBeforeDelete);
+      expect(revokedUrlStates.every((state) => !state.reachable), 'last-reference deletion revokes every captured asset Blob URL')
+        .to.equal(true);
+    } finally {
+      if (secondArticleId) {
+        try {
+          await cleanupCreatedAsset(secondArticleId, assetName);
+        } catch {
+          // The outer isolated WebView2 data root remains the final fail-closed cleanup boundary.
+        }
+      }
+      if (articleId) {
+        try {
+          await cleanupCreatedAsset(articleId, assetName);
+        } catch {
+          // The outer isolated WebView2 data root remains the final fail-closed cleanup boundary.
+        }
+        try {
+          await cleanupCreatedAsset(articleId, attachmentName);
+        } catch {
+          // The outer isolated WebView2 data root remains the final fail-closed cleanup boundary.
+        }
+      }
+      fs.rmSync(assetPath, { force: true });
+      fs.rmSync(attachmentPath, { force: true });
+      fs.rmSync(invalidPath, { force: true });
+    }
+  });
+
   it('validates, persists, blocks, and uninstalls local extensions through real registry boundaries', async function () {
     this.timeout(90_000);
     await openRoute('/settings?tab=extensions', '[data-settings-tab="extensions"]');
@@ -4575,7 +5396,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       const beforeFocusLoss = await readShortcutRegistryEvidence(shortcutIds);
       await beginShortcutRecording('toggleSidebar');
       const searchInput = await browser.$('input[aria-label="搜索快捷键"]');
-      await searchInput.click();
+      await focusControlForKeyboardInput(searchInput, 'the shortcut search input');
       await browser.waitUntil(
         async () => browser.execute(() => (
           !document.querySelector('[data-shortcut-id="toggleSidebar"]')
@@ -4587,7 +5408,8 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       expect((await readShortcutRegistryEvidence(shortcutIds)).store.toggleSidebar,
         'real control focus departure disarms the recorder before later key input')
         .to.equal(beforeFocusLoss.store.toggleSidebar);
-      await searchInput.setValue('');
+      expect(await searchInput.getValue(), 'a shortcut chord does not write text into the focused search input')
+        .to.equal('');
 
       const nativeFocusLoss = await exerciseNativeWindowFocusLoss('toggleSidebar');
       expect(nativeFocusLoss.recording, 'native window focus loss disarms the recorder').to.equal(false);
@@ -4628,6 +5450,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         .to.equal(candidate);
 
       const persistedSearchInput = await browser.$('input[aria-label="搜索快捷键"]');
+      await focusControlForKeyboardInput(persistedSearchInput, 'the reloaded shortcut search input');
       await persistedSearchInput.setValue('切换侧栏');
       await browser.waitUntil(
         async () => (await readShortcutRegistryEvidence(shortcutIds)).visibleItemCount === 1,
@@ -5534,14 +6357,17 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     expect(categoryArticleRelation.persisted.article, 'the IndexedDB article record keeps the FileManager category id')
       .to.deep.equal({ id: articleId, categoryId });
 
+    await (await browser.$('.ink-titlebar')).click();
     await openCategoryContextMenu(categoryId);
     await (await browser.$('[data-category-action="rename"]')).click();
     const renameInput = await browser.$('[data-category-rename-input]');
     await renameInput.waitForDisplayed({ timeout: 5_000 });
+    await renameInput.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await renameInput.waitForClickable({ timeout: 5_000, interval: 100 });
     await renameInput.click();
     await browser.waitUntil(
       async () => browser.execute(() => document.activeElement?.matches('[data-category-rename-input]') === true),
-      { timeout: 2_000, interval: 50, timeoutMsg: 'category rename input did not receive real keyboard focus' },
+      { timeout: 5_000, interval: 50, timeoutMsg: 'category rename input did not receive real keyboard focus' },
     );
     await browser.keys(['Control', 'a']);
     await browser.keys(renamedCategoryName);

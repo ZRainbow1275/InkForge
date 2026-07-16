@@ -38,6 +38,7 @@ import {
   type WritingWindowEntry,
 } from '@/composables/useTextStats'
 import { logger } from '@/services/error'
+import type { AssetRecord } from '@/utils/db'
 import { DEFAULT_PROFILE_ID } from '@/services/profile/types'
 import { layoutPersistenceService, type LayoutStatePatch, type LayoutStateRecord, type SerializedTab } from '@/services/layout-persistence'
 import type { Article } from '@/schemas/article'
@@ -141,11 +142,22 @@ const routeArticleId = computed<string | null>(() => {
 interface EditorPanelExpose {
   getBodyEditor?: () => TiptapEditor | undefined
   getEditorScrollElement?: () => HTMLElement | null
+  insertAssetImage?: (asset: AssetRecord) => boolean
   flushPendingChanges?: () => Promise<void>
 }
 
 const editorPanelRef = ref<EditorPanelExpose | null>(null)
 const outlineEditor = computed(() => editorPanelRef.value?.getBodyEditor?.())
+
+function handleAssetInsert(asset: AssetRecord): void {
+  const inserted = editorPanelRef.value?.insertAssetImage?.(asset) ?? false
+  if (inserted) return
+
+  const message = asset.type === 'image' || asset.type === 'svg'
+    ? '当前预览模式不可插入素材，请切换到 Typora 或源码模式'
+    : '仅支持将图片或 SVG 素材插入编辑器'
+  showTransientToast(message)
+}
 
 async function flushPendingEditorChangesBeforeRoute(): Promise<boolean> {
   if (!editorStore.currentContent) {
@@ -1038,20 +1050,22 @@ async function switchEditorMode(nextMode: EditorMode): Promise<void> {
 const modeSwitchToast = ref<{ message: string; visible: boolean }>({ message: '', visible: false })
 let modeSwitchToastTimer: ReturnType<typeof setTimeout> | null = null
 
+function showTransientToast(message: string): void {
+  modeSwitchToast.value = { message, visible: true }
+  if (modeSwitchToastTimer) clearTimeout(modeSwitchToastTimer)
+  modeSwitchToastTimer = setTimeout(() => {
+    modeSwitchToast.value = { ...modeSwitchToast.value, visible: false }
+    modeSwitchToastTimer = null
+  }, 2400)
+}
+
 function showModeSwitchToast(mode: EditorMode): void {
   const messageMap: Record<EditorMode, string> = {
     typora: '已切换到 Typora · Ctrl+\\ 切换源码',
     source: '已切换到源码模式 · Ctrl+\\ 切回 Typora',
     preview: '已进入预览模式 · Ctrl+Shift+V 返回',
   }
-  modeSwitchToast.value = { message: messageMap[mode] ?? '', visible: true }
-  if (modeSwitchToastTimer) {
-    clearTimeout(modeSwitchToastTimer)
-  }
-  modeSwitchToastTimer = setTimeout(() => {
-    modeSwitchToast.value = { ...modeSwitchToast.value, visible: false }
-    modeSwitchToastTimer = null
-  }, 2400)
+  showTransientToast(messageMap[mode] ?? '')
 }
 
 function enterFocusMode(): void {
@@ -3633,7 +3647,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 <span>素材</span>
               </div>
               <div class="inspector-asset-wrapper">
-                <AssetManager :article-id="selectedArticleId ?? undefined" />
+                <AssetManager
+                  :article-id="selectedArticleId ?? undefined"
+                  @insert="handleAssetInsert"
+                />
               </div>
             </div>
 

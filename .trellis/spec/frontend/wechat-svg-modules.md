@@ -16541,3 +16541,97 @@ This incorrectly claims external publication proof.
 ```text
 当前轮本地目标已就绪：SVG/style 可应用到微信公众号本地导出；不等同手机预览、同步或发布证明
 ```
+
+
+## 321. Native SVG Asset And Tauri Runtime Persistence Contract - 2026-07-16
+
+### 1. Scope / Trigger
+
+This contract applies when an InkForge-owned SVG moves through the native asset input, IndexedDB repository, editor insertion, local WeChat renderer, and Tauri persistence boundary. It also applies to native E2E that claims the application can render those SVG/style rules.
+
+### 2. Signatures
+
+~~~ts
+export const ENABLE_ENCRYPTION: boolean
+
+export async function getMasterKey(): Promise<CryptoKey>
+
+export interface AssetRecord {
+  legacyArticleRefMigrated?: boolean
+}
+~~~
+
+Tauri CSP requirement:
+
+~~~text
+img-src 'self' data: blob: https:
+~~~
+
+The blob: allowance is limited to img-src; it must not be added to script or frame sources.
+
+### 3. Contracts
+
+- Native runtime detection is the encryption gate. Tauri release, debug, and development binaries encrypt sensitive fields; Web preview retains its separate password/UI boundary.
+- Early module evaluation must recognize the reserved Tauri origin before injected IPC globals are present.
+- getMasterKey() may serve a cached key. If the cache expired in a native runtime, it must rehydrate through the existing OS credential-store unlock path. A missing persisted key is a fail-closed error and must never generate a replacement key.
+- First-run master-key generation becomes usable only after the OS credential store confirms persistence. A failed save must not leave a temporary key cached for encrypted writes.
+- WebDriver Tauri sessions use the dedicated `inkforge_e2e_*_v3` OS-credential namespace and delete it through the real Tauri command at session teardown. WebView2-profile isolation alone is not credential isolation.
+- A persisted SVG binary may have multiple article references. Removing one reference must retain the shared binary; the final reference may remove it.
+- Legacy article ownership migration is idempotent and records completion through legacyArticleRefMigrated.
+- Source editor mode serializes an image through the shared Markdown helper. Visual mode inserts the real Tiptap image node.
+- Object URLs are bounded and revoked on replacement, final deletion, and teardown.
+- Current-round readiness proves local application rendering and WeChat HTML/SVG export only. It never upgrades phone, sync, scheduling, cover, or publication gates.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+| --- | --- |
+| Tauri runtime with import.meta.env.PROD=false | Encryption remains enabled. |
+| Web preview without native credential store | Native encryption remains disabled; do not fabricate a desktop keychain. |
+| Native key cache expires | Rehydrate from the registered OS credential-store command; otherwise return the existing explicit unlock error. |
+| First-run OS credential save fails | Refuse the temporary key, leave no cached replacement, and report the existing unlock failure path. |
+| WebDriver Tauri session ends | Verify and delete only the dedicated `inkforge_e2e_*_v3` credential; never inspect or delete the normal application credential. |
+| Either host/client axis has an absolute gap above 8 px | Fail native acceptance as a host/client desynchronization instead of continuing through black-surround clicks. |
+| SVG Blob URL under Tauri CSP | Image loads; scripts and frames do not gain Blob permission. |
+| Duplicate SVG in another article | Reuse the persisted binary and add a reference. |
+| Delete one of multiple references | Keep binary and remaining references. |
+| Delete final reference | Remove record and revoke cached URL. |
+| Unsupported MIME insert | Show typed visible rejection and create no image node. |
+| Older asynchronous asset query resolves last | Ignore it; the latest request remains visible. |
+| Local style acceptance is green but external proof is absent | canClaimCurrentRoundTarget=true and canClaimReleaseComplete=false. |
+
+### 5. Good / Base / Bad Cases
+
+- Good: a real SVG survives Tauri upload, Blob rendering, visual/source insertion, encrypted article persistence, reload, duplicate reuse, reference-safe deletion, and local WeChat export.
+- Base: Web preview renders local assets without claiming native credential-store behavior.
+- Bad: gate native encryption on import.meta.env.PROD; Tauri debug builds can then persist sensitive fields in plain text.
+- Bad: use maximizeWindow() or setWindowSize() as native visual proof when the WebView and borderless host can diverge.
+- Bad: clean only the disposable WebView2 profile while leaving an E2E key in the normal OS-credential namespace.
+- Bad: treat a successful local render as WeChat phone, synchronization, or publication proof.
+
+### 6. Tests Required
+
+- Unit tests must cover source Markdown serialization, pipeline MIME validation, deduplication, idempotent ownership migration, shared-reference deletion, request ordering, and object-URL revocation.
+- editor-settings.spec.cjs must use a real file input and real production stores/repositories, prove SVG insertion/reload/reference cleanup, exercise a genuine unsupported file, and run long enough to cover key-cache rehydration.
+- wdio.conf.cjs must reject host/client bounds drift above the symmetric 8 px DPI/native-border allowance, prove the dedicated E2E credential exists, delete it without returning/logging key material, and remove only the verified disposable WebView2 scope after the driver exits. A Node boundary test must accept 8 px and reject positive or negative 9 px drift.
+- svg-render.spec.cjs must prove every flagship sample remains responsive, contains the expected data-ink-svg modules, and preserves the mobile CJK line-length contract.
+- Static gates: ESLint, vue-tsc --noEmit, serial Vitest, Vite production build, cargo fmt --check, cargo check, cargo test, and cargo clippy -- -D warnings.
+- Current binary gate: rebuild tauri build --debug --bundles none before the final native replay.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+~~~ts
+export const ENABLE_ENCRYPTION = import.meta.env.PROD && hasTauriRuntime
+~~~
+
+This couples data-at-rest protection to a bundler build label and allows a native debug binary to bypass encryption.
+
+#### Correct
+
+~~~ts
+export const ENABLE_ENCRYPTION = hasTauriRuntime
+~~~
+
+The actual native runtime determines whether the OS credential store exists. Local WeChat rendering readiness remains a separate claim from external platform acceptance.

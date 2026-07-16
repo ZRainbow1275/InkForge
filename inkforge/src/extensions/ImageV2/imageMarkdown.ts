@@ -35,6 +35,18 @@ export function serializeMarkdownImage(
   return `${alignPrefix}${linked}${caption}`
 }
 
+export function appendMarkdownImage(markdown: string, image: MarkdownImage): string {
+  const serialized = serializeMarkdownImage(image)
+  if (!serialized) {
+    return markdown
+  }
+
+  const separator = markdown.length === 0 || markdown.endsWith('\n\n')
+    ? ''
+    : markdown.endsWith('\n') ? '\n' : '\n\n'
+  return `${markdown}${separator}${serialized}`
+}
+
 export function parseMarkdownImage(markdown: string): MarkdownImage | null {
   let value = markdown.trim()
   const alignMatch = value.match(/^<!--\s*align:\s*(left|center|right|float-left|float-right)\s*-->\s*/i)

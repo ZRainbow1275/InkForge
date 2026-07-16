@@ -1,5 +1,5 @@
 import type { AssetRecord } from '@/utils/db'
-import { AssetPipelineRepository, assetPipelineRepository } from './repository'
+import { AssetPipelineRepository, assetPipelineRepository, type AssetListOptions } from './repository'
 import { calculateBlobSha256, buildAssetIdFromHash } from './hash'
 import { processAssetBlob } from './image-processor'
 import {
@@ -39,6 +39,10 @@ function ensureSizeAllowed(blob: Blob): void {
 
 export class AssetPipelineService {
   constructor(private readonly repository: AssetPipelineRepository = assetPipelineRepository) {}
+
+  async listAssets(options: AssetListOptions = {}): Promise<AssetRecord[]> {
+    return await this.repository.listAssets(options)
+  }
 
   async ingestFile(file: File, options: AssetIngestOptions = {}): Promise<AssetIngestResult<AssetRecord>> {
     return await this.ingestBlob(file, {
@@ -105,6 +109,7 @@ export class AssetPipelineService {
       lifecycle: 'orphaned',
       orphanedAt: Date.now(),
       storageBackend: 'indexeddb',
+      legacyArticleRefMigrated: true,
       createdAt: now,
       updatedAt: now,
     }

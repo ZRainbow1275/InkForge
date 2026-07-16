@@ -168,3 +168,24 @@ const typedEmit = defineEmits<{ (e: 'set-mode', value: EditorMode): void }>()
 ```
 
 Do not use Emoji as UI icons. Use installed icon libraries such as `lucide-vue-next`. Do not emit untyped payloads or hide store-owned state inside leaf components.
+
+
+## Native SVG Asset Component Contract
+
+Asset UI is a cross-layer surface, not a gallery-only component.
+
+- AssetUploader.vue must send the real selected File into the production asset pipeline and expose pending, success, duplicate, and typed rejection states. It must not create sample assets or claim success before persistence finishes.
+- AssetManager.vue must treat the latest asynchronous list request as authoritative. Search, tag, owner, and lifecycle filters may not silently impose a fixed result cap.
+- Visual editor mode inserts the persisted image/SVG through the Tiptap image node. Source mode appends the shared Markdown image serialization; it must not inject derived HTML into Markdown authority.
+- Binary deletion is reference-aware: deleting one article reference must not remove a shared binary. The final reference may remove the record and revoke any cached object URL.
+- Blob URLs are bounded runtime resources. Cache replacement, final-reference deletion, and store teardown must revoke URLs; components must not retain unbounded per-render URLs.
+- Unsupported MIME insertion must produce visible feedback and create no editor image node.
+- Native E2E must normalize the borderless Tauri host through production window controls. Do not use WebDriver-only maximizeWindow() or setWindowSize() when that can resize the WebView independently of its host.
+- Native E2E must compare the real host rectangle with `window.innerWidth` / `window.innerHeight` and fail closed when either absolute axis gap exceeds 8 px. The bounded allowance exists only for DPI rounding/native border variance; a merely large host window is not proof that the WebView filled it.
+- Native E2E must use the dedicated `inkforge_e2e_*_v3` OS-credential namespace, verify that the real key was created, and delete it through the real Tauri command after every session. WebView2-profile cleanup alone does not isolate Windows Credential Manager.
+
+### Required checks
+
+- Unit: deduplication, ownership migration, shared-reference deletion, latest-request-wins, URL revocation, and source Markdown serialization.
+- Native integration: real SVG file input, Blob decode under CSP, visual insertion, source insertion, reload readback, duplicate reuse, final deletion, and a real unsupported file.
+- Visual: host and WebView bounds remain aligned; the application must not appear as a resized WebView surrounded by a black native surface. The acceptance log must include redacted host/client dimensions and no runtime path. A deterministic Node regression must accept the 8 px boundary and reject positive or negative 9 px drift before real WebView2 proof runs.

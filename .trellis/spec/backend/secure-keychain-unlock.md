@@ -2,7 +2,8 @@
 
 > Executable contract for the OS-keychain master-key storage commands
 > (`src-tauri/src/commands/secure_store.rs`) and the boot-time auto-unlock that
-> makes encryption actually work in a **production Tauri desktop build**.
+> makes encryption work in every real **Tauri desktop runtime** (release, debug,
+> and `tauri:dev`) while keeping ordinary browser/Vite preview unencrypted.
 > Cross-layer: Rust IPC commands ⇄ `src/utils/crypto/*` ⇄ `src/main.ts` boot.
 
 ---
@@ -14,15 +15,16 @@ Tauri-environment detection used by crypto, the master-key lifecycle
 (`getMasterKey`/`unlockWithPassword`/`ensureMasterKeyUnlocked`), or the app boot
 sequence in `main.ts`.
 
-**Root problem this fixed (regression guard):** `ENABLE_ENCRYPTION =
-import.meta.env.PROD && HAS_TAURI_RUNTIME`. In a prod-frontend Tauri build
-encryption is ON, but **nothing in the app ever unlocked the master key** — no
-code path called `unlockWithPassword`. So `getMasterKey()` threw
-「主密钥未解锁」 → `encryptSensitiveFields` threw → `repository.create` rethrew
-`创建${table}失败` → **every encrypted write (article/content create) failed in a
-production desktop build**. It was never seen in daily use because `tauri:dev`
-runs with `import.meta.env.PROD === false` (encryption OFF). Proven via real
-WebView2 e2e: pre-fix seeding failed; post-fix it succeeds.
+**Historical root problem and current regression guard:** the original
+`ENABLE_ENCRYPTION = import.meta.env.PROD && HAS_TAURI_RUNTIME` contract left
+`tauri:dev` and debug binaries on a plaintext-only path, while production
+encrypted writes could start before a key was unlocked. The current contract is
+`ENABLE_ENCRYPTION = HAS_TAURI_RUNTIME`: every real Tauri release/debug/dev
+runtime unlocks and uses the OS-backed master key; ordinary browser/Vite preview
+does not. `ensureMasterKeyUnlocked()` runs before store initialization, and the
+actual encrypt/decrypt boundary rehydrates an expired in-memory cache from the OS
+credential store without generating a replacement key. Real WebView2 E2E must
+cover this contract because browser-only tests cannot prove OS keychain behavior.
 
 ---
 
@@ -59,14 +61,22 @@ export async function deleteMasterKeyFromTauriKeychain(): Promise<boolean>      
   catch turns a normal first-run into an error and the auto-unlock regenerates a
   key → **prior data becomes permanently undecryptable**.
 - **`ensureMasterKeyUnlocked()` invariants:**
-  1. `if (!ENABLE_ENCRYPTION) return false` — first line; DEV/web never touch keychain.
+  1. `if (!ENABLE_ENCRYPTION) return false` — first line; ordinary browser/Vite
+     preview never touches the keychain. Real Tauri release/debug/dev has
+     `ENABLE_ENCRYPTION === true`.
   2. `if (getCachedKey()) return true` — idempotent.
   3. Non-Tauri → `return false` (web prod needs a password UI; out of scope here).
-  4. Tauri: `loadMasterKeyFromTauriKeychain()` → if present, import
-     **non-extractable** working key + `setCachedKey`; **only if absent**,
-     `generateMasterKey` → export raw → `saveMasterKeyToTauriKeychain` → re-import
-     non-extractable working key + cache. **Generate ONLY when keychain is empty.**
-  5. Whole Tauri branch wrapped in try/catch → log + `return false`; **never throw**.
+  4. Tauri: `loadMasterKeyFromTauriKeychain()` → if present, import a
+     **non-extractable** working key + `setCachedKey`; **only if the entry is
+     genuinely absent on first run**, generate → export raw →
+     `saveMasterKeyToTauriKeychain` → re-import non-extractable working key +
+     cache. **Generate only during first-run bootstrap.**
+  5. A failed first-run `store_key` is fail-closed: do not cache or use the
+     temporary generated key. Log the failure and return `false`.
+- **`getMasterKey()` cache-expiry invariant:** a Tauri cache miss reloads the
+  persisted key. If no persisted key exists, throw a typed failure and never
+  generate a replacement; otherwise existing ciphertext could become
+  undecryptable.
 - **Boot wiring** (`main.ts` `initializeStores`): `await ensureMasterKeyUnlocked()`
   inside try/catch **before** `Promise.all([store.initialize() …])`, so stores load
   encrypted data with the key already unlocked. Failure must **never** block
@@ -78,9 +88,11 @@ export async function deleteMasterKeyFromTauriKeychain(): Promise<boolean>      
   `__TAURI_METADATA__`, `__TAURI_POST_MESSAGE__`). **Checking only `__TAURI__` is a
   bug**: Tauri 1.4+ default `withGlobalTauri:false` does NOT inject `window.__TAURI__`
   → encryption silently disabled / keychain never reached in prod.
-- **Persistence**: the key lives in the **OS credential store** (Windows Credential
-  Manager `LegacyGeneric:target=com.inkforge.keychain:inkforge_master_key_v3.com.inkforge.keychain`),
-  which survives app restart **and** WebView2-profile resets — independent of IndexedDB.
+- **Persistence and automation isolation**: normal application runtimes use the
+  `inkforge_*_v3` OS-credential namespace. A real WebDriver Tauri session uses the
+  dedicated `inkforge_e2e_*_v3` namespace and must delete that credential in its
+  session teardown. WebView2 profile isolation alone is insufficient because OS
+  credentials survive profile resets independently of IndexedDB.
 
 ---
 
@@ -88,10 +100,14 @@ export async function deleteMasterKeyFromTauriKeychain(): Promise<boolean>      
 
 | Condition | Result |
 |-----------|--------|
-| `ENABLE_ENCRYPTION` false (dev/web) | `ensureMasterKeyUnlocked` returns false immediately; no Tauri/keychain call |
+| `ENABLE_ENCRYPTION` false (ordinary browser/Vite preview) | `ensureMasterKeyUnlocked` returns false immediately; no Tauri/keychain call |
+| real Tauri release/debug/dev | encryption enabled; unlock runs before stores initialize |
 | keychain has key | import non-extractable + cache; `return true`; **no regeneration** |
 | keychain empty (first run) | generate + `store_key` + cache; `return true` |
-| `store_key` returns false (save failed) | warn, still cache for this session, `return true` (no boot block) |
+| `store_key` returns false (save failed) | fail closed; do not cache/use the temporary key; log and `return false` |
+| in-memory cache expires and persisted key exists | reload persisted key, reset cache timeout, continue |
+| in-memory cache expires and persisted key is absent | throw; **never generate a replacement key** |
+| WebDriver Tauri session | use `inkforge_e2e_*_v3`; teardown verifies and deletes the isolated credential |
 | `get_key` returns `Err` instead of `Ok(None)` on missing entry | **BUG** — would misclassify first-run as failure → key regen → data loss |
 | any Tauri-detection site checks only `__TAURI__` | **BUG** — prod desktop misdetected as web → encryption off / keychain skipped |
 | decrypt with wrong key | `decryptSensitiveFields` does **not** throw — it logs `解密字段失败` and sets field to `''` (silent blanking) — so key regression shows as blanked content, not a crash |
@@ -100,13 +116,16 @@ export async function deleteMasterKeyFromTauriKeychain(): Promise<boolean>      
 
 ## 5. Good / Base / Bad Cases
 
-- **Good**: prod Tauri boot → `ensureMasterKeyUnlocked` loads the persisted key →
+- **Good**: real Tauri release/debug/dev boot → `ensureMasterKeyUnlocked` loads the persisted key →
   `articleStore.addArticle` encrypts + persists; restart → same key loaded → prior
   articles decrypt.
-- **Base**: dev (`tauri:dev`, PROD=false) → encryption off → writes are plaintext,
-  `ensureMasterKeyUnlocked` is a no-op.
+- **Base**: ordinary browser/Vite preview → encryption off and no OS keychain
+  access; real `tauri:dev` remains encrypted.
 - **Bad**: generating a new master key on every boot (ignoring an existing keychain
   entry) → all previously-encrypted articles silently blank on next launch.
+- **Bad**: accepting a temporary key after `store_key` fails, or letting E2E use
+  the normal `inkforge_*` namespace, risks unreadable data or test pollution in
+  the user's real credential store.
 
 ---
 
@@ -114,16 +133,19 @@ export async function deleteMasterKeyFromTauriKeychain(): Promise<boolean>      
 
 - `src/utils/crypto/__tests__/ensure-unlock.test.ts` — branches: encryption off →
   false + no keychain touch; already-cached → true; keychain-has-key → import +
-  cache + true; first-run → generate+save+true; keychain throws → false (no throw).
+  cache + true; first-run → generate+save+true; persistence failure → no cached
+  temporary key; cache expiry → restore only; missing persisted key → fail closed.
   Real WebCrypto round-trip (only keychain I/O + env + `ENABLE_ENCRYPTION` mocked).
 - **Rust**: `cargo build` must pass (compiles the keyring backend + 3 commands;
   verifies `NoEntry` variant + `delete_credential` method names against the pinned
   keyring version). Mock unit tests CANNOT cover the camelCase→snake_case mapping
   or the real credential-store round-trip.
-- **Real-machine e2e** (the only layer that proves runtime activation): seed via the
-  live Pinia `article` store in a **prod** binary; pre-fix it fails with
-  `创建articles失败`, post-fix `addArticle` succeeds. Persistence proof = the
-  Credential Manager entry exists across launches (`cmdkey /list`).
+- **Real-machine e2e** (the only layer that proves runtime activation): seed via
+  the live Pinia `article` store in the current Tauri binary, reload through the
+  production store, and verify encrypted envelope metadata without exposing key
+  material. The E2E run must prove the dedicated credential existed, delete it
+  through the real Tauri `delete_key` command, and emit only a redacted cleanup
+  confirmation.
 
 ---
 
@@ -157,6 +179,7 @@ import { isTauriEnv } from '@/utils/platform'
 export function isTauriEnvironment(): boolean { return isTauriEnv() } // 6-global source of truth
 ```
 
-> **Gotcha**: encryption activation is invisible to mock unit tests (they stub the
-> keychain + `ENABLE_ENCRYPTION`). Always re-verify with a **prod** Tauri binary —
-> `tauri:dev` has `PROD=false` so encryption is OFF and the whole path is bypassed.
+> **Gotcha**: encryption activation and OS-credential isolation are invisible to
+> browser-only/unit tests. Always re-verify with a real current Tauri binary;
+> release/debug/dev all encrypt, and WebDriver evidence is valid only when the
+> dedicated `inkforge_e2e_*_v3` credential is removed after the session.

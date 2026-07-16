@@ -101,6 +101,10 @@ function hasTauriGlobal(): boolean {
         return false
     }
 
+    if (window.location.protocol === 'https:' && window.location.hostname === 'tauri.localhost') {
+        return true
+    }
+
     const runtimeWindow = window as unknown as Record<string, unknown>
     return runtimeWindow.__TAURI__ !== undefined ||
         runtimeWindow.__TAURI_INTERNALS__ !== undefined ||

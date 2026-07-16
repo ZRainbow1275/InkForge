@@ -362,13 +362,51 @@ export async function changePassword(oldPassword: string, newPassword: string): 
     return false
 }
 
+async function restoreMasterKeyFromTauriKeychain(): Promise<boolean> {
+    const existing = await loadMasterKeyFromTauriKeychain()
+    if (!existing) {
+        return false
+    }
+
+    const bytes = fromBase64(existing)
+    try {
+        const key = await crypto.subtle.importKey(
+            'raw',
+            bytes,
+            {
+                name: CRYPTO_CONFIG.ALGORITHM,
+                length: CRYPTO_CONFIG.KEY_LENGTH
+            },
+            false,
+            ['encrypt', 'decrypt']
+        )
+        setCachedKey(key)
+        logKeyAccess('load')
+        return true
+    } finally {
+        secureZero(bytes)
+    }
+}
+
 /**
  * 获取主密钥（内部使用）
  * @returns CryptoKey
  * @throws Error 如果未解锁
  */
 export async function getMasterKey(): Promise<CryptoKey> {
-    const cachedKey = getCachedKey()
+    let cachedKey = getCachedKey()
+
+    // Tauri desktop users should not be forced through the Web password flow
+    // after the short-lived in-memory cache expires. Reload the persisted key
+    // from the OS credential store at the actual encryption/decryption boundary.
+    if (!cachedKey && ENABLE_ENCRYPTION && isTauriEnvironment()) {
+        ensureCryptoAvailable()
+        const restored = await restoreMasterKeyFromTauriKeychain()
+        if (!restored) {
+            throw new Error('系统密钥链中未找到已持久化主密钥，已拒绝生成替代密钥。')
+        }
+        cachedKey = getCachedKey()
+    }
 
     if (!cachedKey) {
         throw new Error('主密钥未解锁。请先调用 unlockWithPassword() 解锁。')
@@ -424,50 +462,34 @@ export async function ensureMasterKeyUnlocked(): Promise<boolean> {
     try {
         ensureCryptoAvailable()
 
-        const existing = await loadMasterKeyFromTauriKeychain()
-        if (existing) {
-            // 密钥链已有主密钥：直接加载为不可导出工作密钥
-            const bytes = fromBase64(existing)
-            const key = await crypto.subtle.importKey(
-                'raw',
-                bytes,
-                {
-                    name: CRYPTO_CONFIG.ALGORITHM,
-                    length: CRYPTO_CONFIG.KEY_LENGTH
-                },
-                false, // 工作密钥不可导出，遵循最小权限原则
-                ['encrypt', 'decrypt']
-            )
-            secureZero(bytes)
-            setCachedKey(key)
-            logKeyAccess('load')
+        if (await restoreMasterKeyFromTauriKeychain()) {
             return true
         }
 
         // 首次运行：生成新主密钥并落盘到系统密钥链
         const masterKey = await generateMasterKey(true) // extractable=true 仅用于导出存储
         const raw = new Uint8Array(await crypto.subtle.exportKey('raw', masterKey))
-        const b64 = toBase64(raw)
-        const saved = await saveMasterKeyToTauriKeychain(b64)
+        try {
+            const saved = await saveMasterKeyToTauriKeychain(toBase64(raw))
+            if (!saved) {
+                throw new Error('主密钥无法持久化到系统密钥链，已拒绝使用临时替代密钥。')
+            }
 
-        // 以原始字节重新导入为不可导出工作密钥
-        const workingKey = await crypto.subtle.importKey(
-            'raw',
-            raw,
-            {
-                name: CRYPTO_CONFIG.ALGORITHM,
-                length: CRYPTO_CONFIG.KEY_LENGTH
-            },
-            false, // 工作密钥不可导出
-            ['encrypt', 'decrypt']
-        )
-        secureZero(raw)
-        setCachedKey(workingKey)
-        logKeyAccess('generate')
-
-        if (!saved) {
-            // 落盘失败：本次会话仍可用（仅未持久化），不阻塞启动
-            logger.warn('主密钥已生成但未能持久化到系统密钥链（本次会话可用，下次启动将重新生成）')
+            // 以原始字节重新导入为不可导出工作密钥
+            const workingKey = await crypto.subtle.importKey(
+                'raw',
+                raw,
+                {
+                    name: CRYPTO_CONFIG.ALGORITHM,
+                    length: CRYPTO_CONFIG.KEY_LENGTH
+                },
+                false, // 工作密钥不可导出
+                ['encrypt', 'decrypt']
+            )
+            setCachedKey(workingKey)
+            logKeyAccess('generate')
+        } finally {
+            secureZero(raw)
         }
 
         return true

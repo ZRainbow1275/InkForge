@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAssetStore } from '@/stores/asset'
 import type { AssetRecord } from '@/utils/db'
 import AssetUploader from './AssetUploader.vue'
@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'select', asset: AssetRecord): void
-  (e: 'insert', assetUrl: string): void
+  (e: 'insert', asset: AssetRecord): void
 }>()
 
 const assetStore = useAssetStore()
@@ -35,10 +35,18 @@ const contextMenu = ref<{
   y: 0,
   asset: null,
 })
+const contextMenuRef = ref<HTMLElement | null>(null)
+const contextMenuFirstActionRef = ref<HTMLButtonElement | null>(null)
+const contextMenuOpenerRef = ref<HTMLElement | null>(null)
 
 // ─── 标签编辑 ───
 const editingTagsAssetId = ref<string | null>(null)
 const editingTagsInput = ref('')
+const tagsDialogRef = ref<HTMLElement | null>(null)
+const tagsInputRef = ref<HTMLInputElement | null>(null)
+const deleteDialogRef = ref<HTMLElement | null>(null)
+const deleteCancelRef = ref<HTMLButtonElement | null>(null)
+const dialogOpenerRef = ref<HTMLElement | null>(null)
 
 // ─── 计算属性 ───
 const filteredAssets = computed(() => {
@@ -72,7 +80,6 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  assetStore.cleanup()
   document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('keydown', handleKeydown)
 })
@@ -109,45 +116,99 @@ function clearSelection() {
 
 // ─── 预览（双击） ───
 function handlePreviewAsset(asset: AssetRecord) {
-  const url = assetStore.getAssetUrl(asset.id)
-  if (url) {
-    emit('insert', url)
-  }
+  emit('insert', asset)
 }
 
 // ─── 右键菜单 ───
-function handleContextMenu(event: MouseEvent, asset: AssetRecord) {
+async function handleContextMenu(event: MouseEvent | KeyboardEvent, asset: AssetRecord) {
+  const targetBounds = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect()
+  const pointerEvent = event instanceof MouseEvent
+  contextMenuOpenerRef.value = event.currentTarget as HTMLElement | null
   contextMenu.value = {
     visible: true,
-    x: event.clientX,
-    y: event.clientY,
+    x: pointerEvent ? event.clientX : (targetBounds?.left ?? 0) + 16,
+    y: pointerEvent ? event.clientY : (targetBounds?.top ?? 0) + 16,
     asset,
+  }
+  await nextTick()
+  contextMenuFirstActionRef.value?.focus()
+}
+
+async function closeContextMenu(restoreFocus = false) {
+  const opener = contextMenuOpenerRef.value
+  contextMenu.value.visible = false
+  contextMenu.value.asset = null
+  contextMenuOpenerRef.value = null
+  if (restoreFocus) {
+    await nextTick()
+    if (opener?.isConnected) opener.focus()
   }
 }
 
-function closeContextMenu() {
-  contextMenu.value.visible = false
-  contextMenu.value.asset = null
+function handleDocumentClick() {
+  void closeContextMenu()
 }
 
-function handleDocumentClick() {
-  closeContextMenu()
-  // 关闭标签编辑
-  if (editingTagsAssetId.value) {
-    confirmTagEdit()
+function getFocusableElements(root: HTMLElement | null): HTMLElement[] {
+  if (!root) return []
+  return Array.from(root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+    .filter(element => element.getClientRects().length > 0)
+}
+
+function trapDialogFocus(event: KeyboardEvent, root: HTMLElement | null): void {
+  if (event.key !== 'Tab') return
+  const focusable = getFocusableElements(root)
+  if (focusable.length === 0) return
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
+}
+
+function handleContextMenuKeydown(event: KeyboardEvent): void {
+  const items = getFocusableElements(contextMenuRef.value)
+  if (items.length === 0) return
+  const currentIndex = Math.max(0, items.indexOf(document.activeElement as HTMLElement))
+  let nextIndex: number | null = null
+  if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % items.length
+  if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + items.length) % items.length
+  if (event.key === 'Home') nextIndex = 0
+  if (event.key === 'End') nextIndex = items.length - 1
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    event.stopPropagation()
+    void closeContextMenu(true)
+    return
+  }
+  if (nextIndex !== null) {
+    event.preventDefault()
+    items[nextIndex].focus()
   }
 }
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
-    closeContextMenu()
+    if (contextMenu.value.visible) {
+      e.preventDefault()
+      void closeContextMenu(true)
+      return
+    }
     if (editingTagsAssetId.value) {
-      cancelTagEdit()
+      void cancelTagEdit()
     }
   }
   // Delete 键删除选中
-  if (e.key === 'Delete' && selectedCount.value > 0) {
-    showDeleteConfirm.value = true
+  const target = e.target instanceof HTMLElement ? e.target : null
+  const targetIsAssetCard = Boolean(target?.closest('.asset-card-grid, .asset-card-list'))
+  const dialogIsOpen = Boolean(editingTagsAssetId.value || showDeleteConfirm.value)
+  if (e.key === 'Delete' && selectedCount.value > 0 && targetIsAssetCard && !dialogIsOpen) {
+    e.preventDefault()
+    void openDeleteConfirm()
   }
 }
 
@@ -162,32 +223,32 @@ async function contextCopyLink() {
       // 静默处理
     }
   }
-  closeContextMenu()
+  await closeContextMenu()
 }
 
-function contextEditTags() {
+async function contextEditTags() {
   if (!contextMenu.value.asset) return
+  dialogOpenerRef.value = contextMenuOpenerRef.value
   editingTagsAssetId.value = contextMenu.value.asset.id
   editingTagsInput.value = contextMenu.value.asset.tags.join(', ')
-  closeContextMenu()
+  await closeContextMenu()
+  await nextTick()
+  tagsInputRef.value?.focus()
 }
 
 async function contextDelete() {
   if (!contextMenu.value.asset) return
   const id = contextMenu.value.asset.id
-  closeContextMenu()
-  await assetStore.deleteAsset(id)
+  await closeContextMenu()
+  await assetStore.deleteAsset(id, props.articleId)
   selectedIds.value.delete(id)
   selectedIds.value = new Set(selectedIds.value)
 }
 
 function contextInsert() {
   if (!contextMenu.value.asset) return
-  const url = assetStore.getAssetUrl(contextMenu.value.asset.id)
-  if (url) {
-    emit('insert', url)
-  }
-  closeContextMenu()
+  emit('insert', contextMenu.value.asset)
+  void closeContextMenu()
 }
 
 // ─── 标签编辑 ───
@@ -200,25 +261,63 @@ async function confirmTagEdit() {
   await assetStore.updateTags(editingTagsAssetId.value, tags)
   editingTagsAssetId.value = null
   editingTagsInput.value = ''
+  await restoreDialogOpener()
 }
 
-function cancelTagEdit() {
+async function cancelTagEdit() {
   editingTagsAssetId.value = null
   editingTagsInput.value = ''
+  await restoreDialogOpener()
+}
+
+function handleTagsDialogKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    event.stopPropagation()
+    void cancelTagEdit()
+    return
+  }
+  trapDialogFocus(event, tagsDialogRef.value)
 }
 
 // ─── 批量删除 ───
+async function openDeleteConfirm() {
+  dialogOpenerRef.value = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  showDeleteConfirm.value = true
+  await nextTick()
+  deleteCancelRef.value?.focus()
+}
+
 async function confirmBatchDelete() {
   const ids = Array.from(selectedIds.value)
   for (const id of ids) {
-    await assetStore.deleteAsset(id)
+    await assetStore.deleteAsset(id, props.articleId)
   }
   selectedIds.value = new Set()
   showDeleteConfirm.value = false
+  await restoreDialogOpener()
 }
 
-function cancelBatchDelete() {
+async function cancelBatchDelete() {
   showDeleteConfirm.value = false
+  await restoreDialogOpener()
+}
+
+function handleDeleteDialogKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    event.stopPropagation()
+    void cancelBatchDelete()
+    return
+  }
+  trapDialogFocus(event, deleteDialogRef.value)
+}
+
+async function restoreDialogOpener() {
+  const opener = dialogOpenerRef.value
+  dialogOpenerRef.value = null
+  await nextTick()
+  if (opener?.isConnected) opener.focus()
 }
 
 // ─── 上传回调 ───
@@ -272,11 +371,14 @@ function handleUploadError(_message: string) {
             v-model="searchQuery"
             type="text"
             class="search-input"
+            aria-label="搜索素材"
             placeholder="搜索素材名称或标签..."
           >
           <button
             v-if="searchQuery"
+            type="button"
             class="search-clear"
+            aria-label="清除素材搜索"
             @click="searchQuery = ''"
           >
             <svg
@@ -317,6 +419,7 @@ function handleUploadError(_message: string) {
         <template v-if="selectedCount > 0">
           <span class="selected-info">已选 {{ selectedCount }} 项</span>
           <button
+            type="button"
             class="tool-btn"
             title="取消选择"
             @click="clearSelection"
@@ -346,9 +449,10 @@ function handleUploadError(_message: string) {
             </svg>
           </button>
           <button
+            type="button"
             class="tool-btn danger"
             title="删除选中"
-            @click="showDeleteConfirm = true"
+            @click="openDeleteConfirm"
           >
             <svg
               width="14"
@@ -368,6 +472,7 @@ function handleUploadError(_message: string) {
 
         <!-- 全选 -->
         <button
+          type="button"
           class="tool-btn"
           :class="{ active: isAllSelected }"
           title="全选"
@@ -406,6 +511,7 @@ function handleUploadError(_message: string) {
         <!-- 视图切换 -->
         <div class="view-toggle">
           <button
+            type="button"
             class="toggle-btn"
             :class="{ active: viewMode === 'grid' }"
             title="网格视图"
@@ -448,6 +554,7 @@ function handleUploadError(_message: string) {
             </svg>
           </button>
           <button
+            type="button"
             class="toggle-btn"
             :class="{ active: viewMode === 'list' }"
             title="列表视图"
@@ -617,18 +724,24 @@ function handleUploadError(_message: string) {
     <Teleport to="body">
       <div
         v-if="editingTagsAssetId"
+        ref="tagsDialogRef"
         class="tags-edit-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="asset-tags-dialog-title"
         @click.self="confirmTagEdit"
+        @keydown="handleTagsDialogKeydown"
       >
         <div
           class="tags-edit-modal"
           @click.stop
         >
-          <h4>编辑标签</h4>
+          <h4 id="asset-tags-dialog-title">编辑标签</h4>
           <p class="tags-hint">
             多个标签用逗号分隔
           </p>
           <input
+            ref="tagsInputRef"
             v-model="editingTagsInput"
             type="text"
             class="tags-input"
@@ -639,12 +752,14 @@ function handleUploadError(_message: string) {
           >
           <div class="tags-actions">
             <button
+              type="button"
               class="tags-cancel-btn"
               @click="cancelTagEdit"
             >
               取消
             </button>
             <button
+              type="button"
               class="tags-confirm-btn"
               @click="confirmTagEdit"
             >
@@ -659,13 +774,20 @@ function handleUploadError(_message: string) {
     <Teleport to="body">
       <div
         v-if="contextMenu.visible"
+        ref="contextMenuRef"
         class="context-menu"
+        role="menu"
+        aria-label="素材操作"
         :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
         @click.stop
+        @keydown="handleContextMenuKeydown"
       >
         <button
+          ref="contextMenuFirstActionRef"
+          type="button"
           class="context-item"
-          @click="contextInsert"
+          role="menuitem"
+          @click.stop="contextInsert"
         >
           <svg
             width="14"
@@ -695,8 +817,10 @@ function handleUploadError(_message: string) {
           插入到编辑器
         </button>
         <button
+          type="button"
           class="context-item"
-          @click="contextCopyLink"
+          role="menuitem"
+          @click.stop="contextCopyLink"
         >
           <svg
             width="14"
@@ -714,8 +838,10 @@ function handleUploadError(_message: string) {
           复制链接
         </button>
         <button
+          type="button"
           class="context-item"
-          @click="contextEditTags"
+          role="menuitem"
+          @click.stop="contextEditTags"
         >
           <svg
             width="14"
@@ -739,8 +865,10 @@ function handleUploadError(_message: string) {
         </button>
         <div class="context-divider" />
         <button
+          type="button"
           class="context-item danger"
-          @click="contextDelete"
+          role="menuitem"
+          @click.stop="contextDelete"
         >
           <svg
             width="14"
@@ -764,20 +892,28 @@ function handleUploadError(_message: string) {
     <Teleport to="body">
       <div
         v-if="showDeleteConfirm"
+        ref="deleteDialogRef"
         class="confirm-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="asset-delete-dialog-title"
         @click.self="cancelBatchDelete"
+        @keydown="handleDeleteDialogKeydown"
       >
         <div class="confirm-modal">
-          <h3>确认删除</h3>
+          <h3 id="asset-delete-dialog-title">确认删除</h3>
           <p>确定要删除选中的 {{ selectedCount }} 个素材吗？此操作不可撤销。</p>
           <div class="confirm-actions">
             <button
+              ref="deleteCancelRef"
+              type="button"
               class="cancel-btn"
               @click="cancelBatchDelete"
             >
               取消
             </button>
             <button
+              type="button"
               class="delete-confirm-btn"
               @click="confirmBatchDelete"
             >

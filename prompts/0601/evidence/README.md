@@ -9303,3 +9303,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, Dark Mode, interaction, cover thumbnail, credentialed sync, scheduled send,
   platform preview, public rendering, or publish success. Xiaohongshu and Zhihu publish-side
   proof remains manually deferred to the user.
+
+[x] current-round-native-acceptance-20260716.txt # Current native application acceptance: real SVG asset lifecycle, Tauri encryption/key-cache rehydration, symmetric 8 px host/WebView gate with deterministic 9 px rejection, 13/13 editor + 31/31 auxiliary native cases, post-review SVG 10/10, 109/1834 Vitest, Rust 22/22, and current-round WeChat local readiness. External phone/sync/publish gates remain unclaimed; XHS/Zhihu publication remains manual.
