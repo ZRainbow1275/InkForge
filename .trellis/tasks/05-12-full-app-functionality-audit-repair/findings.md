@@ -248,3 +248,49 @@ The final remediation also removes the residual minimize-recovery maximize call:
 - Root cause: encryption availability was incorrectly coupled to the Vite release flag rather than the authenticated Tauri runtime, and getMasterKey() read only the in-memory cache instead of rehydrating it at the persistence boundary.
 - Fix: enable sensitive-field encryption for Tauri release, debug, and development runtimes while keeping Web preview on its existing password/UI boundary. Recognize the reserved Tauri origin before injected globals are available. On cache expiry, `getMasterKey()` restores only the persisted OS key and rejects a missing entry instead of generating a replacement. First-run generation is cached only after persistence succeeds. WebDriver uses the dedicated `inkforge_e2e_*_v3` namespace rather than the normal application credential.
 - Verification: focused crypto tests cover first-run persistence failure, cache-expiry restore-only behavior, and missing persisted-key failure. The rebuilt native application persisted the real article body as an encrypted-v2 envelope. The fresh complete 13-case native editor suite ran for 5m49.6s, crossed the five-minute key-cache window, retained encrypted save/reload behavior, verified the dedicated E2E credential existed, and removed it through the real Tauri command. No credential value, browser profile, runtime data path, or diagnostic probe is committed.
+
+## F-HUB-IMPORT-001 — Native Hub import had no real Windows dialog acceptance
+
+- Severity: medium
+- Status: fixed
+- Area: Hub / Tauri native file dialog / document import
+- Matrix rows: `RTE-001`, `DSK-003`
+- Files: `inkforge/tests/e2e/specs/editor-settings.spec.cjs`, `inkforge/tests/e2e/wdio.conf.cjs`
+- Reproduction: activate the visible secondary Hub import action in a current Windows Tauri build, cancel once, select a genuine Markdown document once, and select a 10 MiB + 1 byte document once. On this Windows version, AutomationId `1148` can be exposed as `ControlType.Pane`, so a UI Automation ValuePattern-only implementation cannot enter the real path.
+- Root cause: the application import path was implemented, but the acceptance suite stopped at capability reporting and therefore never proved the owned Windows dialog, cancellation, metadata/content hydration, durable audit, oversize rejection, or cleanup as one native path.
+- Fix: drive only the owned visible `#32770` dialog. Prefer UI Automation `Edit`/ValuePattern; if Windows reports the file-name control as a Pane, target that same real dialog's control `1148` with bounded `WM_SETTEXT` and `WM_COMMAND`. Require the dialog to close before checking product state.
+- Verification: cancellation created no article and surfaced `未选择文件`; a real front-matter Markdown file created one new route/article, hydrated its marker into the real editor, persisted source metadata, and wrote a successful `document.import` audit row; a real oversized file was visibly rejected and created no second article. All run-created files/articles were removed through production cleanup.
+
+## F-EDITOR-001 — Find/replace and link popover focus made visible editor controls unreliable
+
+- Severity: high
+- Status: fixed
+- Area: Workstation editor / floating controls
+- Matrix rows: `CMP-EDITOR-001`
+- Files: `inkforge/src/components/editor/FindReplace.vue`, `inkforge/src/components/editor/FloatingToolbar.vue`, `inkforge/tests/e2e/specs/editor-settings.spec.cjs`
+- Reproduction: open Replace, type a query and replacement, then use Replace All; separately select editor text, open the link field, submit `javascript:`, and attempt to correct it. Query watchers could refocus the editor while the user was still typing, and the editor blur timer could hide the entire toolbar after focus had legitimately entered its link input.
+- Root cause: FindReplace refreshed matches with editor refocus enabled for every input change, while FloatingToolbar treated every editor blur as departure without checking whether the active element remained inside the editor-owned popover.
+- Fix: refresh matches without stealing focus; keep the toolbar visible when its own controls contain `document.activeElement`; expose visible safe-URL validation, `aria-invalid`, and `aria-describedby`; keep invalid input open and focused; close only after a safe URL is applied. Existing installed icons and visual language are unchanged.
+- Verification: a real native draft completed two-match Replace All, visible bold formatting, dangerous-protocol rejection, safe-link correction, 3×3 table insertion plus a fourth row, Ctrl+S encrypted persistence, Source serialization, Preview rendering, Typora recovery, and reload reconstruction with no fresh runtime errors.
+
+## F-VERSION-TRASH-001 — Version and deletion UI did not expose one complete reversible lifecycle
+
+- Severity: high
+- Status: fixed
+- Area: Workstation / Drafts / Data lifecycle
+- Matrix rows: `CMP-VERSION-001`
+- Files: `inkforge/src/components/file/FileManager.vue`, `inkforge/src/components/version/VersionPanel.vue`, `inkforge/src/components/trash/TrashPanel.vue`, `inkforge/src/views/DraftsView.vue`, `inkforge/tests/e2e/specs/editor-settings.spec.cjs`
+- Reproduction: create a real version, compare and cancel it, restore it, then delete a real draft and attempt restore/permanent purge through visible application controls. Version list rows were not complete native controls, FileManager wording implied irreversible deletion, and Drafts had no integrated Trash surface for the repository's existing soft-delete lifecycle.
+- Root cause: version and article repositories already supported durable operations, but the component layer exposed only fragments of that lifecycle and therefore could not be accepted without direct store or persistence manipulation.
+- Fix: preserve the existing data model and services; make version rows native accessible controls, make FileManager copy truthful about moving to Trash, add a Drafts-owned Trash panel that calls the real article store for restore and permanent purge, and keep all confirmation/error/empty states visible.
+- Verification: isolated Tauri/WebView2 created, compared, canceled, restored, and reloaded a genuine version. A separate genuine draft was soft-deleted, restored, deleted again, permanently purged, and checked through visible UI plus read-only Pinia/IndexedDB/audit evidence; no direct persistence write or synthetic record was used.
+
+### 2026-07-17 closure addendum
+
+- Commit boundary: `articleStore.deleteArticle` and each Trash mutation await the real repository/category transition before changing the local projection. Same-category transitions do not drift counts; repository commit success is distinct from later summary, count, or audit warnings.
+- Caller boundary: `SettingsView` and `ArticlePanel` await destructive mutations and surface committed-operation warnings or repository errors instead of reporting a false clean success.
+- Visible failure contract: stale FileManager and Version operations remain inside their active confirmation surface. The Version error `目标版本已不存在` and permanent-delete errors are linked through `aria-describedby`; safe cancel focus, current-membership Tab/Shift+Tab wrapping, Escape cancellation, and trigger-focus restoration are preserved.
+- Concurrency and lifecycle contract: duplicate delete/restore requests coalesce to one repository operation and one audit row. A genuine category count traverses `1 -> 0 -> 1`, while soft-delete, restore, repeat-delete, and permanent purge retain Pinia/IndexedDB/audit consistency.
+- Native dialog contract: file import binds to the exact WebDriver-owned PID from `goog:processID`, requires an InkForge process with a non-zero native main-window handle, and accepts only the expected `导入文件` / `#32770` dialog owned by that PID; it never guesses from the foreground process.
+- Keyboard contract: the version lifecycle uses the real configured select-all and save shortcuts to create deterministic complete document states; it no longer depends on unrelated `Ctrl+End` caret placement.
+- Verification: targeted ESLint and CommonJS syntax checks, `vue-tsc`, Trellis task validation, serial Vitest (97 files / 1776 tests), the complete real Tauri/WebView2 editor lifecycle (18/18 in 7m18.8s), the rebuilt 4667-module Tauri debug application, post-build SVG acceptance (10/10 in 36.9s), current-round style proof, and focused WeChat exporter tests (2 files / 4 tests) passed. Current-round local SVG/style and WeChat-export acceptance is ready; external WeChat phone/editor/sync/schedule/publish proof remains explicitly unclaimed.

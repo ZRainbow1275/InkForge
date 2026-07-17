@@ -2113,6 +2113,7 @@ interface ConfirmDialog {
   requiresText: string | null
   input: string
   busy: boolean
+  error: string | null
 }
 
 const confirmDialog = ref<ConfirmDialog>({
@@ -2123,7 +2124,13 @@ const confirmDialog = ref<ConfirmDialog>({
   requiresText: null,
   input: '',
   busy: false,
+  error: null,
 })
+
+const dangerActionFeedback = ref<{
+  type: 'success' | 'warning' | 'error'
+  text: string
+} | null>(null)
 
 function showConfirm(
   title: string,
@@ -2139,6 +2146,7 @@ function showConfirm(
     requiresText,
     input: '',
     busy: false,
+    error: null,
   }
 }
 
@@ -2160,11 +2168,14 @@ async function confirmAction(): Promise<void> {
   }
 
   confirmDialog.value.busy = true
+  confirmDialog.value.error = null
 
   try {
     await confirmDialog.value.action?.()
     confirmDialog.value.busy = false
     cancelConfirm()
+  } catch (error) {
+    confirmDialog.value.error = error instanceof Error ? error.message : '操作失败，请重试。'
   } finally {
     confirmDialog.value.busy = false
   }
@@ -2183,6 +2194,7 @@ function cancelConfirm(): void {
     requiresText: null,
     input: '',
     busy: false,
+    error: null,
   }
 }
 
@@ -2203,14 +2215,37 @@ function handleResetFTUE(): void {
   )
 }
 function handleClearArticles(): void {
+  dangerActionFeedback.value = null
   showConfirm(
-    '清除所有文章',
-    '此操作将永久删除所有文章数据，不可恢复。确定要继续吗？',
+    '将所有文章移入回收站',
+    '这会将当前全部文章移入回收站，正文和版本历史会保留，可在回收站中恢复。确定要继续吗？',
     async () => {
-      const ids = articleStore.articles.map(a => a.id)
-      for (const id of ids) {
-        await articleStore.deleteArticle(id)
+      const ids = articleStore.articles.map(article => article.id)
+      const warnings = new Set<string>()
+
+      try {
+        for (const id of ids) {
+          const warning = await articleStore.deleteArticle(id)
+          if (warning) warnings.add(warning)
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '移入回收站失败'
+        dangerActionFeedback.value = {
+          type: 'error',
+          text: `批量操作未完成：${message}。已成功处理的文章仍可在回收站中恢复。`,
+        }
+        throw error
       }
+
+      dangerActionFeedback.value = warnings.size > 0
+        ? {
+            type: 'warning',
+            text: `文章已移入回收站，但有后续处理警告：${Array.from(warnings).join(' ')}`,
+          }
+        : {
+            type: 'success',
+            text: `已将 ${ids.length} 篇文章移入回收站，可在回收站中恢复。`,
+          }
     },
     'DELETE',
   )
@@ -4870,13 +4905,22 @@ onUnmounted(() => {
               危险区域
             </h3>
             <p class="sv-danger-desc">
-              以下操作不可恢复，请谨慎操作。确认前必须输入 <code>DELETE</code>。
+              以下操作会批量修改或清除本地数据。文章会移入回收站，其余清除操作不可恢复；确认前必须输入 <code>DELETE</code>。
             </p>
+            <div
+              v-if="dangerActionFeedback"
+              class="sv-feedback"
+              :class="dangerActionFeedback.type"
+              :role="dangerActionFeedback.type === 'error' ? 'alert' : 'status'"
+              data-settings-danger-feedback
+            >
+              {{ dangerActionFeedback.text }}
+            </div>
             <div class="sv-danger-actions">
               <div class="sv-danger-row">
                 <div class="sv-danger-row-info">
-                  <span class="sv-danger-row-label">清除所有文章</span>
-                  <span class="sv-danger-row-desc">永久删除所有文章及其编辑内容</span>
+                  <span class="sv-danger-row-label">将所有文章移入回收站</span>
+                  <span class="sv-danger-row-desc">保留正文和版本历史，可在回收站恢复</span>
                 </div>
                 <button
                   type="button"
@@ -6924,11 +6968,25 @@ onUnmounted(() => {
         class="sv-overlay"
         @click.self="cancelConfirm"
       >
-        <div class="sv-confirm-dialog">
-          <h3 class="sv-confirm-title">
+        <div
+          class="sv-confirm-dialog"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="settings-confirm-title"
+          :aria-describedby="confirmDialog.error
+            ? 'settings-confirm-description settings-confirm-error'
+            : 'settings-confirm-description'"
+        >
+          <h3
+            id="settings-confirm-title"
+            class="sv-confirm-title"
+          >
             {{ confirmDialog.title }}
           </h3>
-          <p class="sv-confirm-message">
+          <p
+            id="settings-confirm-description"
+            class="sv-confirm-message"
+          >
             {{ confirmDialog.message }}
           </p>
           <div
@@ -6946,6 +7004,15 @@ onUnmounted(() => {
               :placeholder="confirmDialog.requiresText"
             >
           </div>
+          <p
+            v-if="confirmDialog.error"
+            id="settings-confirm-error"
+            class="sv-feedback error"
+            role="alert"
+            data-settings-confirm-error
+          >
+            {{ confirmDialog.error }}
+          </p>
           <div class="sv-confirm-actions">
             <button
               type="button"

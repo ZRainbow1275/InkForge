@@ -67,6 +67,11 @@ function updateToolbar(): void {
     return
   }
 
+  if (showLinkInput.value && toolbarEl.value) {
+    visible.value = true
+    return
+  }
+
   const { state } = editor
   const { selection } = state
   const { empty } = selection
@@ -152,7 +157,8 @@ function attachListeners(editor: Editor): void {
   const onBlur = () => {
     // 延迟隐藏，让按钮点击事件先触发
     setTimeout(() => {
-      if (!editor.isFocused) {
+      const toolbarHasFocus = toolbarEl.value?.contains(document.activeElement) ?? false
+      if (!editor.isFocused && !toolbarHasFocus) {
         visible.value = false
       }
     }, 150)
@@ -188,6 +194,12 @@ onBeforeUnmount(detachListeners)
 // ---- 链接插入逻辑 ----
 const showLinkInput = ref(false)
 const linkUrl = ref('')
+const linkError = ref('')
+const linkInputEl = ref<HTMLInputElement | null>(null)
+
+watch(linkUrl, () => {
+  linkError.value = ''
+})
 
 function handleLinkClick(): void {
   if (!props.editor) return
@@ -197,9 +209,7 @@ function handleLinkClick(): void {
     return
   }
 
-  const existingHref = props.editor.getAttributes('link').href as string | undefined
-  linkUrl.value = existingHref ?? ''
-  showLinkInput.value = true
+  openLinkEditor()
 }
 
 function openLinkEditor(): void {
@@ -207,12 +217,16 @@ function openLinkEditor(): void {
 
   const existingHref = props.editor.getAttributes('link').href as string | undefined
   linkUrl.value = existingHref ?? ''
+  linkError.value = ''
   showHighlightPanel.value = false
   showTextColorPanel.value = false
   showLinkInput.value = true
   visible.value = true
   props.editor.chain().focus().run()
-  nextTick(updateToolbar)
+  void nextTick(() => {
+    updateToolbar()
+    linkInputEl.value?.focus()
+  })
 }
 
 /** 验证 URL 协议安全性，仅允许 http/https/mailto */
@@ -234,8 +248,12 @@ function confirmLink(): void {
 
   const url = linkUrl.value.trim()
   if (url) {
-    if (!isValidLinkUrl(url)) return // 拒绝危险协议
-    // 无协议前缀的域名自动补 https
+    if (!isValidLinkUrl(url)) {
+      linkError.value = '请输入安全的 http(s)、mailto、相对路径或域名'
+      visible.value = true
+      void nextTick(() => linkInputEl.value?.focus())
+      return
+    }
     const safeUrl = /^https?:/i.test(url) || /^[/#]/.test(url) || /^mailto:/i.test(url)
       ? url
       : `https://${url}`
@@ -243,11 +261,13 @@ function confirmLink(): void {
   } else {
     props.editor.chain().focus().unsetLink().run()
   }
+  linkError.value = ''
   showLinkInput.value = false
   linkUrl.value = ''
 }
 
 function cancelLink(): void {
+  linkError.value = ''
   showLinkInput.value = false
   linkUrl.value = ''
   props.editor?.chain().focus().run()
@@ -622,14 +642,18 @@ defineExpose({ openLinkEditor })
         class="ft-link-input"
       >
         <input
+          ref="linkInputEl"
           v-model="linkUrl"
           type="url"
           placeholder="输入链接地址..."
           class="ft-link-field"
+          :aria-invalid="linkError ? 'true' : undefined"
+          :aria-describedby="linkError ? 'floating-toolbar-link-error' : undefined"
           @keydown.enter.prevent="confirmLink"
           @keydown.escape.prevent="cancelLink"
         >
         <button
+          type="button"
           class="ft-link-confirm"
           @click="confirmLink"
         >
@@ -640,11 +664,18 @@ defineExpose({ openLinkEditor })
           />
         </button>
         <button
+          type="button"
           class="ft-link-cancel"
           @click="cancelLink"
         >
           取消
         </button>
+        <span
+          v-if="linkError"
+          id="floating-toolbar-link-error"
+          class="ft-link-error"
+          role="alert"
+        >{{ linkError }}</span>
       </div>
     </div>
   </Transition>
@@ -822,6 +853,13 @@ defineExpose({ openLinkEditor })
 .ft-link-field:focus {
   border-color: var(--ember);
   box-shadow: var(--focus-ring);
+}
+
+.ft-link-error {
+  flex-basis: 100%;
+  color: var(--danger, #B42318);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .ft-link-confirm,

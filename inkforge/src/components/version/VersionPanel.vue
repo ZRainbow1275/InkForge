@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 import { useVersionManager, computeDiffSummary } from '@/composables/useVersionManager'
@@ -36,11 +36,17 @@ const customLabel = ref('')
 
 /** 版本创建中 */
 const isCreating = ref(false)
+const createError = ref('')
 
 /** 切换确认对话框 */
 const showSwitchConfirm = ref(false)
+const isSwitching = ref(false)
+const switchError = ref('')
 const pendingSwitchVersion = ref<VersionMeta | null>(null)
 const switchDiffSummary = ref<{ addedCount: number; removedCount: number } | null>(null)
+const switchDialog = ref<HTMLElement | null>(null)
+const switchCancelButton = ref<HTMLButtonElement | null>(null)
+let switchReturnFocus: HTMLElement | null = null
 
 /** Diff 对比模式 */
 const diffMode = ref(false)
@@ -98,11 +104,14 @@ function formatRelativeTime(date: Date): string {
 async function handleCreateVersion(): Promise<void> {
     if (isCreating.value) return
     isCreating.value = true
+    createError.value = ''
 
     try {
         const label = customLabel.value.trim() || undefined
         await createManualVersion(label)
         customLabel.value = ''
+    } catch (error) {
+        createError.value = error instanceof Error ? error.message : '保存版本失败，请重试。'
     } finally {
         isCreating.value = false
     }
@@ -111,16 +120,72 @@ async function handleCreateVersion(): Promise<void> {
 /**
  * 点击版本项 - 切换或选择对比
  */
-function handleVersionClick(version: VersionMeta): void {
+function getSwitchDialogFocusableElements(): HTMLElement[] {
+    const dialog = switchDialog.value
+    if (!dialog) return []
+    return Array.from(dialog.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+    ))
+}
+
+function restoreSwitchFocus(): void {
+    const returnTarget = switchReturnFocus
+    switchReturnFocus = null
+    void nextTick(() => {
+        if (returnTarget?.isConnected) returnTarget.focus()
+    })
+}
+
+function closeSwitchDialog(): void {
+    showSwitchConfirm.value = false
+    pendingSwitchVersion.value = null
+    switchDiffSummary.value = null
+    switchError.value = ''
+    restoreSwitchFocus()
+}
+
+function handleSwitchDialogKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+        if (!isSwitching.value) {
+            event.preventDefault()
+            cancelSwitch()
+        }
+        return
+    }
+    if (event.key !== 'Tab') return
+
+    const focusable = getSwitchDialogFocusableElements()
+    const dialog = switchDialog.value
+    if (focusable.length === 0) {
+        event.preventDefault()
+        dialog?.focus()
+        return
+    }
+
+    const active = document.activeElement
+    const activeIndex = active instanceof HTMLElement ? focusable.indexOf(active) : -1
+    if (activeIndex === -1) {
+        event.preventDefault()
+        const target = event.shiftKey ? focusable[focusable.length - 1] : focusable[0]
+        target.focus()
+    } else if (event.shiftKey && activeIndex === 0) {
+        event.preventDefault()
+        focusable[focusable.length - 1].focus()
+    } else if (!event.shiftKey && activeIndex === focusable.length - 1) {
+        event.preventDefault()
+        focusable[0].focus()
+    }
+}
+
+function handleVersionClick(version: VersionMeta, event?: MouseEvent): void {
+    if (isSwitching.value) return
     if (diffMode.value) {
         toggleDiffSelection(version.id)
         return
     }
 
-    // 已经是当前版本，不处理
     if (version.id === currentVersionId.value) return
 
-    // 计算差异摘要
     if (currentVersionId.value) {
         const lines = diffBetween(currentVersionId.value, version.id)
         const summary = computeDiffSummary(lines)
@@ -132,30 +197,43 @@ function handleVersionClick(version: VersionMeta): void {
         switchDiffSummary.value = null
     }
 
+    switchReturnFocus = event?.currentTarget instanceof HTMLElement
+        ? event.currentTarget
+        : document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null
+    switchError.value = ''
     pendingSwitchVersion.value = version
     showSwitchConfirm.value = true
+    void nextTick(() => switchCancelButton.value?.focus())
 }
 
 /**
  * 确认切换版本
  */
 async function confirmSwitch(): Promise<void> {
-    if (!pendingSwitchVersion.value) return
+    if (!pendingSwitchVersion.value || isSwitching.value) return
 
-    await editorStore.switchVersion(pendingSwitchVersion.value.id)
-    startAutoSnapshot()
-    showSwitchConfirm.value = false
-    pendingSwitchVersion.value = null
-    switchDiffSummary.value = null
+    isSwitching.value = true
+    switchError.value = ''
+    void nextTick(() => switchDialog.value?.focus())
+    try {
+        await editorStore.switchVersion(pendingSwitchVersion.value.id)
+        startAutoSnapshot()
+        closeSwitchDialog()
+    } catch (error) {
+        switchError.value = error instanceof Error ? error.message : '切换版本失败，请重试。'
+    } finally {
+        isSwitching.value = false
+    }
 }
 
 /**
  * 取消切换
  */
 function cancelSwitch(): void {
-    showSwitchConfirm.value = false
-    pendingSwitchVersion.value = null
-    switchDiffSummary.value = null
+    if (isSwitching.value) return
+    closeSwitchDialog()
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -264,7 +342,8 @@ import { computeDiff } from '@/composables/useVersionManager'
             class="label-input"
             placeholder="版本标签（可选）"
             maxlength="50"
-            @keydown.enter="handleCreateVersion"
+            :disabled="isCreating"
+            @keydown.enter.prevent="handleCreateVersion"
           >
         </div>
         <div class="action-buttons">
@@ -287,6 +366,14 @@ import { computeDiff } from '@/composables/useVersionManager'
             <Diff :size="13" />
           </button>
         </div>
+        <p
+          v-if="createError"
+          class="version-feedback-error"
+          role="alert"
+          data-version-create-error
+        >
+          {{ createError }}
+        </p>
 
         <!-- Diff 操作栏 -->
         <Transition name="slide-down">
@@ -319,16 +406,20 @@ import { computeDiff } from '@/composables/useVersionManager'
       <!-- 版本列表 -->
       <div class="version-list">
         <TransitionGroup name="version-item">
-          <div
+          <button
             v-for="version in versionList"
             :key="version.id"
+            type="button"
             class="version-item"
             :class="{
               active: version.id === currentVersionId,
               'diff-selected': diffMode && selectedForDiff.includes(version.id),
               'diff-mode': diffMode,
             }"
-            @click="handleVersionClick(version)"
+            :aria-current="version.id === currentVersionId ? 'true' : undefined"
+            :aria-pressed="diffMode ? selectedForDiff.includes(version.id) : undefined"
+            :disabled="isSwitching"
+            @click="handleVersionClick(version, $event)"
           >
             <!-- 左侧指示条 -->
             <div class="version-indicator">
@@ -376,7 +467,7 @@ import { computeDiff } from '@/composables/useVersionManager'
                 :class="{ checked: selectedForDiff.includes(version.id) }"
               />
             </div>
-          </div>
+          </button>
         </TransitionGroup>
       </div>
     </template>
@@ -389,17 +480,43 @@ import { computeDiff } from '@/composables/useVersionManager'
           class="confirm-overlay"
           @click.self="cancelSwitch"
         >
-          <div class="confirm-dialog">
+          <div
+            ref="switchDialog"
+            class="confirm-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="version-switch-title"
+            :aria-describedby="switchError
+              ? 'version-switch-description version-switch-error'
+              : 'version-switch-description'"
+            tabindex="-1"
+            @keydown="handleSwitchDialogKeydown"
+          >
             <div class="confirm-icon">
               <RotateCcw :size="20" />
             </div>
-            <h3 class="confirm-title">
+            <h3
+              id="version-switch-title"
+              class="confirm-title"
+            >
               切换版本
             </h3>
-            <p class="confirm-desc">
+            <p
+              id="version-switch-description"
+              class="confirm-desc"
+            >
               确定要切换到版本
               <strong>{{ pendingSwitchVersion?.label }}</strong>
               吗？当前未保存的更改将被覆盖。
+            </p>
+            <p
+              v-if="switchError"
+              id="version-switch-error"
+              class="version-feedback-error version-feedback-error--dialog"
+              role="alert"
+              data-version-switch-error
+            >
+              {{ switchError }}
             </p>
             <div
               v-if="switchDiffSummary"
@@ -410,8 +527,11 @@ import { computeDiff } from '@/composables/useVersionManager'
             </div>
             <div class="confirm-actions">
               <button
+                ref="switchCancelButton"
                 type="button"
                 class="confirm-cancel-btn"
+                :disabled="isSwitching"
+                data-version-switch-action="cancel"
                 @click="cancelSwitch"
               >
                 取消
@@ -419,9 +539,11 @@ import { computeDiff } from '@/composables/useVersionManager'
               <button
                 type="button"
                 class="confirm-ok-btn"
+                :disabled="isSwitching"
+                data-version-switch-action="confirm"
                 @click="confirmSwitch"
               >
-                确认切换
+                {{ isSwitching ? '切换中...' : '确认切换' }}
               </button>
             </div>
           </div>
@@ -548,6 +670,17 @@ import { computeDiff } from '@/composables/useVersionManager'
   gap: 6px;
 }
 
+.version-feedback-error {
+  margin: 0;
+  color: var(--danger, #C62828);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.version-feedback-error--dialog {
+  margin-bottom: 12px;
+}
+
 .save-btn {
   flex: 1;
   display: flex;
@@ -668,12 +801,23 @@ import { computeDiff } from '@/composables/useVersionManager'
 }
 
 .version-item {
+  width: 100%;
   display: flex;
   align-items: stretch;
   padding: 8px 14px 8px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: background-color 150ms ease;
   position: relative;
+}
+
+.version-item:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
 }
 
 .version-item:hover {
@@ -910,7 +1054,7 @@ import { computeDiff } from '@/composables/useVersionManager'
   transition: all 150ms ease;
 }
 
-.confirm-cancel-btn:hover {
+.confirm-cancel-btn:hover:not(:disabled) {
   background: var(--bg-rice-paper, #FAFBFC);
   border-color: var(--text-muted, #90A4AE);
 }
@@ -930,9 +1074,15 @@ import { computeDiff } from '@/composables/useVersionManager'
     box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
-.confirm-ok-btn:hover {
+.confirm-ok-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: var(--glow-ember);
+}
+
+.confirm-cancel-btn:disabled,
+.confirm-ok-btn:disabled {
+  cursor: wait;
+  opacity: 0.55;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

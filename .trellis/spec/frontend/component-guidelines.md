@@ -100,6 +100,7 @@ const emit = defineEmits<{
   explanation.
 - Do not put service contracts or Zod validation rules only in components.
 - Do not use emoji icons; use the installed icon library.
+- Editor-owned popovers must remain visible while focus moves from the editor into the popover. A deferred editor `blur` handler must inspect whether `document.activeElement` is still contained by the popover before hiding it; otherwise link inputs, validation feedback, and keyboard correction become unusable.
 - Do not synchronously cancel a focus-sensitive recorder solely because one
   `blur` event fired after its focused DOM changed. Tauri/WebView2 may emit a
   transient blur/refocus pair; defer one animation frame and confirm
@@ -116,6 +117,18 @@ const emit = defineEmits<{
   application handle before spec-level hooks run; identify it by an application
   invariant such as `.ink-titlebar`, use a bounded wait, and fail closed when it
   cannot be found.
+- Foreground recovery must not click the custom title bar because a legitimate
+  application modal may cover it. Call the real typed native focus command only
+  when focus or desktop-interactable viewport checks fail; that command must
+  unminimize, show, and focus the target window before the harness rechecks
+  focus and host/client geometry.
+- Windows native file-dialog acceptance must bind to the exact WebDriver-owned
+  application PID, require the InkForge process to expose a non-zero native main
+  window, drive only the expected owned `导入文件` / `#32770` dialog, and require
+  it to close. Prefer UI Automation `Edit` plus ValuePattern;
+  when current Windows exposes the file-name field as `ControlType.Pane`, use a
+  bounded Win32 `GetDlgItem(1148)` / `WM_SETTEXT` / `WM_COMMAND` fallback rather
+  than synthetic product state or a hidden web file input.
 - A custom-protocol Tauri E2E run uses bundled `dist` assets. After frontend
   changes, rebuild both the production frontend and the debug binary before
   setting `INKFORGE_E2E_SKIP_TAURI_BUILD=1`; Vite/HMR evidence alone does not
@@ -189,3 +202,11 @@ Asset UI is a cross-layer surface, not a gallery-only component.
 - Unit: deduplication, ownership migration, shared-reference deletion, latest-request-wins, URL revocation, and source Markdown serialization.
 - Native integration: real SVG file input, Blob decode under CSP, visual insertion, source insertion, reload readback, duplicate reuse, final deletion, and a real unsupported file.
 - Visual: host and WebView bounds remain aligned; the application must not appear as a resized WebView surrounded by a black native surface. The acceptance log must include redacted host/client dimensions and no runtime path. A deterministic Node regression must accept the 8 px boundary and reject positive or negative 9 px drift before real WebView2 proof runs.
+
+## Committed Mutation And Destructive Dialog Contract
+
+- A disabled UI button is not a store-level concurrency boundary. Destructive store actions must coalesce duplicate in-flight calls by the real operation identity, such as `action + articleId`, so one repository commit produces at most one count adjustment and one audit attempt.
+- The repository write is the success boundary. After that commit, category counters, summaries, audit rows, and similar projections are best-effort follow-up work: failures must produce a visible warning and must not be rethrown as if the committed action failed.
+- A destructive `alertdialog` must focus its safe cancel action when opened, wrap both Tab directions, support Escape while cancellation is still safe, and restore focus to the connected invoking control when it closes.
+- Focus traps must test whether `document.activeElement` is one of the currently focusable elements. `container.contains(activeElement)` is insufficient when mutation temporarily disables every action and leaves focus on the dialog container.
+- Errors for an active nested dialog belong inside that dialog and must be linked through `aria-describedby`; an error rendered only behind the modal is not visible acceptance feedback.

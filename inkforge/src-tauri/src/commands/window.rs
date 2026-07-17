@@ -36,6 +36,7 @@ pub async fn focus_window(app: AppHandle, window_id: String) -> Result<(), Strin
         .get_window(trimmed)
         .ok_or_else(|| format!("window not found: {}", trimmed))?;
 
+    window.unminimize().map_err(|error| error.to_string())?;
     window.show().map_err(|error| error.to_string())?;
     window.set_focus().map_err(|error| error.to_string())
 }

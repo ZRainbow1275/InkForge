@@ -1132,7 +1132,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
       .to.include('fingerprintConflicts 0');
     expect(wechat.externalChecklistText, 'WeChat external proof checklist is visible')
-      .to.include('外部证明清单 8 行');
+      .to.include('外部证明清单 12 行');
     expect(wechat.externalChecklistText, 'external proof checklist keeps publish/sync success disabled')
       .to.include('当前不会启用发布、同步或平台成功宣称');
     expect(wechat.externalChecklistGroups, 'external proof checklist exposes four release blocker groups')
@@ -1144,13 +1144,13 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.localActionabilityText, 'WeChat local actionability exposes safe local row count')
       .to.include('安全本地 11');
     expect(wechat.localActionabilityText, 'WeChat local actionability links back to current-round external checklist')
-      .to.include('外部清单 8');
+      .to.include('外部清单 12');
     expect(wechat.localActionabilityText, 'WeChat local actionability prevents false local completion claims')
       .to.include('不得把目录阻断或外部平台行当作本地补证完成');
     expect(wechat.localActionabilityGroups, 'local actionability exposes local/catalog groups')
       .to.have.length(2);
     expect(wechat.externalHandoffText, 'WeChat external proof handoff is visible')
-      .to.include('外部交接 8 行');
+      .to.include('外部交接 12 行');
     expect(wechat.externalHandoffText, 'external handoff exposes group count')
       .to.include('分组 4');
     expect(wechat.externalHandoffText, 'external handoff keeps safe external automation closed')
@@ -1175,7 +1175,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       wechat.externalHandoffFlags.some((flag) =>
         flag.includes('账号') &&
-        flag.includes('4') &&
+        flag.includes('8') &&
         flag.includes('需要真实账号环境')),
       'external handoff exposes current-round WeChat account rows',
     ).to.equal(true);
@@ -1191,7 +1191,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       wechat.externalHandoffFlags.some((flag) =>
         flag.includes('平台变更') &&
-        flag.includes('4') &&
+        flag.includes('8') &&
         flag.includes('涉及同步或发布')),
       'external handoff exposes current-round mutating WeChat rows',
     ).to.equal(true);
@@ -1222,8 +1222,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       wechat.externalChecklistGroups.some((group) =>
         group.includes('外部依赖') &&
-        group.includes('4') &&
-        group.includes('微信公众号 4') &&
+        group.includes('8') &&
+        group.includes('微信公众号 8') &&
         !group.includes('小红书') &&
         !group.includes('知乎')),
       'external proof checklist exposes only current-round WeChat external dependency rows',
@@ -1239,8 +1239,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       wechat.externalChecklistGroups.some((group) =>
         group.includes('平台变更') &&
-        group.includes('4') &&
-        group.includes('发布/平台预览 1') &&
+        group.includes('8') &&
+        group.includes('登录编辑器 URL 1') &&
         group.includes('授权通道响应 1')),
       'external proof checklist exposes current-round mutating WeChat rows',
     ).to.equal(true);

@@ -45,6 +45,7 @@ export const useArticleStore = defineStore('article', () => {
     const parsing = ref(false)
     const parseError = ref<string | null>(null)
     const loadError = ref<string | null>(null)
+    const pendingDeleteOperations = new Map<string, Promise<string | null>>()
 
     onCategoryDeleted((categoryId) => {
         articles.value = articles.value.map(article =>
@@ -357,31 +358,67 @@ export const useArticleStore = defineStore('article', () => {
     }
 
     // 删除资讯
-    async function deleteArticle(id: string) {
-        const article = articles.value.find(a => a.id === id) ?? await articleRepository.findById(id)
-        const accountStore = useAccountStore()
-        const actorId = accountStore.currentAccount?.id ?? DEFAULT_ACCOUNT_ID
-        const trashedArticle = await trashRepository.moveToTrash(id, { actorId })
-        await cleanupWikiLinksForArticle(id)
-        if (article) {
-            await trackArticleAudit('document.delete', { ...article, ...trashedArticle }, 'warning', {
-                softDelete: true,
-                hadCategory: Boolean(article.categoryId),
-                deletedAt: trashedArticle.deletedAt?.toISOString?.() ?? trashedArticle.deletedAt ?? null,
-                expiresAt: trashedArticle.expiresAt?.toISOString?.() ?? trashedArticle.expiresAt ?? null,
-                evidenceSource: articles.value.some(item => item.id === id) ? 'loaded-state' : 'repository-lookup',
-            })
-        }
-        await trackSyncDirty(id, undefined, 'delete')
-        articles.value = articles.value.filter(a => a.id !== id)
+    async function deleteArticle(id: string): Promise<string | null> {
+        const pendingOperation = pendingDeleteOperations.get(id)
+        if (pendingOperation) return pendingOperation
 
-        if (article?.categoryId) {
-            categoryStore.updateArticleCount(article.categoryId, -1)
-        }
+        const operation = (async (): Promise<string | null> => {
+            const postCommitWarnings = new Set<string>()
+            const wasLoaded = articles.value.some(article => article.id === id)
+            const article = articles.value.find(article => article.id === id) ?? await articleRepository.findById(id)
+            const accountStore = useAccountStore()
+            const actorId = accountStore.currentAccount?.id ?? DEFAULT_ACCOUNT_ID
+            const trashedArticle = await trashRepository.moveToTrash(id, { actorId })
 
-        if (selectedArticleId.value === id) {
-            selectedArticleId.value = null
+            // Repository commit is the success boundary. Reconcile visible state before
+            // best-effort wiki, audit, and sync side effects run.
+            articles.value = articles.value.filter(articleItem => articleItem.id !== id)
+            if (selectedArticleId.value === id) {
+                selectedArticleId.value = null
+            }
+            if (article?.categoryId) {
+                try {
+                    await categoryStore.updateArticleCount(article.categoryId, -1)
+                } catch (err) {
+                    postCommitWarnings.add('文稿已移入回收站，但分类计数刷新失败。')
+                    logger.warn('文章已移入回收站，但分类计数刷新失败', {
+                        articleId: id,
+                        categoryId: article.categoryId,
+                        error: err instanceof Error ? err.message : String(err),
+                    })
+                }
+            }
+
+            await cleanupWikiLinksForArticle(id)
+            if (article) {
+                try {
+                    await trackArticleAudit('document.delete', { ...article, ...trashedArticle }, 'warning', {
+                        softDelete: true,
+                        hadCategory: Boolean(article.categoryId),
+                        deletedAt: trashedArticle.deletedAt?.toISOString?.() ?? trashedArticle.deletedAt ?? null,
+                        expiresAt: trashedArticle.expiresAt?.toISOString?.() ?? trashedArticle.expiresAt ?? null,
+                        evidenceSource: wasLoaded ? 'loaded-state' : 'repository-lookup',
+                    })
+                } catch (err) {
+                    postCommitWarnings.add('文稿已移入回收站，但删除审计记录失败。')
+                    logger.warn('文章已移入回收站，但删除审计写入失败', {
+                        articleId: id,
+                        error: err instanceof Error ? err.message : String(err),
+                    })
+                }
+            }
+            await trackSyncDirty(id, undefined, 'delete')
+            return postCommitWarnings.size > 0 ? Array.from(postCommitWarnings).join(' ') : null
+        })()
+
+        pendingDeleteOperations.set(id, operation)
+        const clearOperation = (): void => {
+            if (pendingDeleteOperations.get(id) === operation) {
+                pendingDeleteOperations.delete(id)
+            }
         }
+        void operation.then(clearOperation, clearOperation)
+        return operation
     }
 
     // 从文件系统导入文件（支持 .md / .html / .txt）
@@ -523,12 +560,12 @@ export const useArticleStore = defineStore('article', () => {
             ...articles.value.slice(index + 1)
         ]
 
-        // 更新分类计数
-        if (oldCategoryId) {
-            categoryStore.updateArticleCount(oldCategoryId, -1)
+        // 分类计数属于本次移动的提交边界，调用方只有在计数持久化后才视为完成
+        if (oldCategoryId && oldCategoryId !== categoryId) {
+            await categoryStore.updateArticleCount(oldCategoryId, -1)
         }
-        if (categoryId) {
-            categoryStore.updateArticleCount(categoryId, 1)
+        if (categoryId && categoryId !== oldCategoryId) {
+            await categoryStore.updateArticleCount(categoryId, 1)
         }
     }
 

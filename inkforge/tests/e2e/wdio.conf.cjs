@@ -188,29 +188,38 @@ async function selectMainApplicationWindow() {
   throw new Error(`Unable to select the InkForge main WebView from ${lastHandles.length} handle(s): ${detail}`);
 }
 
+async function focusMainApplicationWindow() {
+  const focusResult = await global.browser.executeAsync((done) => {
+    const invoke = window.__TAURI_INVOKE__;
+    if (typeof invoke !== 'function') {
+      done({ error: 'native Tauri invoke bridge is unavailable' });
+      return;
+    }
+    invoke('focus_window', { windowId: 'main' })
+      .then(() => done({ error: null }))
+      .catch((error) => done({ error: error instanceof Error ? error.message : String(error) }));
+  });
+  if (focusResult?.error) {
+    throw new Error(`Unable to restore the main Tauri window foreground focus: ${focusResult.error}`);
+  }
+}
+
 async function ensureMainApplicationWindowInteractable() {
   await selectMainApplicationWindow();
   const titlebar = await global.browser.$('.ink-titlebar');
   await titlebar.waitForDisplayed({ timeout: 5_000 });
 
-  const restoreButton = await global.browser.$('button[aria-label="还原"]');
-  if (await restoreButton.isExisting()) {
-    await restoreButton.click();
-    await global.browser.waitUntil(
-      async () => (await global.browser.$('button[aria-label="最大化"]')).isExisting(),
-      {
-        timeout: 5_000,
-        interval: 100,
-        timeoutMsg: 'The native Tauri window did not leave maximized state before E2E interaction',
-      },
-    );
-  }
-
-  await titlebar.click();
   await global.browser.waitUntil(
-    async () => global.browser.execute(() => window.innerWidth >= 800 && window.innerHeight >= 500),
+    async () => {
+      const isInteractable = await global.browser.execute(() => (
+        document.hasFocus() && window.innerWidth >= 800 && window.innerHeight >= 500
+      ));
+      if (isInteractable) return true;
+      await focusMainApplicationWindow();
+      return false;
+    },
     {
-      timeout: 5_000,
+      timeout: 10_000,
       interval: 100,
       timeoutMsg: 'The main Tauri WebView did not reach a desktop-interactable viewport after window normalization',
     },
@@ -221,7 +230,12 @@ async function ensureMainApplicationWindowInteractable() {
       const client = await global.browser.execute(() => ({
         width: window.innerWidth,
         height: window.innerHeight,
+        focused: document.hasFocus(),
       }));
+      if (!client.focused) {
+        await focusMainApplicationWindow();
+        return false;
+      }
       const widthGap = host.width - client.width;
       const heightGap = host.height - client.height;
       if (!isNativeHostWebViewBoundsAligned(host, client)) {
@@ -239,7 +253,12 @@ async function ensureMainApplicationWindowInteractable() {
     `[InkForge E2E] host/client bounds aligned: host=${alignedBounds.host.width}x${alignedBounds.host.height}, client=${alignedBounds.client.width}x${alignedBounds.client.height}, gap=${alignedBounds.widthGap}x${alignedBounds.heightGap}`,
   );
   await global.browser.waitUntil(
-    async () => global.browser.execute(() => document.hasFocus()),
+    async () => {
+      const focused = await global.browser.execute(() => document.hasFocus());
+      if (focused) return true;
+      await focusMainApplicationWindow();
+      return false;
+    },
     {
       timeout: 5_000,
       interval: 100,

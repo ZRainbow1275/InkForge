@@ -485,10 +485,14 @@ export const useEditorStore = defineStore('editor', () => {
     // 鍒囨崲鐗堟湰锛堜笉鍙彉鏇存柊锛?
     async function switchVersionUnlocked(contentId: string, versionId: string) {
         const sourceContent = await resolveQueuedContent(contentId)
-        if (!sourceContent) return
+        if (!sourceContent) {
+            throw new Error('当前文稿内容已不存在，请重新打开文稿后重试。')
+        }
 
         const version = sourceContent.versions.find((v: Version) => v.id === versionId)
-        if (!version) return
+        if (!version) {
+            throw new Error('目标版本已不存在，请刷新版本列表后重试。')
+        }
 
         // 浣跨敤涓嶅彲鍙樻洿鏂版ā寮?
         const updated = {

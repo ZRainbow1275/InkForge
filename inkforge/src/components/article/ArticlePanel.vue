@@ -12,14 +12,35 @@ const showAddModal = ref(false)
 const urlInput = ref('')
 const addError = ref<string | null>(null)
 
+const deletingArticleId = ref<string | null>(null)
+const deleteFeedback = ref<{
+  type: 'success' | 'warning' | 'error'
+  text: string
+} | null>(null)
+
 function selectArticle(id: string) {
   articleStore.selectArticle(id)
 }
 
-function deleteArticle(id: string, event: Event) {
+async function deleteArticle(id: string, event: Event): Promise<void> {
   event.stopPropagation()
-  if (confirm('确定要删除这条资讯吗？')) {
-    articleStore.deleteArticle(id)
+  if (deletingArticleId.value) return
+  if (!window.confirm('确定要将这条资讯移入回收站吗？之后可在回收站恢复。')) return
+
+  deletingArticleId.value = id
+  deleteFeedback.value = null
+  try {
+    const warning = await articleStore.deleteArticle(id)
+    deleteFeedback.value = warning
+      ? { type: 'warning', text: warning }
+      : { type: 'success', text: '资讯已移入回收站，可在回收站恢复。' }
+  } catch (error) {
+    deleteFeedback.value = {
+      type: 'error',
+      text: error instanceof Error ? error.message : '移入回收站失败，请重试。',
+    }
+  } finally {
+    deletingArticleId.value = null
   }
 }
 
@@ -66,6 +87,20 @@ function openAddModal() {
       <span>{{ parseError }}</span>
     </div>
 
+    <div
+      v-if="deleteFeedback"
+      class="delete-feedback"
+      :class="`delete-feedback--${deleteFeedback.type}`"
+      :role="deleteFeedback.type === 'error' ? 'alert' : 'status'"
+      data-article-delete-feedback
+    >
+      <AlertCircle
+        v-if="deleteFeedback.type !== 'success'"
+        :size="16"
+      />
+      <span>{{ deleteFeedback.text }}</span>
+    </div>
+
     <!-- 资讯列表 -->
     <div 
       v-for="article in filteredArticles" 
@@ -77,11 +112,22 @@ function openAddModal() {
       <div class="source">
         <span class="source-name">{{ article.sourceName }}</span>
         <button 
+          type="button"
           class="delete-btn"
-          title="删除资讯"
+          :title="deletingArticleId === article.id ? '正在移入回收站' : '移入回收站'"
+          :aria-label="`将《${article.title}》移入回收站`"
+          :disabled="deletingArticleId !== null"
           @click="deleteArticle(article.id, $event)"
         >
-          <Trash2 :size="14" />
+          <Loader2
+            v-if="deletingArticleId === article.id"
+            :size="14"
+            class="animate-spin"
+          />
+          <Trash2
+            v-else
+            :size="14"
+          />
         </button>
       </div>
       <h3 class="title">
@@ -395,6 +441,31 @@ function openAddModal() {
   font-size: 13px;
   font-weight: bold;
   box-shadow: var(--elev-1);
+}
+
+.delete-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-medium);
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: var(--elev-1);
+}
+
+.delete-feedback--success {
+  color: var(--success);
+}
+
+.delete-feedback--warning {
+  color: var(--warning);
+}
+
+.delete-feedback--error {
+  color: var(--error);
 }
 
 .animate-spin {

@@ -8,7 +8,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { Buffer } = require('node:buffer');
-const { spawnSync } = require('node:child_process');
+const { spawn } = require('node:child_process');
 
 const SMART_PUNCTUATION_CASES = [
   { id: 'curlyQuotes', label: '弯引号', input: '"', expected: '“' },
@@ -324,7 +324,12 @@ async function readVersionPersistence(articleId) {
     } finally {
       database.close();
     }
-    const persistedContent = persistedContents[0] ?? null;
+    const persistedContent = persistedContents
+      .find((content) => content.id === currentContent?.id)
+      ?? [...persistedContents].sort((left, right) => (
+        new Date(right.updatedAt ?? 0).getTime() - new Date(left.updatedAt ?? 0).getTime()
+      ))[0]
+      ?? null;
     const readBodyFormat = (body) => {
       if (typeof body === 'string') return 'plain';
       if (body === null || body === undefined) return 'missing';
@@ -1272,9 +1277,13 @@ async function activateWorkstationTabThroughNumberShortcut(articleId) {
   expect(shortcutIndex, `the real tab ${articleId} is available for number-shortcut activation`).to.be.at.least(0);
   expect(shortcutIndex, `the real tab ${articleId} fits the supported Ctrl+1..Ctrl+9 range`).to.be.below(9);
 
-  const visibleTab = await browser.$(`[role="tab"][data-tab-id="${articleId}"]`);
-  await visibleTab.waitForDisplayed({ timeout: 5_000 });
-  await browser.execute((element) => element.focus(), visibleTab);
+  const titlebar = await browser.$('.ink-titlebar');
+  await titlebar.waitForDisplayed({ timeout: 5_000 });
+  await titlebar.click();
+  await browser.waitUntil(
+    async () => browser.execute(() => document.hasFocus()),
+    { timeout: 5_000, interval: 50, timeoutMsg: 'native window did not receive keyboard focus before tab activation' },
+  );
   await browser.keys(['Control', String(shortcutIndex + 1)]);
   await browser.waitUntil(
     async () => browser.execute((expectedId) => (
@@ -1309,6 +1318,9 @@ async function closeWorkstationTabThroughShortcut(articleId) {
   }
 
   await activateWorkstationTabThroughNumberShortcut(articleId);
+  const activeTab = await browser.$(`[role="tab"][data-tab-id="${articleId}"]`);
+  await activeTab.waitForClickable({ timeout: 5_000 });
+  await activeTab.click();
   await browser.keys(['Control', 'w']);
   await browser.waitUntil(
     async () => browser.execute((closedId) => !document.querySelector(
@@ -1332,13 +1344,15 @@ async function preparePersistedLayoutRestoreFixture(targetArticleId) {
     const layoutStore = pinia?._s.get('layoutPersistence');
     const targetArticle = articleStore?.articles.find((article) => article.id === articleId);
     const originalProfileId = profileStore?.activeProfileId ?? null;
+    const layoutProfileId = originalProfileId ?? 'local-default';
     const windowId = window.sessionStorage.getItem('inkforge.layout.windowId');
 
-    if (!articleStore || !profileStore || !layoutStore || !targetArticle || !originalProfileId || !windowId) {
+    if (!articleStore || !profileStore || !layoutStore || !targetArticle || !windowId) {
       return {
-        error: 'required production store, target article, active profile, or layout window is unavailable',
+        error: 'required production store, target article, or layout window is unavailable',
         fixtureProfileId: null,
         originalProfileId,
+        layoutProfileId,
         windowId,
       };
     }
@@ -1355,25 +1369,31 @@ async function preparePersistedLayoutRestoreFixture(targetArticleId) {
       }],
       tabOrder: [targetArticle.id],
     }, fixtureProfileId, windowId);
-    await layoutStore.initialize(originalProfileId, windowId);
+    await layoutStore.initialize(layoutProfileId, windowId);
 
     return {
       error: null,
       fixtureProfileId,
       originalProfileId,
+      layoutProfileId,
       windowId,
     };
   }, targetArticleId);
 
   expect(fixture.error, 'the real layout repository accepts the isolated restore record').to.equal(null);
   expect(fixture.fixtureProfileId, 'the isolated layout restore has a profile id').to.be.a('string');
-  expect(fixture.originalProfileId, 'the active production profile can be restored').to.be.a('string');
+  expect(fixture.layoutProfileId, 'the production layout profile fallback is available').to.be.a('string');
   expect(fixture.windowId, 'the production layout window id is available').to.be.a('string');
   return fixture;
 }
 
 async function cleanupPersistedLayoutRestoreFixture(fixture, sourceArticleId) {
-  const cleanup = await browser.execute(async ({ fixtureProfileId, originalProfileId, windowId, articleId }) => {
+  const cleanup = await browser.execute(async ({
+    fixtureProfileId,
+    originalProfileId,
+    windowId,
+    articleId,
+  }) => {
     const root = document.getElementById('app');
     const provides = root?.__vue_app__?._context?.provides;
     const pinia = provides
@@ -1430,7 +1450,7 @@ async function cleanupPersistedLayoutRestoreFixture(fixture, sourceArticleId) {
         : null;
       const layoutStore = pinia?._s.get('layoutPersistence');
       return layoutStore?.profileId === profileId && layoutStore?.isLoading === false;
-    }, fixture.originalProfileId),
+    }, fixture.layoutProfileId),
     { timeout: 10_000, interval: 100, timeoutMsg: 'layout restore cleanup did not reload the production profile' },
   );
 }
@@ -2266,6 +2286,57 @@ async function openCategoryContextMenu(categoryId) {
   throw lastError ?? new Error('category context menu did not open after two native right clicks');
 }
 
+async function openArticleContextMenuForTrash(articleId) {
+  const rowSelector = `.fm-article-row[data-file-article-id="${articleId}"]`;
+  let lastError = null;
+
+  const flatViewButton = await browser.$('.fm-seg-tab[title="平铺视图"]');
+  await flatViewButton.waitForClickable({ timeout: 5_000 });
+  if ((await flatViewButton.getAttribute('aria-selected')) !== 'true') {
+    await flatViewButton.click();
+  }
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const articleRow = await browser.$(rowSelector);
+    await articleRow.waitForExist({ timeout: 10_000 });
+    await articleRow.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await articleRow.waitForDisplayed({ timeout: 5_000 });
+    const point = await browser.execute((selector) => {
+      const row = document.querySelector(selector);
+      if (!row) return null;
+      const rect = row.getBoundingClientRect();
+      const x = Math.round(rect.left + Math.min(12, rect.width / 2));
+      const y = Math.round(rect.top + rect.height / 2);
+      const hit = document.elementFromPoint(x, y);
+      if (!hit || hit.closest(selector) !== row) return null;
+      return { x, y };
+    }, rowSelector);
+
+    if (!point) {
+      lastError = new Error('article row does not expose an unobscured viewport point');
+      continue;
+    }
+
+    await browser.action('pointer', { parameters: { pointerType: 'mouse' } })
+      .move({ duration: 0, x: point.x, y: point.y })
+      .pause(100)
+      .down({ button: 2 })
+      .pause(50)
+      .up({ button: 2 })
+      .perform();
+
+    try {
+      await (await browser.$('[data-article-action="delete"]')).waitForDisplayed({ timeout: 2_500 });
+      return;
+    } catch (error) {
+      lastError = error;
+      await browser.keys('Escape');
+    }
+  }
+
+  throw lastError ?? new Error('article context menu did not open after two native right clicks');
+}
+
 async function readExtensionRegistryEvidence(extensionId) {
   return browser.execute(async (targetExtensionId) => {
     const root = document.getElementById('app');
@@ -2418,36 +2489,454 @@ async function recordShortcut(shortcutId, binding) {
   await sendShortcutBinding(binding);
 }
 
-function restoreNativeApplicationWindow() {
+async function restoreNativeApplicationWindow() {
+  const result = await browser.executeAsync((done) => {
+    const invoke = window.__TAURI_INVOKE__;
+    if (typeof invoke !== 'function') {
+      done({ error: 'native Tauri invoke bridge is unavailable' });
+      return;
+    }
+    invoke('focus_window', { windowId: 'main' })
+      .then(() => done({ error: null }))
+      .catch((error) => done({ error: error instanceof Error ? error.message : String(error) }));
+  });
+  if (result?.error) {
+    throw new Error(`Native InkForge window restore failed: ${result.error}`);
+  }
+}
+
+
+async function getCurrentInkForgeProcessId() {
   const applicationProcessId = Number(browser.capabilities?.['goog:processID']);
   if (!Number.isInteger(applicationProcessId) || applicationProcessId <= 0) {
-    throw new Error('The native InkForge process id is unavailable for window restore');
+    throw new Error('The current Tauri application process id is unavailable');
   }
 
-  const script = [
-    "$ErrorActionPreference = 'Stop'",
-    "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public static class InkForgeNativeWindow { [DllImport(\"user32.dll\")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow); [DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr hWnd); }'",
-    `$process = Get-Process -Id ${applicationProcessId}`,
-    '$handle = $process.MainWindowHandle',
-    "if ($handle -eq [IntPtr]::Zero) { throw 'InkForge native window handle is unavailable' }",
-    '[InkForgeNativeWindow]::ShowWindowAsync($handle, 9) | Out-Null',
-    'Start-Sleep -Milliseconds 150',
-    '[InkForgeNativeWindow]::SetForegroundWindow($handle) | Out-Null',
-  ].join('; ');
-  const result = spawnSync(
-    'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-Command', script],
-    { encoding: 'utf8', windowsHide: true },
-  );
-  if (result.error) throw result.error;
-  if (result.status !== 0) {
-    throw new Error(`Native InkForge window restore failed: ${result.stderr.trim()}`);
+  const script = `
+    $ErrorActionPreference = 'Stop'
+    $expectedProcessId = [uint32]${applicationProcessId}
+    $process = Get-Process -Id $expectedProcessId -ErrorAction Stop
+    if ($process.ProcessName -ne 'InkForge') {
+      throw "WebDriver application PID $expectedProcessId belongs to $($process.ProcessName), not InkForge."
+    }
+    if ($process.MainWindowHandle -eq [IntPtr]::Zero) {
+      throw "InkForge PID $expectedProcessId has no native main window."
+    }
+    [Console]::Out.Write($process.Id)
+  `;
+
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] },
+    );
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      const processId = Number.parseInt(stdout.trim(), 10);
+      if (code === 0 && processId === applicationProcessId) {
+        resolve(processId);
+      } else {
+        reject(new Error(
+          `Could not bind native import dialog to the WebDriver-owned InkForge instance (exit ${code}): ${stderr.trim()}`,
+        ));
+      }
+    });
+  });
+}
+
+function interactWithNativeImportDialog(filePath = null, expectedProcessId) {
+  if (!Number.isInteger(expectedProcessId) || expectedProcessId <= 0) {
+    throw new Error('A positive WebDriver-owned InkForge process id is required for native import interaction.');
   }
+  const encodedMode = Buffer.from(filePath ? 'select' : 'cancel', 'utf8').toString('base64');
+  const encodedPath = Buffer.from(filePath ?? '', 'utf8').toString('base64');
+  const encodedTitle = Buffer.from('导入文件', 'utf8').toString('base64');
+  const script = `
+    $ErrorActionPreference = 'Stop'
+    Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -AssemblyName UIAutomationClient
+    Add-Type -AssemblyName UIAutomationTypes
+    Add-Type @'
+      using System;
+      using System.ComponentModel;
+      using System.Text;
+      using System.Runtime.InteropServices;
+      public static class InkForgeImportDialog {
+        public delegate bool EnumWindowsProc(IntPtr window, IntPtr parameter);
+        [DllImport("user32.dll")]
+        public static extern bool EnumWindows(EnumWindowsProc callback, IntPtr parameter);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetWindowText(IntPtr window, StringBuilder text, int maxCount);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetClassName(IntPtr window, StringBuilder className, int maxCount);
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowVisible(IntPtr window);
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr window);
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint SendInput(uint count, INPUT[] inputs, int size);
+        [DllImport("user32.dll")]
+        public static extern bool PostMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetDlgItem(IntPtr dialog, int controlId);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "SendMessageW")]
+        public static extern IntPtr SendMessageText(IntPtr window, uint message, IntPtr wParam, string lParam);
+        [DllImport("user32.dll")]
+        public static extern bool IsWindow(IntPtr window);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct INPUT {
+          public uint type;
+          public InputUnion data;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct InputUnion {
+          [FieldOffset(0)]
+          public MOUSEINPUT mouse;
+          [FieldOffset(0)]
+          public KEYBDINPUT keyboard;
+          [FieldOffset(0)]
+          public HARDWAREINPUT hardware;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MOUSEINPUT {
+          public int x;
+          public int y;
+          public uint mouseData;
+          public uint flags;
+          public uint time;
+          public IntPtr extraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KEYBDINPUT {
+          public ushort virtualKey;
+          public ushort scanCode;
+          public uint flags;
+          public uint time;
+          public IntPtr extraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct HARDWAREINPUT {
+          public uint message;
+          public ushort lowParameter;
+          public ushort highParameter;
+        }
+
+        public static void SendUnicodeText(string text) {
+          if (String.IsNullOrEmpty(text)) {
+            throw new ArgumentException("Unicode input text must not be empty.", "text");
+          }
+
+          const uint KeyboardInput = 1;
+          const uint Unicode = 0x0004;
+          const uint KeyUp = 0x0002;
+          INPUT[] inputs = new INPUT[text.Length * 2];
+          for (int index = 0; index < text.Length; index++) {
+            ushort codeUnit = text[index];
+            inputs[index * 2] = new INPUT {
+              type = KeyboardInput,
+              data = new InputUnion {
+                keyboard = new KEYBDINPUT { scanCode = codeUnit, flags = Unicode }
+              }
+            };
+            inputs[index * 2 + 1] = new INPUT {
+              type = KeyboardInput,
+              data = new InputUnion {
+                keyboard = new KEYBDINPUT { scanCode = codeUnit, flags = Unicode | KeyUp }
+              }
+            };
+          }
+
+          uint sent = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+          if (sent != (uint)inputs.Length) {
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "Unicode path input was incomplete.");
+          }
+        }
+      }
+'@
+
+    $expectedProcessId = [uint32]${expectedProcessId}
+
+    function Find-InkForgeImportDialog {
+      $windows = [Collections.Generic.List[object]]::new()
+      $callback = [InkForgeImportDialog+EnumWindowsProc]{
+        param([IntPtr]$window, [IntPtr]$parameter)
+        if (-not [InkForgeImportDialog]::IsWindowVisible($window)) {
+          return $true
+        }
+        $titleBuffer = [Text.StringBuilder]::new(512)
+        $classBuffer = [Text.StringBuilder]::new(256)
+        [void][InkForgeImportDialog]::GetWindowText($window, $titleBuffer, $titleBuffer.Capacity)
+        [void][InkForgeImportDialog]::GetClassName($window, $classBuffer, $classBuffer.Capacity)
+        [uint32]$ownerProcessId = 0
+        [void][InkForgeImportDialog]::GetWindowThreadProcessId($window, [ref]$ownerProcessId)
+        $processName = try { (Get-Process -Id $ownerProcessId -ErrorAction Stop).ProcessName } catch { '' }
+        $windows.Add([pscustomobject]@{
+          Handle = $window
+          Title = $titleBuffer.ToString()
+          ClassName = $classBuffer.ToString()
+          ProcessId = $ownerProcessId
+          ProcessName = $processName
+        })
+        return $true
+      }
+      [void][InkForgeImportDialog]::EnumWindows($callback, [IntPtr]::Zero)
+      $expectedTitle = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedTitle}'))
+      $matches = @($windows | Where-Object {
+        $_.Title -eq $expectedTitle -and
+        $_.ClassName -eq '#32770' -and
+        $_.ProcessName -eq 'InkForge' -and
+        $_.ProcessId -eq $expectedProcessId
+      })
+      if ($matches.Count -gt 1) {
+        throw "Multiple native import dialogs belong to the exact InkForge test process $expectedProcessId."
+      }
+      return $matches | Select-Object -First 1
+    }
+
+    $mode = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedMode}'))
+    $filePath = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedPath}'))
+    if ($mode -eq 'select' -and -not [IO.File]::Exists($filePath)) {
+      throw 'The configured native import file does not exist.'
+    }
+
+    $deadline = [DateTime]::UtcNow.AddSeconds(10)
+    do {
+      $candidate = Find-InkForgeImportDialog
+      if ($candidate) {
+        if ($mode -eq 'cancel') {
+          $dialogRoot = [System.Windows.Automation.AutomationElement]::FromHandle($candidate.Handle)
+          $buttons = $dialogRoot.FindAll(
+            [System.Windows.Automation.TreeScope]::Descendants,
+            [System.Windows.Automation.PropertyCondition]::new(
+              [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+              [System.Windows.Automation.ControlType]::Button
+            )
+          )
+          $cancelButton = $buttons | Where-Object {
+            $automationId = $_.Current.AutomationId
+            $name = $_.Current.Name
+            $automationId -in @('2', 'CancelButton') -or $name -in @('取消', 'Cancel')
+          } | Select-Object -First 1
+          $buttonDiagnostics = ($buttons | ForEach-Object {
+            "id=$($_.Current.AutomationId);nameLength=$($_.Current.Name.Length);enabled=$($_.Current.IsEnabled)"
+          }) -join ','
+          $interactionDiagnostic = "buttonCount=$($buttons.Count);cancelFound=$([bool]$cancelButton);buttons=$buttonDiagnostics"
+
+          if ($cancelButton) {
+            $invokePattern = $cancelButton.GetCurrentPattern(
+              [System.Windows.Automation.InvokePattern]::Pattern
+            )
+            $invokePattern.Invoke()
+          } else {
+            [void][InkForgeImportDialog]::SetForegroundWindow($candidate.Handle)
+            Start-Sleep -Milliseconds 150
+            [System.Windows.Forms.SendKeys]::SendWait('{ESC}')
+          }
+
+          $cancelDeadline = [DateTime]::UtcNow.AddSeconds(2)
+          while ([InkForgeImportDialog]::IsWindow($candidate.Handle) -and [DateTime]::UtcNow -lt $cancelDeadline) {
+            Start-Sleep -Milliseconds 50
+          }
+          if ([InkForgeImportDialog]::IsWindow($candidate.Handle)) {
+            [void][InkForgeImportDialog]::SendMessage(
+              $candidate.Handle,
+              0x0111,
+              [IntPtr]2,
+              [IntPtr]::Zero
+            )
+            $commandDeadline = [DateTime]::UtcNow.AddSeconds(2)
+            while ([InkForgeImportDialog]::IsWindow($candidate.Handle) -and [DateTime]::UtcNow -lt $commandDeadline) {
+              Start-Sleep -Milliseconds 50
+            }
+          }
+          if ([InkForgeImportDialog]::IsWindow($candidate.Handle)) {
+            [void][InkForgeImportDialog]::PostMessage(
+              $candidate.Handle,
+              0x0010,
+              [IntPtr]::Zero,
+              [IntPtr]::Zero
+            )
+          }
+        } else {
+          $dialogRoot = [System.Windows.Automation.AutomationElement]::FromHandle($candidate.Handle)
+          $foregroundDeadline = [DateTime]::UtcNow.AddSeconds(2)
+          do {
+            [void][InkForgeImportDialog]::SetForegroundWindow($candidate.Handle)
+            if ([InkForgeImportDialog]::GetForegroundWindow().ToInt64() -eq $candidate.Handle.ToInt64()) {
+              break
+            }
+            Start-Sleep -Milliseconds 50
+          } while ([DateTime]::UtcNow -lt $foregroundDeadline)
+          if ([InkForgeImportDialog]::GetForegroundWindow().ToInt64() -ne $candidate.Handle.ToInt64()) {
+            throw 'The exact native import dialog could not receive foreground input.'
+          }
+
+          [System.Windows.Forms.SendKeys]::SendWait('%n')
+          Start-Sleep -Milliseconds 150
+          $focusedElement = [System.Windows.Automation.AutomationElement]::FocusedElement
+          $editCondition = [System.Windows.Automation.PropertyCondition]::new(
+            [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+            [System.Windows.Automation.ControlType]::Edit
+          )
+          $fileNameHost = $dialogRoot.FindFirst(
+            [System.Windows.Automation.TreeScope]::Descendants,
+            [System.Windows.Automation.PropertyCondition]::new(
+              [System.Windows.Automation.AutomationElement]::AutomationIdProperty,
+              '1148'
+            )
+          )
+          $focusedValuePattern = $null
+          $focusedHasValuePattern = $focusedElement -and $focusedElement.TryGetCurrentPattern(
+            [System.Windows.Automation.ValuePattern]::Pattern,
+            [ref]$focusedValuePattern
+          )
+          $fileNameHostValuePattern = $null
+          $fileNameHostHasValuePattern = $fileNameHost -and $fileNameHost.TryGetCurrentPattern(
+            [System.Windows.Automation.ValuePattern]::Pattern,
+            [ref]$fileNameHostValuePattern
+          )
+          $pathEntry = if ($focusedHasValuePattern) {
+            $focusedElement
+          } elseif ($fileNameHostHasValuePattern) {
+            $fileNameHost
+          } elseif ($fileNameHost) {
+            $fileNameHost.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $editCondition)
+          } else {
+            $null
+          }
+          if (-not $pathEntry) {
+            $pathEntry = $dialogRoot.FindAll(
+              [System.Windows.Automation.TreeScope]::Descendants,
+              $editCondition
+            ) | Where-Object {
+              $_.Current.IsEnabled -and -not $_.Current.IsOffscreen
+            } | Where-Object {
+              $_.Current.AutomationId -eq '1148' -or $_.Current.Name -match '文件名|File name'
+            } | Select-Object -First 1
+          }
+          $fileNameHandle = [InkForgeImportDialog]::GetDlgItem($candidate.Handle, 1148)
+          $interactionDiagnostic = "mode=select;focusedId=$($focusedElement.Current.AutomationId);focusedType=$($focusedElement.Current.ControlType.ProgrammaticName);pathId=$($pathEntry.Current.AutomationId);pathType=$($pathEntry.Current.ControlType.ProgrammaticName);fileNameHandle=$($fileNameHandle.ToInt64())"
+          if ($pathEntry -and $pathEntry.Current.ProcessId -eq $dialogRoot.Current.ProcessId) {
+            $valuePatternObject = $null
+            if ($pathEntry.TryGetCurrentPattern(
+              [System.Windows.Automation.ValuePattern]::Pattern,
+              [ref]$valuePatternObject
+            )) {
+              ([System.Windows.Automation.ValuePattern]$valuePatternObject).SetValue($filePath)
+            } else {
+              $pathEntry.SetFocus()
+              [InkForgeImportDialog]::SendUnicodeText($filePath)
+            }
+
+            $buttons = $dialogRoot.FindAll(
+              [System.Windows.Automation.TreeScope]::Descendants,
+              [System.Windows.Automation.PropertyCondition]::new(
+                [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+                [System.Windows.Automation.ControlType]::Button
+              )
+            )
+            $openButton = $buttons | Where-Object {
+              $_.Current.IsEnabled -and (
+                $_.Current.AutomationId -in @('1', 'OpenButton') -or
+                $_.Current.Name -like '打开*' -or
+                $_.Current.Name -like 'Open*'
+              )
+            } | Select-Object -First 1
+            if ($openButton) {
+              $invokePattern = $openButton.GetCurrentPattern(
+                [System.Windows.Automation.InvokePattern]::Pattern
+              )
+              $invokePattern.Invoke()
+            } else {
+              $pathEntry.SetFocus()
+              [System.Windows.Forms.SendKeys]::SendWait('{ENTER}')
+            }
+          } elseif ($fileNameHandle -ne [IntPtr]::Zero) {
+            [void][InkForgeImportDialog]::SendMessageText(
+              $fileNameHandle,
+              0x000C,
+              [IntPtr]::Zero,
+              $filePath
+            )
+            [void][InkForgeImportDialog]::SendMessage(
+              $candidate.Handle,
+              0x0111,
+              [IntPtr]1,
+              $fileNameHandle
+            )
+          } else {
+            throw "The native import dialog did not expose an owned file-name control. $interactionDiagnostic"
+          }
+
+          $firstEnterDeadline = [DateTime]::UtcNow.AddMilliseconds(1200)
+          while ([InkForgeImportDialog]::IsWindow($candidate.Handle) -and [DateTime]::UtcNow -lt $firstEnterDeadline) {
+            Start-Sleep -Milliseconds 50
+          }
+          if ([InkForgeImportDialog]::IsWindow($candidate.Handle)) {
+            if ([InkForgeImportDialog]::GetForegroundWindow().ToInt64() -ne $candidate.Handle.ToInt64()) {
+              throw "The native import dialog lost foreground ownership after path entry. $interactionDiagnostic"
+            }
+            [System.Windows.Forms.SendKeys]::SendWait('{ENTER}')
+          }
+        }
+
+        $closeDeadline = [DateTime]::UtcNow.AddSeconds(5)
+        while ([InkForgeImportDialog]::IsWindow($candidate.Handle) -and [DateTime]::UtcNow -lt $closeDeadline) {
+          Start-Sleep -Milliseconds 50
+        }
+        if (-not [InkForgeImportDialog]::IsWindow($candidate.Handle)) {
+          exit 0
+        }
+        throw "The native import dialog remained open after the bounded interaction. $interactionDiagnostic"
+      }
+      Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $deadline)
+
+    throw 'The native InkForge import dialog was not found.'
+  `;
+
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] },
+    );
+    let stderr = '';
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`Native import dialog interaction failed (exit ${code}): ${stderr.trim()}`));
+    });
+  });
 }
 
 async function exerciseNativeWindowFocusLoss(shortcutId) {
   const trigger = await beginShortcutRecording(shortcutId);
   const mainWindowHandle = await browser.getWindowHandle();
+  const expectedSizeControlLabel = await browser.execute(() => {
+    if (document.querySelector('button[aria-label="还原"]')) return '还原';
+    if (document.querySelector('button[aria-label="最大化"]')) return '最大化';
+    return null;
+  });
+  expect(expectedSizeControlLabel, 'the native window exposes a deterministic size-state control before minimize')
+    .to.be.oneOf(['最大化', '还原']);
   const minimizeButton = await browser.$('button[aria-label="最小化"]');
   await minimizeButton.waitForClickable({ timeout: 5_000 });
   await minimizeButton.click();
@@ -2472,13 +2961,12 @@ async function exerciseNativeWindowFocusLoss(shortcutId) {
     await browser.pause(300);
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        restoreNativeApplicationWindow();
+        await restoreNativeApplicationWindow();
         await browser.switchToWindow(mainWindowHandle);
         await browser.waitUntil(
-          async () => (await browser.$('button[aria-label="最大化"]')).isExisting(),
-          { timeout: 5_000, interval: 100, timeoutMsg: 'the Tauri window did not return to normal size after minimize recovery' },
+          async () => (await browser.$(`button[aria-label="${expectedSizeControlLabel}"]`)).isExisting(),
+          { timeout: 5_000, interval: 100, timeoutMsg: 'the Tauri window did not restore its pre-minimize size state' },
         );
-        await (await browser.$('.ink-titlebar')).click();
         restoreError = null;
         break;
       } catch (error) {
@@ -3071,6 +3559,245 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
     }
   });
 
+  it('imports, cancels, and rejects real files through the native Hub dialog', async function () {
+    this.timeout(120_000);
+    const nonce = Date.now();
+    const expectedTitle = `InkForge 原生导入 ${nonce}`;
+    const marker = `native-import-marker-${nonce}`;
+    const markdownPath = path.join(os.tmpdir(), `inkforge-native-import-${nonce}.md`);
+    const oversizePath = path.join(os.tmpdir(), `inkforge-native-import-oversize-${nonce}.md`);
+    fs.writeFileSync(
+      markdownPath,
+      [
+        '---',
+        `title: "${expectedTitle}"`,
+        'description: Native Hub import acceptance',
+        'author: InkForge E2E',
+        'tags:',
+        '  - native-import',
+        '---',
+        '',
+        `# ${expectedTitle}`,
+        '',
+        marker,
+      ].join('\n'),
+      'utf8',
+    );
+    fs.writeFileSync(oversizePath, Buffer.alloc((10 * 1024 * 1024) + 1, 0x61));
+
+    const readArticleIds = () => browser.execute(() => {
+      const provides = document.getElementById('app')?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      return [...(pinia?._s.get('article')?.articles ?? [])]
+        .map((article) => article.id)
+        .sort();
+    });
+    const triggerImport = async (filePath = null) => {
+      const importButton = await browser.$('.card-new .new-action-btn-secondary');
+      await importButton.scrollIntoView({ block: 'center', inline: 'center' });
+      await importButton.waitForClickable({ timeout: 5_000, interval: 100 });
+      const focusResult = await browser.executeAsync((done) => {
+        const invoke = window.__TAURI_INVOKE__;
+        if (typeof invoke !== 'function') {
+          done({ error: 'native Tauri invoke bridge is unavailable' });
+          return;
+        }
+        invoke('focus_window', { windowId: 'main' })
+          .then(() => done({ error: null }))
+          .catch((error) => done({ error: error instanceof Error ? error.message : String(error) }));
+      });
+      expect(focusResult.error, 'native import binds after restoring the exact main window').to.equal(null);
+      await (await browser.$('.ink-titlebar')).click();
+      const expectedProcessId = await getCurrentInkForgeProcessId();
+      const dialogInteraction = interactWithNativeImportDialog(filePath, expectedProcessId);
+      await importButton.click();
+      await dialogInteraction;
+    };
+
+    try {
+      await openRoute('/', '.hub-page');
+      const baselineIds = await readArticleIds();
+
+      await triggerImport();
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          location.pathname === '/'
+          && document.querySelector('.import-result-panel .import-result-note')
+            ?.textContent?.includes('未选择文件')
+        )),
+        { timeout: 10_000, interval: 100, timeoutMsg: 'native Hub import cancellation was not surfaced' },
+      );
+      expect(await readArticleIds(), 'cancelling the native file dialog creates no article')
+        .to.deep.equal(baselineIds);
+
+      await triggerImport(markdownPath);
+      await browser.waitUntil(
+        async () => browser.execute((previousIds) => {
+          const routeId = new window.URLSearchParams(location.search).get('id');
+          return location.pathname === '/workstation'
+            && Boolean(routeId)
+            && !previousIds.includes(routeId)
+            && Boolean(document.querySelector('.ProseMirror'));
+        }, baselineIds),
+        {
+          timeout: 20_000,
+          interval: 200,
+          timeoutMsg: 'native Hub Markdown import did not open the imported Workstation article',
+        },
+      );
+
+      const articleId = await browser.execute(() => new window.URLSearchParams(location.search).get('id'));
+      expect(articleId, 'native import exposes a new route article id').to.be.a('string').and.not.equal('');
+      createdArticleIds.add(articleId);
+      await waitForCurrentDraftReady(articleId);
+
+      await browser.waitUntil(
+        async () => browser.execute((targetId, expectedMarker) => {
+          const provides = document.getElementById('app')?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          const article = pinia?._s.get('article')?.articles
+            ?.find((candidate) => candidate.id === targetId);
+          return Boolean(
+            article?.rawContent?.includes(expectedMarker)
+            && document.querySelector('.ProseMirror')?.textContent?.includes(expectedMarker)
+          );
+        }, articleId, marker),
+        { timeout: 15_000, interval: 200, timeoutMsg: 'imported Markdown did not hydrate through the real editor' },
+      );
+
+      const metadata = await browser.execute(async (targetId, title, expectedMarker) => {
+        const provides = document.getElementById('app')?.__vue_app__?._context?.provides;
+        const pinia = provides
+          ? Object.getOwnPropertySymbols(provides)
+            .map((symbol) => provides[symbol])
+            .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+          : null;
+        const articleStore = pinia?._s.get('article');
+        const article = articleStore?.articles?.find((candidate) => candidate.id === targetId) ?? null;
+        const database = await new Promise((resolve, reject) => {
+          const request = window.indexedDB.open('InkForgeDB');
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+        });
+        try {
+          const readOne = (storeName, key) => new Promise((resolve, reject) => {
+            const request = database.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+            request.onsuccess = () => resolve(request.result ?? null);
+            request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+          });
+          const readAll = (storeName) => new Promise((resolve, reject) => {
+            const request = database.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+            request.onsuccess = () => resolve(request.result ?? []);
+            request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+          });
+          const [persistedArticle, auditRows] = await Promise.all([
+            readOne('articles', targetId),
+            readAll('auditLogs'),
+          ]);
+          const importAudit = [...auditRows]
+            .filter((row) => row?.action === 'document.import')
+            .sort((left, right) => {
+              const leftTime = new Date(left?.timestamp ?? 0).getTime();
+              const rightTime = new Date(right?.timestamp ?? 0).getTime();
+              return rightTime - leftTime;
+            })[0] ?? null;
+          return {
+            routeId: new window.URLSearchParams(location.search).get('id'),
+            selectedArticleId: articleStore?.selectedArticleId ?? null,
+            title: article?.title ?? null,
+            sourceName: article?.sourceName ?? null,
+            sourceIsFile: article?.sourceUrl?.startsWith('file://') ?? false,
+            rawHasMarker: article?.rawContent?.includes(expectedMarker) ?? false,
+            editorHasMarker: document.querySelector('.ProseMirror')?.textContent?.includes(expectedMarker) ?? false,
+            persistedTitle: persistedArticle?.title ?? null,
+            persistedSourceName: persistedArticle?.sourceName ?? null,
+            persistedSourceIsFile: persistedArticle?.sourceUrl?.startsWith('file://') ?? false,
+            auditOutcome: importAudit?.outcome ?? null,
+            auditPayload: importAudit?.payload ?? null,
+            expectedTitleMatches: article?.title === title,
+          };
+        } finally {
+          database.close();
+        }
+      }, articleId, expectedTitle, marker);
+
+      expect(metadata, 'native Hub import reaches route, stores, IndexedDB, editor, and audit boundaries')
+        .to.deep.include({
+          routeId: articleId,
+          selectedArticleId: articleId,
+          title: expectedTitle,
+          sourceName: '导入 Markdown',
+          sourceIsFile: true,
+          rawHasMarker: true,
+          editorHasMarker: true,
+          persistedTitle: expectedTitle,
+          persistedSourceName: '导入 Markdown',
+          persistedSourceIsFile: true,
+          auditOutcome: 'success',
+          expectedTitleMatches: true,
+        });
+      expect(metadata.auditPayload, 'native file import records truthful audit counts').to.deep.include({
+        source: 'file-picker',
+        success: 1,
+        failed: 0,
+        skippedOversize: 0,
+        errorCount: 0,
+      });
+
+      let persistence = await readVersionPersistence(articleId);
+      expect(persistence.persistedArticleId, 'native import creates one durable content record').to.equal(articleId);
+      expect(persistence.persistedContentCount, 'native import does not create duplicate content rows').to.equal(1);
+      expect(persistence.persistedBodyEncrypted, 'native import persists the Markdown body as encrypted-v2').to.equal(true);
+      expect(persistence.articleBody, 'native import keeps the real Markdown body in the article store').to.include(marker);
+
+      await browser.refresh();
+      await waitForCurrentDraftReady(articleId);
+      persistence = await readVersionPersistence(articleId);
+      expect(persistence.storeBody, 'native import survives full Tauri reload and decryption').to.include(marker);
+      expect(persistence.persistedBodyEncrypted, 'reloaded native import remains encrypted-v2').to.equal(true);
+
+      await openRoute('/', '.hub-page');
+      const beforeOversizeIds = await readArticleIds();
+      await triggerImport(oversizePath);
+      await browser.waitUntil(
+        async () => browser.execute(() => {
+          const panel = document.querySelector('.import-result-panel');
+          const text = panel?.textContent?.replace(/\s+/gu, '') ?? '';
+          return location.pathname === '/' && text.includes('1超限跳过') && text.includes('文件过大');
+        }),
+        { timeout: 20_000, interval: 200, timeoutMsg: 'oversize native import was not rejected visibly' },
+      );
+      expect(await readArticleIds(), 'oversize native import creates no article')
+        .to.deep.equal(beforeOversizeIds);
+    } finally {
+      try {
+        const discoveredIds = await browser.execute((title) => {
+          const provides = document.getElementById('app')?.__vue_app__?._context?.provides;
+          const pinia = provides
+            ? Object.getOwnPropertySymbols(provides)
+              .map((symbol) => provides[symbol])
+              .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+            : null;
+          return (pinia?._s.get('article')?.articles ?? [])
+            .filter((article) => article.title === title)
+            .map((article) => article.id);
+        }, expectedTitle);
+        for (const discoveredId of discoveredIds) createdArticleIds.add(discoveredId);
+      } finally {
+        fs.rmSync(markdownPath, { force: true });
+        fs.rmSync(oversizePath, { force: true });
+      }
+    }
+  });
+
   it('mounts the real Workstation tab bar and preserves pin, route, close, restore, and layout state', async function () {
     this.timeout(120_000);
     await startSmartPunctuationErrorProbe();
@@ -3085,6 +3812,14 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         await createBlankDraftThroughHub();
         closeLastProbe = await readWorkstationTabSessionTruth();
       }
+      const retainedTabId = closeLastProbe.storeActiveTabId ?? closeLastProbe.storeTabIds[0];
+      await openRoute(`/workstation?id=${encodeURIComponent(retainedTabId)}`, '.workstation');
+      await waitForCurrentDraftReady(retainedTabId);
+      closeLastProbe = await readWorkstationTabSessionTruth();
+      for (const extraTabId of closeLastProbe.storeTabIds.filter((id) => id !== retainedTabId)) {
+        await closeWorkstationTabThroughShortcut(extraTabId);
+      }
+      closeLastProbe = await readWorkstationTabSessionTruth();
       expect(closeLastProbe.storeTabIds, 'the isolated close-last probe owns exactly one real tab')
         .to.have.length(1);
       const closeLastArticleId = closeLastProbe.storeActiveTabId;
@@ -4647,6 +5382,915 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       'the reloaded target currentVersionId equals IndexedDB exactly',
     ).to.equal(true);
 
+  });
+
+  it('creates, compares, cancels, restores, and reloads real versions through the visible panel', async function () {
+    this.timeout(120_000);
+    const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const firstLabel = `Panel v1 ${runId}`;
+    const secondLabel = `Panel v2 ${runId}`;
+    const firstMarker = `version-panel-first-${runId}`;
+    const secondMarker = `version-panel-second-${runId}`;
+    const listEnterBehavior = await readListEnterBehavior();
+    const persistedListEnterBehavior = await browser.execute(() => (
+      JSON.parse(window.localStorage.getItem('inkforge-settings') || '{}')?.editor?.listEnterBehavior ?? null
+    ));
+    if (persistedListEnterBehavior !== listEnterBehavior) {
+      await selectListEnterBehavior(
+        listEnterBehavior === 'typora' ? 'Typora 默认' : '逐级减缩',
+        listEnterBehavior,
+      );
+    }
+    const articleId = await createBlankDraft(listEnterBehavior);
+    const staleTargetSetup = await browser.execute(async (title, sourceUrl) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      if (!articleStore) return { articleId: null, failure: 'article store unavailable' };
+      try {
+        const article = await articleStore.addArticle({
+          title,
+          sourceUrl,
+          sourceName: 'Native version failure proof',
+          rawContent: 'Real stale-version target',
+        });
+        return { articleId: article.id, failure: null };
+      } catch (error) {
+        return {
+          articleId: null,
+          failure: error instanceof Error ? error.message : String(error),
+        };
+      }
+    }, `Stale version target ${runId}`, `manual://version-stale/${runId}`);
+    if (staleTargetSetup.articleId) createdArticleIds.add(staleTargetSetup.articleId);
+    expect(staleTargetSetup.failure, 'real stale-version target is created through the production store')
+      .to.equal(null);
+    expect(staleTargetSetup.articleId, 'real stale-version target exposes a persistent id')
+      .to.be.a('string').and.not.equal('');
+
+    const editor = await browser.$('.ProseMirror');
+
+    await focusEditorForKeyboardInput(editor, true);
+    await browser.keys(firstMarker);
+    await pressConfiguredShortcut('save', 'Ctrl+S');
+    await browser.waitUntil(
+      async () => (await readVersionPersistence(articleId)).storeBody.includes(firstMarker),
+      { timeout: 10_000, interval: 100, timeoutMsg: 'the first real editor state did not save before versioning' },
+    );
+    await openRoute(
+      `/workstation?id=${encodeURIComponent(articleId)}&manager=versions`,
+      '.version-panel',
+    );
+
+    const saveVisibleVersion = async (label) => {
+      const labelInput = await browser.$('.version-panel .label-input');
+      await labelInput.setValue(label);
+      await (await browser.$('.version-panel .save-btn')).click();
+      await browser.waitUntil(
+        async () => (await readVersionPersistence(articleId)).storeVersions.some(
+          (version) => version.label === label,
+        ),
+        { timeout: 10_000, interval: 100, timeoutMsg: `visible version ${label} was not persisted` },
+      );
+    };
+
+    const versionButtonByLabel = async (label) => {
+      const buttons = await browser.$$('button.version-item');
+      for (const button of buttons) {
+        if ((await button.getText()).includes(label)) return button;
+      }
+      throw new Error(`Visible version button not found: ${label}`);
+    };
+
+    await saveVisibleVersion(firstLabel);
+    await focusEditorForKeyboardInput(await browser.$('.ProseMirror'));
+    await pressConfiguredShortcut('selectAll', 'Ctrl+A');
+    await browser.keys(`${firstMarker} ${secondMarker}`);
+    await pressConfiguredShortcut('save', 'Ctrl+S');
+    await browser.waitUntil(
+      async () => (await readVersionPersistence(articleId)).storeBody.includes(secondMarker),
+      { timeout: 10_000, interval: 100, timeoutMsg: 'the second real editor state did not save before versioning' },
+    );
+    await saveVisibleVersion(secondLabel);
+
+    const created = await readVersionPersistence(articleId);
+    const firstVersion = created.storeVersions.find((version) => version.label === firstLabel);
+    const secondVersion = created.storeVersions.find((version) => version.label === secondLabel);
+    expect(firstVersion?.body, 'the first visible version captures the first real editor state')
+      .to.include(firstMarker).and.not.include(secondMarker);
+    expect(secondVersion?.body, 'the second visible version captures the changed editor state')
+      .to.include(firstMarker).and.include(secondMarker);
+    expect(
+      created.persistedVersions.find((version) => version.id === firstVersion?.id),
+      'the first visible version reaches IndexedDB with its exact id and payload',
+    ).to.deep.equal(firstVersion);
+    expect(
+      created.persistedVersions.find((version) => version.id === secondVersion?.id),
+      'the second visible version reaches IndexedDB with its exact id and payload',
+    ).to.deep.equal(secondVersion);
+
+    await (await browser.$('.version-panel .diff-toggle-btn')).click();
+    await (await versionButtonByLabel(firstLabel)).click();
+    await (await versionButtonByLabel(secondLabel)).click();
+    const compareButton = await browser.$('.version-panel .diff-execute-btn');
+    expect(await compareButton.isEnabled(), 'two visible version selections enable comparison').to.equal(true);
+    await compareButton.click();
+
+    const diffModal = await browser.$('.diff-modal[role="dialog"]');
+    await diffModal.waitForDisplayed({ timeout: 5_000 });
+    const diffText = await diffModal.getText();
+    expect(diffText, 'the semantic diff names both persisted versions').to.include(firstLabel).and.include(secondLabel);
+    expect(diffText, 'the semantic diff exposes the changed real marker').to.include(secondMarker);
+    await (await browser.$('.diff-modal .close-btn')).click();
+    await diffModal.waitForDisplayed({ reverse: true, timeout: 5_000 });
+
+    await (await browser.$('.version-panel .diff-toggle-btn')).click();
+    const firstVersionButton = await versionButtonByLabel(firstLabel);
+    expect(await firstVersionButton.getTagName(), 'version rows use native keyboard-operable controls').to.equal('button');
+    expect(await firstVersionButton.getAttribute('type')).to.equal('button');
+    await firstVersionButton.click();
+    const confirmOverlay = await browser.$('.confirm-overlay');
+    await confirmOverlay.waitForDisplayed({ timeout: 5_000 });
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-version-switch-action')),
+      'the destructive version switch initially focuses its safe cancel action',
+    ).to.equal('cancel');
+    await browser.keys(['Shift', 'Tab']);
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-version-switch-action')),
+      'Shift+Tab wraps to the final version-switch action',
+    ).to.equal('confirm');
+    await browser.keys('Tab');
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-version-switch-action')),
+      'Tab wraps back to the first version-switch action',
+    ).to.equal('cancel');
+    await browser.keys('Escape');
+    await confirmOverlay.waitForDisplayed({ reverse: true, timeout: 5_000 });
+    expect(
+      await browser.execute(() => document.activeElement?.textContent?.trim() ?? ''),
+      'Escape restores focus to the invoking visible version row',
+    ).to.include(firstLabel);
+    expect((await readVersionPersistence(articleId)).storeCurrentVersionId, 'cancel preserves the newer version')
+      .to.equal(secondVersion?.id);
+
+    await firstVersionButton.click();
+    let failureOverlay = await browser.$('.confirm-overlay');
+    await failureOverlay.waitForDisplayed({ timeout: 5_000 });
+    const staleSelectionFailure = await browser.execute((targetArticleId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      if (!articleStore) return 'article store unavailable';
+      articleStore.selectArticle(targetArticleId);
+      return null;
+    }, staleTargetSetup.articleId);
+    expect(staleSelectionFailure, 'stale version probe selects another real production article').to.equal(null);
+    await browser.waitUntil(
+      async () => browser.execute((targetArticleId) => {
+        const root = document.getElementById('app');
+        const provides = root?.__vue_app__?._context?.provides;
+        const pinia = provides
+          ? Object.getOwnPropertySymbols(provides)
+            .map((symbol) => provides[symbol])
+            .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+          : null;
+        const editorStore = pinia?._s.get('editor');
+        return editorStore?.currentContent?.articleId === targetArticleId
+          && editorStore?.status === 'ready';
+      }, staleTargetSetup.articleId),
+      { timeout: 10_000, interval: 100, timeoutMsg: 'real stale-version target did not become editor authority' },
+    );
+
+    await (await failureOverlay.$('.confirm-ok-btn')).click();
+    const switchError = await failureOverlay.$('[data-version-switch-error]');
+    await switchError.waitForDisplayed({ timeout: 5_000 });
+    expect(await switchError.getText(), 'stale version failure is visible and actionable')
+      .to.include('目标版本已不存在');
+    expect(await failureOverlay.isDisplayed(), 'stale version failure keeps the destructive dialog open')
+      .to.equal(true);
+    expect(
+      await (await failureOverlay.$('.confirm-dialog')).getAttribute('aria-describedby'),
+      'dynamic version failure joins the dialog description',
+    ).to.include('version-switch-error');
+    await (await failureOverlay.$('[data-version-switch-action="cancel"]')).click();
+    await failureOverlay.waitForDisplayed({ reverse: true, timeout: 5_000 });
+
+    const originalSelectionFailure = await browser.execute((targetArticleId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      if (!articleStore) return 'article store unavailable';
+      articleStore.selectArticle(targetArticleId);
+      return null;
+    }, articleId);
+    expect(originalSelectionFailure, 'version success path restores the original production article').to.equal(null);
+    await waitForCurrentDraftReady(articleId);
+
+    const restoredFirstVersionButton = await versionButtonByLabel(firstLabel);
+    await restoredFirstVersionButton.click();
+    failureOverlay = await browser.$('.confirm-overlay');
+    await failureOverlay.waitForDisplayed({ timeout: 5_000 });
+    await (await failureOverlay.$('.confirm-ok-btn')).click();
+    await browser.waitUntil(
+      async () => (await readVersionPersistence(articleId)).storeCurrentVersionId === firstVersion?.id,
+      { timeout: 10_000, interval: 100, timeoutMsg: 'confirmed visible version restore did not persist' },
+    );
+
+    const switchedText = await (await browser.$('.ProseMirror')).getText();
+    expect(switchedText, 'confirmed restore renders the selected version body').to.include(firstMarker);
+    expect(switchedText, 'confirmed restore removes content introduced only by the newer version')
+      .not.to.include(secondMarker);
+
+    await browser.refresh();
+    await waitForMainWindow();
+    await waitForCurrentDraftReady(articleId);
+    const reloaded = await readVersionPersistence(articleId);
+    expect(reloaded.storeCurrentVersionId, 'the restored currentVersionId survives a real app reload')
+      .to.equal(firstVersion?.id);
+    expect(reloaded.persistedCurrentVersionId, 'IndexedDB retains the restored currentVersionId')
+      .to.equal(firstVersion?.id);
+    expect(reloaded.persistedVersions, 'reload preserves the exact version history').to.deep.equal(reloaded.storeVersions);
+    expect(reloaded.storeBody, 'reload preserves the restored body').to.include(firstMarker).and.not.include(secondMarker);
+    expect(reloaded.persistedBodyEncrypted, 'version restore retains encrypted-v2 storage').to.equal(true);
+  });
+
+  it('replaces, formats, tables, serializes, previews, and reloads real editor content', async function () {
+    this.timeout(150_000);
+    const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const needle = `editor-needle-${runId}`;
+    const replacement = `editor-replaced-${runId}`;
+    const linkUrl = `https://example.test/inkforge/${runId}`;
+    const articleId = await createBlankDraftThroughHub();
+    const editor = await browser.$('.ProseMirror');
+
+    await startSmartPunctuationErrorProbe();
+    let probeStopped = false;
+    try {
+      await focusEditorForKeyboardInput(editor, true);
+      for (const character of `${needle} middle ${needle}`) await browser.keys(character);
+
+      const replaceShortcut = await pressConfiguredShortcut('replace', 'Ctrl+H');
+      const findPanel = await browser.$('.find-replace-panel');
+      await findPanel.waitForDisplayed({ timeout: 5_000 });
+      expect(await findPanel.getText(), `${replaceShortcut} opens the visible replace surface`)
+        .to.include('Find and replace').and.include('Replace all');
+      const findInput = await findPanel.$('input[placeholder="Find text"]');
+      const replacementInput = await findPanel.$('input[placeholder="Replace with"]');
+      await findInput.setValue(needle);
+      const matchCount = await findPanel.$('.find-replace-count');
+      await browser.waitUntil(
+        async () => (await matchCount.getText()).endsWith('/2'),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Find did not resolve both real editor matches' },
+      );
+      await replacementInput.setValue(replacement);
+      await browser.waitUntil(
+        async () => (await replacementInput.getValue()) === replacement,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Replacement field did not retain the complete real value' },
+      );
+      const replaceAll = await findPanel.$('.find-replace-btn.primary');
+      await replaceAll.waitForEnabled({ timeout: 5_000 });
+      await replaceAll.click();
+      await browser.waitUntil(
+        async () => browser.execute((oldText, newText) => {
+          const text = document.querySelector('.ProseMirror')?.textContent ?? '';
+          return !text.includes(oldText) && text.split(newText).length - 1 === 2;
+        }, needle, replacement),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Replace all did not mutate both real editor matches' },
+      );
+      await (await findPanel.$('button[aria-label="Close find replace"]')).click();
+      await findPanel.waitForDisplayed({ reverse: true, timeout: 5_000 });
+
+      await focusEditorForKeyboardInput(editor);
+      await pressConfiguredShortcut('selectAll', 'Ctrl+A');
+      let floatingToolbar = await browser.$('.floating-toolbar');
+      await floatingToolbar.waitForDisplayed({ timeout: 5_000 });
+      const boldButton = await floatingToolbar.$('button[title="加粗 (Ctrl+B)"]');
+      await boldButton.waitForClickable({ timeout: 5_000 });
+      await boldButton.click();
+      expect(await browser.execute(() => document.querySelector('.ProseMirror strong')?.textContent ?? null),
+        'the visible bold control formats the selected real text').to.include(replacement);
+
+      await focusEditorForKeyboardInput(editor);
+      await pressConfiguredShortcut('selectAll', 'Ctrl+A');
+      floatingToolbar = await browser.$('.floating-toolbar');
+      await floatingToolbar.waitForDisplayed({ timeout: 5_000 });
+      await (await floatingToolbar.$('button[title="链接 (Ctrl+K)"]')).click();
+      let linkInput = await browser.$('.ft-link-field');
+      await linkInput.waitForDisplayed({ timeout: 5_000 });
+      await linkInput.setValue('javascript:alert(1)');
+      await (await browser.$('.ft-link-confirm')).click();
+      expect(await browser.execute(() => document.querySelector('.ProseMirror a') === null),
+        'the visible link control rejects a dangerous protocol').to.equal(true);
+      const linkError = await browser.$('.ft-link-error');
+      await linkError.waitForDisplayed({ timeout: 5_000 });
+      expect(await linkError.getText(), 'dangerous protocol rejection is visible and actionable')
+        .to.include('安全');
+      linkInput = await browser.$('.ft-link-field');
+      await linkInput.waitForDisplayed({ timeout: 5_000 });
+      expect(await linkInput.getAttribute('aria-invalid'), 'the rejected URL is exposed to assistive technology')
+        .to.equal('true');
+      await linkInput.setValue(linkUrl);
+      await linkError.waitForDisplayed({ reverse: true, timeout: 5_000 });
+      await (await browser.$('.ft-link-confirm')).click();
+      await browser.waitUntil(
+        async () => browser.execute((href) => document.querySelector('.ProseMirror a')?.getAttribute('href') === href, linkUrl),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'the visible link control did not apply the safe URL' },
+      );
+
+      await browser.waitUntil(
+        async () => browser.execute(() => document.activeElement?.classList.contains('ProseMirror') === true),
+        { timeout: 5_000, interval: 50, timeoutMsg: 'link confirmation did not restore real editor focus' },
+      );
+      await focusEditorForKeyboardInput(editor, true);
+      await browser.keys('Enter');
+      const tableShortcut = await pressConfiguredShortcut('table', 'Ctrl+Alt+Shift+T');
+      const table = await browser.$('.ProseMirror table');
+      await table.waitForDisplayed({ timeout: 5_000 });
+      expect(await table.$$('tr'), `${tableShortcut} inserts the configured 3-row table`).to.have.length(3);
+      const tableToolbar = await browser.$('.table-floating-toolbar');
+      await tableToolbar.waitForDisplayed({ timeout: 5_000 });
+      const addRowBelow = await tableToolbar.$('button[title="Add row below"]');
+      await addRowBelow.waitForClickable({ timeout: 5_000 });
+      await addRowBelow.click();
+      await browser.waitUntil(
+        async () => (await browser.$$('.ProseMirror table tr')).length === 4,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'table toolbar did not add a real fourth row' },
+      );
+
+      await browser.keys(['Control', 's']);
+      await browser.waitUntil(
+        async () => {
+          const state = await readVersionPersistence(articleId);
+          return state.storeBody.includes(replacement)
+            && state.articleBody.includes(replacement)
+            && state.persistedBodyEncrypted;
+        },
+        { timeout: 20_000, interval: 100, timeoutMsg: 'formatted table document did not reach encrypted persistence' },
+      );
+
+      const sourceShortcut = await pressConfiguredShortcut('setSourceMode', 'Ctrl+Alt+S');
+      const sourceEditor = await browser.$('.source-mode-layout .cm-content');
+      await sourceEditor.waitForDisplayed({ timeout: 5_000 });
+      const sourceText = await sourceEditor.getText();
+      expect(sourceText, `${sourceShortcut} projects the real serialized document`).to.include(replacement).and.include(linkUrl);
+
+      const previewShortcut = await pressConfiguredShortcut('setPreviewMode', 'Ctrl+Alt+P');
+      const preview = await browser.$('.preview-mode-shell');
+      await preview.waitForDisplayed({ timeout: 5_000 });
+      const previewState = await browser.execute((expectedText) => {
+        const shell = document.querySelector('.preview-mode-shell');
+        return {
+          markerCount: (shell?.textContent ?? '').split(expectedText).length - 1,
+          href: shell?.querySelector('a')?.getAttribute('href') ?? null,
+          strongText: shell?.querySelector('strong')?.textContent ?? null,
+          tableRows: shell?.querySelectorAll('table tr').length ?? 0,
+        };
+      }, replacement);
+      expect(previewState, `${previewShortcut} renders the same safe serialized document read-only`).to.deep.equal({
+        markerCount: 2,
+        href: linkUrl,
+        strongText: `${replacement} middle ${replacement}`,
+        tableRows: 4,
+      });
+
+      await pressConfiguredShortcut('setTyporaMode', 'Ctrl+Alt+T');
+      await browser.waitUntil(
+        async () => browser.execute(() => Boolean(document.querySelector('.editor-mode-shell.mode-typora .ProseMirror'))),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Typora mode did not recover after serialized preview proof' },
+      );
+      await browser.refresh();
+      await waitForMainWindow();
+      await waitForCurrentDraftReady(articleId);
+      const reloadedState = await browser.execute((expectedText) => {
+        const surface = document.querySelector('.ProseMirror');
+        return {
+          markerCount: (surface?.textContent ?? '').split(expectedText).length - 1,
+          href: surface?.querySelector('a')?.getAttribute('href') ?? null,
+          strongText: surface?.querySelector('strong')?.textContent ?? null,
+          tableRows: surface?.querySelectorAll('table tr').length ?? 0,
+        };
+      }, replacement);
+      expect(reloadedState, 'reload reconstructs inline marks, safe link, and table rows from encrypted storage')
+        .to.deep.equal({
+          markerCount: 2,
+          href: linkUrl,
+          strongText: `${replacement} middle ${replacement}`,
+          tableRows: 4,
+        });
+      expect((await readVersionPersistence(articleId)).persistedBodyEncrypted, 'reloaded editor stays encrypted-v2')
+        .to.equal(true);
+
+      const errors = await stopSmartPunctuationErrorProbe();
+      probeStopped = true;
+      expect(errors, 'fresh toolbar, keymap, serializer, and mode-switch runtime errors').to.deep.equal([]);
+    } finally {
+      if (!probeStopped) await stopSmartPunctuationErrorProbe();
+    }
+  });
+
+  it('coalesces concurrent real delete and restore mutations without duplicate audits', async function () {
+    this.timeout(120_000);
+    const articleId = await createBlankDraftThroughHub();
+    const categorySetup = await browser.execute(async (targetArticleId, categoryName) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      const categoryStore = pinia?._s.get('category');
+      if (!articleStore || !categoryStore) {
+        return { categoryId: null, failure: 'required production stores unavailable' };
+      }
+
+      let categoryId = null;
+      try {
+        const category = await categoryStore.addCategory(categoryName);
+        categoryId = category.id;
+        await articleStore.moveToCategory(targetArticleId, category.id);
+        return { categoryId, failure: null };
+      } catch (error) {
+        return {
+          categoryId,
+          failure: error instanceof Error ? error.message : String(error),
+        };
+      }
+    }, articleId, `Concurrent lifecycle ${Date.now().toString(36)}`);
+
+    if (categorySetup.categoryId) createdCategoryIds.add(categorySetup.categoryId);
+    expect(categorySetup.failure, 'real category setup commits through production stores').to.equal(null);
+    expect(categorySetup.categoryId, 'real category setup returns a persistent id').to.be.a('string').and.not.equal('');
+
+    await openRoute('/drafts', '.drafts-view');
+    const openTrash = await browser.$('[data-drafts-action="open-trash"]');
+    await openTrash.click();
+    const trashPanel = await browser.$('.trash-panel[role="dialog"]');
+    await trashPanel.waitForDisplayed({ timeout: 10_000 });
+    await (await trashPanel.$('[aria-label="关闭回收站"]')).click();
+    await trashPanel.waitForExist({ reverse: true, timeout: 5_000 });
+
+    const result = await browser.execute(async (targetArticleId, targetCategoryId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      const trashStore = pinia?._s.get('trash');
+      const categoryStore = pinia?._s.get('category');
+      if (!articleStore || !trashStore || !categoryStore) {
+        return { failure: 'required production stores unavailable' };
+      }
+
+      const database = await new Promise((resolve, reject) => {
+        const request = window.indexedDB.open('InkForgeDB');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+      });
+      const readArticle = () => new Promise((resolve, reject) => {
+        const request = database.transaction('articles', 'readonly').objectStore('articles').get(targetArticleId);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error ?? new Error('article read failed'));
+      });
+      const readCategory = () => new Promise((resolve, reject) => {
+        const request = database.transaction('categories', 'readonly').objectStore('categories').get(targetCategoryId);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error ?? new Error('category read failed'));
+      });
+      const readAudits = () => new Promise((resolve, reject) => {
+        const request = database.transaction('auditLogs', 'readonly').objectStore('auditLogs').getAll();
+        request.onsuccess = () => resolve(request.result ?? []);
+        request.onerror = () => reject(request.error ?? new Error('audit log read failed'));
+      });
+      const readContentCount = () => new Promise((resolve, reject) => {
+        const request = database
+          .transaction('contents', 'readonly')
+          .objectStore('contents')
+          .index('articleId')
+          .count(targetArticleId);
+        request.onsuccess = () => resolve(request.result ?? 0);
+        request.onerror = () => reject(request.error ?? new Error('content count failed'));
+      });
+      const countAudits = (rows, action, source) => rows.filter((entry) => (
+        (entry.docId === targetArticleId || entry.resourceId === targetArticleId)
+        && entry.action === action
+        && entry.source === source
+      )).length;
+
+      try {
+        const before = await readAudits();
+        const beforeCategory = await readCategory();
+        const beforeLiveCategory = categoryStore.categories
+          .find((category) => category.id === targetCategoryId);
+
+        const deleteResults = await Promise.all([
+          articleStore.deleteArticle(targetArticleId),
+          articleStore.deleteArticle(targetArticleId),
+        ]);
+        const afterDelete = await readAudits();
+        const trashedArticle = await readArticle();
+        const afterDeleteCategory = await readCategory();
+        const afterDeleteLiveCategory = categoryStore.categories
+          .find((category) => category.id === targetCategoryId);
+
+        const firstRestore = trashStore.restore(targetArticleId);
+        const secondRestore = trashStore.restore(targetArticleId);
+        const restoredArticles = await Promise.all([firstRestore, secondRestore]);
+        await articleStore.loadArticles();
+
+        const afterRestore = await readAudits();
+        const restoredArticle = await readArticle();
+        const afterRestoreCategory = await readCategory();
+        const afterRestoreLiveCategory = categoryStore.categories
+          .find((category) => category.id === targetCategoryId);
+        return {
+          failure: null,
+          deleteResults,
+          deleteAuditDelta: countAudits(afterDelete, 'document.delete', 'useArticleStore')
+            - countAudits(before, 'document.delete', 'useArticleStore'),
+          restoredIds: restoredArticles.map((article) => article.id),
+          restoreAuditDelta: countAudits(afterRestore, 'document.restore', 'useTrashStore.restore')
+            - countAudits(afterDelete, 'document.restore', 'useTrashStore.restore'),
+          trashedStatus: trashedArticle?.status ?? null,
+          restoredStatus: restoredArticle?.status ?? null,
+          liveRestoredStatus: articleStore.articles
+            .find((article) => article.id === targetArticleId)?.status ?? null,
+          categoryCounts: {
+            beforePersisted: beforeCategory?.articleCount ?? null,
+            beforeLive: beforeLiveCategory?.articleCount ?? null,
+            afterDeletePersisted: afterDeleteCategory?.articleCount ?? null,
+            afterDeleteLive: afterDeleteLiveCategory?.articleCount ?? null,
+            afterRestorePersisted: afterRestoreCategory?.articleCount ?? null,
+            afterRestoreLive: afterRestoreLiveCategory?.articleCount ?? null,
+          },
+          contentCount: await readContentCount(),
+        };
+      } catch (error) {
+        return { failure: error instanceof Error ? error.message : String(error) };
+      } finally {
+        database.close();
+      }
+    }, articleId, categorySetup.categoryId);
+
+    expect(result.failure, 'concurrent production mutation probe completes without a repository error').to.equal(null);
+    expect(result.deleteResults, 'duplicate soft-delete callers observe the same committed outcome')
+      .to.deep.equal([null, null]);
+    expect(result.deleteAuditDelta, 'duplicate soft-delete callers create one real audit side effect').to.equal(1);
+    expect(result.trashedStatus, 'the single soft-delete commit reaches IndexedDB').to.equal('trashed');
+    expect(result.restoredIds, 'duplicate restore callers resolve the same real article').to.deep.equal([articleId, articleId]);
+    expect(result.restoreAuditDelta, 'duplicate restore callers create one real audit side effect').to.equal(1);
+    expect(result.restoredStatus, 'the single restore commit reaches IndexedDB').to.equal('draft');
+    expect(result.liveRestoredStatus, 'the restored article is reconciled into the live article store').to.equal('draft');
+    expect(result.categoryCounts, 'the real category count follows the same committed delete/restore boundary')
+      .to.deep.equal({
+        beforePersisted: 1,
+        beforeLive: 1,
+        afterDeletePersisted: 0,
+        afterDeleteLive: 0,
+        afterRestorePersisted: 1,
+        afterRestoreLive: 1,
+      });
+    expect(result.contentCount, 'coalesced delete and restore preserve the real encrypted content').to.be.greaterThan(0);
+  });
+
+  it('moves, restores, and permanently purges a real draft through the visible trash lifecycle', async function () {
+    this.timeout(180_000);
+    const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const marker = `trash-lifecycle-${runId}`;
+    const failureArticleId = await createBlankDraftThroughHub();
+    const articleId = await createBlankDraftThroughHub();
+
+    const readLifecycle = async () => browser.execute(async (targetArticleId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      const trashStore = pinia?._s.get('trash');
+      const database = await new Promise((resolve, reject) => {
+        const request = window.indexedDB.open('InkForgeDB');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error ?? new Error('InkForgeDB open failed'));
+      });
+      const readRecord = (storeName, key) => new Promise((resolve, reject) => {
+        const request = database.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+      });
+      const readAll = (storeName) => new Promise((resolve, reject) => {
+        const request = database.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+        request.onsuccess = () => resolve(request.result ?? []);
+        request.onerror = () => reject(request.error ?? new Error(`${storeName} read failed`));
+      });
+      const readContents = () => new Promise((resolve, reject) => {
+        const request = database
+          .transaction('contents', 'readonly')
+          .objectStore('contents')
+          .index('articleId')
+          .getAll(targetArticleId);
+        request.onsuccess = () => resolve(request.result ?? []);
+        request.onerror = () => reject(request.error ?? new Error('contents read failed'));
+      });
+
+      try {
+        const [persistedArticle, persistedContents, auditRows] = await Promise.all([
+          readRecord('articles', targetArticleId),
+          readContents(),
+          readAll('auditLogs'),
+        ]);
+        const compactArticle = (article) => article ? {
+          id: article.id,
+          status: article.status,
+          deletedAt: article.deletedAt ? String(article.deletedAt) : null,
+          expiresAt: article.expiresAt ? String(article.expiresAt) : null,
+        } : null;
+        return {
+          liveArticle: compactArticle(
+            articleStore?.articles?.find((article) => article.id === targetArticleId) ?? null,
+          ),
+          trashArticle: compactArticle(
+            trashStore?.items?.find((article) => article.id === targetArticleId) ?? null,
+          ),
+          persistedArticle: compactArticle(persistedArticle),
+          persistedContentCount: persistedContents.length,
+          audits: auditRows
+            .filter((entry) => entry.docId === targetArticleId || entry.resourceId === targetArticleId)
+            .map((entry) => ({
+              action: entry.action,
+              severity: entry.severity,
+              outcome: entry.outcome,
+              source: entry.source ?? null,
+              payload: entry.payload ?? {},
+            })),
+        };
+      } finally {
+        database.close();
+      }
+    }, articleId);
+
+    const deleteThroughVisibleFileManager = async () => {
+      await openRoute(
+        `/workstation?id=${encodeURIComponent(articleId)}&manager=files`,
+        '.fm-root',
+      );
+      await openArticleContextMenuForTrash(articleId);
+      await (await browser.$('[data-article-action="delete"]')).click();
+
+      let confirmation = await browser.$('[data-category-delete-confirm]');
+      await confirmation.waitForDisplayed({ timeout: 5_000 });
+      expect(await (await confirmation.$('.fm-confirm-modal')).getAttribute('role'), 'soft delete uses a modal destructive alert contract')
+        .to.equal('alertdialog');
+      expect(await (await confirmation.$('.fm-confirm-title')).getText(), 'soft delete is named as a trash move')
+        .to.equal('移入回收站');
+      const confirmationText = await (await confirmation.$('.fm-confirm-text')).getText();
+      expect(confirmationText, 'soft-delete copy exposes the real recovery path')
+        .to.include('回收站').and.include('恢复').and.not.include('不可撤销');
+      await browser.waitUntil(
+        async () => (
+          await browser.execute(() => document.activeElement?.getAttribute('data-file-delete-action'))
+        ) === 'cancel',
+        { timeout: 5_000, interval: 100, timeoutMsg: 'file delete dialog did not focus its safe cancel action' },
+      );
+      await browser.keys(['Shift', 'Tab']);
+      expect(
+        await browser.execute(() => document.activeElement?.getAttribute('data-file-delete-action')),
+        'Shift+Tab wraps to the final file-delete action',
+      ).to.equal('confirm');
+      await browser.keys('Tab');
+      expect(
+        await browser.execute(() => document.activeElement?.getAttribute('data-file-delete-action')),
+        'Tab wraps back to the safe file-delete action',
+      ).to.equal('cancel');
+      await browser.keys('Escape');
+      await confirmation.waitForExist({ reverse: true, timeout: 5_000 });
+      expect(
+        await browser.execute(() => document.activeElement?.getAttribute('data-file-article-id')),
+        'cancelling the file-delete dialog restores focus to the invoking article row',
+      ).to.equal(articleId);
+
+      await openArticleContextMenuForTrash(articleId);
+      await (await browser.$('[data-article-action="delete"]')).click();
+      confirmation = await browser.$('[data-category-delete-confirm]');
+      await confirmation.waitForDisplayed({ timeout: 5_000 });
+      await (await confirmation.$('[data-file-delete-submit]')).click();
+
+      await browser.waitUntil(
+        async () => {
+          const state = await readLifecycle();
+          return state.liveArticle === null
+            && state.persistedArticle?.status === 'trashed'
+            && state.persistedContentCount > 0
+            && state.audits.some((entry) => (
+              entry.action === 'document.delete'
+              && entry.source === 'useArticleStore'
+              && entry.payload?.softDelete === true
+            ));
+        },
+        { timeout: 15_000, interval: 150, timeoutMsg: 'visible soft delete did not reach IndexedDB and audit log' },
+      );
+    };
+
+    await openRoute('/drafts', '.drafts-view');
+    const initializeTrash = await browser.$('[data-drafts-action="open-trash"]');
+    await initializeTrash.click();
+    const initializedTrashPanel = await browser.$('.trash-panel[role="dialog"]');
+    await initializedTrashPanel.waitForDisplayed({ timeout: 10_000 });
+    await (await initializedTrashPanel.$('[aria-label="关闭回收站"]')).click();
+    await initializedTrashPanel.waitForExist({ reverse: true, timeout: 5_000 });
+
+    await openRoute(
+      `/workstation?id=${encodeURIComponent(failureArticleId)}&manager=files`,
+      '.fm-root',
+    );
+    await openArticleContextMenuForTrash(failureArticleId);
+    await (await browser.$('[data-article-action="delete"]')).click();
+    const failureConfirmation = await browser.$('[data-category-delete-confirm]');
+    await failureConfirmation.waitForDisplayed({ timeout: 5_000 });
+
+    const staleDeleteResult = await browser.execute(async (targetArticleId) => {
+      const root = document.getElementById('app');
+      const provides = root?.__vue_app__?._context?.provides;
+      const pinia = provides
+        ? Object.getOwnPropertySymbols(provides)
+          .map((symbol) => provides[symbol])
+          .find((candidate) => candidate?._s && typeof candidate._s.get === 'function')
+        : null;
+      const articleStore = pinia?._s.get('article');
+      const trashStore = pinia?._s.get('trash');
+      if (!articleStore || !trashStore) {
+        return { failure: 'required production stores unavailable', contentDeleted: null };
+      }
+      try {
+        await articleStore.deleteArticle(targetArticleId);
+        const purgeResult = await trashStore.purge(targetArticleId);
+        return { failure: null, contentDeleted: purgeResult.contentDeleted };
+      } catch (error) {
+        return {
+          failure: error instanceof Error ? error.message : String(error),
+          contentDeleted: null,
+        };
+      }
+    }, failureArticleId);
+    expect(staleDeleteResult.failure, 'real stale-delete setup commits through delete and purge stores')
+      .to.equal(null);
+    expect(staleDeleteResult.contentDeleted, 'real stale-delete setup removes persisted content').to.be.greaterThan(0);
+    createdArticleIds.delete(failureArticleId);
+
+    await (await failureConfirmation.$('[data-file-delete-submit]')).click();
+    const visibleDeleteError = await failureConfirmation.$('[data-file-delete-error]');
+    await visibleDeleteError.waitForDisplayed({ timeout: 5_000 });
+    expect((await visibleDeleteError.getText()).trim(), 'stale FileManager delete exposes a visible error')
+      .to.not.equal('');
+    expect(await failureConfirmation.isDisplayed(), 'failed FileManager delete keeps the alert dialog open')
+      .to.equal(true);
+    expect(
+      await (await failureConfirmation.$('.fm-confirm-modal')).getAttribute('aria-describedby'),
+      'dynamic FileManager failure joins the destructive dialog description',
+    ).to.include('file-manager-delete-error');
+    await (await failureConfirmation.$('[data-file-delete-action="cancel"]')).click();
+    await failureConfirmation.waitForExist({ reverse: true, timeout: 5_000 });
+    expect(
+      await browser.execute(() => document.activeElement?.classList.contains('fm-new-btn') === true),
+      'a vanished invoking row restores focus to the FileManager fallback action',
+    ).to.equal(true);
+
+    await openRoute(`/workstation?id=${encodeURIComponent(articleId)}`, '.ProseMirror');
+    await waitForCurrentDraftReady(articleId);
+    await focusEditorForKeyboardInput(await browser.$('.ProseMirror'), true);
+    for (const character of marker) await browser.keys(character);
+    await browser.keys(['Control', 's']);
+    await browser.waitUntil(
+      async () => (await readVersionPersistence(articleId)).storeBody.includes(marker),
+      { timeout: 10_000, interval: 100, timeoutMsg: 'trash lifecycle source draft did not save' },
+    );
+    expect((await readVersionPersistence(articleId)).persistedBodyEncrypted, 'source body uses encrypted-v2 storage')
+      .to.equal(true);
+
+    await deleteThroughVisibleFileManager();
+    const deleted = await readLifecycle();
+    expect(deleted.persistedArticle?.status, 'soft delete preserves a real trashed article row').to.equal('trashed');
+    expect(deleted.persistedContentCount, 'soft delete preserves the real content for recovery').to.be.greaterThan(0);
+
+    await openRoute('/drafts', '.drafts-view');
+    const openTrash = await browser.$('[data-drafts-action="open-trash"]');
+    expect(await openTrash.getTagName(), 'the trash entry is a native keyboard-operable control').to.equal('button');
+    await openTrash.click();
+    let trashPanel = await browser.$('.trash-panel[role="dialog"]');
+    await trashPanel.waitForDisplayed({ timeout: 10_000 });
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('aria-label')),
+      'opening the trash panel moves focus through the real visible trigger',
+    ).to.equal('关闭回收站');
+    await (await trashPanel.$('[aria-label="关闭回收站"]')).click();
+    await trashPanel.waitForExist({ reverse: true, timeout: 5_000 });
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-drafts-action')),
+      'closing the trash panel restores focus to its visible trigger',
+    ).to.equal('open-trash');
+    await openTrash.click();
+    trashPanel = await browser.$('.trash-panel[role="dialog"]');
+    await trashPanel.waitForDisplayed({ timeout: 10_000 });
+    const trashItem = await browser.$(`[data-trash-article-id="${articleId}"]`);
+    await trashItem.waitForDisplayed({ timeout: 10_000 });
+    await (await trashItem.$('[data-trash-action="restore"]')).click();
+
+    await browser.waitUntil(
+      async () => {
+        const state = await readLifecycle();
+        return state.liveArticle?.status === 'draft'
+          && state.persistedArticle?.status === 'draft'
+          && state.persistedContentCount > 0
+          && state.audits.some((entry) => (
+            entry.action === 'document.restore'
+            && entry.source === 'useTrashStore.restore'
+          ));
+      },
+      { timeout: 15_000, interval: 150, timeoutMsg: 'visible restore did not recover the draft and audit it' },
+    );
+    await browser.refresh();
+    await waitForMainWindow();
+    await openRoute(`/workstation?id=${encodeURIComponent(articleId)}`, '.ProseMirror');
+    await waitForCurrentDraftReady(articleId);
+    expect(await (await browser.$('.ProseMirror')).getText(), 'restored content survives a real app reload').to.include(marker);
+    expect((await readVersionPersistence(articleId)).persistedBodyEncrypted, 'restored content remains encrypted-v2')
+      .to.equal(true);
+
+    await deleteThroughVisibleFileManager();
+    await openRoute('/drafts', '.drafts-view');
+    await (await browser.$('[data-drafts-action="open-trash"]')).click();
+    const purgeItem = await browser.$(`[data-trash-article-id="${articleId}"]`);
+    await purgeItem.waitForDisplayed({ timeout: 10_000 });
+    await (await purgeItem.$('[data-trash-action="purge"]')).click();
+    let purgeDialog = await browser.$('.trash-confirm[role="alertdialog"]');
+    await purgeDialog.waitForDisplayed({ timeout: 5_000 });
+    expect(await purgeDialog.getText(), 'permanent deletion requires a distinct destructive confirmation')
+      .to.include('永久删除').and.include('正文和版本历史');
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-trash-action')),
+      'the nested destructive dialog focuses its safe cancel action',
+    ).to.equal('cancel-purge');
+    await browser.keys(['Shift', 'Tab']);
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-trash-action')),
+      'Shift+Tab wraps to the final nested-dialog action',
+    ).to.equal('confirm-purge');
+    await browser.keys('Tab');
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-trash-action')),
+      'Tab wraps back to the first nested-dialog action',
+    ).to.equal('cancel-purge');
+    await browser.keys('Escape');
+    await purgeDialog.waitForExist({ reverse: true, timeout: 5_000 });
+    expect(
+      await browser.execute(() => document.activeElement?.getAttribute('data-trash-action')),
+      'cancelling permanent delete restores focus to the invoking purge button',
+    ).to.equal('purge');
+    await (await purgeItem.$('[data-trash-action="purge"]')).click();
+    purgeDialog = await browser.$('.trash-confirm[role="alertdialog"]');
+    await purgeDialog.waitForDisplayed({ timeout: 5_000 });
+    await (await purgeDialog.$('[data-trash-action="confirm-purge"]')).click();
+
+    await browser.waitUntil(
+      async () => {
+        const state = await readLifecycle();
+        return state.liveArticle === null
+          && state.trashArticle === null
+          && state.persistedArticle === null
+          && state.persistedContentCount === 0
+          && state.audits.some((entry) => (
+            entry.action === 'document.delete'
+            && entry.severity === 'critical'
+            && entry.source === 'useTrashStore.purge'
+            && entry.payload?.permanent === true
+          ));
+      },
+      { timeout: 15_000, interval: 150, timeoutMsg: 'visible permanent delete did not purge article, content, and audit it' },
+    );
+    createdArticleIds.delete(articleId);
+    expect(await purgeItem.isExisting(), 'purged draft leaves the visible trash list').to.equal(false);
   });
 
   it('uploads, deduplicates, searches, reloads, shares, and deletes a real SVG asset through the Workstation UI', async function () {

@@ -534,7 +534,7 @@ const showNewCategoryInput = ref(false)
 const newCategoryName = ref('')
 const newCategoryInputRef = ref<HTMLInputElement | null>(null)
 const categoryMutationPending = ref(false)
-const categoryActionStatus = ref<{ tone: 'success' | 'error'; message: string } | null>(null)
+const categoryActionStatus = ref<{ tone: 'success' | 'warning' | 'error'; message: string } | null>(null)
 
 function getCategoryActionError(error: unknown, fallback: string): string {
     return error instanceof Error ? error.message : fallback
@@ -787,50 +787,124 @@ async function ctxMoveToCategory(categoryId: string | null): Promise<void> {
 const showDeleteConfirm = ref(false)
 const pendingDeleteType = ref<'article' | 'category' | null>(null)
 const pendingDeleteId = ref<string | null>(null)
+const deleteActionError = ref<string | null>(null)
 
-function ctxDeleteArticle(): void {
-    pendingDeleteType.value = 'article'
-    pendingDeleteId.value = contextMenu.value.targetId
+const deleteDialogRef = ref<HTMLElement | null>(null)
+const deleteCancelButtonRef = ref<HTMLButtonElement | null>(null)
+let deleteReturnTarget: HTMLElement | null = null
+
+function getDeleteDialogFocusableElements(): HTMLElement[] {
+    if (!deleteDialogRef.value) return []
+    return Array.from(deleteDialogRef.value.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+    )).filter(element => element.getClientRects().length > 0)
+}
+
+function restoreDeleteFocus(): void {
+    const target = deleteReturnTarget?.isConnected
+        ? deleteReturnTarget
+        : document.querySelector<HTMLElement>('.fm-new-btn')
+    deleteReturnTarget = null
+    void nextTick(() => target?.focus())
+}
+
+function closeDeleteDialog(): void {
+    showDeleteConfirm.value = false
+    pendingDeleteType.value = null
+    pendingDeleteId.value = null
+    deleteActionError.value = null
+    restoreDeleteFocus()
+}
+
+function openDeleteConfirmation(type: 'article' | 'category', id: string): void {
+    pendingDeleteType.value = type
+    pendingDeleteId.value = id
+    deleteActionError.value = null
+    deleteReturnTarget = document.querySelector<HTMLElement>(
+        type === 'article'
+            ? `[data-file-article-id="${id}"]`
+            : `[data-file-category-id="${id}"]`
+    )
     showDeleteConfirm.value = true
     closeContextMenu()
+    void nextTick(() => deleteCancelButtonRef.value?.focus())
+}
+
+function handleDeleteDialogKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && !categoryMutationPending.value) {
+        event.preventDefault()
+        cancelDelete()
+        return
+    }
+    if (event.key !== 'Tab') return
+
+    const focusable = getDeleteDialogFocusableElements()
+    if (focusable.length === 0) {
+        event.preventDefault()
+        deleteDialogRef.value?.focus()
+        return
+    }
+
+    const activeIndex = focusable.indexOf(document.activeElement as HTMLElement)
+    if (event.shiftKey && activeIndex <= 0) {
+        event.preventDefault()
+        focusable[focusable.length - 1]?.focus()
+    } else if (!event.shiftKey && (activeIndex === -1 || activeIndex === focusable.length - 1)) {
+        event.preventDefault()
+        focusable[0]?.focus()
+    }
+}
+
+function ctxDeleteArticle(): void {
+    const id = contextMenu.value.targetId
+    if (!id) {
+        closeContextMenu()
+        return
+    }
+    openDeleteConfirmation('article', id)
 }
 
 async function confirmDelete(): Promise<void> {
     if (categoryMutationPending.value) return
     if (!pendingDeleteId.value) {
-        showDeleteConfirm.value = false
+        closeDeleteDialog()
         return
     }
+
     const deletingCategory = pendingDeleteType.value === 'category'
     categoryMutationPending.value = true
-    if (deletingCategory) categoryActionStatus.value = null
+    deleteActionError.value = null
+    categoryActionStatus.value = null
     try {
         if (pendingDeleteType.value === 'article') {
-            await articleStore.deleteArticle(pendingDeleteId.value)
-        } else if (pendingDeleteType.value === 'category') {
+            const warning = await articleStore.deleteArticle(pendingDeleteId.value)
+            categoryActionStatus.value = warning
+                ? { tone: 'warning', message: warning }
+                : { tone: 'success', message: '文稿已移入回收站，可在回收站恢复。' }
+        } else if (deletingCategory) {
             await categoryStore.deleteCategory(pendingDeleteId.value)
-        }
-        if (deletingCategory) {
             categoryActionStatus.value = { tone: 'success', message: '分类已删除，关联文章已迁移到未分类' }
         }
     } catch (error) {
+        const message = getCategoryActionError(
+            error,
+            deletingCategory ? '删除分类失败' : '移入回收站失败',
+        )
+        deleteActionError.value = message
         if (deletingCategory) {
-            categoryActionStatus.value = { tone: 'error', message: getCategoryActionError(error, '删除分类失败') }
-            return
+            categoryActionStatus.value = { tone: 'error', message }
         }
+        return
     } finally {
         categoryMutationPending.value = false
     }
-    showDeleteConfirm.value = false
-    pendingDeleteType.value = null
-    pendingDeleteId.value = null
+
+    closeDeleteDialog()
 }
 
 function cancelDelete(): void {
     if (categoryMutationPending.value) return
-    showDeleteConfirm.value = false
-    pendingDeleteType.value = null
-    pendingDeleteId.value = null
+    closeDeleteDialog()
 }
 
 // ─── 右键菜单操作：分类 - 重命名 ───
@@ -920,10 +994,7 @@ function ctxDeleteCategory(): void {
         closeContextMenu()
         return
     }
-    pendingDeleteType.value = 'category'
-    pendingDeleteId.value = id
-    showDeleteConfirm.value = true
-    closeContextMenu()
+    openDeleteConfirmation('category', id)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1017,7 +1088,7 @@ function getArticleCount(node: CategoryNode): number {
 /** 删除确认文案 */
 const deleteConfirmText = computed(() => {
     if (pendingDeleteType.value === 'article') {
-        return '确定要删除这篇文章吗？此操作不可撤销。'
+        return '确定要将这篇文章移入回收站吗？之后可以从草稿箱的回收站恢复。'
     }
     return '确定要删除这个分类吗？分类下的文章将移至"未分类"。'
 })
@@ -1384,7 +1455,7 @@ const deleteConfirmText = computed(() => {
       <div
         v-if="categoryActionStatus"
         class="fm-import-result"
-        :class="categoryActionStatus.tone === 'error' ? 'fm-import-warning' : 'fm-import-success'"
+        :class="categoryActionStatus.tone === 'success' ? 'fm-import-success' : 'fm-import-warning'"
         :role="categoryActionStatus.tone === 'error' ? 'alert' : 'status'"
         :data-tone="categoryActionStatus.tone"
         data-category-action-status
@@ -1393,7 +1464,7 @@ const deleteConfirmText = computed(() => {
         <button
           type="button"
           class="fm-import-close"
-          aria-label="关闭分类操作提示"
+          aria-label="关闭操作提示"
           @click="categoryActionStatus = null"
         >
           <svg
@@ -1627,6 +1698,7 @@ const deleteConfirmText = computed(() => {
               class="fm-category-row"
               :class="{ 'fm-expanded': node.expanded }"
               :data-file-category-id="node.category?.id"
+              tabindex="-1"
               @click="toggleExpand(getCategoryKey(node))"
               @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
             >
@@ -1696,6 +1768,7 @@ const deleteConfirmText = computed(() => {
                     'fm-article-active': selectedArticleId === article.id,
                   }"
                   :data-file-article-id="article.id"
+                  tabindex="-1"
                   @click="handleSelectArticle(article.id)"
                   @contextmenu="openArticleContextMenu($event, article.id)"
                 >
@@ -1986,6 +2059,7 @@ const deleteConfirmText = computed(() => {
             <button
               type="button"
               class="fm-ctx-item fm-ctx-danger"
+              data-article-action="delete"
               @click="ctxDeleteArticle"
             >
               <svg
@@ -2107,24 +2181,44 @@ const deleteConfirmText = computed(() => {
           @click.self="cancelDelete"
         >
           <div
+            ref="deleteDialogRef"
             class="fm-confirm-modal"
-            role="dialog"
+            role="alertdialog"
             aria-modal="true"
             aria-labelledby="file-manager-delete-title"
+            :aria-describedby="deleteActionError
+              ? 'file-manager-delete-description file-manager-delete-error'
+              : 'file-manager-delete-description'"
+            tabindex="-1"
+            @keydown="handleDeleteDialogKeydown"
           >
             <h3
               id="file-manager-delete-title"
               class="fm-confirm-title"
             >
-              确认删除
+              {{ pendingDeleteType === 'article' ? '移入回收站' : '确认删除' }}
             </h3>
-            <p class="fm-confirm-text">
+            <p
+              id="file-manager-delete-description"
+              class="fm-confirm-text"
+            >
               {{ deleteConfirmText }}
+            </p>
+            <p
+              v-if="deleteActionError"
+              id="file-manager-delete-error"
+              class="fm-confirm-error"
+              role="alert"
+              data-file-delete-error
+            >
+              {{ deleteActionError }}
             </p>
             <div class="fm-confirm-actions">
               <button
+                ref="deleteCancelButtonRef"
                 type="button"
                 class="fm-btn fm-btn-cancel"
+                data-file-delete-action="cancel"
                 :disabled="categoryMutationPending"
                 @click="cancelDelete"
               >
@@ -2134,10 +2228,12 @@ const deleteConfirmText = computed(() => {
                 type="button"
                 class="fm-btn fm-btn-danger"
                 data-category-delete-submit
+                data-file-delete-submit
+                data-file-delete-action="confirm"
                 :disabled="categoryMutationPending"
                 @click="confirmDelete"
               >
-                删除
+                {{ categoryMutationPending ? '处理中...' : pendingDeleteType === 'article' ? '移入回收站' : '删除' }}
               </button>
             </div>
           </div>
@@ -3308,6 +3404,13 @@ const deleteConfirmText = computed(() => {
     color: var(--text-secondary);
     line-height: 1.5;
     margin: 0 0 20px;
+}
+
+.fm-confirm-error {
+    margin: -10px 0 16px;
+    color: var(--danger, #C62828);
+    font-size: 12px;
+    line-height: 1.5;
 }
 
 .fm-confirm-actions {

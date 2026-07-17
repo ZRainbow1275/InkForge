@@ -209,7 +209,7 @@ function attachEditor(editor: Editor): void {
 }
 
 watch(() => props.editor, editor => { if (editor) attachEditor(editor); else detachEditor() }, { immediate: true })
-watch([query, replacement, caseSensitive, regexEnabled, wholeWord], () => refresh(true))
+watch([query, replacement, caseSensitive, regexEnabled, wholeWord], () => refresh(false))
 watch(() => props.mode, () => { void nextTick(() => queryInputRef.value?.focus()) }, { immediate: true })
 onBeforeUnmount(detachEditor)
 </script>

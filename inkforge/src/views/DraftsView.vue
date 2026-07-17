@@ -25,7 +25,9 @@ import {
   Square,
   Tag,
   Target,
+  Trash2,
 } from 'lucide-vue-next'
+import TrashPanel from '@/components/trash/TrashPanel.vue'
 import { useArticleStore } from '@/stores/article'
 import { useCategoryStore } from '@/stores/category'
 import { ARTICLE_STATUS, type ArticleStatus } from '@/constants'
@@ -58,6 +60,7 @@ const activityFilter = ref<DraftActivityFilter>('all')
 const sortMode = ref<DraftSortMode>('updated')
 const sortDirection = ref<DraftSortDirection>('desc')
 const viewMode = ref<DraftViewMode>('list')
+const showTrashPanel = ref(false)
 const activePreviewDraftId = ref<string | null>(null)
 const selectedDraftIds = ref<Set<string>>(new Set())
 const isBatchUpdating = ref(false)
@@ -586,6 +589,18 @@ async function goHome(): Promise<void> {
             :stroke-width="2.2"
           />
           <span>返回首页</span>
+        </button>
+        <button
+          type="button"
+          class="drafts-action drafts-action-tertiary"
+          data-drafts-action="open-trash"
+          @click="showTrashPanel = true"
+        >
+          <Trash2
+            :size="16"
+            :stroke-width="2.2"
+          />
+          <span>回收站</span>
         </button>
         <button
           v-if="latestDraft"
@@ -1215,6 +1230,11 @@ async function goHome(): Promise<void> {
         </button>
       </div>
     </div>
+
+    <TrashPanel
+      v-if="showTrashPanel"
+      @close="showTrashPanel = false"
+    />
   </section>
 </template>
 

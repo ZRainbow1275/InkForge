@@ -1,0 +1,107 @@
+InkForge Native Editor Lifecycle Final Acceptance - 2026-07-17
+
+Scope
+-----
+- Real local Tauri/WebView2 application acceptance.
+- Every registered SVG/style remains available to the application rendering path.
+- Every selectable WeChat style traverses the production local WeChat exporter.
+- Xiaohongshu and Zhihu publication testing is operator-manual for this round.
+- WeChat phone/editor/sync/schedule/publish gates remain operator-owned and unclaimed.
+
+Implementation truth
+--------------------
+- Find/Replace inputs no longer steal editor focus while their own values change.
+- Link editing rejects unsafe URLs, keeps visible errors, and reuses the existing link-editor path so blur does not race the operation.
+- FileManager, Version, Drafts, and Trash destructive operations await real repository results and retain visible failures or committed-operation warnings.
+- Version and Trash dialogs provide safe initial focus, current-membership Tab/Shift+Tab wrapping, safe Escape cancellation, aria-describedby-linked errors, and trigger-focus restoration.
+- Duplicate delete/restore mutations coalesce to one real operation and one audit row.
+- Category counts follow committed transitions and remain stable for same-category changes.
+- A stale Version target remains visible with the message: 目标版本已不存在.
+- Native file-dialog automation binds to the exact WebDriver-owned PID from goog:processID, requires an InkForge process with a non-zero native main-window handle, and accepts only the expected 导入文件 / #32770 dialog owned by that PID.
+- The native version test uses the real configured select-all and save shortcuts; it does not rely on unrelated Ctrl+End caret placement.
+
+Commands and results
+--------------------
+1. CommonJS syntax
+   node --check inkforge/tests/e2e/specs/editor-settings.spec.cjs
+   node --check inkforge/tests/e2e/specs/svg-render.spec.cjs
+   PASS
+
+2. Targeted ESLint
+   pnpm -C inkforge exec eslint <changed Vue/TypeScript/E2E files> --quiet
+   PASS
+
+3. TypeScript/Vue typecheck
+   pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+   PASS
+
+4. Trellis task validation
+   python ./.trellis/scripts/task.py validate .trellis/tasks/05-12-full-app-functionality-audit-repair
+   PASS: implement.jsonl=8, check.jsonl=6
+
+5. Complete real native editor lifecycle
+   pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/editor-settings.spec.cjs
+   PASS: 18/18 in 7m18.8s
+
+6. Full serial frontend/unit regression
+   pnpm -C inkforge exec vitest run src --reporter=default --maxWorkers=1 --no-file-parallelism
+   PASS: 97 files / 1776 tests
+
+7. Current-round SVG/style acceptance
+   pnpm -C inkforge run style-proof:current-round
+   PASS:
+   - application-acceptance-ready
+   - current-round-ready
+   - canClaimCurrentRoundTarget=true
+   - canClaimReleaseComplete=false
+   - strictReleaseBlockedByExternal=true
+   - 27 SVG modules
+   - 108 module/persona pairs
+   - 17 WeChat choices
+   - 13 selectable/rendered choices
+   - 8 currently usable choices
+   - 45 SVG sample modules
+   - 0 local issues
+   - 0 actionable local rows
+
+8. Focused WeChat SVG/style exporter regression
+   pnpm -C inkforge exec vitest run src/services/export/wechat-svg-application.test.ts src/services/export/wechat-style-export-samples.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+   PASS: 2 files / 4 tests
+
+9. Final current Tauri debug build
+   NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge exec tauri build --debug --bundles none
+   PASS:
+   - Vite transformed 4667 modules
+   - frontend build 1m49s
+   - Rust dev build 12.63s
+
+10. Post-build real native SVG/style replay
+    pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+    PASS: 10/10 in 36.9s
+    - Kiln: 2 data-ink-svg modules
+    - Tempera: 2 data-ink-svg modules
+    - Amber: 2 data-ink-svg modules
+    - representative SVG parent width: 401 px
+    - representative SVG width: 401 px
+    - width delta: 0 px
+    - viewBox: 0 0 1080 620
+    - mobile-emulated body typography: 20 CJK characters per line
+    - isolated E2E OS credential removed
+
+11. Deliverable executable
+    Path: D:\Desktop\Inkforge\inkforge\src-tauri\target\debug\InkForge.exe
+    Size: 32,590,336 bytes
+    SHA-256: 1321a760504296bdd2bfce7693e0b74cba94fe12c5c758627d82e2cb3f05aa37
+
+Matrix reconciliation
+---------------------
+- Total rows: 100
+- fixed: 53
+- pass: 45
+- pending: 0
+- blocked: 2
+- Blocked rows: DSK-004, DSK-005
+
+Boundary
+--------
+This evidence proves local application rendering and application of the registered SVG/style system, plus traversal of selectable WeChat styles through the production local WeChat exporter. It does not prove WeChat ordinary clipboard paste, phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled send, public-host rendering, or publication success. Xiaohongshu and Zhihu publication testing remains user-manual.
