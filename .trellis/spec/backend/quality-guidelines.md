@@ -119,8 +119,8 @@ live operation.
 - Tauri commands:
   - `wechat_publish_status() -> { configured, missingKeys, source, appIdHint }`
   - `wechat_upload_article_image(input) -> { remoteUrl }`
-  - `wechat_upload_cover_image(input) -> { remoteUrl, mediaId }`
-  - `wechat_create_draft(article) -> { mediaId, articleCount }`
+  - `wechat_upload_cover_image(input) -> { remoteUrl, coverHandle }`
+  - `wechat_create_draft(article) -> { articleCount }`
 - Frontend service entry points:
   - `getWechatPublishStatus()`
   - `uploadWechatArticleImage(image)`
@@ -155,23 +155,39 @@ live operation.
     private/link-local/multicast IP literals, IPv4-mapped local IPv6 literals,
     DNS names that resolve to local/private addresses, non-HTTP(S) schemes,
     missing `Content-Length`, and over-limit content before buffering bytes.
+  - Each accepted HTTP(S) hop must connect only to the public socket addresses
+    validated for that exact hostname. Redirects are handled manually with a
+    bounded hop count and repeat URL, DNS, and address pinning validation; do
+    not disable TLS hostname/SNI/certificate checks or let a proxy bypass the
+    pinned connection.
 - Draft request contract:
   - Renderer/Tauri invoke input uses camelCase fields such as
-    `thumbMediaId`, `showCoverPic`, `contentSourceUrl`, `needOpenComment`.
+    `coverHandle`, `showCoverPic`, `contentSourceUrl`, `needOpenComment`.
+    `coverHandle` is an opaque process-local 32-hex handle resolved to the raw
+    cover media ID only inside Rust; it expires when the backend process exits.
   - The outbound WeChat `draft/add` payload must be serialized to snake_case:
     `thumb_media_id`, `show_cover_pic`, `content_source_url`,
     `need_open_comment`, `only_fans_can_comment`.
-  - Optional draft fields must be omitted when absent, not serialized as JSON
-    `null`.
+  - Optional draft fields must be trimmed once and omitted when absent or
+    whitespace-only, not serialized as JSON `null` or sent with padding.
+  - WeChat draft/material identifiers remain backend-only. The ordinary
+    `wechat_create_draft` response exposes only non-sensitive counts/status;
+    raw `media_id` values must not cross the Rust-to-Web serialization boundary.
   - Draft metadata must enforce WeChat field limits before the live call:
-    `title` max 32 characters, `author` max 16 characters, `digest` max 128
+    `title` max 32 characters, `author` max 16 characters, `digest` max 120
     characters, `content_source_url` max 1 KB and HTTP(S)-only, and `content`
     fewer than 20,000 characters and 1 MB.
+    The current official `draft/add` documentation and its 2026-07-14 change
+    log explicitly align the API digest limit to 120 characters:
+    `https://developers.weixin.qq.com/doc/service/api/draftbox/draftmanage/api_draft_add`.
   - Local draft preflight must run before any WeChat-side mutation. The publish
-    orchestration must reject missing `thumbMediaId` / `coverImage` and invalid
+    orchestration must reject missing `coverHandle` / `coverImage` and invalid
     draft metadata before uploading article images. If a cover image must be
     uploaded as permanent material, the rewritten draft content must pass local
     validation before the permanent material upload starts.
+  - `PublishView` is the sole credentialed product owner for ordinary draft
+    creation. `ExportModal` remains a local copy/download surface and must not
+    call `publishWechatDraft()` or accept raw WeChat media identifiers.
 - Draft content contract:
   - Article `content` must stay below the WeChat 20,000-character boundary.
   - `<img src>` and `srcset` candidates must already point at WeChat-hosted
@@ -226,6 +242,9 @@ live operation.
   - `inkforge-asset://` sources normalize to `dataUrl`
   - repeated HTML image sources upload once and rewrite deterministically
   - draft creation rejects foreign image hosts
+  - draft metadata is trimmed once and whitespace-only optional fields are omitted
+  - deferred render/publish results cannot attach old HTML or cover handles to a new article
+  - the Workstation publish CTA enters `PublishView` while the export button keeps `ExportModal`
   - WeChat Markdown Mermaid output uses readable PNG/JPG-placeholder content,
     the visible reading header matches returned AST-backed stats, and Mermaid is
     not duplicated as a generic unsupported code-language warning

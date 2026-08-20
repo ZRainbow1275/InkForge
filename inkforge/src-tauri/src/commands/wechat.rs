@@ -8,19 +8,22 @@ use reqwest::{multipart, redirect::Policy, Client, StatusCode, Url};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::net::IpAddr;
+use std::future::Future;
+use std::net::{IpAddr, SocketAddr};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::command;
 
 const WECHAT_API_BASE: &str = "https://api.weixin.qq.com/cgi-bin";
 const WECHAT_IMAGE_HOSTS: [&str; 2] = ["mmbiz.qpic.cn", "mmbiz.qlogo.cn"];
 const WECHAT_ARTICLE_IMAGE_MAX_BYTES: usize = 1024 * 1024;
 const WECHAT_PERMANENT_IMAGE_MAX_BYTES: usize = 10 * 1024 * 1024;
+const WECHAT_REMOTE_IMAGE_MAX_REDIRECTS: usize = 5;
 const WECHAT_DRAFT_TITLE_MAX_CHARS: usize = 32;
 const WECHAT_DRAFT_AUTHOR_MAX_CHARS: usize = 16;
-const WECHAT_DRAFT_DIGEST_MAX_CHARS: usize = 128;
+const WECHAT_DRAFT_DIGEST_MAX_CHARS: usize = 120;
 const WECHAT_ARTICLE_CONTENT_MAX_CHARS: usize = 20_000;
 const WECHAT_ARTICLE_CONTENT_MAX_BYTES: usize = 1024 * 1024;
 const WECHAT_DRAFT_CONTENT_SOURCE_URL_MAX_BYTES: usize = 1024;
@@ -28,8 +31,9 @@ const WECHAT_ACCESS_TOKEN_DEFAULT_EXPIRES_IN_SECS: u64 = 7_200;
 const WECHAT_ACCESS_TOKEN_REFRESH_SKEW_SECS: u64 = 300;
 const WECHAT_ACCESS_TOKEN_MIN_TTL_SECS: u64 = 1;
 const WECHAT_ACCESS_TOKEN_ENDPOINT_ERRCODES: [i64; 3] = [40001, 40014, 42001];
-
 static WECHAT_ACCESS_TOKEN_CACHE: OnceLock<Mutex<Option<AccessTokenCacheEntry>>> = OnceLock::new();
+static WECHAT_COVER_MEDIA_HANDLES: OnceLock<Mutex<HashMap<String, String>>> = OnceLock::new();
+static WECHAT_COVER_HANDLE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CredentialSource {
@@ -91,7 +95,7 @@ pub struct WechatImageUploadResponse {
 #[serde(rename_all = "camelCase")]
 pub struct WechatCoverUploadResponse {
     remote_url: String,
-    media_id: String,
+    cover_handle: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -99,7 +103,7 @@ pub struct WechatCoverUploadResponse {
 pub struct WechatDraftArticle {
     title: String,
     content: String,
-    thumb_media_id: String,
+    cover_handle: String,
     author: Option<String>,
     digest: Option<String>,
     show_cover_pic: Option<u8>,
@@ -126,16 +130,24 @@ struct WechatDraftArticlePayload {
     only_fans_can_comment: Option<u8>,
 }
 
-impl From<&WechatDraftArticle> for WechatDraftArticlePayload {
-    fn from(article: &WechatDraftArticle) -> Self {
+fn trimmed_optional(value: &Option<String>) -> Option<String> {
+    value
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_string)
+}
+
+impl WechatDraftArticlePayload {
+    fn from_article(article: &WechatDraftArticle, thumb_media_id: &str) -> Self {
         Self {
-            title: article.title.clone(),
+            title: article.title.trim().to_string(),
             content: article.content.clone(),
-            thumb_media_id: article.thumb_media_id.clone(),
+            thumb_media_id: thumb_media_id.trim().to_string(),
             show_cover_pic: article.show_cover_pic.unwrap_or(0),
-            author: article.author.clone(),
-            digest: article.digest.clone(),
-            content_source_url: article.content_source_url.clone(),
+            author: trimmed_optional(&article.author),
+            digest: trimmed_optional(&article.digest),
+            content_source_url: trimmed_optional(&article.content_source_url),
             need_open_comment: article.need_open_comment,
             only_fans_can_comment: article.only_fans_can_comment,
         }
@@ -145,7 +157,6 @@ impl From<&WechatDraftArticle> for WechatDraftArticlePayload {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WechatDraftCreateResponse {
-    media_id: String,
     article_count: usize,
 }
 
@@ -551,22 +562,36 @@ fn is_blocked_remote_host(host: &str) -> bool {
 fn is_blocked_remote_ip(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ipv4) => {
+            let [first, second, third, _] = ipv4.octets();
             ipv4.is_private()
                 || ipv4.is_loopback()
                 || ipv4.is_link_local()
                 || ipv4.is_broadcast()
                 || ipv4.is_multicast()
                 || ipv4.is_unspecified()
+                || ipv4.is_documentation()
+                || first == 0
+                || (first == 100 && (64..=127).contains(&second))
+                || (first == 192 && second == 0 && third == 0)
+                || (first == 192 && second == 88 && third == 99)
+                || (first == 198 && (second == 18 || second == 19))
+                || first >= 240
         }
         IpAddr::V6(ipv6) => {
-            if let Some(mapped) = ipv6.to_ipv4_mapped() {
-                return is_blocked_remote_ip(IpAddr::V4(mapped));
+            if let Some(ipv4) = ipv6.to_ipv4() {
+                return is_blocked_remote_ip(IpAddr::V4(ipv4));
             }
+            let segments = ipv6.segments();
             ipv6.is_loopback()
                 || ipv6.is_unspecified()
                 || ipv6.is_unique_local()
                 || ipv6.is_unicast_link_local()
                 || ipv6.is_multicast()
+                || segments[0] & 0xe000 != 0x2000
+                || (segments[0] == 0x2001 && segments[1] & 0xfe00 == 0)
+                || (segments[0] == 0x2001 && segments[1] == 0x0db8)
+                || segments[0] == 0x2002
+                || segments[0] & 0xfff0 == 0x3ff0
         }
     }
 }
@@ -588,45 +613,44 @@ fn validate_remote_image_url(parsed: &Url) -> Result<(), String> {
     Ok(())
 }
 
-async fn validate_remote_image_resolution(parsed: &Url) -> Result<(), String> {
+async fn validate_remote_image_resolution(parsed: &Url) -> Result<Vec<SocketAddr>, String> {
     let host = parsed
         .host_str()
         .ok_or_else(|| "remoteUrl must include a host".to_string())?;
-
-    if host.trim().parse::<IpAddr>().is_ok() {
-        return Ok(());
-    }
-
     let port = parsed
         .port_or_known_default()
         .ok_or_else(|| "remoteUrl must use a scheme with a known port".to_string())?;
 
-    let mut resolved = tokio::net::lookup_host((host, port))
+    if let Ok(ip) = host.trim().parse::<IpAddr>() {
+        return Ok(vec![SocketAddr::new(ip, port)]);
+    }
+
+    let resolved = tokio::net::lookup_host((host, port))
         .await
         .map_err(|error| format!("failed to resolve remoteUrl host: {}", error))?;
 
-    let mut resolved_any = false;
-    for socket_addr in &mut resolved {
-        resolved_any = true;
+    let mut addresses = Vec::new();
+    for socket_addr in resolved {
         if is_blocked_remote_ip(socket_addr.ip()) {
             return Err(
                 "wechat remote image upload rejects hosts resolving to localhost/private networks"
                     .to_string(),
             );
         }
+        addresses.push(socket_addr);
     }
 
-    if !resolved_any {
+    if addresses.is_empty() {
         return Err("remoteUrl host did not resolve to any address".to_string());
     }
 
-    Ok(())
+    Ok(addresses)
 }
 
 fn ensure_remote_image_response_status(status: StatusCode) -> Result<(), String> {
     if status.is_redirection() {
         return Err(format!(
-            "remote image redirects are not allowed for WeChat upload: {}",
+            "remote image redirect was not handled safely: {}",
             status
         ));
     }
@@ -638,20 +662,67 @@ fn ensure_remote_image_response_status(status: StatusCode) -> Result<(), String>
     Ok(())
 }
 
-async fn fetch_remote_bytes(
-    client: &Client,
-    remote_url: &str,
-    max_bytes: usize,
-) -> Result<(Vec<u8>, String), String> {
-    let parsed = Url::parse(remote_url).map_err(|error| format!("invalid remoteUrl: {}", error))?;
-    validate_remote_image_url(&parsed)?;
-    validate_remote_image_resolution(&parsed).await?;
-
-    let response = client
+async fn request_remote_image_hop(
+    parsed: Url,
+    resolved: &[SocketAddr],
+) -> Result<reqwest::Response, String> {
+    if resolved.is_empty() {
+        return Err("remoteUrl host did not resolve to any address".to_string());
+    }
+    let host = parsed
+        .host_str()
+        .ok_or_else(|| "remoteUrl must include a host".to_string())?;
+    let client = Client::builder()
+        .timeout(Duration::from_secs(20))
+        .redirect(Policy::none())
+        .no_proxy()
+        .resolve_to_addrs(host, resolved)
+        .build()
+        .map_err(|error| format!("failed to build pinned remote image client: {}", error))?;
+    client
         .get(parsed)
         .send()
         .await
-        .map_err(|error| format!("failed to fetch remote image: {}", error))?;
+        .map_err(|error| format!("failed to fetch remote image: {}", error))
+}
+
+async fn fetch_remote_bytes_with_resolver<F, Fut>(
+    remote_url: &str,
+    max_bytes: usize,
+    mut resolve: F,
+) -> Result<(Vec<u8>, String), String>
+where
+    F: FnMut(Url) -> Fut,
+    Fut: Future<Output = Result<Vec<SocketAddr>, String>>,
+{
+    let mut parsed =
+        Url::parse(remote_url).map_err(|error| format!("invalid remoteUrl: {}", error))?;
+    let mut redirect_count = 0usize;
+
+    let mut response = loop {
+        validate_remote_image_url(&parsed)?;
+        let resolved = resolve(parsed.clone()).await?;
+        let response = request_remote_image_hop(parsed.clone(), &resolved).await?;
+        if !response.status().is_redirection() {
+            break response;
+        }
+        if redirect_count >= WECHAT_REMOTE_IMAGE_MAX_REDIRECTS {
+            return Err(format!(
+                "remote image exceeded the {}-redirect limit",
+                WECHAT_REMOTE_IMAGE_MAX_REDIRECTS
+            ));
+        }
+        let location = response
+            .headers()
+            .get(reqwest::header::LOCATION)
+            .ok_or_else(|| "remote image redirect is missing Location".to_string())?
+            .to_str()
+            .map_err(|_| "remote image redirect Location is invalid".to_string())?;
+        parsed = parsed
+            .join(location.trim())
+            .map_err(|error| format!("remote image redirect Location is invalid: {error}"))?;
+        redirect_count += 1;
+    };
 
     ensure_remote_image_response_status(response.status())?;
 
@@ -675,24 +746,36 @@ async fn fetch_remote_bytes(
         .map(normalize_image_mime_type)
         .unwrap_or_else(|| "application/octet-stream".to_string());
 
-    let bytes = response
-        .bytes()
+    let mut bytes = Vec::with_capacity(content_length as usize);
+    while let Some(chunk) = response
+        .chunk()
         .await
         .map_err(|error| format!("failed to read remote image bytes: {}", error))?
-        .to_vec();
-    if bytes.len() > max_bytes {
-        return Err(format!(
-            "remote image is too large for WeChat upload: {} bytes > {} bytes",
-            bytes.len(),
-            max_bytes
-        ));
+    {
+        let received = bytes.len().saturating_add(chunk.len());
+        if received > max_bytes {
+            return Err(format!(
+                "remote image is too large for WeChat upload: {} bytes > {} bytes",
+                received, max_bytes
+            ));
+        }
+        bytes.extend_from_slice(&chunk);
     }
 
     Ok((bytes, mime_type))
 }
 
+async fn fetch_remote_bytes(
+    remote_url: &str,
+    max_bytes: usize,
+) -> Result<(Vec<u8>, String), String> {
+    fetch_remote_bytes_with_resolver(remote_url, max_bytes, |parsed| async move {
+        validate_remote_image_resolution(&parsed).await
+    })
+    .await
+}
+
 async fn prepare_upload(
-    client: &Client,
     input: &WechatUploadInput,
     kind: WechatUploadKind,
 ) -> Result<PreparedUpload, String> {
@@ -701,7 +784,7 @@ async fn prepare_upload(
     let (bytes, detected_mime) = if let Some(data_url) = input.data_url.as_ref() {
         parse_data_url(data_url.trim())?
     } else if let Some(remote_url) = input.remote_url.as_ref() {
-        fetch_remote_bytes(client, remote_url.trim(), kind.max_bytes()).await?
+        fetch_remote_bytes(remote_url.trim(), kind.max_bytes()).await?
     } else {
         return Err("wechat upload input is empty".to_string());
     };
@@ -921,146 +1004,264 @@ async fn upload_multipart_image(
         .map_err(|error| format_request_error(operation, error))
 }
 
-fn find_ascii_case_insensitive(haystack: &[u8], needle: &[u8], start: usize) -> Option<usize> {
-    if needle.is_empty() || start >= haystack.len() || needle.len() > haystack.len() {
-        return None;
+fn find_html_tag_end(html: &str, start: usize) -> Result<usize, String> {
+    const MALFORMED_MARKUP: &str = "wechat draft content contains malformed HTML markup";
+
+    #[derive(Clone, Copy)]
+    enum TagState {
+        BeforeAttribute,
+        AttributeName,
+        AfterAttributeName,
+        BeforeValue,
+        QuotedValue(u8),
+        UnquotedValue,
+        AfterValue,
+        SelfClosing,
     }
 
-    haystack[start..]
-        .windows(needle.len())
-        .position(|window| window.eq_ignore_ascii_case(needle))
-        .map(|position| start + position)
-}
-
-fn find_html_tag_end(html: &str, start: usize) -> Option<usize> {
     let bytes = html.as_bytes();
-    let mut quote: Option<u8> = None;
-    let mut cursor = start;
+    let mut state = TagState::BeforeAttribute;
 
-    while cursor < bytes.len() {
-        let byte = bytes[cursor];
-        match quote {
-            Some(current_quote) => {
-                if byte == current_quote {
-                    quote = None;
+    for (cursor, byte) in bytes.iter().copied().enumerate().skip(start) {
+        state = match state {
+            TagState::BeforeAttribute => match byte {
+                byte if byte.is_ascii_whitespace() => TagState::BeforeAttribute,
+                b'>' => return Ok(cursor),
+                b'/' => TagState::SelfClosing,
+                b'\'' | b'"' | b'`' | b'=' | b'<' => return Err(MALFORMED_MARKUP.to_string()),
+                byte if byte.is_ascii_control() => return Err(MALFORMED_MARKUP.to_string()),
+                _ => TagState::AttributeName,
+            },
+            TagState::AttributeName => match byte {
+                byte if byte.is_ascii_whitespace() => TagState::AfterAttributeName,
+                b'=' => TagState::BeforeValue,
+                b'>' => return Ok(cursor),
+                b'/' => TagState::SelfClosing,
+                b'\'' | b'"' | b'`' | b'<' => return Err(MALFORMED_MARKUP.to_string()),
+                byte if byte.is_ascii_control() => return Err(MALFORMED_MARKUP.to_string()),
+                _ => TagState::AttributeName,
+            },
+            TagState::AfterAttributeName => match byte {
+                byte if byte.is_ascii_whitespace() => TagState::AfterAttributeName,
+                b'=' => TagState::BeforeValue,
+                b'>' => return Ok(cursor),
+                b'/' => TagState::SelfClosing,
+                b'\'' | b'"' | b'`' | b'<' => return Err(MALFORMED_MARKUP.to_string()),
+                byte if byte.is_ascii_control() => return Err(MALFORMED_MARKUP.to_string()),
+                _ => TagState::AttributeName,
+            },
+            TagState::BeforeValue => match byte {
+                byte if byte.is_ascii_whitespace() => TagState::BeforeValue,
+                quote @ (b'\'' | b'"') => TagState::QuotedValue(quote),
+                b'>' | b'<' | b'`' | b'=' => return Err(MALFORMED_MARKUP.to_string()),
+                byte if byte.is_ascii_control() => return Err(MALFORMED_MARKUP.to_string()),
+                _ => TagState::UnquotedValue,
+            },
+            TagState::QuotedValue(quote) => {
+                if byte == quote {
+                    TagState::AfterValue
+                } else if byte == 0 {
+                    return Err(MALFORMED_MARKUP.to_string());
+                } else {
+                    TagState::QuotedValue(quote)
                 }
             }
-            None => match byte {
-                b'\'' | b'"' => quote = Some(byte),
-                b'>' => return Some(cursor),
-                _ => {}
+            TagState::UnquotedValue => match byte {
+                byte if byte.is_ascii_whitespace() => TagState::BeforeAttribute,
+                b'>' => return Ok(cursor),
+                b'\'' | b'"' | b'`' | b'=' | b'<' => return Err(MALFORMED_MARKUP.to_string()),
+                byte if byte.is_ascii_control() => return Err(MALFORMED_MARKUP.to_string()),
+                _ => TagState::UnquotedValue,
             },
+            TagState::AfterValue => match byte {
+                byte if byte.is_ascii_whitespace() => TagState::BeforeAttribute,
+                b'>' => return Ok(cursor),
+                b'/' => TagState::SelfClosing,
+                _ => return Err(MALFORMED_MARKUP.to_string()),
+            },
+            TagState::SelfClosing => match byte {
+                b'>' => return Ok(cursor),
+                _ => return Err(MALFORMED_MARKUP.to_string()),
+            },
+        };
+    }
+
+    Err(MALFORMED_MARKUP.to_string())
+}
+
+fn extract_img_attribute_values(tag: &str, attribute: &str) -> Vec<String> {
+    let bytes = tag.as_bytes();
+    let mut cursor = 4usize.min(bytes.len());
+    let mut values = Vec::new();
+
+    while cursor < bytes.len() {
+        while bytes
+            .get(cursor)
+            .is_some_and(|byte| byte.is_ascii_whitespace() || matches!(byte, b'/' | b'<'))
+        {
+            cursor += 1;
+        }
+        if bytes.get(cursor).is_none() || bytes.get(cursor) == Some(&b'>') {
+            break;
+        }
+
+        let name_start = cursor;
+        while bytes
+            .get(cursor)
+            .is_some_and(|byte| !byte.is_ascii_whitespace() && !matches!(byte, b'=' | b'/' | b'>'))
+        {
+            cursor += 1;
+        }
+        if cursor == name_start {
+            cursor += 1;
+            continue;
+        }
+        let name = &tag[name_start..cursor];
+
+        while bytes.get(cursor).is_some_and(u8::is_ascii_whitespace) {
+            cursor += 1;
+        }
+        if bytes.get(cursor) != Some(&b'=') {
+            continue;
         }
         cursor += 1;
-    }
-
-    None
-}
-
-fn is_attr_name_boundary(byte: Option<u8>) -> bool {
-    match byte {
-        None => true,
-        Some(value) => value.is_ascii_whitespace() || matches!(value, b'<' | b'/'),
-    }
-}
-
-fn extract_img_attribute_value(tag: &str, attribute: &str) -> Option<String> {
-    let bytes = tag.as_bytes();
-    let mut cursor = 0usize;
-    let needle = attribute.as_bytes();
-
-    while let Some(attr_index) = find_ascii_case_insensitive(bytes, needle, cursor) {
-        let before = attr_index
-            .checked_sub(1)
-            .and_then(|index| bytes.get(index))
-            .copied();
-        if !is_attr_name_boundary(before) {
-            cursor = attr_index + needle.len();
-            continue;
+        while bytes.get(cursor).is_some_and(u8::is_ascii_whitespace) {
+            cursor += 1;
         }
 
-        let mut index = attr_index + needle.len();
-        while bytes.get(index).is_some_and(u8::is_ascii_whitespace) {
-            index += 1;
-        }
-        if bytes.get(index) != Some(&b'=') {
-            cursor = attr_index + needle.len();
-            continue;
-        }
-
-        index += 1;
-        while bytes.get(index).is_some_and(u8::is_ascii_whitespace) {
-            index += 1;
-        }
-
-        let value_start;
-        let value_end;
-        match bytes.get(index).copied() {
+        let (value_start, value_end) = match bytes.get(cursor).copied() {
             Some(quote @ (b'"' | b'\'')) => {
-                value_start = index + 1;
+                let value_start = cursor + 1;
                 let relative_end = bytes[value_start..]
                     .iter()
-                    .position(|value| *value == quote)?;
-                value_end = value_start + relative_end;
+                    .position(|value| *value == quote);
+                let Some(relative_end) = relative_end else {
+                    break;
+                };
+                let value_end = value_start + relative_end;
+                cursor = value_end + 1;
+                (value_start, value_end)
             }
             Some(_) => {
-                value_start = index;
+                let value_start = cursor;
                 let relative_end = bytes[value_start..]
                     .iter()
                     .position(|value| value.is_ascii_whitespace() || *value == b'>')
                     .unwrap_or(bytes.len() - value_start);
-                value_end = value_start + relative_end;
+                let value_end = value_start + relative_end;
+                cursor = value_end;
+                (value_start, value_end)
             }
-            None => return None,
-        }
+            None => break,
+        };
 
-        if let Ok(value) = std::str::from_utf8(&bytes[value_start..value_end]) {
+        if name.eq_ignore_ascii_case(attribute) {
+            let value = &tag[value_start..value_end];
             let trimmed = value.trim();
             if !trimmed.is_empty() {
-                return Some(trimmed.to_string());
+                values.push(trimmed.to_string());
             }
         }
-
-        cursor = attr_index + needle.len();
     }
 
-    None
+    values
 }
 
 fn extract_img_srcset_values(tag: &str) -> Vec<String> {
-    let Some(srcset) = extract_img_attribute_value(tag, "srcset") else {
-        return Vec::new();
-    };
-
-    srcset
-        .split(',')
-        .filter_map(|candidate| candidate.split_whitespace().next())
-        .map(str::trim)
-        .filter(|candidate| !candidate.is_empty())
-        .map(ToOwned::to_owned)
-        .collect()
+    let mut values = Vec::new();
+    for srcset in extract_img_attribute_values(tag, "srcset") {
+        values.extend(
+            srcset
+                .split(',')
+                .filter_map(|candidate| candidate.split_whitespace().next())
+                .map(str::trim)
+                .filter(|candidate| !candidate.is_empty())
+                .map(ToOwned::to_owned),
+        );
+    }
+    values
 }
 
-fn extract_img_srcs(html: &str) -> Vec<String> {
+fn extract_img_srcs(html: &str) -> Result<Vec<String>, String> {
+    const RAW_TEXT_ELEMENTS: [&str; 9] = [
+        "script",
+        "style",
+        "textarea",
+        "title",
+        "xmp",
+        "iframe",
+        "noembed",
+        "noframes",
+        "plaintext",
+    ];
+
     let mut out = Vec::new();
     let bytes = html.as_bytes();
     let mut cursor = 0usize;
 
-    while let Some(start) = find_ascii_case_insensitive(bytes, b"<img", cursor) {
-        let Some(end) = find_html_tag_end(html, start) else {
-            break;
-        };
-        if let Some(tag) = html.get(start..=end) {
-            if let Some(src) = extract_img_attribute_value(tag, "src") {
-                out.push(src);
+    while let Some(relative_start) = bytes[cursor..].iter().position(|byte| *byte == b'<') {
+        let start = cursor + relative_start;
+        if bytes[start..].starts_with(b"<!--") {
+            return Err("wechat draft content contains unsupported HTML comments".to_string());
+        }
+
+        let mut name_start = start + 1;
+        let closing_tag = bytes.get(name_start) == Some(&b'/');
+        if closing_tag {
+            name_start += 1;
+        }
+        if !bytes
+            .get(name_start)
+            .is_some_and(|byte| byte.is_ascii_alphabetic())
+        {
+            return Err("wechat draft content contains malformed HTML markup".to_string());
+        }
+
+        let mut name_end = name_start;
+        while bytes
+            .get(name_end)
+            .is_some_and(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b':' | b'-'))
+        {
+            name_end += 1;
+        }
+        if !bytes
+            .get(name_end)
+            .is_some_and(|byte| byte.is_ascii_whitespace() || matches!(byte, b'/' | b'>'))
+        {
+            return Err("wechat draft content contains malformed HTML markup".to_string());
+        }
+
+        let end = find_html_tag_end(html, name_end)?;
+        if closing_tag
+            && bytes[name_end..end]
+                .iter()
+                .any(|byte| !byte.is_ascii_whitespace())
+        {
+            return Err("wechat draft content contains malformed HTML markup".to_string());
+        }
+        let tag_name = &bytes[name_start..name_end];
+        if !closing_tag
+            && RAW_TEXT_ELEMENTS
+                .iter()
+                .any(|name| tag_name.eq_ignore_ascii_case(name.as_bytes()))
+        {
+            let name = std::str::from_utf8(tag_name).unwrap_or("raw-text");
+            return Err(format!(
+                "wechat draft content contains unsupported <{}> markup",
+                name
+            ));
+        }
+        if !closing_tag && tag_name.eq_ignore_ascii_case(b"img") {
+            if let Some(tag) = html.get(start..=end) {
+                out.extend(extract_img_attribute_values(tag, "src"));
+                out.extend(extract_img_srcset_values(tag));
             }
-            out.extend(extract_img_srcset_values(tag));
         }
 
         cursor = end + 1;
     }
 
-    out
+    Ok(out)
 }
 
 fn is_wechat_image_url(url: &str) -> bool {
@@ -1166,8 +1367,8 @@ fn validate_draft_article(article: &WechatDraftArticle) -> Result<(), String> {
             WECHAT_ARTICLE_CONTENT_MAX_CHARS
         ));
     }
-    if article.thumb_media_id.trim().is_empty() {
-        return Err("wechat draft thumbMediaId is required".to_string());
+    if !valid_cover_handle(article.cover_handle.trim()) {
+        return Err("wechat draft coverHandle is invalid".to_string());
     }
     if let Some(value) = article.show_cover_pic {
         if value > 1 {
@@ -1185,7 +1386,7 @@ fn validate_draft_article(article: &WechatDraftArticle) -> Result<(), String> {
         }
     }
 
-    let foreign_images: Vec<String> = extract_img_srcs(&article.content)
+    let foreign_images: Vec<String> = extract_img_srcs(&article.content)?
         .into_iter()
         .filter(|src| !is_wechat_image_url(src))
         .collect();
@@ -1229,7 +1430,7 @@ pub async fn wechat_upload_article_image(
         )
     })?;
     let client = build_client()?;
-    let prepared = prepare_upload(&client, &input, WechatUploadKind::ArticleContentImage).await?;
+    let prepared = prepare_upload(&input, WechatUploadKind::ArticleContentImage).await?;
     let mut access_token = fetch_access_token(&client, &config).await?;
 
     let response = upload_multipart_image(
@@ -1281,7 +1482,7 @@ pub async fn wechat_upload_cover_image(
         )
     })?;
     let client = build_client()?;
-    let prepared = prepare_upload(&client, &input, WechatUploadKind::PermanentImage).await?;
+    let prepared = prepare_upload(&input, WechatUploadKind::PermanentImage).await?;
     let mut access_token = fetch_access_token(&client, &config).await?;
 
     let response = upload_multipart_image(
@@ -1332,25 +1533,18 @@ pub async fn wechat_upload_cover_image(
 
     Ok(WechatCoverUploadResponse {
         remote_url,
-        media_id,
+        cover_handle: store_cover_media_id(media_id)?,
     })
 }
 
-#[command]
-pub async fn wechat_create_draft(
-    article: WechatDraftArticle,
+async fn create_draft_with_client(
+    client: &Client,
+    config: &WechatApiConfig,
+    article: &WechatDraftArticle,
+    thumb_media_id: &str,
 ) -> Result<WechatDraftCreateResponse, String> {
-    validate_draft_article(&article)?;
-
-    let (config, _) = load_wechat_config().map_err(|missing| {
-        format!(
-            "wechat credentials are not configured; missing {}",
-            missing.join(", ")
-        )
-    })?;
-    let client = build_client()?;
-    let mut access_token = fetch_access_token(&client, &config).await?;
-    let draft_payload = WechatDraftArticlePayload::from(&article);
+    let mut access_token = fetch_access_token(client, config).await?;
+    let draft_payload = WechatDraftArticlePayload::from_article(article, thumb_media_id);
     let url = build_wechat_url("draft/add", &[("access_token", &access_token)])?;
 
     let response = client
@@ -1369,7 +1563,7 @@ pub async fn wechat_create_draft(
 
     if is_access_token_endpoint_error(payload.errcode) {
         clear_access_token_cache();
-        access_token = fetch_access_token(&client, &config).await?;
+        access_token = fetch_access_token(client, config).await?;
         let retry_response = client
             .post(build_wechat_url(
                 "draft/add",
@@ -1389,34 +1583,101 @@ pub async fn wechat_create_draft(
 
     ensure_no_api_error(payload.errcode, payload.errmsg, "draft/add")?;
 
-    let media_id = payload
+    payload
         .media_id
         .filter(|value| !value.trim().is_empty())
         .ok_or_else(|| "wechat draft/add response missing media_id".to_string())?;
 
-    Ok(WechatDraftCreateResponse {
-        media_id,
-        article_count: 1,
-    })
+    Ok(WechatDraftCreateResponse { article_count: 1 })
+}
+
+#[command]
+pub async fn wechat_create_draft(
+    article: WechatDraftArticle,
+) -> Result<WechatDraftCreateResponse, String> {
+    validate_draft_article(&article)?;
+    let thumb_media_id = resolve_cover_media_id(&article.cover_handle)?;
+    let (config, _) = load_wechat_config().map_err(|missing| {
+        format!(
+            "wechat credentials are not configured; missing {}",
+            missing.join(", ")
+        )
+    })?;
+    create_draft_with_client(&build_client()?, &config, &article, &thumb_media_id).await
+}
+
+fn stable_hash_v1(parts: &[&str]) -> String {
+    const FNV_OFFSET_BASIS_128: u128 = 0x6c62272e07bb014262b821756295c58d;
+    const FNV_PRIME_128: u128 = 0x0000000001000000000000000000013b;
+
+    let mut hash = FNV_OFFSET_BASIS_128;
+    for part in parts {
+        for byte in part.as_bytes().iter().copied().chain(std::iter::once(0xff)) {
+            hash ^= u128::from(byte);
+            hash = hash.wrapping_mul(FNV_PRIME_128);
+        }
+    }
+    format!("{hash:032x}")
+}
+
+fn valid_cover_handle(value: &str) -> bool {
+    value.len() == 32 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
+fn store_cover_media_id(media_id: String) -> Result<String, String> {
+    let media_id = media_id.trim();
+    if media_id.is_empty()
+        || media_id.chars().count() > 128
+        || media_id.chars().any(char::is_control)
+    {
+        return Err("wechat cover media id is invalid".to_string());
+    }
+
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|_| "wechat cover handle clock is invalid".to_string())?
+        .as_nanos()
+        .to_string();
+    let sequence = WECHAT_COVER_HANDLE_SEQUENCE
+        .fetch_add(1, Ordering::Relaxed)
+        .to_string();
+    let process_id = std::process::id().to_string();
+    let handle = stable_hash_v1(&[
+        "inkforge-wechat-cover-handle-v1",
+        &nanos,
+        &process_id,
+        &sequence,
+        &media_id,
+    ]);
+    let mut handles = WECHAT_COVER_MEDIA_HANDLES
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .map_err(|_| "wechat cover handle store is unavailable".to_string())?;
+    handles.insert(handle.clone(), media_id.to_string());
+    Ok(handle)
+}
+
+fn resolve_cover_media_id(cover_handle: &str) -> Result<String, String> {
+    let cover_handle = cover_handle.trim();
+    if !valid_cover_handle(cover_handle) {
+        return Err("wechat cover handle is invalid".to_string());
+    }
+    WECHAT_COVER_MEDIA_HANDLES
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .map_err(|_| "wechat cover handle store is unavailable".to_string())?
+        .get(cover_handle)
+        .cloned()
+        .ok_or_else(|| "wechat cover handle is expired; upload the cover again".to_string())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        access_token_cache_ttl, build_wechat_url, cache_access_token, cached_access_token,
-        clear_access_token_cache_for_tests, collect_env_file_candidates, ensure_no_api_error,
-        ensure_remote_image_response_status, ensure_supported_wechat_image, extract_img_srcs,
-        is_access_token_endpoint_error, is_wechat_image_url, load_env_file_values_from_candidates,
-        parse_env_contents, sanitize_env_value, validate_draft_article, validate_remote_image_url,
-        WechatApiConfig, WechatDraftArticle, WechatDraftArticlePayload, WechatUploadKind,
-        WECHAT_ACCESS_TOKEN_MIN_TTL_SECS, WECHAT_ACCESS_TOKEN_REFRESH_SKEW_SECS,
-        WECHAT_ARTICLE_CONTENT_MAX_BYTES, WECHAT_ARTICLE_CONTENT_MAX_CHARS,
-        WECHAT_ARTICLE_IMAGE_MAX_BYTES, WECHAT_DRAFT_AUTHOR_MAX_CHARS,
-        WECHAT_DRAFT_DIGEST_MAX_CHARS, WECHAT_DRAFT_TITLE_MAX_CHARS,
-        WECHAT_PERMANENT_IMAGE_MAX_BYTES,
-    };
+    use super::*;
     use std::{
         fs,
+        io::{Read, Write},
+        net::TcpListener,
         path::{Path, PathBuf},
         time::{Duration, Instant},
     };
@@ -1427,6 +1688,33 @@ mod tests {
         0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, b'J', b'F', b'I', b'F', 0x00,
     ];
     static ACCESS_TOKEN_CACHE_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    #[test]
+    fn ordinary_draft_response_exposes_only_article_count() {
+        let value = serde_json::to_value(WechatDraftCreateResponse { article_count: 1 }).unwrap();
+
+        assert_eq!(value, serde_json::json!({ "articleCount": 1 }));
+    }
+
+    #[test]
+    fn cover_upload_response_exposes_only_an_opaque_process_handle() {
+        let raw_media_id = "raw-private-cover-media-id".to_string();
+        let cover_handle = store_cover_media_id(raw_media_id.clone()).unwrap();
+        let value = serde_json::to_value(WechatCoverUploadResponse {
+            remote_url: "https://mmbiz.qpic.cn/cover.png".to_string(),
+            cover_handle: cover_handle.clone(),
+        })
+        .unwrap();
+
+        assert!(valid_cover_handle(&cover_handle));
+        assert_eq!(resolve_cover_media_id(&cover_handle).unwrap(), raw_media_id);
+        assert_eq!(
+            value.get("coverHandle").and_then(|value| value.as_str()),
+            Some(cover_handle.as_str())
+        );
+        assert!(value.get("mediaId").is_none());
+        assert!(!value.to_string().contains("raw-private-cover-media-id"));
+    }
 
     #[test]
     fn parse_env_contents_skips_comments_and_export_prefix() {
@@ -1513,7 +1801,7 @@ mod tests {
     #[test]
     fn extract_img_srcs_finds_multiple_sources() {
         let html = r#"<p><img src="https://example.com/a.png"><img alt="b" src='https://mmbiz.qpic.cn/x.png'></p>"#;
-        let sources = extract_img_srcs(html);
+        let sources = extract_img_srcs(html).unwrap();
 
         assert_eq!(sources.len(), 2);
         assert_eq!(sources[0], "https://example.com/a.png");
@@ -1523,7 +1811,7 @@ mod tests {
     #[test]
     fn extract_img_srcs_handles_multibyte_attrs_and_unquoted_sources() {
         let html = r#"<p><img alt="中文" src=https://example.com/a.png><IMG data-src="skip" SRC='https://mmbiz.qpic.cn/x.png'></p>"#;
-        let sources = extract_img_srcs(html);
+        let sources = extract_img_srcs(html).unwrap();
 
         assert_eq!(sources.len(), 2);
         assert_eq!(sources[0], "https://example.com/a.png");
@@ -1533,15 +1821,66 @@ mod tests {
     #[test]
     fn extract_img_srcs_handles_gt_inside_quoted_attributes() {
         let html = r#"<p><img alt="a > b" src="https://example.com/a.png"></p>"#;
-        let sources = extract_img_srcs(html);
+        let sources = extract_img_srcs(html).unwrap();
 
         assert_eq!(sources, vec!["https://example.com/a.png"]);
     }
 
     #[test]
+    fn extract_img_srcs_ignores_attribute_text_and_rejects_the_real_foreign_source() {
+        let html = r#"<div data-example="<img src='https://mmbiz.qpic.cn/fake.png'>"></div><img alt="note src=https://mmbiz.qpic.cn/a.png" src="https://evil.example/x.png">"#;
+        assert_eq!(
+            extract_img_srcs(html).unwrap(),
+            vec!["https://evil.example/x.png"]
+        );
+        assert!(extract_img_srcs(
+            r#"<script>const decoy = '<img alt="';</script><img src="https://evil.example/x.png">"#
+        )
+        .unwrap_err()
+        .contains("unsupported <script>"));
+        assert!(
+            extract_img_srcs(r#"<!-- decoy --!><img src="https://evil.example/x.png">"#)
+                .unwrap_err()
+                .contains("unsupported HTML comments")
+        );
+        for malformed in [
+            r#"<div foo"><img src=https://evil.example/x.png>"#,
+            r#"<?foo "><img src=https://evil.example/x.png>"#,
+            r#"<1 "><img src=https://evil.example/x.png>"#,
+        ] {
+            assert!(extract_img_srcs(malformed)
+                .unwrap_err()
+                .contains("malformed HTML markup"));
+        }
+
+        let mut article = WechatDraftArticle {
+            title: "Demo".to_string(),
+            content: html.to_string(),
+            cover_handle: "a".repeat(32),
+            author: None,
+            digest: None,
+            show_cover_pic: None,
+            content_source_url: None,
+            need_open_comment: None,
+            only_fans_can_comment: None,
+        };
+        assert!(validate_draft_article(&article)
+            .unwrap_err()
+            .contains("https://evil.example/x.png"));
+        article.content = r#"<!-- decoy --!><img src="https://evil.example/x.png">"#.to_string();
+        assert!(validate_draft_article(&article)
+            .unwrap_err()
+            .contains("unsupported HTML comments"));
+        article.content = r#"<div foo"><img src=https://evil.example/x.png>"#.to_string();
+        assert!(validate_draft_article(&article)
+            .unwrap_err()
+            .contains("malformed HTML markup"));
+    }
+
+    #[test]
     fn extract_img_srcs_includes_srcset_candidates_for_validation() {
         let html = r#"<p><img src="https://mmbiz.qpic.cn/ok.png" srcset="https://example.com/a.png 1x, https://mmbiz.qpic.cn/b.png 2x"></p>"#;
-        let sources = extract_img_srcs(html);
+        let sources = extract_img_srcs(html).unwrap();
 
         assert_eq!(sources.len(), 3);
         assert_eq!(sources[0], "https://mmbiz.qpic.cn/ok.png");
@@ -1564,7 +1903,7 @@ mod tests {
         let article = WechatDraftArticle {
             title: "Demo".to_string(),
             content: "<p>hello</p>".to_string(),
-            thumb_media_id: "thumb-1".to_string(),
+            cover_handle: "a".repeat(32),
             author: Some("InkForge".to_string()),
             digest: Some("digest".to_string()),
             show_cover_pic: Some(1),
@@ -1573,7 +1912,9 @@ mod tests {
             only_fans_can_comment: Some(0),
         };
 
-        let payload = serde_json::to_value(WechatDraftArticlePayload::from(&article)).unwrap();
+        let payload =
+            serde_json::to_value(WechatDraftArticlePayload::from_article(&article, "thumb-1"))
+                .unwrap();
 
         assert_eq!(
             payload
@@ -1604,21 +1945,35 @@ mod tests {
     }
 
     #[test]
-    fn draft_payload_omits_null_optional_fields_and_defaults_cover_visibility() {
+    fn draft_payload_trims_metadata_omits_blank_fields_and_defaults_cover_visibility() {
         let article = WechatDraftArticle {
-            title: "Demo".to_string(),
+            title: "  Demo  ".to_string(),
             content: "<p>hello</p>".to_string(),
-            thumb_media_id: "thumb-1".to_string(),
-            author: None,
-            digest: None,
+            cover_handle: "a".repeat(32),
+            author: Some("   ".to_string()),
+            digest: Some("  digest  ".to_string()),
             show_cover_pic: None,
-            content_source_url: None,
+            content_source_url: Some("  https://example.com/source  ".to_string()),
             need_open_comment: None,
             only_fans_can_comment: None,
         };
 
-        let payload = serde_json::to_value(WechatDraftArticlePayload::from(&article)).unwrap();
+        let payload = serde_json::to_value(WechatDraftArticlePayload::from_article(
+            &article,
+            "  thumb-1  ",
+        ))
+        .unwrap();
 
+        assert_eq!(
+            payload.get("title").and_then(|value| value.as_str()),
+            Some("Demo")
+        );
+        assert_eq!(
+            payload
+                .get("thumb_media_id")
+                .and_then(|value| value.as_str()),
+            Some("thumb-1")
+        );
         assert_eq!(
             payload
                 .get("show_cover_pic")
@@ -1626,10 +1981,37 @@ mod tests {
             Some(0)
         );
         assert!(payload.get("author").is_none());
-        assert!(payload.get("digest").is_none());
-        assert!(payload.get("content_source_url").is_none());
+        assert_eq!(
+            payload.get("digest").and_then(|value| value.as_str()),
+            Some("digest")
+        );
+        assert_eq!(
+            payload
+                .get("content_source_url")
+                .and_then(|value| value.as_str()),
+            Some("https://example.com/source")
+        );
         assert!(payload.get("need_open_comment").is_none());
         assert!(payload.get("only_fans_can_comment").is_none());
+    }
+
+    #[test]
+    fn draft_digest_accepts_120_characters_and_rejects_121() {
+        let mut article = WechatDraftArticle {
+            title: "Demo".to_string(),
+            content: "<p>hello</p>".to_string(),
+            cover_handle: "a".repeat(32),
+            author: None,
+            digest: Some("d".repeat(120)),
+            show_cover_pic: None,
+            content_source_url: None,
+            need_open_comment: None,
+            only_fans_can_comment: None,
+        };
+
+        assert!(validate_draft_article(&article).is_ok());
+        article.digest = Some("d".repeat(121));
+        assert!(validate_draft_article(&article).is_err());
     }
 
     #[test]
@@ -1637,7 +2019,7 @@ mod tests {
         let mut article = WechatDraftArticle {
             title: "Demo".to_string(),
             content: "<p>hello</p>".to_string(),
-            thumb_media_id: "thumb-1".to_string(),
+            cover_handle: "a".repeat(32),
             author: None,
             digest: None,
             show_cover_pic: Some(2),
@@ -1774,31 +2156,126 @@ mod tests {
             "http://localhost/a.png",
             "http://127.0.0.1/a.png",
             "http://10.0.0.1/a.png",
+            "http://100.64.0.1/a.png",
+            "http://198.18.0.1/a.png",
+            "http://192.0.2.1/a.png",
             "http://224.0.0.1/a.png",
             "http://[::1]/a.png",
+            "http://[fc00::1]/a.png",
+            "http://[fe80::1]/a.png",
+            "http://[64:ff9b::7f00:1]/a.png",
+            "http://[100:0:0:1::1]/a.png",
             "http://[::ffff:127.0.0.1]/a.png",
+            "http://[5f00::1]/a.png",
+            "http://[fec0::1]/a.png",
         ] {
             let parsed = reqwest::Url::parse(url).unwrap();
             assert!(validate_remote_image_url(&parsed).is_err(), "{url}");
         }
 
-        let parsed = reqwest::Url::parse("https://example.com/a.png").unwrap();
-        assert!(validate_remote_image_url(&parsed).is_ok());
+        for url in [
+            "https://example.com/a.png",
+            "https://[2606:4700:4700::1111]/a.png",
+        ] {
+            let parsed = reqwest::Url::parse(url).unwrap();
+            assert!(validate_remote_image_url(&parsed).is_ok(), "{url}");
+        }
     }
 
     #[test]
-    fn remote_image_response_validation_rejects_redirects() {
+    fn remote_image_response_validation_rejects_unhandled_redirects() {
         assert!(ensure_remote_image_response_status(reqwest::StatusCode::OK).is_ok());
         assert!(
             ensure_remote_image_response_status(reqwest::StatusCode::FOUND)
                 .unwrap_err()
-                .contains("redirects are not allowed")
+                .contains("not handled safely")
         );
         assert!(
             ensure_remote_image_response_status(reqwest::StatusCode::NOT_FOUND)
                 .unwrap_err()
                 .contains("request failed")
         );
+    }
+
+    #[tokio::test]
+    async fn remote_fetch_pins_and_resolves_every_redirect_hop() {
+        let first_listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let first_address = first_listener.local_addr().unwrap();
+        let second_listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let second_address = second_listener.local_addr().unwrap();
+        let second_url = format!("http://second.invalid:{}/image.png", second_address.port());
+
+        let serve = |listener: TcpListener, expected_host: String, response: Vec<u8>| {
+            std::thread::spawn(move || {
+                let (mut stream, _) = listener.accept().unwrap();
+                let mut request = Vec::new();
+                let mut buffer = [0u8; 1024];
+                loop {
+                    let read = stream.read(&mut buffer).unwrap();
+                    if read == 0 {
+                        break;
+                    }
+                    request.extend_from_slice(&buffer[..read]);
+                    if request.windows(4).any(|window| window == b"\r\n\r\n") {
+                        break;
+                    }
+                }
+                let request = String::from_utf8_lossy(&request).to_ascii_lowercase();
+                assert!(request.contains(&format!("host: {expected_host}")));
+                stream.write_all(&response).unwrap();
+            })
+        };
+
+        let first_server = serve(
+            first_listener,
+            format!("first.invalid:{}", first_address.port()),
+            format!(
+                "HTTP/1.1 302 Found\r\nLocation: {second_url}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+            )
+            .into_bytes(),
+        );
+        let mut success_response = format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+            PNG_BYTES.len()
+        )
+        .into_bytes();
+        success_response.extend_from_slice(PNG_BYTES);
+        let second_server = serve(
+            second_listener,
+            format!("second.invalid:{}", second_address.port()),
+            success_response,
+        );
+
+        let resolved_hosts = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+        let recorded_hosts = resolved_hosts.clone();
+        let (bytes, mime_type) = fetch_remote_bytes_with_resolver(
+            &format!("http://first.invalid:{}/start", first_address.port()),
+            1024,
+            move |parsed| {
+                let host = parsed.host_str().unwrap_or_default().to_string();
+                let address = match host.as_str() {
+                    "first.invalid" => Ok(first_address),
+                    "second.invalid" => Ok(second_address),
+                    _ => Err("unexpected test host".to_string()),
+                };
+                let recorded_hosts = recorded_hosts.clone();
+                async move {
+                    recorded_hosts.lock().unwrap().push(host);
+                    address.map(|address| vec![address])
+                }
+            },
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(bytes, PNG_BYTES);
+        assert_eq!(mime_type, "image/png");
+        assert_eq!(
+            *resolved_hosts.lock().unwrap(),
+            vec!["first.invalid", "second.invalid"]
+        );
+        first_server.join().unwrap();
+        second_server.join().unwrap();
     }
 
     #[test]

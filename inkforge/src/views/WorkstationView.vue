@@ -1244,6 +1244,13 @@ function cancelEditTitle() {
 // 鈹€鈹€鈹€ 导出妯℃€?鈹€鈹€鈹€
 const showExportModal = ref(false)
 
+function openPublishCenter(): void {
+  const articleId = selectedArticleId.value
+  void router.push(articleId
+    ? { name: 'Publish', query: { id: articleId } }
+    : { name: 'Publish' })
+}
+
 // 鈹€鈹€鈹€ 澶嶅埗鍙嶉 鈹€鈹€鈹€
 const copySuccess = ref(false)
 let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
@@ -2526,7 +2533,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         <!-- 发布鎸夐挳 CTA -->
         <button
           class="publish-btn"
-          @click="showExportModal = true"
+          @click="openPublishCenter"
         >
           <svg
             class="publish-nib-arrow"

@@ -4,7 +4,7 @@
  * 核心功能：生成带内联样式的 HTML，复制后粘贴到平台编辑器
  * 支持微信公众号、小红书、知乎三平台真实渲染
  */
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DOMPurify from 'dompurify'
@@ -23,16 +23,22 @@ import {
   convertToXiaohongshu,
   convertToZhihu,
   calculateStats,
+  describeWechatPublishStatus,
+  getWechatPublishStatus,
   getWechatSvgApplicationSlotModuleId,
   normalizeWechatSvgApplicationPlan,
+  publishWechatDraft,
   setWechatSvgApplicationSlot,
   SVG_MODULES,
+  WECHAT_DRAFT_TITLE_MAX_CHARS,
   WECHAT_SVG_APPLICATION_SLOTS,
   xiaohongshuPresets
 } from '@/services/export'
 import type {
   SvgInjectionPlan,
   SvgModuleFamily,
+  WechatDraftPublishResult,
+  WechatPublishStatus,
   WechatSvgApplicationSlotId,
 } from '@/services/export'
 import { logger } from '@/services/error'
@@ -154,6 +160,22 @@ const viewMode = ref<'preview' | 'code'>('preview')
 
 // 生成结果
 const generatedHtml = ref('')
+const generatedRenderKey = ref('')
+const wechatPublishStatus = ref<WechatPublishStatus | null>(null)
+const isWechatPublishStatusLoading = ref(false)
+const wechatPublishStatusError = ref('')
+const wechatDraftTitle = ref('')
+const wechatDraftCoverHandle = ref('')
+const wechatDraftShowCoverPic = ref(false)
+const isWechatDraftCreating = ref(false)
+const wechatDraftRenderReady = ref(false)
+const wechatDraftError = ref('')
+const wechatDraftResult = ref<WechatDraftPublishResult | null>(null)
+let publishStatusVersion = 0
+let generateHtmlVersion = 0
+let wechatDraftRequestVersion = 0
+let draftSeedKey = ''
+
 interface LocalStats {
   wordCount: number
   readingTime: number
@@ -176,6 +198,7 @@ const isGenerating = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const copySuccess = ref(false)
+let toastHideTimer: ReturnType<typeof setTimeout> | undefined
 
 const EMPTY_STATS: LocalStats = {
   wordCount: 0,
@@ -197,10 +220,14 @@ function getRouteArticleId(): string | null {
 async function ensurePublishRouteArticleLoaded() {
   const routeArticleId = getRouteArticleId()
   if (!routeArticleId) return
-  if (currentContent.value?.articleId === routeArticleId) return
+  if (
+    currentContent.value?.articleId === routeArticleId
+    && articleStore.selectedArticleId === routeArticleId
+  ) return
 
   if (!articleStore.articles.some(article => article.id === routeArticleId)) {
     await articleStore.loadArticles()
+    if (getRouteArticleId() !== routeArticleId) return
   }
 
   if (!articleStore.articles.some(article => article.id === routeArticleId)) {
@@ -232,10 +259,133 @@ const publishSourceMarkdown = computed(() => {
 
 const hasPublishSource = computed(() => publishSourceMarkdown.value.length > 0)
 
+function currentPublishArticleIdentity() {
+  return {
+    routeArticleId: getRouteArticleId(),
+    selectedArticleId: articleStore.selectedArticleId ?? null,
+    contentArticleId: currentContent.value?.articleId ?? null,
+  }
+}
+
+const isPublishArticleReady = computed(() => {
+  const { routeArticleId, selectedArticleId, contentArticleId } = currentPublishArticleIdentity()
+  const expectedArticleId = routeArticleId ?? selectedArticleId
+  if (!expectedArticleId) return Boolean(contentArticleId)
+
+  return contentArticleId === expectedArticleId
+    && (!routeArticleId || selectedArticleId === routeArticleId)
+})
+
 const publishTitle = computed(() => {
   const title = currentContent.value?.title?.trim()
   return title && title.length > 0 ? title : '未选择文章'
 })
+
+function currentRenderKey(): string {
+  return JSON.stringify({
+    article: currentPublishArticleIdentity(),
+    content: publishSourceMarkdown.value,
+    platform: platform.value,
+    preset: selectedPreset.value,
+    xhsPreset: xhsPreset.value,
+    options: exportOptions.value,
+  })
+}
+
+function cleanWechatDraftTitle(title: string): string {
+  const cleaned = title
+    .replace(/<[^>]+>/g, '')
+    .replace(/[#*_`[\]()>~-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return Array.from(cleaned).slice(0, WECHAT_DRAFT_TITLE_MAX_CHARS).join('')
+}
+
+function inferWechatDraftTitle(markdown: string): string {
+  const heading = markdown.match(/^\s{0,3}#\s+(.+)$/m)?.[1]
+  if (heading) {
+    const title = cleanWechatDraftTitle(heading)
+    if (title) return title
+  }
+
+  return markdown
+    .split(/\r?\n/)
+    .map(cleanWechatDraftTitle)
+    .find(Boolean) || 'InkForge 微信草稿'
+}
+
+async function refreshWechatPublishStatus(): Promise<void> {
+  if (platform.value !== 'wechat') {
+    publishStatusVersion += 1
+    wechatPublishStatus.value = null
+    wechatPublishStatusError.value = ''
+    isWechatPublishStatusLoading.value = false
+    return
+  }
+
+  const version = ++publishStatusVersion
+  isWechatPublishStatusLoading.value = true
+  wechatPublishStatusError.value = ''
+
+  try {
+    const status = await getWechatPublishStatus()
+    if (version === publishStatusVersion) wechatPublishStatus.value = status
+  } catch (error) {
+    if (version !== publishStatusVersion) return
+    wechatPublishStatus.value = null
+    wechatPublishStatusError.value = error instanceof Error ? error.message : '未知错误'
+  } finally {
+    if (version === publishStatusVersion) isWechatPublishStatusLoading.value = false
+  }
+}
+
+const wechatPublishStatusDetail = computed(() => {
+  if (isWechatPublishStatusLoading.value) return '正在检测微信公众号账号与草稿能力。'
+  if (wechatPublishStatusError.value) return `发布状态检测失败：${wechatPublishStatusError.value}`
+  if (wechatPublishStatus.value) return describeWechatPublishStatus(wechatPublishStatus.value)
+  return '等待检测微信公众号账号与草稿能力。'
+})
+
+const hasWechatDraftCoverSource = computed(() => {
+  if (wechatDraftCoverHandle.value.trim()) return true
+  if (!generatedHtml.value.trim() || typeof globalThis.DOMParser === 'undefined') return false
+  const image = new globalThis.DOMParser().parseFromString(generatedHtml.value, 'text/html').querySelector('img')
+  return Boolean(image?.getAttribute('src')?.trim())
+})
+
+const wechatDraftPreflightDetail = computed(() => {
+  if (!isPublishArticleReady.value) return '正在加载路由指定的文章，草稿创建暂不可用。'
+  if (!hasPublishSource.value) return emptyPublishMessage.value
+  if (isGenerating.value || generatedRenderKey.value !== currentRenderKey()) {
+    return '正在生成与当前文章、平台和样式一致的微信 HTML。'
+  }
+  if (!wechatDraftRenderReady.value) {
+    return '微信专用渲染失败；当前回退内容仅供本地预览、复制或下载，不会创建微信草稿。'
+  }
+  if (!wechatDraftTitle.value.trim()) return '需要填写草稿标题。'
+  if (Array.from(wechatDraftTitle.value.trim()).length > WECHAT_DRAFT_TITLE_MAX_CHARS) {
+    return `草稿标题不能超过 ${WECHAT_DRAFT_TITLE_MAX_CHARS} 字。`
+  }
+  if (!hasWechatDraftCoverSource.value) {
+    return '正文至少需要一张真实图片作为永久封面。'
+  }
+  return '已检测到候选封面；创建前仍会校验图片来源、格式和大小。'
+})
+
+const canCreateWechatDraft = computed(() => (
+  platform.value === 'wechat'
+  && wechatPublishStatus.value?.configured === true
+  && isPublishArticleReady.value
+  && hasPublishSource.value
+  && !isGenerating.value
+  && !isWechatDraftCreating.value
+  && wechatDraftRenderReady.value
+  && Boolean(generatedHtml.value.trim())
+  && generatedRenderKey.value === currentRenderKey()
+  && Boolean(wechatDraftTitle.value.trim())
+  && Array.from(wechatDraftTitle.value.trim()).length <= WECHAT_DRAFT_TITLE_MAX_CHARS
+  && hasWechatDraftCoverSource.value
+))
 
 const emptyPublishMessage = computed(() => {
   if (currentContent.value) {
@@ -247,66 +397,127 @@ const emptyPublishMessage = computed(() => {
 
 // 根据平台生成 HTML
 async function generateHtml() {
+  const version = ++generateHtmlVersion
+  const renderKey = currentRenderKey()
+  const articleReady = isPublishArticleReady.value
+  const content = publishSourceMarkdown.value
+  const selectedPlatform = platform.value
+  const presetId = selectedPreset.value
+  const selectedXhsPreset = xhsPreset.value
+  const selectedOptions: LocalExportOptions = {
+    ...exportOptions.value,
+    svgInjectionPlan: exportOptions.value.svgInjectionPlan
+      ? normalizeWechatSvgApplicationPlan(exportOptions.value.svgInjectionPlan)
+      : undefined,
+  }
   isGenerating.value = true
+  wechatDraftRenderReady.value = false
 
-  if (!hasPublishSource.value) {
-    generatedHtml.value = ''
-    stats.value = { ...EMPTY_STATS }
-    isGenerating.value = false
+  if (!articleReady || !content) {
+    if (version === generateHtmlVersion) {
+      generatedHtml.value = ''
+      generatedRenderKey.value = renderKey
+      stats.value = { ...EMPTY_STATS }
+      isGenerating.value = false
+    }
     return
   }
 
-  const content = publishSourceMarkdown.value
-
   try {
     const rawHtml = await renderMarkdownToHtml(content)
+    let nextHtml = ''
+    let nextStats: LocalStats = { ...EMPTY_STATS }
 
-    switch (platform.value) {
+    switch (selectedPlatform) {
       case 'wechat': {
-        const preset = themePresets.find(p => p.id === selectedPreset.value) || themePresets[0]
+        const preset = themePresets.find(item => item.id === presetId) || themePresets[0]
         const result = await markdownToWechatWithStats(content, preset, {
-          enableCiteStatus: exportOptions.value.convertFootnotes,
-          enableLineNumbers: exportOptions.value.lineNumbers,
-          enableMacCodeBlock: exportOptions.value.macCodeBlock,
-          enableTextIndent: exportOptions.value.textIndent,
-          enableSvgModules: exportOptions.value.enableSvgModules,
-          svgInjectionPlan: exportOptions.value.svgInjectionPlan,
+          enableCiteStatus: selectedOptions.convertFootnotes,
+          enableLineNumbers: selectedOptions.lineNumbers,
+          enableMacCodeBlock: selectedOptions.macCodeBlock,
+          enableTextIndent: selectedOptions.textIndent,
+          enableSvgModules: selectedOptions.enableSvgModules,
+          svgInjectionPlan: selectedOptions.svgInjectionPlan,
         })
-        generatedHtml.value = result.html
-        stats.value = result.stats
+        nextHtml = result.html
+        nextStats = result.stats
         break
       }
-      case 'xiaohongshu': {
-        generatedHtml.value = convertToXiaohongshu(rawHtml, xhsPreset.value, {
-          enableLineNumbers: exportOptions.value.lineNumbers,
-          enableMacCodeBlock: exportOptions.value.macCodeBlock,
+      case 'xiaohongshu':
+        nextHtml = convertToXiaohongshu(rawHtml, selectedXhsPreset, {
+          enableLineNumbers: selectedOptions.lineNumbers,
+          enableMacCodeBlock: selectedOptions.macCodeBlock,
         })
-        stats.value = calculateStats(rawHtml, 300)
+        nextStats = calculateStats(rawHtml, 300)
         break
-      }
-      case 'zhihu': {
-        generatedHtml.value = convertToZhihu(rawHtml, undefined, {
+      case 'zhihu':
+        nextHtml = convertToZhihu(rawHtml, undefined, {
           enableCodeHighlight: true,
         })
-        stats.value = calculateStats(rawHtml, 300)
+        nextStats = calculateStats(rawHtml, 300)
         break
-      }
     }
-  } catch (e) {
+
+    if (version !== generateHtmlVersion || renderKey !== currentRenderKey()) return
+    generatedHtml.value = nextHtml
+    generatedRenderKey.value = renderKey
+    wechatDraftRenderReady.value = selectedPlatform === 'wechat'
+    stats.value = nextStats
+  } catch (error) {
     const rawHtml = await renderMarkdownToHtml(content)
+    if (version !== generateHtmlVersion || renderKey !== currentRenderKey()) return
     generatedHtml.value = rawHtml
-    logger.error('生成 HTML 失败', e)
+    generatedRenderKey.value = renderKey
+    wechatDraftRenderReady.value = false
+    stats.value = calculateStats(rawHtml, 300)
+    logger.error('生成 HTML 失败', error)
   } finally {
-    isGenerating.value = false
+    if (version === generateHtmlVersion) isGenerating.value = false
   }
 }
 
 // 监听变化自动生成
 watch(() => route.query.id, () => {
+  generateHtmlVersion += 1
+  wechatDraftRequestVersion += 1
+  generatedHtml.value = ''
+  generatedRenderKey.value = ''
+  wechatDraftRenderReady.value = false
+  stats.value = { ...EMPTY_STATS }
+  wechatDraftError.value = ''
+  wechatDraftResult.value = null
+  wechatDraftCoverHandle.value = ''
   void ensurePublishRouteArticleLoaded()
+}, { immediate: true, flush: 'sync' })
+
+watch(currentRenderKey, generateHtml, { immediate: true })
+watch(platform, () => { void refreshWechatPublishStatus() }, { immediate: true })
+watch(() => JSON.stringify({
+  article: currentPublishArticleIdentity(),
+  platform: platform.value,
+  title: publishTitle.value,
+  content: publishSourceMarkdown.value,
+}), (nextSeedKey) => {
+  if (nextSeedKey === draftSeedKey) return
+  draftSeedKey = nextSeedKey
+  wechatDraftRequestVersion += 1
+  const title = publishTitle.value
+  const content = publishSourceMarkdown.value
+  wechatDraftTitle.value = title !== '未选择文章'
+    ? cleanWechatDraftTitle(title)
+    : inferWechatDraftTitle(content)
+  wechatDraftError.value = ''
+  wechatDraftResult.value = null
+  wechatDraftCoverHandle.value = ''
 }, { immediate: true })
 
-watch([publishSourceMarkdown, selectedPreset, exportOptions, platform, xhsPreset], generateHtml, { deep: true, immediate: true })
+watch(currentRenderKey, () => {
+  wechatDraftRequestVersion += 1
+  wechatDraftRenderReady.value = false
+  wechatDraftError.value = ''
+  wechatDraftResult.value = null
+  wechatDraftCoverHandle.value = ''
+})
 
 function recordPublishExportHistory(label: string, action: 'copy' | 'download'): void {
   const title = publishTitle.value.slice(0, 120)
@@ -398,11 +609,57 @@ function downloadHtmlFile() {
   }
 }
 
+async function handleCreateWechatDraft(): Promise<void> {
+  if (!canCreateWechatDraft.value) {
+    showToastMessage(
+      wechatPublishStatus.value?.configured
+        ? wechatDraftPreflightDetail.value
+        : wechatPublishStatusDetail.value,
+    )
+    return
+  }
+
+  const version = ++wechatDraftRequestVersion
+  const renderKey = generatedRenderKey.value
+  const input = Object.freeze({
+    title: wechatDraftTitle.value.trim(),
+    contentHtml: generatedHtml.value,
+    coverHandle: wechatDraftCoverHandle.value.trim() || undefined,
+    showCoverPic: (wechatDraftShowCoverPic.value ? 1 : 0) as 0 | 1,
+  })
+  isWechatDraftCreating.value = true
+  wechatDraftError.value = ''
+  wechatDraftResult.value = null
+
+  try {
+    const result = await publishWechatDraft(input)
+    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
+      showToastMessage('文章或发布设置已变化；上一快照的微信草稿已创建，请到微信草稿箱核对。')
+      return
+    }
+    wechatDraftResult.value = result
+    wechatDraftCoverHandle.value = result.coverHandle
+    showToastMessage('微信公众号草稿已创建')
+  } catch (error) {
+    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
+      showToastMessage('文章或发布设置已变化；上一快照的远端结果未确认，重试前请检查微信草稿箱和素材库。')
+      return
+    }
+    const detail = error instanceof Error ? error.message : '未知错误'
+    wechatDraftError.value = `创建未完成：${detail}。若请求已进入上传阶段，远端素材或草稿结果可能未确认；重试前请检查微信草稿箱和素材库。`
+    showToastMessage(wechatDraftError.value)
+  } finally {
+    isWechatDraftCreating.value = false
+  }
+}
+
 function showToastMessage(message: string) {
+  if (toastHideTimer !== undefined) clearTimeout(toastHideTimer)
   toastMessage.value = message
   showToast.value = true
-  setTimeout(() => {
+  toastHideTimer = setTimeout(() => {
     showToast.value = false
+    toastHideTimer = undefined
   }, 3000)
 }
 
@@ -420,11 +677,6 @@ function goBack() {
 function goToThemes() {
   router.push('/themes')
 }
-
-// 初始化
-onMounted(() => {
-  generateHtml()
-})
 </script>
 
 <template>
@@ -781,6 +1033,67 @@ onMounted(() => {
               </div>
             </div>
           </div>
+        </section>
+
+        <section
+          v-if="platform === 'wechat'"
+          class="sidebar-section publish-channel-section"
+        >
+          <h3 class="section-title">
+            微信草稿
+          </h3>
+          <div
+            class="publish-channel-status"
+            :class="{ ready: wechatPublishStatus?.configured }"
+          >
+            {{ wechatPublishStatusDetail }}
+          </div>
+          <label class="publish-draft-field">
+            <span>草稿标题</span>
+            <input
+              v-model="wechatDraftTitle"
+              type="text"
+              :disabled="isWechatDraftCreating"
+              autocomplete="off"
+            >
+          </label>
+          <div class="publish-channel-status">
+            封面自动取正文首张真实图片并上传为永久素材；原始 media_id 仅保留在 Rust 后端，前端只使用短期不透明句柄。
+          </div>
+          <div
+            class="publish-channel-status"
+            :class="{ ready: canCreateWechatDraft }"
+          >
+            {{ wechatDraftPreflightDetail }}
+          </div>
+          <label class="publish-draft-checkbox">
+            <input
+              v-model="wechatDraftShowCoverPic"
+              type="checkbox"
+              :disabled="isWechatDraftCreating"
+            >
+            <span>正文显示封面图</span>
+          </label>
+          <button
+            type="button"
+            class="btn-copy-primary publish-draft-action"
+            :disabled="!canCreateWechatDraft"
+            @click="handleCreateWechatDraft"
+          >
+            {{ isWechatDraftCreating ? '创建中' : '创建微信草稿' }}
+          </button>
+          <p
+            v-if="wechatDraftResult"
+            class="publish-draft-result success"
+          >
+            草稿已创建；正文图片 {{ wechatDraftResult.uploadedImageCount }} 张。
+          </p>
+          <p
+            v-else-if="wechatDraftError"
+            class="publish-draft-result error"
+          >
+            {{ wechatDraftError }}
+          </p>
         </section>
 
         <!-- Stats -->
@@ -1535,6 +1848,88 @@ onMounted(() => {
 
 .publish-svg-select:focus {
   border-color: #D32F2F;
+}
+
+.publish-channel-section {
+  display: grid;
+  gap: 10px;
+}
+
+.publish-channel-section .section-title {
+  margin-bottom: 2px;
+}
+
+.publish-channel-status {
+  padding: 9px 10px;
+  border: 1px solid #FFCDD2;
+  border-radius: 8px;
+  background: #FFF8F8;
+  color: #795548;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.publish-channel-status.ready {
+  border-color: #C8E6C9;
+  background: #F4FBF4;
+  color: #2E7D32;
+}
+
+.publish-draft-field {
+  display: grid;
+  gap: 5px;
+  color: #455A64;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.publish-draft-field input {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #ECEFF1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #263238;
+  font: inherit;
+  font-weight: 400;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.publish-draft-field input:focus {
+  border-color: #D32F2F;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.12);
+}
+
+.publish-draft-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #607D8B;
+  font-size: 11px;
+}
+
+.publish-draft-action {
+  height: 38px;
+  font-size: 12px;
+}
+
+.publish-draft-result {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.publish-draft-result.success {
+  color: #2E7D32;
+}
+
+.publish-draft-result.error {
+  color: #C62828;
 }
 
 /* ═══ Stats Grid (4 columns) ═══ */

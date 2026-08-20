@@ -9,7 +9,9 @@ import {
   markdownToWechatWithStats,
   themePresets,
 } from '@/services/export'
+import EXPORT_MODAL_SOURCE from '@/components/export/ExportModal.vue?raw'
 import PUBLISH_SOURCE from '../PublishView.vue?raw'
+import WORKSTATION_SOURCE from '../WorkstationView.vue?raw'
 
 const FLAGSHIP_PRESET_IDS = [
   'flagship-kiln',
@@ -66,6 +68,35 @@ describe('PublishView — WeChat preset selector coverage', () => {
     expect(PUBLISH_SOURCE).not.toContain('copyToClipboard(generatedHtml.value)')
   })
 
+  it('owns the credentialed WeChat draft channel instead of the export modal', () => {
+    expect(PUBLISH_SOURCE).toContain('getWechatPublishStatus')
+    expect(PUBLISH_SOURCE).toContain('publishWechatDraft')
+    expect(PUBLISH_SOURCE).toContain('handleCreateWechatDraft')
+    expect(PUBLISH_SOURCE).toContain('微信草稿')
+    expect(PUBLISH_SOURCE).toContain('封面自动取正文首张真实图片')
+    expect(PUBLISH_SOURCE).toContain('wechatDraftCoverHandle')
+    expect(PUBLISH_SOURCE).not.toContain('thumb_media_id')
+    expect(EXPORT_MODAL_SOURCE).not.toContain('publishWechatDraft')
+    expect(EXPORT_MODAL_SOURCE).not.toContain('handleCreateWechatDraft')
+  })
+
+  it('keeps asynchronous render and draft results bound to the current article snapshot', () => {
+    expect(PUBLISH_SOURCE).toContain('let generateHtmlVersion = 0')
+    expect(PUBLISH_SOURCE).toContain('const version = ++generateHtmlVersion')
+    expect(PUBLISH_SOURCE).toContain('renderKey !== currentRenderKey()')
+    expect(PUBLISH_SOURCE).toContain('let wechatDraftRequestVersion = 0')
+    expect(PUBLISH_SOURCE).toContain('const input = Object.freeze({')
+    expect(PUBLISH_SOURCE).toContain('version !== wechatDraftRequestVersion')
+    expect(PUBLISH_SOURCE).not.toContain('onMounted(() =>')
+  })
+
+  it('routes the Workstation publish CTA to PublishView while keeping export local', () => {
+    expect(WORKSTATION_SOURCE).toContain('function openPublishCenter(): void')
+    expect(WORKSTATION_SOURCE).toContain("{ name: 'Publish', query: { id: articleId } }")
+    expect(WORKSTATION_SOURCE).toMatch(/class="publish-btn"[\s\S]*?@click="openPublishCenter"/)
+    expect(WORKSTATION_SOURCE).toMatch(/title="导出"[\s\S]*?@click="showExportModal = true"/)
+  })
+
   it('exposes the app SVG slot selector in PublishView and forwards it to WeChat export options', () => {
     expect(PUBLISH_SOURCE).toContain('WECHAT_SVG_APPLICATION_SLOTS')
     expect(PUBLISH_SOURCE).toContain('SVG_MODULES')
@@ -74,8 +105,8 @@ describe('PublishView — WeChat preset selector coverage', () => {
     expect(PUBLISH_SOURCE).toContain('publish-svg-options')
     expect(PUBLISH_SOURCE).toContain('发布中心微信公众号 SVG 高级排版模块')
     expect(PUBLISH_SOURCE).toContain('enableSvgModules: false')
-    expect(PUBLISH_SOURCE).toContain('enableSvgModules: exportOptions.value.enableSvgModules')
-    expect(PUBLISH_SOURCE).toContain('svgInjectionPlan: exportOptions.value.svgInjectionPlan')
+    expect(PUBLISH_SOURCE).toContain('enableSvgModules: selectedOptions.enableSvgModules')
+    expect(PUBLISH_SOURCE).toContain('svgInjectionPlan: selectedOptions.svgInjectionPlan')
     expect(PUBLISH_SOURCE).toContain('getPublishWechatSvgSlotModuleId(slot.id)')
     expect(PUBLISH_SOURCE).toContain('handlePublishWechatSvgSlotChange(slot.id, $event)')
   })

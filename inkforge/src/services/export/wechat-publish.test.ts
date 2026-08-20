@@ -20,6 +20,7 @@ import {
 const invokeMock = vi.fn()
 const isTauriEnvMock = vi.fn<() => boolean>()
 const resolveAssetSnapshotMock = vi.fn()
+const COVER_HANDLE = 'a'.repeat(32)
 
 vi.mock('@/utils/platform', () => ({
   isTauriEnv: () => isTauriEnvMock(),
@@ -78,7 +79,7 @@ describe('wechat-publish service', () => {
   it('applies separate image format rules for article images and permanent covers', async () => {
     invokeMock.mockResolvedValueOnce({
       remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/demo-uploaded/640',
-      mediaId: 'cover-media-1',
+      coverHandle: COVER_HANDLE,
     })
 
     await expect(uploadWechatArticleImage({
@@ -95,7 +96,7 @@ describe('wechat-publish service', () => {
       mimeType: 'image/gif',
     })).resolves.toMatchObject({
       remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/demo-uploaded/640',
-      mediaId: 'cover-media-1',
+      coverHandle: COVER_HANDLE,
     })
     await expect(uploadWechatArticleImage({
       src: 'https://example.com/body.gif',
@@ -111,6 +112,23 @@ describe('wechat-publish service', () => {
         remoteUrl: 'https://example.com/cover.gif',
         mimeType: 'image/gif',
       }),
+    })
+  })
+
+  it('rejects any raw media id field returned across the Rust-to-Web boundary', async () => {
+    invokeMock.mockResolvedValue({
+      remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/demo-uploaded/640',
+      coverHandle: COVER_HANDLE,
+      mediaId: 'raw-private-cover-id',
+    })
+
+    await expect(uploadWechatCoverImage({
+      src: 'https://example.com/cover.png',
+      resolvedUrl: 'https://example.com/cover.png',
+      mimeType: 'image/png',
+    })).rejects.toMatchObject({
+      name: 'AppError',
+      code: ErrorCode.UNKNOWN_ERROR,
     })
   })
 
@@ -185,7 +203,7 @@ describe('wechat-publish service', () => {
     await expect(createWechatDraft({
       title: 'Draft title',
       content: '<p><img src="https://example.com/not-uploaded.png"></p>',
-      thumbMediaId: 'thumb-1',
+      coverHandle: COVER_HANDLE,
     })).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,
@@ -198,7 +216,7 @@ describe('wechat-publish service', () => {
     await expect(createWechatDraft({
       title: 'Draft title',
       content: '<p><img src="https://mmbiz.qpic.cn/mmbiz_png/ok/640" srcset="https://example.com/not-uploaded.png 2x"></p>',
-      thumbMediaId: 'thumb-1',
+      coverHandle: COVER_HANDLE,
     })).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,
@@ -211,7 +229,7 @@ describe('wechat-publish service', () => {
     await expect(createWechatDraft({
       title: 'Draft title',
       content: 'a'.repeat(20_000),
-      thumbMediaId: 'thumb-1',
+      coverHandle: COVER_HANDLE,
     })).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,
@@ -224,7 +242,7 @@ describe('wechat-publish service', () => {
     const baseArticle = {
       title: 'Draft title',
       content: '<p><img src="https://mmbiz.qpic.cn/mmbiz_png/ok/640"></p>',
-      thumbMediaId: 'thumb-1',
+      coverHandle: COVER_HANDLE,
     }
 
     await expect(createWechatDraft({
@@ -243,7 +261,7 @@ describe('wechat-publish service', () => {
     })
     await expect(createWechatDraft({
       ...baseArticle,
-      digest: '摘'.repeat(129),
+      digest: '摘'.repeat(121),
     })).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,
@@ -266,18 +284,19 @@ describe('wechat-publish service', () => {
     expect(invokeMock).not.toHaveBeenCalled()
   })
 
-  it('sends camelCase article input to Tauri draft creation command', async () => {
+  it('normalizes camelCase article input before Tauri draft creation', async () => {
     invokeMock.mockResolvedValue({
-      mediaId: 'draft-1',
       articleCount: 1,
     })
 
     const result = await createWechatDraft({
-      title: 'Draft title',
+      title: '  Draft title  ',
       content: '<p><img src="https://mmbiz.qpic.cn/mmbiz_png/ok/640"></p>',
-      thumbMediaId: 'thumb-1',
+      coverHandle: `  ${COVER_HANDLE}  `,
+      author: '   ',
+      digest: `  ${'摘'.repeat(120)}  `,
       showCoverPic: 1,
-      contentSourceUrl: 'https://example.com/source',
+      contentSourceUrl: '  https://example.com/source  ',
       needOpenComment: 1,
       onlyFansCanComment: 0,
     })
@@ -285,31 +304,36 @@ describe('wechat-publish service', () => {
     expect(invokeMock).toHaveBeenCalledWith('wechat_create_draft', {
       article: expect.objectContaining({
         title: 'Draft title',
-        thumbMediaId: 'thumb-1',
+        coverHandle: COVER_HANDLE,
+        digest: '摘'.repeat(120),
         showCoverPic: 1,
         contentSourceUrl: 'https://example.com/source',
         needOpenComment: 1,
         onlyFansCanComment: 0,
       }),
     })
-    expect(result.mediaId).toBe('draft-1')
+    const invokedArticle = invokeMock.mock.calls[0]?.[1]?.article as Record<string, unknown>
+    expect(invokedArticle).not.toHaveProperty('author')
+    expect(result).not.toHaveProperty('mediaId')
     expect(result.articleCount).toBe(1)
   })
 
-  it('publishes a draft by rewriting article images and using a real thumbMediaId', async () => {
+  it('publishes a draft by rewriting images and binding the first real image as an opaque cover handle', async () => {
     invokeMock
       .mockResolvedValueOnce({
         remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/uploaded-body/640',
       })
       .mockResolvedValueOnce({
-        mediaId: 'draft-media-1',
+        remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/uploaded-cover/640',
+        coverHandle: COVER_HANDLE,
+      })
+      .mockResolvedValueOnce({
         articleCount: 1,
       })
 
     const result = await publishWechatDraft({
       title: '真实草稿',
       contentHtml: '<p><img src="https://example.com/body.png" alt="body"></p>',
-      thumbMediaId: 'thumb-media-1',
       showCoverPic: 1,
     })
 
@@ -318,24 +342,29 @@ describe('wechat-publish service', () => {
         remoteUrl: 'https://example.com/body.png',
       }),
     })
-    expect(invokeMock).toHaveBeenNthCalledWith(2, 'wechat_create_draft', {
+    expect(invokeMock).toHaveBeenNthCalledWith(2, 'wechat_upload_cover_image', {
+      input: expect.objectContaining({
+        remoteUrl: 'https://example.com/body.png',
+      }),
+    })
+    expect(invokeMock).toHaveBeenNthCalledWith(3, 'wechat_create_draft', {
       article: expect.objectContaining({
         title: '真实草稿',
-        thumbMediaId: 'thumb-media-1',
+        coverHandle: COVER_HANDLE,
         showCoverPic: 1,
         content: expect.stringContaining('https://mmbiz.qpic.cn/mmbiz_png/uploaded-body/640'),
       }),
     })
-    expect(result.mediaId).toBe('draft-media-1')
-    expect(result.thumbMediaId).toBe('thumb-media-1')
+    expect(result).not.toHaveProperty('mediaId')
+    expect(result.coverHandle).toBe(COVER_HANDLE)
     expect(result.uploadedImageCount).toBe(1)
     expect(result.uploadedContentHtml).not.toContain('https://example.com/body.png')
   })
 
-  it('refuses draft publishing without either a thumbMediaId or a cover image', async () => {
+  it('refuses draft publishing when the article has no reusable handle or real cover image', async () => {
     await expect(publishWechatDraft({
       title: '真实草稿',
-      contentHtml: '<p><img src="https://example.com/body.png" alt="body"></p>',
+      contentHtml: '<p>正文没有图片</p>',
     })).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,
@@ -348,7 +377,7 @@ describe('wechat-publish service', () => {
     await expect(publishWechatDraft({
       title: '超长标题'.repeat(11),
       contentHtml: '<p><img src="https://example.com/body.png" alt="body"></p>',
-      thumbMediaId: 'thumb-media-1',
+      coverHandle: COVER_HANDLE,
     })).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,

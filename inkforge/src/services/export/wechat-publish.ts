@@ -17,10 +17,11 @@ const WECHAT_UPLOAD_KIND_LABELS = {
 const INKFORGE_ASSET_PREFIX = 'inkforge-asset://'
 export const WECHAT_DRAFT_TITLE_MAX_CHARS = 32
 const WECHAT_DRAFT_AUTHOR_MAX_CHARS = 16
-const WECHAT_DRAFT_DIGEST_MAX_CHARS = 128
+const WECHAT_DRAFT_DIGEST_MAX_CHARS = 120
 const WECHAT_ARTICLE_CONTENT_MAX_CHARS = 20_000
 const WECHAT_ARTICLE_CONTENT_MAX_BYTES = 1024 * 1024
 const WECHAT_DRAFT_CONTENT_SOURCE_URL_MAX_BYTES = 1024
+const WECHAT_COVER_HANDLE_PATTERN = /^[a-f0-9]{32}$/i
 
 type WechatUploadKind = keyof typeof WECHAT_UPLOAD_KIND_LABELS
 
@@ -45,13 +46,12 @@ const WechatArticleImageUploadSchema = z.object({
 
 const WechatCoverUploadSchema = z.object({
   remoteUrl: z.string().url(),
-  mediaId: z.string().min(1),
-})
+  coverHandle: z.string().regex(WECHAT_COVER_HANDLE_PATTERN),
+}).strict()
 
 const WechatDraftCreateSchema = z.object({
-  mediaId: z.string().min(1),
   articleCount: z.number().int().positive(),
-})
+}).strict()
 
 export type WechatPublishStatus = z.infer<typeof WechatPublishStatusSchema>
 export type WechatCredentialSource = z.infer<typeof WechatCredentialSourceSchema>
@@ -64,13 +64,13 @@ export interface WechatUploadSource {
 }
 
 export interface WechatCoverUploadResult extends UploadResult {
-  mediaId: string
+  coverHandle: string
 }
 
 export interface WechatDraftArticleInput {
   title: string
   content: string
-  thumbMediaId: string
+  coverHandle: string
   author?: string
   digest?: string
   showCoverPic?: 0 | 1
@@ -80,19 +80,18 @@ export interface WechatDraftArticleInput {
 }
 
 export interface WechatDraftCreateResult {
-  mediaId: string
   articleCount: number
   createdAt: string
 }
 
-export interface WechatDraftPublishInput extends Omit<WechatDraftArticleInput, 'content' | 'thumbMediaId'> {
+export interface WechatDraftPublishInput extends Omit<WechatDraftArticleInput, 'content' | 'coverHandle'> {
   contentHtml: string
-  thumbMediaId?: string
+  coverHandle?: string
   coverImage?: ResolvedImage
 }
 
 export interface WechatDraftPublishResult extends WechatDraftCreateResult {
-  thumbMediaId: string
+  coverHandle: string
   uploadedContentHtml: string
   uploadedImageCount: number
 }
@@ -170,6 +169,22 @@ function byteLength(value: string): number {
   return new TextEncoder().encode(value).length
 }
 
+function normalizeWechatDraftMetadata(
+  article: Pick<WechatDraftArticleInput, 'title' | 'author' | 'digest' | 'contentSourceUrl'>,
+): Pick<WechatDraftArticleInput, 'title' | 'author' | 'digest' | 'contentSourceUrl'> {
+  const normalized: Pick<
+    WechatDraftArticleInput,
+    'title' | 'author' | 'digest' | 'contentSourceUrl'
+  > = { title: article.title.trim() }
+  const author = article.author?.trim()
+  const digest = article.digest?.trim()
+  const contentSourceUrl = article.contentSourceUrl?.trim()
+  if (author) normalized.author = author
+  if (digest) normalized.digest = digest
+  if (contentSourceUrl) normalized.contentSourceUrl = contentSourceUrl
+  return normalized
+}
+
 function assertMaxChars(label: string, value: string | undefined, maxChars: number): void {
   if (!value) return
   const count = Array.from(value.trim()).length
@@ -236,14 +251,8 @@ function assertWechatDraftContent(content: string): void {
   }
 }
 
-function assertWechatDraftArticleInput(article: WechatDraftArticleInput): void {
-  assertWechatDraftMetadata(article)
-  assertWechatDraftContent(article.content)
-  if (!article.thumbMediaId.trim()) {
-    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿必须提供 thumbMediaId')
-  }
-
-  const foreignImages = collectNonWechatHostedImages(article.content)
+function assertWechatDraftImagesUploaded(content: string): void {
+  const foreignImages = collectNonWechatHostedImages(content)
   if (foreignImages.length > 0) {
     throw new AppError(
       ErrorCode.VALIDATION_ERROR,
@@ -251,6 +260,16 @@ function assertWechatDraftArticleInput(article: WechatDraftArticleInput): void {
       { foreignImages: foreignImages.slice(0, 10) },
     )
   }
+}
+
+function assertWechatDraftArticleInput(article: WechatDraftArticleInput): void {
+  assertWechatDraftMetadata(article)
+  assertWechatDraftContent(article.content)
+  if (!WECHAT_COVER_HANDLE_PATTERN.test(article.coverHandle.trim())) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿封面句柄无效，请重新上传正文首图')
+  }
+
+  assertWechatDraftImagesUploaded(article.content)
 }
 
 function buildWebRuntimeStatus(): WechatPublishStatus {
@@ -432,6 +451,13 @@ function createResolvedImageFromTag(image: HTMLImageElement): ResolvedImage {
   }
 }
 
+function firstWechatDraftCoverImage(html: string): ResolvedImage | undefined {
+  if (!html.trim() || typeof DOMParser === 'undefined') return undefined
+  const image = new DOMParser().parseFromString(html, 'text/html').querySelector('img')
+  if (!(image instanceof HTMLImageElement) || !image.getAttribute('src')?.trim()) return undefined
+  return createResolvedImageFromTag(image)
+}
+
 export function isWechatHostedContentImageUrl(url: string): boolean {
   try {
     const parsed = new URL(url)
@@ -476,8 +502,7 @@ export async function uploadWechatCoverImage(image: ResolvedImage): Promise<Wech
   return {
     remoteUrl: result.remoteUrl,
     uploadedAt: new Date().toISOString(),
-    platformId: result.mediaId,
-    mediaId: result.mediaId,
+    coverHandle: result.coverHandle,
   }
 }
 
@@ -534,12 +559,19 @@ function collectNonWechatHostedImages(html: string): string[] {
 export async function createWechatDraft(article: WechatDraftArticleInput): Promise<WechatDraftCreateResult> {
   ensureTauriRuntime()
 
-  assertWechatDraftArticleInput(article)
+  const normalizedArticle: WechatDraftArticleInput = {
+    ...normalizeWechatDraftMetadata(article),
+    content: article.content,
+    coverHandle: article.coverHandle.trim(),
+    showCoverPic: article.showCoverPic,
+    needOpenComment: article.needOpenComment,
+    onlyFansCanComment: article.onlyFansCanComment,
+  }
+  assertWechatDraftArticleInput(normalizedArticle)
 
-  const raw = await tauriInvoke<unknown>('wechat_create_draft', { article })
+  const raw = await tauriInvoke<unknown>('wechat_create_draft', { article: normalizedArticle })
   const result = parseWechatResponse(WechatDraftCreateSchema, raw, 'wechat_create_draft')
   return {
-    mediaId: result.mediaId,
     articleCount: result.articleCount,
     createdAt: new Date().toISOString(),
   }
@@ -548,51 +580,43 @@ export async function createWechatDraft(article: WechatDraftArticleInput): Promi
 export async function publishWechatDraft(input: WechatDraftPublishInput): Promise<WechatDraftPublishResult> {
   ensureTauriRuntime()
 
-  assertWechatDraftMetadata(input)
+  const metadata = normalizeWechatDraftMetadata(input)
+  assertWechatDraftMetadata(metadata)
   assertWechatDraftContent(input.contentHtml)
 
-  let thumbMediaId = input.thumbMediaId?.trim()
-  const coverImage = input.coverImage
-  if (!thumbMediaId && !coverImage) {
-    throw new AppError(ErrorCode.VALIDATION_ERROR, '未提供 thumbMediaId 时必须提供封面图以生成永久素材')
+  let coverHandle = input.coverHandle?.trim() || undefined
+  const coverImage = input.coverImage ?? firstWechatDraftCoverImage(input.contentHtml)
+  if (coverHandle && !WECHAT_COVER_HANDLE_PATTERN.test(coverHandle)) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿封面句柄无效，请重新上传正文首图')
   }
+  if (!coverHandle && !coverImage) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '正文至少需要一张真实图片作为微信公众号永久封面')
+  }
+  if (coverImage) assertWechatUploadImage(coverImage, 'cover')
 
   const rewritten = await rewriteWechatArticleImages(input.contentHtml)
-  assertWechatDraftArticleInput({
-    title: input.title,
-    content: rewritten.html,
-    thumbMediaId: thumbMediaId || '__pending_cover_upload__',
-    author: input.author,
-    digest: input.digest,
-    showCoverPic: input.showCoverPic,
-    contentSourceUrl: input.contentSourceUrl,
-    needOpenComment: input.needOpenComment,
-    onlyFansCanComment: input.onlyFansCanComment,
-  })
-
-  if (!thumbMediaId) {
+  assertWechatDraftContent(rewritten.html)
+  assertWechatDraftImagesUploaded(rewritten.html)
+  if (!coverHandle) {
     if (!coverImage) {
-      throw new AppError(ErrorCode.VALIDATION_ERROR, '未提供 thumbMediaId 时必须提供封面图以生成永久素材')
+      throw new AppError(ErrorCode.VALIDATION_ERROR, '正文至少需要一张真实图片作为微信公众号永久封面')
     }
     const cover = await uploadWechatCoverImage(coverImage)
-    thumbMediaId = cover.mediaId
+    coverHandle = cover.coverHandle
   }
 
   const draft = await createWechatDraft({
-    title: input.title,
+    ...metadata,
     content: rewritten.html,
-    thumbMediaId,
-    author: input.author,
-    digest: input.digest,
+    coverHandle,
     showCoverPic: input.showCoverPic,
-    contentSourceUrl: input.contentSourceUrl,
     needOpenComment: input.needOpenComment,
     onlyFansCanComment: input.onlyFansCanComment,
   })
 
   return {
     ...draft,
-    thumbMediaId,
+    coverHandle,
     uploadedContentHtml: rewritten.html,
     uploadedImageCount: rewritten.uploadedImages.length,
   }
