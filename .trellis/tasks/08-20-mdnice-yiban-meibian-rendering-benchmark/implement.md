@@ -4,6 +4,8 @@
 
 Planning approved on 2026-08-21. Local implementation is bound to `dev/visual-fixes@51696357`; external WeChat actions still require a separate preflighted batch approval.
 
+Local implementation commit: `05ec1a6023f6eeea6ec37a86a1697e653732bda6`. Its clean-tree `wechat-draft-preflight/v1` verified successfully; all three official-draft candidates remain ineligible with `content-invalid`, so no external batch is approved or runnable.
+
 ## 0. Entry gates
 
 - [x] Bind `dev/visual-fixes@51696357`, containing `markdownToWechatWithStats()`, the existing clipboard path, ordinary `publishWechatDraft()`, StyleProof/manual manifest and current tests.
@@ -17,26 +19,26 @@ Stop if any entry gate is unresolved.
 
 ## 1. Prepare one deterministic corpus and receipt assertion
 
-- [ ] Search the bound baseline for an equivalent comprehensive fixture; reuse it if it satisfies the PRD.
-- [ ] Otherwise add one task-owned Markdown fixture, not a generator, DSL or new content registry.
-- [ ] Cover the PRD semantic matrix and one source-owned image role/cover intent; record fixture and asset SHA-256.
-- [ ] Render through `markdownToWechatWithStats()`; do not pass raw Markdown to `convertToWechatWithStats()`.
-- [ ] Add one smallest standard-library receipt assertion for `wechat-fidelity-receipt/v1` and `wechat-semantic-readback/v1` required fields, canonical-summary fingerprint recomputation, account-target match state, observable/unknown upload-count rules, state transitions and privacy denylist.
+- [x] Search the bound baseline for an equivalent comprehensive fixture; reuse it if it satisfies the PRD.
+- [x] Otherwise add one task-owned Markdown fixture, not a generator, DSL or new content registry.
+- [x] Cover the PRD semantic matrix and one source-owned image role/cover intent; record fixture and asset SHA-256.
+- [x] Render through `markdownToWechatWithStats()`; do not pass raw Markdown to `convertToWechatWithStats()`.
+- [x] Add one smallest standard-library receipt assertion for `wechat-fidelity-receipt/v1` and `wechat-semantic-readback/v1` required fields, canonical-summary fingerprint recomputation, account-target match state, observable/unknown upload-count rules, state transitions and privacy denylist.
 
 Expected result: one corpus and one assertion script; no product UI/schema change.
 
 ## 2. Pin choices, generate canonical artifacts and preflight
 
-- [ ] At the bound `wechat-publish.ts` owner, extract one no-WeChat-write `planWechatDraftPublish()` (name may follow the baseline) from the current metadata/content validation, image-host classification, unique source counting, `assertWechatUploadImage()` compatibility rules, local source normalization and cover decision. It may read/normalize local asset/blob sources but must finish all such work before any Tauri upload invoke or remote mutation.
-- [ ] Make `publishWechatDraft()` consume that same plan/image classification and require a transient approval object; missing approval or a recomputed plan-fingerprint mismatch must fail before its first network call. Do not build a second parser or estimator.
-- [ ] Update the only real product caller, `PublishView.handleCreateWechatDraft()`: freeze the exact input, call the no-WeChat-write planner, show one native confirmation containing the transient API target hint, short plan fingerprint and per-kind side-effect upper bounds, then pass the mandatory in-memory approval only after the user confirms. Do not add a component, persisted setting or evidence-only bypass.
-- [ ] Extend the existing `scripts/style-proof-wechat-style-samples.ts` with one `--draft-preflight` JSON mode rather than adding a second CLI framework. It emits strict `wechat-draft-preflight/v1` with a complete result for every requested choice, input/plan fingerprints, reason codes, redacted eligibility and side-effect upper bounds. Exit `0` means a complete schema-valid report even when cases are ineligible; incomplete/unhandled failure exits `1`, unknown option exits `2`, help exits `0`.
-- [ ] Add focused tests proving zero invoke/upload calls during planning, duplicate image sources count once, WeChat-hosted images count zero, cover-handle format versus cover-upload decisions match execution, limits fail before mutation, and missing/mismatched approval fails before mutation. Put a valid image before WebP/SVG/unsupported-source cases and prove the whole plan fails before the first upload. Keep the source contract in `PublishView.wechat-presets.test.ts`; use the mounted `PublishView.snapshot-race.test.ts` to prove cancellation returns before `publishWechatDraft()` and confirmed frozen identity reaches the real caller. The later real Tauri UI check remains the runtime gate.
-- [ ] Pin one usable inline, one SVG-heavy flagship and one paste-safe fallback from the current runtime application report.
-- [ ] Generate all three canonical artifacts through `markdownToWechatWithStats()` and record their existing StyleProof `artifactFingerprint`.
-- [ ] Confirm repeated generation is deterministic and quality detection has no unexpected blocker.
+- [x] At the bound `wechat-publish.ts` owner, extract one no-WeChat-write `planWechatDraftPublish()` (name may follow the baseline) from the current metadata/content validation, image-host classification, unique source counting, `assertWechatUploadImage()` compatibility rules, local source normalization and cover decision. It may read/normalize local asset/blob sources but must finish all such work before any Tauri upload invoke or remote mutation.
+- [x] Make `publishWechatDraft()` consume that same plan/image classification and require a transient approval object; missing approval or a recomputed plan-fingerprint mismatch must fail before its first network call. Do not build a second parser or estimator.
+- [x] Update the only real product caller, `PublishView.handleCreateWechatDraft()`: freeze the exact input, call the no-WeChat-write planner, show one native confirmation containing the transient API target hint, short plan fingerprint and per-kind side-effect upper bounds, then pass the mandatory in-memory approval only after the user confirms. Do not add a component, persisted setting or evidence-only bypass.
+- [x] Extend the existing `scripts/style-proof-wechat-style-samples.ts` with one `--draft-preflight` JSON mode rather than adding a second CLI framework. It emits strict `wechat-draft-preflight/v1` with a complete result for every requested choice, input/plan fingerprints, reason codes, redacted eligibility and side-effect upper bounds. Exit `0` means a complete schema-valid report even when cases are ineligible; incomplete/unhandled failure exits `1`, unknown option exits `2`, help exits `0`.
+- [x] Add focused tests proving zero invoke/upload calls during planning, duplicate image sources count once, WeChat-hosted images count zero, cover-handle format versus cover-upload decisions match execution, limits fail before mutation, and missing/mismatched approval fails before mutation. Put a valid image before WebP/SVG/unsupported-source cases and prove the whole plan fails before the first upload. Keep the source contract in `PublishView.wechat-presets.test.ts`; use the mounted `PublishView.snapshot-race.test.ts` to prove cancellation returns before `publishWechatDraft()` and confirmed frozen identity reaches the real caller. The later real Tauri UI check remains the runtime gate.
+- [x] Pin one usable inline, one SVG-heavy flagship and one paste-safe fallback from the current runtime application report.
+- [x] Generate all three canonical artifacts through `markdownToWechatWithStats()` and record their existing StyleProof `artifactFingerprint`.
+- [x] Confirm repeated generation is deterministic and quality detection has no unexpected blocker.
 - [ ] For every official-draft candidate, before the first WeChat remote call record and verify input/plan fingerprints, title length, Unicode char count, UTF-8 byte count, unique non-WeChat-hosted image count, deterministic MIME/extension/source compatibility, local-source preparation, cover-handle format or upload requirement, non-sensitive API/editor target-match result and expected remote side effects. Never claim an existing handle's remote validity from this no-write plan.
-- [ ] Mark any title `>32`, content `>=20,000` chars, content `>=1 MiB`, invalid media binding or unapproved upload as ineligible. Do not shrink the corpus or silently change choice.
+- [x] Mark any title `>32`, content `>=20,000` chars, content `>=1 MiB`, invalid media binding or unapproved upload as ineligible. Do not shrink the corpus or silently change choice.
 - [ ] Reconcile any prior non-confirmed cleanup ledger entry before approving a new batch.
 - [ ] Present the verified report to the user and obtain separate approval for exact draft case count, per-kind upload upper bounds, phone/cover actions, draft cleanup and any unavoidable remote-media residual.
 - [ ] Immediately before each official-draft write, call existing `getWechatPublishStatus()` and have the user confirm the displayed target hint matches the account visible in the sole CloakBrowser editor session; persist only match state/method, never account values.
@@ -143,8 +145,8 @@ Run only if P0 proves a formula defect:
 - [ ] Generate the existing manual draft pack to a task-local temporary file, create a separate reviewed `REDACTED_MANIFEST.json`, then run intake/merge. Do not assume the draft command creates that file.
 - [ ] Keep manifest `artifactFingerprint` canonical; put channel/readback hashes only in the referenced task receipt.
 - [ ] Re-run release preflight, capture its exit code and JSON, and report every remaining blocker without forcing completion.
-- [ ] Run two independent read-only reviews: correctness/security and scope/evidence.
-- [ ] Confirm task-scoped files contain no unrelated dirty change, credential, raw media binding or browser runtime artifact.
+- [x] Run two independent read-only reviews: correctness/security and scope/evidence.
+- [x] Confirm task-scoped files contain no unrelated dirty change, credential, raw media binding or browser runtime artifact.
 
 Commands:
 
