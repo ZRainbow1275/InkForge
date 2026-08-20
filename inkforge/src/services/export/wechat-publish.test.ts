@@ -7,20 +7,41 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ErrorCode } from '@/services/error'
 
 import {
+  approveWechatDraftPublishPlan,
   createWechatDraft,
   describeWechatPublishStatus,
   getWechatPublishStatus,
   isWechatHostedContentImageUrl,
+  planWechatDraftPublish,
   publishWechatDraft,
   rewriteWechatArticleImages,
   uploadWechatCoverImage,
   uploadWechatArticleImage,
+} from './wechat-publish'
+import type {
+  WechatDraftPublishApproval,
+  WechatDraftPublishInput,
+  WechatDraftPublishPlan,
 } from './wechat-publish'
 
 const invokeMock = vi.fn()
 const isTauriEnvMock = vi.fn<() => boolean>()
 const resolveAssetSnapshotMock = vi.fn()
 const COVER_HANDLE = 'a'.repeat(32)
+
+function approvePlan(plan: WechatDraftPublishPlan): WechatDraftPublishApproval {
+  return approveWechatDraftPublishPlan(plan, {
+    targetMatched: true,
+    verificationMethod: 'visible-editor-confirmation',
+    approvedSideEffectUpperBounds: { ...plan.sideEffectUpperBounds },
+  })
+}
+
+async function planEligibleDraft(input: WechatDraftPublishInput): Promise<WechatDraftPublishPlan> {
+  const plan = await planWechatDraftPublish(input)
+  expect(plan.eligible).toBe(true)
+  return plan
+}
 
 vi.mock('@/utils/platform', () => ({
   isTauriEnv: () => isTauriEnvMock(),
@@ -185,18 +206,247 @@ describe('wechat-publish service', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1)
   })
 
+  it('plans unique uploads without invoking Tauri and counts WeChat-hosted images as zero uploads', async () => {
+    const input: WechatDraftPublishInput = {
+      title: '本地预检',
+      contentHtml: [
+        '<p><img src="https://example.com/a.png" alt="a"></p>',
+        '<p><img src="https://example.com/a.png" alt="duplicate"></p>',
+        '<p><img src="https://mmbiz.qpic.cn/mmbiz_png/kept/640" alt="hosted"></p>',
+      ].join(''),
+    }
+
+    const plan = await planWechatDraftPublish(input)
+
+    expect(plan).toMatchObject({
+      eligible: true,
+      reasons: [],
+      images: {
+        uniqueNonWechatImageCount: 1,
+        uniqueWechatHostedImageCount: 1,
+        preparedArticleUploadCount: 1,
+      },
+      cover: { state: 'upload-required' },
+      sideEffectUpperBounds: {
+        draftCreates: 1,
+        articleImageUploads: 1,
+        permanentCoverUploads: 1,
+      },
+    })
+    expect(plan.inputFingerprint).toMatch(/^[a-f0-9]{64}$/)
+    expect(plan.planFingerprint).toMatch(/^[a-f0-9]{64}$/)
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('collects deterministic image failures after a valid first cover without invoking Tauri', async () => {
+    const plan = await planWechatDraftPublish({
+      title: '本地预检失败',
+      contentHtml: [
+        '<img src="https://example.com/valid.png">',
+        '<img src="https://example.com/invalid.webp">',
+        '<img src="file:///private/not-supported.png">',
+        '<img srcset="https://example.com/srcset-only.png 1x">',
+        '<img src="https://mmbiz.qpic.cn/mmbiz_png/kept/640">',
+      ].join(''),
+    })
+
+    expect(plan.eligible).toBe(false)
+    expect(plan.reasons.map(reason => reason.code)).toContain('article-image-invalid')
+    expect(plan.images).toMatchObject({
+      uniqueNonWechatImageCount: 3,
+      uniqueWechatHostedImageCount: 1,
+      preparedArticleUploadCount: 1,
+    })
+    expect(plan.cover.state).toBe('upload-required')
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects malformed remote URLs and SVG query sources after a valid image without invoking Tauri', async () => {
+    const plan = await planWechatDraftPublish({
+      title: '静态来源预检',
+      contentHtml: [
+        '<img src="https://example.com/valid.png">',
+        '<img src="https://">',
+        '<img src="https://example.com/diagram.svg?cache=1">',
+      ].join(''),
+    })
+
+    expect(plan.eligible).toBe(false)
+    expect(plan.reasons.map(reason => reason.code)).toContain('article-image-invalid')
+    expect(plan.images.preparedArticleUploadCount).toBe(1)
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects invalid draft option flags before any prepared upload can mutate WeChat', async () => {
+    const plan = await planWechatDraftPublish({
+      title: '选项预检',
+      contentHtml: '<img src="https://example.com/valid.png">',
+      showCoverPic: 2 as 0 | 1,
+    })
+
+    expect(plan.eligible).toBe(false)
+    expect(plan.reasons.map(reason => reason.code)).toContain('metadata-invalid')
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('requires the same approved plan before the first Tauri invoke', async () => {
+    const input: WechatDraftPublishInput = {
+      title: '授权门禁',
+      contentHtml: '<img src="https://example.com/body.png">',
+      coverHandle: COVER_HANDLE,
+    }
+    const plan = await planEligibleDraft(input)
+
+    const copiedApproval = { ...approvePlan(plan) }
+    await expect(publishWechatDraft(input, plan, copiedApproval)).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+
+    await expect((publishWechatDraft as unknown as (
+      value: WechatDraftPublishInput,
+      currentPlan: WechatDraftPublishPlan,
+    ) => Promise<unknown>)(input, plan)).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+    await expect(publishWechatDraft(input, plan, {
+      ...approvePlan(plan),
+      planFingerprint: 'b'.repeat(64),
+    })).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+    await expect(publishWechatDraft(input, plan, {
+      ...approvePlan(plan),
+      approvedSideEffectUpperBounds: {
+        ...plan.sideEffectUpperBounds,
+        articleImageUploads: plan.sideEffectUpperBounds.articleImageUploads + 1,
+      },
+    })).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+    await expect(publishWechatDraft({ ...input, title: '输入已变化' }, plan, approvePlan(plan))).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects stale approval from an equivalent plan before the first Tauri invoke', async () => {
+    const input: WechatDraftPublishInput = {
+      title: '旧批准',
+      contentHtml: '<img src="https://example.com/body.png">',
+      coverHandle: COVER_HANDLE,
+    }
+    const firstPlan = await planEligibleDraft(input)
+    const firstApproval = approvePlan(firstPlan)
+    const secondPlan = await planEligibleDraft(input)
+
+    expect(secondPlan).not.toBe(firstPlan)
+    expect(secondPlan.planFingerprint).toBe(firstPlan.planFingerprint)
+    await expect(publishWechatDraft(input, secondPlan, firstApproval)).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('reuses locally prepared asset bytes during approved execution', async () => {
+    const dataUrl = 'data:image/png;base64,ZmFrZQ=='
+    resolveAssetSnapshotMock.mockResolvedValue({
+      assetId: 'asset-plan',
+      status: 'inline-base64',
+      mimeType: 'image/png',
+      originalName: 'asset-plan.png',
+      bytes: 4,
+      dataUrl,
+    })
+    invokeMock
+      .mockResolvedValueOnce({ remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/planned/640' })
+      .mockResolvedValueOnce({ articleCount: 1 })
+    const input: WechatDraftPublishInput = {
+      title: '本地资产计划',
+      contentHtml: '<img src="inkforge-asset://asset-plan" alt="planned">',
+      coverHandle: COVER_HANDLE,
+    }
+    const plan = await planEligibleDraft(input)
+
+    expect(resolveAssetSnapshotMock).toHaveBeenCalledTimes(1)
+    expect(invokeMock).not.toHaveBeenCalled()
+
+    const approval = approvePlan(plan)
+    await expect(publishWechatDraft(input, plan, approval)).resolves.toMatchObject({
+      articleCount: 1,
+      uploadedImageCount: 1,
+    })
+    expect(resolveAssetSnapshotMock).toHaveBeenCalledTimes(1)
+    expect(invokeMock).toHaveBeenNthCalledWith(1, 'wechat_upload_article_image', {
+      input: expect.objectContaining({ dataUrl }),
+    })
+    await expect(publishWechatDraft(input, plan, approval)).rejects.toMatchObject({
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+    expect(invokeMock).toHaveBeenCalledTimes(2)
+  })
+
   it('removes stale srcset attributes while rewriting WeChat article images', async () => {
     invokeMock.mockResolvedValue({
       remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/replaced/640',
     })
 
     const rewritten = await rewriteWechatArticleImages(
-      '<p><img src="https://example.com/a.png" srcset="https://example.com/a@2x.png 2x"></p>'
+      '<picture><source srcset="https://example.com/unplanned.png 1x">'
+        + '<img src="https://example.com/a.png" srcset="https://example.com/a@2x.png 2x"></picture>'
         + '<p><img src="https://mmbiz.qpic.cn/mmbiz_png/kept/640" srcset="https://example.com/old.png 2x"></p>',
     )
 
     expect(rewritten.html).toContain('https://mmbiz.qpic.cn/mmbiz_png/replaced/640')
     expect(rewritten.html).not.toContain('srcset=')
+    expect(rewritten.html).not.toContain('unplanned.png')
+  })
+
+  it('ignores an unused body cover candidate when an opaque cover handle exists', async () => {
+    const plan = await planEligibleDraft({
+      title: '已有封面句柄',
+      contentHtml: '<img src="https://mmbiz.qpic.cn/body.webp">',
+      coverHandle: COVER_HANDLE,
+    })
+
+    expect(plan.cover).toEqual({
+      state: 'existing-handle-unverified',
+      remoteValidityUnverified: true,
+    })
+    expect(plan.sideEffectUpperBounds.permanentCoverUploads).toBe(0)
+    expect(invokeMock).not.toHaveBeenCalled()
+  })
+
+  it('uses the prepared draft option snapshot after asynchronous upload starts', async () => {
+    let resolveUpload!: (value: { remoteUrl: string }) => void
+    invokeMock
+      .mockImplementationOnce(() => new Promise(resolve => { resolveUpload = resolve }))
+      .mockResolvedValueOnce({ articleCount: 1 })
+    const input: WechatDraftPublishInput = {
+      title: '选项快照',
+      contentHtml: '<img src="https://example.com/body.png">',
+      coverHandle: COVER_HANDLE,
+      showCoverPic: 0,
+      needOpenComment: 0,
+      onlyFansCanComment: 1,
+    }
+    const plan = await planEligibleDraft(input)
+    const execution = publishWechatDraft(input, plan, approvePlan(plan))
+    await vi.waitFor(() => expect(invokeMock).toHaveBeenCalledTimes(1))
+
+    input.showCoverPic = 1
+    input.needOpenComment = 1
+    input.onlyFansCanComment = 0
+    resolveUpload({ remoteUrl: 'https://mmbiz.qpic.cn/mmbiz_png/snapshot/640' })
+    await execution
+
+    expect(invokeMock).toHaveBeenNthCalledWith(2, 'wechat_create_draft', {
+      article: expect.objectContaining({
+        showCoverPic: 0,
+        needOpenComment: 0,
+        onlyFansCanComment: 1,
+      }),
+    })
   })
 
   it('blocks draft creation when content still references non-WeChat image hosts', async () => {
@@ -216,6 +466,14 @@ describe('wechat-publish service', () => {
     await expect(createWechatDraft({
       title: 'Draft title',
       content: '<p><img src="https://mmbiz.qpic.cn/mmbiz_png/ok/640" srcset="https://example.com/not-uploaded.png 2x"></p>',
+      coverHandle: COVER_HANDLE,
+    })).rejects.toMatchObject({
+      name: 'AppError',
+      code: ErrorCode.VALIDATION_ERROR,
+    })
+    await expect(createWechatDraft({
+      title: 'Draft title',
+      content: '<picture><source srcset="https://example.com/not-uploaded.png 1x"><img src="https://mmbiz.qpic.cn/ok.png"></picture>',
       coverHandle: COVER_HANDLE,
     })).rejects.toMatchObject({
       name: 'AppError',
@@ -331,11 +589,14 @@ describe('wechat-publish service', () => {
         articleCount: 1,
       })
 
-    const result = await publishWechatDraft({
+    const input: WechatDraftPublishInput = {
       title: '真实草稿',
       contentHtml: '<p><img src="https://example.com/body.png" alt="body"></p>',
       showCoverPic: 1,
-    })
+    }
+    const plan = await planEligibleDraft(input)
+    expect(invokeMock).not.toHaveBeenCalled()
+    const result = await publishWechatDraft(input, plan, approvePlan(plan))
 
     expect(invokeMock).toHaveBeenNthCalledWith(1, 'wechat_upload_article_image', {
       input: expect.objectContaining({
@@ -362,27 +623,25 @@ describe('wechat-publish service', () => {
   })
 
   it('refuses draft publishing when the article has no reusable handle or real cover image', async () => {
-    await expect(publishWechatDraft({
+    const plan = await planWechatDraftPublish({
       title: '真实草稿',
       contentHtml: '<p>正文没有图片</p>',
-    })).rejects.toMatchObject({
-      name: 'AppError',
-      code: ErrorCode.VALIDATION_ERROR,
     })
 
+    expect(plan.eligible).toBe(false)
+    expect(plan.reasons.map(reason => reason.code)).toContain('cover-image-missing')
     expect(invokeMock).not.toHaveBeenCalled()
   })
 
   it('validates draft metadata before uploading article images', async () => {
-    await expect(publishWechatDraft({
+    const plan = await planWechatDraftPublish({
       title: '超长标题'.repeat(11),
       contentHtml: '<p><img src="https://example.com/body.png" alt="body"></p>',
       coverHandle: COVER_HANDLE,
-    })).rejects.toMatchObject({
-      name: 'AppError',
-      code: ErrorCode.VALIDATION_ERROR,
     })
 
+    expect(plan.eligible).toBe(false)
+    expect(plan.reasons.map(reason => reason.code)).toContain('metadata-invalid')
     expect(invokeMock).not.toHaveBeenCalled()
   })
 
@@ -391,7 +650,7 @@ describe('wechat-publish service', () => {
       remoteUrl: 'https://example.com/not-wechat-after-upload.png',
     })
 
-    await expect(publishWechatDraft({
+    const input: WechatDraftPublishInput = {
       title: '真实草稿',
       contentHtml: '<p><img src="https://example.com/body.png" alt="body"></p>',
       coverImage: {
@@ -399,7 +658,10 @@ describe('wechat-publish service', () => {
         resolvedUrl: 'https://example.com/cover.png',
         mimeType: 'image/png',
       },
-    })).rejects.toMatchObject({
+    }
+    const plan = await planEligibleDraft(input)
+
+    await expect(publishWechatDraft(input, plan, approvePlan(plan))).rejects.toMatchObject({
       name: 'AppError',
       code: ErrorCode.VALIDATION_ERROR,
     })

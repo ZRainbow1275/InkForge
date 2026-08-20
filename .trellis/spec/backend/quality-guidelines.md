@@ -127,6 +127,9 @@ live operation.
   - `uploadWechatCoverImage(image)`
   - `rewriteWechatArticleImages(html)`
   - `createWechatDraft(article)`
+  - `planWechatDraftPublish(input) -> non-mutating plan`
+  - `approveWechatDraftPublishPlan(plan, approval) -> transient exact-plan approval`
+  - `publishWechatDraft(input, plan, approval)`
 
 ### 3. Contracts
 - Env keys:
@@ -185,9 +188,20 @@ live operation.
     draft metadata before uploading article images. If a cover image must be
     uploaded as permanent material, the rewritten draft content must pass local
     validation before the permanent material upload starts.
+  - The shared plan must normalize every local asset/blob source, classify each
+    unique image once, count WeChat-hosted images as zero uploads, and bind the
+    frozen input plus prepared candidates to deterministic input/plan SHA-256
+    fingerprints without invoking Tauri.
+  - Execution requires the exact in-memory plan plus a transient confirmation
+    whose plan fingerprint, visible-editor target match, and per-kind upload /
+    draft upper bounds equal the plan. Missing, stale, copied, or mismatched
+    approval must fail before the first upload or draft command.
   - `PublishView` is the sole credentialed product owner for ordinary draft
-    creation. `ExportModal` remains a local copy/download surface and must not
-    call `publishWechatDraft()` or accept raw WeChat media identifiers.
+    creation. It must block when `appIdHint` is absent, show that hint plus the
+    short plan fingerprint and side-effect bounds in one native confirmation,
+    and persist none of those target values. `ExportModal` remains a local
+    copy/download surface and must not call `publishWechatDraft()` or accept raw
+    WeChat media identifiers.
 - Draft content contract:
   - Article `content` must stay below the WeChat 20,000-character boundary.
   - `<img src>` and `srcset` candidates must already point at WeChat-hosted

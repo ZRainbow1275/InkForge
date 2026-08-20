@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { resolveAssetSnapshot } from '@/services/asset-pipeline/snapshot'
+import { sha256Hex } from '@/core/authority/hash'
 import { AppError, ErrorCode, logger } from '@/services/error'
 import { isTauriEnv, tauriInvoke } from '@/utils/platform'
 
@@ -22,6 +22,7 @@ const WECHAT_ARTICLE_CONTENT_MAX_CHARS = 20_000
 const WECHAT_ARTICLE_CONTENT_MAX_BYTES = 1024 * 1024
 const WECHAT_DRAFT_CONTENT_SOURCE_URL_MAX_BYTES = 1024
 const WECHAT_COVER_HANDLE_PATTERN = /^[a-f0-9]{32}$/i
+const WECHAT_DRAFT_PUBLISH_PLAN_SCHEMA_VERSION = 'wechat-draft-publish-plan/v1' as const
 
 type WechatUploadKind = keyof typeof WECHAT_UPLOAD_KIND_LABELS
 
@@ -100,6 +101,84 @@ export interface WechatHtmlRewriteResult {
   html: string
   uploadedImages: UploadResult[]
 }
+
+export type WechatDraftPublishReasonCode =
+  | 'metadata-invalid'
+  | 'content-invalid'
+  | 'dom-unavailable'
+  | 'article-image-invalid'
+  | 'cover-handle-invalid'
+  | 'cover-image-missing'
+  | 'cover-image-invalid'
+
+export interface WechatDraftPublishPlanIssue {
+  code: WechatDraftPublishReasonCode
+  message: string
+}
+
+export interface WechatDraftPublishSideEffectUpperBounds {
+  draftCreates: 1
+  articleImageUploads: number
+  permanentCoverUploads: 0 | 1
+}
+
+export interface WechatDraftPublishPlan {
+  schemaVersion: typeof WECHAT_DRAFT_PUBLISH_PLAN_SCHEMA_VERSION
+  eligible: boolean
+  inputFingerprint: string
+  planFingerprint: string
+  reasons: readonly WechatDraftPublishPlanIssue[]
+  limits: {
+    titleChars: number
+    titleMaxChars: number
+    contentChars: number
+    contentMaxCharsExclusive: number
+    contentBytes: number
+    contentMaxBytesExclusive: number
+  }
+  images: {
+    uniqueNonWechatImageCount: number
+    uniqueWechatHostedImageCount: number
+    preparedArticleUploadCount: number
+    preparedLocalArticleSourceCount: number
+  }
+  cover: {
+    state: 'existing-handle-unverified' | 'upload-required' | 'missing' | 'invalid-handle' | 'invalid-image'
+    remoteValidityUnverified: boolean
+  }
+  unverifiedRemote: {
+    httpSourceReachability: boolean
+    httpSourceMimeTruth: boolean
+    coverHandleOwnership: boolean
+  }
+  sideEffectUpperBounds: WechatDraftPublishSideEffectUpperBounds
+}
+
+export interface WechatDraftPublishApproval {
+  planFingerprint: string
+  targetMatched: true
+  verificationMethod: 'visible-editor-confirmation'
+  approvedSideEffectUpperBounds: WechatDraftPublishSideEffectUpperBounds
+}
+
+interface PreparedWechatArticleImage {
+  src: string
+  input: WechatUploadSource
+}
+
+interface PreparedWechatDraftPublish {
+  metadata: Pick<WechatDraftArticleInput, 'title' | 'author' | 'digest' | 'contentSourceUrl'>
+  contentHtml: string
+  coverHandle?: string
+  showCoverPic?: 0 | 1
+  needOpenComment?: 0 | 1
+  onlyFansCanComment?: 0 | 1
+  articleImages: readonly PreparedWechatArticleImage[]
+  coverInput?: WechatUploadSource
+}
+
+const preparedWechatDraftPlans = new WeakMap<WechatDraftPublishPlan, PreparedWechatDraftPublish>()
+const approvedWechatDraftPlans = new WeakMap<WechatDraftPublishApproval, WechatDraftPublishPlan>()
 
 function parseSrcsetUrls(srcset: string): string[] {
   return srcset
@@ -265,11 +344,21 @@ function assertWechatDraftImagesUploaded(content: string): void {
 function assertWechatDraftArticleInput(article: WechatDraftArticleInput): void {
   assertWechatDraftMetadata(article)
   assertWechatDraftContent(article.content)
+  assertWechatDraftOptions(article)
   if (!WECHAT_COVER_HANDLE_PATTERN.test(article.coverHandle.trim())) {
     throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿封面句柄无效，请重新上传正文首图')
   }
 
   assertWechatDraftImagesUploaded(article.content)
+}
+
+function assertWechatDraftOptions(
+  article: Pick<WechatDraftArticleInput, 'showCoverPic' | 'needOpenComment' | 'onlyFansCanComment'>,
+): void {
+  const values = [article.showCoverPic, article.needOpenComment, article.onlyFansCanComment]
+  if (!values.every(value => value === undefined || value === 0 || value === 1)) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿封面与评论选项必须是 0 或 1')
+  }
 }
 
 function buildWebRuntimeStatus(): WechatPublishStatus {
@@ -297,7 +386,11 @@ function assertWechatUploadImage(
 ): void {
   const mimeType = normalizeImageMimeType(mimeTypeHint || image.mimeType || (source.startsWith('data:') ? mimeTypeFromDataUrl(source) : undefined))
   const lowerSource = source.toLowerCase()
-  if (mimeType === 'image/svg+xml' || lowerSource.endsWith('.svg') || lowerSource.startsWith('data:image/svg+xml')) {
+  if (
+    mimeType === 'image/svg+xml'
+    || /\.svg(?:[?#].*)?$/i.test(lowerSource)
+    || lowerSource.startsWith('data:image/svg+xml')
+  ) {
     throw new AppError(
       ErrorCode.VALIDATION_ERROR,
       '微信公众号图片上传默认要求先将 SVG 转为 PNG/JPG，再走素材接口',
@@ -338,6 +431,7 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
 
 async function resolveAssetDataUrl(src: string): Promise<string> {
   const assetId = extractAssetId(src)
+  const { resolveAssetSnapshot } = await import('@/services/asset-pipeline/snapshot')
   const snapshot = await resolveAssetSnapshot(assetId, 'inline-base64')
   if (snapshot.status !== 'inline-base64' || !snapshot.dataUrl) {
     throw new AppError(
@@ -359,7 +453,7 @@ async function resolveBlobDataUrl(src: string): Promise<string> {
 }
 
 async function normalizeWechatUploadSource(image: ResolvedImage, kind: WechatUploadKind): Promise<WechatUploadSource> {
-  const source = image.resolvedUrl || image.src
+  const source = (image.resolvedUrl || image.src).trim()
 
   if (!source) {
     throw new AppError(ErrorCode.VALIDATION_ERROR, 'Image source is empty')
@@ -399,8 +493,17 @@ async function normalizeWechatUploadSource(image: ResolvedImage, kind: WechatUpl
   }
 
   if (/^https?:\/\//i.test(source)) {
+    let remoteUrl: URL
+    try {
+      remoteUrl = new URL(source)
+    } catch {
+      throw new AppError(ErrorCode.VALIDATION_ERROR, `微信公众号上传图片 URL 无效: ${source}`)
+    }
+    if (!['http:', 'https:'].includes(remoteUrl.protocol) || !remoteUrl.hostname) {
+      throw new AppError(ErrorCode.VALIDATION_ERROR, `微信公众号上传图片 URL 无效: ${source}`)
+    }
     return {
-      remoteUrl: source,
+      remoteUrl: remoteUrl.href,
       filename: inferFilename(image),
       mimeType: image.mimeType,
     }
@@ -458,6 +561,107 @@ function firstWechatDraftCoverImage(html: string): ResolvedImage | undefined {
   return createResolvedImageFromTag(image)
 }
 
+function collectWechatDraftImages(html: string): {
+  articleImages: readonly { src: string; image: ResolvedImage }[]
+  uniqueWechatHostedImageCount: number
+  invalidSrcsetOnlyImageCount: number
+} {
+  if (!html.trim()) {
+    return { articleImages: [], uniqueWechatHostedImageCount: 0, invalidSrcsetOnlyImageCount: 0 }
+  }
+  if (typeof DOMParser === 'undefined') {
+    throw new AppError(ErrorCode.UNKNOWN_ERROR, 'Current runtime does not provide DOMParser for WeChat HTML rewriting')
+  }
+
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const articleImages = new Map<string, ResolvedImage>()
+  const hostedImages = new Set<string>()
+  let invalidSrcsetOnlyImageCount = 0
+  for (const image of Array.from(doc.querySelectorAll('img'))) {
+    const src = image.getAttribute('src')?.trim()
+    if (!src) {
+      if (image.getAttribute('srcset')?.trim()) invalidSrcsetOnlyImageCount += 1
+      continue
+    }
+    if (isWechatHostedContentImageUrl(src)) {
+      hostedImages.add(src)
+    } else if (!articleImages.has(src)) {
+      articleImages.set(src, createResolvedImageFromTag(image))
+    }
+  }
+
+  return {
+    articleImages: Array.from(articleImages, ([src, image]) => ({ src, image })),
+    uniqueWechatHostedImageCount: hostedImages.size,
+    invalidSrcsetOnlyImageCount,
+  }
+}
+
+async function getWechatUploadSourceFingerprint(input: WechatUploadSource): Promise<string> {
+  return sha256Hex(JSON.stringify({
+    dataUrl: input.dataUrl ?? null,
+    filename: input.filename ?? null,
+    mimeType: input.mimeType ?? null,
+    remoteUrl: input.remoteUrl ?? null,
+  }))
+}
+
+async function getWechatDraftPublishInputFingerprint(
+  input: WechatDraftPublishInput,
+  metadata: Pick<WechatDraftArticleInput, 'title' | 'author' | 'digest' | 'contentSourceUrl'>,
+): Promise<string> {
+  const coverImage = input.coverImage
+  return sha256Hex(JSON.stringify({
+    schemaVersion: WECHAT_DRAFT_PUBLISH_PLAN_SCHEMA_VERSION,
+    metadata: {
+      title: metadata.title,
+      author: metadata.author ?? null,
+      digest: metadata.digest ?? null,
+      contentSourceUrl: metadata.contentSourceUrl ?? null,
+    },
+    contentHtml: input.contentHtml,
+    coverHandle: input.coverHandle?.trim() || null,
+    coverImage: coverImage ? {
+      src: coverImage.src,
+      resolvedUrl: coverImage.resolvedUrl,
+      mimeType: coverImage.mimeType ?? null,
+      width: coverImage.width ?? null,
+      height: coverImage.height ?? null,
+      alt: coverImage.alt ?? null,
+    } : null,
+    showCoverPic: input.showCoverPic ?? null,
+    needOpenComment: input.needOpenComment ?? null,
+    onlyFansCanComment: input.onlyFansCanComment ?? null,
+  }))
+}
+
+async function getWechatDraftPublishPlanFingerprint(
+  plan: Omit<WechatDraftPublishPlan, 'planFingerprint'>,
+  prepared: PreparedWechatDraftPublish,
+): Promise<string> {
+  const articleUploadFingerprints = await Promise.all(
+    prepared.articleImages.map(image => getWechatUploadSourceFingerprint(image.input)),
+  )
+  const coverUploadFingerprint = prepared.coverInput
+    ? await getWechatUploadSourceFingerprint(prepared.coverInput)
+    : null
+
+  return sha256Hex(JSON.stringify({
+    ...plan,
+    reasons: plan.reasons.map(reason => reason.code),
+    articleUploadFingerprints,
+    coverUploadFingerprint,
+  }))
+}
+
+function addWechatDraftPlanIssue(
+  issues: WechatDraftPublishPlanIssue[],
+  code: WechatDraftPublishReasonCode,
+  message: string,
+): void {
+  if (!issues.some(issue => issue.code === code)) issues.push({ code, message })
+}
+
 export function isWechatHostedContentImageUrl(url: string): boolean {
   try {
     const parsed = new URL(url)
@@ -476,16 +680,8 @@ export async function getWechatPublishStatus(): Promise<WechatPublishStatus> {
   return parseWechatResponse(WechatPublishStatusSchema, raw, 'wechat_publish_status')
 }
 
-export async function uploadWechatArticleImage(image: ResolvedImage): Promise<UploadResult> {
-  if (isWechatHostedContentImageUrl(image.resolvedUrl)) {
-    return {
-      remoteUrl: image.resolvedUrl,
-      uploadedAt: new Date().toISOString(),
-    }
-  }
-
+async function uploadPreparedWechatArticleImage(input: WechatUploadSource): Promise<UploadResult> {
   ensureTauriRuntime()
-  const input = await normalizeWechatUploadSource(image, 'article')
   const raw = await tauriInvoke<unknown>('wechat_upload_article_image', { input })
   const result = parseWechatResponse(WechatArticleImageUploadSchema, raw, 'wechat_upload_article_image')
   return {
@@ -494,9 +690,8 @@ export async function uploadWechatArticleImage(image: ResolvedImage): Promise<Up
   }
 }
 
-export async function uploadWechatCoverImage(image: ResolvedImage): Promise<WechatCoverUploadResult> {
+async function uploadPreparedWechatCoverImage(input: WechatUploadSource): Promise<WechatCoverUploadResult> {
   ensureTauriRuntime()
-  const input = await normalizeWechatUploadSource(image, 'cover')
   const raw = await tauriInvoke<unknown>('wechat_upload_cover_image', { input })
   const result = parseWechatResponse(WechatCoverUploadSchema, raw, 'wechat_upload_cover_image')
   return {
@@ -506,51 +701,73 @@ export async function uploadWechatCoverImage(image: ResolvedImage): Promise<Wech
   }
 }
 
-export async function rewriteWechatArticleImages(html: string): Promise<WechatHtmlRewriteResult> {
-  if (!html.trim()) {
-    return { html, uploadedImages: [] }
+export async function uploadWechatArticleImage(image: ResolvedImage): Promise<UploadResult> {
+  if (isWechatHostedContentImageUrl(image.resolvedUrl)) {
+    return {
+      remoteUrl: image.resolvedUrl,
+      uploadedAt: new Date().toISOString(),
+    }
   }
 
+  const input = await normalizeWechatUploadSource(image, 'article')
+  return uploadPreparedWechatArticleImage(input)
+}
+
+export async function uploadWechatCoverImage(image: ResolvedImage): Promise<WechatCoverUploadResult> {
+  const input = await normalizeWechatUploadSource(image, 'cover')
+  return uploadPreparedWechatCoverImage(input)
+}
+
+async function prepareWechatArticleImages(html: string): Promise<readonly PreparedWechatArticleImage[]> {
+  const collected = collectWechatDraftImages(html)
+  return Promise.all(collected.articleImages.map(async ({ src, image }) => ({
+    src,
+    input: await normalizeWechatUploadSource(image, 'article'),
+  })))
+}
+
+async function rewritePreparedWechatArticleImages(
+  html: string,
+  preparedImages: readonly PreparedWechatArticleImage[],
+): Promise<WechatHtmlRewriteResult> {
+  if (!html.trim()) return { html, uploadedImages: [] }
   if (typeof DOMParser === 'undefined') {
     throw new AppError(ErrorCode.UNKNOWN_ERROR, 'Current runtime does not provide DOMParser for WeChat HTML rewriting')
   }
 
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  const images = Array.from(doc.querySelectorAll('img'))
-  const cache = new Map<string, UploadResult>()
-  const uploadedImages: UploadResult[] = []
+  const uploads = new Map<string, UploadResult>()
+  for (const preparedImage of preparedImages) {
+    uploads.set(preparedImage.src, await uploadPreparedWechatArticleImage(preparedImage.input))
+  }
 
-  for (const image of images) {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  for (const element of Array.from(doc.querySelectorAll('[srcset]'))) {
+    element.removeAttribute('srcset')
+  }
+  for (const image of Array.from(doc.querySelectorAll('img'))) {
     const src = image.getAttribute('src')?.trim()
     if (!src) continue
-    if (isWechatHostedContentImageUrl(src)) {
-      image.removeAttribute('srcset')
-      continue
-    }
-
-    let upload = cache.get(src)
-    if (!upload) {
-      upload = await uploadWechatArticleImage(createResolvedImageFromTag(image))
-      cache.set(src, upload)
-      uploadedImages.push(upload)
-    }
-    image.setAttribute('src', upload.remoteUrl)
-    image.removeAttribute('srcset')
+    const upload = uploads.get(src)
+    if (upload) image.setAttribute('src', upload.remoteUrl)
   }
 
   return {
     html: doc.body.innerHTML,
-    uploadedImages,
+    uploadedImages: Array.from(uploads.values()),
   }
+}
+
+export async function rewriteWechatArticleImages(html: string): Promise<WechatHtmlRewriteResult> {
+  return rewritePreparedWechatArticleImages(html, await prepareWechatArticleImages(html))
 }
 
 function collectNonWechatHostedImages(html: string): string[] {
   if (!html.trim() || typeof DOMParser === 'undefined') return []
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  return Array.from(doc.querySelectorAll('img'))
-    .flatMap(image => {
-      const src = image.getAttribute('src')?.trim() || ''
-      const srcset = image.getAttribute('srcset')?.trim()
+  return Array.from(doc.querySelectorAll('img[src], [srcset]'))
+    .flatMap(element => {
+      const src = element.matches('img') ? element.getAttribute('src')?.trim() || '' : ''
+      const srcset = element.getAttribute('srcset')?.trim()
       return srcset ? [src, ...parseSrcsetUrls(srcset)] : [src]
     })
     .filter(src => Boolean(src) && !isWechatHostedContentImageUrl(src))
@@ -577,41 +794,238 @@ export async function createWechatDraft(article: WechatDraftArticleInput): Promi
   }
 }
 
-export async function publishWechatDraft(input: WechatDraftPublishInput): Promise<WechatDraftPublishResult> {
-  ensureTauriRuntime()
-
+export async function planWechatDraftPublish(input: WechatDraftPublishInput): Promise<WechatDraftPublishPlan> {
   const metadata = normalizeWechatDraftMetadata(input)
-  assertWechatDraftMetadata(metadata)
-  assertWechatDraftContent(input.contentHtml)
-
-  let coverHandle = input.coverHandle?.trim() || undefined
-  const coverImage = input.coverImage ?? firstWechatDraftCoverImage(input.contentHtml)
-  if (coverHandle && !WECHAT_COVER_HANDLE_PATTERN.test(coverHandle)) {
-    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿封面句柄无效，请重新上传正文首图')
+  const issues: WechatDraftPublishPlanIssue[] = []
+  try {
+    assertWechatDraftMetadata(metadata)
+    assertWechatDraftOptions(input)
+  } catch {
+    addWechatDraftPlanIssue(issues, 'metadata-invalid', '微信草稿标题、作者、摘要、原文链接或 0/1 选项不符合限制。')
   }
-  if (!coverHandle && !coverImage) {
-    throw new AppError(ErrorCode.VALIDATION_ERROR, '正文至少需要一张真实图片作为微信公众号永久封面')
+  try {
+    assertWechatDraftContent(input.contentHtml)
+  } catch {
+    addWechatDraftPlanIssue(issues, 'content-invalid', '微信草稿正文为空或超过字符/字节限制。')
   }
-  if (coverImage) assertWechatUploadImage(coverImage, 'cover')
 
-  const rewritten = await rewriteWechatArticleImages(input.contentHtml)
-  assertWechatDraftContent(rewritten.html)
-  assertWechatDraftImagesUploaded(rewritten.html)
-  if (!coverHandle) {
-    if (!coverImage) {
-      throw new AppError(ErrorCode.VALIDATION_ERROR, '正文至少需要一张真实图片作为微信公众号永久封面')
+  const inputFingerprint = await getWechatDraftPublishInputFingerprint(input, metadata)
+  let collected: ReturnType<typeof collectWechatDraftImages> = {
+    articleImages: [],
+    uniqueWechatHostedImageCount: 0,
+    invalidSrcsetOnlyImageCount: 0,
+  }
+  try {
+    collected = collectWechatDraftImages(input.contentHtml)
+  } catch {
+    addWechatDraftPlanIssue(issues, 'dom-unavailable', '当前运行时无法解析微信草稿 HTML。')
+  }
+  if (collected.invalidSrcsetOnlyImageCount > 0) {
+    addWechatDraftPlanIssue(issues, 'article-image-invalid', '至少一张正文图片只有 srcset 而没有可上传的 src。')
+  }
+
+  const articleImages: PreparedWechatArticleImage[] = []
+  for (const candidate of collected.articleImages) {
+    try {
+      articleImages.push({
+        src: candidate.src,
+        input: await normalizeWechatUploadSource(candidate.image, 'article'),
+      })
+    } catch {
+      addWechatDraftPlanIssue(issues, 'article-image-invalid', '至少一张正文图片的来源或格式不受微信公众号支持。')
     }
-    const cover = await uploadWechatCoverImage(coverImage)
-    coverHandle = cover.coverHandle
   }
 
-  const draft = await createWechatDraft({
-    ...metadata,
-    content: rewritten.html,
+  const coverHandle = input.coverHandle?.trim() || undefined
+  const coverImage = input.coverImage ?? firstWechatDraftCoverImage(input.contentHtml)
+  let coverState: WechatDraftPublishPlan['cover']['state']
+  let coverInput: WechatUploadSource | undefined
+  if (coverHandle && !WECHAT_COVER_HANDLE_PATTERN.test(coverHandle)) {
+    coverState = 'invalid-handle'
+    addWechatDraftPlanIssue(issues, 'cover-handle-invalid', '微信草稿封面句柄格式无效。')
+  } else if (coverHandle) {
+    coverState = 'existing-handle-unverified'
+  } else if (!coverImage) {
+    coverState = 'missing'
+    addWechatDraftPlanIssue(issues, 'cover-image-missing', '正文至少需要一张真实图片作为微信公众号永久封面。')
+  } else {
+    try {
+      coverInput = await normalizeWechatUploadSource(coverImage, 'cover')
+      coverState = 'upload-required'
+    } catch {
+      coverState = 'invalid-image'
+      addWechatDraftPlanIssue(issues, 'cover-image-invalid', '候选永久封面图片的来源或格式不受微信公众号支持。')
+    }
+  }
+
+  const prepared: PreparedWechatDraftPublish = {
+    metadata,
+    contentHtml: input.contentHtml,
     coverHandle,
     showCoverPic: input.showCoverPic,
     needOpenComment: input.needOpenComment,
     onlyFansCanComment: input.onlyFansCanComment,
+    articleImages,
+    coverInput,
+  }
+  const sideEffectUpperBounds: WechatDraftPublishSideEffectUpperBounds = {
+    draftCreates: 1,
+    articleImageUploads: articleImages.length,
+    permanentCoverUploads: coverState === 'upload-required' ? 1 : 0,
+  }
+  const planWithoutFingerprint: Omit<WechatDraftPublishPlan, 'planFingerprint'> = {
+    schemaVersion: WECHAT_DRAFT_PUBLISH_PLAN_SCHEMA_VERSION,
+    eligible: issues.length === 0,
+    inputFingerprint,
+    reasons: Object.freeze([...issues]),
+    limits: Object.freeze({
+      titleChars: Array.from(metadata.title).length,
+      titleMaxChars: WECHAT_DRAFT_TITLE_MAX_CHARS,
+      contentChars: Array.from(input.contentHtml).length,
+      contentMaxCharsExclusive: WECHAT_ARTICLE_CONTENT_MAX_CHARS,
+      contentBytes: byteLength(input.contentHtml),
+      contentMaxBytesExclusive: WECHAT_ARTICLE_CONTENT_MAX_BYTES,
+    }),
+    images: Object.freeze({
+      uniqueNonWechatImageCount: collected.articleImages.length,
+      uniqueWechatHostedImageCount: collected.uniqueWechatHostedImageCount,
+      preparedArticleUploadCount: articleImages.length,
+      preparedLocalArticleSourceCount: articleImages.filter(image => Boolean(image.input.dataUrl)).length,
+    }),
+    cover: Object.freeze({
+      state: coverState,
+      remoteValidityUnverified: coverState === 'existing-handle-unverified' || Boolean(coverInput?.remoteUrl),
+    }),
+    unverifiedRemote: Object.freeze({
+      httpSourceReachability: articleImages.some(image => Boolean(image.input.remoteUrl)) || Boolean(coverInput?.remoteUrl),
+      httpSourceMimeTruth: articleImages.some(image => Boolean(image.input.remoteUrl)) || Boolean(coverInput?.remoteUrl),
+      coverHandleOwnership: coverState === 'existing-handle-unverified',
+    }),
+    sideEffectUpperBounds: Object.freeze(sideEffectUpperBounds),
+  }
+  const plan = Object.freeze({
+    ...planWithoutFingerprint,
+    planFingerprint: await getWechatDraftPublishPlanFingerprint(planWithoutFingerprint, prepared),
+  })
+  if (plan.eligible) preparedWechatDraftPlans.set(plan, prepared)
+  return plan
+}
+
+export function approveWechatDraftPublishPlan(
+  plan: WechatDraftPublishPlan,
+  approval: Omit<WechatDraftPublishApproval, 'planFingerprint'>,
+): WechatDraftPublishApproval {
+  if (!plan.eligible || !preparedWechatDraftPlans.has(plan)) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿预检上下文已失效，请重新预检')
+  }
+  if (
+    approval.targetMatched !== true
+    || approval.verificationMethod !== 'visible-editor-confirmation'
+    || !hasMatchingWechatDraftPublishBounds(approval.approvedSideEffectUpperBounds, plan.sideEffectUpperBounds)
+  ) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿目标确认或副作用授权与预检计划不匹配')
+  }
+
+  const boundApproval = Object.freeze({
+    ...approval,
+    planFingerprint: plan.planFingerprint,
+    approvedSideEffectUpperBounds: Object.freeze({ ...approval.approvedSideEffectUpperBounds }),
+  })
+  approvedWechatDraftPlans.set(boundApproval, plan)
+  return boundApproval
+}
+
+function hasMatchingWechatDraftPublishBounds(
+  approved: WechatDraftPublishSideEffectUpperBounds | undefined,
+  planned: WechatDraftPublishSideEffectUpperBounds,
+): boolean {
+  if (!approved) return false
+  return approved.draftCreates === planned.draftCreates
+    && approved.articleImageUploads === planned.articleImageUploads
+    && approved.permanentCoverUploads === planned.permanentCoverUploads
+}
+
+async function requireApprovedWechatDraftPublishPlan(
+  input: WechatDraftPublishInput,
+  plan: WechatDraftPublishPlan | undefined,
+  approval: WechatDraftPublishApproval | undefined,
+): Promise<PreparedWechatDraftPublish> {
+  if (!plan || !approval) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿创建需要先完成本地预检并确认目标与副作用上限')
+  }
+  if (!plan.eligible) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, `微信草稿预检未通过: ${plan.reasons.map(reason => reason.message).join('；')}`)
+  }
+  if (approvedWechatDraftPlans.get(approval) !== plan) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿批准已复制、过期或不属于当前预检计划')
+  }
+
+  const prepared = preparedWechatDraftPlans.get(plan)
+  if (!prepared) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿预检上下文已失效，请重新预检')
+  }
+  const currentInputFingerprint = await getWechatDraftPublishInputFingerprint(
+    input,
+    normalizeWechatDraftMetadata(input),
+  )
+  const planWithoutFingerprint = Object.fromEntries(
+    Object.entries(plan).filter(([key]) => key !== 'planFingerprint'),
+  ) as Omit<WechatDraftPublishPlan, 'planFingerprint'>
+  const currentPlanFingerprint = await getWechatDraftPublishPlanFingerprint(planWithoutFingerprint, prepared)
+  if (
+    currentInputFingerprint !== plan.inputFingerprint
+    || currentPlanFingerprint !== plan.planFingerprint
+    || approval.planFingerprint !== plan.planFingerprint
+  ) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿输入或预检计划已变化，请重新预检并确认')
+  }
+  if (
+    approval.targetMatched !== true
+    || approval.verificationMethod !== 'visible-editor-confirmation'
+    || !hasMatchingWechatDraftPublishBounds(approval.approvedSideEffectUpperBounds, plan.sideEffectUpperBounds)
+  ) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿目标确认或副作用授权与预检计划不匹配')
+  }
+
+  if (
+    approvedWechatDraftPlans.get(approval) !== plan
+    || preparedWechatDraftPlans.get(plan) !== prepared
+  ) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿批准或预检计划已被消费，请重新预检并确认')
+  }
+  approvedWechatDraftPlans.delete(approval)
+  preparedWechatDraftPlans.delete(plan)
+
+  return prepared
+}
+
+export async function publishWechatDraft(
+  input: WechatDraftPublishInput,
+  plan: WechatDraftPublishPlan,
+  approval: WechatDraftPublishApproval,
+): Promise<WechatDraftPublishResult> {
+  const prepared = await requireApprovedWechatDraftPublishPlan(input, plan, approval)
+  ensureTauriRuntime()
+
+  const rewritten = await rewritePreparedWechatArticleImages(prepared.contentHtml, prepared.articleImages)
+  assertWechatDraftContent(rewritten.html)
+  assertWechatDraftImagesUploaded(rewritten.html)
+  let coverHandle = prepared.coverHandle
+  if (!coverHandle) {
+    if (!prepared.coverInput) {
+      throw new AppError(ErrorCode.VALIDATION_ERROR, '微信草稿永久封面预检上下文无效，请重新预检')
+    }
+    const cover = await uploadPreparedWechatCoverImage(prepared.coverInput)
+    coverHandle = cover.coverHandle
+  }
+
+  const draft = await createWechatDraft({
+    ...prepared.metadata,
+    content: rewritten.html,
+    coverHandle,
+    showCoverPic: prepared.showCoverPic,
+    needOpenComment: prepared.needOpenComment,
+    onlyFansCanComment: prepared.onlyFansCanComment,
   })
 
   return {

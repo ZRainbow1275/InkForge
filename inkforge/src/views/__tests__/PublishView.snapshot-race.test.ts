@@ -65,6 +65,54 @@ describe('PublishView article snapshot ownership', () => {
         uploadedContentHtml: '<section><p>ARTICLE_C</p></section>',
         uploadedImageCount: 1,
       })
+    const draftPlan = {
+      schemaVersion: 'wechat-draft-publish-plan/v1',
+      eligible: true,
+      inputFingerprint: 'a'.repeat(64),
+      planFingerprint: 'd'.repeat(64),
+      reasons: [],
+      limits: {
+        titleChars: 12,
+        titleMaxChars: 32,
+        contentChars: 120,
+        contentMaxCharsExclusive: 20_000,
+        contentBytes: 120,
+        contentMaxBytesExclusive: 1024 * 1024,
+      },
+      images: {
+        uniqueNonWechatImageCount: 1,
+        uniqueWechatHostedImageCount: 0,
+        preparedArticleUploadCount: 1,
+        preparedLocalArticleSourceCount: 0,
+      },
+      cover: { state: 'upload-required', remoteValidityUnverified: true },
+      unverifiedRemote: {
+        httpSourceReachability: true,
+        httpSourceMimeTruth: true,
+        coverHandleOwnership: false,
+      },
+      sideEffectUpperBounds: {
+        draftCreates: 1,
+        articleImageUploads: 1,
+        permanentCoverUploads: 1,
+      },
+    }
+    const planDraft = vi.fn().mockResolvedValue(draftPlan)
+    const confirmDraft = vi.fn().mockReturnValue(true)
+    const getPublishStatus = vi.fn()
+      .mockResolvedValueOnce({
+        configured: true,
+        missingKeys: [],
+        source: 'env.local',
+        appIdHint: 'wx…cached',
+      })
+      .mockResolvedValue({
+        configured: true,
+        missingKeys: [],
+        source: 'env.local',
+        appIdHint: 'wx…fresh',
+      })
+    window.confirm = confirmDraft
 
     vi.doMock('pinia', () => ({ storeToRefs: (store: unknown) => store }))
     vi.doMock('vue-router', () => ({
@@ -104,11 +152,11 @@ describe('PublishView article snapshot ownership', () => {
       convertToZhihu: (html: string) => html,
       calculateStats: () => stats,
       describeWechatPublishStatus: () => '微信草稿通道已配置',
-      getWechatPublishStatus: () => Promise.resolve({
-        configured: true,
-        missingKeys: [],
-        source: 'env.local',
-        appIdHint: 'wx…test',
+      getWechatPublishStatus: getPublishStatus,
+      planWechatDraftPublish: planDraft,
+      approveWechatDraftPublishPlan: (plan: typeof draftPlan, approval: Record<string, unknown>) => ({
+        ...approval,
+        planFingerprint: plan.planFingerprint,
       }),
       publishWechatDraft: publishDraft,
       copySanitizedPublishRichHtmlWithExecCommand: () => true,
@@ -162,6 +210,13 @@ describe('PublishView article snapshot ownership', () => {
     expect(renderWechat).toHaveBeenCalledTimes(2)
 
     await vi.waitFor(() => expect(draftButton.disabled).toBe(false))
+    confirmDraft.mockReturnValueOnce(false)
+    draftButton.click()
+    await vi.waitFor(() => expect(planDraft).toHaveBeenCalledTimes(1))
+    expect(publishDraft).not.toHaveBeenCalled()
+    await vi.waitFor(() => expect(host.textContent).toContain('已取消；未执行微信上传或草稿创建'))
+
+    await vi.waitFor(() => expect(draftButton.disabled).toBe(false))
     draftButton.click()
     await vi.waitFor(() => expect(publishDraft).toHaveBeenCalledTimes(1))
     expect(publishDraft.mock.calls[0]?.[0]).toMatchObject({
@@ -169,6 +224,24 @@ describe('PublishView article snapshot ownership', () => {
       contentHtml: expect.stringContaining('SHARED_ARTICLE'),
       coverHandle: undefined,
     })
+    expect(publishDraft.mock.calls[0]?.[1]).toBe(draftPlan)
+    expect(publishDraft.mock.calls[0]?.[2]).toMatchObject({
+      planFingerprint: 'd'.repeat(64),
+      targetMatched: true,
+      verificationMethod: 'visible-editor-confirmation',
+      approvedSideEffectUpperBounds: draftPlan.sideEffectUpperBounds,
+    })
+    expect(getPublishStatus).toHaveBeenCalledTimes(3)
+    expect(confirmDraft.mock.calls[0]?.[0]).toContain('目标提示：wx…fresh')
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain('目标提示：wx…fresh')
+    expect(confirmDraft.mock.calls[1]?.[0]).not.toContain('wx…cached')
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain(`输入指纹：${'a'.repeat(12)}`)
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain(`计划指纹：${'d'.repeat(12)}`)
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain('标题：12/32 字符')
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain('正文：120/19999 字符，120/1048575 UTF-8 字节')
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain('正文图片：非微信来源 1、已准备上传 1、微信托管 0')
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain('封面：上传 1 张永久封面')
+    expect(confirmDraft.mock.calls[1]?.[0]).toContain('正文图片 1、永久封面 1')
 
     route.query.id = 'article-c'
     expect(draftButton.disabled).toBe(true)
@@ -229,5 +302,6 @@ describe('PublishView article snapshot ownership', () => {
 
     app.unmount()
     host.remove()
+    Reflect.deleteProperty(window, 'confirm')
   })
 })

@@ -96,7 +96,7 @@ export const EditedContentSchema = z.object({
     // Integrity Check: currentVersionId must exist in versions
     return data.versions.some(v => v.id === data.currentVersionId);
 }, {
-    message: import.meta.env.PROD
+    message: import.meta.env?.PROD
         ? "数据校验失败"
         : "Data Integrity Error: currentVersionId does not exist in versions array",
     path: ["currentVersionId"]

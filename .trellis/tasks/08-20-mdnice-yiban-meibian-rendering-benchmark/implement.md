@@ -31,7 +31,7 @@ Expected result: one corpus and one assertion script; no product UI/schema chang
 - [ ] Make `publishWechatDraft()` consume that same plan/image classification and require a transient approval object; missing approval or a recomputed plan-fingerprint mismatch must fail before its first network call. Do not build a second parser or estimator.
 - [ ] Update the only real product caller, `PublishView.handleCreateWechatDraft()`: freeze the exact input, call the no-WeChat-write planner, show one native confirmation containing the transient API target hint, short plan fingerprint and per-kind side-effect upper bounds, then pass the mandatory in-memory approval only after the user confirms. Do not add a component, persisted setting or evidence-only bypass.
 - [ ] Extend the existing `scripts/style-proof-wechat-style-samples.ts` with one `--draft-preflight` JSON mode rather than adding a second CLI framework. It emits strict `wechat-draft-preflight/v1` with a complete result for every requested choice, input/plan fingerprints, reason codes, redacted eligibility and side-effect upper bounds. Exit `0` means a complete schema-valid report even when cases are ineligible; incomplete/unhandled failure exits `1`, unknown option exits `2`, help exits `0`.
-- [ ] Add focused tests proving zero invoke/upload calls during planning, duplicate image sources count once, WeChat-hosted images count zero, cover-handle format versus cover-upload decisions match execution, limits fail before mutation, and missing/mismatched approval fails before mutation. Put a valid image before WebP/SVG/unsupported-source cases and prove the whole plan fails before the first upload. The current `PublishView.wechat-presets.test.ts` source-contract test must prove cancellation returns before `publishWechatDraft()` and confirmed frozen identity reaches the real caller; the later real Tauri UI check remains the runtime gate.
+- [ ] Add focused tests proving zero invoke/upload calls during planning, duplicate image sources count once, WeChat-hosted images count zero, cover-handle format versus cover-upload decisions match execution, limits fail before mutation, and missing/mismatched approval fails before mutation. Put a valid image before WebP/SVG/unsupported-source cases and prove the whole plan fails before the first upload. Keep the source contract in `PublishView.wechat-presets.test.ts`; use the mounted `PublishView.snapshot-race.test.ts` to prove cancellation returns before `publishWechatDraft()` and confirmed frozen identity reaches the real caller. The later real Tauri UI check remains the runtime gate.
 - [ ] Pin one usable inline, one SVG-heavy flagship and one paste-safe fallback from the current runtime application report.
 - [ ] Generate all three canonical artifacts through `markdownToWechatWithStats()` and record their existing StyleProof `artifactFingerprint`.
 - [ ] Confirm repeated generation is deterministic and quality detection has no unexpected blocker.
@@ -47,7 +47,8 @@ Concrete local gates:
 pnpm --silent -C inkforge style-proof:application-preflight
 pnpm --silent -C inkforge style-proof:application-acceptance
 pnpm --silent -C inkforge style-proof:wechat-style-samples
-pnpm -C inkforge exec vitest run src/services/export/wechat-publish.test.ts src/services/export/wechat-style-export-samples.test.ts scripts/style-proof-wechat-style-samples.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+pnpm -C inkforge exec vitest run src/services/export/wechat-publish.test.ts src/services/export/wechat-style-export-samples.test.ts scripts/style-proof-wechat-style-samples.test.ts src/views/__tests__/PublishView.snapshot-race.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+python -B .trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/test_verify_wechat_fidelity_receipt.py
 pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
 ```
@@ -55,12 +56,17 @@ NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
 Generate and verify a repo-owned candidate batch plan before requesting the batch maximum. This CLI report is not the final runtime approval: the revised `PublishView` authoritatively plans the frozen full input (final title/nonce, choice, media binding and cover) and obtains the per-case confirmation immediately before any write.
 
 ```bash
+set -euo pipefail
 ROOT="$(pwd)"
 TASK=.trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark
 CORPUS="${CORPUS:-$ROOT/$TASK/research/wechat-fidelity-corpus.md}"
 PREFLIGHT="$ROOT/$TASK/research/wechat-draft-preflight.json"
-pnpm --silent -C inkforge exec tsx scripts/style-proof-wechat-style-samples.ts --draft-preflight --corpus "$CORPUS" --json > "$PREFLIGHT"
-python "$ROOT/$TASK/research/verify-wechat-fidelity-receipt.py" --preflight "$PREFLIGHT"
+PREFLIGHT_TMP="$(mktemp "${TMPDIR:-/tmp}/inkforge-wechat-preflight.XXXXXX.json")"
+trap 'rm -f "$PREFLIGHT_TMP"' EXIT
+test -z "$(git status --porcelain=v1 --untracked-files=all)" || { echo "preflight generation requires a clean Git worktree" >&2; exit 1; }
+pnpm --silent -C inkforge exec tsx scripts/style-proof-wechat-style-samples.ts --draft-preflight --corpus "$CORPUS" --json > "$PREFLIGHT_TMP"
+python "$ROOT/$TASK/research/verify-wechat-fidelity-receipt.py" --preflight "$PREFLIGHT_TMP" && mv "$PREFLIGHT_TMP" "$PREFLIGHT"
+trap - EXIT
 ```
 
 Capture expected pre-external release status without treating exit `1` as a test failure:
@@ -150,7 +156,7 @@ pnpm --silent -C inkforge style-proof:wechat-manual-manifest-drafts > "$TASK/res
 # Operator creates and redaction-reviews $TASK/research/REDACTED_MANIFEST.json from that draft pack.
 pnpm --silent -C inkforge style-proof:manifest-intake --file "$MANIFEST" --json
 pnpm --silent -C inkforge style-proof:manifest-merge --file "$MANIFEST" --json
-python "$TASK/research/verify-wechat-fidelity-receipt.py" "$TASK/research/wechat-fidelity-receipt.json"
+python "$TASK/research/verify-wechat-fidelity-receipt.py" --receipt "$TASK/research/wechat-fidelity-receipt.json"
 python .trellis/scripts/task.py validate "$TASK"
 ```
 
@@ -161,7 +167,7 @@ The draft pack and unmerged manifest are working files; only redacted, validator
 Always expected after execution:
 
 - task planning/research/evidence files;
-- at most one deterministic corpus and one standard-library receipt assertion.
+- one deterministic corpus, one standard-library receipt assertion and its focused standard-library regression.
 - the existing `wechat-publish.ts` shared no-WeChat-write planner plus its focused existing test file;
 - one narrow `--draft-preflight` mode in the existing style-sample script and its existing `scripts/style-proof-wechat-style-samples.test.ts` test.
 - the current `PublishView.handleCreateWechatDraft()` caller and its existing focused test; this native confirmation bridge is the only planned UI change, with no new component or persisted state.

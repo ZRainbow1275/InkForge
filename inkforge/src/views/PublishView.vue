@@ -27,6 +27,8 @@ import {
   getWechatPublishStatus,
   getWechatSvgApplicationSlotModuleId,
   normalizeWechatSvgApplicationPlan,
+  planWechatDraftPublish,
+  approveWechatDraftPublishPlan,
   publishWechatDraft,
   setWechatSvgApplicationSlot,
   SVG_MODULES,
@@ -353,6 +355,8 @@ const hasWechatDraftCoverSource = computed(() => {
   return Boolean(image?.getAttribute('src')?.trim())
 })
 
+const hasWechatPublishTargetHint = computed(() => Boolean(wechatPublishStatus.value?.appIdHint?.trim()))
+
 const wechatDraftPreflightDetail = computed(() => {
   if (!isPublishArticleReady.value) return '正在加载路由指定的文章，草稿创建暂不可用。'
   if (!hasPublishSource.value) return emptyPublishMessage.value
@@ -361,6 +365,9 @@ const wechatDraftPreflightDetail = computed(() => {
   }
   if (!wechatDraftRenderReady.value) {
     return '微信专用渲染失败；当前回退内容仅供本地预览、复制或下载，不会创建微信草稿。'
+  }
+  if (wechatPublishStatus.value?.configured && !hasWechatPublishTargetHint.value) {
+    return '微信草稿通道未提供可核对的账号目标提示，创建已阻止。'
   }
   if (!wechatDraftTitle.value.trim()) return '需要填写草稿标题。'
   if (Array.from(wechatDraftTitle.value.trim()).length > WECHAT_DRAFT_TITLE_MAX_CHARS) {
@@ -375,6 +382,7 @@ const wechatDraftPreflightDetail = computed(() => {
 const canCreateWechatDraft = computed(() => (
   platform.value === 'wechat'
   && wechatPublishStatus.value?.configured === true
+  && hasWechatPublishTargetHint.value
   && isPublishArticleReady.value
   && hasPublishSource.value
   && !isGenerating.value
@@ -630,9 +638,70 @@ async function handleCreateWechatDraft(): Promise<void> {
   isWechatDraftCreating.value = true
   wechatDraftError.value = ''
   wechatDraftResult.value = null
+  let mutationStarted = false
 
   try {
-    const result = await publishWechatDraft(input)
+    const plan = await planWechatDraftPublish(input)
+    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
+      showToastMessage('文章或发布设置已变化；本地预检已作废，未执行微信写入。')
+      return
+    }
+    if (!plan.eligible) {
+      wechatDraftError.value = `本地预检未通过：${plan.reasons.map(reason => reason.message).join('；')}`
+      showToastMessage(wechatDraftError.value)
+      return
+    }
+
+    const targetStatus = await getWechatPublishStatus()
+    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
+      showToastMessage('文章或发布设置已变化；账号目标复核已作废，未执行微信写入。')
+      return
+    }
+    wechatPublishStatus.value = targetStatus
+    wechatPublishStatusError.value = ''
+    const targetHint = targetStatus.appIdHint?.trim()
+    if (!targetStatus.configured || !targetHint) {
+      wechatDraftError.value = targetStatus.configured
+        ? '写入前目标复核未提供可核对的账号提示；未执行微信写入。'
+        : '写入前目标复核发现微信公众号草稿通道当前未配置；未执行微信写入。'
+      showToastMessage(wechatDraftError.value)
+      return
+    }
+
+    const bounds = plan.sideEffectUpperBounds
+    const limits = plan.limits
+    const images = plan.images
+    const coverPlan = plan.cover.state === 'existing-handle-unverified'
+      ? '复用既有封面句柄（远端有效性未验证）'
+      : '上传 1 张永久封面'
+    const confirmed = window.confirm([
+      '即将创建微信公众号草稿，请核对：',
+      `目标提示：${targetHint}`,
+      `输入指纹：${plan.inputFingerprint.slice(0, 12)}`,
+      `计划指纹：${plan.planFingerprint.slice(0, 12)}`,
+      `标题：${limits.titleChars}/${limits.titleMaxChars} 字符`,
+      `正文：${limits.contentChars}/${limits.contentMaxCharsExclusive - 1} 字符，${limits.contentBytes}/${limits.contentMaxBytesExclusive - 1} UTF-8 字节`,
+      `正文图片：非微信来源 ${images.uniqueNonWechatImageCount}、已准备上传 ${images.preparedArticleUploadCount}、微信托管 ${images.uniqueWechatHostedImageCount}`,
+      `封面：${coverPlan}`,
+      `副作用上限：草稿 ${bounds.draftCreates}、正文图片 ${bounds.articleImageUploads}、永久封面 ${bounds.permanentCoverUploads}`,
+      '确认该目标与当前可见微信编辑器账号一致，并授权以上上限。',
+    ].join('\n'))
+    if (!confirmed) {
+      showToastMessage('已取消；未执行微信上传或草稿创建。')
+      return
+    }
+    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
+      showToastMessage('文章或发布设置已变化；确认已作废，未执行微信写入。')
+      return
+    }
+
+    const approval = approveWechatDraftPublishPlan(plan, {
+      targetMatched: true,
+      verificationMethod: 'visible-editor-confirmation',
+      approvedSideEffectUpperBounds: Object.freeze({ ...bounds }),
+    })
+    mutationStarted = true
+    const result = await publishWechatDraft(input, plan, approval)
     if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
       showToastMessage('文章或发布设置已变化；上一快照的微信草稿已创建，请到微信草稿箱核对。')
       return
@@ -641,11 +710,16 @@ async function handleCreateWechatDraft(): Promise<void> {
     wechatDraftCoverHandle.value = result.coverHandle
     showToastMessage('微信公众号草稿已创建')
   } catch (error) {
+    const detail = error instanceof Error ? error.message : '未知错误'
+    if (!mutationStarted) {
+      wechatDraftError.value = `写入前检查未完成：${detail}`
+      showToastMessage(wechatDraftError.value)
+      return
+    }
     if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
       showToastMessage('文章或发布设置已变化；上一快照的远端结果未确认，重试前请检查微信草稿箱和素材库。')
       return
     }
-    const detail = error instanceof Error ? error.message : '未知错误'
     wechatDraftError.value = `创建未完成：${detail}。若请求已进入上传阶段，远端素材或草稿结果可能未确认；重试前请检查微信草稿箱和素材库。`
     showToastMessage(wechatDraftError.value)
   } finally {
