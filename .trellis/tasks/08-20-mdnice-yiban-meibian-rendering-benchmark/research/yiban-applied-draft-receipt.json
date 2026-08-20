@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-20",
+  "evidence_scope": "one disposable authenticated WeChat draft in the single existing CloakBrowser session",
+  "test_assets": {
+    "markdown": {
+      "repo_relative_path": ".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-test-corpus.md",
+      "bytes": 206,
+      "sha256": "5551c0d3bfb37dbfdf83659710b849fa985aa2d09947c742e0ac87babfc4f6f6"
+    },
+    "svg_generator_image_candidate": {
+      "repo_relative_path": "prompts/0527/visual-polish-evidence/favicon-preview.png",
+      "bytes": 954,
+      "sha256": "9d5a5a27e6ff1bd445cc09bd668e63f8c9ddfaef02c692b376523e535fcd9561",
+      "uploaded": false
+    }
+  },
+  "guardrails": {
+    "existing_drafts_opened_or_modified": false,
+    "wechat_draft_preview_invoked": false,
+    "yiban_template_sample_preview_opened": true,
+    "publish_invoked": false,
+    "paid_asset_invoked": false,
+    "raw_dom_persisted": false,
+    "screenshot_persisted": false,
+    "private_url_persisted": false,
+    "account_identifier_or_credential_persisted": false
+  },
+  "markdown_round_trip": {
+    "before_markdown": {
+      "root_count": 2,
+      "roots": [
+        {
+          "html_length": 27,
+          "text_length": 27,
+          "child_element_count": 0,
+          "section": 0,
+          "ul": 0,
+          "li": 0,
+          "md_root": 0,
+          "md_key": 0,
+          "sha256": "795508584e1bb1f37246bd0325b6ba650f95e12d86e2675b258c5fa760fd898a"
+        },
+        {
+          "html_length": 893,
+          "text_length": 112,
+          "child_element_count": 12,
+          "section": 12,
+          "ul": 0,
+          "li": 0,
+          "md_root": 0,
+          "md_key": 0,
+          "sha256": "7005370ab6e6cfe7e88c94154962773359f2937db2140529cbd9682189127d98"
+        }
+      ]
+    },
+    "toggle_only": {
+      "markdown_toggle_enabled": true,
+      "serialized_dom_unchanged": true
+    },
+    "file_import": {
+      "file_chooser_event_observed": true,
+      "title_root_changed": true,
+      "body_root_serialization_unchanged": true,
+      "body_md_root": 0,
+      "body_md_key": 0
+    },
+    "one_click_layout_applied": {
+      "separate_layout_page_opened": true,
+      "selected_layout_index": 0,
+      "applied_successfully": true,
+      "paywall_or_renewal_gate_observed": false,
+      "visible_vip_marker_recorded": false,
+      "root_count": 2,
+      "roots": [
+        {
+          "html_length": 27,
+          "text_length": 27,
+          "child_element_count": 0,
+          "section": 0,
+          "ul": 0,
+          "li": 0,
+          "md_root": 0,
+          "md_key": 0,
+          "sha256": "795508584e1bb1f37246bd0325b6ba650f95e12d86e2675b258c5fa760fd898a"
+        },
+        {
+          "html_length": 2767,
+          "text_length": 87,
+          "child_element_count": 1,
+          "section": 13,
+          "ul": 1,
+          "li": 2,
+          "md_root": 1,
+          "md_key": 8,
+          "sha256": "277af8113fc79820528d5240451bca0e09ed9623880bbb9b608610ea499080ec"
+        }
+      ]
+    },
+    "default_template_click": {
+      "card_has_visible_vip_marker": false,
+      "template_sample_preview_opened": true,
+      "body_serialization_changed": false,
+      "interpretation": "The click opened Yiban's template-sample phone preview rather than WeChat draft preview. The one-click layout may already use the default Markdown style; the unchanged serialization does not prove that this card applied to the article."
+    },
+    "explicit_save": {
+      "saved_status_observed": true,
+      "body_sha256": "277af8113fc79820528d5240451bca0e09ed9623880bbb9b608610ea499080ec"
+    },
+    "reload_readback": {
+      "root_count": 2,
+      "roots": [
+        {
+          "html_length": 27,
+          "text_length": 27,
+          "child_element_count": 0,
+          "section": 0,
+          "h1": 0,
+          "ul": 0,
+          "li": 0,
+          "md_root": 0,
+          "md_key": 0,
+          "sha256": "795508584e1bb1f37246bd0325b6ba650f95e12d86e2675b258c5fa760fd898a"
+        },
+        {
+          "html_length": 1642,
+          "text_length": 95,
+          "child_element_count": 7,
+          "section": 6,
+          "h1": 2,
+          "ul": 1,
+          "li": 2,
+          "md_root": 0,
+          "md_key": 0,
+          "sha256": "eef1f38afd93127e97e3cff0502404632b386e69a066d6220cd7ee592fd95a96"
+        }
+      ],
+      "visually_retained": [
+        "heading styling",
+        "unordered list structure"
+      ],
+      "visually_degraded_to_literal_markdown": [
+        "blockquote marker",
+        "bold markers",
+        "inline-code backticks"
+      ],
+      "yiban_markers_removed_by_host_readback": true
+    }
+  },
+  "svg_attempt": {
+    "catalog_scope_selector": ".template-panel.material .material-item-svg",
+    "catalog_card_count": 50,
+    "cards_with_visible_vip_icon": 50,
+    "free_catalog_card_count": 0,
+    "generator_card_has_visible_vip_marker": false,
+    "generator_click_attempts": 2,
+    "generator_dialog_or_page_observed": false,
+    "editor_serialization_changed": false,
+    "free_svg_insertion": "blocked",
+    "blocked_reason": "All catalog materials were visibly VIP-gated and the only generator entry without a visible VIP marker produced no observable workflow; no image was uploaded and no payment boundary was bypassed."
+  },
+  "draft_cleanup": {
+    "matching_cards_before_delete": 1,
+    "visible_delete_confirmations": 1,
+    "matching_cards_after_delete": 0,
+    "matching_cards_after_reload": 0,
+    "matching_cards_after_delayed_reload": 0,
+    "delayed_reload_wait_ms": 15000,
+    "absence_confirmed": true
+  }
+}

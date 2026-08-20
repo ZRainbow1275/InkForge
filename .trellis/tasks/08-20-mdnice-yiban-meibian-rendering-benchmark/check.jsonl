@@ -1,0 +1,12 @@
+{"file":".trellis/spec/frontend/index.md","reason":"复核前端、真实 UI、构建和回归要求。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"复核跨 isolated/MAIN world 消息、nonce、摘要和错误边界。"}
+{"file":".trellis/spec/frontend/wechat-svg-modules.md","reason":"复核 source ownership、兼容 lint、DOMPurify/publish-copy sanitizer 与手机证据边界。"}
+{"file":".trellis/spec/frontend/flagship-element-catalog.md","reason":"复核代表性 style choice、channel 状态分离、market residue 和 blocked/unavailable 合同。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"复核 canonical result、channel payload、宿主 canonical readback 三层没有被混为同一字节产物。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/inkforge-current-rendering-baseline.md","reason":"复核能力 provenance 和实施基线，防止把 dirty-only 能力写成 release 事实。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-crx-12.3.14-receipt.json","reason":"复核 CRX/Manifest/选定 bundle 哈希及无源码 pattern offset 索引。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-editor-runtime-receipt.json","reason":"复核只读浏览器基线、布局/DOM 计数与后续一次性写入 receipt 索引。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-applied-draft-receipt.json","reason":"复核任务自有草稿的 Markdown 应用、保存、宿主归一化、SVG 付费阻断与删除/absence 脱敏证据。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-wechat-editor-runtime.md","reason":"复核壹伴静态结论、applied/save/readback 差异和 companion 条件门槛。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/mdnice-current-runtime-evidence.md","reason":"复核 mdnice 当前同源预览/copy-time 链路和真实微信未验证边界。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/inkforge-wechat-manual-checklist.md","reason":"复核 exact artifact、freshness、手机/封面/账号门禁和禁止敏感证据字段。"}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-20",
+  "evidence_scope": "initial read-only phase in the single authenticated CloakBrowser session",
+  "actions": [
+    "open Yiban MD navigation",
+    "return to Yiban layout navigation",
+    "open Yiban SVG navigation",
+    "return to Yiban popular navigation"
+  ],
+  "mutation_actions_performed": false,
+  "mutation_scope_note": "This flag applies only to the read-only navigation actions listed above.",
+  "serialized_dom_sampling": {
+    "scope": "three contenteditable elements",
+    "samples_compared": 3,
+    "serialized_dom_unchanged": true,
+    "does_not_prove": [
+      "selection state unchanged",
+      "editor history unchanged",
+      "dirty state unchanged",
+      "host autosave state unchanged"
+    ]
+  },
+  "subsequent_disposable_write_test": {
+    "performed": true,
+    "receipt": "yiban-applied-draft-receipt.json",
+    "scope": "one task-owned draft only",
+    "saved_then_reloaded": true,
+    "deleted_and_absence_confirmed": true,
+    "existing_drafts_opened_or_modified": false,
+    "wechat_draft_preview_or_publish_invoked": false
+  },
+  "viewport": {
+    "width_css_px": 1361,
+    "height_css_px": 790,
+    "device_pixel_ratio": 1.5
+  },
+  "layout": {
+    "native_toolbar": {"selector": "#js_editor_toolbarbox", "position": "fixed", "approx_width_css_px": 1355, "z_index": 1100},
+    "native_sidebar": {"selector": "#js_mp_sidemenu", "position": "fixed", "approx_width_css_px": 434, "z_index": 1000},
+    "yiban_material_panel": {"selector": ".template-panel.material", "position": "absolute", "approx_width_css_px": 434, "approx_height_css_px": 665, "z_index": 800},
+    "native_editor": {"selector": "#js_editor", "approx_x_css_px": 559, "approx_width_css_px": 578}
+  },
+  "editor_runtime": {
+    "wechat_editor_api_present": true,
+    "observed_own_enumerable_keys": ["invoke", "on"],
+    "prosemirror_container_count": 2,
+    "legacy_ue_object_present": true,
+    "open_shadow_root_count_on_page": 26
+  },
+  "yiban_svg_catalog": {
+    "scope_selector": ".template-panel.material",
+    "svg_root_count": 543,
+    "foreign_object_count": 202,
+    "animate_transform_count": 237,
+    "animate_count": 127,
+    "set_count": 25,
+    "svg_with_interaction_or_timing_count": 60,
+    "is_applied_article_dom": false
+  },
+  "observed_public_resource_paths": [
+    "https://yiban.io/h5/svg",
+    "https://yiban.io/h5/one_click_svg",
+    "https://yiban.io/h5/card_workspace"
+  ],
+  "sensitive_data_persisted": false,
+  "raw_dom_persisted": false,
+  "screenshot_persisted": false,
+  "private_url_persisted": false
+}

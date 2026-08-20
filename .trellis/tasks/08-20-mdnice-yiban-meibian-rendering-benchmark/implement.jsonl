@@ -1,0 +1,12 @@
+{"file":".trellis/spec/frontend/index.md","reason":"前端开发入口、质量门禁与真实 UI 验收边界。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"编辑器桥、产物 receipt 与外部输入必须使用严格 Schema 并 fail closed。"}
+{"file":".trellis/spec/frontend/wechat-svg-modules.md","reason":"微信安全 SVG、source-owned 模块、sanitizer、市场证据和外部手机证明合同。"}
+{"file":".trellis/spec/frontend/flagship-element-catalog.md","reason":"复核 style choice 应用状态、channel 状态分离、市场残留与代表性样式选择合同。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"追踪 Markdown、canonical artifact、channel payload、宿主 readback 与外部证据的完整链路。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"优先复用当前 converter、clipboard、draft API、StyleProof 与 receipt，只补已确认缺失的共享 draft preflight。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/inkforge-current-rendering-baseline.md","reason":"按 main/dev HEAD/dirty-only/external 区分实施基线与不可重复建设能力。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/mdnice-current-runtime-evidence.md","reason":"mdnice 当前生产运行态、同源预览、copy-time 规范化和微信未验证边界的紧凑证据。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/inkforge-wechat-manual-checklist.md","reason":"现有 authenticated editor、credentialed channel、phone/Dark Mode 与 cover 外部门禁及证据字段。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-applied-draft-receipt.json","reason":"壹伴 Markdown 应用态与微信保存读回的真实差异、SVG 付费阻断和删除/absence 证据。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-wechat-editor-runtime.md","reason":"壹伴编辑页适配、MD/SVG 工作流、保存归一化、权限边界和仍未验证的手机/SVG 门槛。"}
+{"file":".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/research/yiban-meibian-workflows.md","reason":"壹伴/美编公开工作流与禁止照搬边界。"}

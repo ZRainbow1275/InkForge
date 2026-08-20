@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "tool": "inspect_yiban_crx.py",
+  "source": {
+    "basename": "壹伴小插件12.3.14.crx",
+    "bytes": 11624380,
+    "sha256": "2e468b31399e78121d92ccc71ccdd8bbb4412bd9f8dd5922578b15d7e5deda77",
+    "crx_version": 3,
+    "zip_payload_offset": 1321,
+    "zip_entry_count": 2162
+  },
+  "manifest": {
+    "manifest_version": 3,
+    "version": "12.3.14",
+    "minimum_chrome_version": "95",
+    "permissions": [
+      "sidePanel",
+      "tabs",
+      "storage",
+      "unlimitedStorage",
+      "cookies",
+      "notifications",
+      "contextMenus",
+      "webRequest",
+      "proxy",
+      "alarms",
+      "declarativeNetRequestWithHostAccess",
+      "declarativeNetRequestFeedback"
+    ],
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "background": {
+      "service_worker": "background-script.js",
+      "type": "module"
+    },
+    "content_scripts": [
+      {
+        "matches": [
+          "https://mp.weixin.qq.com/*",
+          "*://*/*"
+        ],
+        "js": [
+          "assets/libs/chuangkitApiV4.js",
+          "assets/libs/crypto-js-3.1.9-1.min.js",
+          "assets/libs/FotorFrame.min.js",
+          "assets/libs/gaoding-open-sdk.min.js",
+          "assets/libs/jquery.min.js",
+          "assets/libs/jquery-qrcode.min.js",
+          "assets/libs/Readability.min.js",
+          "assets/libs/wangEditorForChat.min.js",
+          "assets/libs/emoji.min.js",
+          "assets/libs/highcharts.min.js",
+          "assets/libs/echarts.min.js",
+          "assets/libs/Sortable.min.js",
+          "content-script.js",
+          "assets/libs/medium-editor.min.js",
+          "assets/libs/turndown-7.2.1.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": true
+      },
+      {
+        "matches": [
+          "*://mp.weixin.qq.com/*"
+        ],
+        "js": [
+          "assets/libs/html2canvas.min.js",
+          "assets/libs/jszip.min.js",
+          "assets/libs/jimp.min.js",
+          "assets/libs/datepicker.min.js",
+          "assets/libs/zh-CN.js",
+          "assets/libs/spectrum.min.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": false
+      },
+      {
+        "matches": [
+          "*://mp.weixin.qq.com/cgi-bin/appmsg*"
+        ],
+        "js": [
+          "assets/libs/dark-mode-v2.js",
+          "assets/libs/mammoth.browser.min.js",
+          "assets/libs/docx-preview.min.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": false
+      },
+      {
+        "matches": [
+          "*://*.feishu.cn/wiki*",
+          "*://*.feishu.cn/docx*",
+          "*://*.notion.so/*",
+          "*://*.notion.site/*",
+          "*://*.notion.com/*"
+        ],
+        "js": [
+          "assets/libs/highlight.min.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": true
+      }
+    ],
+    "web_accessible_resource_groups": 2
+  },
+  "selected_files": {
+    "content-script.js": {
+      "archive_path": "content-script.js",
+      "bytes": 7500217,
+      "sha256": "3785e40017d80c9f4bfd355d160112f3f2b44560501dff26b95689dec29a495b"
+    },
+    "mpa-editor.js": {
+      "archive_path": "mpa-editor.js",
+      "bytes": 2633010,
+      "sha256": "4bd599b7841cc6ca8310eb9a1e19021cc05b249a6004a447a38e849ebdbfb61d"
+    },
+    "editor-bootstrap.js": {
+      "archive_path": "editor-bootstrap.js",
+      "bytes": 587059,
+      "sha256": "b4347602964edda9eaef1a50ca64b6a9244a04b5b63e06ddc2e1c52850621730"
+    },
+    "background-script.js": {
+      "archive_path": "background-script.js",
+      "bytes": 373127,
+      "sha256": "ed9ed8e8c14e19c95663e286a71f048937e5b71876d9cacca4ff9fea063ef812"
+    },
+    "data-poster.js": {
+      "archive_path": "data-poster.js",
+      "bytes": 46224,
+      "sha256": "220715a2f44c209f0b85522f0192667098679e12d215e8c1f48023bb0392a791"
+    }
+  },
+  "pattern_index": {
+    "wechat_editor_api": {
+      "count": 12,
+      "files": {
+        "mpa-editor.js": {
+          "count": 12,
+          "byte_offsets": [
+            127057,
+            127732,
+            130653,
+            131265,
+            131715,
+            133313,
+            134314,
+            135096,
+            137688,
+            139563,
+            143806,
+            143910
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "insert_html_api": {
+      "count": 3,
+      "files": {
+        "mpa-editor.js": {
+          "count": 3,
+          "byte_offsets": [
+            127094,
+            127769,
+            131752
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "set_content_api": {
+      "count": 2,
+      "files": {
+        "mpa-editor.js": {
+          "count": 2,
+          "byte_offsets": [
+            130690,
+            131302
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "markdown_root_marker": {
+      "count": 19,
+      "files": {
+        "content-script.js": {
+          "count": 8,
+          "byte_offsets": [
+            4237408,
+            5574492,
+            5807772,
+            5819975,
+            5837708,
+            5837889,
+            6118069,
+            6118224
+          ],
+          "offsets_truncated": false
+        },
+        "mpa-editor.js": {
+          "count": 11,
+          "byte_offsets": [
+            458212,
+            460327,
+            465919,
+            479393,
+            489792,
+            490077,
+            512275,
+            516530,
+            527824,
+            527861,
+            2395842
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "markdown_apply_marker": {
+      "count": 6,
+      "files": {
+        "content-script.js": {
+          "count": 4,
+          "byte_offsets": [
+            4237446,
+            5568162,
+            5767971,
+            6113426
+          ],
+          "offsets_truncated": false
+        },
+        "mpa-editor.js": {
+          "count": 2,
+          "byte_offsets": [
+            458003,
+            2395863
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "markdown_single_style_marker": {
+      "count": 2,
+      "files": {
+        "content-script.js": {
+          "count": 1,
+          "byte_offsets": [
+            5767995
+          ],
+          "offsets_truncated": false
+        },
+        "mpa-editor.js": {
+          "count": 1,
+          "byte_offsets": [
+            458051
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "markdown_key_marker": {
+      "count": 40,
+      "files": {
+        "content-script.js": {
+          "count": 35,
+          "byte_offsets": [
+            972517,
+            973333,
+            973599,
+            974039,
+            974348,
+            975098,
+            975405,
+            975875,
+            976182,
+            976634,
+            976930,
+            977245,
+            977581,
+            977904,
+            978238,
+            978535,
+            978869,
+            979166,
+            979506,
+            979785
+          ],
+          "offsets_truncated": true
+        },
+        "mpa-editor.js": {
+          "count": 3,
+          "byte_offsets": [
+            458093,
+            458333,
+            458510
+          ],
+          "offsets_truncated": false
+        },
+        "editor-bootstrap.js": {
+          "count": 2,
+          "byte_offsets": [
+            492086,
+            510637
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "markdown_content_marker": {
+      "count": 23,
+      "files": {
+        "content-script.js": {
+          "count": 16,
+          "byte_offsets": [
+            972602,
+            977475,
+            978134,
+            978765,
+            979396,
+            980015,
+            5784449,
+            5784790,
+            5784845,
+            5792246,
+            5805518,
+            5811585,
+            5828428,
+            5829561,
+            5829798,
+            5830175
+          ],
+          "offsets_truncated": false
+        },
+        "mpa-editor.js": {
+          "count": 7,
+          "byte_offsets": [
+            458170,
+            459056,
+            459328,
+            459736,
+            479790,
+            483557,
+            518338
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "dynamic_material_marker": {
+      "count": 24,
+      "files": {
+        "content-script.js": {
+          "count": 22,
+          "byte_offsets": [
+            971067,
+            971107,
+            971138,
+            5207031,
+            5207072,
+            5207113,
+            5207158,
+            5207196,
+            5249350,
+            5249400,
+            5288934,
+            5288984,
+            5402698,
+            5410443,
+            5498387,
+            5499655,
+            5499707,
+            5503838,
+            5503890,
+            5778566
+          ],
+          "offsets_truncated": true
+        },
+        "mpa-editor.js": {
+          "count": 2,
+          "byte_offsets": [
+            55194,
+            55258
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "dynamic_material_insert": {
+      "count": 31,
+      "files": {
+        "content-script.js": {
+          "count": 30,
+          "byte_offsets": [
+            5168750,
+            5181237,
+            5197109,
+            5225782,
+            5231466,
+            5254365,
+            5266082,
+            5285705,
+            5296573,
+            5306263,
+            5316775,
+            5320402,
+            5332174,
+            5344061,
+            5359871,
+            5380711,
+            5394530,
+            5409658,
+            5421655,
+            5433961
+          ],
+          "offsets_truncated": true
+        },
+        "mpa-editor.js": {
+          "count": 1,
+          "byte_offsets": [
+            1664216
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "svg_editor_message": {
+      "count": 1,
+      "files": {
+        "content-script.js": {
+          "count": 1,
+          "byte_offsets": [
+            5556010
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "svg_editor_response": {
+      "count": 1,
+      "files": {
+        "content-script.js": {
+          "count": 1,
+          "byte_offsets": [
+            5556295
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "svg_authoring_path": {
+      "count": 1,
+      "files": {
+        "content-script.js": {
+          "count": 1,
+          "byte_offsets": [
+            3418970
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "one_click_svg_path": {
+      "count": 1,
+      "files": {
+        "content-script.js": {
+          "count": 1,
+          "byte_offsets": [
+            5561142
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "card_workspace_path": {
+      "count": 1,
+      "files": {
+        "content-script.js": {
+          "count": 1,
+          "byte_offsets": [
+            5566728
+          ],
+          "offsets_truncated": false
+        }
+      }
+    },
+    "copy_exec_command": {
+      "count": 22,
+      "files": {
+        "content-script.js": {
+          "count": 13,
+          "byte_offsets": [
+            1020401,
+            1021060,
+            3611845,
+            3611887,
+            4004583,
+            4143039,
+            4852535,
+            5026499,
+            5693414,
+            5693456,
+            6478195,
+            7205204,
+            7205246
+          ],
+          "offsets_truncated": false
+        },
+        "mpa-editor.js": {
+          "count": 2,
+          "byte_offsets": [
+            300597,
+            1826202
+          ],
+          "offsets_truncated": false
+        },
+        "editor-bootstrap.js": {
+          "count": 2,
+          "byte_offsets": [
+            131660,
+            132294
+          ],
+          "offsets_truncated": false
+        },
+        "background-script.js": {
+          "count": 3,
+          "byte_offsets": [
+            110856,
+            111493,
+            321301
+          ],
+          "offsets_truncated": false
+        },
+        "data-poster.js": {
+          "count": 2,
+          "byte_offsets": [
+            36548,
+            37182
+          ],
+          "offsets_truncated": false
+        }
+      }
+    }
+  },
+  "privacy": {
+    "source_code_persisted": false,
+    "snippets_persisted": false,
+    "full_source_path_persisted": false
+  }
+}
