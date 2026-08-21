@@ -32,7 +32,7 @@ SEMANTIC_NODE_COUNT_KEYS = {
 }
 SEMANTIC_TAG_NAMES = {
     "a", "animate", "animatetransform", "article", "aside", "blockquote", "br", "circle",
-    "cite", "code", "del", "details", "div", "ellipse", "em", "figcaption", "figure", "footer", "g", "h1",
+    "cite", "code", "col", "colgroup", "del", "details", "div", "ellipse", "em", "figcaption", "figure", "footer", "g", "h1",
     "h2", "h3", "h4", "h5", "h6", "header", "hr", "img", "ins", "li", "line", "mark",
     "nav", "ol", "p", "path", "polygon", "polyline", "pre", "rect", "s", "section",
     "set", "span", "strong", "sub", "summary", "sup", "svg", "table", "tbody", "td", "text", "th",

@@ -260,7 +260,10 @@ width
 word-break""".splitlines())
         self.assertEqual(len(actual_styles), 74)
         self.assertLessEqual(actual_styles, verifier.SEMANTIC_STYLE_PROPERTY_NAMES)
-        self.assertLessEqual({"cite", "details", "summary"}, verifier.SEMANTIC_TAG_NAMES)
+        self.assertLessEqual(
+            {"cite", "col", "colgroup", "details", "summary"},
+            verifier.SEMANTIC_TAG_NAMES,
+        )
         self.assertLessEqual(
             {"doc-endnotes", "doc-noteref", "source-owned-cover"},
             verifier.SEMANTIC_ROLE_NAMES,
