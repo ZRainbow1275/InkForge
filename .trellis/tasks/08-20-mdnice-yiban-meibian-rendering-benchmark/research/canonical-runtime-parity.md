@@ -1,6 +1,7 @@
 # WeChat canonical runtime parity correction
 
 Date: 2026-08-21
+Correction commit: `3a5711464526d6b11964ca52ee99849cbbe7cdcf`
 
 ## Boundary
 

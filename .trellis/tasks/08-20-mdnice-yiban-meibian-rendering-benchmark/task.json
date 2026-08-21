@@ -29,7 +29,8 @@
       "dirty": true,
       "implementationBaseBound": true,
       "implementationBranch": "dev/visual-fixes",
-      "implementationCommit": "51696357e44a1314e7ec05152f7c217240affa46"
+      "implementationCommit": "51696357e44a1314e7ec05152f7c217240affa46",
+      "latestImplementationCommit": "3a5711464526d6b11964ca52ee99849cbbe7cdcf"
     },
     "representativeWechatChoices": [
       "wechat-classic-inline",

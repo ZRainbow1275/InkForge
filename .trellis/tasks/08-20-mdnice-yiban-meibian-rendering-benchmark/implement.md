@@ -4,7 +4,7 @@
 
 Planning approved on 2026-08-21. Local implementation is bound to `dev/visual-fixes@51696357`; external WeChat actions still require a separate preflighted batch approval.
 
-Local implementation commit: `05ec1a6023f6eeea6ec37a86a1697e653732bda6`. Its clean-tree `wechat-draft-preflight/v1` verified successfully; all three official-draft candidates remain ineligible with `content-invalid`, so no external batch is approved or runnable.
+Latest local implementation commit: `3a5711464526d6b11964ca52ee99849cbbe7cdcf`. Its clean-tree `wechat-draft-preflight/v1` verified successfully with browser-identical canonical fingerprints; all three official-draft candidates remain ineligible with `content-invalid`, so no official-draft write is approved or runnable.
 
 ## 0. Entry gates
 
