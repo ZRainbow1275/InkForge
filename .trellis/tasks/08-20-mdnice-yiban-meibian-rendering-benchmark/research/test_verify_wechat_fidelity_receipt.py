@@ -312,9 +312,17 @@ word-break""".splitlines())
         bad_hash["cases"][0]["channel"]["normalizedPayload"]["summary"]["textSha256"] = ONE
         self.assert_invalid(lambda: verifier.verify_receipt(bad_hash, candidate), "fingerprint mismatch")
 
+        impossible_count = copy.deepcopy(complete)
+        payload = impossible_count["cases"][0]["channel"]["normalizedPayload"]
+        payload["summary"]["nodeCounts"]["images"] += 1
+        payload["fingerprint"] = verifier.canonical_fingerprint(payload["summary"])
+        self.assert_invalid(lambda: verifier.verify_receipt(impossible_count, candidate), "tagOrder/nodeCounts.images mismatch")
+
         semantic_loss = copy.deepcopy(complete)
         saved = semantic_loss["cases"][0]["readbacks"]["saved"]
-        saved["summary"]["tagOrder"][0] = "blockquote"
+        saved["summary"]["tagOrder"].append("blockquote")
+        saved["summary"]["nodeCounts"]["elements"] += 1
+        saved["summary"]["nodeCounts"]["blockquotes"] += 1
         saved["fingerprint"] = verifier.canonical_fingerprint(saved["summary"])
         self.assert_invalid(lambda: verifier.verify_receipt(semantic_loss, candidate), "semantic difference")
 

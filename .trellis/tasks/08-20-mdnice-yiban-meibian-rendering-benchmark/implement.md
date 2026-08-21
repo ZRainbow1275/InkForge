@@ -121,7 +121,7 @@ Result: all three fixed-corpus candidates exceeded the 20,000-character official
 
 ## 5. Triage; change code only for a reproduced failure
 
-- [x] Classify each difference as renderer, channel preparation, editor application, host save normalization, phone/Dark Mode, cover or media side effect. SVG/formula structure survived saved readback; image/link loss occurred only after host save/reload and is classified as host save normalization.
+- [ ] Classify each difference as renderer, channel preparation, editor application, host save normalization, phone/Dark Mode, cover or media side effect. Known layers are recorded: canonical quote-module replacement already reports `missing-blockquote`; payload→applied changes text/tag/attribute/style projections and expands structure; save/reload removes images and links. The first two do not yet have an evidence-backed semantic-equivalence rule, so triage remains blocked rather than being marked complete.
 - [ ] If all required nodes survive, record `shared publish preflight + native confirmation bridge only; no renderer/style/formula/new-component change required` and skip to step 7.
 - [ ] For a real defect, locate the shared owner with GitNexus/Serena and run upstream impact before editing.
 - [ ] Make the smallest root-cause fix; no per-caller patches, second renderer, new template DSL or duplicate evidence UI/framework.

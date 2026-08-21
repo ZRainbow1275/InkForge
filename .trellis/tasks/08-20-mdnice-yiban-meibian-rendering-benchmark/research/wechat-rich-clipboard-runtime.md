@@ -42,12 +42,14 @@ Classic 在重启前已经完成：应用态标题精确、sentinel `1`、正文
 
 ## 根因分类与产品决策
 
-1. **SVG 与公式不是本轮缺陷。** 两个 SVG-heavy case 在显式保存重载后仍分别保留 18 与 17 个 SVG，6 个公式也都保留；不启动公式 P1，不修改 renderer、SVG gate 或默认 TeX fallback。
-2. **正文图片与链接是 host-save normalization 缺口。** 两个 case 在 applied 层都有图片与链接，保存重载后均归零；这不是 canonical renderer 或剪贴板写入失败。
-3. **当前批准范围内没有安全的共享代码修复。** data-PNG 要持久化必须先进入微信托管媒体路径；本批明确批准 API 上传为零，而官方草稿又因正文超限不可执行。外链同样由宿主保存策略移除，不能通过放宽 sanitizer 或复制竞品属性强行绕过。
-4. **媒体残留采用保守口径。** 富复制自身没有可观察的正文图片 API 计数或素材删除合同；即使保存后图片为零，也不据此声明平台侧绝对无残留，receipt 保留 `residual-external-media`。
+1. **canonical 层已存在引用语义缺口。** 两个 SVG-heavy payload 的 `blockquotes=0` 且都报告 `missing-blockquote`；这是引用 SVG 模块替换原始 `<blockquote>` 后的 canonical 变换，不是微信保存造成。当前证据没有建立该视觉模块与源引用语义的可接受等价规则，因此继续 blocked，不把它写成已解决的 renderer 结论。
+2. **editor-application 层存在未解释的结构 normalization。** payload→applied 的 `textSha256`、tag/attribute/style 顺序和节点数均变化；可见计数为 `378/17/11` 扩展到 Kiln 的 `542/41/18`、paste-safe 的 `516/41/17`（elements/paragraphs/SVG）。变化首次出现在粘贴应用后，但没有足够证据证明语义等价，继续 blocked。
+3. **SVG 与公式没有观察到保存阶段丢失。** 两个 SVG-heavy case 在显式保存重载后仍分别保留 18 与 17 个 SVG，6 个公式也都保留；这只排除已观察到的 save-loss，不覆盖前两项 canonical/application 差异，因此不启动公式 P1。
+4. **正文图片与链接是 host-save normalization 缺口。** 两个 case 在 applied 层都有图片与链接，保存重载后均归零；这不是 canonical renderer 或剪贴板写入失败。
+5. **当前批准范围内没有安全的共享代码修复。** data-PNG 要持久化必须先进入微信托管媒体路径；本批明确批准 API 上传为零，而官方草稿又因正文超限不可执行。外链同样由宿主保存策略移除，不能通过放宽 sanitizer 或复制竞品属性强行绕过。引用与应用态 normalization 则需先有可接受等价规则和真机证据，不能凭本轮 blocked readback 改 renderer。
+6. **媒体残留采用保守口径。** 富复制自身没有可观察的正文图片 API 计数或素材删除合同；即使保存后图片为零，也不据此声明平台侧绝对无残留，receipt 保留 `residual-external-media`。
 
-因此本轮产品改动保持为此前已提交的共享 no-write planner、一次性确认桥和浏览器一致性修复；真实微信证据没有支持继续修改 renderer 或新增编辑页 companion。
+因此本轮产品改动保持为此前已提交的共享 no-write planner、一次性确认桥和浏览器一致性修复；真实微信证据既不足以接受 canonical/application normalization，也没有支持一个安全的 renderer 补丁或新增编辑页 companion。
 
 ## Official-draft 边界
 

@@ -263,6 +263,13 @@ def verify_semantic_summary(value: Any, where: str) -> dict[str, Any]:
     for key, value in counts.items():
         count(value, f"{where}.nodeCounts.{key}")
     need(counts["elements"] == len(tags), f"{where}.tagOrder/nodeCounts.elements mismatch")
+    for key, tag_names in {
+        "headings": {"h1", "h2", "h3", "h4", "h5", "h6"},
+        "paragraphs": {"p"}, "blockquotes": {"blockquote"}, "lists": {"ol", "ul"},
+        "listItems": {"li"}, "tables": {"table"}, "codeBlocks": {"pre"},
+        "images": {"img"}, "links": {"a"}, "svgModules": {"svg"},
+    }.items():
+        need(counts[key] == sum(tag in tag_names for tag in tags), f"{where}.tagOrder/nodeCounts.{key} mismatch")
     need(len(roles) <= counts["elements"], f"{where}.roleOrder exceeds element count")
     count(summary["excludedEditorChromeCount"], f"{where}.excludedEditorChromeCount")
     count(summary["excludedHostIdCount"], f"{where}.excludedHostIdCount")
