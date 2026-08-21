@@ -2,9 +2,9 @@
 
 ## Status
 
-Planning approved on 2026-08-21. Local implementation is bound to `dev/visual-fixes@51696357`; external WeChat actions still require a separate preflighted batch approval.
+Planning and the exact three-draft rich-clipboard batch were approved on 2026-08-21. The batch is complete and all three disposable drafts are absent after cleanup; no official-draft write was eligible or executed.
 
-Latest local implementation commit: `3a5711464526d6b11964ca52ee99849cbbe7cdcf`. Its clean-tree `wechat-draft-preflight/v1` verified successfully with browser-identical canonical fingerprints; all three official-draft candidates remain ineligible with `content-invalid`, so no official-draft write is approved or runnable.
+Latest local implementation commit: `3a5711464526d6b11964ca52ee99849cbbe7cdcf`. Its clean-tree `wechat-draft-preflight/v1` verified successfully with browser-identical canonical fingerprints; all three official-draft candidates remain ineligible with `content-invalid`, so no official-draft write was approved or run. The redacted runtime receipt remains `blocked`: Kiln and paste-safe have full semantic evidence, while the Classic full semantic wrappers and its exact bounded timing evidence were lost across the approved computer restart and were not reconstructed.
 
 ## 0. Entry gates
 
@@ -37,11 +37,11 @@ Expected result: one corpus and one assertion script; no product UI/schema chang
 - [x] Pin one usable inline, one SVG-heavy flagship and one paste-safe fallback from the current runtime application report.
 - [x] Generate all three canonical artifacts through `markdownToWechatWithStats()` and record their existing StyleProof `artifactFingerprint`.
 - [x] Confirm repeated generation is deterministic and quality detection has no unexpected blocker.
-- [ ] For every official-draft candidate, before the first WeChat remote call record and verify input/plan fingerprints, title length, Unicode char count, UTF-8 byte count, unique non-WeChat-hosted image count, deterministic MIME/extension/source compatibility, local-source preparation, cover-handle format or upload requirement, non-sensitive API/editor target-match result and expected remote side effects. Never claim an existing handle's remote validity from this no-write plan.
+- [x] For every official-draft candidate, before any possible WeChat remote call record and verify input/plan fingerprints, title length, Unicode char count, UTF-8 byte count, unique non-WeChat-hosted image count, deterministic MIME/extension/source compatibility, local-source preparation, cover-handle format or upload requirement, non-sensitive API/editor target-match result and expected remote side effects. All three stopped at `content-invalid`; no remote call followed.
 - [x] Mark any title `>32`, content `>=20,000` chars, content `>=1 MiB`, invalid media binding or unapproved upload as ineligible. Do not shrink the corpus or silently change choice.
-- [ ] Reconcile any prior non-confirmed cleanup ledger entry before approving a new batch.
-- [ ] Present the verified report to the user and obtain separate approval for exact draft case count, per-kind upload upper bounds, phone/cover actions, draft cleanup and any unavoidable remote-media residual.
-- [ ] Immediately before each official-draft write, call existing `getWechatPublishStatus()` and have the user confirm the displayed target hint matches the account visible in the sole CloakBrowser editor session; persist only match state/method, never account values.
+- [x] Reconcile any prior non-confirmed cleanup ledger entry before approving a new batch; no prior pending entry remained.
+- [x] Present the verified report to the user and obtain separate approval for exactly three rich-clipboard drafts, zero direct article uploads, zero permanent cover uploads, preview/cover observation, exact cleanup and unavoidable rich-paste media residual.
+- [ ] Immediately before each official-draft write, call existing `getWechatPublishStatus()` and have the user confirm the displayed target hint matches the account visible in the sole CloakBrowser editor session; N/A for this batch because no official-draft case was eligible.
 
 Concrete local gates:
 
@@ -92,13 +92,13 @@ PY
 
 For all three pinned choices, one case at a time:
 
-- [ ] Use the existing canonical result and `copyWechatHtmlToClipboard()` path.
-- [ ] Create exactly one approved, uniquely titled disposable draft and paste once.
-- [ ] Verify title uniqueness and repo-owned sentinel; record only redacted applied semantic summary/fingerprints.
-- [ ] Explicitly save, reload and record host semantic diff.
-- [ ] With user/device action, verify exact artifact phone, Dark Mode and cover outcome.
-- [ ] Delete only the unique match; check immediately, after at least `15s`, and once more by `30s` total.
-- [ ] Update ledger to `confirmed`, `cleanup-pending` or `residual-external-media` as applicable.
+- [x] Use the existing canonical result and `copyWechatHtmlToClipboard()` path.
+- [x] Create exactly one approved, uniquely titled disposable draft and paste once.
+- [ ] Verify title uniqueness and repo-owned sentinel; record only redacted applied semantic summary/fingerprints. Title/sentinel checks passed for all three, but full Classic semantic wrappers were lost across restart; Kiln and paste-safe remain fully recorded.
+- [x] Explicitly save, reload and record host semantic diff. The Classic record is high-level only; Kiln and paste-safe retain strict normalized summaries.
+- [ ] With user/device action, verify exact artifact phone, Dark Mode and cover outcome. WeChat blocked preview after saved images disappeared, so phone/Dark Mode/cover proof remains unavailable.
+- [ ] Delete only the unique match; check immediately, after at least `15s`, and once more by `30s` total. Kiln and paste-safe met the bounded cleanup check; Classic cleanup was confirmed but its timing protocol deviated.
+- [x] Update ledger to `confirmed`, `cleanup-pending` or `residual-external-media` as applicable. All drafts are confirmed absent; rich-paste media remains conservatively `residual-external-media` because no observable delete/count contract exists.
 
 Stop on ambiguity, unexpected autosave target, login/permission gate, unapproved media persistence or sensitive-data exposure.
 
@@ -117,9 +117,11 @@ For each preflight-eligible and approved choice:
 
 If no official-draft case is eligible, keep AC7 blocked and report the exact limit/fallback; do not force a write.
 
+Result: all three fixed-corpus candidates exceeded the 20,000-character official-draft ceiling, so this section is N/A and AC7 remains blocked. No upload or draft API mutation was attempted.
+
 ## 5. Triage; change code only for a reproduced failure
 
-- [ ] Classify each difference as renderer, channel preparation, editor application, host save normalization, phone/Dark Mode, cover or media side effect.
+- [x] Classify each difference as renderer, channel preparation, editor application, host save normalization, phone/Dark Mode, cover or media side effect. SVG/formula structure survived saved readback; image/link loss occurred only after host save/reload and is classified as host save normalization.
 - [ ] If all required nodes survive, record `shared publish preflight + native confirmation bridge only; no renderer/style/formula/new-component change required` and skip to step 7.
 - [ ] For a real defect, locate the shared owner with GitNexus/Serena and run upstream impact before editing.
 - [ ] Make the smallest root-cause fix; no per-caller patches, second renderer, new template DSL or duplicate evidence UI/framework.
@@ -133,6 +135,8 @@ Minimum shared checks after any product-code change remain `vue-tsc`, build, app
 
 Run only if P0 proves a formula defect:
 
+Result: not triggered. Formula and source-owned SVG structure survived saved readback, so no formula implementation or fallback changed.
+
 - [ ] Preserve current readable TeX as control/fallback.
 - [ ] Produce source-owned safe-SVG and current image-artifact candidates without copying mdnice output.
 - [ ] Compare PC saved readback, formula-in-table, phone and Dark Mode.
@@ -140,11 +144,11 @@ Run only if P0 proves a formula defect:
 
 ## 7. Evidence intake and final review
 
-- [ ] Redact evidence; reject token/account/private URL or handle/HAR/QR/raw private DOM/browser-profile data.
-- [ ] Verify each `wechat-fidelity-receipt/v1` with the task assertion script; it must canonicalize every persisted payload/readback summary, recompute SHA-256 and compare the claimed fingerprint. `task.py validate` alone and hash-shape checks are insufficient.
-- [ ] Generate the existing manual draft pack to a task-local temporary file, create a separate reviewed `REDACTED_MANIFEST.json`, then run intake/merge. Do not assume the draft command creates that file.
+- [x] Redact evidence; reject token/account/private URL or handle/HAR/QR/raw private DOM/browser-profile data.
+- [x] Verify each `wechat-fidelity-receipt/v1` with the task assertion script; it canonicalizes every persisted payload/readback summary, recomputes SHA-256 and compares the claimed fingerprint. The blocked receipt verifies; `task.py validate` alone was not used as proof.
+- [ ] Generate the existing manual draft pack to a task-local temporary file, create a separate reviewed `REDACTED_MANIFEST.json`, then run intake/merge. The draft pack generated successfully as `draftOnly/notProof`; no formal manifest was created or merged because the receipt is blocked and lacks full Classic proof.
 - [ ] Keep manifest `artifactFingerprint` canonical; put channel/readback hashes only in the referenced task receipt.
-- [ ] Re-run release preflight, capture its exit code and JSON, and report every remaining blocker without forcing completion.
+- [x] Re-run release preflight, capture its exit code and JSON, and report every remaining blocker without forcing completion. It exited `1` consistently with `status=blocked-by-external` and `canClaimComplete=false`; `actionableLocalRows=0`, while phone preview, external-account freshness and credentialed readback remain external gates.
 - [x] Run two independent read-only reviews: correctness/security and scope/evidence.
 - [x] Confirm task-scoped files contain no unrelated dirty change, credential, raw media binding or browser runtime artifact.
 
