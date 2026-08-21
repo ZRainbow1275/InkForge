@@ -59,6 +59,10 @@ interface WechatDraftPreflightJsonReport {
     reasonCodes: string[]
     inputFingerprint: string
     planFingerprint: string
+    limits: {
+      contentChars: number
+      contentBytes: number
+    }
     semanticNames: {
       tags: string[]
       roles: string[]
@@ -288,6 +292,16 @@ describe('style-proof WeChat style samples CLI', { timeout: 90_000 }, () => {
       ['wechat-flagship-kiln', 'official-draft-ineligible', ['content-invalid']],
       ['wechat-flagship-kiln-paste-safe', 'official-draft-ineligible', ['content-invalid']],
     ])
+    expect(firstReport.cases.map(item => [
+      item.choiceId,
+      item.limits.contentChars,
+      item.limits.contentBytes,
+      item.artifactFingerprint,
+    ])).toEqual([
+      ['wechat-classic-inline', 25532, 26278, 'sha256:517175aa6dab6a8520d58f61b996e4d8913960f5c5605be4bbfc7b1fdfdd7e26'],
+      ['wechat-flagship-kiln', 39906, 40707, 'sha256:2960b1d79ba2b4f6ab301477e95b4536b28e5af1e6b4cbdd9ecbb5766d0c49c9'],
+      ['wechat-flagship-kiln-paste-safe', 37618, 38402, 'sha256:f662fe5d9a7d24144e2f3290ba8799dd9166cdf02c05be18e0f401c28001ad5b'],
+    ])
     expect(firstReport.corpus.sha256).toMatch(/^[a-f0-9]{64}$/)
     expect(firstReport.corpus.sourceOwnedImageSha256).toMatch(/^[a-f0-9]{64}$/)
     expect(firstReport.commit).toMatch(/^[a-f0-9]{40}$/)
@@ -295,7 +309,7 @@ describe('style-proof WeChat style samples CLI', { timeout: 90_000 }, () => {
     expect(firstReport.cases.every(item => item.planFingerprint.match(/^[a-f0-9]{64}$/))).toBe(true)
     expect(firstReport.cases.every(item => item.artifactFingerprint.match(/^sha256:[a-f0-9]{64}$/))).toBe(true)
     expect(firstReport.cases.every(item =>
-      Object.values(item.semanticNames).every(names => names.length > 0 && names.join('\0') === [...names].sort().join('\0'))
+      Object.values(item.semanticNames).every(names => names.join('\0') === [...new Set(names)].sort().join('\0'))
     )).toBe(true)
     const semanticUnion = Object.fromEntries(
       (['tags', 'roles', 'attributes', 'styleProperties'] as const).map(key => [
@@ -307,20 +321,25 @@ describe('style-proof WeChat style samples CLI', { timeout: 90_000 }, () => {
       Object.entries(semanticUnion).map(([key, names]) => [key, [...names].sort()]),
     )
     expect(Object.fromEntries(Object.entries(semanticUnion).map(([key, names]) => [key, names.size]))).toEqual({
-      tags: 39,
-      roles: 3,
-      attributes: 49,
-      styleProperties: 74,
+      tags: 35,
+      roles: 0,
+      attributes: 33,
+      styleProperties: 54,
     })
     expect(createHash('sha256').update(JSON.stringify(semanticUnionSnapshot)).digest('hex'))
-      .toBe('2aeb1226188fa97871bdfca956c32b85f0e8283a9c5b59c4713c6edcff7c7e77')
-    expect([...semanticUnion.tags]).toEqual(expect.arrayContaining(['cite', 'details', 'summary', 'svg', 'path']))
-    expect([...semanticUnion.roles]).toEqual(expect.arrayContaining(['doc-endnotes', 'doc-noteref', 'source-owned-cover']))
+      .toBe('1a64ca3502f843b36d8e6b111c3034f2ffd021677a6b0578bbb03dbf02ba7751')
+    expect([...semanticUnion.tags]).toEqual(expect.arrayContaining(['svg', 'path']))
+    expect([...semanticUnion.tags].every(name => !new Set(['cite', 'details', 'mark', 'script', 'summary']).has(name))).toBe(true)
+    expect([...semanticUnion.roles]).toEqual([])
     expect([...semanticUnion.attributes]).toEqual(expect.arrayContaining([
-      'd', 'data-inkforge-role', 'fill', 'id', 'viewbox',
+      'd', 'fill', 'height', 'id', 'viewbox', 'width',
     ]))
+    expect([...semanticUnion.attributes].every(name =>
+      !name.startsWith('data-citation-')
+      && !['data-inkforge-role', 'data-wikilink-target'].includes(name)
+    )).toBe(true)
     expect([...semanticUnion.styleProperties]).toEqual(expect.arrayContaining([
-      '-moz-osx-font-smoothing', '-webkit-font-smoothing', 'border-image-source',
+      '-moz-osx-font-smoothing', '-webkit-font-smoothing', 'background', 'border',
       'counter-increment', 'font-feature-settings', 'font-variant-numeric',
     ]))
     expect(firstReport.cases.every(item => item.images.uniqueNonWechatImageCount === 1)).toBe(true)

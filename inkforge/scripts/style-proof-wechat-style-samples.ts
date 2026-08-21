@@ -10,6 +10,7 @@ import {
   createWechatStyleExportSamplesReport,
   formatWechatStyleExportSamplesReportText,
 } from '../src/services/export/wechat-style-export-samples.ts'
+import { validateCSS } from '../src/services/export/css-validator.ts'
 import { getPlatformStyleApplicationReport } from '../src/services/export/style-catalog.ts'
 import { getPresetById } from '../src/services/export/themes.ts'
 import { markdownToWechatWithStats } from '../src/services/export/wechat.ts'
@@ -57,8 +58,13 @@ function readSourceOwnedCoverImage(
   const claimed = expectedSha256
     ?? /source-owned-image-sha256:\s*([a-f0-9]{64})/i.exec(html)?.[1]?.toLowerCase()
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  const images = doc.querySelectorAll('[data-inkforge-role="source-owned-cover"] img')
-  const image = images.item(0)
+  const images = expectedSha256
+    ? Array.from(doc.querySelectorAll('img')).filter((candidate) => {
+        const encoded = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/i.exec(candidate.getAttribute('src')?.trim() || '')?.[1]
+        return encoded ? sha256(Buffer.from(encoded, 'base64')) === expectedSha256 : false
+      })
+    : Array.from(doc.querySelectorAll('[data-inkforge-role="source-owned-cover"] img'))
+  const image = images[0]
   const src = image?.getAttribute('src')?.trim() || ''
   const encoded = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/i.exec(src)?.[1]
   if (!claimed || images.length !== 1 || !image || !encoded) {
@@ -99,10 +105,9 @@ function collectSemanticNames(html: string) {
       Array.from(element.attributes, attribute => attribute.name.toLowerCase())
         .filter(name => name !== 'style')
     )),
-    styleProperties: sortedUnique(elements.flatMap(element => {
-      const style = (element as Element & { style?: CSSStyleDeclaration }).style
-      return style ? Array.from({ length: style.length }, (_, index) => style.item(index).toLowerCase()) : []
-    })),
+    styleProperties: sortedUnique(elements.flatMap(element =>
+      validateCSS(element.getAttribute('style') ?? '', 'wechat').map(item => item.property)
+    )),
   }
 }
 
@@ -131,11 +136,10 @@ async function ensureDomRuntime(): Promise<void> {
     return
   }
 
-  const { Window } = await import('happy-dom')
-  const window = new Window({ url: 'http://127.0.0.1/style-proof-wechat-style-samples' })
-  window.document.write('<!doctype html><html><head></head><body></body></html>')
-  window.document.close()
-  Object.defineProperty(window.document, 'compatMode', { configurable: true, value: 'CSS1Compat' })
+  const { JSDOM } = await import('jsdom')
+  const { window } = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
+    url: 'http://127.0.0.1/style-proof-wechat-style-samples',
+  })
   const windowRecord = window as unknown as Record<string, unknown>
 
   const defineRuntimeValue = (key: keyof DomRuntimeGlobal, value: unknown): void => {

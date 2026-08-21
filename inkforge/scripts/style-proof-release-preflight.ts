@@ -86,8 +86,10 @@ async function ensureDomRuntime(): Promise<void> {
     return
   }
 
-  const { Window } = await import('happy-dom')
-  const window = new Window({ url: 'http://127.0.0.1/style-proof-release-preflight' })
+  const { JSDOM } = await import('jsdom')
+  const { window } = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
+    url: 'http://127.0.0.1/style-proof-release-preflight',
+  })
   const windowRecord = window as unknown as Record<string, unknown>
 
   const defineRuntimeValue = (key: keyof DomRuntimeGlobal, value: unknown): void => {

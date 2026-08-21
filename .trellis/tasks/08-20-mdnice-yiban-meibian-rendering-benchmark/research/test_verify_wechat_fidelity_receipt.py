@@ -4,6 +4,7 @@ import copy
 import importlib.util
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).with_name("verify-wechat-fidelity-receipt.py")
@@ -11,6 +12,7 @@ SPEC = importlib.util.spec_from_file_location("wechat_receipt_verifier", SCRIPT)
 assert SPEC and SPEC.loader
 verifier = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(verifier)
+verify_preflight_provenance = verifier.verify_preflight_provenance
 verifier.verify_preflight_provenance = lambda report, corpus: None
 
 ZERO = "0" * 64
@@ -268,11 +270,24 @@ word-break""".splitlines())
             verifier.SEMANTIC_ATTRIBUTE_NAMES,
         )
 
+    def test_preflight_provenance_rejects_a_dirty_worktree(self) -> None:
+        with patch.object(verifier, "git_output", return_value=" M inkforge/example.ts"):
+            self.assert_invalid(
+                lambda: verify_preflight_provenance({}, {}),
+                "requires a clean Git worktree",
+            )
+
     def test_strict_json_and_preflight_schema_fail_closed(self) -> None:
         self.assert_invalid(lambda: verifier.strict_json_loads('{"a":1,"a":2}'), "duplicate JSON key")
         self.assert_invalid(lambda: verifier.strict_json_loads('{"a":NaN}'), "non-standard JSON constant")
         candidate = preflight()
         verifier.verify_preflight(candidate)
+        candidate["cases"][0]["semanticNames"]["roles"] = []
+        verifier.verify_preflight(candidate)
+        for key in ("tags", "attributes", "styleProperties"):
+            bad = copy.deepcopy(candidate)
+            bad["cases"][0]["semanticNames"][key] = []
+            self.assert_invalid(lambda: verifier.verify_preflight(bad), "non-empty array")
         bad = copy.deepcopy(candidate)
         bad["cases"][0]["semanticNames"]["tags"].append("wx" + "abcdef1234567890")
         self.assert_invalid(lambda: verifier.verify_preflight(bad), "unsupported name")

@@ -168,6 +168,10 @@ def git_bytes(*args: str) -> bytes:
 
 
 def verify_preflight_provenance(report: dict[str, Any], corpus: dict[str, Any]) -> None:
+    need(
+        not git_output("status", "--porcelain=v1", "--untracked-files=all"),
+        "preflight verification requires a clean Git worktree",
+    )
     need(corpus["ref"] == CORPUS_REF, "$.corpus.ref must be the task-owned fixture")
     commit = report["commit"]
     git_output("cat-file", "-e", f"{commit}^{{commit}}")
@@ -238,7 +242,8 @@ def verify_semantic_names(value: Any, where: str) -> None:
         "styleProperties": SEMANTIC_STYLE_PROPERTY_NAMES,
     }.items():
         items = names[key]
-        need(isinstance(items, list) and items, f"{where}.{key} must be a non-empty array")
+        need(isinstance(items, list), f"{where}.{key} must be an array")
+        need(key == "roles" or bool(items), f"{where}.{key} must be a non-empty array")
         need(all(isinstance(item, str) and item in allowed for item in items), f"{where}.{key} contains an unsupported name")
         need(items == sorted(set(items)), f"{where}.{key} must be unique and sorted")
 
