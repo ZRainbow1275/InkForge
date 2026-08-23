@@ -12,6 +12,16 @@ Executable choice source: `inkforge/src/services/export/style-catalog.ts` contai
 style availability catalog for WeChat/XHS/Zhihu. UI controls and export reports should use that
 catalog rather than hard-coding this document's tables.
 
+Article art-direction source: `.trellis/spec/frontend/visual-variant-system.md` and
+`inkforge/src/services/export/visual-variants.ts` define the seven canonical variants, ten article
+profiles, and 24 legacy platform preset mappings. The variant layer is inlined through each
+existing platform adapter; it does not create a second renderer or permit market-editor residue.
+
+Executable composition-rule source: `getWechatRenderingRuleCatalog()` in
+`inkforge/src/services/export/themes.ts` enumerates the sixteen real WeChat presets and their six
+composition zones. It is the typed read API for inspector/docs/fingerprint/custom-development tools;
+it describes the current preset/decorator implementation and never generates final HTML.
+
 Executable proof checklist source: the same catalog exposes `getEvidenceProofRequirements()` and
 `getStyleChoiceProofRequirements()`. Availability and proof are intentionally separate: a style can
 remain `blocked` even when its missing proof checklist is known. `pc-editor-paste` requires an exact
@@ -157,7 +167,7 @@ publish proof.
 - `published` 必须由真实账号、授权、接口/后台返回、平台预览和必要的手机端检查共同证明。
 - `pc-editor-paste` 只证明当前微信 PC 后台粘贴 sanitizer 和桌面编辑器保留/渲染路径；不得外推为手机最终渲染、SMIL/点击触发、暗黑模式、封面缩略图或发布成功。
 - 如果 `text/html` 剪贴板中含富 HTML/SVG，但微信编辑器读回只有纯文本，该渠道必须记录为 `blocked`。`flagship-amber` 在 2026-06-08 的普通 `Control+V` 路径就是此状态。
-- 2026-06-09 CloakBrowser `inkforge-0601` 只读复核证明微信编辑器可达且 `.ProseMirror` DOM 可读，但当前草稿正文已有真实音频卡，因此没有执行粘贴、保存、预览或发布。该证据不得升级任何 PC 粘贴、手机预览、同步或发布门禁。
+- 2026-06-09 CloakBrowser 任务专用登录态的只读复核证明微信编辑器可达且 `.ProseMirror` DOM 可读，但当前草稿正文已有真实音频卡，因此没有执行粘贴、保存、预览或发布。该证据不得升级任何 PC 粘贴、手机预览、同步或发布门禁。
 - 同一只读复核还观察到当前真实草稿存在 `#js_add_appmsg` / `data-action="add"` 的“增加一条/新建内容”入口；该入口会改变多图文草稿结构，未在没有 disposable draft 和 cleanup proof 的情况下点击，不能作为安全粘贴测试入口。
 - 2026-06-09 后续 CloakBrowser 证据对 exact `flagship-amber.html` 执行程序化 `ClipboardEvent('paste')` + `DataTransfer`，真实微信 PC 编辑器 paste handler 接管并读回 `data-ink-svg=3` / `svg=35`。这只证明该 PC channel 的 DOM readback；手机预览、Dark Mode、封面缩略图、同步、定时发送和发布仍必须分开验收。
 - 2026-06-18 CloakBrowser-only 证据随后证明 exact `flagship-amber.html` 可通过普通 OS
@@ -182,7 +192,7 @@ publish proof.
 
 | Choice id | 适用内容 | 输出形态 | 默认状态 | 必要证据 | 不通过时降级 |
 | --- | --- | --- | --- | --- | --- |
-| `wechat-classic-inline` | 原 12 微信预设 | inline-style HTML | enabled | `unit-tested` + focused export tests | 保留基础 inline HTML |
+| `wechat-classic-inline` | 全部 16 个规范微信预设 | inline-style HTML | enabled | `unit-tested` + focused export tests | 保留基础 inline HTML |
 | `wechat-quiet-editorial` | 长文、评论、报告 | HTML block + 少量几何 SVG | enabled for flagship | `local-browser` | 移除 SVG，仅保留 HTML 色块 |
 | `wechat-toolbar-parameter-map` | 字号、行距、字距、缩进、两侧边距 | inline-style HTML | available | `local-browser` | 回到基础段落参数 |
 | `wechat-cover-seal-divider` | 封面、分隔、落款 | WeChat-safe static SVG | opt-in | `unit-tested` + `local-browser` | PNG/JPG 或普通分隔线 |
@@ -209,7 +219,7 @@ publish proof.
 | 类别 | 标签 | 备注 |
 |------|------|------|
 | 段落/标题 | `<p>`, `<h1>`~`<h6>` | 结构化内容组织 |
-| 文本修饰 | `<strong>`, `<b>`, `<em>`, `<i>`, `<u>`, `<br>`, `<del>`, `<sub>`, `<sup>` | 文字样式 |
+| 文本修饰 | `<strong>`, `<b>`, `<em>`, `<i>`, `<u>`, `<mark>`, `<br>`, `<del>`, `<sub>`, `<sup>` | 文字样式；`<mark>` 必须内联可见背景色 |
 | 列表 | `<ul>`, `<ol>`, `<li>` | 有序/无序列表 |
 | 链接 | `<a>` | 外链触发安全提醒弹窗 |
 | 图像 | `<img>` | 自动 max-width:100% |
@@ -541,3 +551,186 @@ Step 8: 输出 WeChat-Compatible HTML
 - 本地 artifact 可满足 `unit-test-coverage`、`local-browser-rendering`、`exact-artifact`、
   `no-sensitive-artifact`；PC 粘贴、手机预览、Dark Mode、封面缩略图、同步、定时发送、平台预览、
   公网渲染和发布成功仍需另证。
+
+## 十二、2026-07-27 微信编辑器与市场 SVG 校准
+
+### 12.1 本地预览画布
+
+- 微信公众号当前实测正文编辑画布约 `586px`，左右各 `4px` 后正文可用宽度约 `578px`，
+  默认正文为 `17px / 27.2px`。
+- 本地 fidelity wrapper 必须输出 `data-platform-editor="wechat"` 和
+  `data-editor-canvas-width="586"`；外层只提供平台画布约束，内层 `#wechat-article`
+  继续消费 `generateThemeCSS(..., 'preview')`、Typography CSS、用户安全 CSS 与 SVG 模块。
+- Workstation 不得用全局 `!important` 把所有 `section/h1/h2/h3/p/li/blockquote` 改成同一字号、
+  行高和边距。预设、旗舰 SVG 和用户显式排版参数是最终视觉权威。
+- 本地预览不得虚构公众号名称、作者、发布时间、已发布状态或平台水印。
+
+### 12.2 微信工具栏可执行参数
+
+实机菜单的当前可见值：
+
+- 字号：`12/14/15/16/17/18/20/24`，手动输入 `10–50`。
+- 行高：`1/1.5/1.6/1.75/2/3/4/5`。
+- 段前/段后：`0/8/16/24/32/40/48`。
+- 字距：`0/.5/1/2`。
+- 两侧缩进：`0/8/16/32/48`。
+
+这些值用于 Inspector 选项、`TypographyConfig` 校验、preview/export CSS 和回归测试；不得另建
+绕开 `usePreviewRenderer` / `convertToNativeFormat` 的第二套渲染器。
+
+### 12.3 135 / 秀米行为映射
+
+- 135 常规样式进入 UEditor 后以 `section._135editor[data-role][data-tools][data-id]` 和深层
+  inline style / SVG 表达。InkForge 可学习 DOM 语义、几何和 inline-safe 写法，不复制模板素材。
+- 135 SVG 的点击换图/位移/展开/轮播/播放/旋转、自动/滑动/轮播、音视频、链接/小程序和其它
+  效果必须先映射为 InkForge 的静态、SMIL、点击或 blocked capability；依赖脚本和私有运行时阻断。
+- 秀米 carousel / click-expand 的时间轴、层级和展开高度可映射到已审计 SVG state machine；
+  Dark Mode 必须逐元素映射，禁止全局反相。
+- 普通复制、插件同步和开放接口是三条不同证据链。只有真实 `text/html` 粘贴回读能证明普通复制，
+  只有真实授权接口 readback 能证明同步；两者不能互相替代。
+
+### 12.4 平台原生组件
+
+图片、视频、音频/音乐、链接、小程序、模板、投票、搜索、位置、视频号、公众号名片、问答、
+赞赏等应由 Publish Center 的平台组件选择器生成显式引用/占位与校验项。预设只负责可移植的
+排版结构，不内嵌账号私有素材 ID；缺少合法平台 ID 或账号权限时 fail closed。
+
+## 十三、2026-08-01 历史原生软件与微信 PC 普通粘贴证据（当前已失效）
+
+2026-08-01 曾以当时的 rebuilt release `InkForge.exe`、系统剪贴板和已登录微信 PC 文章编辑器完成
+16/16 预设串行复验。应用按钮实际写入 Windows `HTML Format`，微信正文输入使用普通
+Windows `SendInput` `Ctrl+A`、`Ctrl+V`；未使用脚本构造 `ClipboardEvent`，也未点击保存、预览、同步、定时、
+群发或发布。微信编辑器自身的自动保存状态不构成发布证明。
+
+后续母任务已经修改 preset、converter 输入、EditorPanel 和 Workstation；按同一产物指纹合同，旧
+矩阵不能绑定当前源码或当前 release，也不得用于当前发布声明。以下内容只保留为复验方法与历史结果：
+
+- 16/16 原生编辑画布、预览和复制产物使用同一 preset ID；编辑画布从现有
+  `resolveVisualVariant()`、profile/persona 和 Typography 状态投射标题、引用、强调和组件语义，
+  不新增第二套 renderer 或 theme store。
+- 真实写作组件在编辑态显示注册名称、组件 ID、已有字段摘要和校验状态；同一组件进入预览与
+  微信粘贴产物。无效组件必须显示错误态和 `aria-invalid`，不得用示例作者、图片、数字或链接补空。
+- 16 个剪贴板产物具有 16 个不同内容指纹；经过微信 sanitizer 后仍有 16 个不同 DOM 指纹，
+  关键验收文字和写作组件全部保留，脚本计数均为 0。
+- 评论/新闻、AIGC/编程/科技、整活/人生/优雅以及四个旗舰在微信首屏保持不同几何、标题节奏、
+  引文轮廓和装帧；共同品牌锚点不再强迫它们复用同一骨架。
+- 12 个基础预设按设计不输出 literal SVG。四个旗舰在微信完成粘贴渲染后的稳定读回中均保留
+  16 个 literal SVG 和 2 个 `data-ink-svg` 哨兵，unsafe SVG、脚本和横向溢出均为 0；计数必须
+  等平台完成 paste/render cycle，不能用过早的瞬态 DOM 读数下结论。
+- 最终留给用户实测的 `flagship-kiln-paste-safe` 正文为 `16px / 28.8px`，使用安全 CJK serif
+  fallback，保留 35 个结构化 section 和真实写作组件。
+- 旗舰 `cover-title` 与 `cover-grid` 的标题统一采用 `72` viewBox 像素、`92` 行进和每行最多
+  9 字；这是可读尺度合同，不是共享封面骨架。赤陶满幅网格、暖纸兼容、铜绿知识和黄铜研报
+  仍保留各自背景、报头、规则线、色块、印章和正文装帧。当前普通粘贴读回中，四套旗舰均
+  保留该字号、16 个 SVG、2 个 `data-ink-svg` 哨兵且横向溢出为 0。
+
+该历史结论只覆盖当时的 release 原生软件和微信 PC 编辑器普通粘贴。当前版本仍须使用最终 EXE 的
+`releaseExeSha256` 重跑 16/16 才能恢复该门。手机端最终渲染、Dark Mode、
+SMIL/点击触发、封面缩略图、授权同步、定时、群发和发布仍需独立外部证据。
+
+## 十四、可执行渲染规则目录与自定义开发
+
+### 14.1 唯一规则入口
+
+`getWechatRenderingRuleCatalog(): readonly WechatRenderingRuleCatalogEntry[]` 直接遍历
+`themePresets`，并复用 `resolveVisualVariant()`、`ARTICLE_PROFILES`、
+`getPlatformPresetForVariant()` 与每个 preset 的 `visualSignature`。当前合同要求返回 16 条，ID 与
+真实微信 preset 一一对应；不得在检查器、文档生成器或插件中另写一份 16 项 ID 数组。
+
+每条规则包含稳定身份、共同品牌锚点和六个可审查分区：
+
+1. `masthead`：该版独占的报头、扉页或封面构图；
+2. `headingRhythm`：H1–H6 的比例、编号、段前后节奏；
+3. `bodyFlow`：普通正文的缩进、行距、留白与连续阅读方式；
+4. `semanticBlocks`：引用、分隔、表格、代码、图片等轮廓；
+5. `componentsAndDelivery`：正文组件、歌曲/统计和投递信息层级；
+6. `ending`：作者名片、来源、CC 与唯一 InkForge colophon 的收束。
+
+`runtimeStructureFingerprint` 由当前 preset 的真实 export CSS 和 decorator 结构派生，对上述六区做
+非颜色指纹；`writingComponentIds` 每次从现有 writing-component registry 动态取得，包含当前内置与
+合法自定义组件。它们用于让自动测试在实际样式或组件注册表变化后立即报漂移，而不是再维护人工清单。
+
+规则描述和 `runtimeStructureFingerprint` 只是实现侧漂移门，不能单独证明最终微信产物不同。
+`rendering-rule-catalog.test.ts` 还必须把同一份全元素验收稿逐套送入真实
+`convertToWechatWithStats()`，在 Juice 内联、清洗和平台约束后的最终 HTML 上重新提取六区成品指纹。
+成品规范化会删除文章/品牌固定文案、`id`、`class`、`data-*`、URL、颜色、自定义属性和空装饰
+wrapper，但保留有效标签层级与非颜色几何；因此改名称、换颜色、加空节点或数据属性不能制造独立性。
+
+规则同时声明 `platformDegradation`、`safeInvariants`、`customizationKnobs` 和
+`lockedFields`。旗舰色板等品牌字段可以锁定；普通预设可开放已有 Typography 和主色控件。任何
+开放项仍须进入现有 Settings、preset 和 converter，不允许把任意 CSS/HTML 模板塞进规则目录。
+
+### 14.2 后续定制流程
+
+1. 在现有 `themes.ts` / visual-variant / decorator 路径实现独立整体构图，不创建第二套 renderer。
+2. 为该真实 preset 补齐 `visualSignature` 的 masthead、rhythm、heading、quote、divider、media、
+   modules、delivery、ending；描述必须与现有实现一致。
+3. 如需 profile 映射，只修改闭合的 profile resolver；正文组件仍从 writing-component registry
+   动态枚举，不在规则目录复制组件清单。
+4. 运行 16 项覆盖、真实 converter 结构、runtime 六区指纹、registry 动态组件覆盖、120 对至少三个
+   非颜色分区差异、完整语义/组件、sanitize、inline、SVG、幂等、
+   overflow 和三平台隔离门。
+5. 使用 release Tauri/WebView2 软件检查编辑投影和微信预览，再从同一 release 软件普通复制到已登录
+   微信 PC 编辑器读回。浏览器/Vite 预览、规则字符串或结构指纹不能替代这两层视觉门。
+
+缺失歌曲、作者、来源、数字、图片、链接、二维码、media ID 或平台状态时必须省略、静态降级或标记
+手动平台插入，不得由规则目录生成示例数据。手机预览、Dark Mode、原生歌曲/名片/媒体、同步、定时、
+群发和发布仍需各自的真实外部证据。
+
+### 14.3 规则目录验收门
+
+- 规则目录必须与 `themePresets` 的 16 个真实 ID 顺序和数量完全一致，未知、遗漏或重复 ID 立即失败。
+- 六区描述、实现侧运行时指纹和最终微信成品指纹必须全部非空；16 个最终成品签名必须唯一。
+- 完整 120 对 preset 比较中，每一对在最终成品上至少有三个非颜色 composition 分区不同。
+- 验收稿必须包含标题层级、连续正文、引用、列表、表格、代码、分隔、正文组件、阅读统计、真实可选
+  song/contact-card 字段和 CC；字段仅作为确定性本地输入，不代表平台原生媒体或账号状态。
+- `flagship-kiln-paste-safe` 等降级版仍须拥有完整的独立文末结构；paste-safe 只能减少脆弱构造，不能
+  退化为另一 preset 的同一成品骨架。
+- 新增或修改 preset 后，先更新现有 preset/decorator/`visualSignature`，再运行规则目录测试；不要把
+  HTML/CSS 模板放入 catalog，也不要在插件或 UI 中维护第二份 preset/组件清单。
+
+## 十五、编辑器往返与最终清洗规则
+
+### 15.1 编辑器权威与保存边界
+
+- Markdown 是编辑器的唯一持久化权威。编辑画布、平台预览和最终微信产物只是同一份真实正文与
+  preset 状态的不同投影，不得分别维护正文、组件或主题状态。
+- 原生编辑器验收必须在 release `InkForge.exe` 中完成可见操作、保存、刷新重开和持久化 Markdown
+  回读；Vite 页面、单元测试或只读预览不能替代该实验。
+- Markdown 转换器输出 raw HTML 标题时，结束标签后必须保留空行。否则 CommonMark 会把相邻正文
+  吸收到 HTML block 中，并把加粗、斜体、链接或高亮重新暴露为字面语法。
+- 写作组件继续使用现有 registry 与原子节点。插入、编辑、校验、删除后都必须回写真实组件 source；
+  缺失字段保持错误或缺省状态，不生成示例作者、歌曲、图片、数字或链接。
+
+### 15.2 最终微信产物证明
+
+- 最终断言必须读取 `convertToWechatWithStats()` 清洗后的实际 HTML，而不是编辑器诊断 DOM。
+- `<mark>` 属于允许的安全语义标签，并必须保留可见的 inline 背景色；只有文字存在而视觉高亮消失
+  仍视为失败。
+- 默认外链以“可见标签 + 上标编号 + `引用链接`脚注 URL”交付；最终产物不需要保留原始外部
+  `<a>`，但标签、编号、脚注标题和 URL 必须同时可读。
+- 最终 sanitizer 可以移除 class 与 `data-*`。写作组件应通过经过转义的真实可见内容和结构证明，
+  不得依赖 `data-ink-component-id` 等诊断属性。
+- 所有新增或修改 preset 都必须复用同一套原生编辑器往返实验，并在最终微信 HTML 中验证 H1-H6、
+  行内语义、列表、表格、代码、公式、图表、脚注、全部注册组件、终止哨兵以及无字面 Markdown。
+
+这些规则只证明本地 release 编辑器和最终微信产物生成链。当前 release 的微信 PC 普通 `Ctrl+V`、
+手机预览、Dark Mode、原生媒体组件、授权同步、定时、群发和发布仍分别需要真实平台证据。
+
+## 十六、官方草稿往返与原生媒体证据边界
+
+- Web 层只允许调用 `runWechatDraftLiveRoundTrip({ coverHandle, manualCleanupConfirmed? })`；
+  `coverHandle` 是 Rust 封面上传边界签发的进程内 opaque handle，不是微信 `media_id`；对应
+  Tauri command `wechat_draft_live_round_trip` 只返回脱敏 `hash`、`count`、`error` 和
+  `cleanupState`。原始草稿 ID、媒体 ID、Token 和 Cookie 不得穿过该返回边界。
+- 后端受限操作串行执行 add/get/delete/absence；写入返回 ID 后必须先原子记录私有
+  `cleanup_pending` journal。重启恢复只在 marker 与 canonical payload hash 唯一匹配时删除；零个或
+  多个候选、分页停滞、权限不足和 unknown outcome 均 fail closed。
+- `digest` 最多 120 字；121 字必须在 transport 前失败。batch reconcile 固定每页 20 条并遍历
+  `total_count`，不能把首个空页或局部页误判为 absence。
+- Song、公众号名片、关联文章与微信原生媒体继续由真实 writing/delivery component 提供语义、锚点和
+  静态 fallback。只有已登录目标正文通过平台原生控件插入并读回真实可见身份与顺序，才能记录
+  `platform-editor-rendered`；静态卡、local preview 或 sanitizer 保留均不是原生绑定证明。
+- 本地 `releaseArtifactReceipt` 与外部 `platformReadbackReceipt` 分开。官方草稿有副作用，必须另有
+  绑定当前 release/backend/schema/cleanup protocol 与本次 live 结果的 `wechatApiLiveReceipt`；缺少
+  可用凭据或登录态时保持 `blocked`，不得用样例 ID、仿卡或 toast 补齐。

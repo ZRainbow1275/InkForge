@@ -1,6 +1,6 @@
 # 知乎渲染规则手册
 
-> 2026-06 收口规则：知乎输出以 clean Markdown 为核心。InkForge 不把微信公众号 HTML/SVG 装饰带入知乎，也不为了视觉丰富度牺牲 Markdown 可编辑性。无法稳定保留的公式、图表、SVG、复杂卡片应降级为图片或文字说明，并在发布前预览确认。
+> 2026-07 收口规则：知乎输出以 clean Markdown 为核心。InkForge 不把微信公众号 HTML/SVG 装饰带入知乎，也不为了视觉丰富度牺牲 Markdown 可编辑性。无法稳定保留的公式、图表、SVG、复杂卡片应降级为图片或文字说明，并在发布前预览确认。
 
 ## 一、输出合同
 
@@ -13,6 +13,13 @@
 Executable choice source: `inkforge/src/services/export/style-catalog.ts` mirrors the user-facing
 Zhihu style choices. UI/export-report code should read `getPlatformStyleChoices('zhihu')`
 instead of duplicating this document's matrix.
+
+### 1.0 官方创作手册与技术证据边界
+
+- 知乎官方《创作者手册》区分问答、文章/专栏、想法和视频等内容形态；InkForge 本轮面向文章/专栏与回答的可编辑长文交付。
+- 官方内容建议强调有料、有观点、可信赖并照顾读者；排版侧直接落为结构逻辑清晰、语言精练、图片清晰和版面美观，并避免标题与内容不符、营销导流、洗稿抄袭和不合时宜配图。
+- 该手册是内容与可读性规范，不是 Markdown、HTML、CSS、SVG、公式、表格或图片上传的技术白名单。没有真实编辑器导入、当前账号预览和上传响应时，InkForge 不把任何本地兼容结果描述为知乎平台能力。
+- `VSCode-Zhihu`、`md2zhihu` 等项目只作为工具源码与转换实践证据，用于 clean Markdown、公式/图表图片化和图片 host 流程；它们不代表知乎官方承诺，也不能证明当前平台发布成功。
 
 ### 1.1 图片 Host 依赖
 
@@ -38,6 +45,8 @@ preflight：
 - `requirePlatformUpload:true` 会强制所有图片使用 `platform-hosted`，不能用普通 public HTTPS
   替代平台图床证明。
 - 未上传到平台前，本地 fallback 必须证明 `exists:true` 与正数 `bytes`；缺失即阻断。
+- InkForge 写出的本地 Markdown 图片包仍必须设置 `requirePlatformUpload:true`。`localArtifactReady=true` 只表示相对图片文件、字节、alt 与 Markdown 引用已在本机回读；平台 host/upload issue 可从本地写盘 blocker 中分离，但不得改写为“不需要上传”。
+- 工厂仅可在构造、校验本地元数据与字节时临时使用 `requirePlatformUpload:false` 的非持久化 manifest 副本；`convertToNativeFormat()`、返回的 `nativeResult`、最终写出的 manifest、bundle 报告和平台门禁必须全部接收并暴露 `requirePlatformUpload:true` 的严格 manifest，发布链不得复用该本地工厂副本。
 - `markdownReferences` 或 final Markdown 中出现的每个图片 URL 必须与 manifest 的 `finalSrc`
   对齐，`referencedByMarkdown` 不得与最终 Markdown 引用状态冲突。
 - 允许格式默认是 JPG/JPEG/PNG/GIF；如平台规则变化，应通过 manifest `allowedFormats` 显式收窄或放宽，并同步测试。
@@ -96,6 +105,21 @@ Issue id：
 - “样式丰富”优先表现为结构清晰、代码语言标注、公式/图表可解释、图片 alt/caption 完整，而不是导入微信 CSS。
 - 图片 fallback 必须是 public HTTPS 或真实知乎上传后的平台图床；本地、`blob:`、`data:`、私网、微信 CDN 一律不能作为最终成功产物。
 - 无真实知乎账号或上传权限时，图片/发布能力标记为 `blocked` / `unavailable`，不得把本地 Markdown 通过外推成发布成功。
+- Release E2E 必须读取最终 manifest 并断言本地图片 `requirePlatformUpload=true`、`uploaded=false`、`hostStatus='local-only'`；这三项共同表达“本地包可交付，但仍待知乎入口上传”。
+
+### 2.2 本地预览样式的正文节奏
+
+`convertToZhihu()` 生成的是 InkForge 本地预览/HTML 导出，不是知乎可发布正文。三套预览样式必须在只有普通段落、没有标题或引用的文章上仍然可辨识，不能依赖强调色或特殊块才产生差异：
+
+| 预览样式 | 字体方向 | 行高 | 段后距 | 字距 | 首行缩进 | 对齐 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `zhihu-academic` | 学术衬线 | `1.82` | `1.05em` | `0.4px` | `0` | 两端对齐 |
+| `zhihu-tech` | 技术无衬线 | `1.72` | `0.9em` | `0.15px` | `0` | 左对齐 |
+| `zhihu-insight` | 评论衬线 | `1.92` | `1.2em` | `0.55px` | `2em` | 两端对齐 |
+
+- 字体栈读取对应 `ZhihuPreset.fonts`，不得退回一套硬编码浏览器字体覆盖所有样式。
+- `persona-distinction.test.ts` 必须在移除颜色身份后，仍证明三套预览对纯正文文章产生三个不同结果。
+- 上述排版只服务本地预览和 HTML 导出；最终知乎产物仍以 clean Markdown 为权威，不把这些 inline style 冒充为平台可发布能力。
 
 ## 三、微信装饰降级规则
 
@@ -191,9 +215,38 @@ Issue id：
 
 ## 八、Source Index
 
+- Zhihu official Creator Manual: `https://www.zhihu.com/knowledge-plan/manual`
 - VSCode-Zhihu marketplace reference: `https://marketplace.visualstudio.com/items?itemName=niudai.vscode-zhihu`
 - VSCode-Zhihu source reference: `https://github.com/niudai/VSCode-Zhihu`
 - md2zhihu source reference: `https://github.com/drmingdrmer/md2zhihu`
 - WPL-s Zhihu markdown compatibility reference: `https://github.com/jks-liu/WPL-s`
 - vscode-zhihu image-host changelog reference: `https://github.com/lvgithub/vscode-zhihu/blob/master/CHANGELOG.md`
 - zhihu-md image/formula converter reference: `https://pypi.org/project/zhihu-md/`
+
+## 九、2026-07-27 Draft.js 编辑器实测校准
+
+- 当前草稿编辑器正文画布为 `800px`。标题输入为 `32px / 44.8px, 600`，正文为
+  `16px / 25.6px`，实测 H2 为 `19.2px / 28.8px, 600`。
+- 字体栈按当前可见 CSS 依次包含系统字体、`Helvetica Neue`、`PingFang SC`、
+  `Microsoft YaHei`、`Source Han Sans SC`、`Noto Sans CJK SC`、`WenQuanYi Micro Hei`、
+  `MiSans L3`、`Segoe UI` 与 sans-serif fallback。
+- 工具栏控件高度约 `28px`，控件间距和分隔线保持轻量；InkForge 预览不伪造知乎账号、
+  发布状态或“已被平台接受”的水印。
+- 本地 fidelity wrapper 使用 `data-platform-editor="zhihu"` 和
+  `data-editor-canvas-width="800"`。平台 baseline 必须先于 preset CSS 注入，使默认画布准确，
+  同时允许学术、技术、洞见预设形成各自视觉身份。
+- `markdownToZhihuClean` 的 clean Markdown 仍是最终权威；inline SVG 必须转 image fallback，
+  且 `data:` 预览图片不构成公网图片或平台上传证明。
+- 用户已取消自动发布测试；账号导入、图片上传和最终发布由用户手测。
+
+## 十、Release 产物与平台读回分离
+
+- `releaseArtifactReceipt` 只在最终 release 软件通过可见 Export 入口、原生文件/目录窗口和现有
+  image pipeline 写出 clean Markdown、真实 fallback image bytes 与 manifest，并回读实际 bytes
+  后成立。caller-built manifest、历史 evidence 或 preview HTML 不能替代。
+- `platformReadbackReceipt` 必须绑定 exact Markdown/image hash、真实 paste/import/upload ingress 与
+  目标写作 surface；只有平台读回 heading、段落、强调、列表、引用、代码、表格、公式及图片
+  alt/caption 后，对应行才可成为 `platform-editor-rendered`。原始 Markdown 字面量必须记为 manual
+  或 blocked，不能隐藏。
+- release 变化先重跑本地产物 receipt；bytes、ingress、target 或图片 host 改变会使外部 receipt
+  失效。登录不可用时保持 `blocked`，不得脚本写 Draft.js state，`published=false` 独立保留。

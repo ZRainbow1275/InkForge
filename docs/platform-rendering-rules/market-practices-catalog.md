@@ -436,7 +436,7 @@ Executable mirror:
 
 | Choice id | 平台 | 内容块 | 样式族 | 视觉强度 | 动效 | 主输出 | 降级 | 最低证据标签 | 阻断条件 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `wechat-classic-inline` | 微信 | 原 12 微信预设 | body-system | medium | none | inline HTML | static fallback | `unit-tested` | 微信 sanitizer 变化、官方组件需求、unsupported CSS |
+| `wechat-classic-inline` | 微信 | 全部 16 个规范微信预设 | body-system | medium | none | inline HTML | static fallback | `unit-tested` | 微信 sanitizer 变化、官方组件需求、unsupported CSS |
 | `wechat-quiet-editorial` | 微信 | lede、阅读条、引用、footer | card-system | medium | static | inline HTML | static fallback | `local-browser` | 固定容器、`line-height:0`、`text-align:start/end` |
 | `wechat-toolbar-parameter-map` | 微信 | 字号、行距、字距、缩进、两侧边距 | body-system | medium | none | inline HTML | static fallback | `local-browser` | 工具栏参数不得绕过现有微信 renderer |
 | `wechat-cover-seal-divider` | 微信 | 封面、分隔、落款 | headline-system | high | static | WeChat-safe SVG | image fallback | `local-browser` | 精确 artifact 的 PC paste、封面缩略图仍需另证 |
@@ -2182,3 +2182,146 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-operation-section-residue-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-234.
+
+## 2026-07-27 应用态编辑器精确校准
+
+本节记录在同一受管 CloakBrowser 会话中，对已登录的微信公众号、小红书长文、知乎草稿、
+135 常规编辑器、135 SVG 编辑器与秀米图文编辑器进行的可见界面、中心编辑区和 DOM/CSS
+结构核验。它是 InkForge 本地渲染规则的输入，不是账号发布、同步、手机预览或平台验收证明。
+不得把账号名称、Cookie、token、浏览器 profile、平台草稿内容或原始账号截图写入仓库。
+
+### A. 三个平台的实测编辑画布
+
+| 平台 | 编辑器 / 画布 | 实测排版基线 | InkForge 落地规则 |
+| --- | --- | --- | --- |
+| 微信公众号 | ProseMirror；外层约 `586px`，左右各 `4px` 后正文约 `578px` | 正文 `17px / 27.2px`；字号菜单 `12/14/15/16/17/18/20/24`，手动 `10–50`；行高 `1/1.5/1.6/1.75/2/3/4/5`；段前后 `0/8/16/24/32/40/48`；字距 `0/.5/1/2`；两侧缩进 `0/8/16/32/48` | 本地 fidelity 外层声明 `data-platform-editor="wechat"` 与 `data-editor-canvas-width="586"`；主题和 SVG 仍由现有 renderer/preset 负责；不得添加虚构公众号、时间或水印 |
+| 小红书长文 | TipTap / ProseMirror；原始长文画布约 `896px` | 正文 `16px / 28px`；H1 `24px / 36px, 500`；H2 `20px / 26px, 500`；有序列表 `margin:2px 0 16px;padding-left:18px`；无序列表 `padding-left:16px`；引用为 `2px` 左线、左内边距 `12px` | 长文编辑预览使用 `896px` 基线和 `AlibabaPuHuiTi` / `OPPOSans` 优先字体；不得用渐变、圆角阴影和水印冒充平台卡片；一键排版后的多页卡片是独立 raster/card artifact |
+| 知乎 | Draft.js；正文画布 `800px` | 标题输入 `32px / 44.8px, 600`；正文 `16px / 25.6px`；H2 `19.2px / 28.8px, 600`；工具按钮高 `28px` | 本地 fidelity 外层声明 `data-platform-editor="zhihu"` 与 `data-editor-canvas-width="800"`；平台基线先注入，用户预设后注入并可覆盖；最终交付仍以 clean Markdown 为权威 |
+
+三套 fidelity wrapper 只能包装真实转换产物。Workstation、分栏预览、独立预览和悬浮/侧载
+检查器必须携带平台 data hook；外壳只控制尺寸、滚动和 containment，不得用全局
+`!important` 重写 `section`、标题、正文、列表或引用，否则会抹平旗舰 SVG 与每个预设的视觉身份。
+
+### B. 135 常规编辑器
+
+- 从左侧免费样式卡片插入中心 UEditor iframe 后，样式根节点使用
+  `section._135editor[data-role][data-tools][data-id]`，内部继续以嵌套 `section`、`p`、`span`、
+  `strong`、`img`、`a` 和 inline SVG 表达版式。
+- 常规复制主链读取编辑器 HTML，执行清理、解析和过滤，再包装为
+  `<section data-role="outer" class="article135" label="edit by 135editor">`。
+- 静态 inline SVG 可以进入编辑区和中间 HTML；渐变、复杂 SVG 与交互效果在普通复制路径上
+  可能被降级。InkForge 不据此承诺微信支持，必须继续经过当前 sanitizer、quality detector、
+  paste-safe 预设和手机端验收门禁。
+
+### C. 135 SVG 编辑器能力分类
+
+实机可见分类如下，InkForge style catalog 应按行为模型而不是按素材名称组织：
+
+- 点击：点击换图、点击位移、点击展开、点击轮播、点击播放、点击旋转、放大缩小、
+  开门/关门、点 A 见 B、多选一。
+- 轮播：横向、竖向、多图、斜向、顶层、顶层/底层、中间层、底层。
+- 滑动：单层、双层、三层、横向、竖向、视差、斜向、顶层、顶层/底层、中间层、底层。
+- 自动：横向自动、竖向自动、自动展开。
+- 音视频：音频、视频。
+- 超链接/小程序：滑动、轮播、换图、超链接、多区域跳转。
+- 其它：二维码、淘口令、百叶窗、图文效果。
+
+实机免费试用效果的导出结构包含透明触发 `rect`、多层 SVG、carousel 位移、
+点击淡入/停止/展开、HTML 注入和移动端 touch 分支。InkForge 只能集成微信编辑器允许的
+声明式子集：静态 SVG、受控 SMIL、受控 `<a>`、可审计点击展开/轮播。依赖脚本、外部状态、
+未知事件处理器、购买状态或 135 私有运行时的效果必须标记 `blocked`，不能复制其账号素材
+或私有代码。
+
+### D. 秀米
+
+- 实机轮播模型使用固定 `viewBox` / 画布几何和 translate carousel，通过 `values`、
+  `keyTimes`、`dur` 表达阶段；点击展开以 SVG 页层、触发区域和真实展开高度造成页面回流。
+- Dark Mode 不是全局 `filter:invert()`，而是对具体背景、描边、文本、图片遮罩建立明暗映射。
+  InkForge 必须按模块提供显式 dark token，不得对整篇文章粗暴反相。
+- 复制链以内容模型转换 HTML，再做微信 crude/refine 兼容处理，同时写入
+  `text/plain` 与 `text/html`，并运行兼容性校验。InkForge 继续复用现有真实 clipboard /
+  native export 链，不能用 `ClipboardEvent` 模拟成功。
+- 秀米的 SVG、标题、卡片、布局和交互只用于提炼几何、状态机、Dark Mode 和兼容规则；
+  不复制受版权保护的模板、图片、文案或账号素材。
+
+### E. 组件与交互落地矩阵
+
+| 能力 | 微信富文本 / SVG | 小红书 | 知乎 |
+| --- | --- | --- | --- |
+| 静态标题、卡片、分隔、引用、结尾 | inline style / allowlisted SVG | 纯文本语义或 raster card | clean Markdown；必要图片 fallback |
+| SMIL 自动动画 | allowlist 后可作为候选，仍需手机验证 | rasterize | image fallback |
+| 点击换图、轮播、展开 | 只允许已建模且可审计的 SVG 子集；脚本型阻断 | raster/card pages | image fallback |
+| 音乐、图片、链接、文章、名片等平台组件 | Publish Center 选择平台原生组件引用，不把私有 ID 写进预设 | 按平台原生素材流程手测 | 按平台原生素材/链接流程手测 |
+| 一键排版卡片 | 可作为模板块，但必须保持微信兼容 HTML/SVG | 独立 3:4 图片页/长图 artifact | 不伪装为 Markdown 原生样式 |
+
+### F. 验收边界
+
+- 本轮自动化只证明本地渲染、转换、SVG 存活/降级、平台隔离、预设不被外壳覆盖和软件内显示。
+- 用户已取消小红书与知乎自动发布测试；两平台账号上传和发布由用户手测。
+- 微信普通粘贴、手机预览、Dark Mode、SMIL/点击、封面缩略图、凭据同步、定时发送和发布
+  仍需真实外部证据；不得由本地 DOM、截图或测试结果推断。
+
+## 2026-07-27 可执行组件校准补充
+
+本次补充只记录“左侧选择真实可见组件，中心编辑区出现内容，随后读取应用态元素”的链路。
+平台账号、私有草稿、模板源码、素材地址和浏览器运行时数据没有进入仓库。下面的尺寸均为
+当次可见 authoring surface 的测量值，用于本地 fidelity 校准，不得写成平台永久硬限制。
+
+### 1. 应用态测量
+
+- 微信公众号：正文 ProseMirror 外层约 `586px`，左右内边距后内容约 `578px`；
+  普通正文 `17px / 27.2px`，直接段落块常见 `24px` 段后节奏，并使用
+  `word-break` / `overflow-wrap` 保护长文本。
+- 知乎：Draft.js 正文约 `800px`，标题 `32px / 44.8px`，正文 `16px / 25.6px`。
+  CC 许可是发布/交付阶段的独立选择，不能被主题 preset 偷偷决定。
+- 小红书：当次一键排版卡片面呈现两张约 `330 × 550` 的页面，内部可读宽度约 `293px`；
+  TipTap/ProseMirror 基础字号 `16px`，块间约 `25px`。这是卡片 artifact 的实测面，
+  不是把小红书正文错误收窄为固定 330px。
+
+### 2. 135 普通样式转译
+
+真实免费样式插入中心 UEditor 后形成三等分图文画廊，包含五个图片槽、嵌套 section 和
+inline presentation style。InkForge 只吸收以下行为：
+
+- 三等分、双列或单列必须来自 InkForge 自有 grid/table/flex-safe schema；
+- 图片槽必须进入 asset manifest，缺图时显示可读静态占位或退化为单列；
+- DOM 阅读顺序必须和视觉顺序一致，窄屏不得靠裁切保住三列；
+- vendor wrapper、数字模板 ID、编辑器 chrome、第三方素材源继续由 residue gate 阻断。
+
+### 3. 135 SVG 零缝隙与预览门禁
+
+真实免费试用效果在中心画布和平台自身预览中使用零字号、零行高、零 margin/padding、
+`overflow:hidden` 与嵌套 scale/rotate normalization 消除 SVG 层间白缝。InkForge 对应为：
+
+1. `safe-zero-wrapper`，只在自有模块根节点启用；
+2. image-slot、trigger-zone、motion parameter manifest；
+3. 可读的 static-expanded fallback 与 raster fallback；
+4. 缺少素材时不得把空画布当成功；
+5. 编辑器提示“最终效果以手机为准”时，状态只能停留在 `applied-editor-element`，不能升级
+   为 `mobile-preview`。
+
+### 4. 秀米点击淡入/展开模型
+
+本次实际插入的 SVG 模块使用 `viewBox="0 0 1080 1440"`，包含四个 SVG、两个声明式
+animation、周边图片槽、嵌套 flex row 与 `line-height:0`。透明点击区约占
+`16.39% × 13.83%`，位置约为 `40.72% / 49.01%`；点击后一个分支以 `0.2s` 淡入并
+freeze，另一分支延迟 `0.2s` 后在 `1s` 内改变高度并 freeze。
+
+InkForge 不复制该模板，而是映射到自有 `trigger-region -> fade -> expand` 状态机，并同时
+要求 image manifest、layout report、静态展开阅读顺序和 raster fallback。已有质量检测对
+秀米 authoring component tree、SVG animation class、编辑指令和素材源的阻断不得放松。
+
+### 5. 软件验收规则
+
+- 平台研究只能更新规则；最终产品验收必须运行 Tauri/WebView2 软件。
+- 样式能力项若映射到现有 preset，必须是可键盘聚焦、可真实点击、带 `aria-pressed` 的
+  button；不可用能力必须原生 `disabled`，不能只变灰。
+- WebDriver `getCSSProperty()` 返回的 `CSSStyleDeclaration` 不是剪贴板 artifact 的权威；
+  最终 SVG/HTML 校验读取原始 inline `style` 属性和真实导出内容。
+- 路由切换、悬浮/侧载恢复与长面板滚动必须等待过渡结束后再交互，不能以脚本点击或
+  固定延迟掩盖不可点击状态。
+- 不可信 Markdown HTML 必须先清理，再进入 InkForge 可信 decorator；知乎只允许已注册
+  的可信 SVG 转 image fallback；小红书关闭标题/话题附加项后必须保留完整正文。
+
+完整脱敏记录：
+`.trellis/tasks/07-22-workbench-rendering-software-ux/evidence/platform-editor-calibration-20260727.txt`。

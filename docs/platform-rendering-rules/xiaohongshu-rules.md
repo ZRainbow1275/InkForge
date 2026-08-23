@@ -1,6 +1,6 @@
 # 小红书渲染规则手册
 
-> 2026-06 收口规则：小红书正文不是富文本平台。InkForge 对小红书的交付合同是“纯文本 + 图片页/海报/长图”。不得把微信公众号 HTML、SVG 或 Markdown 控制符直接泄漏到正文，也不得用系统 emoji 图标冒充排版控件。
+> 2026-07 收口规则：小红书正文不是富文本平台。InkForge 对小红书的交付合同是“纯文本 + 图片页/海报/长图”。不得把微信公众号 HTML、SVG 或 Markdown 控制符直接泄漏到正文，也不得用系统 emoji 图标冒充排版控件。
 
 ## 一、输出合同
 
@@ -16,6 +16,14 @@ XHS style choices. UI/export-report code should read `getPlatformStyleChoices('x
 instead of duplicating this document's matrix.
 
 ## 二、平台边界
+
+### 2.0 官方内容规范与技术证据边界
+
+- 当前权威内容约束来自小红书官方《社区规范》。发布稿不得包含标题党、图文不符、虚假体验、与产品无关或过度照搬官方营销话术的内容。
+- 正文、图片和封面不得承载用于站外导流的网址、二维码、联系方式或第三方水印；版权、隐私和第三方权利仍须由真实素材来源证明。
+- 批量、高频、机器模式发布以及使用程序或脚本制造虚假互动属于平台治理边界，因此 InkForge 只生成并交付本地产物，不模拟账号发布或互动。
+- 这些是内容与交付约束，不是编辑器技术白名单。当前官方公开页面没有给出可稳定引用的 HTML/CSS/SVG 正文能力、标题长度、图片数量、尺寸或字节上限；相应数值只能作为可配置市场默认值和真实发布清单项。
+- 公开创作者发布入口在未登录状态只提供认证壳。没有当前账号编辑器、上传响应和最终预览时，不得把本地格式、manifest 或市场经验升级成“平台已接受”。
 
 ### 2.1 正文边界
 
@@ -72,6 +80,7 @@ instead of duplicating this document's matrix.
 
 - 每页只承载一个核心信息块。
 - 标题、正文、图表之间保留稳定间距。
+- 多行标题的副标题和正文起点必须从最后一行标题基线动态下移；不得使用只适合单行标题的固定纵坐标。封面最多三行、内容卡最多两行时都必须保持标题、副标题和正文互不重叠。
 - 长词、URL、代码行需要自动换行或转截图。
 - 生成后必须检测 `ok`、`warning`、`overflow` 三类布局状态。
 - 若有本地/远程图片依赖，必须验证资源可加载，不用占位假图。
@@ -100,6 +109,8 @@ instead of duplicating this document's matrix.
 
 - 3:4、1080x1440、1242x1660、18 图、20MB 等都是配置默认值和发布清单输入，不是永久硬编码。
 - 每个图片页导出必须带 manifest：页码、文件名、尺寸、比例、格式、cover 标记、正文引用状态和裁切状态。
+- 长文生成页数超过当前清单上限时，必须保留完整源覆盖证据并明确阻断或要求拆包；不得只导出前 N 页后宣称全文成功。
+- 普通 Markdown 空行只分隔段落，不等于强制换页。卡片切片必须在容量允许时保持完整段落，并仅由标题、显式 `xhs-page-break`、代码块或真实容量边界分页；普通正文不得被误画成列表项目符号。
 - Runtime validator: `validateXhsImageArtifactManifest()` validates local image-page/long-image
   artifacts before InkForge reports local readiness. `convertToNativeFormat(..., 'xiaohongshu')`
   can carry `artifacts.xiaohongshuImageManifest` only as local preflight evidence; it is not a
@@ -158,9 +169,38 @@ instead of duplicating this document's matrix.
 Markdown 控制符或 135/秀米响应式 wrapper，不得据此放宽“纯文本 + 图片页/海报/长图”合同。
 只有真实小红书发布入口、账号权限和最终预览证据能改变 publishable body 规则。
 
+- Xiaohongshu official Community Rules: `https://agree.xiaohongshu.com/h5/terms/ZXXY20221213003/-1`
+- Xiaohongshu official community-rules index: `https://ark.xiaohongshu.com/ark`
+- Xiaohongshu official creator publish entry: `https://creator.xiaohongshu.com/publish`
 - Rednote / Xiaohongshu 3:4 cover market reference: `https://xiaohongshu.oimi.ai/en/blog/xiaohongshu-cover-size`
 - Xiaohongshu 2026 image-size market reference: `https://focalflow.app/blog/xiaohongshu-image-guide-2026/`
 - Social media aspect-ratio market reference: `https://toolora.info/en/t/social-aspect-ratio-guide/`
 - Xiaohongshu 2026 format guide market reference: `https://www.travelofchina.com/how-to-post-on-xiaohongshu/`
 - Rednote content guideline market reference: `https://mktgplus.com/130/essential-faqs-for-international-brands-on-xiaohongshu-rednote`
 - Redink / 渲染AI XHS workflow reference: `https://github.com/joshua23/redink-xiaohongshu` (concept only; CC-BY-NC-SA-4.0 non-commercial boundary)
+
+## 九、2026-07-27 长文编辑器实测校准
+
+- 当前长文编辑器使用 TipTap / ProseMirror，原始桌面编辑画布约 `896px`；正文
+  `16px / 28px`，H1 `24px / 36px, 500`，H2 `20px / 26px, 500`。
+- 有序列表基线为 `margin:2px 0 16px;padding-left:18px`，无序列表左内边距约 `16px`；
+  引用为 `2px` 左边框、`12px` 左内边距和约 `16px` 下边距。
+- 本地 fidelity wrapper 使用 `data-platform-editor="xiaohongshu"`、
+  `data-editor-canvas-width="896"` 与 `AlibabaPuHuiTi` / `OPPOSans` 优先字体；不得添加虚构
+  圆角营销卡片、渐变、阴影、平台账号或水印。
+- “一键排版”进入的是独立多页卡片编辑流程。该流程的视觉结果应由真实 raster/card artifact
+  表达，不得把 HTML 预览卡片冒充成小红书可发布富文本。
+- `markdownToXiaohongshuText` 的纯文本仍是文本发布权威；3:4 图片页、长图和 manifest 是图文
+  发布权威。预览主题只能帮助作者选择样式，不能改变平台不接收 HTML/SVG 正文的合同。
+- 用户已取消自动发布测试；账号上传、下一步卡片确认和最终发布由用户手测，自动化不得点击发布。
+
+## 十、Release 产物与平台读回分离
+
+- `releaseArtifactReceipt` 只在最终 release 软件通过可见 Export 入口、原生目录窗口和现有 raster
+  writer 写出纯文本、完整 PNG 页组与 manifest，并对实际 bytes 回读后成立。测试 helper 构造的
+  manifest、历史图片或 preview DOM 不能替代该门禁。
+- `platformReadbackReceipt` 必须绑定上述 exact artifact hash、可见正文/上传 ingress 和目标创作
+  surface；通过真实控件粘贴/上传后再读回正文顺序、图片页序与裁切。登录页、上传前预览和本地
+  validator 均不能升级为 `platform-editor-rendered`。
+- 两条 receipt 可以连接，但不能合并：release 改变时重跑产物 receipt；bytes、ingress 或 target
+  改变时外部读回失效。账号登录不可用时保持 `blocked`，`published=false` 独立保留。
