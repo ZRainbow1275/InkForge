@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "source": {
+    "outer_head": "5759d925035a0303e2e50c944d434c38ac13f462",
+    "s0_artifact_manifest_sha256": "15fc5e5e5594748b4d156c6628a655635fe5c110411284a5c418f6c22c28d711",
+    "s0_artifacts": 46,
+    "s0_bytes": 322294033,
+    "planned_git_visible_paths": 1148
+  },
+  "snapshot_commits": [
+    {
+      "category": "tooling_specs",
+      "paths": 84,
+      "bytes_at_planning": 1960786,
+      "commit": "2401910ba7fb2aa57295841536fcbb429b5784a9",
+      "tree": "756d1fc60f428e080e4713a03a1552e0a3fc1691"
+    },
+    {
+      "category": "trellis_task_text",
+      "paths": 435,
+      "bytes_at_planning": 6125454,
+      "commit": "65d3cd5a38c176f49039019ea12ec320334522cd",
+      "tree": "153efdc4a3a2b1aedab91069a28e531d1d795b91"
+    },
+    {
+      "category": "trellis_task_media",
+      "paths": 154,
+      "bytes_at_planning": 115419774,
+      "commit": "9a681debbc08653e7a100060927b657770ff75c2",
+      "tree": "fc22bf4e26a958bd7dbec2fede363a6aa15ea995"
+    },
+    {
+      "category": "product_and_legacy_source",
+      "paths": 184,
+      "bytes_at_planning": 5630300,
+      "commit": "795b3f56b9bdd354720f9b2426975ca60f4e34ca",
+      "tree": "6828a8fa10f125c022bb7e2543ed280370cdc378"
+    },
+    {
+      "category": "docs_research",
+      "paths": 139,
+      "bytes_at_planning": 29081485,
+      "commit": "551345a6f1c4dc7dcbc15367e74688055fc2099e",
+      "tree": "85db08d524fe1a9ffedb9a3dd5f7034a3bc2e9c8"
+    },
+    {
+      "category": "runtime_evidence",
+      "paths": 140,
+      "bytes_at_planning": 28288540,
+      "commit": "61aa6efceb16d821a8d2a3ea7f8afc1defc87c22",
+      "tree": "f683ccbbd5098f7ac98bfbe7b6e0e76a619a4920"
+    },
+    {
+      "category": "tracked_deletions",
+      "paths": 12,
+      "bytes_at_planning": 0,
+      "commit": "98c914db9fa22993a07b527ef2f1ec3567252eb3",
+      "tree": "0805ba6d6ae1191c5f1fc3b0e11cdea9075a56e3"
+    }
+  ],
+  "external_sources": [
+    {
+      "source": "nested WIP refs 59feabcd3c6538bb984d3d4ce7577fabfb19a88f and ca59620b45da1fe0c35184335545d345652c97e2",
+      "destination": "audit/engineering-state-2026-08-23/nested-wip/",
+      "commit": "61aa6efceb16d821a8d2a3ea7f8afc1defc87c22",
+      "restore_instructions_commit": "551345a6f1c4dc7dcbc15367e74688055fc2099e"
+    },
+    {
+      "source": "feature/hub-polish-v2 and feature/toolbar-fix-v2 untracked task files",
+      "destination": ".trellis/tasks/03-31-hub-polish-v2 and .trellis/tasks/03-31-toolbar-fix-v2",
+      "commit": "65d3cd5a38c176f49039019ea12ec320334522cd"
+    },
+    {
+      "source": "feature/hub-polish-v2 and feature/toolbar-fix-v2 .agent-log/.session-id",
+      "destination": "audit/engineering-state-2026-08-23/worktrees/",
+      "commit": "61aa6efceb16d821a8d2a3ea7f8afc1defc87c22"
+    }
+  ],
+  "s0_reconciliation": {
+    "manifest_entries": 1123,
+    "byte_equal": 1115,
+    "intentional_audit_task_updates": 8,
+    "missing": 0,
+    "unexpectedly_present": 0,
+    "test_generated_files_restored_from_s0": 11,
+    "preexisting_formatting_files_restored_from_s0": 2
+  },
+  "validation": {
+    "exact_stage_sets_verified": true,
+    "gitleaks_product_staged_findings": 0,
+    "gitleaks_runtime_staged_findings": 2,
+    "gitleaks_runtime_classification": "two previously reviewed MHTML false positives",
+    "full_vitest": "145 files, 2156 tests passed",
+    "typecheck": "passed",
+    "eslint": "0 errors, 800 warnings"
+  },
+  "secrets_in_ledger": false
+}

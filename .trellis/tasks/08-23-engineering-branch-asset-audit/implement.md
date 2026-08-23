@@ -28,7 +28,7 @@
 
 状态：两份跨物理盘 S0 的 46 个 artifact hash 相等，bundle/payload/binary patch/WIP patch 恢复演练通过；正式 Gitleaks、结构化不透明文件扫描、717 张图片 OCR 与高风险截图人工复核已完成。历史中的真实 bearer 已轮换并撤销，未把其值写入报告。
 
-## Phase 2 — Commit the full working snapshot（执行中）
+## Phase 2 — Commit the full working snapshot（已完成）
 
 用户已决定把当前 Git 可见的全量 tracked/untracked 快照纳入最终 `main`。先在当前 `dev/visual-fixes` 临时集成线上分批提交，再做任何历史合并。
 
@@ -46,7 +46,9 @@
 
 退出条件：主工作树和三个外部 worktree 的所有审计可见资产都有唯一目标；临时集成线 clean；每个提交可独立审查和恢复。
 
-## Phase 3 — Integrate all histories
+状态：1,148 个规划路径已按 84/435/154/184/139/140/12 七批 exact path 提交；嵌套 WIP、两个 feature worktree 的 task/session 资产和 12 个 deletion 均有唯一目标。验证发现 full Vitest 会重写 11 个历史 fidelity evidence 文件，已从 S0 恢复原始字节；另两个为通过 whitespace check 曾被语义等价调整的既有文档，也已从 S0 精确恢复。S0 的 1,123 个 manifest entry 中 1,115 个逐字节相等，剩余 8 个仅为本审计任务自身的实施更新。
+
+## Phase 3 — Integrate all histories（执行中）
 
 1. 执行前重新 fetch 并读取远端 `main` hash；若它不再是审计过的 `7640cae...`，停止并重新审计，不在移动目标上继续。
 2. 正常合并锁定后的 `origin/main`，保留其 `7640cae`、Trellis 文件和 `server/data`；冲突按全量范围做最小解析。
