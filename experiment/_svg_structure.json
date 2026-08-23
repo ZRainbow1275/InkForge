@@ -1,0 +1,143 @@
+[
+  {
+    "idx": 0,
+    "tag": "rect",
+    "length": 91
+  },
+  {
+    "idx": 1,
+    "tag": "rect",
+    "length": 138
+  },
+  {
+    "idx": 2,
+    "tag": "rect",
+    "length": 103
+  },
+  {
+    "idx": 3,
+    "tag": "rect",
+    "length": 95
+  },
+  {
+    "idx": 4,
+    "tag": "circle",
+    "length": 83
+  },
+  {
+    "idx": 5,
+    "tag": "circle",
+    "length": 83
+  },
+  {
+    "idx": 6,
+    "tag": "circle",
+    "length": 83
+  },
+  {
+    "idx": 7,
+    "tag": "text",
+    "length": 202
+  },
+  {
+    "idx": 8,
+    "tag": "g",
+    "length": 2502,
+    "text_count": 15,
+    "begins": []
+  },
+  {
+    "idx": 9,
+    "tag": "g",
+    "length": 2004,
+    "text_count": 14,
+    "begins": [
+      "mousedown",
+      "mousedown",
+      "mousedown"
+    ]
+  },
+  {
+    "idx": 10,
+    "tag": "g",
+    "length": 4100,
+    "filename": "the_apple_1954.sh",
+    "burn_pattern": true,
+    "has_freeze": true,
+    "text_count": 28,
+    "begins": [
+      "mousedown",
+      "click+0.3s",
+      "mousedown"
+    ]
+  },
+  {
+    "idx": 11,
+    "tag": "g",
+    "length": 4109,
+    "filename": "can_machines_think.sh",
+    "burn_pattern": true,
+    "has_freeze": true,
+    "text_count": 28,
+    "begins": [
+      "mousedown",
+      "click+0.3s",
+      "mousedown"
+    ]
+  },
+  {
+    "idx": 12,
+    "tag": "g",
+    "length": 4021,
+    "filename": "enigma_cracked.sh",
+    "burn_pattern": true,
+    "has_freeze": true,
+    "text_count": 27,
+    "begins": [
+      "mousedown",
+      "click+0.3s",
+      "mousedown"
+    ]
+  },
+  {
+    "idx": 13,
+    "tag": "g",
+    "length": 3998,
+    "filename": "turing_machine.sh",
+    "burn_pattern": true,
+    "has_freeze": true,
+    "text_count": 27,
+    "begins": [
+      "mousedown",
+      "click+0.3s",
+      "mousedown"
+    ]
+  },
+  {
+    "idx": 14,
+    "tag": "g",
+    "length": 4093,
+    "filename": "birth_1912.sh",
+    "burn_pattern": true,
+    "has_freeze": true,
+    "text_count": 28,
+    "begins": [
+      "mousedown",
+      "click+0.3s",
+      "mousedown"
+    ]
+  },
+  {
+    "idx": 15,
+    "tag": "g",
+    "length": 5271,
+    "filename": "qingming.sh",
+    "burn_pattern": true,
+    "has_freeze": true,
+    "text_count": 31,
+    "begins": [
+      "mousedown",
+      "click+0.3s"
+    ]
+  }
+]

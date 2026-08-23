@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "source_snapshot": "S0",
+  "source_root": "E:\\codex-session-backups\\Inkforge\\2026-08-23-engineering-branch-asset-audit\\S0\\package",
+  "records": [
+    {
+      "path": "nested-wip/manifest.json",
+      "size": 619,
+      "sha256": "2cec9593dcb351ea9682fb0c07af72591a1d812f8ae1b94d121b1327fc42c843"
+    },
+    {
+      "path": "nested-wip/nested-refs.z",
+      "size": 327,
+      "sha256": "2e591bfefb89880e533c835123b61d98e7385a6d12b76da094d27fde9d1a0991"
+    },
+    {
+      "path": "nested-wip/nested.bundle",
+      "size": 499950,
+      "sha256": "567af392c337b08a2c21d91b0c3c30625c54c33a46ed4f6cb0824699e4fad896"
+    },
+    {
+      "path": "nested-wip/RESTORE.md",
+      "size": 462,
+      "sha256": "e49679a3ac2afcbc193e72ef914bf07d98bc18d1b40077b53d4740ce946e39ba"
+    },
+    {
+      "path": "nested-wip/wip-2026-05-07.patch",
+      "size": 1384474,
+      "sha256": "fd35ddfe6792bf5c059914683b4c9a64d802b02e78219c579e7ebf88131ca70e"
+    },
+    {
+      "path": "nested-wip/wip-2026-05-26.patch",
+      "size": 1505364,
+      "sha256": "f681ea6f861c4bd2200a17330379a917344652f861d19f3093cdec729c4e1cb0"
+    },
+    {
+      "path": "worktrees/feature__hub-polish-v2/.agent-log",
+      "size": 58731,
+      "sha256": "4937547193f4961140d9710649497e8cfe46305afc434041bcc086a180f44fbc"
+    },
+    {
+      "path": "worktrees/feature__hub-polish-v2/.session-id",
+      "size": 36,
+      "sha256": "bb7f68ceddde3ad8bf5e92dbe18dfba2e24c94ab2f9a5dcc0f8f42feb4a31e2d"
+    },
+    {
+      "path": "worktrees/feature__toolbar-fix-v2/.agent-log",
+      "size": 7023,
+      "sha256": "b5f19143ee690900121f330c4daf7d19b379748daddf168ec13cf27169f8d26a"
+    },
+    {
+      "path": "worktrees/feature__toolbar-fix-v2/.session-id",
+      "size": 36,
+      "sha256": "8b886df97c89ebd5fc86c6ece08431c56a3862ea8ade860c4e73e1f94bddfb57"
+    }
+  ],
+  "nested_preservation_refs": {
+    "refs/preserve/engineering-audit/wip-2026-05-07": "59feabcd3c6538bb984d3d4ce7577fabfb19a88f",
+    "refs/preserve/engineering-audit/wip-2026-05-26": "ca59620b45da1fe0c35184335545d345652c97e2"
+  },
+  "copied_task_dirs": [
+    ".trellis/tasks/03-31-hub-polish-v2",
+    ".trellis/tasks/03-31-toolbar-fix-v2"
+  ],
+  "copied_task_records": [
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\hub-polish-v2\\.trellis\\tasks\\03-31-hub-polish-v2\\check.jsonl",
+      "destination": ".trellis/tasks/03-31-hub-polish-v2/check.jsonl",
+      "size": 177,
+      "sha256": "c75389195b6d9366df3667fbab3c98acf39e1a2249690b80ac51ec4ab7537c3d"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\hub-polish-v2\\.trellis\\tasks\\03-31-hub-polish-v2\\debug.jsonl",
+      "destination": ".trellis/tasks/03-31-hub-polish-v2/debug.jsonl",
+      "size": 89,
+      "sha256": "d777244ab5b321265c9d775d968a18f1a97add580b349bb8c4d2f81d52e18a3d"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\hub-polish-v2\\.trellis\\tasks\\03-31-hub-polish-v2\\implement.jsonl",
+      "destination": ".trellis/tasks/03-31-hub-polish-v2/implement.jsonl",
+      "size": 165,
+      "sha256": "39108e19665d2a955b18a4c87187eaad04534747951c7123b4b78fedad983178"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\hub-polish-v2\\.trellis\\tasks\\03-31-hub-polish-v2\\prd.md",
+      "destination": ".trellis/tasks/03-31-hub-polish-v2/prd.md",
+      "size": 3316,
+      "sha256": "5e9bf56fbd753905c5916992cbf358d62a05ecca845a1eb9bdc03cffcba0d23e"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\hub-polish-v2\\.trellis\\tasks\\03-31-hub-polish-v2\\task.json",
+      "destination": ".trellis/tasks/03-31-hub-polish-v2/task.json",
+      "size": 853,
+      "sha256": "86c718273ff9f497519d293cd7a9b93cdbf1da5a2a70f002c4d3e06b8cdaf1ff"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-fix-v2\\.trellis\\tasks\\03-31-toolbar-fix-v2\\check.jsonl",
+      "destination": ".trellis/tasks/03-31-toolbar-fix-v2/check.jsonl",
+      "size": 177,
+      "sha256": "c75389195b6d9366df3667fbab3c98acf39e1a2249690b80ac51ec4ab7537c3d"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-fix-v2\\.trellis\\tasks\\03-31-toolbar-fix-v2\\debug.jsonl",
+      "destination": ".trellis/tasks/03-31-toolbar-fix-v2/debug.jsonl",
+      "size": 89,
+      "sha256": "d777244ab5b321265c9d775d968a18f1a97add580b349bb8c4d2f81d52e18a3d"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-fix-v2\\.trellis\\tasks\\03-31-toolbar-fix-v2\\implement.jsonl",
+      "destination": ".trellis/tasks/03-31-toolbar-fix-v2/implement.jsonl",
+      "size": 165,
+      "sha256": "39108e19665d2a955b18a4c87187eaad04534747951c7123b4b78fedad983178"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-fix-v2\\.trellis\\tasks\\03-31-toolbar-fix-v2\\prd.md",
+      "destination": ".trellis/tasks/03-31-toolbar-fix-v2/prd.md",
+      "size": 3281,
+      "sha256": "1edfb024b622be9f2c92fe473dd2badd27511db300767a27786fcef1b531f58e"
+    },
+    {
+      "source": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-fix-v2\\.trellis\\tasks\\03-31-toolbar-fix-v2\\task.json",
+      "destination": ".trellis/tasks/03-31-toolbar-fix-v2/task.json",
+      "size": 869,
+      "sha256": "46d7ac09f2d4dd565f93cfab7a6cbe51ede5bddfc3c24bc31afe4fd144883dea"
+    }
+  ]
+}
