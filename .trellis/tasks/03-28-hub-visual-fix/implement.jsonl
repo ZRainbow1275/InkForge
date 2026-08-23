@@ -1,0 +1,7 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": "prompts/0327/02-hub-layout-spec.md", "reason": "核心规格文档"}
+{"file": "prompts/0327/09-ui-polish-spec.md", "reason": "UI打磨规格"}
+{"file": "inkforge/src/views/HubView.vue", "reason": "主要修改文件"}
+{"file": "inkforge/src/components/hub/InspirationCard.vue", "reason": "需重设计"}
+{"file": "inkforge/src/components/hub/WritingFlowCard.vue", "reason": "参考实现"}
