@@ -1,0 +1,3 @@
+﻿pid=57032 hwnd=37687426 count=15 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 首页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 首页 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}

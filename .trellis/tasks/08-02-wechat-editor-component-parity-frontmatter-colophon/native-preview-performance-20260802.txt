@@ -1,0 +1,36 @@
+Native Tauri preview performance acceptance - 2026-08-02
+
+Scope:
+- Release InkForge application through tauri-driver/WebView2.
+- Ten real ProseMirror edits and ten visible preset changes.
+- No browser-only product path and no synthetic renderer.
+
+Result:
+- Final Release application SHA-256: 6afaa6c0b7f4e1410d9013e81c5cb823ab2ec8899e66f85827c9965230b62bd4
+- Final editor marker: INKFORGE-PERF-10
+- Final preset: 赤陶旗舰
+- Final SVG modules: cover-grid and divider-forge present
+- Full native suite internal render p50: 11 ms
+- Full native suite internal render p95: 12 ms
+- Full native suite edit + settled preview wall p50: 1104 ms
+- Full native suite edit + settled preview wall p95: 1180 ms
+- Final recheck after 600 ms retained the last marker and preset.
+- Deterministic native screenshot: prompts/0601/evidence/e2e/native-preview-performance-20260802.png
+
+Per-round internal render times (ms):
+10, 11, 10, 10, 12, 12, 11, 10, 12, 12
+
+Per-round native edit + settled preview wall times (ms):
+1180, 1089, 1121, 1104, 1170, 1098, 1140, 1124, 1098, 1084
+
+Repeatability:
+- A separate focused native run also passed: render p50/p95 14/22 ms; wall p50/p95 1112/1137 ms.
+- The final Release native suite passed 13/13 tests in 55.3 seconds.
+
+Acceptance thresholds:
+- Internal render p95 < 2000 ms: PASS
+- Native edit + settled preview wall p95 < 5000 ms: PASS
+
+Boundary:
+- This proves the last-token native edit/preset rendering path and visible application responsiveness only.
+- It does not prove phone preview, mobile Dark Mode, native media cards, sync, scheduled send, group send, or publish.

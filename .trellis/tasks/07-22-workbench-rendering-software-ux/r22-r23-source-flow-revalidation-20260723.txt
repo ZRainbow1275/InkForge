@@ -1,0 +1,28 @@
+R-22/R-23 Hub source and search flow revalidation - 2026-07-23
+
+Scope
+- Read-only production-source and GitNexus trace.
+- Focused local regression only; no native window input, article mutation, clipboard mutation, or fabricated AI success.
+
+R-22 daily inspiration flow
+- loadHubInspirationState() reads the persisted source, editable local quote, and prior AI quote from real localStorage.
+- Hub binds local text and author through real textarea/input controls with explicit length bounds and blur normalization.
+- A deep watch calls saveHubInspirationState() whenever source/local/AI state changes and exposes a visible save-failure state.
+- Selecting AI calls the existing aiStore.generate() path only when explicitly selected and no prior AI result exists; refresh is explicit.
+- Unavailable, loading, failure, retry, and result surfaces remain separate; AI empty state does not substitute the local quote.
+
+R-23 header search flow
+- Search consumes the real article Store and matches title, description, source name, and raw body.
+- Results are recency-sorted, limited to six, and rendered below the combobox with honest empty state.
+- Arrow keys move the active result; Enter opens it; Escape closes and restores input focus; clear resets and refocuses.
+- Global Ctrl/Cmd+F is handled before generic editable-target shortcut rejection, so the local-inspiration textarea cannot trap the app search shortcut.
+- Opening a result routes its real article id to /workstation.
+
+Verification
+- pnpm exec vitest run src/views/__tests__/HubView.cards.test.ts src/stores/settings.ai.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+- PASS: 2 files / 19 tests.
+- The three 127.0.0.1:1 ECONNREFUSED messages are expected assertions of the real provider failure path.
+
+Boundary
+- No deterministic implementation defect was found, so no product code was changed.
+- Visible local edit/restart, real configured-provider generation, real article open/return/clear, result-button Escape/focus restoration, and no-result behavior still require native hand testing.

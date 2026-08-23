@@ -1,0 +1,57 @@
+InkForge R-03 / R-06 real Tauri acceptance - 2026-07-22
+
+Environment
+- Running Tauri dev application: InkForge.exe PID 17180.
+- Windows display scale: 150% (window DPI 144).
+- Input was Win32 DPI-aware physical pointer/keyboard input plus read-only UI Automation measurement.
+- The recovery banner was not invoked or dismissed.
+- The only edited record was the disposable article IF0722-ARTICLE-A.
+
+R-03 right-edge inspector
+- The earlier failed pointer probe was invalid: a DPI-unaware helper supplied physical coordinates in a virtualized logical coordinate space.
+- Correct DPI-aware window bounds: 230,45 -> 2330,1395 (2100 x 1350 physical pixels).
+- Initial editor rectangle: x=650, y=351, w=1110, h=1044.
+- Collapsed inspector rectangle: x=2312, y=351, w=18, h=1044.
+- Expanded overlay rectangle: x=1730, y=351, w=600, h=1044.
+- Ten real edge-open / inside-hold / far-leave cycles:
+  opened=10/10, held-open=10/10, fully-collapsed=10/10.
+- Maximum editor rectangle delta across all 30 measurements: 0 physical pixels.
+- Result: the unpinned inspector overlays the stage/editor region without changing editor geometry or jumping.
+
+R-06 typewriter and vignette
+- A real 20-paragraph body was entered through native SendInput; the production status reported 773 words / 20 paragraphs and Saved.
+- Typewriter keyboard toggle with a real text selection:
+  before: selection="CTION-PROBE", caret/selection y=849;
+  off: selection unchanged, y=1140, editor DOM height=3204;
+  on: selection unchanged, y=849, editor DOM height=3903 (the conditional 50vh end spacer).
+- At the active final paragraph, y=849 is approximately the configured 50% editor viewport anchor.
+- A production-button defect was reproduced: enabling from the Inspector could dim the document while leaving the active paragraph offscreen until the next selection move.
+- Root fix: TypewriterMode now treats disabled -> enabled as a scroll trigger even when the ProseMirror selection is unchanged.
+- Post-fix production-button proof: clicking "打字机模式" moved IF0722-FOCUS-P20 into the configured center region immediately; no editor click or cursor movement was needed.
+- Dimming is visibly bounded: the active paragraph retains full contrast with its existing active-block treatment; nearby and distant paragraphs use the existing graded decoration.
+- Vignette production-button proof preserved selection="CTION-PROBE" before/on/off.
+- Vignette screenshot luminance comparison (0-255, on minus off):
+  top=-25.96, center=+0.10, bottom=-16.88.
+  The top/bottom effect is clearly perceptible while the center remains unchanged.
+- Both typewriter and vignette were restored to Off after acceptance.
+
+Evidence images
+- writing-focus-off-runtime-20260722.png
+- writing-focus-typewriter-on-runtime-20260722.png
+- writing-focus-typewriter-caret-runtime-20260722.png
+- writing-focus-typewriter-button-runtime-20260722.png
+- writing-focus-vignette-on-runtime-20260722.png
+- writing-focus-vignette-off-runtime-20260722.png
+- writing-focus-restored-runtime-20260722.png
+
+Verification
+- TypewriterMode TDD red: 2 activation assertions failed before the root fix.
+- Focused green: TypewriterMode.decorations.test.ts, writingAssist.test.ts,
+  WorkstationView.vignette.test.ts, WorkstationView.desktop-layout.test.ts.
+  PASS: 4 files / 29 tests.
+- ESLint on TypewriterMode.ts and its focused test: PASS.
+- vue-tsc --noEmit --pretty false: PASS.
+
+Boundary
+- This proves the current Windows/Tauri 150%-scale R-03 overlay geometry and R-06 local writing-focus behavior.
+- It does not claim any external platform upload, phone preview, account sync, or publication result.

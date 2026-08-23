@@ -1,0 +1,10 @@
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend pre-development entrypoint and applicable quality checklist."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Vue component, Lucide icon, accessibility, and no-fake-UI contracts."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict TypeScript and Zod validation at component and delivery trust boundaries."}
+{"file":".trellis/spec/frontend/visual-variant-system.md","reason":"Sixteen-preset differentiation, editor projection, brand invariants, and variant/profile composition."}
+{"file":".trellis/spec/frontend/flagship-element-catalog.md","reason":"Existing flagship element ownership, masthead/colophon structure, and source-owned style constraints."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Trace editor, Settings, preview, export, clipboard, and platform boundaries end to end."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Reuse writing component, delivery adornment, masthead, and preset paths instead of parallel implementations."}
+{"file":".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/research/current-inkforge-component-pipeline.md","reason":"Compact current-source map of canonical JSX, NodeView, delivery slots, real converter, preview drift, tests, and smallest shared-root implementation."}
+{"file":".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/research/doocs-md-component-patterns-context.md","reason":"Compact pinned official doocs/md findings for declarative components, prop-fill, insertion, preview, trust boundaries, and non-copy constraints; links the full evidence file."}
+{"file":".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/research/implementation-contracts-context.md","reason":"Compact authoritative state, quality, WeChat component/preset, native software, clipboard, evidence, and no-frontmatter contracts without injecting megabyte-scale specs."}

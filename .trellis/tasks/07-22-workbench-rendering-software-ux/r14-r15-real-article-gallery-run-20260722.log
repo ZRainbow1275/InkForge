@@ -1,0 +1,116 @@
+{
+  "wechat": {
+    "rendered": 16,
+    "expected": 16,
+    "uniqueHashes": 16,
+    "ids": [
+      "thesis",
+      "legal",
+      "report",
+      "commentary",
+      "aigc",
+      "code",
+      "notes",
+      "news",
+      "meme",
+      "life",
+      "elegant",
+      "tech",
+      "flagship-kiln",
+      "flagship-kiln-paste-safe",
+      "flagship-tempera",
+      "flagship-amber"
+    ]
+  },
+  "xiaohongshu": {
+    "rendered": 5,
+    "expected": 5,
+    "uniqueHashes": 5,
+    "ids": [
+      "xhs-fresh",
+      "xhs-simple",
+      "xhs-warm",
+      "xhs-tech",
+      "xhs-nature"
+    ]
+  },
+  "zhihu": {
+    "rendered": 3,
+    "expected": 3,
+    "uniqueHashes": 3,
+    "ids": [
+      "zhihu-academic",
+      "zhihu-tech",
+      "zhihu-insight"
+    ]
+  }
+}
+[
+  {
+    "id": "zhihu-academic",
+    "sha256": "4ee87a93039ac2d396c8eba4c99e6c760ac2c9f36f30d90ab7f9f518ae4f7dcd",
+    "htmlLength": 2871
+  },
+  {
+    "id": "zhihu-tech",
+    "sha256": "7f78bda9a566595670cf33fc3b6d42237f9d497125ba2f0c72be80b561e9e49e",
+    "htmlLength": 2901
+  },
+  {
+    "id": "zhihu-insight",
+    "sha256": "37ae648e872bb6b178b2cb6162fa79ed9034036844a1183bfddc244e30433b01",
+    "htmlLength": 2911
+  }
+]
+{
+  "status": "real-article-gallery-ready",
+  "galleryPath": "D:\\Desktop\\Inkforge\\.trellis\\tasks\\07-22-workbench-rendering-software-ux\\r14-r15-real-article-platform-gallery-20260722.html",
+  "manifestPath": "D:\\Desktop\\Inkforge\\.trellis\\tasks\\07-22-workbench-rendering-software-ux\\r14-r15-real-article-platform-gallery-20260722.json",
+  "summary": {
+    "wechat": {
+      "rendered": 16,
+      "expected": 16,
+      "uniqueHashes": 16,
+      "ids": [
+        "thesis",
+        "legal",
+        "report",
+        "commentary",
+        "aigc",
+        "code",
+        "notes",
+        "news",
+        "meme",
+        "life",
+        "elegant",
+        "tech",
+        "flagship-kiln",
+        "flagship-kiln-paste-safe",
+        "flagship-tempera",
+        "flagship-amber"
+      ]
+    },
+    "xiaohongshu": {
+      "rendered": 5,
+      "expected": 5,
+      "uniqueHashes": 5,
+      "ids": [
+        "xhs-fresh",
+        "xhs-simple",
+        "xhs-warm",
+        "xhs-tech",
+        "xhs-nature"
+      ]
+    },
+    "zhihu": {
+      "rendered": 3,
+      "expected": 3,
+      "uniqueHashes": 3,
+      "ids": [
+        "zhihu-academic",
+        "zhihu-tech",
+        "zhihu-insight"
+      ]
+    }
+  }
+}

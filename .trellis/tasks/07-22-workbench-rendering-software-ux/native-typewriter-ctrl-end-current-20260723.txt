@@ -1,0 +1,11 @@
+﻿InkForge native Tauri window capture
+pid=51656
+hwnd=6426424
+title=InkForge
+responding=True
+visible=True
+minimized=False
+dpi=144
+rect=230,45,2330,1395
+pixels=2100x1350
+capture=.trellis\tasks\07-22-workbench-rendering-software-ux\native-typewriter-ctrl-end-current-20260723.png

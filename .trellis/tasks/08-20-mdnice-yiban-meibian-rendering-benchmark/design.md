@@ -2,7 +2,7 @@
 
 ## Status
 
-P0 local implementation is active against `dev/visual-fixes@51696357`. This does not authorize browser writes, media uploads, phone preview or publication; every external batch still requires separate approval.
+Planning only. This document does not authorize `task.py start`, product-code edits, browser writes, media uploads, phone preview or publication.
 
 ## 1. Design decision
 
@@ -35,11 +35,11 @@ No layer is a byte-equivalence promise. The canonical artifact remains the stabl
 | Official draft UI caller | `PublishView.handleCreateWechatDraft()` | Freeze one input, show one native confirmation with target hint/fingerprint/side-effect bounds, then pass mandatory transient approval. |
 | Official draft orchestration | `publishWechatDraft()` | Reuse image rewrite/upload, cover preparation and internal create call only after shared no-write planning and mandatory caller approval. |
 | Low-level draft create | `createWechatDraft()` | Internal primitive; response has count/time, not arbitrary draft identity. |
-| Corpus readback/delete | Authenticated WeChat visible UI | The bound baseline intentionally has no destructive generic round-trip; locate only the unique short title + body sentinel and never delete broadly. |
+| Fixed live round-trip | `runWechatDraftLiveRoundTrip()` | Existing sentinel proof only; not used to claim corpus readback/delete. |
 | Safety | DOMPurify, publish-copy sanitizer, WeChat rules, SVG validator | Never relax to imitate mdnice or Yiban. |
 | Evidence | runtime catalog, quality detector, StyleProof, manual checklist | Keep canonical identity in existing manifest; task receipt holds layered hashes. |
 
-The planning dirty tree remains historical evidence, not an implementation baseline. Local implementation is bound to the separately reviewed `dev/visual-fixes@51696357`; its ordinary draft path is retained and the destructive live-round-trip/delete/recovery chain is excluded. Source inspection identifies two required product owners: `wechat-publish.ts` lacks a non-mutating plan shared with execution, and the existing `PublishView` caller must carry its mandatory transient approval. Apart from that one native confirmation bridge, no renderer/style/formula/other UI file is selected before a reproduced fidelity failure identifies its owner.
+The dirty tree is evidence, not an implementation baseline. Source inspection already identifies two required product owners: `wechat-publish.ts` lacks a non-mutating plan shared with execution, and the existing `PublishView` caller must carry its mandatory transient approval. Apart from that one native confirmation bridge, no renderer/style/formula/other UI file is selected before a reproduced fidelity failure identifies its owner.
 
 ## 3. Deterministic corpus and media binding
 
@@ -82,7 +82,7 @@ An ineligible SVG-heavy case is a valid `official-draft-ineligible` result and s
 
 The current implementation cannot produce this plan without entering the upload loop. P0 therefore extracts one no-WeChat-write `planWechatDraftPublish()` (final name may follow the bound baseline) at the existing publish boundary. It reuses the current metadata/content validators, image-host classifier, `assertWechatUploadImage()` rules, source-scheme normalization and cover validator; resolves every local asset/blob candidate and rejects deterministic MIME/extension/source failures before any Tauri upload invoke; then returns input/plan fingerprints, unique prepared upload candidates/counts and cover requirement. HTTP(S) reachability, remote MIME truth and existing cover-handle ownership/existence remain explicitly unverified until the remote call. The planner is consumed by `publishWechatDraft()`, the current `PublishView` caller, and the existing style-sample CLI's new `--draft-preflight` mode. `PublishView` freezes the exact input, shows one native confirmation containing the transient API target hint, short plan fingerprint and per-kind side-effect upper bounds, and passes a mandatory in-memory approval only after the user confirms the target/bounds. The mutating path rejects missing approval or a recomputed fingerprint mismatch before its first upload and consumes the already prepared candidates rather than normalizing later images inside the upload loop. Image discovery/classification/preparation has one owner, not parallel preflight/execution implementations.
 
-The CLI mode emits strict `wechat-draft-preflight/v1`: `schemaVersion`, `status: "complete"`, corpus/commit/choice identity and one redacted case result per requested choice, including eligibility/reason codes, input/plan fingerprints, value-free semantic tag/role/attribute/style-property name sets from the real rendered HTML, limits, prepared unique counts, cover state and unverified-remote flags. A complete report exits `0` even when some or every case is ineligible; missing input, an unhandled/incomplete report exits `1`; unknown options exit `2`; help exits `0`. Ineligible is evidence, not a process error. The task verifier validates this schema before any approval.
+The CLI mode emits strict `wechat-draft-preflight/v1`: `schemaVersion`, `status: "complete"`, corpus/commit/choice identity and one redacted case result per requested choice, including eligibility/reason codes, input/plan fingerprints, limits, prepared unique counts, cover state and unverified-remote flags. A complete report exits `0` even when some or every case is ineligible; missing input, an unhandled/incomplete report exits `1`; unknown options exit `2`; help exits `0`. Ineligible is evidence, not a process error. The task verifier validates this schema before any approval.
 
 ## 5. Fingerprint and receipt contract
 
@@ -98,12 +98,12 @@ Minimum fields:
 
 - case ID, corpus SHA-256, bound commit, choice/options;
 - canonical `artifactFingerprint` copied exactly from StyleProof;
-- channel kind, final runtime input/plan fingerprints for official-draft cases, transient full-payload digest, persisted normalized payload summary/fingerprint, media-binding SHA-256, non-sensitive account-target match state/method, exact approved upload upper bounds, and observable actual upload counts; final plan bounds may be lower than the candidate CLI maximum when an approved media binding/cover handle is used, but never higher;
+- channel kind, transient full-payload digest, persisted normalized payload summary/fingerprint, media-binding SHA-256, non-sensitive account-target match state/method, approved upload upper bounds, and observable actual upload counts;
 - applied and saved `wechat-semantic-readback/v1` fingerprints plus their persisted allowlisted normalized node/issue summaries;
 - phone/Dark Mode/cover states;
 - draft cleanup state and remote-media residual state. If `publishWechatDraft()` fails before returning its success result, affected actual counts are `unknown` (optionally with a defensible lower bound), the receipt records the last confirmed phase and approved upper bound, and the residual state is `residual-external-media-unknown`; estimates never fill actual fields.
 
-`wechat-semantic-readback/v1` hashes deterministic JSON: UTF-8, sorted object keys, arrays in document order, decoded entities, CRLF normalized to LF, DOM tag/role order, text digest, normalized lowercase allowlisted semantic attributes (including source-owned role/class/ID, code-language class, link anchors and the existing publish-copy safe SVG geometry/paint/animation subset), sorted inline-style properties, node counts and separate forbidden/vendor-residue findings. The persisted channel/readback summaries follow this canonicalization. It excludes editor chrome and non-source host IDs from the hash but reports their counts; it never removes semantic loss such as literal `**`, backticks, missing blockquote, missing image or changed SVG geometry/paint.
+`wechat-semantic-readback/v1` hashes deterministic JSON: UTF-8, sorted object keys, arrays in document order, decoded entities, CRLF normalized to LF, DOM tag/role order, text digest, allowlisted semantic attributes, sorted inline-style properties, node counts and separate forbidden/vendor-residue findings. The persisted channel/readback summaries follow this canonicalization. It excludes editor chrome and non-source host IDs from the hash but reports their counts; it never removes semantic loss such as literal `**`, backticks, missing blockquote or missing image.
 
 The receipt gets a small standard-library assertion script that canonicalizes every persisted normalized summary, recomputes its SHA-256 and compares it to the claimed fingerprint, in addition to schema/state/privacy checks. A transient full-payload digest is explicitly capture provenance and is not mislabeled independently reproducible after the private payload is discarded. `task.py validate` remains only the JSONL/path validator and is never cited as receipt-schema proof.
 
@@ -153,7 +153,7 @@ Optional terminal states: `creation-unconfirmed`, `cleanup-pending`, `residual-e
 
 ## 9. Readback comparison and failure ownership
 
-Compare semantic preservation rather than raw HTML length. In P0, a `complete` case requires the normalized payload/applied/saved semantic projections to match and all forbidden/vendor findings to be empty; editor-chrome and non-source host-ID exclusion counts are diagnostic only. Any other normalization remains blocked and is classified before a narrower evidence-backed equivalence rule is considered:
+Compare semantic preservation rather than raw HTML length:
 
 - heading/paragraph/inline semantics;
 - quote, list/task-list and table structure;

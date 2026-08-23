@@ -1,0 +1,112 @@
+﻿pid=57032 hwnd=37687426 count=140 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 工作站","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 工作站 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 工作站","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"296,59,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2105,45,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2180,45,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2255,45,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回首页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"251,112,51,51","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"263,124,27,27","Patterns":""}
+{"Index":9,"Type":"Edit","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"320,112,600,51","Patterns":"Value"}
+{"Index":10,"Type":"Text","Name":"已同步 · 已保存","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"965,126,113,23","Patterns":""}
+{"Index":11,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1672,112,51,51","Patterns":"Invoke"}
+{"Index":12,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1685,125,25,25","Patterns":""}
+{"Index":13,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1732,112,51,51","Patterns":"Invoke"}
+{"Index":14,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1745,125,25,25","Patterns":""}
+{"Index":15,"Type":"Button","Name":"进入专注模式 (F11)","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1792,112,51,51","Patterns":"Invoke"}
+{"Index":16,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1805,125,25,25","Patterns":""}
+{"Index":17,"Type":"Group","Name":"布局预设","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1852,111,143,53","Patterns":""}
+{"Index":18,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1857,116,64,43","Patterns":"Invoke"}
+{"Index":19,"Type":"Button","Name":"写作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1926,116,64,43","Patterns":"Invoke"}
+{"Index":20,"Type":"Group","Name":"工作模式","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2004,111,173,53","Patterns":""}
+{"Index":21,"Type":"Button","Name":"审阅","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2009,116,64,43","Patterns":"Toggle"}
+{"Index":22,"Type":"Button","Name":"分栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2078,116,94,43","Patterns":"ExpandCollapse"}
+{"Index":23,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2092,126,23,23","Patterns":""}
+{"Index":24,"Type":"Text","Name":"分栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2122,125,36,24","Patterns":""}
+{"Index":25,"Type":"Button","Name":"发布","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2186,110,123,55","Patterns":"Invoke"}
+{"Index":26,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2213,127,21,21","Patterns":""}
+{"Index":27,"Type":"Group","Name":"Open documents","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,177,2100,63","Patterns":""}
+{"Index":28,"Type":"Tab","Name":"Open Workstation documents","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,191,2013,39","Patterns":""}
+{"Index":29,"Type":"TabItem","Name":"未命名文章 - Saved","AutomationId":"workstation-tab-5e5497f9-c938-46a6-898d-d243387ee82b","Enabled":true,"Offscreen":false,"Rect":"248,191,174,39","Patterns":"SelectionItem"}
+{"Index":30,"Type":"Button","Name":"Pin 未命名文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"425,195,30,31","Patterns":"Invoke"}
+{"Index":31,"Type":"Button","Name":"Close 未命名文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"458,195,30,31","Patterns":"Invoke"}
+{"Index":32,"Type":"Button","Name":"Restore recently closed tab","AutomationId":"","Enabled":false,"Offscreen":false,"Rect":"2273,191,39,39","Patterns":"Invoke"}
+{"Index":33,"Type":"Button","Name":"文件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,261,66,63","Patterns":"Toggle"}
+{"Index":34,"Type":"Button","Name":"版本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"316,261,67,63","Patterns":"Toggle"}
+{"Index":35,"Type":"Button","Name":"大纲","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"385,261,67,63","Patterns":"Toggle"}
+{"Index":36,"Type":"Button","Name":"标签","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"454,261,67,63","Patterns":"Toggle"}
+{"Index":37,"Type":"Button","Name":"对话","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"523,261,66,63","Patterns":"Toggle"}
+{"Index":38,"Type":"Button","Name":"收起文件管理面板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"604,274,36,37","Patterns":"Invoke"}
+{"Index":39,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"263,375,21,21","Patterns":""}
+{"Index":40,"Type":"Edit","Name":"搜索文章...","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,360,291,51","Patterns":"Value"}
+{"Index":41,"Type":"Group","Name":"文件管理器视图控制","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,423,383,51","Patterns":""}
+{"Index":42,"Type":"ComboBox","Name":"排序字段","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,423,89,51","Patterns":"Value,ExpandCollapse"}
+{"Index":43,"Type":"Button","Name":"降序排列","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"346,423,86,51","Patterns":"Invoke"}
+{"Index":44,"Type":"Button","Name":"新建","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"551,360,80,51","Patterns":"Invoke"}
+{"Index":45,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"570,375,21,21","Patterns":""}
+{"Index":46,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"597,378,15,15","Patterns":""}
+{"Index":47,"Type":"Group","Name":"智能文件夹","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,490,419,113","Patterns":""}
+{"Index":48,"Type":"Button","Name":"全部 1","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"245,502,110,40","Patterns":"Invoke"}
+{"Index":49,"Type":"Button","Name":"草稿/写作 1","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"363,502,153,40","Patterns":"Invoke"}
+{"Index":50,"Type":"Button","Name":"审阅 0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"524,502,110,40","Patterns":"Invoke"}
+{"Index":51,"Type":"Button","Name":"待发布 0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"245,550,199,40","Patterns":"Invoke"}
+{"Index":52,"Type":"Button","Name":"完成 0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"453,550,181,40","Patterns":"Invoke"}
+{"Index":53,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"245,621,18,19","Patterns":""}
+{"Index":54,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"269,620,21,22","Patterns":""}
+{"Index":55,"Type":"Text","Name":"未分类","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"296,618,54,25","Patterns":""}
+{"Index":56,"Type":"Text","Name":"(1)","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"615,619,19,23","Patterns":""}
+{"Index":57,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"311,666,22,22","Patterns":""}
+{"Index":58,"Type":"Text","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,664,91,25","Patterns":""}
+{"Index":59,"Type":"Text","Name":"草稿","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"545,666,31,21","Patterns":""}
+{"Index":60,"Type":"Text","Name":"1天前","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"592,666,42,22","Patterns":""}
+{"Index":61,"Type":"Pane","Name":"未命名文章 - Saved","AutomationId":"workstation-document-panel","Enabled":true,"Offscreen":false,"Rect":"650,240,1110,1155","Patterns":""}
+{"Index":62,"Type":"Group","Name":"主编辑区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"650,240,1109,1107","Patterns":""}
+{"Index":63,"Type":"Edit","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"854,195,686,900","Patterns":"Value"}
+{"Index":64,"Type":"Text","Name":"sad","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"854,561,686,87","Patterns":""}
+{"Index":65,"Type":"Text","Name":"as d","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"854,688,686,65","Patterns":""}
+{"Index":66,"Type":"Text","Name":"dasdahasdi","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"854,773,198,37","Patterns":""}
+{"Index":67,"Type":"Text","Name":"asdasdad","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"854,845,159,37","Patterns":""}
+{"Index":68,"Type":"Button","Name":"拖拽移动此块","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"854,1095,36,36","Patterns":"Invoke"}
+{"Index":69,"Type":"Button","Name":"当前文稿状态：草稿，点击打开草稿箱","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"674,1355,85,33","Patterns":"Invoke"}
+{"Index":70,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"784,1361,21,21","Patterns":""}
+{"Index":71,"Type":"Text","Name":"5 字","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"811,1359,33,24","Patterns":""}
+{"Index":72,"Type":"Text","Name":"4 段","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"869,1359,33,24","Patterns":""}
+{"Index":73,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"927,1361,22,21","Patterns":""}
+{"Index":74,"Type":"Text","Name":"1 分钟","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"954,1359,51,24","Patterns":""}
+{"Index":75,"Type":"Text","Name":"A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1198,1360,13,23","Patterns":""}
+{"Index":76,"Type":"Group","Name":"当前模式：Typora","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1364,1355,110,33","Patterns":""}
+{"Index":77,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1380,1362,19,19","Patterns":""}
+{"Index":78,"Type":"Text","Name":"Typora","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1404,1360,54,23","Patterns":""}
+{"Index":79,"Type":"Button","Name":"打开编辑器设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1485,1355,34,33","Patterns":"Invoke"}
+{"Index":80,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1492,1361,20,21","Patterns":""}
+{"Index":81,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1543,1361,22,21","Patterns":""}
+{"Index":82,"Type":"Text","Name":"渲染: 18ms","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1570,1363,89,17","Patterns":""}
+{"Index":83,"Type":"Text","Name":"行 4:9","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1684,1363,57,17","Patterns":""}
+{"Index":84,"Type":"Button","Name":"微信","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1784,250,114,45","Patterns":"Invoke"}
+{"Index":85,"Type":"Button","Name":"小红书","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1900,250,115,45","Patterns":"Invoke"}
+{"Index":86,"Type":"Button","Name":"知乎","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2017,250,114,45","Patterns":"Invoke"}
+{"Index":87,"Type":"Group","Name":"平台预览小组件操作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2152,254,114,37","Patterns":""}
+{"Index":88,"Type":"Button","Name":"在 InkForge 内浮动平台预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2152,254,36,37","Patterns":"Invoke"}
+{"Index":89,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2160,262,20,21","Patterns":""}
+{"Index":90,"Type":"Button","Name":"将平台预览摘到桌面","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2191,254,36,37","Patterns":"Invoke"}
+{"Index":91,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2199,262,20,21","Patterns":""}
+{"Index":92,"Type":"Button","Name":"关闭平台预览小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2230,254,36,37","Patterns":"Invoke"}
+{"Index":93,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2238,262,20,21","Patterns":""}
+{"Index":94,"Type":"Button","Name":"收起面板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2269,251,42,43","Patterns":"Invoke"}
+{"Index":95,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2279,262,22,21","Patterns":""}
+{"Index":96,"Type":"Group","Name":"平台预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,415,519,832","Patterns":""}
+{"Index":97,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,416,82,28","Patterns":""}
+{"Index":98,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,447,82,29","Patterns":""}
+{"Index":99,"Type":"Text","Name":" · ","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1866,447,17,29","Patterns":""}
+{"Index":100,"Type":"Text","Name":"刚刚","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1882,447,43,29","Patterns":""}
+{"Index":101,"Type":"Text","Name":"sad","AutomationId":"sad","Enabled":true,"Offscreen":false,"Rect":"1785,478,519,32","Patterns":""}
+{"Index":102,"Type":"Text","Name":"as d","AutomationId":"as-d","Enabled":true,"Offscreen":false,"Rect":"1785,509,519,32","Patterns":""}
+{"Index":103,"Type":"Text","Name":"dasdahasdi","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,542,104,28","Patterns":""}
+{"Index":104,"Type":"Text","Name":"asdasdad","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,573,87,29","Patterns":""}
+{"Index":105,"Type":"Text","Name":"预览 · 微信公众号","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,605,164,28","Patterns":""}
+{"Index":106,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1804,1323,235,54","Patterns":"Invoke"}
+{"Index":107,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1837,1339,22,22","Patterns":""}
+{"Index":108,"Type":"Button","Name":"全屏导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2050,1323,235,54","Patterns":"Invoke"}
+{"Index":109,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2113,1339,22,22","Patterns":""}
+{"Index":110,"Type":"Group","Name":"应用内悬浮检查器小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,99,2100,1296","Patterns":""}

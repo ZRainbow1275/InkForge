@@ -1,0 +1,14 @@
+Sensitive artifact scan - 2026-08-10
+
+Scope:
+- task-scoped source, E2E, spec, platform rule, task docs and evidence
+- value-bearing credential/header/path patterns, private-key markers, browser artifacts and staged paths
+
+SCOPED_FILE_COUNT=52
+VALUE_SCAN=PASS (0 matches)
+LOCAL_IDENTITY_SCAN=PASS (0 matches)
+EVIDENCE_ABSOLUTE_PATH_SCAN=PASS (0 matches)
+BROWSER_ARTIFACT_SCAN=PASS (0 files)
+STAGED_PATH_COUNT=0
+MACHINE_RECEIPT_SANITIZER=PASS (absolute path, UUID and runtime-secret fields rejected at generation)
+PUBLISHED=false

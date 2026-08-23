@@ -1,0 +1,12 @@
+R15/R16 Publish native handoff source contract - RED - 2026-07-22
+Scope: read-only source audit; no app interaction, no platform publication.
+
+FAIL: imports canonical native exporter
+FAIL: stores typed native result
+FAIL: does not route non-WeChat through rich HTML copy
+FAIL: does not give non-WeChat the rich DOM fallback
+FAIL: labels Xiaohongshu copy as native text
+FAIL: labels Zhihu copy as native Markdown
+
+Result: 0/6 passed; 6 missing.
+Expected root fix: reuse existing convertToNativeFormat; keep WeChat rich HTML, copy XHS as text, copy Zhihu as Markdown.

@@ -1,0 +1,14 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+stdout | scripts/.tmp-real-article-native-artifacts.test.ts > writes truthful XHS and Zhihu artifacts from the running real article
+{"status":"truthful-local-native-artifact-audit","excerptParagraphCount":17,"xhsCardPageCount":20,"xhsCardErrors":["xhs-image-manifest-count-mismatch"],"zhihuErrors":[]}
+
+ ✓ scripts/.tmp-real-article-native-artifacts.test.ts (1 test) 626ms
+   ✓ writes truthful XHS and Zhihu artifacts from the running real article  625ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  17:06:33
+   Duration  2.46s (transform 782ms, setup 0ms, import 1.33s, tests 626ms, environment 335ms)
+

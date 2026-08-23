@@ -1,0 +1,57 @@
+R-23 Hub Search Keyboard and Focus Repair - 2026-07-22
+
+Scope:
+- Keep InkForge Ctrl/Cmd+F available when focus starts in any editable Hub control.
+- Close an anchored result panel from a keyboard-focused result and restore the search input focus.
+- Preserve article matching, Arrow navigation, Enter opening, clear, no-result, and real-store behavior.
+
+Pre-edit GitNexus impact:
+- handleHubKeydown
+  Risk: LOW
+  Direct dependents: 0
+  Affected processes: 0
+  Affected modules: 0
+- closeHeaderSearch
+  Risk: LOW
+  Direct dependents: 0
+  Affected processes: 0
+  Affected modules: 0
+
+Root cause:
+- handleHubKeydown returned for editable targets before handling Ctrl/Cmd+F.
+- Escape was bound only to the input, so a result button reached by Tab had no close/focus-return path.
+
+Change:
+- Handle Ctrl/Cmd+F before the editable-target guard.
+- Handle Escape only while the open search surface contains the event target.
+- closeHeaderSearch(true) removes the panel and restores the search input on nextTick.
+- The input binding explicitly calls closeHeaderSearch() so Vue does not pass KeyboardEvent as the restoreFocus argument.
+
+TDD:
+- Red: HubView.cards.test.ts failed exactly 2 of 14 tests on shortcut ordering and result Escape/focus restoration.
+- Green: HubView.cards.test.ts passed 14 of 14 tests.
+
+Validation:
+- pnpm -C inkforge exec vitest run src/views/__tests__/HubView.cards.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 1 file / 14 tests
+- pnpm -C inkforge exec eslint src/views/HubView.vue src/views/__tests__/HubView.cards.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  INITIAL: rejected implicit KeyboardEvent-to-boolean template binding
+  FINAL: PASS after explicit closeHeaderSearch()
+- NODE_OPTIONS='--max-old-space-size=3072' pnpm -C inkforge build
+  PASS: 4,675 modules transformed; built in 1m16s
+- Development endpoint
+  PASS: HTTP 200
+- Native runtime
+  PASS: InkForge.exe PID 21140 remained alive
+- Vite runtime
+  PASS: expected raw-test reload and two Hub HMR updates; job remained running
+- Generated inkforge/tsconfig.tsbuildinfo was restored because it was clean before validation.
+
+Manual gates still required:
+- Search the real IF0722-ARTICLE-A and open it with Arrow plus Enter.
+- Invoke Ctrl/Cmd+F while Local inspiration text or author input owns focus.
+- Tab into a result, press Escape, and confirm visible panel close plus focus return.
+- Clear, honest no-result, return, and reload behavior with the persisted real article store.
+- No article, recovery banner, or persisted content state was changed by this repair.

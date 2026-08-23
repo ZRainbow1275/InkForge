@@ -1,0 +1,30 @@
+{
+  "version": "v2",
+  "presetId": "elegant",
+  "presetName": "优雅",
+  "presetPrimaryColor": "#4a3c5a",
+  "generatedAt": "2026-08-23T12:40:00.466Z",
+  "markdownBytesOriginal": 88670,
+  "markdownBytesPreprocessed": 92090,
+  "htmlBytes": 217054,
+  "innerHtmlBytes": 214893,
+  "preprocStats": {
+    "boldReplacements": 272,
+    "italicReplacements": 4,
+    "h3PromotedToH2": 4,
+    "h2ChaptersInserted": 2,
+    "h1TitleInserted": true
+  },
+  "renderStats": {
+    "wordCount": 30106,
+    "readingTime": 101,
+    "codeBlockCount": 0,
+    "linkCount": 0,
+    "imageCount": 0,
+    "headingCount": 53,
+    "tableCount": 1
+  },
+  "regression": {
+    "strayBoldMarkers": 0
+  }
+}

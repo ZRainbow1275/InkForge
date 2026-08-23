@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "scope": "packaged-editor-roundtrip-and-local-wechat-final-artifact",
+  "platformActionsPerformed": [],
+  "cannotClaim": [
+    "WeChat PC ordinary paste",
+    "WeChat phone preview",
+    "Dark Mode",
+    "native media binding",
+    "credentialed sync",
+    "scheduled/group send",
+    "publication"
+  ],
+  "releaseExecutable": {
+    "path": "inkforge/src-tauri/target/release/InkForge.exe",
+    "bytes": 17698304,
+    "sha256": "52e63429fbb9159786080d59f337065e2504903070618f83793f8b4db6b89414"
+  },
+  "evidence": [
+    {
+      "path": "editor-source.md",
+      "bytes": 5203,
+      "sha256": "dccf0dad039a15bef4cfabfb6798c85e9e9ecb1c68d70c39e6c0490d4a36f7b6"
+    },
+    {
+      "path": "editor-source.md.meta.json",
+      "bytes": 709,
+      "sha256": "d3525e3f7bcfb823bcbc054a9d7d70dbe4a809d3c42f38f10269d9d632958e5f"
+    },
+    {
+      "path": "editor-persisted-body.md",
+      "bytes": 5239,
+      "sha256": "00f1e0e91b740374606a6522fb595a485742698b1e141e35f7b0ce78d2ff8711"
+    },
+    {
+      "path": "wechat-final-artifact.html",
+      "bytes": 70237,
+      "sha256": "cf236c6aaa1b23dee9f9a1e2daca51116a48b4de99527e2f28ca49e3f544793a"
+    },
+    {
+      "path": "editor-experiment-harness.cjs",
+      "bytes": 142205,
+      "sha256": "097f9bb789db076a34dba532eb16c6956259a90a83bfe281971e67beb99deb52"
+    }
+  ],
+  "sourceLineCount": 100,
+  "persistedBodyLineCount": 101,
+  "visibleReleaseSteps": [
+    "paragraph and H1-H6 toolbar transformations",
+    "save and refresh/reopen after H6",
+    "restore paragraph and save/reopen",
+    "open dedicated delivery settings without ExportModal",
+    "open component library without ExportModal",
+    "insert TipBlock",
+    "edit and update TipBlock",
+    "delete the atomic component",
+    "read persisted Markdown authority",
+    "open final WeChat artifact"
+  ],
+  "e2e": {
+    "result": "passed",
+    "specFiles": {
+      "passed": 1,
+      "total": 1
+    },
+    "tests": {
+      "passed": 1,
+      "total": 1
+    },
+    "testDurationSeconds": 19.1,
+    "wallDurationSeconds": 24,
+    "spec": "editor-experiment-harness.cjs",
+    "test": "completes the visible release editor experiment before export acceptance"
+  },
+  "artifactProbe": {
+    "tagCounts": {
+      "strong": 16,
+      "em": 2,
+      "s": 0,
+      "del": 1,
+      "u": 1,
+      "mark": 1,
+      "sub": 1,
+      "sup": 12,
+      "table": 4,
+      "pre": 1,
+      "img": 6,
+      "svg": 30,
+      "script": 0
+    },
+    "markHasVisibleInlineBackground": true,
+    "linkLabelPresent": true,
+    "citationHeadingPresent": true,
+    "citationUrlPresent": true,
+    "rawExternalLinks": [],
+    "registeredComponentCount": 17,
+    "registeredComponentIds": [
+      "MpProfile",
+      "AuthorBlock",
+      "QRCodeBlock",
+      "TipBlock",
+      "InfoGrid",
+      "TableBlock",
+      "TimelineBlock",
+      "CompareBlock",
+      "StatBlock",
+      "GalleryBlock",
+      "CitationBlock",
+      "SongBlock",
+      "ImageBlock",
+      "LinkBlock",
+      "ArticleBlock",
+      "ContactCard",
+      "WechatMediaBlock"
+    ],
+    "missingComponentProofMarkers": [],
+    "diagnosticComponentIds": [],
+    "literalMarkdownPresent": false,
+    "finalSentinelPresent": true
+  }
+}

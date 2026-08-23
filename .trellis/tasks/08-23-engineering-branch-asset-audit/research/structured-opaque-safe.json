@@ -1,0 +1,2008 @@
+{
+  "status": "pass",
+  "inventory_counts": {
+    "jsonl": 184,
+    "logs": 113,
+    "sqlite": 1
+  },
+  "records": {
+    "jsonl": [
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/check.jsonl",
+        "bytes": 2071,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/implement.jsonl",
+        "bytes": 2258,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/native-hub-uia-before-20260723.jsonl",
+        "bytes": 29244,
+        "lines": 199,
+        "parse_errors": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/native-publish-uia-20260723.jsonl",
+        "bytes": 28897,
+        "lines": 178,
+        "parse_errors": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/native-publish-uia-current-20260723.jsonl",
+        "bytes": 28925,
+        "lines": 178,
+        "parse_errors": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/native-workstation-uia-current-20260723.jsonl",
+        "bytes": 21654,
+        "lines": 118,
+        "parse_errors": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-28-rendering-empty-output-fix/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-28-rendering-empty-output-fix/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-28-rendering-spec-editor-components/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-28-rendering-spec-editor-components/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-29-rendering-visual-system-reconstruction/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-29-rendering-visual-system-reconstruction/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-30-brand-rendering-design-recovery/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-30-brand-rendering-design-recovery/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-30-design-fidelity-native-visual-alignment/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-30-design-fidelity-native-visual-alignment/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-31-preset-brand-differentiation/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-31-preset-brand-differentiation/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-31-wechat-editor-paste-validation/check.jsonl",
+        "bytes": 390,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-31-wechat-editor-paste-validation/implement.jsonl",
+        "bytes": 404,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-02-rendering-editor-wechat-design-system-parent/check.jsonl",
+        "bytes": 457,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-02-rendering-editor-wechat-design-system-parent/implement.jsonl",
+        "bytes": 765,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/check.jsonl",
+        "bytes": 1647,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/implement.jsonl",
+        "bytes": 2013,
+        "lines": 10,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/wechat-pc-ordinary-paste-matrix-20260802.jsonl",
+        "bytes": 16403,
+        "lines": 16,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/check.jsonl",
+        "bytes": 2281,
+        "lines": 12,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/implement.jsonl",
+        "bytes": 2244,
+        "lines": 12,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-23-engineering-branch-asset-audit/check.jsonl",
+        "bytes": 238,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-23-engineering-branch-asset-audit/implement.jsonl",
+        "bytes": 240,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/05-12-full-app-functionality-audit-repair/check.jsonl",
+        "bytes": 823,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/05-12-full-app-functionality-audit-repair/implement.jsonl",
+        "bytes": 1224,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/check.jsonl",
+        "bytes": 1089,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/implement.jsonl",
+        "bytes": 1336,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/check.jsonl",
+        "bytes": 2442,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-20-mdnice-yiban-meibian-rendering-benchmark/implement.jsonl",
+        "bytes": 2489,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/03-31-hub-polish-v2/check.jsonl",
+        "bytes": 177,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/03-31-hub-polish-v2/debug.jsonl",
+        "bytes": 89,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/03-31-hub-polish-v2/implement.jsonl",
+        "bytes": 165,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/03-31-toolbar-fix-v2/check.jsonl",
+        "bytes": 177,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/03-31-toolbar-fix-v2/debug.jsonl",
+        "bytes": 89,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/03-31-toolbar-fix-v2/implement.jsonl",
+        "bytes": 165,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-11-trellis-tooling-dirty-tree-audit/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-11-trellis-tooling-dirty-tree-audit/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-23-preset-typography-overhaul/check.jsonl",
+        "bytes": 777,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-23-preset-typography-overhaul/implement.jsonl",
+        "bytes": 1691,
+        "lines": 11,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-focus-mode-enhancement/check.jsonl",
+        "bytes": 302,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-focus-mode-enhancement/implement.jsonl",
+        "bytes": 485,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-focus-mode-typography-consistency/check.jsonl",
+        "bytes": 333,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-focus-mode-typography-consistency/implement.jsonl",
+        "bytes": 356,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-inspector-resizable-width/check.jsonl",
+        "bytes": 189,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-inspector-resizable-width/implement.jsonl",
+        "bytes": 207,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-preset-style-tab-differentiation/check.jsonl",
+        "bytes": 447,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-preset-style-tab-differentiation/implement.jsonl",
+        "bytes": 587,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-remove-redundant-stage-preset-strip-and-audit-over-engineering/check.jsonl",
+        "bytes": 584,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-remove-redundant-stage-preset-strip-and-audit-over-engineering/implement.jsonl",
+        "bytes": 693,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-settings-search-relocation/check.jsonl",
+        "bytes": 85,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-settings-search-relocation/implement.jsonl",
+        "bytes": 102,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-wechat-preview-use-previewcss/check.jsonl",
+        "bytes": 686,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-25-wechat-preview-use-previewcss/implement.jsonl",
+        "bytes": 1278,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-26-redesign-hub-cards-eliminate-redundancy/check.jsonl",
+        "bytes": 470,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-26-redesign-hub-cards-eliminate-redundancy/implement.jsonl",
+        "bytes": 508,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-27-fix-visual-polish-regressions/check.jsonl",
+        "bytes": 533,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-27-fix-visual-polish-regressions/implement.jsonl",
+        "bytes": 729,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-27-visual-polish-pass/check.jsonl",
+        "bytes": 1313,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-27-visual-polish-pass/implement.jsonl",
+        "bytes": 1876,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-28-elevate-visual-to-stunning/check.jsonl",
+        "bytes": 930,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-28-elevate-visual-to-stunning/implement.jsonl",
+        "bytes": 1211,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-28-tauri-e2e-harness-visual-elevation-verification/check.jsonl",
+        "bytes": 457,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-05/05-28-tauri-e2e-harness-visual-elevation-verification/implement.jsonl",
+        "bytes": 1112,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-06/05-12-export-platform-rendering-real-capability-audit/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-06/05-12-export-platform-rendering-real-capability-audit/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-06/05-14-wechat-rendering-rules-research/check.jsonl",
+        "bytes": 1023,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-06/05-14-wechat-rendering-rules-research/implement.jsonl",
+        "bytes": 916,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-06/06-08-multiplatform-rendering-polish-deployment-acceptance/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-06/06-08-multiplatform-rendering-polish-deployment-acceptance/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-07-p2-09-ui-polish/check.jsonl",
+        "bytes": 245,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-07-p2-09-ui-polish/implement.jsonl",
+        "bytes": 242,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-21-04-21-0420-spec-delivery-wave1/check.jsonl",
+        "bytes": 252,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-21-04-21-0420-spec-delivery-wave1/debug.jsonl",
+        "bytes": 84,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-21-04-21-0420-spec-delivery-wave1/implement.jsonl",
+        "bytes": 458,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-29-p0-10-markdown-authority/check.jsonl",
+        "bytes": 461,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-29-p0-10-markdown-authority/implement.jsonl",
+        "bytes": 461,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-11-document-lifecycle/check.jsonl",
+        "bytes": 539,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-11-document-lifecycle/implement.jsonl",
+        "bytes": 539,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-12-file-manager/check.jsonl",
+        "bytes": 438,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-12-file-manager/implement.jsonl",
+        "bytes": 648,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-13-workstation-layout/check.jsonl",
+        "bytes": 451,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-13-workstation-layout/implement.jsonl",
+        "bytes": 554,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-14-statusbar-navigation/check.jsonl",
+        "bytes": 455,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-14-statusbar-navigation/implement.jsonl",
+        "bytes": 563,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-15-export-publish/check.jsonl",
+        "bytes": 448,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-15-export-publish/implement.jsonl",
+        "bytes": 561,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-16-markdown-extensions/check.jsonl",
+        "bytes": 1191,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-16-markdown-extensions/implement.jsonl",
+        "bytes": 775,
+        "lines": 2,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-17-crash-recovery/check.jsonl",
+        "bytes": 1635,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-17-crash-recovery/implement.jsonl",
+        "bytes": 1008,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-18-tauri-desktop/check.jsonl",
+        "bytes": 394,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-18-tauri-desktop/implement.jsonl",
+        "bytes": 394,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-19-ftue-help/check.jsonl",
+        "bytes": 636,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-19-ftue-help/implement.jsonl",
+        "bytes": 894,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-20-theme-font-typography/check.jsonl",
+        "bytes": 706,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-20-theme-font-typography/implement.jsonl",
+        "bytes": 774,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-21-focus-writing-assist/check.jsonl",
+        "bytes": 604,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-21-focus-writing-assist/implement.jsonl",
+        "bytes": 601,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-22-command-palette/check.jsonl",
+        "bytes": 618,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-22-command-palette/implement.jsonl",
+        "bytes": 577,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-23-sync-provider/check.jsonl",
+        "bytes": 438,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/04-30-04-30-p1-23-sync-provider/implement.jsonl",
+        "bytes": 437,
+        "lines": 3,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-01-05-01-p1-24-permission-audit/check.jsonl",
+        "bytes": 771,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-01-05-01-p1-24-permission-audit/implement.jsonl",
+        "bytes": 859,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-01-05-01-p1-25-extension-plugin/check.jsonl",
+        "bytes": 785,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-01-05-01-p1-25-extension-plugin/implement.jsonl",
+        "bytes": 963,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-01-05-01-p1-26-multi-account-profile/check.jsonl",
+        "bytes": 1623,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-01-05-01-p1-26-multi-account-profile/implement.jsonl",
+        "bytes": 1623,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-27-performance-slo/check.jsonl",
+        "bytes": 998,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-27-performance-slo/implement.jsonl",
+        "bytes": 1050,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-28-asset-pipeline/check.jsonl",
+        "bytes": 1274,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-28-asset-pipeline/implement.jsonl",
+        "bytes": 1274,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-29-search-engine/check.jsonl",
+        "bytes": 1195,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-29-search-engine/implement.jsonl",
+        "bytes": 1195,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-30-trash-recycle/check.jsonl",
+        "bytes": 1104,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-30-trash-recycle/implement.jsonl",
+        "bytes": 1104,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-31-version-bundle/check.jsonl",
+        "bytes": 941,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-31-version-bundle/implement.jsonl",
+        "bytes": 941,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-32-comment-review/check.jsonl",
+        "bytes": 1083,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-32-comment-review/implement.jsonl",
+        "bytes": 1083,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-33-diagnostic-logging/check.jsonl",
+        "bytes": 1039,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-33-diagnostic-logging/implement.jsonl",
+        "bytes": 1039,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-34-layout-persistence/check.jsonl",
+        "bytes": 1069,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-34-layout-persistence/implement.jsonl",
+        "bytes": 1069,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-35-split-view/check.jsonl",
+        "bytes": 1851,
+        "lines": 12,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-35-split-view/implement.jsonl",
+        "bytes": 2104,
+        "lines": 14,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-36-wiki-link/check.jsonl",
+        "bytes": 1934,
+        "lines": 16,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-36-wiki-link/implement.jsonl",
+        "bytes": 1934,
+        "lines": 16,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-37-snippet-system/check.jsonl",
+        "bytes": 1126,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-37-snippet-system/implement.jsonl",
+        "bytes": 1126,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-38-toc-system/check.jsonl",
+        "bytes": 1084,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-38-toc-system/implement.jsonl",
+        "bytes": 1084,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-39-sync-scroll/check.jsonl",
+        "bytes": 1209,
+        "lines": 11,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-39-sync-scroll/implement.jsonl",
+        "bytes": 996,
+        "lines": 9,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-40-dev-panel/check.jsonl",
+        "bytes": 861,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-40-dev-panel/implement.jsonl",
+        "bytes": 765,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-41-settings-migration/check.jsonl",
+        "bytes": 834,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-41-settings-migration/implement.jsonl",
+        "bytes": 1022,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-42-templates/check.jsonl",
+        "bytes": 602,
+        "lines": 5,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-42-templates/implement.jsonl",
+        "bytes": 886,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-43-drafts-box/check.jsonl",
+        "bytes": 776,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-43-drafts-box/implement.jsonl",
+        "bytes": 859,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-44-import-wizard/check.jsonl",
+        "bytes": 757,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-44-import-wizard/implement.jsonl",
+        "bytes": 1027,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-45-tabbar-enhancement/check.jsonl",
+        "bytes": 965,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-45-tabbar-enhancement/implement.jsonl",
+        "bytes": 994,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-46-draggable-ordering/check.jsonl",
+        "bytes": 1715,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-46-draggable-ordering/implement.jsonl",
+        "bytes": 1715,
+        "lines": 13,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-47-tag-system/check.jsonl",
+        "bytes": 955,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-02-05-02-p1-47-tag-system/implement.jsonl",
+        "bytes": 1011,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-05-02-p1-48-session-restore/check.jsonl",
+        "bytes": 953,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-05-02-p1-48-session-restore/implement.jsonl",
+        "bytes": 965,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-05-02-p1-49-editor-keymap/check.jsonl",
+        "bytes": 1264,
+        "lines": 10,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-05-02-p1-49-editor-keymap/implement.jsonl",
+        "bytes": 1264,
+        "lines": 10,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-05-03-p1-50-smart-punctuation/check.jsonl",
+        "bytes": 1279,
+        "lines": 10,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-05-03-p1-50-smart-punctuation/implement.jsonl",
+        "bytes": 1289,
+        "lines": 10,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-51-block-drag-handle/check.jsonl",
+        "bytes": 833,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-51-block-drag-handle/implement.jsonl",
+        "bytes": 882,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-52-table-extension-v2/check.jsonl",
+        "bytes": 810,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-52-table-extension-v2/implement.jsonl",
+        "bytes": 974,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-53-image-extension-v2/check.jsonl",
+        "bytes": 806,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-53-image-extension-v2/implement.jsonl",
+        "bytes": 997,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-54-custom-css/check.jsonl",
+        "bytes": 986,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-54-custom-css/implement.jsonl",
+        "bytes": 1008,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-55-tauri-updater/check.jsonl",
+        "bytes": 934,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-55-tauri-updater/implement.jsonl",
+        "bytes": 985,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-56-citation/check.jsonl",
+        "bytes": 994,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-03-p1-56-citation/implement.jsonl",
+        "bytes": 1165,
+        "lines": 8,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-06-app-visual-overhaul/check.jsonl",
+        "bytes": 255,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-06-app-visual-overhaul/implement.jsonl",
+        "bytes": 255,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-26-fix-inspector-typewriter-mode-and-vignette-focus/check.jsonl",
+        "bytes": 1066,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-26-fix-inspector-typewriter-mode-and-vignette-focus/implement.jsonl",
+        "bytes": 1010,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/check.jsonl",
+        "bytes": 1289,
+        "lines": 6,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/implement.jsonl",
+        "bytes": 1340,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-26-render-wechat-fidelity-test/check.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/05-26-render-wechat-fidelity-test/implement.jsonl",
+        "bytes": 254,
+        "lines": 1,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/06-01-multiplatform-render-svg/check.jsonl",
+        "bytes": 615,
+        "lines": 4,
+        "parse_errors": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/archive/2026-07/06-01-multiplatform-render-svg/implement.jsonl",
+        "bytes": 1299,
+        "lines": 7,
+        "parse_errors": 0,
+        "risk_hits": {}
+      }
+    ],
+    "logs": [
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/application-style-proof-preflight-test-20260722.log",
+        "bytes": 792,
+        "lines": 16,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/build-card-interaction.log",
+        "bytes": 23408,
+        "lines": 300,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/build-final-source.log",
+        "bytes": 23409,
+        "lines": 300,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/build-slice-c-20260722.log",
+        "bytes": 23385,
+        "lines": 295,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cargo-build-r07.log",
+        "bytes": 143,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cargo-check-20260722.log",
+        "bytes": 142,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cargo-check-slice-c-20260722.log",
+        "bytes": 142,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cargo-inspector-focused-20260722.log",
+        "bytes": 116,
+        "lines": 5,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cargo-r07.log",
+        "bytes": 116,
+        "lines": 5,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cargo-test-20260722.log",
+        "bytes": 2857,
+        "lines": 36,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/cross-platform-vitest-20260722.log",
+        "bytes": 3189,
+        "lines": 41,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-focused-rerun.log",
+        "bytes": 5071,
+        "lines": 59,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-full-final-2.log",
+        "bytes": 5931,
+        "lines": 73,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-full-final.log",
+        "bytes": 36586,
+        "lines": 275,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-inspector-stage-no-overlap.log",
+        "bytes": 25631,
+        "lines": 336,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-route-stage-recovery.log",
+        "bytes": 6118,
+        "lines": 60,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-stage-button-probe.log",
+        "bytes": 6427,
+        "lines": 61,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-click-probe.log",
+        "bytes": 6192,
+        "lines": 57,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-grouped-preflight.log",
+        "bytes": 31763,
+        "lines": 349,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-product-fix.log",
+        "bytes": 29481,
+        "lines": 359,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-real-controls-final.log",
+        "bytes": 25317,
+        "lines": 333,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-real-drawer-click.log",
+        "bytes": 4055,
+        "lines": 46,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-scroll-fix.log",
+        "bytes": 5884,
+        "lines": 56,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-scroll-owner-probe.log",
+        "bytes": 5623,
+        "lines": 47,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-visible-click-2.log",
+        "bytes": 3997,
+        "lines": 46,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/e2e-style-card-visible-click.log",
+        "bytes": 3998,
+        "lines": 46,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-cargo-check-20260724.log",
+        "bytes": 142,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-cargo-test-20260724.log",
+        "bytes": 2877,
+        "lines": 36,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-current-round-style-proof-20260724.log",
+        "bytes": 2898,
+        "lines": 5,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-export-regression-20260724.log",
+        "bytes": 6649,
+        "lines": 86,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-focused-regression-20260724.log",
+        "bytes": 12337,
+        "lines": 173,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-full-vitest-20260724.log",
+        "bytes": 36398,
+        "lines": 453,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-gitnexus-analyze-20260724.log",
+        "bytes": 992,
+        "lines": 29,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-production-build-20260724.log",
+        "bytes": 23325,
+        "lines": 299,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/final-tauri-build-20260724.log",
+        "bytes": 24799,
+        "lines": 327,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-release-stderr-20260724.log",
+        "bytes": 60,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-release-stdout-20260724.log",
+        "bytes": 0,
+        "lines": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-release-uia-command-20260724.log",
+        "bytes": 346,
+        "lines": 3,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/final-targeted-regression.log",
+        "bytes": 1973,
+        "lines": 28,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/final-tauri-release-build.log",
+        "bytes": 24283,
+        "lines": 314,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/focused-vitest-20260722.log",
+        "bytes": 2789,
+        "lines": 43,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/frontend-r07-validation.log",
+        "bytes": 23417,
+        "lines": 297,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/full-export-vitest-20260722.log",
+        "bytes": 6283,
+        "lines": 82,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/full-vitest-20260722.log",
+        "bytes": 31388,
+        "lines": 383,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r05-canonical-typography-build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r05-canonical-typography-tests-20260722.log",
+        "bytes": 2637,
+        "lines": 56,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r05-r14-r15-r16-publish-native-integrated-20260722.log",
+        "bytes": 1588,
+        "lines": 25,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r12-split-source-sync-production-build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r13-advanced-pane-green-20260722.log",
+        "bytes": 293,
+        "lines": 10,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r13-advanced-pane-red-20260722.log",
+        "bytes": 2029,
+        "lines": 35,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r13-integrated-regression-20260722.log",
+        "bytes": 1153,
+        "lines": 21,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r13-production-build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r14-r15-real-article-gallery-run-20260722.log",
+        "bytes": 2390,
+        "lines": 116,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-cross-platform-regression-20260722.log",
+        "bytes": 3190,
+        "lines": 41,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-r16-publish-native-cross-platform-20260722.log",
+        "bytes": 3188,
+        "lines": 40,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-r16-publish-native-handoff-focused-20260722.log",
+        "bytes": 389,
+        "lines": 10,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-r16-publish-native-production-build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-r16-workstation-native-copy-build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-r16-workstation-native-copy-tests-20260722.log",
+        "bytes": 3448,
+        "lines": 44,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-real-native-artifacts-run-20260722.log",
+        "bytes": 672,
+        "lines": 14,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-xhs-card-layout-green-20260722.log",
+        "bytes": 295,
+        "lines": 10,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-xhs-card-production-build-20260722.log",
+        "bytes": 22737,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-xhs-zhihu-integrated-regression-20260722.log",
+        "bytes": 610,
+        "lines": 14,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-zhihu-integrated-regression-20260722.log",
+        "bytes": 476,
+        "lines": 13,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-zhihu-paragraph-persona-green-20260722.log",
+        "bytes": 283,
+        "lines": 10,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-zhihu-paragraph-persona-red-20260722.log",
+        "bytes": 1360,
+        "lines": 37,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/r15-zhihu-production-build-20260722.log",
+        "bytes": 22736,
+        "lines": 292,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/slice-a-tests.log",
+        "bytes": 2483,
+        "lines": 34,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/style-proof-clock-regression-20260722.log",
+        "bytes": 2284,
+        "lines": 31,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/tauri-dev-after-reboot-20260722.log",
+        "bytes": 1150,
+        "lines": 23,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/tauri-dev-layout-restart-fixed-20260722.log",
+        "bytes": 7690,
+        "lines": 87,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/tauri-dev-widget-restart-20260722.log",
+        "bytes": 654,
+        "lines": 17,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/tauri-runtime-r07-fresh.log",
+        "bytes": 180,
+        "lines": 3,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/tauri-runtime-r07.log",
+        "bytes": 595,
+        "lines": 9,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/typecheck-slice-a.log",
+        "bytes": 0,
+        "lines": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/vue-tsc-final.log",
+        "bytes": 0,
+        "lines": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/07-22-workbench-rendering-software-ux/vue-tsc-r07.log",
+        "bytes": 0,
+        "lines": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/application-preflight-current-20260810.log",
+        "bytes": 2255,
+        "lines": 65,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/export-suite-current-20260810.log",
+        "bytes": 8642,
+        "lines": 104,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/full-vitest-current-20260810.log",
+        "bytes": 37198,
+        "lines": 460,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/gitnexus-analyze-current-20260810.log",
+        "bytes": 982,
+        "lines": 29,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/production-build-current-20260810.log",
+        "bytes": 23507,
+        "lines": 302,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/rust-command-tests-current-20260810.log",
+        "bytes": 4011,
+        "lines": 53,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/rust-fmt-check-current-20260810.log",
+        "bytes": 134,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/static-checks-current-20260810.log",
+        "bytes": 1930,
+        "lines": 58,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/evidence/tauri-release-build-current-20260810.log",
+        "bytes": 24280,
+        "lines": 315,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/export-suite-20260809.log",
+        "bytes": 5722,
+        "lines": 36,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-18-26-035Z.log",
+        "bytes": 826,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-23-47-367Z.log",
+        "bytes": 826,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-24-52-323Z.log",
+        "bytes": 1092,
+        "lines": 6,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-26-51-913Z.log",
+        "bytes": 826,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-27-07-901Z.log",
+        "bytes": 1652,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-28-59-003Z.log",
+        "bytes": 826,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-31-04-003Z.log",
+        "bytes": 822,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-35-15-377Z.log",
+        "bytes": 822,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-37-14-225Z.log",
+        "bytes": 1732,
+        "lines": 6,
+        "risk_hits": {}
+      },
+      {
+        "path": ".playwright-mcp/console-2026-03-01T09-47-17-198Z.log",
+        "bytes": 2339,
+        "lines": 16,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/05-12-full-app-functionality-audit-repair/vite-3005.stderr.log",
+        "bytes": 0,
+        "lines": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": ".trellis/tasks/05-12-full-app-functionality-audit-repair/vite-3005.stdout.log",
+        "bytes": 12993,
+        "lines": 83,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/manual-runtime/frontend-3005.stderr.log",
+        "bytes": 0,
+        "lines": 0,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/manual-runtime/frontend-3005.stdout.log",
+        "bytes": 13918,
+        "lines": 145,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-build-performance-chunk-top-pass-4.log",
+        "bytes": 2030,
+        "lines": 40,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-build-performance-pass-1.log",
+        "bytes": 25012,
+        "lines": 295,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-build-performance-pass-2.log",
+        "bytes": 25584,
+        "lines": 297,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-build-performance-pass-3.log",
+        "bytes": 23242,
+        "lines": 288,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-build-performance-pass-4.log",
+        "bytes": 22149,
+        "lines": 285,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-platform-export-build-pass-rerun.log",
+        "bytes": 22149,
+        "lines": 285,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-platform-export-build-pass.log",
+        "bytes": 22149,
+        "lines": 285,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/0504-second-manual-pass-build.log",
+        "bytes": 22149,
+        "lines": 285,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/gitnexus-compat-proxy-8201.log",
+        "bytes": 74,
+        "lines": 1,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/gitnexus-http-8201.log",
+        "bytes": 86,
+        "lines": 2,
+        "risk_hits": {}
+      },
+      {
+        "path": "0503/ui-ux-manual-test/gitnexus-http-8202.log",
+        "bytes": 12834,
+        "lines": 101,
+        "risk_hits": {}
+      }
+    ],
+    "sqlite": [
+      {
+        "path": "mitm_mcp_traffic.db",
+        "bytes": 24576,
+        "tables": [
+          {
+            "name": "flows",
+            "columns": [
+              "id",
+              "url",
+              "method",
+              "status_code",
+              "request_headers",
+              "request_body",
+              "response_headers",
+              "response_body",
+              "timestamp",
+              "size"
+            ],
+            "rows": 0,
+            "risk_hits": {}
+          }
+        ],
+        "risk_hits": {}
+      }
+    ]
+  },
+  "total_risk_hits": {},
+  "secrets_in_report": false
+}

@@ -1,0 +1,61 @@
+
+Execution of 1 workers started at 2026-07-26T21:46:19.199Z
+
+[0-0] [InkForge E2E] tauri-driver PID 60364 owns port 4444
+[0-0] RUNNING in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico.html
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+[0-0] Asset `favicon.ico` not found; fallback to index.html
+[0-0] [InkForge E2E] isolated WebView2 data verified in scoped_dir45432_1615592553
+[0-0] [InkForge E2E] selected main WebView from 2 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] stage export click probe {"disabled":false,"found":true,"offsetParent":"main-content","opacity":"1","pointerEvents":"auto","rect":{"bottom":888,"height":36,"left":1217.5625,"right":1359.6666717529297,"top":852,"width":142.1041717529297},"topClass":"","topTag":"SPAN","topText":"段落"}
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).uses the persisted Settings default export platform as the Workstation and ExportModal initial platform"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:406:3)
+    at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1049:7)
+    at async Context.executeAsync (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1108:20)
+[0-0] [InkForge E2E] isolated OS credential removed
+[0-0] FAILED in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[webview2 150.0.4078.99 windows #0-0] Running: webview2 (v150.0.4078.99) on windows
+[webview2 150.0.4078.99 windows #0-0] Session ID: 7cfe326d9f8f443d1134f4fc8ccc3e4f
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] » tests\e2e\specs\svg-render.spec.cjs
+[webview2 150.0.4078.99 windows #0-0] InkForge — SVG flagship typesetting (PR7, multi-round, real binary)
+[webview2 150.0.4078.99 windows #0-0]    ✓ renders the selected flagship SVG modules in the real Workstation platform preview
+[webview2 150.0.4078.99 windows #0-0]    ✖ uses the persisted Settings default export platform as the Workstation and ExportModal initial platform
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 1 passing (17.4s)
+[webview2 150.0.4078.99 windows #0-0] 1 failing
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 1) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) uses the persisted Settings default export platform as the Workstation and ExportModal initial platform
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:406:3)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1049:7)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.executeAsync (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1108:20)
+
+
+Spec Files:	 0 passed, 1 failed, 1 total (100% completed) in 00:00:22  
+

@@ -1,0 +1,11 @@
+﻿InkForge native Tauri window capture
+pid=51656
+hwnd=6426424
+title=InkForge
+responding=True
+visible=True
+minimized=False
+dpi=144
+rect=76,0,2176,1368
+pixels=2100x1368
+capture=.trellis\tasks\07-22-workbench-rendering-software-ux\native-typewriter-hydration-reopen-current-20260723.png

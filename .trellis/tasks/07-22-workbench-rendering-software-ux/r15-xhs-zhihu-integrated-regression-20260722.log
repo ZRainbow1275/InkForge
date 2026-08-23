@@ -1,0 +1,14 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ src/services/export/platform-export-rendering.test.ts (377 tests) 2955ms
+     ✓ routes WeChat markdown Mermaid through readable placeholder instead of code block output  1555ms
+ ✓ src/services/export/persona-distinction.test.ts (5 tests) 175ms
+ ✓ src/services/export/xhs.test.ts (12 tests) 67ms
+ ✓ src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts (5 tests) 10ms
+
+ Test Files  4 passed (4)
+      Tests  399 passed (399)
+   Start at  17:09:12
+   Duration  7.63s (transform 1.45s, setup 0ms, import 2.68s, tests 3.21s, environment 881ms)
+

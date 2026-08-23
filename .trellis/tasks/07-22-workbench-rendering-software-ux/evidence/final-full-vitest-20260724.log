@@ -1,0 +1,453 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ scripts/style-proof-application-acceptance.test.ts (3 tests) 19365ms
+     ✓ aggregates the current local application acceptance gates without claiming release success  8258ms
+     ✓ exposes a package-level current-round acceptance entrypoint  10321ms
+     ✓ prints help and rejects unknown options before running acceptance checks  782ms
+ ✓ scripts/style-proof-external-handoff.test.ts (16 tests) 14775ms
+     ✓ prints markdown handoff rows and blocks completion while external gates remain open  756ms
+     ✓ prints a human WeChat checklist for manual proof collection without creating proof  1104ms
+     ✓ emits the raw handoff packet JSON without claiming external proof completion  551ms
+     ✓ prints help with a successful exit code  371ms
+     ✓ rejects invalid output modes before reading or claiming proof success  1609ms
+     ✓ rejects unknown arguments before reading or claiming proof success  427ms
+     ✓ filters JSON handoff rows by platform, gate kind, and next-row priority without claiming completion  503ms
+     ✓ prints a filtered markdown handoff view for operator collection focus  515ms
+     ✓ filters freshness-only stale rows after the PC proof refresh without treating absence as completion  467ms
+     ✓ prints a redacted operator worksheet template for the next credentialed proof row without creating proof  566ms
+     ✓ feeds template manifest draft skeletons into manifest-intake without schema errors or proof claims  1188ms
+     ✓ defers Zhihu public-host worksheet rows out of this release handoff scope  775ms
+     ✓ prints a deduplicated manifest draft pack for the next external rows without creating proof  691ms
+     ✓ can mark handoff generation as CLI-success while preserving cannot-claim payloads  2344ms
+     ✓ feeds manifest-drafts output directly into manifest-intake as an incomplete draft pack  839ms
+     ✓ rejects invalid filter values before reading or claiming proof success  2063ms
+ ✓ scripts/style-proof-release-preflight.test.ts (7 tests) 12146ms
+     ✓ emits compact JSON and blocks release claims while external gates remain open  1670ms
+     ✓ emits an application-scope JSON gate for the narrowed local round target  2631ms
+     ✓ prints copy-safe next-row commands in text output without claiming release success  1816ms
+     ✓ prints application-scope text without claiming phone or account proof  2930ms
+     ✓ prints help with a successful exit code  1821ms
+     ✓ rejects unknown arguments before reading or claiming release success  1274ms
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > sanitizes export-only custom CSS before the WeChat inline pass
+[InkForge] [WARN] 2026-07-23T18:09:16.384Z | CSS 安全: 移除危险模式 [JavaScript URL] | {"description":"JavaScript 协议 URL"}
+[InkForge] [WARN] 2026-07-23T18:09:16.386Z | CSS 安全: 移除危险模式 [Style Tag Injection] | {"description":"</style> 标签注入尝试"}
+[InkForge] [WARN] 2026-07-23T18:09:16.386Z | CSS 安全: 移除危险模式 [Script Tag Injection] | {"description":"<script> 标签注入尝试"}
+
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > degrades WeChat LaTeX output to self-contained readable formula text
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+ ✓ src/services/export/platform-export-rendering.test.ts (377 tests) 6457ms
+     ✓ inlines Settings export-only custom CSS into WeChat HTML without runtime style tags  522ms
+     ✓ routes WeChat markdown Mermaid through readable placeholder instead of code block output  2638ms
+ ✓ scripts/style-proof-wechat-style-samples.test.ts (2 tests) 5852ms
+     ✓ renders selectable WeChat style choices through the real WeChat export pipeline  2970ms
+     ✓ prints help and rejects unknown options before rendering samples  2879ms
+ ✓ src/services/export/shared-typography.test.ts (4 tests) 3391ms
+     ✓ keeps every canonical typography control effective in every WeChat preset  3182ms
+ ✓ scripts/style-proof-manifest-merge.test.ts (12 tests) 4634ms
+     ✓ prints a sanitized text merge summary for clean redacted packs  415ms
+     ✓ emits sanitized JSON without leaking raw artifact references  384ms
+     ✓ emits runbook-level next proof fields after merging empty external draft packs  389ms
+     ✓ writes a clean merged pack only when requested and does not print the output path  382ms
+     ✓ blocks overwrite without --force and keeps the existing output intact  386ms
+     ✓ blocks sensitive artifact references before writing a merged pack  389ms
+     ✓ blocks external handoff template artifacts before writing a merged pack  392ms
+     ✓ rejects malformed JSON as a merge-blocked sanitized report  397ms
+     ✓ rejects conflicting output modes and unknown arguments  611ms
+     ✓ returns a sanitized file-read error for unreadable inputs  306ms
+ ✓ scripts/style-proof-manifest-intake.test.ts (11 tests) 3849ms
+     ✓ prints sanitized text intake results without leaking raw artifact references  350ms
+     ✓ emits sanitized JSON intake results for operator-supplied manifest packs  340ms
+     ✓ emits runbook-level next proof fields without treating an empty draft as evidence  441ms
+     ✓ rejects external handoff artifact draft templates pasted as proof artifacts  385ms
+     ✓ accepts UTF-8 BOM-prefixed JSON files produced by Windows editors  429ms
+     ✓ returns schema-invalid output and exit code 2 for malformed JSON files  402ms
+     ✓ prints help with a successful exit code  318ms
+     ✓ rejects unknown arguments before reading or claiming proof success  301ms
+stdout | src/composables/usePreviewRenderer.test.ts > usePreviewRenderer — platform routing (P3-T11) > xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output
+[XHS preview similarity] = 1.0000
+
+ ✓ src/composables/usePreviewRenderer.test.ts (5 tests) 1850ms
+     ✓ xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output  371ms
+     ✓ zhihu: preview HTML contains equation img + table elements  363ms
+     ✓ wechat: preview HTML uses mock renderer with wechat-article container  368ms
+     ✓ wechat: canonical typography changes every supported preview rule  371ms
+     ✓ empty body: renders sample content and flags previewMeta.isSample = true  368ms
+stderr | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — WeChat > produces compliant HTML through full markdown → wechat pipeline
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — Xiaohongshu > preview: renderXhsMockHtml strips to text closely matching native artifact
+[XHS preview similarity] = 0.9979
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — Xiaohongshu > detectQuality reports only known boundary errors for xiaohongshu
+[xhs detectQuality errors] = ["xhs-markdown-control-leak"]
+
+stderr | src/services/export/__tests__/pipeline-cross-platform.test.ts > hard-limit boundaries > wechat: oversize HTML beyond ReDoS threshold returns without throwing
+[InkForge] [WARN] 2026-07-23T18:09:51.254Z | [安全警告] normalizeImageAttributes: 输入长度 510641 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-07-23T18:09:51.255Z | [安全警告] fixNestedLists: 输入长度 510641 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-07-23T18:09:51.362Z | [安全警告] normalizeImageAttributes: 输入长度 510641 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-07-23T18:09:51.362Z | [安全警告] fixNestedLists: 输入长度 510641 超过限制 500000，跳过处理
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-route fidelity > xhs: fidelity HTML stripped text ≥0.95 similarity vs native text
+[cross-route XHS similarity] = 0.9979
+
+ ✓ src/services/export/__tests__/pipeline-cross-platform.test.ts (13 tests) 2888ms
+     ✓ produces compliant HTML through full markdown → wechat pipeline  2480ms
+ ✓ scripts/style-proof-application-gallery.test.ts (2 tests) 1144ms
+     ✓ renders a local visual gallery for every SVG module/persona pair  387ms
+     ✓ prints help and rejects unknown options before writing gallery output  754ms
+stderr | src/stores/settings.ai.test.ts > AI settings and writing-task prompts > keeps a legacy key session-only when the native credential store is unavailable
+[InkForge] [WARN] 2026-07-23T18:09:55.690Z | AI API Key 未能迁移到系统凭据库 | {"provider":"deepseek","reason":"系统凭据库仅在 InkForge 桌面应用中可用"}
+
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+ ✓ src/stores/settings.ai.test.ts (6 tests) 1191ms
+     ✓ forwards constraints through real failed Ollama writing, chat, and regeneration requests  1130ms
+ ✓ src/services/export/__tests__/frozen-prototype.test.ts (16 tests) 1283ms
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > reports failure when manual sync is requested without a provider
+[InkForge] [ERROR] 2026-07-23T18:10:00.236Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > keeps each engine bound to its construction profile
+[InkForge] [ERROR] 2026-07-23T18:10:00.239Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > preserves pending changes and reports failure when no provider is configured
+[InkForge] [DEBUG] 2026-07-23T18:10:00.243Z | [ChangeTracker] 记录变更 | {"articleId":"doc-1","operation":"update","checksum":"359b3657...","deduplicated":false}
+
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > preserves pending changes and reports failure when no provider is configured
+[InkForge] [ERROR] 2026-07-23T18:10:00.244Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > detaches and restores network listeners with the engine lifecycle
+[InkForge] [INFO] 2026-07-23T18:10:00.247Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.247Z | [SyncEngine] 引擎已销毁
+
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > detaches and restores network listeners with the engine lifecycle
+[InkForge] [ERROR] 2026-07-23T18:10:00.247Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > keeps pending queues and outbox attribution isolated when switching profiles
+[InkForge] [DEBUG] 2026-07-23T18:10:00.359Z | [ChangeTracker] 记录变更 | {"articleId":"doc-a","operation":"update","checksum":"f245bf69...","deduplicated":false}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > keeps pending queues and outbox attribution isolated when switching profiles
+[InkForge] [DEBUG] 2026-07-23T18:10:00.361Z | [ChangeTracker] 记录变更 | {"articleId":"doc-b","operation":"update","checksum":"6ce5fb87...","deduplicated":false}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > keeps pending queues and outbox attribution isolated when switching profiles
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:00.362Z | [SyncStore] 资源已清理
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [DEBUG] 2026-07-23T18:10:00.365Z | [ChangeTracker] 记录变更 | {"articleId":"doc-a","operation":"update","checksum":"f245bf69...","deduplicated":false}
+
+stderr | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [ERROR] 2026-07-23T18:10:00.367Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stderr | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [ERROR] 2026-07-23T18:10:00.367Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:00.368Z | [SyncStore] 资源已清理
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [INFO] 2026-07-23T18:10:00.369Z | [SyncEngine] 自动同步已启动 | {"intervalMs":100}
+
+stderr | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [ERROR] 2026-07-23T18:10:00.769Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [INFO] 2026-07-23T18:10:00.769Z | [SyncEngine] 自动同步已停止
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:01.069Z | [SyncStore] 资源已清理
+
+ ✓ src/services/sync/sync-provider.test.ts (12 tests) 779ms
+     ✓ reports failure when manual sync is requested without a provider  635ms
+ ✓ src/services/ai/pi.test.ts (6 tests) 532ms
+     ✓ fails closed on a real unreachable endpoint without manufacturing health success  519ms
+ ✓ src/services/export/publish-copy.test.ts (5 tests) 572ms
+     ✓ preserves every registered WeChat SVG module through the rich-copy fallback sanitizer  337ms
+ ✓ src/services/export/wechat-svg-options.test.ts (3 tests) 573ms
+     ✓ keeps the existing default preset output unchanged unless SVG modules are explicitly enabled  343ms
+ ✓ __fidelity__/render-real-article.fidelity.test.ts (1 test) 378ms
+     ✓ renders the full article through markdownToWechatWithStats and writes output  376ms
+ ✓ src/services/export/local-delivery.test.ts (4 tests) 314ms
+     ✓ adds portable frontmatter only for a blog target and emits semantic HTML  306ms
+ ✓ __fidelity__/render-real-article-v2.fidelity.test.ts (1 test) 406ms
+     ✓ renders preprocessed article through elegant preset and writes v2 output  404ms
+ ✓ src/components/chrome/ViewTransition.test.ts (1 test) 331ms
+     ✓ keeps the settings shell mounted while only the tab query changes  329ms
+ ✓ src/views/__tests__/PublishView.wechat-presets.test.ts (15 tests) 411ms
+     ✓ renders every publish-center WeChat preset through the real Markdown export path  356ms
+ ✓ __fidelity__/render-real-article-v5.fidelity.test.ts (1 test) 385ms
+     ✓ renders article through v5 structural preset  383ms
+ ✓ src/services/export/__tests__/emit-flagship-artifacts.test.ts (1 test) 413ms
+     ✓ renders flagship presets through the real pipeline and (optionally) writes paste-ready HTML  411ms
+ ✓ src/services/export/persona-distinction.test.ts (8 tests) 306ms
+ ✓ __fidelity__/render-real-article-v4.fidelity.test.ts (1 test) 351ms
+     ✓ renders preprocessed article through InkForge Signature and writes v4 output  349ms
+ ✓ __fidelity__/render-real-article-v3.fidelity.test.ts (1 test) 345ms
+     ✓ renders preprocessed article through v3 custom preset and writes v3 output  343ms
+ ✓ src/services/export/wechat-style-export-samples.test.ts (1 test) 204ms
+ ✓ src/services/export/delivery-adornments.test.ts (7 tests) 168ms
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:10:23.636Z | [SyncEngine] 自动同步已停止
+
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:10:23.639Z | [SyncEngine] 自动同步已停止
+
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:10:23.639Z | [SyncEngine] 自动同步已停止
+
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:10:23.642Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:10:23.643Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:10:23.643Z | [SyncStore] 资源已清理
+
+ ✓ src/services/sync/configuration.test.ts (5 tests) 133ms
+ ✓ src/extensions/TyporaMode.citation.test.ts (3 tests) 215ms
+ ✓ src/composables/useSyncScroll.test.ts (1 test) 113ms
+ ✓ src/services/export/xhs.test.ts (12 tests) 104ms
+ ✓ src/services/layout-persistence/layout-persistence.test.ts (12 tests) 33ms
+ ✓ src/services/export/__tests__/flagship-pipeline-smoke.test.ts (33 tests) 87ms
+ ✓ src/stores/settings.data.test.ts (3 tests) 77ms
+stderr | src/stores/settings.editor.test.ts > settings editor preferences > falls back to the Notion behavior for an invalid persisted value
+[InkForge] [WARN] 2026-07-23T18:10:30.721Z | 设置数据校验失败，使用默认值 | {"zodErrors":["Invalid option: expected one of \"notion\"|\"typora\""]}
+
+ ✓ src/stores/settings.editor.test.ts (8 tests) 74ms
+stderr | src/stores/settings.delivery-adornments.test.ts > settings delivery adornments > fails closed on active-content component URLs instead of persisting an executable payload
+[InkForge] [WARN] 2026-07-23T18:10:31.812Z | 设置数据校验失败，使用默认值 | {"zodErrors":["仅允许无凭据的 HTTP/HTTPS URL"]}
+[InkForge] [WARN] 2026-07-23T18:10:31.816Z | 设置数据校验失败，使用默认值 | {"zodErrors":["仅允许无凭据的 HTTP/HTTPS URL"]}
+
+ ✓ src/stores/settings.delivery-adornments.test.ts (3 tests) 40ms
+ ✓ src/stores/settings.export-history.test.ts (3 tests) 57ms
+ ✓ src/services/export/renderers/ast.test.ts (19 tests) 38ms
+ ✓ src/services/export/zhihu.test.ts (14 tests) 43ms
+ ✓ src/services/export/svg-modules/__tests__/html-blocks.test.ts (69 tests) 34ms
+ ✓ src/services/asset-pipeline/asset-pipeline.test.ts (11 tests) 60ms
+ ✓ src/extensions/BlockBoundaryInsertion.test.ts (4 tests) 53ms
+ ✓ src/services/export/themes-migration.test.ts (255 tests) 34ms
+ ✓ src/services/export/application-svg-gallery.test.ts (2 tests) 36ms
+ ✓ src/services/export/svg-modules/__tests__/registry.test.ts (5 tests) 34ms
+ ✓ src/stores/devPanel.test.ts (2 tests) 17ms
+ ✓ src/services/export/wechat-publish.test.ts (18 tests) 28ms
+ ✓ src/services/dev-tools/dev-tools.test.ts (7 tests) 30ms
+ ✓ src/extensions/__tests__/TypewriterMode.decorations.test.ts (14 tests) 25ms
+ ✓ src/services/export/wechat-svg-application.test.ts (3 tests) 29ms
+ ✓ src/services/export/__tests__/flagship-svg.test.ts (21 tests) 21ms
+ ✓ src/services/export/preview-fidelity/zhihu-mock.test.ts (14 tests) 23ms
+ ✓ src/services/export/svg-modules/__tests__/interactive.test.ts (58 tests) 24ms
+ ✓ src/services/profile/profile.test.ts (9 tests) 45ms
+ ✓ src/services/custom-css/custom-css.test.ts (16 tests) 43ms
+ ✓ src/services/tag-system/tag-system.test.ts (13 tests) 40ms
+ ✓ src/services/version-bundle/version-bundle.test.ts (6 tests) 14ms
+ ✓ src/services/extensions/extensions.test.ts (6 tests) 17ms
+ ✓ src/services/export/svg-modules/__tests__/dividers.test.ts (64 tests) 19ms
+ ✓ src/stores/writingAssist.test.ts (10 tests) 17ms
+ ✓ src/services/snippet/snippet.test.ts (11 tests) 34ms
+ ✓ src/services/wiki-link/wiki-link.test.ts (10 tests) 26ms
+ ✓ src/services/export/preview-fidelity/svg-modules-fidelity.test.ts (2 tests) 17ms
+ ✓ src/services/export/image-pipeline/image-pipeline.test.ts (22 tests) 15ms
+ ✓ src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts (8 tests) 12ms
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 1) ENABLE_ENCRYPTION=false → 返回 false 且不触碰 keychain
+[InkForge] [DEBUG] 2026-07-23T18:10:49.635Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.634Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 1) ENABLE_ENCRYPTION=false → 返回 false 且不触碰 keychain
+[InkForge] [DEBUG] 2026-07-23T18:10:49.638Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.638Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 2) 已缓存 → 返回 true（不再访问 keychain）
+[InkForge] [DEBUG] 2026-07-23T18:10:49.639Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.639Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 2) 已缓存 → 返回 true（不再访问 keychain）
+[InkForge] [DEBUG] 2026-07-23T18:10:49.645Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.645Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 3) keychain 有 key → importKey 成功并 setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.645Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.645Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 3) keychain 有 key → importKey 成功并 setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.647Z | 密钥操作审计 | {"operation":"load","timestamp":"2026-07-23T18:10:49.647Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 3) keychain 有 key → importKey 成功并 setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.649Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.649Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4) keychain 无 key（首次）→ generate + save 被调用、setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.650Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.650Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4) keychain 无 key（首次）→ generate + save 被调用、setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.650Z | 密钥操作审计 | {"operation":"generate","timestamp":"2026-07-23T18:10:49.650Z"}
+[InkForge] [INFO] 2026-07-23T18:10:49.650Z | [SECURITY AUDIT] 生成了可导出的主密钥（用于初始包装） | {"timestamp":"2026-07-23T18:10:49.650Z","action":"generate_extractable"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4) keychain 无 key（首次）→ generate + save 被调用、setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.651Z | 密钥操作审计 | {"operation":"generate","timestamp":"2026-07-23T18:10:49.651Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4) keychain 无 key（首次）→ generate + save 被调用、setCachedKey、返回 true
+[InkForge] [DEBUG] 2026-07-23T18:10:49.652Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.652Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4b) keychain 无 key 且 save 返回 false → 拒绝缓存临时密钥
+[InkForge] [DEBUG] 2026-07-23T18:10:49.652Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.652Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4b) keychain 无 key 且 save 返回 false → 拒绝缓存临时密钥
+[InkForge] [DEBUG] 2026-07-23T18:10:49.652Z | 密钥操作审计 | {"operation":"generate","timestamp":"2026-07-23T18:10:49.652Z"}
+[InkForge] [INFO] 2026-07-23T18:10:49.652Z | [SECURITY AUDIT] 生成了可导出的主密钥（用于初始包装） | {"timestamp":"2026-07-23T18:10:49.652Z","action":"generate_extractable"}
+
+stderr | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4b) keychain 无 key 且 save 返回 false → 拒绝缓存临时密钥
+[InkForge] [ERROR] 2026-07-23T18:10:49.653Z | 主密钥自动解锁失败 | {"errorName":"Error","errorMessage":"主密钥无法持久化到系统密钥链，已拒绝使用临时替代密钥。"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4b) keychain 无 key 且 save 返回 false → 拒绝缓存临时密钥
+[InkForge] [DEBUG] 2026-07-23T18:10:49.653Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.653Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4c) cache expiry reloads only an existing key and never generates a replacement
+[InkForge] [DEBUG] 2026-07-23T18:10:49.653Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.653Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4c) cache expiry reloads only an existing key and never generates a replacement
+[InkForge] [DEBUG] 2026-07-23T18:10:49.654Z | 密钥操作审计 | {"operation":"load","timestamp":"2026-07-23T18:10:49.654Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4c) cache expiry reloads only an existing key and never generates a replacement
+[InkForge] [DEBUG] 2026-07-23T18:10:49.654Z | 密钥操作审计 | {"operation":"access","timestamp":"2026-07-23T18:10:49.654Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4c) cache expiry reloads only an existing key and never generates a replacement
+[InkForge] [DEBUG] 2026-07-23T18:10:49.654Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.654Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4d) cache expiry fails closed when the persisted key is missing
+[InkForge] [DEBUG] 2026-07-23T18:10:49.655Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.655Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 4d) cache expiry fails closed when the persisted key is missing
+[InkForge] [DEBUG] 2026-07-23T18:10:49.656Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.656Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 5) keychain 抛错 → 返回 false 不抛
+[InkForge] [DEBUG] 2026-07-23T18:10:49.657Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.657Z"}
+
+stderr | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 5) keychain 抛错 → 返回 false 不抛
+[InkForge] [ERROR] 2026-07-23T18:10:49.658Z | 主密钥自动解锁失败 | {"errorName":"Error","errorMessage":"keychain unavailable"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 5) keychain 抛错 → 返回 false 不抛
+[InkForge] [DEBUG] 2026-07-23T18:10:49.658Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.658Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 6) 非 Tauri 环境（web prod）→ 返回 false 不触碰 keychain
+[InkForge] [DEBUG] 2026-07-23T18:10:49.658Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.658Z"}
+
+stdout | src/utils/crypto/__tests__/ensure-unlock.test.ts > ensureMasterKeyUnlocked > 6) 非 Tauri 环境（web prod）→ 返回 false 不触碰 keychain
+[InkForge] [DEBUG] 2026-07-23T18:10:49.659Z | 密钥操作审计 | {"operation":"cache_clear","timestamp":"2026-07-23T18:10:49.659Z"}
+
+ ✓ src/utils/crypto/__tests__/ensure-unlock.test.ts (9 tests) 27ms
+ ✓ src/stores/theme.test.ts (5 tests) 53ms
+ ✓ src/services/markdown-ext/citation-render.test.ts (5 tests) 31ms
+ ✓ src/services/search/search-engine.test.ts (8 tests) 40ms
+ ✓ src/services/export/svg-modules/__tests__/quotes.test.ts (27 tests) 24ms
+ ✓ src/views/__tests__/WorkstationView.desktop-layout.test.ts (20 tests) 24ms
+ ✓ src/stores/workstationTabs.test.ts (8 tests) 25ms
+ ✓ src/services/citation/citation.test.ts (7 tests) 25ms
+ ✓ src/services/export/svg-modules/__tests__/covers.test.ts (24 tests) 20ms
+ ✓ src/services/activity-logger/activity-logger.test.ts (9 tests) 32ms
+ ✓ src/views/__tests__/WorkstationView.vignette.test.ts (6 tests) 15ms
+ ✓ src/services/comment-review/comment-review.test.ts (7 tests) 30ms
+ ✓ src/views/__tests__/HubView.cards.test.ts (18 tests) 16ms
+ ✓ src/services/command/fuzzy-search.test.ts (10 tests) 19ms
+ ✓ src/services/export/svg-modules/__tests__/primitives.test.ts (19 tests) 14ms
+ ✓ src/services/export/svg-modules/__tests__/wechat-safe.test.ts (18 tests) 16ms
+ ✓ src/services/updater/updater.test.ts (12 tests) 20ms
+ ✓ src/services/settings-migration/settings-migration.test.ts (6 tests) 30ms
+ ✓ src/services/export/svg-modules/__tests__/raster.test.ts (9 tests) 13ms
+ ✓ src/services/export/preset-decorations.test.ts (65 tests) 20ms
+ ✓ src/services/export/svg-modules/__tests__/theme.test.ts (15 tests) 16ms
+ ✓ src/services/export/svg-modules/__tests__/badges.test.ts (17 tests) 13ms
+ ✓ src/services/export/svg-modules/__tests__/headers.test.ts (23 tests) 15ms
+ ✓ src/services/export/platform-rules/wechat.test.ts (22 tests) 16ms
+stderr | src/services/audit/audit.test.ts > audit repository hardening > stores fallback evidence and reports null when IndexedDB append fails
+[InkForge] [ERROR] 2026-07-23T18:11:02.761Z | [AuditRepository] 审计日志写入 IndexedDB 失败 | {"errorName":"Error","errorMessage":"quota exceeded"}
+
+ ✓ src/services/audit/audit.test.ts (7 tests) 27ms
+ ✓ src/services/toc/toc.test.ts (6 tests) 31ms
+ ✓ src/services/export/platform-rules/xiaohongshu.test.ts (20 tests) 19ms
+ ✓ src/views/__tests__/SettingsView.software-shell.test.ts (10 tests) 17ms
+ ✓ src/services/permissions/permissions.test.ts (9 tests) 24ms
+ ✓ src/extensions/SmartPunctuation.test.ts (23 tests) 23ms
+ ✓ src/services/export/svg-modules/__tests__/inject.test.ts (17 tests) 11ms
+ ✓ src/services/performance/performance.test.ts (5 tests) 13ms
+ ✓ src/services/export/platform-rules/zhihu.test.ts (21 tests) 12ms
+ ✓ src/services/export/svg-modules/__tests__/endmarks.test.ts (17 tests) 11ms
+ ✓ src/extensions/EditorKeymap.test.ts (12 tests) 13ms
+ ✓ src/services/export/preset-fonts.test.ts (10 tests) 10ms
+ ✓ src/services/inspector-widgets/index.test.ts (6 tests) 11ms
+ ✓ src/services/export/citation-export.test.ts (2 tests) 7ms
+ ✓ src/components/export/ExportModal.svg-options.test.ts (7 tests) 9ms
+ ✓ src/services/export/preview-fidelity/xiaohongshu-mock.test.ts (11 tests) 11ms
+ ✓ src/services/trash/trash.test.ts (6 tests) 10ms
+ ✓ src/services/desktop/index.test.ts (9 tests) 13ms
+ ✓ src/services/visual-system/index.test.ts (3 tests) 9ms
+ ✓ src/services/credentials/keychain.test.ts (3 tests) 7ms
+ ✓ src/extensions/TableV2/__tests__/tableCommands.test.ts (6 tests) 18ms
+ ✓ src/extensions/ImageV2/__tests__/imageMarkdown.test.ts (11 tests) 10ms
+ ✓ src/components/file/FileManager.information-architecture.test.ts (4 tests) 10ms
+ ✓ src/extensions/BlockDragHandle/__tests__/moveBlock.test.ts (7 tests) 12ms
+ ✓ src/services/sync-scroll/sync-scroll.test.ts (8 tests) 9ms
+ ✓ src/extensions/TableV2/__tests__/tableMarkdown.test.ts (8 tests) 10ms
+ ✓ src/extensions/ImageV2/__tests__/imageAttrs.test.ts (5 tests) 7ms
+ ✓ src/extensions/BlockDragHandle/__tests__/blockDragPlugin.test.ts (3 tests) 9ms
+ ✓ src/views/__tests__/WorkstationView.focus-collision.test.ts (5 tests) 6ms
+ ✓ src/services/writing-assist/stats.test.ts (11 tests) 9ms
+ ✓ src/components/export/ExportModal.local-delivery.test.ts (3 tests) 7ms
+ ✓ src/views/__tests__/ThemesView.canonical-presets.test.ts (3 tests) 7ms
+ ✓ src/services/template/variable-engine.test.ts (4 tests) 15ms
+ ✓ src/extensions/BlockDragHandle/__tests__/decorations.test.ts (4 tests) 8ms
+ ✓ src/services/file-import/format-detection.test.ts (4 tests) 8ms
+ ✓ src/services/desktop/environment.test.ts (3 tests) 6ms
+ ✓ src/components/workstation/WorkstationTabBar.style.test.ts (1 test) 6ms
+
+ Test Files  128 passed (128)
+      Tests  1981 passed (1981)
+   Start at  02:08:22
+   Duration  178.78s (transform 11.68s, setup 0ms, import 37.99s, tests 88.05s, environment 20.82s)
+

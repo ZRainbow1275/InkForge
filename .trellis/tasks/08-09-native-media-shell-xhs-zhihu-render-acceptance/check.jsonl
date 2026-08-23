@@ -1,0 +1,12 @@
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend review entrypoint and exact verification requirements."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Review accessible native controls, pointer/keyboard behavior, focus restoration, icon policy, and no fake UI."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Review schemas, unsafe URLs/IDs, manifests, native command inputs, and fail-closed errors."}
+{"file":".trellis/spec/frontend/visual-variant-system.md","reason":"Review single-renderer correspondence and preservation of preset/component behavior."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Review Tauri command validation, official API error readback, cleanup, and secret isolation."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Review WeChat draft field-limit parity, service-side validation, add/get/delete cleanup, and current official API contract."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Review the complete editor-to-artifact-to-native-window-to-platform-editor flow."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Review reuse of existing converter, registry, delivery resolver, XHS slicer, image pipeline, desktop service, and proof audit without duplicate frameworks."}
+{"file":".trellis/spec/guides/cross-platform-thinking-guide.md","reason":"Review XHS plain-text/raster and Zhihu clean-Markdown/image boundaries without WeChat leakage."}
+{"file":".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/research/current-capability-map.md","reason":"Check implementation against current source anchors, tests, GitNexus impact, and no-second-framework decisions."}
+{"file":".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/research/market-platform-evidence-map.md","reason":"Check that existing market research is reused, native media is not forged, live editor proof is redacted, and publication stays false."}
+{"file":".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/research/implementation-contracts-context.md","reason":"Review compact authoritative state, native software, keyboard/focus/motion, WeChat media, XHS/Zhihu editor, evidence, and no-claim contracts."}

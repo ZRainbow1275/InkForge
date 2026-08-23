@@ -1,0 +1,25 @@
+{
+  "status": "pass",
+  "scope": "git-visible image files before snapshot commits",
+  "all_image_paths": 717,
+  "unique_sha256_images": 658,
+  "ocr_boxes": 36664,
+  "candidate_groups": 0,
+  "errors": 0,
+  "shards": [
+    {"id": 0, "unique_images": 165, "ocr_boxes": 9878, "status": "pass"},
+    {"id": 1, "unique_images": 165, "ocr_boxes": 8864, "status": "pass"},
+    {"id": 2, "unique_images": 164, "ocr_boxes": 8244, "status": "pass"},
+    {"id": 3, "unique_images": 164, "ocr_boxes": 9678, "status": "pass"}
+  ],
+  "manual_review_paths": [
+    ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-settings-ai-pi-20260724.png",
+    ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-settings-sync-webdav-draft-20260724.png",
+    ".trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-settings-advanced-20260724.png",
+    ".trellis/tasks/07-22-workbench-rendering-software-ux/native-publish-delivery-config-visible-20260723.png",
+    "0503/ui-ux-manual-test/0504-manual-account-profile-save-localized-2026-05-04T04-18-19-582Z.png",
+    "0503/ui-ux-manual-test/0503-settings-console-clean-after-force-2026-05-03T16-50-19-996Z.png"
+  ],
+  "manual_review_result": "no visible secret; example.local and dav.example.com values are explicit fixtures/placeholders",
+  "secrets_in_report": false
+}

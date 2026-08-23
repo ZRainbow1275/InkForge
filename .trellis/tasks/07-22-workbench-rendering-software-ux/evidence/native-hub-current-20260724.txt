@@ -1,0 +1,199 @@
+﻿pid=51656 hwnd=6426424 count=281 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 首页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,25,1704,1193","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 首页 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,26,1704,1194","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 首页","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"0,26,1704,1194","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"66,43,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,29,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1554,29,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1629,29,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Group","Name":"Hub 版面导航","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1650,539,27,171","Patterns":""}
+{"Index":8,"Type":"Button","Name":"创作流","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1650,539,27,27","Patterns":"Invoke"}
+{"Index":9,"Type":"Button","Name":"模板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1650,587,27,27","Patterns":"Invoke"}
+{"Index":10,"Type":"Button","Name":"洞察","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1650,635,27,27","Patterns":"Invoke"}
+{"Index":11,"Type":"Button","Name":"文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1650,683,27,27","Patterns":"Invoke"}
+{"Index":12,"Type":"Image","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"48,90,54,55","Patterns":""}
+{"Index":13,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"120,83,185,40","Patterns":""}
+{"Index":14,"Type":"Text","Name":"2026年7月24日星期五","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"120,128,185,22","Patterns":""}
+{"Index":15,"Type":"ComboBox","Name":"搜索文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"798,91,264,53","Patterns":"Value,ExpandCollapse"}
+{"Index":16,"Type":"Text","Name":"Ctrl/Cmd+F","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1083,108,88,19","Patterns":""}
+{"Index":17,"Type":"Text","Name":"3 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1263,107,71,22","Patterns":""}
+{"Index":18,"Type":"Button","Name":"打开帮助中心","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1380,87,60,61","Patterns":"Invoke"}
+{"Index":19,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1395,102,30,31","Patterns":""}
+{"Index":20,"Type":"Button","Name":"打开设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1464,87,60,61","Patterns":"Invoke"}
+{"Index":21,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,102,30,31","Patterns":""}
+{"Index":22,"Type":"Button","Name":"本地账户：本地账户","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1548,87,60,61","Patterns":"ExpandCollapse"}
+{"Index":23,"Type":"Group","Name":"创作流","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,47,1704,2218","Patterns":""}
+{"Index":24,"Type":"Text","Name":"创作流","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"97,222,156,87","Patterns":""}
+{"Index":25,"Type":"Text","Name":"本周产出 3 篇","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"97,322,124,25","Patterns":""}
+{"Index":26,"Type":"Button","Name":"继续创作：IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"97,385,1426,86","Patterns":"Invoke"}
+{"Index":27,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"119,415,24,25","Patterns":""}
+{"Index":28,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1480,417,21,22","Patterns":""}
+{"Index":29,"Type":"Button","Name":"周一，0 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"97,621,186,9","Patterns":"Toggle"}
+{"Index":30,"Type":"Button","Name":"周二，0 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"303,621,187,9","Patterns":"Toggle"}
+{"Index":31,"Type":"Button","Name":"周三，3 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"510,530,187,100","Patterns":"Toggle"}
+{"Index":32,"Type":"Button","Name":"周四，0 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"717,621,186,9","Patterns":"Toggle"}
+{"Index":33,"Type":"Button","Name":"周五，0 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"923,621,187,9","Patterns":"Toggle"}
+{"Index":34,"Type":"Button","Name":"周六，0 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1130,621,187,9","Patterns":"Toggle"}
+{"Index":35,"Type":"Button","Name":"周日，0 篇文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1337,621,186,9","Patterns":"Toggle"}
+{"Index":36,"Type":"Text","Name":"周一","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"182,648,34,20","Patterns":""}
+{"Index":37,"Type":"Text","Name":"周二","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"386,648,34,20","Patterns":""}
+{"Index":38,"Type":"Text","Name":"周三","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"589,648,34,20","Patterns":""}
+{"Index":39,"Type":"Text","Name":"周四","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"793,648,34,20","Patterns":""}
+{"Index":40,"Type":"Text","Name":"周五","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"997,648,34,20","Patterns":""}
+{"Index":41,"Type":"Text","Name":"周六","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1200,648,34,20","Patterns":""}
+{"Index":42,"Type":"Text","Name":"周日","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1404,648,34,20","Patterns":""}
+{"Index":43,"Type":"Text","Name":"累计","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"85,779,38,20","Patterns":""}
+{"Index":44,"Type":"Text","Name":"3","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"85,816,78,199","Patterns":""}
+{"Index":45,"Type":"Text","Name":"篇","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"177,949,28,34","Patterns":""}
+{"Index":46,"Type":"Text","Name":"累计创作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"85,1005,75,22","Patterns":""}
+{"Index":47,"Type":"Text","Name":"字数","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"85,1149,32,20","Patterns":""}
+{"Index":48,"Type":"Text","Name":"1.0K","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"363,1144,48,26","Patterns":""}
+{"Index":49,"Type":"Text","Name":"草稿","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"435,1149,32,20","Patterns":""}
+{"Index":50,"Type":"Text","Name":"3","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"747,1144,14,26","Patterns":""}
+{"Index":51,"Type":"Text","Name":"完成率","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"85,1195,48,20","Patterns":""}
+{"Index":52,"Type":"Text","Name":"0%","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"376,1190,35,26","Patterns":""}
+{"Index":53,"Type":"Text","Name":"连续","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"435,1195,32,20","Patterns":""}
+{"Index":54,"Type":"Text","Name":"0 天","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"720,1190,41,26","Patterns":""}
+{"Index":55,"Type":"Text","Name":"开始","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"853,770,38,20","Patterns":""}
+{"Index":56,"Type":"Text","Name":"新建作品","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"853,798,688,39","Patterns":""}
+{"Index":57,"Type":"Text","Name":"从空白页面、模板或本地文件起稿","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"853,857,270,22","Patterns":""}
+{"Index":58,"Type":"Group","Name":"创作工具操作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"853,1168,688,58","Patterns":""}
+{"Index":59,"Type":"Button","Name":"模板创建","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"853,1168,338,58","Patterns":"Invoke"}
+{"Index":60,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"968,1186,21,22","Patterns":""}
+{"Index":61,"Type":"Button","Name":"导入文档","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1203,1168,338,58","Patterns":"Invoke"}
+{"Index":62,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1318,1186,21,22","Patterns":""}
+{"Index":63,"Type":"Text","Name":"我的分类","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1299,84,32","Patterns":""}
+{"Index":64,"Type":"Button","Name":"添加","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1424,1301,63,28","Patterns":"Invoke"}
+{"Index":65,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1424,1304,21,22","Patterns":""}
+{"Index":66,"Type":"Button","Name":"管理","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1505,1301,36,28","Patterns":"Invoke"}
+{"Index":67,"Type":"Button","Name":"按分类 IF0722-CAT-B 筛选，1 篇文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1351,1462,199","Patterns":"Toggle"}
+{"Index":68,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"104,1376,36,37","Patterns":""}
+{"Index":69,"Type":"Text","Name":"IF0722-CAT-B","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"104,1474,146,26","Patterns":""}
+{"Index":70,"Type":"Text","Name":"1 篇文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"104,1501,61,21","Patterns":""}
+{"Index":71,"Type":"Button","Name":"打开最近文章：IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1623,673,224","Patterns":"Invoke"}
+{"Index":72,"Type":"Text","Name":"最近编辑","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1623,673,41","Patterns":""}
+{"Index":73,"Type":"Text","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1684,673,31","Patterns":""}
+{"Index":74,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"713,1807,24,25","Patterns":""}
+{"Index":75,"Type":"Text","Name":"RECENT","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1885,71,21","Patterns":""}
+{"Index":76,"Type":"Button","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1919,673,49","Patterns":"Invoke"}
+{"Index":77,"Type":"Button","Name":"标题：简洁有力的新闻标题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,1970,673,48","Patterns":"Invoke"}
+{"Index":78,"Type":"Text","Name":"未完成","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,2056,52,21","Patterns":""}
+{"Index":79,"Type":"Text","Name":"2 / 3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"698,2062,36,21","Patterns":""}
+{"Index":80,"Type":"Button","Name":"未命名文章 写作中 · 1 天前","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,2091,673,77","Patterns":"Invoke"}
+{"Index":81,"Type":"Button","Name":"标题：简洁有力的新闻标题 草稿 · 1 天前","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"79,2170,673,77","Patterns":"Invoke"}
+{"Index":82,"Type":"Text","Name":"\"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"847,2059,59,259","Patterns":""}
+{"Index":83,"Type":"Text","Name":"每日灵感","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,1630,81,27","Patterns":""}
+{"Index":84,"Type":"Group","Name":"每日灵感来源","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1356,1623,134,45","Patterns":""}
+{"Index":85,"Type":"Button","Name":"本地","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1360,1627,63,37","Patterns":"Toggle"}
+{"Index":86,"Type":"Button","Name":"AI","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1423,1627,63,37","Patterns":"Toggle"}
+{"Index":87,"Type":"Button","Name":"在设置中编辑每日灵感","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1499,1624,42,43","Patterns":"Invoke"}
+{"Index":88,"Type":"Text","Name":"\"半亩方塘一鉴开，天光云影共徘徊。\"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"856,1870,491,42","Patterns":""}
+{"Index":89,"Type":"Text","Name":"-- 朱熹","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1475,1953,66,29","Patterns":""}
+{"Index":90,"Type":"Text","Name":"本地配置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1479,2181,62,20","Patterns":""}
+{"Index":91,"Type":"Group","Name":"精选模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"120,2336,678,1270","Patterns":""}
+{"Index":92,"Type":"Text","Name":"模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,2366,35,21","Patterns":""}
+{"Index":93,"Type":"Text","Name":"精选模板","AutomationId":"template-market-title","Enabled":true,"Offscreen":true,"Rect":"154,2395,120,45","Patterns":""}
+{"Index":94,"Type":"Text","Name":"8 / 8","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"707,2410,39,21","Patterns":""}
+{"Index":95,"Type":"Tab","Name":"模板分类","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,2461,610,112","Patterns":""}
+{"Index":96,"Type":"TabItem","Name":"全部 8","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,2461,100,50","Patterns":"SelectionItem"}
+{"Index":97,"Type":"TabItem","Name":"内容创作 2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"265,2461,137,50","Patterns":"SelectionItem"}
+{"Index":98,"Type":"TabItem","Name":"技术写作 2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"413,2461,136,50","Patterns":"SelectionItem"}
+{"Index":99,"Type":"TabItem","Name":"生活记录 2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"560,2461,136,50","Patterns":"SelectionItem"}
+{"Index":100,"Type":"TabItem","Name":"工作文档 2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,2523,136,50","Patterns":"SelectionItem"}
+{"Index":101,"Type":"Button","Name":"技术写作 教程类 适合技术教程、操作指南、入门手册 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,2594,192,316","Patterns":"Invoke"}
+{"Index":102,"Type":"Button","Name":"内容创作 评测类 适合产品评测、工具对比、体验报告 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"363,2594,192,316","Patterns":"Invoke"}
+{"Index":103,"Type":"Button","Name":"生活记录 日记/周记 适合日常记录、工作周报、个人感悟 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"572,2594,192,316","Patterns":"Invoke"}
+{"Index":104,"Type":"Button","Name":"技术写作 技术博客 适合技术分享、架构设计、实践总结 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,2927,192,317","Patterns":"Invoke"}
+{"Index":105,"Type":"Button","Name":"工作文档 新闻稿 适合产品发布、活动通告、公告 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"363,2927,192,317","Patterns":"Invoke"}
+{"Index":106,"Type":"Button","Name":"生活记录 读书笔记 适合书评、读后感、知识摘录 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"572,2927,192,317","Patterns":"Invoke"}
+{"Index":107,"Type":"Button","Name":"工作文档 对比分析 适合方案对比、技术选型、决策分析 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"154,3261,192,317","Patterns":"Invoke"}
+{"Index":108,"Type":"Button","Name":"内容创作 空白文档 从零开始，自由创作 使用模板","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"363,3261,192,317","Patterns":"Invoke"}
+{"Index":109,"Type":"Group","Name":"常用入口","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"822,2336,678,1270","Patterns":""}
+{"Index":110,"Type":"Text","Name":"日常导航","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,2363,69,21","Patterns":""}
+{"Index":111,"Type":"Text","Name":"常用入口","AutomationId":"hub-quick-actions-title","Enabled":true,"Offscreen":true,"Rect":"853,2395,108,40","Patterns":""}
+{"Index":112,"Type":"Group","Name":"日常导航","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,2458,616,840","Patterns":""}
+{"Index":113,"Type":"Button","Name":"打开草稿箱 查看未完成的稿件与待整理内容","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,2458,616,145","Patterns":"Invoke"}
+{"Index":114,"Type":"Button","Name":"全文搜索 在顶部直接查找并打开文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,2617,616,145","Patterns":"Invoke"}
+{"Index":115,"Type":"Button","Name":"写作目标 设置每日字数与阶段目标","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,2776,616,145","Patterns":"Invoke"}
+{"Index":116,"Type":"Button","Name":"分类与标签管理 整理分类树、维护标签体系","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,2935,616,145","Patterns":"Invoke"}
+{"Index":117,"Type":"Text","Name":"文章整理进度","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"878,3348,103,21","Patterns":""}
+{"Index":118,"Type":"Text","Name":"0%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"878,3371,80,60","Patterns":""}
+{"Index":119,"Type":"Text","Name":"已完成 0/3 篇，本周产出 3 篇，连续创作 0 天。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"878,3483,388,22","Patterns":""}
+{"Index":120,"Type":"Button","Name":"设置目标","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"878,3526,72,28","Patterns":"Invoke"}
+{"Index":121,"Type":"Group","Name":"数据洞察","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"0,3641,1704,1641","Patterns":""}
+{"Index":122,"Type":"Group","Name":"创作数据洞察","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"48,3677,1524,1569","Patterns":""}
+{"Index":123,"Type":"Text","Name":"创作数据洞察","AutomationId":"hub-data-insights-title","Enabled":true,"Offscreen":true,"Rect":"46,3675,2,3","Patterns":""}
+{"Index":124,"Type":"Text","Name":"贡献热力","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,3700,70,20","Patterns":""}
+{"Index":125,"Type":"Text","Name":"写作热力","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,3724,98,37","Patterns":""}
+{"Index":126,"Type":"Text","Name":"35 天","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"715,3706,44,21","Patterns":""}
+{"Index":127,"Type":"Group","Name":"最近写作热力","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,3781,691,222","Patterns":""}
+{"Index":128,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"88,4020,12,22","Patterns":""}
+{"Index":129,"Type":"Text","Name":"/35 天活跃","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"108,4020,84,21","Patterns":""}
+{"Index":130,"Type":"Text","Name":"3 篇 · 1025 字","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"220,4020,108,21","Patterns":""}
+{"Index":131,"Type":"Text","Name":"效率指标","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,3700,70,20","Patterns":""}
+{"Index":132,"Type":"Text","Name":"生产力洞察","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,3724,122,37","Patterns":""}
+{"Index":133,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1521,3706,9,21","Patterns":""}
+{"Index":134,"Type":"Text","Name":"最高产时段","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"872,3801,86,20","Patterns":""}
+{"Index":135,"Type":"Text","Name":"5:00","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"872,3825,63,36","Patterns":""}
+{"Index":136,"Type":"Text","Name":"1 次编辑","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"872,3865,64,22","Patterns":""}
+{"Index":137,"Type":"Text","Name":"最高产星期","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1225,3801,86,20","Patterns":""}
+{"Index":138,"Type":"Text","Name":"周三","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1225,3825,57,36","Patterns":""}
+{"Index":139,"Type":"Text","Name":"3 次活动","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1225,3865,68,22","Patterns":""}
+{"Index":140,"Type":"Text","Name":"平均长度","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"872,3940,69,20","Patterns":""}
+{"Index":141,"Type":"Text","Name":"342 字","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"872,3964,92,36","Patterns":""}
+{"Index":142,"Type":"Text","Name":"3 篇文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"872,4004,68,22","Patterns":""}
+{"Index":143,"Type":"Text","Name":"最长文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1225,3940,69,20","Patterns":""}
+{"Index":144,"Type":"Text","Name":"773 字","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1225,3964,92,36","Patterns":""}
+{"Index":145,"Type":"Text","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1225,4004,155,22","Patterns":""}
+{"Index":146,"Type":"Text","Name":"字数曲线","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4104,70,20","Patterns":""}
+{"Index":147,"Type":"Text","Name":"字数趋势","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4128,98,37","Patterns":""}
+{"Index":148,"Type":"Group","Name":"最近 14 天字数趋势","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4164,691,256","Patterns":""}
+{"Index":149,"Type":"Text","Name":"篇幅分布","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4104,70,20","Patterns":""}
+{"Index":150,"Type":"Text","Name":"字数分布","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4128,98,37","Patterns":""}
+{"Index":151,"Type":"Text","Name":"0-500","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4188,54,22","Patterns":""}
+{"Index":152,"Type":"Text","Name":"2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,4188,12,22","Patterns":""}
+{"Index":153,"Type":"Text","Name":"500-1K","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4230,62,22","Patterns":""}
+{"Index":154,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,4230,12,22","Patterns":""}
+{"Index":155,"Type":"Text","Name":"1K-2K","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4272,49,22","Patterns":""}
+{"Index":156,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,4272,12,22","Patterns":""}
+{"Index":157,"Type":"Text","Name":"2K-5K","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4314,53,22","Patterns":""}
+{"Index":158,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,4314,12,22","Patterns":""}
+{"Index":159,"Type":"Text","Name":"5K-10K","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4356,60,22","Patterns":""}
+{"Index":160,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,4356,12,22","Patterns":""}
+{"Index":161,"Type":"Text","Name":"10K+","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4398,41,22","Patterns":""}
+{"Index":162,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,4398,12,22","Patterns":""}
+{"Index":163,"Type":"Text","Name":"分类结构","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4482,70,20","Patterns":""}
+{"Index":164,"Type":"Text","Name":"分类分布","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4507,98,37","Patterns":""}
+{"Index":165,"Type":"Text","Name":"未分类","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"110,4566,59,25","Patterns":""}
+{"Index":166,"Type":"Text","Name":"2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"751,4566,13,25","Patterns":""}
+{"Index":167,"Type":"Text","Name":"IF0722-CAT-B","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"110,4637,132,25","Patterns":""}
+{"Index":168,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,4637,9,25","Patterns":""}
+{"Index":169,"Type":"Text","Name":"时间线","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4748,53,20","Patterns":""}
+{"Index":170,"Type":"Text","Name":"写作时间线","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"82,4773,122,37","Patterns":""}
+{"Index":171,"Type":"Text","Name":"最近 5 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"688,4755,71,21","Patterns":""}
+{"Index":172,"Type":"Text","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,4836,195,26","Patterns":""}
+{"Index":173,"Type":"Text","Name":"编辑 · 7/22 14:28","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,4872,142,22","Patterns":""}
+{"Index":174,"Type":"Text","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,4918,195,26","Patterns":""}
+{"Index":175,"Type":"Text","Name":"创建 · 7/22 13:07","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,4954,140,22","Patterns":""}
+{"Index":176,"Type":"Text","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,5001,105,26","Patterns":""}
+{"Index":177,"Type":"Text","Name":"编辑 · 7/22 09:11","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,5037,138,22","Patterns":""}
+{"Index":178,"Type":"Text","Name":"标题：简洁有力的新闻标题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,5083,252,26","Patterns":""}
+{"Index":179,"Type":"Text","Name":"创建 · 7/22 05:37","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,5119,144,22","Patterns":""}
+{"Index":180,"Type":"Text","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,5166,105,26","Patterns":""}
+{"Index":181,"Type":"Text","Name":"创建 · 5/26 10:40","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"124,5202,143,22","Patterns":""}
+{"Index":182,"Type":"Text","Name":"标签索引","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4748,70,20","Patterns":""}
+{"Index":183,"Type":"Text","Name":"标签云","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"853,4773,73,37","Patterns":""}
+{"Index":184,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1048,5012,21,20","Patterns":""}
+{"Index":185,"Type":"Text","Name":"为文档添加标签后将展示真实标签云","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1077,5011,272,21","Patterns":""}
+{"Index":186,"Type":"Group","Name":"最近文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"0,5281,1704,1182","Patterns":""}
+{"Index":187,"Type":"Button","Name":"全部","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"605,5335,80,48","Patterns":"Invoke"}
+{"Index":188,"Type":"Button","Name":"本周","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"691,5335,80,48","Patterns":"Invoke"}
+{"Index":189,"Type":"Button","Name":"分类","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"777,5335,80,48","Patterns":"Invoke"}
+{"Index":190,"Type":"ComboBox","Name":"文章排序方式","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"881,5337,134,44","Patterns":"Value,ExpandCollapse"}
+{"Index":191,"Type":"Hyperlink","Name":"打开文章：IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"48,5431,484,936","Patterns":"Invoke,Value"}
+{"Index":192,"Type":"Text","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"86,5879,408,35","Patterns":""}
+{"Index":193,"Type":"Hyperlink","Name":"打开文章：未命名文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"568,5431,484,936","Patterns":"Invoke,Value"}
+{"Index":194,"Type":"Text","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"606,5879,408,35","Patterns":""}
+{"Index":195,"Type":"Hyperlink","Name":"打开文章：标题：简洁有力的新闻标题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1088,5431,484,936","Patterns":"Invoke,Value"}
+{"Index":196,"Type":"Text","Name":"标题：简洁有力的新闻标题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1126,5879,408,35","Patterns":""}
+{"Index":197,"Type":"Button","Name":"打开快速创建菜单","AutomationId":"hub-quick-action-fab-trigger","Enabled":true,"Offscreen":false,"Rect":"1590,1105,78,78","Patterns":"ExpandCollapse"}

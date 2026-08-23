@@ -1,0 +1,25 @@
+Worktree Integrity Audit - 2026-07-23
+
+Scope
+- Read-only outer-repository audit.
+- No stage, commit, restore, reset, move, or cleanup operation.
+
+Diff checks
+- Whole-worktree git diff --check: exit 0.
+- Staged git diff --check: exit 0.
+- Staged deletions: none.
+- inkforge/tsconfig.tsbuildinfo tracked modification: none.
+- inkforge/dist tracked modification: none.
+
+Tracked deletion review
+- The only tracked deletions are five files under `.claude/skills/trellis-spec-bootstarp/`.
+- A corresponding five-file replacement exists under `.claude/skills/trellis-spec-bootstrap/`.
+- references/mcp-setup.md: byte-identical.
+- references/repository-analysis.md: byte-identical.
+- references/spec-task-planning.md: byte-identical.
+- references/spec-writing.md: byte-identical.
+- SKILL.md differs only by correcting the skill name and heading from `bootstarp` to `bootstrap`.
+
+Product boundary
+- No InkForge product feature, module, component, renderer, Store, route, or test is deleted.
+- The Trellis tooling rename was not modified, staged, committed, or reverted by this task slice.

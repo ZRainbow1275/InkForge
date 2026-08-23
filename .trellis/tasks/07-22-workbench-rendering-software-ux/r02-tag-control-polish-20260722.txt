@@ -1,0 +1,46 @@
+R-02 Tag Control Visual Polish - 2026-07-22
+
+Scope:
+- Correct the remaining deterministic visual contradiction in the flattened tag manager.
+- Preserve the real tag Store, document relation, CRUD, filter, merge, cleanup, and persistence paths.
+- Do not take foreground focus or mutate the user's current hand-test article, clipboard, account, or external platform state.
+
+Pre-edit evidence:
+- Original image-2 showed nested browser-like controls and cramped actions.
+- tag-browser-flat-runtime-20260722.png proved card flattening but still showed a native-looking three-row TagInput, full-width grey Create action, and four undifferentiated filter pills.
+- GitNexus impact:
+  - TagBrowser.vue: LOW, 1 direct upstream, 0 affected processes.
+  - TagInput.vue: LOW, 1 direct upstream, 0 affected processes.
+  - TagBadge.vue: LOW, 3 direct upstreams, 0 affected processes.
+  - FileManager.information-architecture.test.ts: not mapped by the current index; compensated by exact focused and broad checks.
+
+Implementation:
+- TagInput uses one compact search row and one color/create action row.
+- The native select remains accessible but uses appearance:none, a visible color swatch, the installed ChevronDown icon, design tokens, focus-within, and disabled styling.
+- TagBrowser uses a two-state aria-pressed match switch for OR/AND plus a separate Apply/Clear action row.
+- TagBadge uses the existing background/text/hairline theme tokens instead of hard-coded light-only surfaces.
+- Removed the visual last-of-type selector; no Store action, event, renderer, relation, or persistence code changed.
+
+TDD:
+- RED: FileManager.information-architecture.test.ts — missing filter-mode-switch was the first exact failure; the follow-up theme-token assertion then exposed the hard-coded TagBadge surfaces.
+- GREEN: FileManager.information-architecture.test.ts — 4/4 passed.
+
+Verification:
+- pnpm exec vitest run src/components/file/FileManager.information-architecture.test.ts src/services/tag-system/tag-system.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 2 files / 17 tests.
+- pnpm exec vitest run <15 current R-01..R-23 core files> --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 15 files / 98 tests; XHS preview similarity 1.0000.
+- pnpm exec eslint src/components/tag-system/TagBrowser.vue src/components/tag-system/TagInput.vue src/components/tag-system/TagBadge.vue src/components/file/FileManager.information-architecture.test.ts --quiet
+  PASS.
+- pnpm exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=3072 pnpm build
+  PASS: 4,675 modules, 1m04s.
+- tsconfig.tsbuildinfo restored after build.
+- Vite HMR accepted TagInput.vue and TagBrowser.vue without compile errors; http://127.0.0.1:3005 returned HTTP 200.
+- GitNexus post-edit aggregate: 346 changed symbols, 117 files, 31 affected processes, critical. This covers the complete pre-existing dirty worktree; isolated pre-edit impact for all three edited production files was LOW with zero affected processes.
+
+Boundary:
+- Previous real CRUD/reload evidence remains valid because no behavior path changed.
+- Current native visual confirmation is still required at default/narrow widths, keyboard focus, disabled state, and Dark mode.
+- This evidence does not claim XHS/Zhihu account upload/publication or any external platform success.

@@ -1,0 +1,28 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > sanitizes export-only custom CSS before the WeChat inline pass
+[InkForge] [WARN] 2026-07-26T21:52:43.847Z | CSS 安全: 移除危险模式 [JavaScript URL] | {"description":"JavaScript 协议 URL"}
+[InkForge] [WARN] 2026-07-26T21:52:43.847Z | CSS 安全: 移除危险模式 [Style Tag Injection] | {"description":"</style> 标签注入尝试"}
+[InkForge] [WARN] 2026-07-26T21:52:43.847Z | CSS 安全: 移除危险模式 [Script Tag Injection] | {"description":"<script> 标签注入尝试"}
+
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > degrades WeChat LaTeX output to self-contained readable formula text
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+ ✓ src/services/export/platform-export-rendering.test.ts (377 tests) 2648ms
+     ✓ inlines Settings export-only custom CSS into WeChat HTML without runtime style tags  369ms
+     ✓ routes WeChat markdown Mermaid through readable placeholder instead of code block output  875ms
+stdout | src/composables/usePreviewRenderer.test.ts > usePreviewRenderer — platform routing (P3-T11) > xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output
+[XHS preview similarity] = 1.0000
+
+ ✓ src/composables/usePreviewRenderer.test.ts (9 tests) 1510ms
+     ✓ drops stale async renders after rapid body, platform, and preset switches  422ms
+ ✓ src/views/__tests__/WorkstationView.desktop-layout.test.ts (21 tests) 12ms
+ ✓ src/components/export/ExportModal.local-delivery.test.ts (3 tests) 4ms
+ ✓ src/components/export/ExportModal.svg-options.test.ts (7 tests) 13ms
+
+ Test Files  5 passed (5)
+      Tests  417 passed (417)
+   Start at  05:52:39
+   Duration  10.52s (transform 1.52s, setup 0ms, import 4.47s, tests 4.19s, environment 1.10s)
+

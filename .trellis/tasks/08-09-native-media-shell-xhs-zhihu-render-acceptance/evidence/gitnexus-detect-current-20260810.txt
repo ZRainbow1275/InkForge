@@ -1,0 +1,22 @@
+GitNexus current graph and change detection - 2026-08-10
+
+Analyze:
+- incremental rebuild completed successfully
+- 23,059 nodes
+- 42,203 edges
+- 1,201 clusters
+- 300 flows
+
+detect_changes(scope=all):
+- changed files: 185
+- changed symbols: 1,136
+- affected processes: 111
+- risk: critical
+
+Interpretation:
+- This result covers the repository's long-lived dirty worktree and is not a task-isolated diff.
+- The task-isolated ledger records the narrower set of paths directly observed in this child task.
+- Pre-edit impact for `buildZhihuArtifactBundle` was LOW: one direct caller and one affected local export process.
+- Pre-edit impact for `waitForWidgetPlacement` and `interactWithOwnedNativeDialog` was LOW with zero affected
+  processes.
+- No commit, stage, reset, or broad cleanup was performed.

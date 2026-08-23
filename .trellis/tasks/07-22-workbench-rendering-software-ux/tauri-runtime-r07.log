@@ -1,0 +1,9 @@
+Asset `favicon.ico` not found; fallback to favicon.ico.html
+Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+Asset `favicon.ico` not found; fallback to index.html
+Asset `config/enterprise.json` not found; fallback to config/enterprise.json.html
+Asset `config/enterprise.json` not found; fallback to config/enterprise.json/index.html
+Asset `config/enterprise.json` not found; fallback to index.html
+Asset `workstation` not found; fallback to workstation.html
+Asset `workstation` not found; fallback to workstation/index.html
+Asset `workstation` not found; fallback to index.html

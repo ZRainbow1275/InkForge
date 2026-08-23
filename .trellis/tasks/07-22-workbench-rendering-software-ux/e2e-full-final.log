@@ -1,0 +1,275 @@
+
+Execution of 1 workers started at 2026-07-26T21:42:52.540Z
+
+[0-0] [InkForge E2E] tauri-driver PID 41296 owns port 4444
+[0-0] RUNNING in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico.html
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+[0-0] Asset `favicon.ico` not found; fallback to index.html
+[0-0] [InkForge E2E] isolated WebView2 data verified in scoped_dir47388_616206234
+[0-0] [InkForge E2E] selected main WebView from 2 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).uses the persisted Settings default export platform as the Workstation and ExportModal initial platform"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1015:7)
+    at async Context.executeAsync (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1108:20)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).applies Settings export-only custom CSS to the real WeChat export preview without runtime CustomCSS leakage"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1039:7)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Asset `workstation` not found; fallback to workstation.html
+[0-0] Asset `workstation` not found; fallback to workstation/index.html
+[0-0] Asset `workstation` not found; fallback to index.html
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).persists a successful WeChat rich copy in Settings history and clears it through the real UI"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1241:7)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).surfaces style capability gates for all platforms in the real ExportModal"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1322:5)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Asset `config/enterprise.json` not found; fallback to config/enterprise.json.html
+[0-0] Asset `config/enterprise.json` not found; fallback to config/enterprise.json/index.html
+[0-0] Asset `config/enterprise.json` not found; fallback to index.html
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).flagship-kiln (赤陶旗舰) injects responsive [data-ink-svg] modules into the export preview"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).flagship-tempera (铜绿旗舰) injects responsive [data-ink-svg] modules into the export preview"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).flagship-amber (黄铜旗舰) injects responsive [data-ink-svg] modules into the export preview"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).flagship body yields a mobile-comfortable ~20–22 CJK chars/line (real layout, ship font)"
+Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+    at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+    at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+    at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[0-0] [InkForge E2E] isolated OS credential removed
+[0-0] FAILED in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[webview2 150.0.4078.99 windows #0-0] Running: webview2 (v150.0.4078.99) on windows
+[webview2 150.0.4078.99 windows #0-0] Session ID: ca42f2cb487452aa0ddc97c222d601f8
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] » tests\e2e\specs\svg-render.spec.cjs
+[webview2 150.0.4078.99 windows #0-0] InkForge — SVG flagship typesetting (PR7, multi-round, real binary)
+[webview2 150.0.4078.99 windows #0-0]    ✓ seeds a real draft and enables the export pipeline (precondition)
+[webview2 150.0.4078.99 windows #0-0]    ✓ renders the selected flagship SVG modules in the real Workstation platform preview
+[webview2 150.0.4078.99 windows #0-0]    ✖ uses the persisted Settings default export platform as the Workstation and ExportModal initial platform
+[webview2 150.0.4078.99 windows #0-0]    ✖ applies Settings export-only custom CSS to the real WeChat export preview without runtime CustomCSS leakage
+[webview2 150.0.4078.99 windows #0-0]    ✓ applies Settings Advanced runtime CustomCSS to the real editor and removes it without export leakage
+[webview2 150.0.4078.99 windows #0-0]    ✖ persists a successful WeChat rich copy in Settings history and clears it through the real UI
+[webview2 150.0.4078.99 windows #0-0]    ✖ surfaces style capability gates for all platforms in the real ExportModal
+[webview2 150.0.4078.99 windows #0-0]    ✖ flagship-kiln (赤陶旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0]    ✖ flagship-tempera (铜绿旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0]    ✖ flagship-amber (黄铜旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0]    ✖ flagship body yields a mobile-comfortable ~20–22 CJK chars/line (real layout, ship font)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 3 passing (1m 24.9s)
+[webview2 150.0.4078.99 windows #0-0] 8 failing
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 1) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) uses the persisted Settings default export platform as the Workstation and ExportModal initial platform
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1015:7)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.executeAsync (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1108:20)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 2) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) applies Settings export-only custom CSS to the real WeChat export preview without runtime CustomCSS leakage
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1039:7)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 3) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) persists a successful WeChat rich copy in Settings history and clears it through the real UI
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1241:7)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 4) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) surfaces style capability gates for all platforms in the real ExportModal
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1322:5)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 5) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) flagship-kiln (赤陶旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 6) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) flagship-tempera (铜绿旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 7) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) flagship-amber (黄铜旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 8) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) flagship body yields a mobile-comfortable ~20–22 CJK chars/line (real layout, ship font)
+[webview2 150.0.4078.99 windows #0-0] element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0] Error: element (".panel-stage .stage-btn-secondary") still not clickable after 8000ms
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.elementErrorHandlerCallbackFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:9601:24)
+[webview2 150.0.4078.99 windows #0-0]     at async Element.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanelOnly (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:372:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openExportPanel (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:366:3)
+[webview2 150.0.4078.99 windows #0-0]     at async openFlagshipExportPreview (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:309:3)
+
+
+Spec Files:	 0 passed, 1 failed, 1 total (100% completed) in 00:01:31  
+

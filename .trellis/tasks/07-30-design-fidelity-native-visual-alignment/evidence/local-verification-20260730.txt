@@ -1,0 +1,65 @@
+InkForge Native Visual Alignment - Local Verification - 2026-07-30
+
+Scope
+- Local rendering, native Tauri/WebView2 visual acceptance, and Windows artifact build.
+- No Xiaohongshu or Zhihu publication action.
+- No WeChat phone preview, credentialed sync, scheduled send, or publication action.
+
+Rendering and data-flow verification
+- The Workstation selected WeChat preset, visible masthead, copied artifact, Export modal,
+  and Publish center use the same preset-to-VisualVariant mapping.
+- The current article's real title and resolved category are passed through; missing values
+  are omitted rather than replaced with sample identity data.
+- Disabling the reading-time option removes only the minute prompt and preserves the selected
+  masthead, real title, category, and supplied song.
+- Historical custom CSS declarations containing url(...) are removed in both export and
+  Workstation preview paths.
+
+Automated verification
+- Focused renderer baseline: PASS, 3 files / 43 tests.
+- Focused platform baseline: PASS, 2 files / 395 tests.
+- Workstation preset/identity regression: PASS, 3 files / 417 tests.
+- Workstation preview/copy parity: PASS, 2 files / 35 tests.
+- Final Workstation target: PASS, 1 file / 23 tests.
+- Full export serial suite: PASS, 48 files / 1447 tests.
+- Exact changed-file ESLint: PASS.
+- vue-tsc --noEmit --pretty false: PASS.
+- Production web build: PASS.
+
+Application preflight
+- status=application-ready
+- applicationReady=true
+- SVG modules=27
+- SVG families=7
+- gallery module/persona pairs=108
+- selectable WeChat style samples=13
+- local application issue counts=0
+- canClaimReleaseComplete=false, preserving external proof boundaries.
+
+Native visual verification
+- Executed against the final Release InkForge.exe in the native Tauri/WebView2 window.
+- Selecting 论文翻译 visibly rendered CRITICAL TRANSLATION / 典藏译本.
+- Switching to 法学研讨 visibly rendered JURISPRUDENCE ATLAS / 法理坐标.
+- Switching back to 论文翻译 restored CRITICAL TRANSLATION / 典藏译本 without stale
+  INDUSTRY SECTION content.
+- The running native application was left maximized in the editor for operator testing.
+
+Windows artifacts
+- Release executable: src-tauri/target/release/InkForge.exe
+  size=17684992 bytes
+  sha256=766a26a380270748180b34b782031fe2c3de9d6b6dc7658d27b3c2c66446dd3c
+- MSI: src-tauri/target/release/bundle/msi/InkForge_0.1.0_x64_en-US.msi
+  size=219467776 bytes
+  sha256=a1de4056e9b07884f89097d3100913c6770cd9de4f16482ffd09634334b32269
+- NSIS: src-tauri/target/release/bundle/nsis/InkForge_0.1.0_x64-setup.exe
+  size=220918986 bytes
+  sha256=54cd7232eb39ac058086971ba4276646fb0208eabcacc4dd4053ccc5d2566707
+
+Boundary
+- The current real local article contains only 5 words and 4 paragraphs. Complete long-article
+  mid-body, end-matter, CC/license, table, formula, gallery, and writing-component visual proof
+  cannot be created without fabricating content; those renderer contracts remain covered by
+  real automated tests rather than fake native screenshots.
+- WeChat phone preview, mobile Dark Mode, mobile interaction, cover thumbnail acceptance,
+  credentialed sync, scheduled send, and publication remain external operator proof.
+- Xiaohongshu and Zhihu publication testing is operator-owned for this round.

@@ -1,0 +1,460 @@
+{
+  "status": "truthful-local-native-artifact-audit",
+  "sourceArticle": "IF0722-ARTICLE-A",
+  "paragraphCount": 20,
+  "artifacts": {
+    "xiaohongshuTextExcerpt": {
+      "status": "ready",
+      "presetId": "xhs-tech",
+      "format": "text",
+      "sourceParagraphRange": [
+        1,
+        17
+      ],
+      "filename": "IF0722-ARTICLE-A-xhs-tech-p01-p17.txt",
+      "bytes": 2397,
+      "sha256": "656ce6cd2b145ea17497d0b8acffad8869fe59f8ee236ec9db51957de895734e",
+      "qualityIssues": [
+        {
+          "id": "xhs-char-warning",
+          "severity": "suggestion",
+          "message": "正文 997 字，接近 1000 字限制",
+          "suggestion": "建议控制在 600-800 字以获得最佳阅读体验"
+        },
+        {
+          "id": "xhs-marker-sparse",
+          "severity": "suggestion",
+          "message": "内容层次提示偏少（0 处 / 997 字）",
+          "suggestion": "建议通过标题、分隔线或简短提示词增强阅读锚点，导出时会自动补入基础装饰"
+        }
+      ]
+    },
+    "xiaohongshuFullText": {
+      "status": "blocked-by-current-text-limit",
+      "presetId": "xhs-tech",
+      "format": "text",
+      "sourceParagraphRange": [
+        1,
+        20
+      ],
+      "filename": "IF0722-ARTICLE-A-xhs-tech-full-blocked.txt",
+      "bytes": 2782,
+      "sha256": "76911f43f364f11f4feb34f8e4836fe78c3652148800433975cfb471ea266e54",
+      "qualityIssues": [
+        {
+          "id": "xhs-char-limit",
+          "severity": "error",
+          "message": "正文 1171 字，超过小红书 1000 字限制（差 171 字）",
+          "suggestion": "精简内容至 600-800 字为最佳阅读体验"
+        },
+        {
+          "id": "xhs-marker-sparse",
+          "severity": "suggestion",
+          "message": "内容层次提示偏少（0 处 / 1171 字）",
+          "suggestion": "建议通过标题、分隔线或简短提示词增强阅读锚点，导出时会自动补入基础装饰"
+        }
+      ]
+    },
+    "xiaohongshuFullCardPack": {
+      "status": "ready",
+      "sourceParagraphRange": [
+        1,
+        20
+      ],
+      "directory": "xhs-cards-full-article",
+      "pageCount": 10,
+      "contentCoverage": "complete",
+      "rasterizer": "sharp evidence renderer over production source-owned SVG output",
+      "productionRenderPath": "sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg",
+      "pages": [
+        {
+          "page": 1,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 1/10",
+          "sourceLineStart": 1,
+          "sourceLineEnd": 3,
+          "lines": [
+            "IF0722-FOCUS-P01 第一段用于",
+            "验证真实打字机滚动。 InkForge 应当",
+            "把当前光标稳定在编辑视口中部，而不是任由正文",
+            "跳到窗口底边。",
+            "IF0722-FOCUS-P02 第二段用于",
+            "观察相邻段落。当前段保持完全清晰，距离一段的",
+            "文字应产生明显但仍然可读的弱化。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-01.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 107488,
+          "sha256": "473f33fb49594f046c5757e2a791856bdeb687b96b6b7be92054093c4f7f8705"
+        },
+        {
+          "page": 2,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 2/10",
+          "sourceLineStart": 5,
+          "sourceLineEnd": 7,
+          "lines": [
+            "IF0722-FOCUS-P03 第三段继续",
+            "提供真实文本高度。这里包含第二句话，用于验证",
+            "句子级聚焦是否只突出光标所在句。另一句话应适",
+            "度淡化。",
+            "IF0722-FOCUS-P04 第四段用于",
+            "滚动边界验证。切换模式时不得改变文稿内容，也",
+            "不得丢失当前选择范围。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-02.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 110828,
+          "sha256": "0afbbe3bd06121b0850ee422cf271c31fe499dad567a96a25d495088a2e8a13f"
+        },
+        {
+          "page": 3,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 3/10",
+          "sourceLineStart": 9,
+          "sourceLineEnd": 11,
+          "lines": [
+            "IF0722-FOCUS-P05 第五段用于",
+            "暗角聚焦。顶部和底部暗角应当形成清晰可感知的",
+            "视觉边界，中部正文仍然保持正常亮度。",
+            "IF0722-FOCUS-P06 第六段用于",
+            "关闭反转。关闭暗角后，覆盖层必须立即消失；关",
+            "闭打字机后，段落透明度必须恢复。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-03.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 106637,
+          "sha256": "da881904641418d13fbee759c316090da60d6099a3fa42467ca1e7c8c08822b8"
+        },
+        {
+          "page": 4,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 4/10",
+          "sourceLineStart": 13,
+          "sourceLineEnd": 15,
+          "lines": [
+            "IF0722-FOCUS-P07 第七段用于",
+            "长文编辑。真实应用中用户会持续输入、移动光标",
+            "、选择文本并切换写作辅助功能。",
+            "IF0722-FOCUS-P08 第八段用于",
+            "位置校准。光标位置配置应当决定垂直锚点，并且",
+            "尊重系统减少动态效果设置。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-04.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 104771,
+          "sha256": "b440f10d65bdebbc623317513782939181fe153f494b73c80dd2b19634237b1b"
+        },
+        {
+          "page": 5,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 5/10",
+          "sourceLineStart": 17,
+          "sourceLineEnd": 19,
+          "lines": [
+            "IF0722-FOCUS-P09 第九段用于",
+            "保持滚动容器稳定。展开右侧检查器时，编辑器几",
+            "何不得发生位移。",
+            "IF0722-FOCUS-P10 第十段用于",
+            "段间梯度。远离光标的段落可以更暗，但最低透明",
+            "度仍需保证正文可辨认。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-05.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 99391,
+          "sha256": "79507836aa8916dcd01087c54f82d00f1a42d4cfc54f1d865bda01066c62c7b1"
+        },
+        {
+          "page": 6,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 6/10",
+          "sourceLineStart": 21,
+          "sourceLineEnd": 23,
+          "lines": [
+            "IF0722-FOCUS-P11 第十一段用",
+            "于键盘操作。 F9 必须真实切换打字机模式，",
+            "而不是只改变按钮的显示状态。",
+            "IF0722-FOCUS-P12 第十二段用",
+            "于持久化检查。切换写作辅助状态后，文稿正文仍",
+            "应正常自动保存。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-06.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 98237,
+          "sha256": "b093baf1b6de939a830cfb0674b9750b20d30873ef31dea7d7f7c33d588242d7"
+        },
+        {
+          "page": 7,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 7/10",
+          "sourceLineStart": 25,
+          "sourceLineEnd": 27,
+          "lines": [
+            "IF0722-FOCUS-P13 第十三段用",
+            "于选择范围保护。选中的文字在切换模式前后应保",
+            "持完全一致。",
+            "IF0722-FOCUS-P14 第十四段用",
+            "于暗角高度检查。不同高度只改变渐变覆盖范围，",
+            "不应遮挡输入和鼠标操作。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-07.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 94785,
+          "sha256": "7d2b99e3b49dc3a0f554ce296edb8a6e8ef036b1bfb6e21651cd5739fc0a64f9"
+        },
+        {
+          "page": 8,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 8/10",
+          "sourceLineStart": 29,
+          "sourceLineEnd": 31,
+          "lines": [
+            "IF0722-FOCUS-P15 第十五段用",
+            "于动态装饰刷新。设置变化后， ProseMi",
+            "rror 应当立即重算段落装饰。",
+            "IF0722-FOCUS-P16 第十六段用",
+            "于活动段标识。当前块需要有稳定、克制但明显的",
+            "视觉焦点。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-08.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 95989,
+          "sha256": "cc8fad89c8debea3c530ce0edc86945b54873e529fa89a86270c37a19e06b833"
+        },
+        {
+          "page": 9,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 9/10",
+          "sourceLineStart": 33,
+          "sourceLineEnd": 35,
+          "lines": [
+            "IF0722-FOCUS-P17 第十七段用",
+            "于长文末端。底部占位空间应允许最后一段也移动",
+            "到配置的光标高度。",
+            "IF0722-FOCUS-P18 第十八段用",
+            "于恢复检查。关闭功能后不得留下额外空白、残留",
+            "类或错误滚动位置。"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-09.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 99873,
+          "sha256": "a054290fff703c7cdd1b1d022a9cea5aefd2974a2f7019ba52e3a55c46393131"
+        },
+        {
+          "page": 10,
+          "kind": "section",
+          "title": "IF0722-ARTICLE-A 10/10",
+          "sourceLineStart": 37,
+          "sourceLineEnd": 39,
+          "lines": [
+            "IF0722-FOCUS-P19 第十九段用",
+            "于最终选择测试。下面一段的末尾单词将作为选择",
+            "范围的真实证据。",
+            "IF0722-FOCUS-P20 第二十段位",
+            "于长文末端，负责验证最后一段居中、模式反转以",
+            "及选择保持。 SELECTION-PROBE"
+          ],
+          "fileName": "IF0722-ARTICLE-A-xhs-card-10.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 99109,
+          "sha256": "76bfdb2317860337bd8b76b39905bc63ba66508aa235dd5fc518b2e00511e7a1"
+        }
+      ],
+      "manifest": {
+        "kind": "image-page",
+        "pages": [
+          {
+            "page": 1,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-01.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-01.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 107488,
+            "cover": true,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 2,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-02.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-02.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 110828,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 3,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-03.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-03.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 106637,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 4,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-04.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-04.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 104771,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 5,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-05.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-05.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 99391,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 6,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-06.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-06.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 98237,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 7,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-07.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-07.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 94785,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 8,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-08.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-08.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 95989,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 9,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-09.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-09.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 99873,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          },
+          {
+            "page": 10,
+            "fileName": "IF0722-ARTICLE-A-xhs-card-10.png",
+            "src": "xhs-cards-full-article/IF0722-ARTICLE-A-xhs-card-10.png",
+            "exists": true,
+            "width": 1080,
+            "height": 1440,
+            "ratio": "3:4",
+            "format": "png",
+            "bytes": 99109,
+            "cover": false,
+            "referencedByBody": true,
+            "cropStatus": "ok"
+          }
+        ],
+        "bodyReferences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "qualityIssues": []
+    },
+    "zhihuMarkdown": {
+      "status": "ready",
+      "presetId": "zhihu-academic",
+      "format": "markdown",
+      "sourceParagraphRange": [
+        1,
+        20
+      ],
+      "filename": "IF0722-ARTICLE-A-zhihu-academic.md",
+      "bytes": 2728,
+      "sha256": "f5d811d65e37a576cfbd90b4be91df9cff1bdd0018527a06576af54224d0865c",
+      "qualityIssues": []
+    }
+  },
+  "assertions": {
+    "realArticleBoundariesPreservedInZhihu": true,
+    "xhsExcerptUsesOnlyRealArticleParagraphs": true,
+    "fullXhsCardSourceCoverage": true,
+    "nativeFormatsCorrect": true,
+    "noHtmlSvgOrPreviewWrapperLeakInTextArtifacts": true,
+    "noSilentTruncationClaim": true,
+    "xhsFullCardWithinCurrentPageLimit": true
+  },
+  "boundary": [
+    "Local production converter/source-SVG evidence only; no account upload or publication.",
+    "The full XHS text still exceeds the current text limit; the compacted full-article card pack passes the current 18-page local manifest validator without truncating source paragraphs.",
+    "The PNG contact pack is real evidence output from production source-owned SVG, rasterized with the installed sharp tool; it does not claim the WebView canvas export path or platform acceptance."
+  ]
+}

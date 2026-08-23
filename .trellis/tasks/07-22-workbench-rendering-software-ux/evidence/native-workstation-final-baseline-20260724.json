@@ -1,0 +1,11 @@
+﻿InkForge native Tauri window capture
+pid=51656
+hwnd=6426424
+title=InkForge
+responding=True
+visible=True
+minimized=False
+dpi=144
+rect=0,0,2048,1218
+pixels=2048x1218
+capture=.trellis/tasks/07-22-workbench-rendering-software-ux/evidence/native-workstation-final-baseline-20260724.png

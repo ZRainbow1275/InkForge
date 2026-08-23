@@ -12,13 +12,13 @@
 
 ## Confirmed Facts
 
-1. 规划期 dirty source 已证明单一 Markdown → WeChat renderer、DOMPurify、Juice、平台后处理、安全 SVG、主题参数、富剪贴板、官方草稿与 preflight/StyleProof。P0 本地实施现绑定 `dev/visual-fixes@51696357`；破坏性的 fixed-sentinel live round-trip/delete/recovery 链已从该基线移除且不作为任务依赖。证据见 `research/inkforge-current-rendering-baseline.md`。
+1. InkForge 当前工作树已有单一 Markdown → WeChat renderer、DOMPurify、Juice、平台后处理、安全 SVG、主题参数、富剪贴板、官方草稿、preflight/StyleProof 与固定 sentinel live round-trip；其中部分只存在于 `dev/visual-fixes` HEAD 或 dirty source，不能视为 `main`/release 事实。证据见 `research/inkforge-current-rendering-baseline.md`。
 2. mdnice 当前主链路也是同一预览树加 copy-time 规范化、Juice 内联与双 MIME 复制；真正可借鉴的是同源与窄平台分支，不是其旧依赖、模板或 class。证据见 `research/mdnice-current-runtime-evidence.md` 与 `research/mdnice-runtime-rendering.md`。
 3. 壹伴在微信原生编辑器内通过 adapter 写入；一次性草稿实测证明其 Markdown 应用态与微信保存重载结果不同：标题/列表保留，引用、粗体与行内代码退回字面 Markdown。证据见 `research/yiban-wechat-editor-runtime.md` 与 `research/yiban-applied-draft-receipt.json`。
 4. 壹伴可见的 `50` 个 SVG 素材卡全部带 VIP 标记；唯一无可见 VIP 标记的生成器入口无可观察反应，未取得 SVG applied/save/phone 产物。
 5. 美编公开资料足以确认其“扩展注入微信后台 + 官网/素材/账号配套”的工作流，但没有运行态 DOM、SVG 兼容矩阵或微信保存读回；本轮在用户选择收敛规划后保持 deferred。
 6. 当前本地 StyleProof 对可选样式和 SVG 管线为 application-ready，但 release 仍因 authenticated PC editor、credentialed channel、phone/Dark Mode 与 cover proof 缺失而 `blocked-by-external`。
-7. 当前官方草稿产品入口是 `publishWechatDraft()`：它先重写/上传正文图片、准备永久封面，再调用低层 `createWechatDraft()`。创建结果只返回数量/时间，不返回任意草稿 handle；绑定基线没有任意草稿 readback/delete API，本任务的 corpus 定位与清理只能走唯一短标题 + 正文 sentinel 的可见 UI 流程。
+7. 当前官方草稿产品入口是 `publishWechatDraft()`：它先重写/上传正文图片、准备永久封面，再调用低层 `createWechatDraft()`。创建结果只返回数量/时间，不返回任意草稿 handle；现有 `runWechatDraftLiveRoundTrip()` 只验证固定 sentinel，不能读回或删除本任务任意 corpus 草稿。
 8. 当前官方草稿通道拒绝标题超限、正文 `>=20,000` 字符或 `>=1 MiB`；SVG-heavy 选择可能在写入前即不 eligible。正文图片和永久封面上传也可能产生删除草稿后仍存在的远程素材。
 
 ## In Scope
@@ -59,7 +59,7 @@
 - **R12 Capability provenance.** 每项能力标注 `main committed / dev HEAD committed / dirty-only / external`；实施前必须绑定包含复用能力的明确 commit/branch。
 - **R13 Formula fail-safe.** 公式候选必须保留可读 TeX 回退，source-owned SVG 通过现有安全校验，图片走现有 public-HTTPS/image-manifest 边界；任一 gate 失败即退回当前行为。
 - **R14 Third-party boundary.** 不复制 mdnice、壹伴、美编的模板 HTML、品牌资产、SVG/path、class/attribute、远程素材、API payload、CDN 或私有实现。
-- **R15 Planning gate.** 用户已于 2026-08-21 批准最新规划，实施基线已绑定 `dev/visual-fixes@51696357`，因此允许启动 P0 本地实现；微信写入、媒体上传、手机/封面动作与清理仍须另行批次批准。
+- **R15 Planning gate.** 本轮只收敛规划与研究文件；用户后续明确批准最新规划且实施基线已绑定前，不运行 `task.py start`，不修改产品代码。
 
 ## Acceptance Criteria
 
@@ -100,7 +100,7 @@
 
 ## Risks and Deferred Items
 
-- 主工作树仍有大量用户既有 dirty changes；P0 只在绑定 commit 的隔离工作树实施，不从主树 dirty overlay 取能力。该风险已从启动阻断降为持续隔离约束。
+- 当前仓库有大量 dirty changes，且部分复用能力只在 dirty source；这是 `task.py start` 前的硬阻断。
 - 微信编辑器、保存 sanitizer、手机和封面行为可能随平台更新变化；外部证据必须带时间并遵循 freshness 规则。
 - SVG-heavy canonical HTML 可能超过当前官方草稿 `<20,000` 字符限制；计划以 preflight blocked/paste-safe fallback 表达，不绕过通道限制。
 - 正文图片上传和永久封面素材当前没有纳入草稿删除闭环；缺少预批准 media binding 时官方草稿媒体 case 保持 blocked。

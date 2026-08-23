@@ -1,0 +1,43 @@
+Native passive maximized rendering audit — 2026-07-23
+
+Method
+- Read-only Win32 PrintWindow capture of the existing InkForge main window.
+- No restore, route change, click, key input, article mutation, clipboard access, Store mutation,
+  account action, upload, or publication.
+- DPI-aware capture was required. A DPI-unaware 1721×927 capture cropped the right side and was
+  discarded; the authoritative capture is 2582×1390.
+
+Runtime
+- InkForge.exe PID 21140.
+- Window DPI: 144 (150%).
+- Window state: visible, non-minimized, maximized (`showCmd=3`).
+- Stored normal placement: 1457×879.
+- Vite PID 39544; http://127.0.0.1:3005 returns HTTP 200.
+
+Authoritative artifact
+- `native-passive-maximized-rendering-20260723.png` (2582×1390 RGBA).
+- The artifact contains the local test fixture `IF0722-ARTICLE-A` only. No external platform or
+  account surface is present.
+
+Observed current state
+- The native title bar shows one InkForge brand and one Windows minimize/maximize/close group.
+- The document command bar is one aligned row at this maximized width: Back, document identity,
+  saved state, copy, export, fullscreen, Default/Write/Review/Split, and Publish are all visible.
+- The manager shows exactly five compact destinations: 文件、版本、大纲、标签、对话. The selected
+  File panel displays the canonical category/article tree and the persisted Materials section.
+- The WeChat preview is visibly rendered beside the editor. The unpinned Inspector is open as a
+  right-edge overlay rather than reallocating the editor column in this single frame.
+- The primary style surface shows the 16 canonical WeChat choices: 论文翻译、法学研讨、行业研报、
+  时事点评、AIGC、编程创造、学习笔记、新闻、整活、人生感悟、优雅、科技、赤陶旗舰、
+  赤陶兼容旗舰、铜绿旗舰、黄铜旗舰.
+- `高级排版参数` is present as one collapsed disclosure under the primary style selector; no
+  permanently expanded second typography grid is visible.
+- The Inspector also visibly contains the document-statistics widget and its detach/close controls.
+
+Non-claims / remaining interaction gates
+- One frame cannot prove hover expansion stability, zero editor displacement across open/close,
+  keyboard operation, focus rings, pointer hit targets, split activation, focus-mode geometry,
+  style switching, advanced-control effects, or reload persistence.
+- The visible recovery banner is user-owned state and was not restored or dismissed.
+- This artifact does not prove clipboard output, WeChat paste/phone behavior, XHS/Zhihu account
+  upload, or publication.

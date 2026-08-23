@@ -1,0 +1,47 @@
+Application-scope SVG/style readiness — 2026-07-22
+
+Initial result
+- Command: pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+- Exit: 1
+- Status: application-blocked.
+- Only local issue: the Publish surface contract still required the obsolete literal `markdownToWechatWithStats(content, preset, {` after production had moved to the equivalent typed `wechatPreset` + `renderExportOptions` call.
+- All renderer evidence was already green: gallery ready, style samples ready, 27 SVG modules, 108 module/persona renders, zero WeChat-safe violations, zero module-sentinel failures, zero slot issues, zero choice issues, and zero actionable local rows.
+
+Repair
+- Updated the preflight required fragment to the current production call:
+  `markdownToWechatWithStats(content, wechatPreset, renderExportOptions)`.
+- No renderer, SVG module, style choice, export option, platform API, or external proof state changed.
+- GitNexus impact for the surface-check function: LOW, three upstream nodes, zero affected processes.
+
+Final result
+- Focused preflight regression: PASS, 1 file / 7 tests.
+- Exact ESLint for the preflight script and test: PASS.
+- GitNexus post-edit aggregate detection: 319 changed symbols, 110 files, 31 affected processes, critical. The aggregate includes the pre-existing dirty worktree; the edited preflight surface checker was individually LOW with zero affected processes.
+- Repeated command exit: 0.
+- scope: application
+- status: application-ready
+- canClaimApplicationReady: true
+- canClaimReleaseComplete: false
+- applicationGalleryStatus: application-gallery-ready
+- wechatStyleSamplesStatus: wechat-style-samples-ready
+- SVG modules: 27 across 7 families.
+- Personas: 4.
+- Module/persona renders: 108 / 108.
+- WeChat application SVG slots: 5; failures: 0.
+- WeChat application surfaces: 2; failures: 0.
+- WeChat export pipeline contracts: 3; failures: 0.
+- WeChat option-injected modules: 27; failures: 0.
+- WeChat-safe violations: 0.
+- Module sentinel failures: 0.
+- Style choices: 17 total, 13 selectable, 13 rendered, 8 currently usable; rendered sample issues: 0.
+- SVG-bearing selectable samples: 13; total sample SVG modules: 45.
+- Usable-but-unselectable choices: 0.
+- Actionable local rows: 0.
+
+Truth boundary
+- `application-ready` proves the local application registry, selectors, SVG injection slots, renderer outputs, WeChat-safe checks, and Export/Publish surface contracts.
+- It does not claim WeChat phone preview, mobile Dark Mode/SMIL/click, cover acceptance, credentialed sync/draft readback, scheduled send, or publication success.
+- XHS/Zhihu account upload and publication remain user-manual by explicit instruction.
+
+Authoritative artifact
+- application-style-proof-preflight-20260722.json

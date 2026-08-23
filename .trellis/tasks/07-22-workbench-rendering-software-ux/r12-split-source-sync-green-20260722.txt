@@ -1,0 +1,30 @@
+R-12 split-view source-mode synchronized-scroll repair — 2026-07-22
+
+Implemented shared-root repair
+- EditorPanel.getEditorScrollElement() now returns the visible Typora .editor-scroll or the visible source-mode CodeMirror .cm-scroller.
+- useSyncScroll exposes rebind(), which clears pending work and stale loop/sync state before replacing both listeners.
+- Workstation rebinds after Typora/Source mode changes while split synchronization is active.
+- Workstation supplies heading-anchor data only for visible Typora mode; source mode uses the existing proportional fallback rather than hidden TipTap geometry.
+- Split enablement, divider behavior, platform preview rendering, persistence schema, article state, and external actions are unchanged.
+
+Regression evidence
+- New useSyncScroll DOM-event regression proves the old left surface stops driving the right pane after rebind and the new surface drives it immediately.
+- Workstation source contract pins the active CodeMirror scroll owner, mode-change rebind, and Typora-only heading anchors.
+
+Verification
+- Focused split run:
+  pnpm -C inkforge exec vitest run src/composables/useSyncScroll.test.ts src/services/sync-scroll/sync-scroll.test.ts src/views/__tests__/WorkstationView.desktop-layout.test.ts src/services/layout-persistence/layout-persistence.test.ts --reporter=default
+  PASS: 4 files / 34 tests.
+- Integrated Workstation/preview run:
+  pnpm -C inkforge exec vitest run src/composables/useSyncScroll.test.ts src/services/sync-scroll/sync-scroll.test.ts src/services/layout-persistence/layout-persistence.test.ts src/composables/usePreviewRenderer.test.ts src/views/__tests__/WorkstationView.desktop-layout.test.ts src/views/__tests__/WorkstationView.focus-collision.test.ts src/views/__tests__/WorkstationView.vignette.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 7 files / 49 tests; XHS preview similarity 1.0000.
+- Exact ESLint over the five touched product/test files: PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false: PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build: PASS; 4,675 modules; 1m25s.
+- Generated inkforge/tsconfig.tsbuildinfo restored after validation.
+- Vite emitted only expected HMR/raw-test reload messages; endpoint remained HTTP 200 and InkForge.exe PID 21140 remained alive.
+- GitNexus post-edit aggregate detection: 312 changed symbols, 109 files, 30 affected processes, critical. The critical rating covers the pre-existing dirty worktree; the three R-12 symbols were individually LOW before editing and introduced no indexed affected process.
+
+Native boundary
+- The InkForge window was minimized while another application owned the foreground. Background UIA restored the Split toggle to its original closed state, but minimized geometry could not prove divider movement or scrolling.
+- Native pointer/keyboard divider movement, both-direction Typora/Source scrolling, platform-style switching, restart persistence, and narrow insufficient-space presentation remain explicit hand-test gates.

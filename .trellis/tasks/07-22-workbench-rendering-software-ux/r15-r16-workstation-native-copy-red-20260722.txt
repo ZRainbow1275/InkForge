@@ -1,0 +1,27 @@
+R-15/R-16 Workstation native platform-output copy audit — 2026-07-22
+
+Observed pre-fix production path
+- Both the command-bar Copy icon and the Stage button labelled “复制平台输出” called handleCopyToClipboard().
+- handleCopyToClipboard() used previewHtml for every platform.
+- WeChat passed that HTML to the strict rich-clipboard writer.
+- XHS and Zhihu passed the same preview HTML to copyToClipboard(), whose plain fallback also used the HTML source string.
+- The history byte count therefore described preview HTML, not XHS text or Zhihu Markdown.
+- usePreviewRenderer intentionally creates sample preview HTML for an empty body, so checking previewHtml alone could copy sample content from a real empty document.
+
+Contradiction
+- The canonical convertToNativeFormat() contract is WeChat HTML, XHS text, and Zhihu Markdown.
+- Publish already consumes that contract, but the two Workstation “platform output” entry points did not.
+- Local preview success cannot be used as evidence that a platform-native artifact was copied.
+
+Required repair
+- Reject empty real Markdown even when a sample preview is visible.
+- Generate the selected platform/preset artifact through convertToNativeFormat().
+- Route HTML only to the strict WeChat rich writer and text/Markdown only to copyTextToClipboard().
+- Record the actual copied artifact platform and byte count.
+- Display truthful per-platform copy labels.
+
+GitNexus pre-edit impact
+- handleCopyToClipboard: LOW, 1 direct file dependent, 0 affected processes, 0 affected modules.
+
+External boundary
+- This repair is a local clipboard handoff only. It does not automate or claim XHS/Zhihu account upload or publication.

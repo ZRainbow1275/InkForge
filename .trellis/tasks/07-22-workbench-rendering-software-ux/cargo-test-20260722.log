@@ -1,0 +1,36 @@
+   Compiling inkforge v0.1.0 (D:\Desktop\Inkforge\inkforge\src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.24s
+     Running unittests src\main.rs (target\debug\deps\inkforge-e5465ba05ca3e493.exe)
+
+running 28 tests
+test commands::wechat::tests::access_token_cache_reuses_same_app_id_until_skewed_expiry ... ok
+test commands::wechat::tests::extract_img_srcs_includes_srcset_candidates_for_validation ... ok
+test commands::wechat::tests::access_token_cache_ttl_applies_refresh_skew_without_underflow ... ok
+test commands::wechat::tests::api_error_code_zero_is_success ... ok
+test commands::wechat::tests::build_wechat_url_percent_encodes_query_values ... ok
+test commands::wechat::tests::access_token_cache_misses_when_app_id_differs ... ok
+test commands::wechat::tests::draft_payload_omits_null_optional_fields_and_defaults_cover_visibility ... ok
+test commands::wechat::tests::draft_payload_uses_wechat_api_snake_case_fields ... ok
+test commands::wechat::tests::endpoint_token_error_codes_trigger_cache_refresh_retry ... ok
+test commands::wechat::tests::extract_img_srcs_finds_multiple_sources ... ok
+test commands::wechat::tests::extract_img_srcs_handles_gt_inside_quoted_attributes ... ok
+test commands::wechat::tests::extract_img_srcs_handles_multibyte_attrs_and_unquoted_sources ... ok
+test commands::wechat::tests::parse_env_contents_skips_comments_and_export_prefix ... ok
+test commands::wechat::tests::access_token_cache_can_be_cleared_after_endpoint_token_error ... ok
+test commands::wechat::tests::draft_validation_rejects_invalid_cover_flag_and_long_content ... ok
+test commands::desktop::tests::rejects_unsafe_or_conflicting_paths_before_touching_destination ... ok
+test commands::wechat::tests::env_file_candidates_prefer_nearest_and_nested_app_file ... ok
+test commands::wechat::tests::remote_image_response_validation_rejects_redirects ... ok
+test commands::wechat::tests::remote_image_url_validation_rejects_local_network_targets ... ok
+test commands::wechat::tests::sanitize_env_value_trims_quotes ... ok
+test commands::wechat::tests::wechat_image_host_check_is_strict ... ok
+test commands::window::tests::identity_and_query_boundaries_reject_or_encode_untrusted_values ... ok
+test commands::window::tests::inspector_label_is_stable_and_tauri_safe ... ok
+test commands::window::tests::inspector_surface_is_whitelist_only ... ok
+test commands::wechat::tests::env_file_values_merge_nearest_first_without_shadowing_missing_keys ... ok
+test commands::desktop::tests::restores_previous_files_after_a_partial_commit_failure ... ok
+test commands::desktop::tests::writes_text_and_binary_files_with_exact_readback ... ok
+test commands::wechat::tests::upload_validation_rejects_unsupported_mime_and_oversized_images ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

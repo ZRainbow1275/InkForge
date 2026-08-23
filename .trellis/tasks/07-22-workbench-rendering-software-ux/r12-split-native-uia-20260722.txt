@@ -1,0 +1,31 @@
+R-12 native split-view UIA acceptance — 2026-07-22
+
+Runtime
+- Existing InkForge native process: PID 21140.
+- Existing Vite/Tauri endpoint remained HTTP 200.
+- No article text, recovery action, clipboard, account action, or publish action was changed.
+
+Observed sequence
+- Initial top-level Split toggle state: 0.
+- Invoked the existing UIA Toggle pattern without mouse coordinates or editor focus.
+- Active top-level Split toggle state: 1.
+- Visible runtime controls:
+  - Thumb: 调整分栏预览宽度, rectangle (1480,351)-(1498,1347).
+  - Text: 分栏视图, rectangle (1517,382)-(1589,407).
+  - Button: 暂停同步滚动, rectangle (2218,361)-(2260,404).
+  - Button: 关闭分栏视图, rectangle (2269,361)-(2311,404).
+- Invoked the same Toggle pattern again.
+- Final top-level Split toggle state: 0.
+- Split-only controls were absent after restoration.
+
+Result
+- PASS: the native app exposes a real editable-left/rendered-right split surface rather than a dead button.
+- PASS: the divider and sync-scroll controls are real accessibility elements.
+- PASS: entering and exiting restores the prior closed state.
+
+Remaining R-12 gates
+- Adjust the divider by pointer and keyboard and confirm the ratio changes and persists.
+- Toggle synchronized scrolling and verify both directions without a feedback loop.
+- Switch platform/style while split is active and visually confirm the right renderer changes.
+- Reload with split enabled and confirm the requested state and ratio return.
+- Narrow below the minimum container width and confirm the explicit insufficient-space state.

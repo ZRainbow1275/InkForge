@@ -1,0 +1,51 @@
+R-01..R-23 Current Core Regression - 2026-07-23
+
+Purpose
+- Revalidate the shared implementation paths after the final Export and Publish responsibility repairs.
+- Include current Publish and export-history contracts in addition to the prior 15-file baseline.
+- Run serially within local memory limits.
+
+Command
+pnpm exec vitest run \
+  src/components/chrome/ViewTransition.test.ts \
+  src/components/export/ExportModal.local-delivery.test.ts \
+  src/components/file/FileManager.information-architecture.test.ts \
+  src/composables/usePreviewRenderer.test.ts \
+  src/extensions/__tests__/TypewriterMode.decorations.test.ts \
+  src/services/export/local-delivery.test.ts \
+  src/services/export/shared-typography.test.ts \
+  src/services/layout-persistence/layout-persistence.test.ts \
+  src/stores/settings.editor.test.ts \
+  src/stores/settings.export-history.test.ts \
+  src/stores/writingAssist.test.ts \
+  src/views/__tests__/HubView.cards.test.ts \
+  src/views/__tests__/PublishView.wechat-presets.test.ts \
+  src/views/__tests__/SettingsView.software-shell.test.ts \
+  src/views/__tests__/ThemesView.canonical-presets.test.ts \
+  src/views/__tests__/WorkstationView.desktop-layout.test.ts \
+  src/views/__tests__/WorkstationView.vignette.test.ts \
+  --reporter=default --maxWorkers=1 --no-file-parallelism
+
+Result
+- PASS: 17 test files.
+- PASS: 118 tests.
+- XHS preview similarity: 1.0000.
+- The invalid persisted editor-setting warning is the expected fallback test.
+
+Covered contracts
+- R-01/R-03/R-04/R-09/R-10/R-12/R-13: Workstation desktop layout, Review, focus/vignette, split, advanced pane, and persistence contracts.
+- R-02/R-11: tag/file-manager information architecture and canonical tree surface.
+- R-05/R-14/R-15: every canonical typography control, platform preview routes, and canonical preset surfaces.
+- R-06: typewriter decorations and writing-assist persistence.
+- R-16/R-17: Export/Publish responsibility split, platform-native Publish contract, export history, and local folder/blog delivery.
+- R-18/R-19/R-20: Settings mounted shell, editor preferences, and control surface.
+- R-21/R-22/R-23: Hub creation consolidation, persisted local/AI inspiration, and real article search keyboard flow.
+
+Runtime
+- Existing InkForge.exe PID 21140 remained alive.
+- http://127.0.0.1:3005 returned HTTP 200.
+
+Boundary
+- This proves current implementation regression safety only.
+- It does not replace the remaining native visible interactions in handtest-remaining-20260722.md.
+- It does not prove XHS/Zhihu account upload/publication or WeChat phone/account/external gates.

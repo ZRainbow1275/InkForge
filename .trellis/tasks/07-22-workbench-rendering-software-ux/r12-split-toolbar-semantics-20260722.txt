@@ -1,0 +1,50 @@
+R-12 Split Toolbar Semantics - 2026-07-22
+
+Scope
+- Template-only follow-up for the existing split-view entry and right-pane toolbar.
+- No article, clipboard, layout record, renderer, persistence schema, account, or external platform action was changed.
+
+Pre-edit impact
+- GitNexus target: WorkstationView.vue (inkforge/src/views/WorkstationView.vue)
+- Direction: upstream
+- Risk: LOW
+- Direct dependents: 0
+- Affected processes: 0
+- Affected modules: 0
+
+Red state
+- Command: pnpm -C inkforge exec vitest run src/views/__tests__/WorkstationView.desktop-layout.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+- Result: 1 file; 16 tests; 1 failed and 15 passed.
+- Exact failure: the split entry did not expose :aria-expanded="isSplitViewActive".
+
+Minimal repair
+- The entry retains :aria-pressed="splitViewEnabled" for requested state and adds :aria-expanded="isSplitViewActive" for actual pane visibility.
+- The entry names split-view-preview-pane through aria-controls.
+- Existing hand-written linked, unlinked, and close SVGs are replaced with installed Link2, Unlink, and X icons.
+- The icon-only close action has aria-label="关闭分栏视图".
+- No split state, function, divider behavior, scroll binding, persistence, renderer, or CSS changed.
+
+Green state
+- Focused desktop-layout command: PASS; 1 file / 16 tests.
+- Split/layout/sync/persistence/preview command: PASS; 6 files / 44 tests.
+  Files:
+  - WorkstationView.desktop-layout.test.ts
+  - WorkstationView.focus-collision.test.ts
+  - WorkstationView.vignette.test.ts
+  - useSyncScroll.test.ts
+  - layout-persistence.test.ts
+  - usePreviewRenderer.test.ts
+- XHS preview similarity remained 1.0000.
+
+Static and build gates
+- Exact changed-file ESLint: PASS.
+- vue-tsc --noEmit --pretty false: PASS.
+- Production build: PASS; 4,675 modules; 1m02s; NODE_OPTIONS=--max-old-space-size=3072.
+- Generated inkforge/tsconfig.tsbuildinfo was restored.
+- Vite accepted the WorkstationView template HMR without a compile error.
+- Post-edit GitNexus aggregate: 338 changed symbols / 117 files / 31 affected processes / critical. This is the complete pre-existing dirty worktree, while the isolated edited Workstation file was LOW with zero affected processes.
+
+Boundary
+- Automated evidence proves the template contract and adjacent split implementation regression only.
+- Native pointer/keyboard divider movement, both-direction Typora/Source synchronized scrolling, platform-style response, reload persistence, and narrow requested-versus-expanded behavior still require visible user hand testing.
+- No local check claims XHS/Zhihu account upload or publication.

@@ -1,0 +1,35 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ❯ src/views/__tests__/WorkstationView.desktop-layout.test.ts (10 tests | 1 failed) 18ms
+     ✓ keeps one application brand and a permanently mounted Review action 2ms
+     ✓ reserves the fixed titlebar height without a collapsible top margin 1ms
+     ✓ reveals an unpinned inspector as an overlay instead of a flex column 1ms
+     ✓ places the focus exit control inside the editor surface with local positioning 1ms
+     ✓ preserves requested split state and exposes the insufficient-space state 1ms
+     ✓ uses the canonical platform preview in split and preview modes 2ms
+     × keeps one primary style selector and starts supported parameters in a collapsed advanced pane 7ms
+     ✓ shares real inspector content across docked, floating, and native utility surfaces 1ms
+     ✓ keeps many references in a readable independently scrolling panel 0ms
+     ✓ keeps local export and channel publishing as separate actions 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/views/__tests__/WorkstationView.desktop-layout.test.ts > WorkstationView desktop layout contracts > keeps one primary style selector and starts supported parameters in a collapsed advanced pane
+AssertionError: expected -1 to be greater than 117527
+ ❯ src/views/__tests__/WorkstationView.desktop-layout.test.ts:84:27
+     82|     expect(WORKSTATION_SOURCE.match(/class="preset-strip"/g)).toHaveLe…
+     83|     expect(selectorStart).toBeGreaterThan(-1)
+     84|     expect(advancedStart).toBeGreaterThan(selectorStart)
+       |                           ^
+     85|     expect(advancedEnd).toBeGreaterThan(advancedStart)
+     86|     expect(WORKSTATION_SOURCE.slice(advancedStart, WORKSTATION_SOURCE.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  15:58:16
+   Duration  627ms (transform 136ms, setup 0ms, import 180ms, tests 18ms, environment 0ms)
+

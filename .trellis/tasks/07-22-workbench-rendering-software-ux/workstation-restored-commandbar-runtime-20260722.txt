@@ -1,0 +1,10 @@
+InkForge restored command-bar observation - 2026-07-22
+windowRectPhysical=230,45,2330,1395
+windowSizePhysical=2100x1350
+dpi=144
+windowsScalePercent=150
+showCmd=1
+isMaximized=False
+capture=workstation-restored-commandbar-runtime-20260722.png
+observation=single global brand; aligned copy/export/fullscreen group; Default/Write/Review/Split group; Publish action; no overlap with native controls
+boundary=no keyboard activation, narrow width, or maximized transition was performed during this read-only capture

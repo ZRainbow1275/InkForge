@@ -1,0 +1,34 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > sanitizes export-only custom CSS before the WeChat inline pass
+[InkForge] [WARN] 2026-07-21T21:27:40.304Z | CSS 安全: 移除危险模式 [JavaScript URL] | {"description":"JavaScript 协议 URL"}
+[InkForge] [WARN] 2026-07-21T21:27:40.305Z | CSS 安全: 移除危险模式 [Style Tag Injection] | {"description":"</style> 标签注入尝试"}
+[InkForge] [WARN] 2026-07-21T21:27:40.305Z | CSS 安全: 移除危险模式 [Script Tag Injection] | {"description":"<script> 标签注入尝试"}
+
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > degrades WeChat LaTeX output to self-contained readable formula text
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+ ✓ src/services/export/platform-export-rendering.test.ts (377 tests) 3834ms
+     ✓ routes WeChat markdown Mermaid through readable placeholder instead of code block output  2205ms
+stdout | src/composables/usePreviewRenderer.test.ts > usePreviewRenderer — platform routing (P3-T11) > xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output
+[XHS preview similarity] = 1.0000
+
+ ✓ src/composables/usePreviewRenderer.test.ts (5 tests) 1855ms
+     ✓ xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output  380ms
+     ✓ zhihu: preview HTML contains equation img + table elements  367ms
+     ✓ wechat: preview HTML uses mock renderer with wechat-article container  367ms
+     ✓ wechat: canonical typography changes every supported preview rule  369ms
+     ✓ empty body: renders sample content and flags previewMeta.isSample = true  366ms
+ ✓ src/services/export/shared-typography.test.ts (2 tests) 146ms
+stderr | src/stores/settings.editor.test.ts > settings editor preferences > falls back to the Notion behavior for an invalid persisted value
+[InkForge] [WARN] 2026-07-21T21:27:50.197Z | 设置数据校验失败，使用默认值 | {"zodErrors":["Invalid option: expected one of \"notion\"|\"typora\""]}
+
+ ✓ src/stores/settings.editor.test.ts (8 tests) 57ms
+ ✓ src/components/export/ExportModal.svg-options.test.ts (5 tests) 10ms
+
+ Test Files  5 passed (5)
+      Tests  397 passed (397)
+   Start at  05:27:37
+   Duration  14.16s (transform 1.58s, setup 0ms, import 4.63s, tests 5.90s, environment 2.24s)
+

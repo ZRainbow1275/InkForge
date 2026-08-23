@@ -1,0 +1,63 @@
+R-03/R-14 unpinned Inspector platform-switch visibility — 2026-07-23
+
+Observed defect
+- A DPI-aware passive capture of the existing maximized InkForge window at 144 DPI showed the
+  unpinned expanded Inspector starting at the top of the Workstation body.
+- The Inspector overlaid the 44px Stage header. “微信” remained visible, “小红书” was partially
+  covered, and “知乎” plus the Stage header actions were covered.
+- This made XHS/Zhihu selection look missing while the style Inspector was open and directly
+  contradicted the platform-style discovery requirement.
+- Before artifact: `native-passive-maximized-rendering-20260723.png`, 2582×1390 RGBA,
+  SHA-256 5e065fac3cb832d0363d68bb509fc89ec1db966cda50abac0f332e5fd95a7c18.
+
+Root cause
+- At desktop widths `.panel-inspector:not(.pinned)` is an absolute right-edge overlay with
+  `top: 0` and `z-index: 90`.
+- The only platform switch is the existing `.stage-platform-tabs` in `.stage-header`; no duplicate
+  platform switch exists in the Inspector.
+- The overlay geometry therefore hid the authoritative switch rather than the platform styles
+  being absent from the registry.
+
+Impact and red evidence
+- GitNexus exact upstream impact for `WorkstationView.vue`: LOW, zero direct dependents, zero
+  affected indexed processes/modules.
+- The test file is not mapped in the current graph index (`UNKNOWN`), so focused red/green evidence
+  is authoritative for the source contract.
+- New regression before product repair: 1 failed / 15 passed. It failed only because the expanded
+  unpinned Inspector did not begin at the Stage header boundary.
+
+Minimal repair
+- Keep the existing single `v-for="opt in platformOptions"` selector.
+- Keep the collapsed magnetic edge trigger full height.
+- Keep the Inspector absolute and non-layout-shifting.
+- For the expanded unpinned state only, set `top: 44px`, equal to the existing Stage header height.
+- No state, Store, renderer, preset registry, platform converter, duplicated selector, dependency,
+  or public API was added.
+
+Green evidence
+- Focused source contract: 16/16 passed.
+- Workstation layout/focus/vignette plus layout persistence: 4 files / 38 tests passed.
+- Exact ESLint for Workstation source and contract: passed with no output.
+- `vue-tsc --noEmit --pretty false`: passed.
+- Production build: 4,675 modules transformed; passed in 1m45s with a 3,072 MB heap cap.
+- Generated `tsconfig.tsbuildinfo` was restored.
+- Vite accepted the scoped-style HMR at 01:39:14 without an error.
+- Post-edit GitNexus aggregate detection: 345 changed symbols, 118 files, 31 affected processes,
+  `critical` across the pre-existing dirty worktree. This is a commit-boundary warning; the
+  isolated edited product file remained LOW.
+
+Passive after-proof
+- After artifact: `r03-r14-platform-tabs-unobscured-20260723.png`, 2582×1390 RGBA,
+  SHA-256 aaad5dcaf275dca057d30dad3e8c8df706214c412708373e52b48ea4737f94e0.
+- The current maximized native frame shows 微信、小红书、知乎 and the Stage actions fully visible
+  above the open Inspector.
+- The Inspector still overlays only the Stage body, its primary 16-choice WeChat selector remains
+  visible, and `高级排版参数` remains one collapsed disclosure.
+- InkForge PID 21140 and Vite PID 39544 remain alive; port 3005 returns HTTP 200.
+
+Remaining interaction boundary
+- The passive before/after frame proves the obstruction is removed but does not click the three
+  platform tabs, switch presets, copy artifacts, or mutate the user's current article.
+- The user must still click WeChat → XHS → Zhihu → WeChat with the Inspector open and confirm one
+  selected platform/preset pair and the matching preview on every transition.
+- No XHS/Zhihu account upload or publication is claimed.

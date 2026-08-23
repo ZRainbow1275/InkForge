@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "generatedOn": "2026-08-10",
+  "scope": "local-release-acceptance",
+  "published": false,
+  "releaseIdentity": {
+    "status": "local",
+    "executableBytes": 17797632,
+    "executableSha256": "524b72a5fa1b4b72832aff88460a7487fbffbed8024035fb4221b29966e32791",
+    "producer": "export-source-set-v1:62",
+    "producerSha256": "88c35464733fb2f309e895dad536a8a9575c6292f61043f87a5de5a1f3440cf3"
+  },
+  "nativeShell": {
+    "defaultMotion": {
+      "status": "local",
+      "published": false,
+      "fullAcceptance": true,
+      "releaseArtifactReceipt": {
+        "status": "local",
+        "executableBytes": 17797632,
+        "executableSha256": "524b72a5fa1b4b72832aff88460a7487fbffbed8024035fb4221b29966e32791",
+        "producer": "export-source-set-v1:62",
+        "producerSha256": "88c35464733fb2f309e895dad536a8a9575c6292f61043f87a5de5a1f3440cf3"
+      },
+      "capabilityTable": {
+        "source": "live runtime DOM capability table",
+        "declaredWidgetCount": 3,
+        "panelIds": [
+          "manager",
+          "stage",
+          "inspector"
+        ],
+        "widgetIds": [
+          "platform-preview",
+          "references",
+          "document-statistics"
+        ]
+      },
+      "articleContextReuse": {
+        "status": "local",
+        "sameWindow": true,
+        "initialRoutePreserved": true,
+        "liveReadbackMatchesArticleB": true,
+        "contextSource": "live"
+      },
+      "systemClose": {
+        "status": "local",
+        "widgetId": "platform-preview",
+        "finalPlacement": "closed",
+        "restoredFocus": ".inspector-widget-menu-trigger"
+      },
+      "lifecycleRows": {
+        "count": 6,
+        "statuses": [
+          "local"
+        ],
+        "ids": [
+          "manager",
+          "stage",
+          "inspector",
+          "platform-preview",
+          "references",
+          "document-statistics"
+        ]
+      },
+      "restart": {
+        "status": "local",
+        "processChanged": true,
+        "rowCount": 7,
+        "statuses": [
+          "local"
+        ]
+      }
+    },
+    "osOnlyReducedMotion": {
+      "status": "local",
+      "published": false,
+      "fullAcceptance": true,
+      "releaseArtifactReceipt": {
+        "status": "local",
+        "executableBytes": 17797632,
+        "executableSha256": "524b72a5fa1b4b72832aff88460a7487fbffbed8024035fb4221b29966e32791",
+        "producer": "export-source-set-v1:62",
+        "producerSha256": "88c35464733fb2f309e895dad536a8a9575c6292f61043f87a5de5a1f3440cf3"
+      },
+      "capabilityTable": {
+        "source": "live runtime DOM capability table",
+        "declaredWidgetCount": 3,
+        "panelIds": [
+          "manager",
+          "stage",
+          "inspector"
+        ],
+        "widgetIds": [
+          "platform-preview",
+          "references",
+          "document-statistics"
+        ]
+      },
+      "articleContextReuse": {
+        "status": "local",
+        "sameWindow": true,
+        "initialRoutePreserved": true,
+        "liveReadbackMatchesArticleB": true,
+        "contextSource": "live"
+      },
+      "systemClose": {
+        "status": "local",
+        "widgetId": "platform-preview",
+        "finalPlacement": "closed",
+        "restoredFocus": ".inspector-widget-menu-trigger"
+      },
+      "lifecycleRows": {
+        "count": 6,
+        "statuses": [
+          "local"
+        ],
+        "ids": [
+          "manager",
+          "stage",
+          "inspector",
+          "platform-preview",
+          "references",
+          "document-statistics"
+        ]
+      },
+      "restart": {
+        "status": "local",
+        "processChanged": true,
+        "rowCount": 7,
+        "statuses": [
+          "local"
+        ]
+      },
+      "osClientAreaAnimation": {
+        "originalClientAreaAnimation": true,
+        "disabledReadback": false,
+        "disableExitCode": 0,
+        "testExitCode": 0,
+        "restoreAction": "enable",
+        "restoreReadback": true,
+        "restoreExitCode": 0,
+        "finalClientAreaAnimation": true,
+        "finalReadExitCode": 0,
+        "restored": true
+      }
+    }
+  },
+  "platformArtifacts": {
+    "xhs": {
+      "manifest": {
+        "path": "inkforge-platform-acceptance.xiaohongshu/manifest.json",
+        "bytes": 2173,
+        "sha256": "076cd021d1c7a52ef356809a7c37c2bed9a9bae076f68c44cfb40719c646dfa3"
+      },
+      "post": {
+        "path": "inkforge-platform-acceptance.xiaohongshu/post.txt",
+        "bytes": 932,
+        "sha256": "b155c1be1cd375401234ee19fb24f62c2b55a2229de4ce4daa23106cc250c3ce"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "fileName": "page-01.png",
+          "path": "inkforge-platform-acceptance.xiaohongshu/page-01.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 152490,
+          "sha256": "bbdafe6e49cda23bed3cd44f790b15d46f69423c0359d156c64c4fb9dc4be633",
+          "cover": true,
+          "cropStatus": "ok",
+          "referencedByBody": true
+        },
+        {
+          "page": 2,
+          "fileName": "page-02.png",
+          "path": "inkforge-platform-acceptance.xiaohongshu/page-02.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 116260,
+          "sha256": "0f271e0830688d187cbf21c6f7f73ae37bb195de559973b61ccc5ccafbf9936d",
+          "cover": false,
+          "cropStatus": "ok",
+          "referencedByBody": true
+        },
+        {
+          "page": 3,
+          "fileName": "page-03.png",
+          "path": "inkforge-platform-acceptance.xiaohongshu/page-03.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 150599,
+          "sha256": "373112853f71a26c3f1fc11746c6ceed03199cb658f7e7599d68b10e5bceabbf",
+          "cover": false,
+          "cropStatus": "ok",
+          "referencedByBody": true
+        },
+        {
+          "page": 4,
+          "fileName": "page-04.png",
+          "path": "inkforge-platform-acceptance.xiaohongshu/page-04.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 106600,
+          "sha256": "df60f6a034ab7a0f449ee91e7b5d6a3d53042535d50b3f71da5435c4bdb67efd",
+          "cover": false,
+          "cropStatus": "ok",
+          "referencedByBody": true
+        },
+        {
+          "page": 5,
+          "fileName": "page-05.png",
+          "path": "inkforge-platform-acceptance.xiaohongshu/page-05.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 76731,
+          "sha256": "a4b94648ef069300ebf98c195cf667ac4c72fafe1d72a39539f35da65bf9bd79",
+          "cover": false,
+          "cropStatus": "ok",
+          "referencedByBody": true
+        },
+        {
+          "page": 6,
+          "fileName": "page-06.png",
+          "path": "inkforge-platform-acceptance.xiaohongshu/page-06.png",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 90222,
+          "sha256": "dc780d1aa44c1d3a404fb9e282a42254cb9ad04be1ebccd42f13afe0eb70b0bc",
+          "cover": false,
+          "cropStatus": "ok",
+          "referencedByBody": true
+        }
+      ]
+    },
+    "zhihu": {
+      "manifest": {
+        "path": "inkforge-platform-acceptance.zhihu-manifest.json",
+        "bytes": 611,
+        "sha256": "c8c7852827f2cdc9a5ff03cf961b93156d6c53c75d58e8a7a567526bac66721b"
+      },
+      "markdown": {
+        "path": "inkforge-platform-acceptance.md",
+        "bytes": 948,
+        "sha256": "1fa72f5ce2cb88fae7b1e5815a6b709d7d04ff4f6d14721f22cbda3554fef7eb"
+      },
+      "artifacts": [
+        {
+          "id": "zhihu-image-1",
+          "sourcePath": "inkforge-platform-acceptance.assets/ec465df6a8fa5629.png",
+          "finalPath": "inkforge-platform-acceptance.assets/ec465df6a8fa5629.png",
+          "fileName": "ec465df6a8fa5629.png",
+          "format": "png",
+          "width": 512,
+          "height": 512,
+          "bytes": 31758,
+          "sha256": "ec465df6a8fa56299f74d597f7d7f9bb8b90013ec4914ef315c76e09ef8cfaa5",
+          "referencedByMarkdown": true
+        }
+      ]
+    }
+  },
+  "platformReadbackReceipt": {
+    "status": "not-run",
+    "published": false,
+    "reason": "External XHS and Zhihu platform readback is outside this local release harness."
+  },
+  "externalGates": {
+    "wechatDraftRoundTrip": {
+      "gateStatus": "blocked",
+      "receiptStatus": "not-run",
+      "published": false,
+      "blocker": "official credentials unavailable"
+    },
+    "wechatNativeMediaEditorReadback": {
+      "gateStatus": "blocked",
+      "receiptStatus": "not-run",
+      "published": false,
+      "blocker": "authenticated editor unavailable"
+    },
+    "xiaohongshuEditorReadback": {
+      "gateStatus": "blocked",
+      "receiptStatus": "not-run",
+      "published": false,
+      "blocker": "authenticated editor unavailable"
+    },
+    "zhihuEditorReadback": {
+      "gateStatus": "blocked",
+      "receiptStatus": "not-run",
+      "published": false,
+      "blocker": "authenticated editor unavailable"
+    }
+  }
+}

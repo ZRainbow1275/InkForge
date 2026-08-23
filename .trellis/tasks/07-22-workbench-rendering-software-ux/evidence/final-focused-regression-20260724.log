@@ -1,0 +1,173 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ src/services/export/shared-typography.test.ts (4 tests) 4290ms
+     ✓ inlines canonical typography into the real WeChat artifact  449ms
+     ✓ keeps every canonical typography control effective in every WeChat preset  3821ms
+ ✓ src/views/__tests__/PublishView.wechat-presets.test.ts (15 tests) 327ms
+stderr | src/stores/settings.ai.test.ts > AI settings and writing-task prompts > keeps a legacy key session-only when the native credential store is unavailable
+[InkForge] [WARN] 2026-07-23T18:01:48.360Z | AI API Key 未能迁移到系统凭据库 | {"provider":"deepseek","reason":"系统凭据库仅在 InkForge 桌面应用中可用"}
+
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+ ✓ src/stores/settings.ai.test.ts (6 tests) 1111ms
+     ✓ forwards constraints through real failed Ollama writing, chat, and regeneration requests  1054ms
+ ✓ src/services/export/delivery-adornments.test.ts (7 tests) 196ms
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > reports failure when manual sync is requested without a provider
+[InkForge] [ERROR] 2026-07-23T18:01:52.093Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > keeps each engine bound to its construction profile
+[InkForge] [ERROR] 2026-07-23T18:01:52.097Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > preserves pending changes and reports failure when no provider is configured
+[InkForge] [DEBUG] 2026-07-23T18:01:52.100Z | [ChangeTracker] 记录变更 | {"articleId":"doc-1","operation":"update","checksum":"359b3657...","deduplicated":false}
+
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > preserves pending changes and reports failure when no provider is configured
+[InkForge] [ERROR] 2026-07-23T18:01:52.101Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > detaches and restores network listeners with the engine lifecycle
+[InkForge] [INFO] 2026-07-23T18:01:52.104Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.104Z | [SyncEngine] 引擎已销毁
+
+stderr | src/services/sync/sync-provider.test.ts > SyncEngine no-provider contract > detaches and restores network listeners with the engine lifecycle
+[InkForge] [ERROR] 2026-07-23T18:01:52.104Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > keeps pending queues and outbox attribution isolated when switching profiles
+[InkForge] [DEBUG] 2026-07-23T18:01:52.215Z | [ChangeTracker] 记录变更 | {"articleId":"doc-a","operation":"update","checksum":"f245bf69...","deduplicated":false}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > keeps pending queues and outbox attribution isolated when switching profiles
+[InkForge] [DEBUG] 2026-07-23T18:01:52.216Z | [ChangeTracker] 记录变更 | {"articleId":"doc-b","operation":"update","checksum":"6ce5fb87...","deduplicated":false}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > keeps pending queues and outbox attribution isolated when switching profiles
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.217Z | [SyncStore] 资源已清理
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [DEBUG] 2026-07-23T18:01:52.219Z | [ChangeTracker] 记录变更 | {"articleId":"doc-a","operation":"update","checksum":"f245bf69...","deduplicated":false}
+
+stderr | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [ERROR] 2026-07-23T18:01:52.221Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stderr | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [ERROR] 2026-07-23T18:01:52.221Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > does not let an old profile sync completion overwrite the active result
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncStore] 资源已清理
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [INFO] 2026-07-23T18:01:52.222Z | [SyncEngine] 自动同步已启动 | {"intervalMs":100}
+
+stderr | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [ERROR] 2026-07-23T18:01:52.622Z | [AuditLogger] 审计日志记录失败 | {"errorName":"MissingAPIError","errorMessage":"IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb"}
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [INFO] 2026-07-23T18:01:52.622Z | [SyncEngine] 自动同步已停止
+
+stdout | src/services/sync/sync-provider.test.ts > Sync store profile isolation > pauses inactive profile auto-sync and resumes it when that profile is active again
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:52.922Z | [SyncStore] 资源已清理
+
+ ✓ src/services/sync/sync-provider.test.ts (12 tests) 717ms
+     ✓ reports failure when manual sync is requested without a provider  578ms
+ ✓ src/services/ai/pi.test.ts (6 tests) 591ms
+     ✓ fails closed on a real unreachable endpoint without manufacturing health success  579ms
+ ✓ src/services/export/persona-distinction.test.ts (8 tests) 370ms
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:01:56.076Z | [SyncEngine] 自动同步已停止
+
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:01:56.080Z | [SyncEngine] 自动同步已停止
+
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:01:56.081Z | [SyncEngine] 自动同步已停止
+
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+stdout | src/services/sync/configuration.test.ts > sync configuration metadata > binds persisted metadata to the real SyncEngine and preserves a failed health result
+[InkForge] [INFO] 2026-07-23T18:01:56.085Z | [SyncEngine] 自动同步已停止
+[InkForge] [INFO] 2026-07-23T18:01:56.085Z | [SyncEngine] 引擎已销毁
+[InkForge] [INFO] 2026-07-23T18:01:56.085Z | [SyncStore] 资源已清理
+
+ ✓ src/services/sync/configuration.test.ts (5 tests) 191ms
+stderr | src/stores/settings.editor.test.ts > settings editor preferences > falls back to the Notion behavior for an invalid persisted value
+[InkForge] [WARN] 2026-07-23T18:01:57.326Z | 设置数据校验失败，使用默认值 | {"zodErrors":["Invalid option: expected one of \"notion\"|\"typora\""]}
+
+ ✓ src/stores/settings.editor.test.ts (8 tests) 73ms
+ ✓ src/stores/settings.data.test.ts (3 tests) 81ms
+stderr | src/stores/settings.delivery-adornments.test.ts > settings delivery adornments > fails closed on active-content component URLs instead of persisting an executable payload
+[InkForge] [WARN] 2026-07-23T18:02:00.236Z | 设置数据校验失败，使用默认值 | {"zodErrors":["仅允许无凭据的 HTTP/HTTPS URL"]}
+[InkForge] [WARN] 2026-07-23T18:02:00.241Z | 设置数据校验失败，使用默认值 | {"zodErrors":["仅允许无凭据的 HTTP/HTTPS URL"]}
+
+ ✓ src/stores/settings.delivery-adornments.test.ts (3 tests) 61ms
+ ✓ src/stores/settings.export-history.test.ts (3 tests) 60ms
+ ✓ src/extensions/__tests__/TypewriterMode.decorations.test.ts (14 tests) 36ms
+ ✓ src/stores/devPanel.test.ts (2 tests) 37ms
+ ✓ src/views/__tests__/HubView.cards.test.ts (18 tests) 17ms
+ ✓ src/stores/writingAssist.test.ts (10 tests) 26ms
+ ✓ src/views/__tests__/WorkstationView.desktop-layout.test.ts (20 tests) 19ms
+ ✓ src/views/__tests__/SettingsView.software-shell.test.ts (10 tests) 14ms
+ ✓ src/services/visual-system/index.test.ts (3 tests) 8ms
+ ✓ src/views/__tests__/WorkstationView.vignette.test.ts (6 tests) 18ms
+ ✓ src/components/export/ExportModal.svg-options.test.ts (7 tests) 10ms
+ ✓ src/components/export/ExportModal.local-delivery.test.ts (3 tests) 5ms
+ ✓ src/views/__tests__/WorkstationView.focus-collision.test.ts (5 tests) 6ms
+ ✓ src/views/__tests__/ThemesView.canonical-presets.test.ts (3 tests) 5ms
+ ✓ src/components/file/FileManager.information-architecture.test.ts (4 tests) 7ms
+
+ Test Files  25 passed (25)
+      Tests  185 passed (185)
+   Start at  02:01:36
+   Duration  37.13s (transform 4.31s, setup 0ms, import 12.26s, tests 8.28s, environment 10.21s)
+

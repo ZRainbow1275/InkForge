@@ -1,0 +1,42 @@
+R-01..R-23 Core Regression Check - 2026-07-22
+
+Purpose:
+- Recheck the shared implementation paths behind the remaining Workstation, rendering, Settings, and Hub hand-test rows after the XHS card repair.
+- Run serially to stay within local memory limits.
+- No Tauri foreground input, article mutation, storage clearing, browser automation, account action, upload, or publication.
+
+Result:
+- PASS: 15 test files
+- PASS: 87 tests
+
+Covered files:
+- ViewTransition.test.ts
+- ExportModal.local-delivery.test.ts
+- FileManager.information-architecture.test.ts
+- usePreviewRenderer.test.ts
+- TypewriterMode.decorations.test.ts
+- local-delivery.test.ts
+- shared-typography.test.ts
+- layout-persistence.test.ts
+- settings.editor.test.ts
+- writingAssist.test.ts
+- HubView.cards.test.ts
+- SettingsView.software-shell.test.ts
+- ThemesView.canonical-presets.test.ts
+- WorkstationView.desktop-layout.test.ts
+- WorkstationView.vignette.test.ts
+
+Key runtime-path assertions retained:
+- Workstation command/review/split/advanced-pane contracts
+- Canonical file tree and information architecture
+- Typewriter and vignette state/decorations
+- Shared typography and all platform preview routes
+- 16 WeChat / 5 XHS / 3 Zhihu canonical preset counts
+- Export/local-delivery separation
+- Settings shell/tab transition and control layout
+- Hub retained creation routes, editable local/AI inspiration state, and real search keyboard flow
+
+Boundary:
+- These checks prove implementation contracts and regression safety only.
+- They do not replace the remaining visible native interactions listed in handtest-remaining-20260722.md.
+- They do not prove XHS/Zhihu account upload or publication, WeChat phone preview, mobile Dark Mode, official-editor paste, credentialed sync, scheduled send, or publication.

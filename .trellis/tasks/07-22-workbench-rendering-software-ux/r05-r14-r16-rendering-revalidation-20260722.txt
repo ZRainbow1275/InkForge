@@ -1,0 +1,38 @@
+R-05/R-14/R-15/R-16 Rendering Chain Revalidation - 2026-07-22
+
+Scope:
+- Read-only source and local renderer verification while the user owns the native foreground window.
+- No article, clipboard, account, browser, upload, draft, sync, or publication action.
+
+Current source chain:
+- Workstation visible typography controls -> useTypography() -> settings.appearance.typography.
+- Workstation preview -> usePreviewRenderer() -> the same appearance snapshot and selected platform preset.
+- Workstation native copy -> convertToNativeFormat() with the same preset and typography overrides.
+- ExportModal -> the same Settings platform/preset plus effective WeChat typography CSS.
+- Publish -> the same Settings platform/preset and appearance typography for preview/native handoff.
+- XHS native output remains text; Zhihu native output remains clean Markdown. Neither receives invented WeChat CSS.
+
+Application preflight:
+- Command: pnpm --silent -C inkforge style-proof:release-preflight --scope=application --json
+- Exit: 0
+- Status: application-ready
+- SVG modules/families: 27 / 7
+- Personas and rendered pairs: 4 / 108 of 108
+- Application, WeChat-safe, and sentinel issues: 0
+- WeChat application slots/surfaces/pipeline contracts: 5 of 5 / 2 of 2 / 3 of 3
+- Selectable rendered style samples: 13 of 13
+- Style-sample SVG modules: 45
+- canClaimApplicationReady: true
+- canClaimReleaseComplete: false
+- External boundary remains blocked-by-external; XHS/Zhihu publication automation remains deferred to the user.
+
+Focused regression:
+- Command: pnpm -C inkforge exec vitest run src/services/export/shared-typography.test.ts src/composables/usePreviewRenderer.test.ts src/components/export/ExportModal.svg-options.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/views/__tests__/WorkstationView.desktop-layout.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+- PASS: 6 files / 53 tests.
+- XHS preview similarity: 1.0000.
+- XHS cross-route similarity: 0.9979.
+- The expected large-input safety warnings remained fail-safe and did not fail the run.
+
+Decision:
+- No new product code was needed. Adding another renderer, adapter, or duplicated typography state would contradict the verified canonical chain.
+- Current native visual comparison remains required for every visible typography control, all WeChat recipes, platform/preset retention, and distinct Export versus Publish actions.

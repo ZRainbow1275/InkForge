@@ -1,0 +1,137 @@
+﻿pid=57032 hwnd=37687426 count=160 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 发布","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 发布 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 发布","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"296,59,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2105,45,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2180,45,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2255,45,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回工作台","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,89,48,49","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"272,101,24,25","Patterns":""}
+{"Index":9,"Type":"Text","Name":"发布中心","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"326,95,96,37","Patterns":""}
+{"Index":10,"Type":"Text","Name":"未命名文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"440,100,105,26","Patterns":""}
+{"Index":11,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2174,103,22,21","Patterns":""}
+{"Index":12,"Type":"Text","Name":"CSS 已内联","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2204,103,96,21","Patterns":""}
+{"Index":13,"Type":"Text","Name":"目标平台","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2856,464,30","Patterns":""}
+{"Index":14,"Type":"Button","Name":"微信公众号 CSS 内联 + 脚注转换","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2809,464,116","Patterns":"Invoke"}
+{"Index":15,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"303,-2765,28,28","Patterns":""}
+{"Index":16,"Type":"Button","Name":"小红书 清新视觉 + 简化格式","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2682,464,117","Patterns":"Invoke"}
+{"Index":17,"Type":"Button","Name":"知 知乎 专业排版 + 代码高亮","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2554,464,116","Patterns":"Invoke"}
+{"Index":18,"Type":"Text","Name":"排版预设","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2378,464,30","Patterns":""}
+{"Index":19,"Type":"Button","Name":"论文翻译","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2330,226,62","Patterns":"Invoke"}
+{"Index":20,"Type":"Button","Name":"法学研讨","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-2330,226,62","Patterns":"Invoke"}
+{"Index":21,"Type":"Button","Name":"行业研报","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2257,226,62","Patterns":"Invoke"}
+{"Index":22,"Type":"Button","Name":"时事点评","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-2257,226,62","Patterns":"Invoke"}
+{"Index":23,"Type":"Button","Name":"AIGC","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2184,226,62","Patterns":"Invoke"}
+{"Index":24,"Type":"Button","Name":"编程创造","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-2184,226,62","Patterns":"Invoke"}
+{"Index":25,"Type":"Button","Name":"学习笔记","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2111,226,62","Patterns":"Invoke"}
+{"Index":26,"Type":"Button","Name":"新闻","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-2111,226,62","Patterns":"Invoke"}
+{"Index":27,"Type":"Button","Name":"整活","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-2037,226,62","Patterns":"Invoke"}
+{"Index":28,"Type":"Button","Name":"人生感悟","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-2037,226,62","Patterns":"Invoke"}
+{"Index":29,"Type":"Button","Name":"优雅","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1964,226,62","Patterns":"Invoke"}
+{"Index":30,"Type":"Button","Name":"科技","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-1964,226,62","Patterns":"Invoke"}
+{"Index":31,"Type":"Button","Name":"赤陶旗舰","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1891,226,62","Patterns":"Invoke"}
+{"Index":32,"Type":"Button","Name":"赤陶兼容旗舰","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-1891,226,62","Patterns":"Invoke"}
+{"Index":33,"Type":"Button","Name":"铜绿旗舰","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1818,226,62","Patterns":"Invoke"}
+{"Index":34,"Type":"Button","Name":"黄铜旗舰","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"498,-1818,226,62","Patterns":"Invoke"}
+{"Index":35,"Type":"Button","Name":"查看全部主题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1741,135,45","Patterns":"Invoke"}
+{"Index":36,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1728,18,19","Patterns":""}
+{"Index":37,"Type":"Text","Name":"导出选项","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1635,464,30","Patterns":""}
+{"Index":38,"Type":"Text","Name":"Mac 风格代码块","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1571,143,25","Patterns":""}
+{"Index":39,"Type":"Text","Name":"添加三色圆点标题栏","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1540,149,20","Patterns":""}
+{"Index":40,"Type":"Text","Name":"代码行号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1485,78,25","Patterns":""}
+{"Index":41,"Type":"Text","Name":"显示代码块行号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1454,116,21","Patterns":""}
+{"Index":42,"Type":"Text","Name":"外链转脚注","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1398,98,25","Patterns":""}
+{"Index":43,"Type":"Text","Name":"将外部链接转为底部引用","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1367,182,20","Patterns":""}
+{"Index":44,"Type":"Text","Name":"首行缩进","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1312,78,25","Patterns":""}
+{"Index":45,"Type":"Text","Name":"段落首行缩进 2 字符","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1281,152,21","Patterns":""}
+{"Index":46,"Type":"Group","Name":"发布中心微信公众号 SVG 高级排版模块","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-1227,464,878","Patterns":""}
+{"Index":47,"Type":"Button","Name":"SVG 高级排版模块 发布中心直接应用 InkForge 自有 SVG 样式","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"276,-1211,432,69","Patterns":"Invoke"}
+{"Index":48,"Type":"Text","Name":"默认关闭，不改变发布中心现有导出；开启后可选择 27 个 SVG 模块并输出到微信公众号 HTML。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"276,-1130,425,45","Patterns":""}
+{"Index":49,"Type":"Text","Name":"封面导语","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-1055,72,22","Patterns":""}
+{"Index":50,"Type":"Text","Name":"插入文首封面或导语 SVG，适合公众号头图式开场。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-1025,350,20","Patterns":""}
+{"Index":51,"Type":"ComboBox","Name":"封面导语 插入文首封面或导语 SVG，适合公众号头图式开场。","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"289,-999,406,43","Patterns":"Value,ExpandCollapse"}
+{"Index":52,"Type":"Text","Name":"二级标题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-916,72,22","Patterns":""}
+{"Index":53,"Type":"Text","Name":"替换 H2 标题为 SVG 标题系统，承接文章章节层级。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-886,353,20","Patterns":""}
+{"Index":54,"Type":"ComboBox","Name":"二级标题 替换 H2 标题为 SVG 标题系统，承接文章章节层级。","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"289,-859,406,43","Patterns":"Value,ExpandCollapse"}
+{"Index":55,"Type":"Text","Name":"分割线","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-776,54,22","Patterns":""}
+{"Index":56,"Type":"Text","Name":"替换 Markdown 分割线，形成更强的章节节奏。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-746,324,20","Patterns":""}
+{"Index":57,"Type":"ComboBox","Name":"分割线 替换 Markdown 分割线，形成更强的章节节奏。","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"289,-720,406,43","Patterns":"Value,ExpandCollapse"}
+{"Index":58,"Type":"Text","Name":"引用卡片","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-637,72,22","Patterns":""}
+{"Index":59,"Type":"Text","Name":"替换引用块，保留原始引用文本并应用 SVG 样式。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-607,340,20","Patterns":""}
+{"Index":60,"Type":"ComboBox","Name":"引用卡片 替换引用块，保留原始引用文本并应用 SVG 样式。","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"289,-581,406,43","Patterns":"Value,ExpandCollapse"}
+{"Index":61,"Type":"Text","Name":"全量试用位","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-498,90,22","Patterns":""}
+{"Index":62,"Type":"Text","Name":"将任意已注册 SVG 模块追加到文末，用于应用层全量预览与挑选。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"289,-468,400,40","Patterns":""}
+{"Index":63,"Type":"ComboBox","Name":"全量试用位 将任意已注册 SVG 模块追加到文末，用于应用层全量预览与挑选。","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"289,-421,406,43","Patterns":"Value,ExpandCollapse"}
+{"Index":64,"Type":"Group","Name":"文前、组件与许可","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,-289,464,782","Patterns":""}
+{"Index":65,"Type":"Text","Name":"交付快照","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-288,68,20","Patterns":""}
+{"Index":66,"Type":"Text","Name":"文前、组件与许可","AutomationId":"delivery-panel-title","Enabled":true,"Offscreen":true,"Rect":"260,-261,361,33","Patterns":""}
+{"Index":67,"Type":"Text","Name":"预览、导出与发布交接共用同一份配置；平台不支持的内容不会写入假占位。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"260,-219,347,47","Patterns":""}
+{"Index":68,"Type":"Text","Name":"0 个组件","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"651,-281,60,20","Patterns":""}
+{"Index":69,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"291,-117,24,25","Patterns":""}
+{"Index":70,"Type":"Text","Name":"文前阅读时间","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"345,-128,108,22","Patterns":""}
+{"Index":71,"Type":"Text","Name":"根据当前正文与阅读速度实时计算","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"345,-101,225,20","Patterns":""}
+{"Index":72,"Type":"CheckBox","Name":"文前阅读时间 根据当前正文与阅读速度实时计算","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"685,-115,20,21","Patterns":"Toggle,Value"}
+{"Index":73,"Type":"Text","Name":"阅读速度","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"278,-31,66,21","Patterns":""}
+{"Index":74,"Type":"Spinner","Name":"阅读速度 字/分钟","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"528,-46,124,52","Patterns":"Value,RangeValue"}
+{"Index":75,"Type":"Text","Name":"字/分钟","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"661,-29,45,17","Patterns":""}
+{"Index":76,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"291,63,24,25","Patterns":""}
+{"Index":77,"Type":"Text","Name":"文末 CC 协议","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"345,41,108,22","Patterns":""}
+{"Index":78,"Type":"Text","Name":"保持文章原有权利声明，不在产物尾部增加 CC 协议。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"345,68,331,42","Patterns":""}
+{"Index":79,"Type":"ComboBox","Name":"文末 CC 协议 保持文章原有权利声明，不在产物尾部增加 CC 协议。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"279,126,426,52","Patterns":"Value,ExpandCollapse"}
+{"Index":80,"Type":"Text","Name":"平台组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,219,72,22","Patterns":""}
+{"Index":81,"Type":"Text","Name":"按列表顺序写入正文尾部、许可协议之前","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,246,270,20","Patterns":""}
+{"Index":82,"Type":"Text","Name":"0 / 24","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"668,225,43,20","Patterns":""}
+{"Index":83,"Type":"Button","Name":"歌曲","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,282,149,52","Patterns":"Invoke"}
+{"Index":84,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"293,297,20,21","Patterns":""}
+{"Index":85,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"318,297,22,22","Patterns":""}
+{"Index":86,"Type":"Button","Name":"图片","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"417,282,150,52","Patterns":"Invoke"}
+{"Index":87,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"450,297,21,21","Patterns":""}
+{"Index":88,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"476,297,22,22","Patterns":""}
+{"Index":89,"Type":"Button","Name":"链接","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"575,282,149,52","Patterns":"Invoke"}
+{"Index":90,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"608,297,20,21","Patterns":""}
+{"Index":91,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"633,297,22,22","Patterns":""}
+{"Index":92,"Type":"Button","Name":"关联文章","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,342,149,52","Patterns":"Invoke"}
+{"Index":93,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"278,357,20,21","Patterns":""}
+{"Index":94,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"303,357,22,22","Patterns":""}
+{"Index":95,"Type":"Button","Name":"名片","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"417,342,150,52","Patterns":"Invoke"}
+{"Index":96,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"450,357,21,21","Patterns":""}
+{"Index":97,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"476,357,22,22","Patterns":""}
+{"Index":98,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"279,436,21,28","Patterns":""}
+{"Index":99,"Type":"Text","Name":"尚未添加平台组件。可按交付顺序加入歌曲、图片、链接、关联文章或名片。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"313,429,391,43","Patterns":""}
+{"Index":100,"Type":"Text","Name":"微信草稿","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,553,464,30","Patterns":""}
+{"Index":101,"Type":"Text","Name":"缺少 WECHAT_APP_ID、WECHAT_APP_SECRET；请在 inkforge/.env.local 配置测试号凭据，且不要使用 VITE_ 前缀。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"276,617,420,70","Patterns":""}
+{"Index":102,"Type":"Text","Name":"草稿标题","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,721,66,21","Patterns":""}
+{"Index":103,"Type":"Edit","Name":"草稿标题","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,751,464,52","Patterns":"Value"}
+{"Index":104,"Type":"Text","Name":"封面 thumb_media_id","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,819,169,21","Patterns":""}
+{"Index":105,"Type":"Edit","Name":"封面 thumb_media_id","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,849,464,52","Patterns":"Value"}
+{"Index":106,"Type":"CheckBox","Name":"正文显示封面图","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,918,20,20","Patterns":"Toggle,Value"}
+{"Index":107,"Type":"Text","Name":"正文显示封面图","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"290,917,116,21","Patterns":""}
+{"Index":108,"Type":"Button","Name":"创建微信草稿","AutomationId":"","Enabled":false,"Offscreen":false,"Rect":"260,955,464,64","Patterns":"Invoke"}
+{"Index":109,"Type":"Text","Name":"输出统计","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,1079,464,30","Patterns":""}
+{"Index":110,"Type":"Text","Name":"5","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"304,1135,19,34","Patterns":""}
+{"Index":111,"Type":"Text","Name":"字数","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"295,1170,37,21","Patterns":""}
+{"Index":112,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"423,1135,19,34","Patterns":""}
+{"Index":113,"Type":"Text","Name":"阅读时间","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"396,1170,73,21","Patterns":""}
+{"Index":114,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"542,1135,19,34","Patterns":""}
+{"Index":115,"Type":"Text","Name":"代码块","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"524,1170,55,21","Patterns":""}
+{"Index":116,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"661,1135,19,34","Patterns":""}
+{"Index":117,"Type":"Text","Name":"链接","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"652,1170,37,21","Patterns":""}
+{"Index":118,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,1266,464,64","Patterns":"Invoke"}
+{"Index":119,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"400,1285,25,25","Patterns":""}
+{"Index":120,"Type":"Button","Name":"查看源码","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"260,1341,464,55","Patterns":"Invoke"}
+{"Index":121,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"438,1357,21,22","Patterns":""}
+{"Index":122,"Type":"Tab","Name":"发布预览视图","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"800,171,228,54","Patterns":""}
+{"Index":123,"Type":"TabItem","Name":"预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"804,175,109,46","Patterns":"SelectionItem"}
+{"Index":124,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"825,187,22,22","Patterns":""}
+{"Index":125,"Type":"TabItem","Name":"源码","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"915,175,109,46","Patterns":"SelectionItem"}
+{"Index":126,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"936,187,22,22","Patterns":""}
+{"Index":127,"Type":"Pane","Name":"平台原生产物源码","AutomationId":"publish-source-panel","Enabled":true,"Offscreen":false,"Rect":"770,244,1560,1181","Patterns":""}
+{"Index":128,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"831,306,23,23","Patterns":""}
+{"Index":129,"Type":"Text","Name":"微信公众号 HTML（内联样式）","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"865,307,242,20","Patterns":""}
+{"Index":130,"Type":"Button","Name":"复制源码","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2018,299,121,37","Patterns":"Invoke"}
+{"Index":131,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2033,308,19,19","Patterns":""}
+{"Index":132,"Type":"Button","Name":"收起源码","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2149,299,120,37","Patterns":"Invoke"}
+{"Index":133,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2164,308,18,19","Patterns":""}
+{"Index":134,"Type":"Text","Name":"\u003cp style=\"font-size:0;line-height:0;margin:0;padding:0\"\u003e\u0026nbsp;\u003c/p\u003e\u003csection id=\"nice\" style=\"margin:0 auto;padding:0 4px;text-justify:inter-ideograph;word-break:break-word;line-break:strict;font-feature-settings:\u0027palt\u0027;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#faf9f6;color:#2a2a2a;counter-reset:ink-ch;font-family:\u0027Fira Code\u0027, \u0027JetBrains Mono\u0027, Menlo, Monaco, Consolas, \u0027Courier New\u0027, monospace;font-size:20px;line-height:1.3;letter-spacing:0.11em\"\u003e\u003cdiv data-wechat-clamp=\"1\" style=\"max-width:677px;margin:0 auto;\"\u003e\n\u003cdiv style=\"margin:0 0 24px;padding:0 0 14px;border-bottom:1px solid #E8EAED;color:#8E959D;font-size:13px;letter-spacing:0.2px;line-height:1.6\"\u003e\n  \u003cspan\u003e阅读约 1 分钟\u003c/span\u003e\u003cspan aria-hidden=\"true\" style=\"display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px\"\u003e\u003c/span\u003e\u003cspan\u003e全文 5 字\u003c/span\u003e\n\u003c/div\u003e\n\u003ch1 id=\"sad\" style=\"line-height:1.38;font-weight:700;text-align:center;margin:0.2em 0 0.8em;letter-spacing:0.08em;color:#2a2a2a;font-variant-numeric:oldstyle-nums;border-bottom:1px solid #cdbfa9;font-size:1.75em;background:#F7F8FA;padding:0.12em 0.4em;border-radius:6px\"\u003esad\u003c/h1\u003e\n\n\u003ch2 id=\"as-d\" style=\"margin:30px 0 16px 0;line-height:1.45;border-left:4px solid #0066cc;color:#2a2a2a;text-align:left;letter-spacing:0.03em;margin-top:0;font-variant-numeric:oldstyle-nums;counter-increment:ink-ch;position:relative;padding-left:0;border-bottom:1px solid #5a4a3c;padding-bottom:0.3em;margin-bottom:0.9em;font-weight:700;font-size:1.38em;background:#F7F8FA;padding:0.12em 0.4em;border-radius:6px\"\u003e\u003cspan style=\"color:#5a4a3c;font-weight:600;font-size:0.85em;margin-right:0.4em;opacity:0.85\"\u003e第一章\u003c/span\u003eas d\u003c/h2\u003e\n\n\u003cp style=\"padding:0;margin:0 0 1.15em;font-family:\u0027Fira Code\u0027, \u0027JetBrains Mono\u0027, Menlo, Monaco, Consolas, \u0027Courier New\u0027, monospace;font-size:20px;line-height:1.3;letter-spacing:0.11em;margin-bottom:22px;text-align:left;text-indent:0\"\u003edasdahasdi\u003c/p\u003e\n\u003cp style=\"padding:0;margin:0 0 1.15em;font-family:\u0027Fira Code\u0027, \u0027JetBrains Mono\u0027, Menlo, Monaco, Consolas, \u0027Courier New\u0027, monospace;font-size:20px;line-height:1.3;letter-spacing:0.11em;margin-bottom:22px;text-align:left;text-indent:0\"\u003easdasdad\u003c/p\u003e\n\u003c/div\u003e\u003c/section\u003e\u003cp style=\"font-size:0;line-height:0;margin:0;padding:0\"\u003e\u0026nbsp;\u003c/p\u003e","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"837,388,5940,336","Patterns":""}
+{"Index":135,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1268,1455,24,24","Patterns":""}

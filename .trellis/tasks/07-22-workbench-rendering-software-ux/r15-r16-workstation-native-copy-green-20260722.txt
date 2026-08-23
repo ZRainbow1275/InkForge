@@ -1,0 +1,28 @@
+R-15/R-16 Workstation native platform-output copy repair — 2026-07-22
+
+Implemented
+- Both existing Workstation copy entry points still share handleCopyToClipboard(); no duplicate action or exporter was added.
+- Empty real Markdown now fails closed even when usePreviewRenderer displays sample content.
+- The selected platform, preset, export settings, accent, font, and canonical typography are captured and passed to convertToNativeFormat().
+- WeChat HTML uses copyWechatHtmlToClipboard().
+- XHS text and Zhihu Markdown use copyTextToClipboard().
+- Export history records result.platform and the exact UTF-8 byte length of result.content after clipboard success.
+- Visible labels are now “复制微信富文本”, “复制小红书文本”, or “复制知乎 Markdown”.
+- Converter/clipboard failures remain local, are logged through the redacting logger, and produce a visible retry message.
+
+Verification
+- Workstation source contract: PASS, 1 file / 14 tests.
+- Integrated Workstation + Publish + cross-platform renderer run:
+  pnpm -C inkforge exec vitest run src/views/__tests__/WorkstationView.desktop-layout.test.ts src/views/__tests__/PublishView.wechat-presets.test.ts src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 6 files / 441 tests; cross-route XHS similarity 0.9979.
+- Exact ESLint over Workstation and its contract: PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false: PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build: PASS; 4,675 modules; 1m20s.
+- Generated inkforge/tsconfig.tsbuildinfo restored.
+- Vite reported only expected Workstation HMR and raw-test reload; endpoint remained HTTP 200 and InkForge.exe PID 21140 remained alive.
+- GitNexus post-edit aggregate detection: 318 changed symbols, 109 files, 31 affected processes, critical. This is the pre-existing dirty worktree aggregate; handleCopyToClipboard was individually LOW before editing with zero affected processes.
+
+Native boundary
+- The app was minimized while another application owned the foreground, so no clipboard mutation or native focus takeover was performed.
+- The user must visibly verify each label, paste the three real clipboard formats, and compare Settings export-history bytes.
+- XHS/Zhihu account upload and publication remain explicitly user-manual; this local copy repair makes no external-success claim.

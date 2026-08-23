@@ -1,0 +1,25 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+stdout | src/composables/usePreviewRenderer.test.ts > usePreviewRenderer — platform routing (P3-T11) > xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output
+[XHS preview similarity] = 1.0000
+
+ ✓ src/composables/usePreviewRenderer.test.ts (5 tests) 1871ms
+     ✓ xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output  372ms
+     ✓ zhihu: preview HTML contains equation img + table elements  374ms
+     ✓ wechat: preview HTML uses mock renderer with wechat-article container  373ms
+     ✓ wechat: canonical typography changes every supported preview rule  375ms
+     ✓ empty body: renders sample content and flags previewMeta.isSample = true  373ms
+ ✓ src/views/__tests__/PublishView.wechat-presets.test.ts (11 tests) 297ms
+ ✓ src/services/export/shared-typography.test.ts (2 tests) 132ms
+stderr | src/stores/settings.editor.test.ts > settings editor preferences > falls back to the Notion behavior for an invalid persisted value
+[InkForge] [WARN] 2026-07-22T11:54:35.040Z | 设置数据校验失败，使用默认值 | {"zodErrors":["Invalid option: expected one of \"notion\"|\"typora\""]}
+
+ ✓ src/stores/settings.editor.test.ts (8 tests) 42ms
+ ✓ src/views/__tests__/WorkstationView.desktop-layout.test.ts (12 tests) 9ms
+ ✓ src/components/export/ExportModal.local-delivery.test.ts (2 tests) 3ms
+
+ Test Files  6 passed (6)
+      Tests  40 passed (40)
+   Start at  19:54:27
+   Duration  8.13s (transform 1.29s, setup 0ms, import 3.14s, tests 2.36s, environment 1.63s)

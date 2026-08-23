@@ -1,0 +1,43 @@
+WeChat PC ordinary paste matrix summary - 2026-08-02
+
+Scope:
+- 16 current WeChat presets copied from the same Release InkForge application.
+- Trusted system clipboard text/plain + text/html followed by ordinary Windows Ctrl+V.
+- Readback bound the trusted paste event, DOM mutation, sentinels, and dimensions to the same editable article body.
+- No save, phone preview, sync, scheduled send, group send, or publish action.
+
+Release application SHA-256:
+119c5a0b197fe6436d13db6839950a78356fa7dcb13231df2e7b6af47866ce28
+
+Final handoff Release SHA-256:
+6afaa6c0b7f4e1410d9013e81c5cb823ab2ec8899e66f85827c9965230b62bd4
+
+Post-matrix change boundary:
+- Product changes after this matrix removed a duplicate PublishView clipboard fallback, exposed the real delivery media fields with accessible validation, parsed the delivery snapshot through the existing Schema boundary, invalidated stale preview metadata immediately, preserved an explicit empty WeChat state, normalized Markdown URL delimiters, and added a flagship song-frame category distinction.
+- The exact final Release passed the full native 13-test E2E suite; this external matrix was not rerun against that binary.
+- Matrix rows remain bound to the matrix Release hash above; they are not rewritten as evidence from the final handoff binary.
+
+Result:
+- Rows: 16/16 passed
+- Platform isolation: 16/16 passed
+- Trusted clipboard channel: 16/16 passed
+- Unsafe DOM checks: 16/16 passed
+- Horizontal overflow: 0/16
+- Script, foreignObject, or event-handler findings: 0/16
+- Required title, brand, song, reading time, word count, statistics, profile, license, and colophon sentinels: 16/16 passed
+- Source-relative inline SVG preservation: 4/4 SVG-bearing flagship presets passed
+- Base and non-SVG presets retained zero unexpected SVG.
+
+Visual review:
+- One base preset and four flagship presentations were inspected as full article bodies.
+- No clipping or horizontal overflow was visible.
+- The four flagship geometries remained visibly distinct while retaining InkForge brand anchors.
+- WeChat editor selection chrome was excluded from artifact interpretation.
+
+Structured evidence:
+- wechat-pc-ordinary-paste-matrix-20260802.jsonl
+
+Boundary:
+- This proves the current WeChat PC editor ordinary-paste result only.
+- It does not prove phone preview, mobile Dark Mode, mobile interaction, native song/profile cards, cover acceptance, sync, scheduled send, group send, or publish.
+- Xiaohongshu and Zhihu account tests were intentionally not performed; only local negative leakage tests apply.

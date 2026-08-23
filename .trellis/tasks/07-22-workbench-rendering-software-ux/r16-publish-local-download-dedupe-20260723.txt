@@ -1,0 +1,41 @@
+R-16 Publish local-download responsibility dedupe - 2026-07-23
+
+Scope
+- Separate local Export delivery from Publish channel/account/manual handoff.
+- No external upload, account action, clipboard mutation, or publication was automated.
+
+Root cause
+- Publish retained a second local preview-HTML download path after Export became the canonical local artifact surface.
+- `buildDownloadFileName()`, `downloadHtmlFile()`, and the `下载预览 HTML` button duplicated Export responsibility.
+
+GitNexus pre-edit impact
+- downloadHtmlFile: LOW; 1 direct caller; 0 affected processes/modules.
+- buildDownloadFileName: LOW; 1 direct caller; 0 affected processes; Views module only.
+
+Repair
+- Removed only the Publish-local Blob/download filename functions and their button.
+- Retained `查看源码`, `copyHtmlCode`, platform-native primary handoff, manual channel actions, and credentialed WeChat draft operations.
+- No renderer, registry, Store, route, schema, dependency, or external action changed.
+
+Regression
+- Red before product edit: Publish source contract 1 failed / 11 passed on the retained local-download function.
+- Green after repair: Publish source contract 12/12.
+- Integrated: Publish, Export local delivery, Workstation layout, cross-platform rendering, and Settings export history: 5 files / 411 tests passed.
+- Exact ESLint passed.
+- vue-tsc --noEmit --pretty false passed.
+- Production build passed: 4,675 modules, 1m48s, NODE_OPTIONS=--max-old-space-size=4096.
+- Generated tsconfig.tsbuildinfo was restored.
+
+Runtime
+- Existing pnpm tauri dev job remained running.
+- Existing InkForge.exe PID 21140 remained alive.
+- http://127.0.0.1:3005 returned HTTP 200.
+
+Post-edit graph audit
+- GitNexus detect_changes(scope=all): 339 changed symbols, 120 files, 31 affected processes, aggregate critical.
+- The aggregate result covers the pre-existing dirty worktree; the exact pre-edit impact for both removed Publish helpers was LOW.
+
+Boundary
+- This proves the implementation and local regression boundary only.
+- The user must visibly confirm Export has one native copy/download pair, Publish has no local HTML download, and clipboard/file/history bytes match WeChat HTML, XHS text, and Zhihu Markdown.
+- XHS/Zhihu account upload and publication remain user-manual.

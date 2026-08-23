@@ -1,0 +1,203 @@
+﻿pid=51656 hwnd=6426424 count=223 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"122,64,2048,1218","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 设置 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"122,65,2049,1218","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 设置","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"122,65,2049,1218","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"188,79,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1946,65,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2021,65,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2096,65,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回上一页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"170,130,60,61","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"186,147,28,27","Patterns":""}
+{"Index":9,"Type":"Text","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"254,140,54,41","Patterns":""}
+{"Index":10,"Type":"Button","Name":"重置编辑器 Tab","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1794,133,177,55","Patterns":"Invoke"}
+{"Index":11,"Type":"Button","Name":"创建回滚点","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1983,133,140,55","Patterns":"Invoke"}
+{"Index":12,"Type":"Text","Name":"设置搜索","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,273,73,21","Patterns":""}
+{"Index":13,"Type":"Edit","Name":"设置搜索","AutomationId":"settings-search-input","Enabled":true,"Offscreen":false,"Rect":"463,309,278,54","Patterns":"Value"}
+{"Index":14,"Type":"List","Name":"设置搜索结果","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,378,278,390","Patterns":"Value"}
+{"Index":15,"Type":"Button","Name":"编辑模式 编辑器 / 账户级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,378,263,83","Patterns":"Invoke"}
+{"Index":16,"Type":"Button","Name":"版心宽度 编辑器 / 账户级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,469,263,83","Patterns":"Invoke"}
+{"Index":17,"Type":"Button","Name":"自动保存 编辑器 / 账户级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,560,263,83","Patterns":"Invoke"}
+{"Index":18,"Type":"Button","Name":"嵌套列表 Enter 编辑器 / 账户级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,651,263,83","Patterns":"Invoke"}
+{"Index":19,"Type":"Button","Name":"智能标点规则 编辑器 / 账户级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"463,743,263,83","Patterns":"Invoke"}
+{"Index":20,"Type":"Button","Name":"写作目标 编辑器 / 账户级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"463,834,263,83","Patterns":"Invoke"}
+{"Index":21,"Type":"Button","Name":"外观","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,820,292,60","Patterns":"Invoke"}
+{"Index":22,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,836,28,28","Patterns":""}
+{"Index":23,"Type":"Button","Name":"编辑器","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,882,292,60","Patterns":"Invoke"}
+{"Index":24,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,898,28,28","Patterns":""}
+{"Index":25,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,944,292,60","Patterns":"Invoke"}
+{"Index":26,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,960,28,28","Patterns":""}
+{"Index":27,"Type":"Button","Name":"AI 服务","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,1006,292,60","Patterns":"Invoke"}
+{"Index":28,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,1022,28,28","Patterns":""}
+{"Index":29,"Type":"Button","Name":"数据","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,1069,292,60","Patterns":"Invoke"}
+{"Index":30,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,1085,28,28","Patterns":""}
+{"Index":31,"Type":"Button","Name":"同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,1131,292,60","Patterns":"Invoke"}
+{"Index":32,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,1147,28,28","Patterns":""}
+{"Index":33,"Type":"Button","Name":"审计日志","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"456,1193,292,60","Patterns":"Invoke"}
+{"Index":34,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"484,1209,28,28","Patterns":""}
+{"Index":35,"Type":"Button","Name":"工作区","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"456,1255,292,60","Patterns":"Invoke"}
+{"Index":36,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"484,1271,28,28","Patterns":""}
+{"Index":37,"Type":"Button","Name":"扩展插件","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"456,1318,292,60","Patterns":"Invoke"}
+{"Index":38,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"484,1334,28,28","Patterns":""}
+{"Index":39,"Type":"Button","Name":"快捷键","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"456,1380,292,60","Patterns":"Invoke"}
+{"Index":40,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"484,1396,28,28","Patterns":""}
+{"Index":41,"Type":"Button","Name":"高级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"456,1442,292,60","Patterns":"Invoke"}
+{"Index":42,"Type":"Button","Name":"关于","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"456,1504,292,60","Patterns":"Invoke"}
+{"Index":43,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"484,1520,28,28","Patterns":""}
+{"Index":44,"Type":"Text","Name":"编辑器","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,112,940,59","Patterns":""}
+{"Index":45,"Type":"Text","Name":"编辑器行为和功能设置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,183,211,25","Patterns":""}
+{"Index":46,"Type":"Group","Name":"每日灵感","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"858,244,940,645","Patterns":""}
+{"Index":47,"Type":"Text","Name":"每日灵感","AutomationId":"inspiration-settings-title","Enabled":true,"Offscreen":false,"Rect":"967,275,595,39","Patterns":""}
+{"Index":48,"Type":"Text","Name":"编辑本地灵感、默认署名与首页来源策略；首页只负责展示、切换和刷新。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"967,324,595,22","Patterns":""}
+{"Index":49,"Type":"StatusBar","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1670,291,97,44","Patterns":""}
+{"Index":50,"Type":"Text","Name":"等待保存","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1685,302,67,21","Patterns":""}
+{"Index":51,"Type":"Group","Name":"首页每日灵感来源策略","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"892,374,875,102","Patterns":"Value"}
+{"Index":52,"Type":"RadioButton","Name":"本地固定 使用下方保存的文字与署名","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"892,374,430,102","Patterns":"Invoke,SelectionItem,Value"}
+{"Index":53,"Type":"RadioButton","Name":"AI 最近结果 使用首页真实生成并保存的结果","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1337,374,430,102","Patterns":"Invoke,SelectionItem,Value"}
+{"Index":54,"Type":"Text","Name":"首页展示这里保存的固定灵感；首页本身保持只读。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"892,492,380,21","Patterns":""}
+{"Index":55,"Type":"Text","Name":"本地灵感正文","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"892,541,109,22","Patterns":""}
+{"Index":56,"Type":"Edit","Name":"本地灵感正文 16 / 160；留空保存时恢复为今日内置名言。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"892,574,587,169","Patterns":"Value"}
+{"Index":57,"Type":"Text","Name":"16 / 160；留空保存时恢复为今日内置名言。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"892,753,326,21","Patterns":""}
+{"Index":58,"Type":"Text","Name":"默认署名","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1496,541,73,22","Patterns":""}
+{"Index":59,"Type":"Edit","Name":"默认署名 2 / 48","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1496,574,271,61","Patterns":"Value"}
+{"Index":60,"Type":"Text","Name":"2 / 48","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1496,645,48,21","Patterns":""}
+{"Index":61,"Type":"Button","Name":"恢复今日名言","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1381,800,186,58","Patterns":"Invoke"}
+{"Index":62,"Type":"Button","Name":"保存每日灵感","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1581,800,186,58","Patterns":"Invoke"}
+{"Index":63,"Type":"Text","Name":"编辑模式","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"858,950,940,37","Patterns":""}
+{"Index":64,"Type":"Button","Name":"Typora Typora 风格的实时渲染写作流，适合沉浸式编辑。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"858,1010,302,137","Patterns":"Invoke"}
+{"Index":65,"Type":"Button","Name":"Source 更接近源码编辑的工作方式，保留 Markdown 结构感。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1177,1010,302,137","Patterns":"Invoke"}
+{"Index":66,"Type":"Button","Name":"Preview 只读渲染视图，适合排版检查与导出前审阅。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1496,1010,302,137","Patterns":"Invoke"}
+{"Index":67,"Type":"Text","Name":"版心宽度","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"858,1207,940,37","Patterns":""}
+{"Index":68,"Type":"Button","Name":"窄 560px 版心","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1267,302,111","Patterns":"Invoke"}
+{"Index":69,"Type":"Button","Name":"中 680px 版心","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1177,1267,302,111","Patterns":"Invoke"}
+{"Index":70,"Type":"Button","Name":"宽 860px 版心","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1496,1267,302,111","Patterns":"Invoke"}
+{"Index":71,"Type":"Button","Name":"全宽 使用全部可用宽度","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1395,302,110","Patterns":"Invoke"}
+{"Index":72,"Type":"Text","Name":"Workstation 已支持通过状态栏或 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1507,275,22","Patterns":""}
+{"Index":73,"Type":"Text","Name":"Ctrl+=","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1132,1507,60,23","Patterns":""}
+{"Index":74,"Type":"Text","Name":" / ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1191,1507,18,22","Patterns":""}
+{"Index":75,"Type":"Text","Name":"Ctrl+-","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1208,1507,60,23","Patterns":""}
+{"Index":76,"Type":"Text","Name":" 在四档版心之间循环切换。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1267,1507,222,22","Patterns":""}
+{"Index":77,"Type":"Text","Name":"写作目标","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1594,721,37","Patterns":""}
+{"Index":78,"Type":"Text","Name":"当前文稿、今日与本周目标会驱动工作台状态栏和首页进度卡片。留空表示关闭对应目标。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1639,721,22","Patterns":""}
+{"Index":79,"Type":"Text","Name":"未配置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1732,1602,51,21","Patterns":""}
+{"Index":80,"Type":"Text","Name":"当前文稿目标字数","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1692,169,26","Patterns":""}
+{"Index":81,"Type":"Spinner","Name":"当前文稿目标字数","AutomationId":"writing-goal-document","Enabled":true,"Offscreen":true,"Rect":"858,1732,458,55","Patterns":"Value,RangeValue"}
+{"Index":82,"Type":"Text","Name":"用于工作台底部状态栏展示当前文稿的实时达成进度。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1801,433,22","Patterns":""}
+{"Index":83,"Type":"Text","Name":"每日目标字数","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1340,1692,126,26","Patterns":""}
+{"Index":84,"Type":"Spinner","Name":"每日目标字数","AutomationId":"writing-goal-daily","Enabled":true,"Offscreen":true,"Rect":"1340,1732,458,55","Patterns":"Value,RangeValue"}
+{"Index":85,"Type":"Text","Name":"按真实文章更新时间窗口统计今日累计字数，不使用 mock 或虚构日志。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1340,1801,414,49","Patterns":""}
+{"Index":86,"Type":"Text","Name":"每周目标字数","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1879,127,26","Patterns":""}
+{"Index":87,"Type":"Spinner","Name":"每周目标字数","AutomationId":"writing-goal-weekly","Enabled":true,"Offscreen":true,"Rect":"858,1920,940,55","Patterns":"Value,RangeValue"}
+{"Index":88,"Type":"Text","Name":"首页优先展示每日目标进度；若未配置每日目标，则回退为本周目标进度。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,1989,595,22","Patterns":""}
+{"Index":89,"Type":"Text","Name":"自动保存","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2058,85,26","Patterns":""}
+{"Index":90,"Type":"Text","Name":"定时自动保存编辑内容","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2092,181,22","Patterns":""}
+{"Index":91,"Type":"CheckBox","Name":"自动保存","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,2071,61,31","Patterns":"Toggle,Value"}
+{"Index":92,"Type":"Text","Name":"保存间隔","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2156,85,26","Patterns":""}
+{"Index":93,"Type":"Text","Name":"自动保存的时间间隔","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2191,163,22","Patterns":""}
+{"Index":94,"Type":"Slider","Name":"自动保存间隔","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1497,2181,223,7","Patterns":"Value,RangeValue"}
+{"Index":95,"Type":"Text","Name":"30s","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1762,2171,36,27","Patterns":""}
+{"Index":96,"Type":"Text","Name":"拼写检查","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2316,85,26","Patterns":""}
+{"Index":97,"Type":"Text","Name":"启用浏览器原生拼写检查","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2351,199,22","Patterns":""}
+{"Index":98,"Type":"CheckBox","Name":"拼写检查","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,2329,61,31","Patterns":"Toggle,Value"}
+{"Index":99,"Type":"Text","Name":"打字机模式","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2415,106,26","Patterns":""}
+{"Index":100,"Type":"Text","Name":"输入时保持光标始终在屏幕中央区域","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2449,289,22","Patterns":""}
+{"Index":101,"Type":"CheckBox","Name":"打字机模式","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,2428,61,31","Patterns":"Toggle,Value"}
+{"Index":102,"Type":"Text","Name":"智能标点","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2513,85,26","Patterns":""}
+{"Index":103,"Type":"Text","Name":"自动转换中英文标点符号；Source、代码块、链接和 IME 合成期不会触发。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,2548,607,22","Patterns":""}
+{"Index":104,"Type":"CheckBox","Name":"智能标点","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,2526,61,31","Patterns":"Toggle,Value"}
+{"Index":105,"Type":"Text","Name":"智能标点规则矩阵","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"880,2628,169,26","Patterns":""}
+{"Index":106,"Type":"Text","Name":"每条规则独立持久化；关闭总开关时全部规则暂停，但保留逐项配置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"880,2664,559,22","Patterns":""}
+{"Index":107,"Type":"Button","Name":"重置本组","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1653,2625,123,55","Patterns":"Invoke"}
+{"Index":108,"Type":"Text","Name":"弯引号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,2727,59,25","Patterns":""}
+{"Index":109,"Type":"Text","Name":"将直引号转换为中文写作更自然的弯引号，支持双引号和单引号。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,2765,289,49","Patterns":""}
+{"Index":110,"Type":"Text","Name":"\"Ink\" / \u0027Ink\u0027","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,2828,141,24","Patterns":""}
+{"Index":111,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1066,2829,17,22","Patterns":""}
+{"Index":112,"Type":"Text","Name":"“Ink” / ‘Ink’","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,2870,141,24","Patterns":""}
+{"Index":113,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1215,2725,87,55","Patterns":"Invoke"}
+{"Index":114,"Type":"CheckBox","Name":"智能标点规则：弯引号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1241,2794,61,31","Patterns":"Toggle,Value"}
+{"Index":115,"Type":"Text","Name":"破折号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,2727,59,25","Patterns":""}
+{"Index":116,"Type":"Text","Name":"连续输入两个连字符时转换为 em dash。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,2765,266,49","Patterns":""}
+{"Index":117,"Type":"Text","Name":"Ink--Forge","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1363,2828,109,24","Patterns":""}
+{"Index":118,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1489,2829,17,22","Patterns":""}
+{"Index":119,"Type":"Text","Name":"Ink—Forge","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1523,2828,98,24","Patterns":""}
+{"Index":120,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1670,2725,87,55","Patterns":"Invoke"}
+{"Index":121,"Type":"CheckBox","Name":"智能标点规则：破折号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1696,2794,61,31","Patterns":"Toggle,Value"}
+{"Index":122,"Type":"Text","Name":"省略号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,2953,59,25","Patterns":""}
+{"Index":123,"Type":"Text","Name":"连续输入三个英文句点时转换为省略号。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,2991,289,49","Patterns":""}
+{"Index":124,"Type":"Text","Name":"继续...","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,3054,69,24","Patterns":""}
+{"Index":125,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"994,3055,17,22","Patterns":""}
+{"Index":126,"Type":"Text","Name":"继续…","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1028,3054,48,24","Patterns":""}
+{"Index":127,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1215,2951,87,55","Patterns":"Invoke"}
+{"Index":128,"Type":"CheckBox","Name":"智能标点规则：省略号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1241,3020,61,31","Patterns":"Toggle,Value"}
+{"Index":129,"Type":"Text","Name":"空格连字符","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,2953,98,25","Patterns":""}
+{"Index":130,"Type":"Text","Name":"保守规则，将 - - 转换为破折号，默认关闭以避免误触。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,2991,285,49","Patterns":""}
+{"Index":131,"Type":"Text","Name":"A - - B","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1363,3054,77,24","Patterns":""}
+{"Index":132,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1457,3055,16,22","Patterns":""}
+{"Index":133,"Type":"Text","Name":"A — B","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1490,3054,55,24","Patterns":""}
+{"Index":134,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1670,2951,87,55","Patterns":"Invoke"}
+{"Index":135,"Type":"CheckBox","Name":"智能标点规则：空格连字符","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1696,3020,61,31","Patterns":"Toggle,Value"}
+{"Index":136,"Type":"Text","Name":"箭头符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,3142,79,25","Patterns":""}
+{"Index":137,"Type":"Text","Name":"将 -\u003e、\u003c-、=\u003e 转换为箭头符号，默认关闭以保护代码输入。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,3180,297,49","Patterns":""}
+{"Index":138,"Type":"Text","Name":"A -\u003e B","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,3243,66,24","Patterns":""}
+{"Index":139,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"991,3244,16,22","Patterns":""}
+{"Index":140,"Type":"Text","Name":"A → B","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1024,3243,54,24","Patterns":""}
+{"Index":141,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1215,3140,87,55","Patterns":"Invoke"}
+{"Index":142,"Type":"CheckBox","Name":"智能标点规则：箭头符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1241,3209,61,31","Patterns":"Toggle,Value"}
+{"Index":143,"Type":"Text","Name":"分数符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,3142,79,25","Patterns":""}
+{"Index":144,"Type":"Text","Name":"将 1/2、1/4、3/4 转换为排版分数，默认关闭。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,3180,289,49","Patterns":""}
+{"Index":145,"Type":"Text","Name":"1/2 cup","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1363,3243,77,24","Patterns":""}
+{"Index":146,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1457,3244,16,22","Patterns":""}
+{"Index":147,"Type":"Text","Name":"½ cup","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1490,3243,55,24","Patterns":""}
+{"Index":148,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1670,3140,87,55","Patterns":"Invoke"}
+{"Index":149,"Type":"CheckBox","Name":"智能标点规则：分数符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1696,3209,61,31","Patterns":"Toggle,Value"}
+{"Index":150,"Type":"Text","Name":"乘号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,3331,40,25","Patterns":""}
+{"Index":151,"Type":"Text","Name":"将数字间的 x 转换为乘号，默认关闭以避免英文误触。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,3369,291,49","Patterns":""}
+{"Index":152,"Type":"Text","Name":"2x3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,3432,33,24","Patterns":""}
+{"Index":153,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"958,3433,17,22","Patterns":""}
+{"Index":154,"Type":"Text","Name":"2×3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"992,3432,33,24","Patterns":""}
+{"Index":155,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1215,3329,87,55","Patterns":"Invoke"}
+{"Index":156,"Type":"CheckBox","Name":"智能标点规则：乘号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1241,3398,61,31","Patterns":"Toggle,Value"}
+{"Index":157,"Type":"Text","Name":"版权符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,3331,79,25","Patterns":""}
+{"Index":158,"Type":"Text","Name":"将 (c)、(r)、(tm) 转换为版权、注册商标和商标符号。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,3369,287,49","Patterns":""}
+{"Index":159,"Type":"Text","Name":"(c) (r) (tm)","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1363,3432,131,24","Patterns":""}
+{"Index":160,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1511,3433,16,22","Patterns":""}
+{"Index":161,"Type":"Text","Name":"© ® ™","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1544,3432,55,24","Patterns":""}
+{"Index":162,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1670,3329,87,55","Patterns":"Invoke"}
+{"Index":163,"Type":"CheckBox","Name":"智能标点规则：版权符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1696,3398,61,31","Patterns":"Toggle,Value"}
+{"Index":164,"Type":"Text","Name":"度数符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,3520,79,25","Patterns":""}
+{"Index":165,"Type":"Text","Name":"将数字后的 deg 转换为度数符号，默认关闭。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"899,3558,296,49","Patterns":""}
+{"Index":166,"Type":"Text","Name":"45 deg","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"908,3621,66,24","Patterns":""}
+{"Index":167,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"991,3622,16,22","Patterns":""}
+{"Index":168,"Type":"Text","Name":"45°","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1024,3621,34,24","Patterns":""}
+{"Index":169,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1215,3518,87,55","Patterns":"Invoke"}
+{"Index":170,"Type":"CheckBox","Name":"智能标点规则：度数符号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1241,3587,61,31","Patterns":"Toggle,Value"}
+{"Index":171,"Type":"Text","Name":"中英文空格","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,3520,98,25","Patterns":""}
+{"Index":172,"Type":"Text","Name":"在 CJK 字符与英文或数字之间自动补一个空格。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1354,3558,299,49","Patterns":""}
+{"Index":173,"Type":"Text","Name":"使用Vue3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1363,3621,80,24","Patterns":""}
+{"Index":174,"Type":"Text","Name":"→","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1460,3622,17,22","Patterns":""}
+{"Index":175,"Type":"Text","Name":"使用 Vue3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1494,3621,91,24","Patterns":""}
+{"Index":176,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1670,3518,87,55","Patterns":"Invoke"}
+{"Index":177,"Type":"CheckBox","Name":"智能标点规则：中英文空格","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1696,3587,61,31","Patterns":"Toggle,Value"}
+{"Index":178,"Type":"Text","Name":"空嵌套列表 Enter","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,3737,165,26","Patterns":""}
+{"Index":179,"Type":"Text","Name":"Notion 模式逐级减少缩进；Typora 模式交给默认列表退出行为。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,3772,522,22","Patterns":""}
+{"Index":180,"Type":"Button","Name":"逐级减缩","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1503,3741,127,49","Patterns":"Invoke"}
+{"Index":181,"Type":"Button","Name":"Typora 默认","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1635,3741,158,49","Patterns":"Invoke"}
+{"Index":182,"Type":"Text","Name":"自动换行","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,3836,85,26","Patterns":""}
+{"Index":183,"Type":"Text","Name":"长文本自动换行显示","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,3870,163,22","Patterns":""}
+{"Index":184,"Type":"CheckBox","Name":"自动换行","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,3848,61,31","Patterns":"Toggle,Value"}
+{"Index":185,"Type":"Text","Name":"Tab 宽度","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,3996,86,26","Patterns":""}
+{"Index":186,"Type":"Text","Name":"缩进使用的空格数","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4030,145,22","Patterns":""}
+{"Index":187,"Type":"Button","Name":"2","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1599,4000,61,48","Patterns":"Invoke"}
+{"Index":188,"Type":"Button","Name":"4","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1665,4000,62,48","Patterns":"Invoke"}
+{"Index":189,"Type":"Button","Name":"8","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1732,4000,61,48","Patterns":"Invoke"}
+{"Index":190,"Type":"Text","Name":"显示行号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4156,85,26","Patterns":""}
+{"Index":191,"Type":"Text","Name":"在编辑器左侧显示行号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4190,181,22","Patterns":""}
+{"Index":192,"Type":"CheckBox","Name":"显示行号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,4168,61,31","Patterns":"Toggle,Value"}
+{"Index":193,"Type":"Text","Name":"高亮当前行","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4254,106,26","Patterns":""}
+{"Index":194,"Type":"Text","Name":"高亮显示光标所在行","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4289,163,22","Patterns":""}
+{"Index":195,"Type":"CheckBox","Name":"高亮当前行","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,4267,61,31","Patterns":"Toggle,Value"}
+{"Index":196,"Type":"Text","Name":"括号匹配","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4353,85,26","Patterns":""}
+{"Index":197,"Type":"Text","Name":"自动高亮匹配的括号对","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4387,181,22","Patterns":""}
+{"Index":198,"Type":"CheckBox","Name":"括号匹配","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,4365,61,31","Patterns":"Toggle,Value"}
+{"Index":199,"Type":"Text","Name":"显示工作台状态栏","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4451,169,26","Patterns":""}
+{"Index":200,"Type":"Text","Name":"关闭后获得最干净的写作画面；字数 / 模式 / 同步等仍通过快捷键查询","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"858,4486,556,22","Patterns":""}
+{"Index":201,"Type":"CheckBox","Name":"显示工作台状态栏","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1737,4464,61,31","Patterns":"Toggle,Value"}

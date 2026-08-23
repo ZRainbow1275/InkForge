@@ -1,0 +1,84 @@
+﻿pid=51656 hwnd=6426424 count=102 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,0,2048,1218","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 设置 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,0,2049,1218","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 设置","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"0,0,2049,1218","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"66,14,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1824,0,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1899,0,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1974,0,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回上一页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"48,65,60,61","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"64,82,28,27","Patterns":""}
+{"Index":9,"Type":"Text","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"132,75,54,41","Patterns":""}
+{"Index":10,"Type":"Button","Name":"重置同步 Tab","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1690,68,159,55","Patterns":"Invoke"}
+{"Index":11,"Type":"Button","Name":"创建回滚点","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1861,68,140,55","Patterns":"Invoke"}
+{"Index":12,"Type":"Text","Name":"设置搜索","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,208,73,21","Patterns":""}
+{"Index":13,"Type":"Edit","Name":"设置搜索","AutomationId":"settings-search-input","Enabled":true,"Offscreen":false,"Rect":"341,244,278,54","Patterns":"Value"}
+{"Index":14,"Type":"List","Name":"设置搜索结果","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,313,278,265","Patterns":"Value"}
+{"Index":15,"Type":"Button","Name":"同步状态 同步 / 共享级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,313,278,83","Patterns":"Invoke"}
+{"Index":16,"Type":"Button","Name":"同步配置 同步 / 共享级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,404,278,83","Patterns":"Invoke"}
+{"Index":17,"Type":"Button","Name":"手动同步 同步 / 共享级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,495,278,83","Patterns":"Invoke"}
+{"Index":18,"Type":"Button","Name":"外观","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,629,292,60","Patterns":"Invoke"}
+{"Index":19,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,645,28,28","Patterns":""}
+{"Index":20,"Type":"Button","Name":"编辑器","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,692,292,60","Patterns":"Invoke"}
+{"Index":21,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,708,28,28","Patterns":""}
+{"Index":22,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,754,292,60","Patterns":"Invoke"}
+{"Index":23,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,770,28,28","Patterns":""}
+{"Index":24,"Type":"Button","Name":"AI 服务","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,816,292,60","Patterns":"Invoke"}
+{"Index":25,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,832,28,28","Patterns":""}
+{"Index":26,"Type":"Button","Name":"数据","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,878,292,60","Patterns":"Invoke"}
+{"Index":27,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,894,28,28","Patterns":""}
+{"Index":28,"Type":"Button","Name":"同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,941,292,60","Patterns":"Invoke"}
+{"Index":29,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,957,28,28","Patterns":""}
+{"Index":30,"Type":"Button","Name":"审计日志","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1003,292,60","Patterns":"Invoke"}
+{"Index":31,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1019,28,28","Patterns":""}
+{"Index":32,"Type":"Button","Name":"工作区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1065,292,60","Patterns":"Invoke"}
+{"Index":33,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1081,28,28","Patterns":""}
+{"Index":34,"Type":"Button","Name":"扩展插件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1127,292,60","Patterns":"Invoke"}
+{"Index":35,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1143,28,28","Patterns":""}
+{"Index":36,"Type":"Button","Name":"快捷键","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"334,1190,292,60","Patterns":"Invoke"}
+{"Index":37,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"362,1206,28,28","Patterns":""}
+{"Index":38,"Type":"Button","Name":"高级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"334,1252,292,60","Patterns":"Invoke"}
+{"Index":39,"Type":"Button","Name":"关于","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"334,1314,292,60","Patterns":"Invoke"}
+{"Index":40,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"362,1330,28,28","Patterns":""}
+{"Index":41,"Type":"Text","Name":"同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,228,940,59","Patterns":""}
+{"Index":42,"Type":"Text","Name":"查看真实 SyncProvider 状态、待同步队列与冲突入口","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,299,503,25","Patterns":""}
+{"Index":43,"Type":"Text","Name":"工作区同步配置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,360,815,37","Patterns":""}
+{"Index":44,"Type":"Text","Name":"端点与策略按工作区持久化；Token、密码和 SSH 口令只进入操作系统凭据库，不写入设置或 IndexedDB。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,405,747,51","Patterns":""}
+{"Index":45,"Type":"Text","Name":"disabled","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1589,368,72,21","Patterns":""}
+{"Index":46,"Type":"RadioButton","Name":"停用 保留本地队列，不连接远端","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,506,202,96","Patterns":"Invoke,SelectionItem,Value"}
+{"Index":47,"Type":"Text","Name":"停用","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"758,509,37,22","Patterns":""}
+{"Index":48,"Type":"Text","Name":"保留本地队列，不连接远端","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"758,540,166,40","Patterns":""}
+{"Index":49,"Type":"RadioButton","Name":"WebDAV 个人网盘、NAS 与团队 DAV","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"997,506,202,96","Patterns":"Invoke,SelectionItem,Value"}
+{"Index":50,"Type":"Text","Name":"WebDAV","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"997,509,77,22","Patterns":""}
+{"Index":51,"Type":"Text","Name":"个人网盘、NAS 与团队 DAV","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"997,540,156,40","Patterns":""}
+{"Index":52,"Type":"RadioButton","Name":"自有服务 InkForge Server API","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1235,506,202,96","Patterns":"Invoke,SelectionItem,Value"}
+{"Index":53,"Type":"Text","Name":"自有服务","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1235,509,73,22","Patterns":""}
+{"Index":54,"Type":"Text","Name":"InkForge Server API","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1235,550,142,20","Patterns":""}
+{"Index":55,"Type":"RadioButton","Name":"Git Tauri 原生 HTTPS / SSH remote","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1474,506,202,96","Patterns":"Invoke,SelectionItem,Value"}
+{"Index":56,"Type":"Text","Name":"Git","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1474,509,25,22","Patterns":""}
+{"Index":57,"Type":"Text","Name":"Tauri 原生 HTTPS / SSH remote","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1474,540,168,40","Patterns":""}
+{"Index":58,"Type":"Text","Name":"凭据","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"758,653,43,26","Patterns":""}
+{"Index":59,"Type":"Text","Name":"停用状态不读取系统凭据","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"758,691,199,22","Patterns":""}
+{"Index":60,"Type":"Text","Name":"连接","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1235,653,43,26","Patterns":""}
+{"Index":61,"Type":"Text","Name":"尚未测试真实端点","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1235,691,145,22","Patterns":""}
+{"Index":62,"Type":"Button","Name":"保存并绑定","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,755,148,56","Patterns":"Invoke"}
+{"Index":63,"Type":"Button","Name":"测试真实连接","AutomationId":"","Enabled":false,"Offscreen":false,"Rect":"899,755,167,56","Patterns":"Invoke"}
+{"Index":64,"Type":"Text","Name":"Provider 状态","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,834,748,37","Patterns":""}
+{"Index":65,"Type":"Text","Name":"同步 baseline 只展示真实引擎状态；未配置 WebDAV、Git 或自有服务时不会伪造远端成功。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,879,748,22","Patterns":""}
+{"Index":66,"Type":"Text","Name":"未配置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1610,842,51,21","Patterns":""}
+{"Index":67,"Type":"Text","Name":"同步状态","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,954,73,22","Patterns":""}
+{"Index":68,"Type":"Text","Name":"同步未配置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,990,121,30","Patterns":""}
+{"Index":69,"Type":"Text","Name":"paused","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,1035,64,22","Patterns":""}
+{"Index":70,"Type":"Text","Name":"待同步队列","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,954,91,22","Patterns":""}
+{"Index":71,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,990,17,30","Patterns":""}
+{"Index":72,"Type":"Text","Name":"ChangeTracker 与 IndexedDB outbox","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,1035,157,49","Patterns":""}
+{"Index":73,"Type":"Text","Name":"冲突记录","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,954,72,22","Patterns":""}
+{"Index":74,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,990,17,30","Patterns":""}
+{"Index":75,"Type":"Text","Name":"需要人工或三方合并决策","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,1035,162,49","Patterns":""}
+{"Index":76,"Type":"Text","Name":"最后同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,954,73,22","Patterns":""}
+{"Index":77,"Type":"Text","Name":"从未同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,990,97,30","Patterns":""}
+{"Index":78,"Type":"Text","Name":"来自 SyncEngine 状态","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,1035,165,49","Patterns":""}
+{"Index":79,"Type":"Text","Name":"手动同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1169,691,37","Patterns":""}
+{"Index":80,"Type":"Text","Name":"直接调用 SyncEngine.sync()。若没有真实 provider，会返回失败并保留待同步队列。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,1214,691,22","Patterns":""}
+{"Index":81,"Type":"Button","Name":"立即同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1553,1169,123,55","Patterns":"Invoke"}
+{"Index":82,"Type":"Text","Name":"当前未绑定同步提供者。WebDAV 需要真实 HTTPS endpoint 与运行期凭据；Git 需要 Tauri Git 命令和 HTTPS/SSH remote；SelfHosted 需要可访问的 InkForge Server API。系统不会把本地队列标记为远端成功。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,1289,875,87","Patterns":""}

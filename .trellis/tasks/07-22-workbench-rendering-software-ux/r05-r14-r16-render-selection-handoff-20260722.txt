@@ -1,0 +1,37 @@
+R-05/R-14/R-16 renderer-selection handoff — 2026-07-22
+
+Scope
+- Workstation -> ExportModal -> PublishView platform/preset continuity.
+- Canonical WeChat typography and custom CSS continuity.
+- No XHS/Zhihu account upload or publication action.
+
+Root cause
+- Workstation persisted the current platform/preset pair.
+- ExportModal initialized per-platform preset state from fixed defaults and did not write selection changes back.
+- PublishView initialized WeChat from the legacy theme store, initialized XHS/Zhihu from fixed IDs, and omitted canonical typography/custom CSS from WeChat Publish output.
+
+Repair
+- ExportModal seeds and re-syncs a valid stored pair, preserves per-platform session choices, and updates settings on platform/preset selection.
+- PublishView uses the same stored pair, writes active changes back, and removes the legacy theme-store dependency.
+- WeChat Publish uses typographyToWechatCss with settings.appearance.typography, font family, preset accent, and export custom CSS.
+- The Publish first-line-indent switch writes the canonical paragraphIndent field.
+- Zhihu hides the Mac-code, line-number, and indent section because its converter does not consume those options.
+
+Impact
+- GitNexus upstream impact was LOW for selectPreset, normalizeInitialPlatform, selectedPreset, and generateHtml.
+- Each symbol had zero or one direct dependent and zero affected execution flows.
+- Repository-wide detect-changes reported critical aggregate risk across 108 pre-existing dirty files; this is not the isolated slice risk.
+
+Verification
+- ExportModal.local-delivery.test.ts: 2/2 passed.
+- PublishView.wechat-presets.test.ts: 11/11 passed.
+- Integrated Workstation/preview/typography/settings/Export/Publish: 6 files, 40/40 tests passed.
+- Exact changed-file ESLint passed.
+- vue-tsc --noEmit --pretty false passed.
+- Production build passed: 4,675 modules, 1m11s, 3,072 MB heap cap.
+- Vite reported the expected raw-test reloads and an ExportModal component HMR update; no HMR error was emitted.
+- http://127.0.0.1:3005/ returned HTTP 200 and the existing InkForge native process remained alive.
+
+Remaining visible gate
+- In the native app, choose a non-default preset on each platform, open Export, then Publish, and confirm the same platform/preset pair remains selected and produces the matching artifact.
+- Change every canonical typography control and compare Workstation preview, Export artifact, and WeChat Publish artifact.

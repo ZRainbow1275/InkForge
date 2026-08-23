@@ -1,0 +1,35 @@
+{
+  "version": "v3",
+  "presetId": "v3-finance-report",
+  "presetName": "金融研报体（v3 自定义）",
+  "presetPrimaryColor": "#0a2540",
+  "generatedAt": "2026-08-23T12:40:02.818Z",
+  "markdownBytesOriginal": 88670,
+  "markdownBytesPreprocessed": 92090,
+  "htmlBytes": 294135,
+  "innerHtmlBytes": 291893,
+  "preprocStats": {
+    "boldReplacements": 272,
+    "italicReplacements": 4,
+    "h3PromotedToH2": 4,
+    "h2ChaptersInserted": 2,
+    "h1TitleInserted": true
+  },
+  "renderStats": {
+    "wordCount": 30106,
+    "readingTime": 101,
+    "codeBlockCount": 0,
+    "linkCount": 0,
+    "imageCount": 0,
+    "headingCount": 53,
+    "tableCount": 1
+  },
+  "decorations": {
+    "oversizeNumerals": 6,
+    "goldUnderlines": 6,
+    "h1OrnamentTop": 1,
+    "dropCap": 1,
+    "ornamentHr": 5,
+    "strayBold": 0
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "status": "real-article-gallery-ready",
+  "sourceArticle": {
+    "articleId": "IF0722-ARTICLE-A",
+    "paragraphCount": 20,
+    "capturedAt": "2026-07-22T16:27:54+08:00"
+  },
+  "summary": {
+    "wechat": {
+      "rendered": 16,
+      "expected": 16,
+      "uniqueHashes": 16,
+      "ids": [
+        "thesis",
+        "legal",
+        "report",
+        "commentary",
+        "aigc",
+        "code",
+        "notes",
+        "news",
+        "meme",
+        "life",
+        "elegant",
+        "tech",
+        "flagship-kiln",
+        "flagship-kiln-paste-safe",
+        "flagship-tempera",
+        "flagship-amber"
+      ]
+    },
+    "xiaohongshu": {
+      "rendered": 5,
+      "expected": 5,
+      "uniqueHashes": 5,
+      "ids": [
+        "xhs-fresh",
+        "xhs-simple",
+        "xhs-warm",
+        "xhs-tech",
+        "xhs-nature"
+      ]
+    },
+    "zhihu": {
+      "rendered": 3,
+      "expected": 3,
+      "uniqueHashes": 3,
+      "ids": [
+        "zhihu-academic",
+        "zhihu-tech",
+        "zhihu-insight"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "platform": "wechat",
+      "id": "thesis",
+      "name": "论文翻译",
+      "sha256": "2dbf8f0e5d0433823da7709a1feccba3447788f243985a35fbc7b980ca0eaab1",
+      "htmlLength": 6681
+    },
+    {
+      "platform": "wechat",
+      "id": "legal",
+      "name": "法学研讨",
+      "sha256": "cbd46582453669ce6152ab1b1d8e2e8a4fbb80c7dd6914a0d6c2eb8ed6f1b880",
+      "htmlLength": 6803
+    },
+    {
+      "platform": "wechat",
+      "id": "report",
+      "name": "行业研报",
+      "sha256": "059c94145cc021838485bc6a9e56e17011328930a062209b4478fa342acb2a7a",
+      "htmlLength": 6670
+    },
+    {
+      "platform": "wechat",
+      "id": "commentary",
+      "name": "时事点评",
+      "sha256": "9a84117d4f1390ab84fdb73083e4f1ca77ad36d3af0d94490cd3ef67fc48806f",
+      "htmlLength": 6906
+    },
+    {
+      "platform": "wechat",
+      "id": "aigc",
+      "name": "AIGC",
+      "sha256": "2ee4dd039fec8155df4fdbc1fedb2503cc91bdf74a1ef6243a7a96018aa101c2",
+      "htmlLength": 6288
+    },
+    {
+      "platform": "wechat",
+      "id": "code",
+      "name": "编程创造",
+      "sha256": "36260357ae5e7e8f21f882e1138d8f0f7764c98388553562e9f9685687e9088d",
+      "htmlLength": 6600
+    },
+    {
+      "platform": "wechat",
+      "id": "notes",
+      "name": "学习笔记",
+      "sha256": "396d6c11fb3fdf8d5f8a17f3d9ec1c336a71d519e822b9b3e088a6f8f0044c1b",
+      "htmlLength": 6307
+    },
+    {
+      "platform": "wechat",
+      "id": "news",
+      "name": "新闻",
+      "sha256": "b3971409fe3a4399f735829e0909d879755a7dadf7f5b0b8a0bd8c5ead21eea8",
+      "htmlLength": 6618
+    },
+    {
+      "platform": "wechat",
+      "id": "meme",
+      "name": "整活",
+      "sha256": "5e01b3e038b26b92445629515dc5c9b804d884e79d10e4fcec3ecabb4203a4e8",
+      "htmlLength": 6196
+    },
+    {
+      "platform": "wechat",
+      "id": "life",
+      "name": "人生感悟",
+      "sha256": "03594d65eec8b9c649df66291316968416bffd4d9ebe93ce6917c1a38a76ca55",
+      "htmlLength": 6344
+    },
+    {
+      "platform": "wechat",
+      "id": "elegant",
+      "name": "优雅",
+      "sha256": "38325c2cb394843623f3f1ea6f883ee65c54447c6fec559412c11f97378c9771",
+      "htmlLength": 6845
+    },
+    {
+      "platform": "wechat",
+      "id": "tech",
+      "name": "科技",
+      "sha256": "e777dfa37a678ddbc0ee1f37a184b9f7d0fadd2a9dd7e973163191439a9e53fa",
+      "htmlLength": 6158
+    },
+    {
+      "platform": "wechat",
+      "id": "flagship-kiln",
+      "name": "赤陶旗舰",
+      "sha256": "b7399cc21b1c9fd8e5ee87ee49da688252c62bc2fbdba8856573714ed64ac94c",
+      "htmlLength": 11650
+    },
+    {
+      "platform": "wechat",
+      "id": "flagship-kiln-paste-safe",
+      "name": "赤陶兼容旗舰",
+      "sha256": "a17cb56d8111426bfb4386c51b3fc16ecfaac76000202c1ac89eba8631ea24fe",
+      "htmlLength": 9424
+    },
+    {
+      "platform": "wechat",
+      "id": "flagship-tempera",
+      "name": "铜绿旗舰",
+      "sha256": "edd6701eabc7476e7dae56b987699fdf7be677ebcff3a614aeef972470a11436",
+      "htmlLength": 9810
+    },
+    {
+      "platform": "wechat",
+      "id": "flagship-amber",
+      "name": "黄铜旗舰",
+      "sha256": "b89804a13b862c910828533c3885d26425342bc1e777db76a653f1a9fbbcff3b",
+      "htmlLength": 9843
+    },
+    {
+      "platform": "xiaohongshu",
+      "id": "xhs-fresh",
+      "name": "清新少女",
+      "sha256": "6063e8a4139dc56816d416d1df37877fb4601bce953841104713f0af877f6833",
+      "htmlLength": 2687
+    },
+    {
+      "platform": "xiaohongshu",
+      "id": "xhs-simple",
+      "name": "极简高级",
+      "sha256": "413d36f6e5bf6825801f3a1749c0fffb4c36de1af00cca88705b035b702fa8f6",
+      "htmlLength": 2706
+    },
+    {
+      "platform": "xiaohongshu",
+      "id": "xhs-warm",
+      "name": "温暖治愈",
+      "sha256": "e67fb171fd431ec06fb6e2d89811470bd128434c9e73d30e34d917fd872b9482",
+      "htmlLength": 2830
+    },
+    {
+      "platform": "xiaohongshu",
+      "id": "xhs-tech",
+      "name": "科技数码",
+      "sha256": "fb590b67b2de1b0867d4d8d18161f49e3514993d7ccefb95b8db553076036217",
+      "htmlLength": 2687
+    },
+    {
+      "platform": "xiaohongshu",
+      "id": "xhs-nature",
+      "name": "自然清新",
+      "sha256": "cc162b788128fe78b49e020381850c63a6acffd05891d828ec3e5d374db861f1",
+      "htmlLength": 2687
+    },
+    {
+      "platform": "zhihu",
+      "id": "zhihu-academic",
+      "name": "学术论文",
+      "sha256": "4ee87a93039ac2d396c8eba4c99e6c760ac2c9f36f30d90ab7f9f518ae4f7dcd",
+      "htmlLength": 2871
+    },
+    {
+      "platform": "zhihu",
+      "id": "zhihu-tech",
+      "name": "技术博客",
+      "sha256": "7f78bda9a566595670cf33fc3b6d42237f9d497125ba2f0c72be80b561e9e49e",
+      "htmlLength": 2901
+    },
+    {
+      "platform": "zhihu",
+      "id": "zhihu-insight",
+      "name": "深度评论",
+      "sha256": "37ae648e872bb6b178b2cb6162fa79ed9034036844a1183bfddc244e30433b01",
+      "htmlLength": 2911
+    }
+  ],
+  "boundary": "Local production-renderer evidence only; no account upload, sync, scheduling or publication."
+}

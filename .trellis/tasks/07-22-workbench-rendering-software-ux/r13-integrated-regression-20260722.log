@@ -1,0 +1,21 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+stdout | src/composables/usePreviewRenderer.test.ts > usePreviewRenderer — platform routing (P3-T11) > xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output
+[XHS preview similarity] = 1.0000
+
+ ✓ src/composables/usePreviewRenderer.test.ts (5 tests) 1857ms
+     ✓ xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output  379ms
+     ✓ zhihu: preview HTML contains equation img + table elements  365ms
+     ✓ wechat: preview HTML uses mock renderer with wechat-article container  369ms
+     ✓ wechat: canonical typography changes every supported preview rule  370ms
+     ✓ empty body: renders sample content and flags previewMeta.isSample = true  368ms
+ ✓ src/services/export/shared-typography.test.ts (2 tests) 138ms
+ ✓ src/views/__tests__/WorkstationView.desktop-layout.test.ts (10 tests) 9ms
+ ✓ src/views/__tests__/ThemesView.canonical-presets.test.ts (2 tests) 6ms
+
+ Test Files  4 passed (4)
+      Tests  19 passed (19)
+   Start at  16:06:18
+   Duration  8.23s (transform 1.29s, setup 0ms, import 3.73s, tests 2.01s, environment 1.67s)
+

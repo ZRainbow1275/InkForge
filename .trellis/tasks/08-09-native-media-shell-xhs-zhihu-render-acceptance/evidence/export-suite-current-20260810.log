@@ -1,0 +1,104 @@
+
+ RUN  v4.1.5 <WORKSPACE>/inkforge
+
+ ✓ src/services/export/shared-typography.test.ts (13 tests) 6061ms
+     ✓ keeps every canonical typography control effective in every WeChat preset  5216ms
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > sanitizes export-only custom CSS before the WeChat inline pass
+[InkForge] [WARN] 2026-08-09T19:02:40.533Z | CSS 安全: 移除危险模式 [JavaScript URL] | {"description":"JavaScript 协议 URL"}
+[InkForge] [WARN] 2026-08-09T19:02:40.533Z | CSS 安全: 移除危险模式 [Style Tag Injection] | {"description":"</style> 标签注入尝试"}
+[InkForge] [WARN] 2026-08-09T19:02:40.533Z | CSS 安全: 移除危险模式 [Script Tag Injection] | {"description":"<script> 标签注入尝试"}
+
+stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > degrades WeChat LaTeX output to self-contained readable formula text
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+ ✓ src/services/export/platform-export-rendering.test.ts (380 tests) 3118ms
+     ✓ routes WeChat markdown Mermaid through readable placeholder instead of code block output  1385ms
+stderr | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — WeChat > produces compliant HTML through full markdown → wechat pipeline
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — Xiaohongshu > preview: renderXhsMockHtml strips to text closely matching native artifact
+[XHS preview similarity] = 0.9979
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — Xiaohongshu > detectQuality reports only known boundary errors for xiaohongshu
+[xhs detectQuality errors] = ["xhs-markdown-control-leak"]
+
+stderr | src/services/export/__tests__/pipeline-cross-platform.test.ts > hard-limit boundaries > wechat: oversize HTML beyond ReDoS threshold returns without throwing
+[InkForge] [WARN] 2026-08-09T19:02:45.583Z | [安全警告] normalizeImageAttributes: 输入长度 514554 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-08-09T19:02:45.583Z | [安全警告] fixNestedLists: 输入长度 514554 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-08-09T19:02:45.662Z | [安全警告] normalizeImageAttributes: 输入长度 514554 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-08-09T19:02:45.662Z | [安全警告] fixNestedLists: 输入长度 514554 超过限制 500000，跳过处理
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-route fidelity > xhs: fidelity HTML stripped text ≥0.95 similarity vs native text
+[cross-route XHS similarity] = 0.9979
+
+ ✓ src/services/export/__tests__/pipeline-cross-platform.test.ts (15 tests) 1206ms
+     ✓ produces compliant HTML through full markdown → wechat pipeline  927ms
+ ✓ src/services/export/__tests__/frozen-prototype.test.ts (17 tests) 712ms
+ ✓ src/services/export/persona-distinction.test.ts (10 tests) 812ms
+     ✓ renders every selectable persona into a distinct structure beyond accent color  332ms
+     ✓ keeps the complete semantic article set safe and visible in every selectable preset  313ms
+ ✓ src/services/export/rendering-rule-catalog.test.ts (4 tests) 807ms
+     ✓ binds every catalog row to a distinct real converter structure  450ms
+     ✓ keeps every pair different in at least three non-colour composition zones  310ms
+ ✓ src/services/export/article-masthead.test.ts (34 tests) 621ms
+ ✓ src/services/export/wechat-svg-options.test.ts (3 tests) 539ms
+     ✓ can apply every registered SVG module as an explicit WeChat export option module  306ms
+ ✓ src/services/export/writing-components-platform.test.ts (3 tests) 478ms
+     ✓ keeps every WeChat preset themed and free of unsupported component layout  470ms
+ ✓ src/services/export/publish-copy.test.ts (6 tests) 375ms
+ ✓ src/services/export/__tests__/emit-flagship-artifacts.test.ts (1 test) 371ms
+     ✓ renders flagship presets through the real pipeline and (optionally) writes paste-ready HTML  370ms
+ ✓ src/services/export/local-delivery.test.ts (4 tests) 324ms
+     ✓ adds portable frontmatter only for a blog target and emits semantic HTML  319ms
+ ✓ src/services/export/wechat-style-export-samples.test.ts (1 test) 304ms
+     ✓ renders every selectable WeChat style choice through the real WeChat exporter with SVG options enabled  302ms
+ ✓ src/services/export/delivery-adornments.test.ts (13 tests) 194ms
+ ✓ src/services/export/__tests__/flagship-pipeline-smoke.test.ts (33 tests) 106ms
+ ✓ src/services/export/xhs.test.ts (12 tests) 116ms
+ ✓ src/services/export/visual-variants.test.ts (22 tests) 47ms
+ ✓ src/services/export/zhihu.test.ts (14 tests) 44ms
+ ✓ src/services/export/wechat-native-handoff.test.ts (8 tests) 35ms
+stderr | src/services/export/wechat-publish.test.ts > wechat-publish service > rejects any raw media id field returned across the Rust-to-Web boundary
+[InkForge] [ERROR] 2026-08-09T19:03:04.799Z | 微信发布响应解析失败: wechat_upload_cover_image | {"operation":"wechat_upload_cover_image","errorName":"ZodError","errorMessage":"[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"mediaId\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key: \\\"mediaId\\\"\"\n  }\n]"}
+
+stderr | src/services/export/wechat-publish.test.ts > wechat-publish service > accepts only the redacted backend draft round-trip receipt
+[InkForge] [ERROR] 2026-08-09T19:03:04.820Z | 微信发布响应解析失败: wechat_draft_live_round_trip | {"operation":"wechat_draft_live_round_trip","errorName":"ZodError","errorMessage":"[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"mediaId\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key: \\\"mediaId\\\"\"\n  }\n]"}
+
+ ✓ src/services/export/wechat-publish.test.ts (20 tests) 36ms
+ ✓ src/services/export/themes-migration.test.ts (255 tests) 29ms
+ ✓ src/services/export/preview-fidelity/zhihu-mock.test.ts (15 tests) 28ms
+ ✓ src/services/export/application-svg-gallery.test.ts (2 tests) 28ms
+ ✓ src/services/export/svg-modules/__tests__/html-blocks.test.ts (72 tests) 26ms
+ ✓ src/services/export/renderers/ast.test.ts (19 tests) 24ms
+ ✓ src/services/export/svg-modules/__tests__/registry.test.ts (5 tests) 24ms
+ ✓ src/services/export/wechat-svg-application.test.ts (3 tests) 24ms
+ ✓ src/services/export/__tests__/flagship-svg.test.ts (21 tests) 22ms
+ ✓ src/services/export/preview-fidelity/xiaohongshu-mock.test.ts (12 tests) 20ms
+ ✓ src/services/export/svg-modules/__tests__/interactive.test.ts (58 tests) 18ms
+ ✓ src/services/export/image-pipeline/image-pipeline.test.ts (22 tests) 13ms
+ ✓ src/services/export/preview-fidelity/svg-modules-fidelity.test.ts (2 tests) 16ms
+ ✓ src/services/export/svg-modules/__tests__/dividers.test.ts (64 tests) 13ms
+ ✓ src/services/export/platform-artifact-bundle.test.ts (4 tests) 7ms
+ ✓ src/services/export/svg-modules/__tests__/covers.test.ts (24 tests) 10ms
+ ✓ src/services/export/svg-modules/__tests__/quotes.test.ts (27 tests) 9ms
+ ✓ src/services/export/preset-decorations.test.ts (65 tests) 11ms
+ ✓ src/services/export/svg-modules/__tests__/badges.test.ts (17 tests) 10ms
+ ✓ src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts (8 tests) 10ms
+ ✓ src/services/export/platform-rules/xiaohongshu.test.ts (20 tests) 9ms
+ ✓ src/services/export/svg-modules/__tests__/primitives.test.ts (19 tests) 9ms
+ ✓ src/services/export/svg-modules/__tests__/wechat-safe.test.ts (18 tests) 8ms
+ ✓ src/services/export/svg-modules/__tests__/headers.test.ts (23 tests) 9ms
+ ✓ src/services/export/preset-fonts.test.ts (12 tests) 7ms
+ ✓ src/services/export/svg-modules/__tests__/endmarks.test.ts (17 tests) 8ms
+ ✓ src/services/export/svg-modules/__tests__/raster.test.ts (9 tests) 7ms
+ ✓ src/services/export/platform-rules/zhihu.test.ts (21 tests) 8ms
+ ✓ src/services/export/svg-modules/__tests__/theme.test.ts (15 tests) 7ms
+ ✓ src/services/export/platform-rules/wechat.test.ts (22 tests) 8ms
+ ✓ src/services/export/svg-modules/__tests__/inject.test.ts (17 tests) 7ms
+ ✓ src/services/export/citation-export.test.ts (2 tests) 6ms
+
+ Test Files  51 passed (51)
+      Tests  1503 passed (1503)
+   Start at  03:02:30
+   Duration  43.76s (transform 3.61s, setup 0ms, import 12.80s, tests 16.74s, environment 6.16s)
+

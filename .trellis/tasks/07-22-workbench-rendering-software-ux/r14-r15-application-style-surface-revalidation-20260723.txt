@@ -1,0 +1,49 @@
+R-14/R-15 application style-surface revalidation - 2026-07-23
+
+Goal
+- Prove that selectable styles enter current application render/export paths rather than existing only as catalog metadata.
+- Keep phone/account/publication proof separate from local application readiness.
+
+Application preflight
+Command:
+pnpm exec tsx scripts/style-proof-release-preflight.ts --scope=application --json
+
+Result:
+- Exit 0.
+- scope: application
+- status: application-ready
+- canClaimApplicationReady: true
+- canClaimReleaseComplete: false
+- 27 SVG modules / 7 families.
+- 4 personas / 108 of 108 module-persona renders.
+- 0 application gallery issues and 0 WeChat-safe violations.
+- 5 of 5 SVG application slots.
+- 2 of 2 application surfaces.
+- 3 of 3 export pipeline contracts.
+- 13 of 13 selectable WeChat style samples rendered.
+- 45 SVG modules across rendered style samples.
+- 0 style-sample, choice, option-injection, sentinel, or local actionable issues.
+
+Focused application regression
+Command:
+pnpm exec vitest run \
+  src/views/__tests__/ThemesView.canonical-presets.test.ts \
+  src/views/__tests__/PublishView.wechat-presets.test.ts \
+  src/services/export/preset-decorations.test.ts \
+  src/services/export/themes-migration.test.ts \
+  src/services/export/wechat-style-export-samples.test.ts \
+  scripts/style-proof-application-gallery.test.ts \
+  scripts/style-proof-wechat-style-samples.test.ts \
+  scripts/style-proof-release-preflight.test.ts \
+  --reporter=default --maxWorkers=1 --no-file-parallelism
+
+Result:
+- PASS: 8 files / 346 tests.
+- All 16 WeChat presets rendered through markdownToWechatWithStats with real body text, inline styles, non-zero statistics, no script tags, and no style tags.
+- All four SVG flagship presets emitted inline SVG, data-ink-block output, width=100%, and viewBox scaling.
+- Canonical application surfaces expose 16 WeChat, 5 XHS, and 3 Zhihu presets.
+
+Boundary
+- This proves current local application rendering and selectable-surface wiring.
+- It does not prove WeChat phone preview, mobile Dark Mode/SMIL/click, cover acceptance, credentialed sync/publish, or XHS/Zhihu account upload/publication.
+- Native visual selection, recipe comparison, per-platform return, and Workstation/Export/Publish consistency remain user hand tests.

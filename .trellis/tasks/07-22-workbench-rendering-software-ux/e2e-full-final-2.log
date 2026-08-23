@@ -1,0 +1,73 @@
+
+Execution of 1 workers started at 2026-07-26T21:51:43.513Z
+
+[0-0] [InkForge E2E] tauri-driver PID 16272 owns port 4444
+[0-0] RUNNING in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico.html
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+[0-0] Asset `favicon.ico` not found; fallback to index.html
+[0-0] [InkForge E2E] isolated WebView2 data verified in scoped_dir41868_849608166
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Asset `workstation` not found; fallback to workstation.html
+[0-0] Asset `workstation` not found; fallback to workstation/index.html
+[0-0] Asset `workstation` not found; fallback to index.html
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] Asset `settings` not found; fallback to settings.html
+[0-0] Asset `settings` not found; fallback to settings/index.html
+[0-0] Asset `settings` not found; fallback to index.html
+[0-0] Asset `settings` not found; fallback to settings.html
+[0-0] Asset `settings` not found; fallback to settings/index.html
+[0-0] Asset `settings` not found; fallback to index.html
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [svg-render] flagship-kiln: 2 [data-ink-svg] modules; sample bbox {"deltaToParent":0,"hasSvg":true,"moduleId":"cover-grid","parentW":401,"secW":401,"svgH":230,"svgW":401,"viewBox":"0 0 1080 620"}
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [svg-render] flagship-tempera: 2 [data-ink-svg] modules; sample bbox {"deltaToParent":0,"hasSvg":true,"moduleId":"cover-title","parentW":401,"secW":401,"svgH":230,"svgW":401,"viewBox":"0 0 1080 620"}
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [svg-render] flagship-amber: 2 [data-ink-svg] modules; sample bbox {"deltaToParent":0,"hasSvg":true,"moduleId":"cover-title","parentW":401,"secW":401,"svgH":230,"svgW":401,"viewBox":"0 0 1080 620"}
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [svg-render] chars/line (mobile-emulated): 20 (99 chars over 5 lines @360px/17px)
+[0-0] [InkForge E2E] isolated OS credential removed
+[0-0] PASSED in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[webview2 150.0.4078.99 windows #0-0] Running: webview2 (v150.0.4078.99) on windows
+[webview2 150.0.4078.99 windows #0-0] Session ID: a416dceefa3f7f7ccbcab3905250d924
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] » tests\e2e\specs\svg-render.spec.cjs
+[webview2 150.0.4078.99 windows #0-0] InkForge — SVG flagship typesetting (PR7, multi-round, real binary)
+[webview2 150.0.4078.99 windows #0-0]    ✓ seeds a real draft and enables the export pipeline (precondition)
+[webview2 150.0.4078.99 windows #0-0]    ✓ renders the selected flagship SVG modules in the real Workstation platform preview
+[webview2 150.0.4078.99 windows #0-0]    ✓ uses the persisted Settings default export platform as the Workstation and ExportModal initial platform
+[webview2 150.0.4078.99 windows #0-0]    ✓ applies Settings export-only custom CSS to the real WeChat export preview without runtime CustomCSS leakage
+[webview2 150.0.4078.99 windows #0-0]    ✓ applies Settings Advanced runtime CustomCSS to the real editor and removes it without export leakage
+[webview2 150.0.4078.99 windows #0-0]    ✓ persists a successful WeChat rich copy in Settings history and clears it through the real UI
+[webview2 150.0.4078.99 windows #0-0]    ✓ surfaces style capability gates for all platforms in the real ExportModal
+[webview2 150.0.4078.99 windows #0-0]    ✓ flagship-kiln (赤陶旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0]    ✓ flagship-tempera (铜绿旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0]    ✓ flagship-amber (黄铜旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 150.0.4078.99 windows #0-0]    ✓ flagship body yields a mobile-comfortable ~20–22 CJK chars/line (real layout, ship font)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 11 passing (33.8s)
+
+
+Spec Files:	 1 passed, 1 total (100% completed) in 00:00:39  
+

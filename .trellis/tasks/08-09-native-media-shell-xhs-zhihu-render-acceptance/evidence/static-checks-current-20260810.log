@@ -1,0 +1,58 @@
+
+## focused platform artifact regression
+$ pnpm -C inkforge exec vitest run src/services/export/platform-artifact-bundle.test.ts src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism 
+
+ RUN  v4.1.5 <WORKSPACE>/inkforge
+
+ ✓ src/services/export/image-pipeline/image-pipeline.test.ts (22 tests) 20ms
+ ✓ src/services/export/platform-artifact-bundle.test.ts (4 tests) 9ms
+
+ Test Files  2 passed (2)
+      Tests  26 passed (26)
+   Start at  03:06:13
+   Duration  2.89s (transform 1.32s, setup 0ms, import 2.31s, tests 28ms, environment 1ms)
+
+EXIT_CODE=0
+
+## exact ESLint
+$ pnpm -C inkforge exec eslint src/services/export/platform-artifact-bundle.ts src/services/export/platform-artifact-bundle.test.ts src/views/InspectorUtilityView.vue tests/e2e/wdio.conf.cjs tests/e2e/wdio-bounds.test.cjs tests/e2e/specs/native-shell-lifecycle.spec.cjs tests/e2e/specs/platform-artifact-release.spec.cjs --quiet 
+EXIT_CODE=0
+
+## Vue TypeScript
+$ pnpm -C inkforge exec vue-tsc --noEmit --pretty false 
+EXIT_CODE=0
+
+## wdio config syntax
+$ node --check inkforge/tests/e2e/wdio.conf.cjs 
+EXIT_CODE=0
+
+## wdio bounds syntax
+$ node --check inkforge/tests/e2e/wdio-bounds.test.cjs 
+EXIT_CODE=0
+
+## native shell E2E syntax
+$ node --check inkforge/tests/e2e/specs/native-shell-lifecycle.spec.cjs 
+EXIT_CODE=0
+
+## platform artifact E2E syntax
+$ node --check inkforge/tests/e2e/specs/platform-artifact-release.spec.cjs 
+EXIT_CODE=0
+
+## native host and producer path bounds
+$ node --test inkforge/tests/e2e/wdio-bounds.test.cjs 
+✔ native host and WebView bounds allow only DPI-scale border variance (1.4672ms)
+✔ producer source enumeration excludes tests on Windows and POSIX paths (0.4448ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2059.7161
+EXIT_CODE=0
+
+STATIC_CHECKS=PASS
+
+TASK_SCOPED_DIFF_CHECK=PASS
+CACHED_DIFF_CHECK=PASS

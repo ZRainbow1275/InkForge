@@ -1,0 +1,42 @@
+R-05/R-13 Render Control Semantics - 2026-07-22
+
+Scope:
+- Repair deterministic keyboard and icon consistency in the existing canonical Workstation rendering controls.
+- Preserve all current values, Store writes, presets, renderers, export options, and platform boundaries.
+- No foreground, article, clipboard, browser, account, upload, or publication action.
+
+Pre-edit evidence:
+- Width, indent, heading, quote, and font buttons had implicit button types and no aria-pressed state.
+- The indent button was nested inside a label element.
+- Generated typography ranges had no aria-label.
+- The accent selection mark and font label used hand-written SVG.
+- GitNexus WorkstationView.vue impact: LOW, 0 direct upstream dependents, 0 affected processes.
+- WorkstationView.desktop-layout.test.ts is not mapped by the current index.
+
+TDD:
+- RED: WorkstationView.desktop-layout.test.ts failed 1/16 at the missing explicit accent button contract.
+- GREEN: the final focused contract passed 16/16.
+
+Implementation:
+- Existing controls now use type=button and aria-pressed without changing their click assignments.
+- Generated range inputs use the existing control label as aria-label.
+- The indent row is a neutral div rather than a label containing an interactive button.
+- Accent selection reuses the installed Check icon.
+- Font labelling reuses the installed Type icon.
+- No new component, abstraction, dependency, state, renderer, or CSS branch was added.
+
+Verification:
+- Focused Workstation contract: 1 file / 16 tests passed.
+- Workstation/render regression: 8 files / 64 tests passed.
+- XHS preview similarity: 1.0000.
+- XHS cross-route similarity: 0.9979.
+- Exact ESLint: passed.
+- vue-tsc --noEmit --pretty false: passed.
+- Production build: 4,675 modules, 55.13s, 3,072 MB heap cap, passed.
+- Generated tsconfig.tsbuildinfo restored.
+- Vite accepted HMR without a compile error.
+- GitNexus post-edit aggregate: 346 changed symbols, 117 files, 31 affected processes, critical. This covers the complete pre-existing dirty worktree; isolated Workstation impact was LOW with zero affected processes.
+
+Boundary:
+- Native keyboard traversal, visible focus/pressed state, and per-control output changes still require current user observation.
+- This does not claim phone/account/sync/publication proof or XHS/Zhihu account publication.

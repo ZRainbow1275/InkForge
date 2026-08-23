@@ -1,0 +1,21 @@
+
+> inkforge@0.1.0 tauri D:\Desktop\Inkforge\inkforge
+> tauri "dev"
+
+     Running BeforeDevCommand (`pnpm dev --host 127.0.0.1 --port 3005`)
+
+> inkforge@0.1.0 dev D:\Desktop\Inkforge\inkforge
+> vite "--host" "127.0.0.1" "--port" "3005"
+
+
+  VITE v6.4.1  ready in 717 ms
+
+  ➜  Local:   http://127.0.0.1:3005/
+        Info Watching D:\Desktop\Inkforge\inkforge\src-tauri for changes...
+[1m[92m   Compiling[0m inkforge v0.1.0 (D:\Desktop\Inkforge\inkforge\src-tauri)
+[1m[96m    Building[0m [=======================> ] 421/422: inkforg…                                                            [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 22.88s
+08:28:05 [vite] (client) page reload src/views/__tests__/WorkstationView.desktop-layout.test.ts
+08:28:06 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css
+08:28:06 [vite] (client) hmr update /src/views/InspectorUtilityView.vue, /src/styles/main.css
+08:29:40 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css
+08:29:40 [vite] (client) hmr update /src/views/InspectorUtilityView.vue, /src/styles/main.css

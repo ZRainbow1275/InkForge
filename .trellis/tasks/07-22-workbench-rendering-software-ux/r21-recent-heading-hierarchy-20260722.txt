@@ -1,0 +1,33 @@
+R-21 recent-heading hierarchy closure — 2026-07-22
+
+Requirement recovered from the original screenshot review
+- The “最近编辑” label was explicitly reported as too small.
+- Entry-point deduplication did not by itself satisfy this visual hierarchy requirement.
+
+Current-state contradiction
+- HubView rendered “最近编辑” as a generic div.
+- .recent-label remained 15px with wide eyebrow-style tracking.
+- The current Start card already used a stronger semantic/card-title hierarchy.
+
+Impact
+- File:inkforge/src/views/HubView.vue — LOW, 0 direct dependents, 0 affected processes.
+
+Red/green contract
+- Red: HubView.cards.test.ts failed 1/15 because <h3 class="recent-label"> was absent.
+- Green: “最近编辑” is now an h3 with the existing serif/token system, 18px size, 700 weight, compact tracking, and an 18px Lucide Clock3 icon.
+- No creation action, article route, store operation, or keyboard behavior changed.
+
+Verification
+- Focused Hub contract: 15/15 passed.
+- Core serial R-01..R-23 regression: 15 files / 97 tests passed; XHS preview similarity remained 1.0000.
+- Exact Hub/test ESLint: passed.
+- vue-tsc --noEmit --pretty false: passed.
+- Production build: 4,675 modules transformed; passed in 1m24s.
+- Generated tsconfig.tsbuildinfo restored.
+- Vite endpoint: HTTP 200.
+- Native process remained alive: InkForge.exe PID 21140.
+- GitNexus aggregate dirty-worktree detection: 346 changed symbols, 116 files, 31 affected processes, critical. The isolated Hub file impact above remains LOW.
+
+Visible boundary
+- The native window remained minimized and was not restored or focused.
+- The user must visually confirm the heading prominence and retained Start/FAB routes in the running Tauri Hub.

@@ -1,0 +1,39 @@
+R-14 persona visual-signature audit - 2026-07-23
+
+Scope
+- Read-only final-output audit for the canonical production converters.
+- Rich shared input includes H1/H2/H3, ordinary paragraphs, blockquote, ordered and unordered lists, divider, code block, and table.
+- No browser, clipboard, article, account, publish, or product runtime state was mutated.
+
+Stricter visual identity boundary
+- Removed id, class, role, title, alt, contenteditable, spellcheck, tabindex, aria-*, and data-* attributes before comparison.
+- Sorted remaining attributes and inline CSS declarations so attribute/declaration order cannot create a false distinction.
+- Normalized hex, rgb/rgba, and hsl/hsla colors so accent recoloring cannot create a false distinction.
+- Preserved DOM structure, visible decorator text, typography, spacing, border/shadow geometry, responsive dimensions, and SVG geometry.
+
+Audit result
+- WeChat: 16 presets / 16 unique metadata-free, color-normalized final-output signatures; zero collisions.
+- Xiaohongshu: 5 presets / 5 unique signatures; zero collisions.
+- Zhihu: 3 presets / 3 unique signatures; zero collisions.
+- Ordinary WeChat presets retained 27-31 inline-styled elements in the rich fixture after metadata removal.
+- Flagship WeChat presets retained 14 section nodes, 10 SVG nodes, and 65 inline-styled elements after metadata removal.
+
+Regression closure
+- Added a focused contract proving two fragments that differ only by id/class/data metadata, accent color, whitespace, and CSS declaration order normalize identically.
+- Red run: 1 file / 6 tests, 1 failed and 5 passed. Failure showed the old helper counted id/class/data attributes and declaration order.
+- Green focused run: 1 file / 6 tests passed.
+- Expanded serial rendering run: 8 files / 725 tests passed.
+- Exact ESLint for persona-distinction.test.ts passed.
+- vue-tsc --noEmit --pretty false passed.
+- GitNexus post-edit detection over the complete pre-existing dirty worktree reports 338 changed symbols, 117 files, 31 affected processes, and aggregate critical risk; the isolated edited test helper was LOW with one direct test caller and zero affected processes/modules.
+- No production source changed, so the already-green 4,675-module production build was not repeated while the user was actively hand-testing the running Tauri app.
+- Because this regression file lives under Vite's watched src tree, its red and green edits caused two development-page reloads at 00:15:36 and 00:16:14. The same native PID remained responsive and port 3005 stayed HTTP 200; the user should reconfirm the currently visible article before continuing stateful hand-test steps.
+
+Decision
+- No product renderer/theme edit was justified: the final production outputs already satisfy the deterministic R-14 distinction contract after non-visual identity is removed.
+- The smallest correct repair is the strengthened regression boundary; no second renderer, preset registry, or style abstraction was added.
+
+Boundary
+- This proves final exported HTML/text structure is not distinguished only by names, ids, classes, data attributes, CSS declaration order, or accent colors.
+- It does not replace the remaining native side-by-side visual review of all 16 WeChat recipes, platform switching/retention, or Workstation/Export/Publish pair consistency.
+- Xiaohongshu and Zhihu account upload/publication remain user-manual.

@@ -1,0 +1,37 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ❯ src/services/export/persona-distinction.test.ts (5 tests | 1 failed) 193ms
+     ✓ renders every selectable persona into a distinct structure beyond accent color 133ms
+     ✓ renders every Xiaohongshu preset into a distinct structure beyond accent color 30ms
+     ✓ renders every Zhihu preset into a distinct structure beyond accent color 10ms
+     × keeps every Zhihu preset distinct for paragraph-only articles 10ms
+     ✓ keeps Xiaohongshu and Zhihu wrappers isolated from WeChat SVG output 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/services/export/persona-distinction.test.ts > cross-platform content persona distinction > keeps every Zhihu preset distinct for paragraph-only articles
+AssertionError: expected 2 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 2
+
+ ❯ src/services/export/persona-distinction.test.ts:78:40
+     76|     ))
+     77|
+     78|     expect(new Set(fingerprints).size).toBe(presets.length)
+       |                                        ^
+     79|   })
+     80|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  16:33:42
+   Duration  1.35s (transform 370ms, setup 0ms, import 633ms, tests 193ms, environment 343ms)
+

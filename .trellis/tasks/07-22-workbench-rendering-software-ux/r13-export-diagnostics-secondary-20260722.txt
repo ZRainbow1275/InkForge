@@ -1,0 +1,39 @@
+R-13 ExportModal diagnostics hierarchy — 2026-07-22
+
+Observed defect:
+- The style capability catalog was already inside a default-closed diagnostics drawer.
+- Quality detection and Export preflight still occupied the normal export flow permanently.
+- The preflight rows included style-catalog, acceptance-claim, and committed-proof text, contradicting the R-13 requirement that diagnostics remain secondary.
+
+Pre-edit impact:
+- GitNexus target: selectPreset in ExportModal.vue
+- Risk: LOW
+- Direct dependent symbols: 1
+- Affected execution flows: 0
+- The repair changes template hierarchy only; renderer, preset state, reports, and actions are unchanged.
+
+Red check:
+- pnpm exec vitest run src/components/export/ExportModal.svg-options.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+- Result before product repair: 1 file, 7 tests, 1 failed.
+- Exact failure: missing default-closed export-diagnostics-drawer around quality and preflight content.
+
+Repair:
+- Added one native details disclosure named “质量与导出预检”.
+- Moved the existing quality report and all existing preflight rows inside it.
+- The disclosure has no open attribute and therefore starts closed.
+- No quality issue, catalog report, proof row, renderer, copy/download action, or publish boundary was removed.
+
+Green checks:
+- Focused source contract: 1 file / 7 tests passed.
+- Adjacent ExportModal + Workstation regression: 3 files / 18 tests passed.
+- R-13/R-14/R-16 integration surface: 6 files / 28 tests passed.
+- Exact ESLint for ExportModal.vue and ExportModal.svg-options.test.ts passed.
+- vue-tsc --noEmit --pretty false passed.
+- Production build passed: 4,675 modules transformed, built in 55.15 seconds with a 3,072 MB Node heap cap.
+- Generated tsconfig.tsbuildinfo was restored and is not part of the intended change.
+
+Runtime boundary:
+- Vite accepted the product HMR update and the development endpoint remained HTTP 200.
+- InkForge.exe and the existing Vite process remained alive.
+- No foreground input, article mutation, storage reset, browser-profile access, upload, sync, or publish action was used.
+- Native visible confirmation of the default-closed disclosure and keyboard open/close remains part of the user hand test.

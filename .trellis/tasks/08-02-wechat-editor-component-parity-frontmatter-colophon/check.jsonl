@@ -1,0 +1,8 @@
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend review entrypoint and exact verification requirements."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Review accessibility, icon usage, component responsibility, and real UI behavior."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Review strict types, schema parsing, unsafe URL rejection, and error handling."}
+{"file":".trellis/spec/frontend/visual-variant-system.md","reason":"Review all sixteen preset identities, editor/preview correspondence, and brand anchors."}
+{"file":".trellis/spec/frontend/flagship-element-catalog.md","reason":"Review flagship structure and fallback retention without copied vendor assets."}
+{"file":".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/research/current-inkforge-component-pipeline.md","reason":"Review exact canonical source, real converter delegation, delivery slot order, NodeView reuse, test anchors, native evidence, and no-third-renderer boundary."}
+{"file":".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/research/doocs-md-component-patterns-context.md","reason":"Check compact pinned official findings so implementation borrows architecture only and does not copy templates/assets or claim unverified native platform success."}
+{"file":".trellis/tasks/08-02-wechat-editor-component-parity-frontmatter-colophon/research/implementation-contracts-context.md","reason":"Review canonical Settings/artifact state, all-16 preset contract, packaged Tauri proof, rich clipboard, redacted evidence, external platform boundaries, and no-frontmatter decision."}

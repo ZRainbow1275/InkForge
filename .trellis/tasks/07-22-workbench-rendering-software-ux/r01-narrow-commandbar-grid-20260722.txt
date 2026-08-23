@@ -1,0 +1,46 @@
+R-01 Narrow Command-Bar Grid - 2026-07-22
+
+Scope
+- Workstation command-bar geometry at the existing max-width: 900px breakpoint.
+- No article, store, renderer, button, route, or native command behavior changed.
+
+Root cause
+- The Back button retained the default flex order.
+- The title used flex-basis: 100% and occupied a second row.
+- The actions used width: 100% and occupied a third row.
+- The narrow header therefore had a deterministic back-button-only first row.
+
+Repair
+- Reused native CSS Grid; no dependency or component was added.
+- Row 1: Back button + document identity/status.
+- Row 2: copy/export/focus, Default/Write, Review/Split, and Publish.
+- Existing action wrapping remains available at very small widths.
+
+Pre-edit impact
+- GitNexus target: File:inkforge/src/views/WorkstationView.vue
+- Direction: upstream
+- Risk: LOW
+- Direct dependents: 0
+- Affected execution flows: 0
+
+TDD
+- Before product repair: WorkstationView.desktop-layout.test.ts, 1 failed / 10 passed.
+- After product repair: WorkstationView.desktop-layout.test.ts, 11 passed / 11.
+
+Validation
+- pnpm -C inkforge exec vitest run src/views/__tests__/WorkstationView.desktop-layout.test.ts src/views/__tests__/WorkstationView.focus-collision.test.ts src/views/__tests__/WorkstationView.vignette.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 3 files / 21 tests.
+- pnpm -C inkforge exec eslint src/views/WorkstationView.vue src/views/__tests__/WorkstationView.desktop-layout.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=3072 pnpm -C inkforge build
+  PASS: 4,675 modules transformed; built in 1m18s.
+- git diff --check -- inkforge/src/views/WorkstationView.vue inkforge/src/views/__tests__/WorkstationView.desktop-layout.test.ts
+  PASS; only the existing Git LF/CRLF advisory was printed.
+
+Runtime boundary
+- Vite emitted one test-file page reload and one style-only HMR.
+- Existing Vite/Tauri processes remained running and HTTP 3005 remained available.
+- No foreground input, article mutation, storage injection, browser profile access, upload, sync, or publication was performed.
+- Visible narrow/maximized/keyboard acceptance remains a user hand-test gate.

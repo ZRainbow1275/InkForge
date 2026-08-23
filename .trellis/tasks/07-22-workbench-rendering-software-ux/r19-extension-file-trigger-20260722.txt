@@ -1,0 +1,26 @@
+R-19 extension manifest file-trigger consistency — 2026-07-22
+
+Root cause
+- Settings import and CustomCSS import already hid native file inputs behind styled controls.
+- The Extensions tab still rendered a raw `sv-input` file control for local manifests.
+
+Repair
+- Reused the existing hidden-input pattern.
+- Added `extensionManifestInput` and `triggerExtensionManifestImport()`.
+- Added one standard `sv-action-btn` that opens the native file chooser.
+- The button label changes from “选择 manifest 文件” to “重新选择 manifest” after real file content is loaded.
+- The underlying input remains functional but is visually hidden, removed from tab order, and reached only through the styled trigger.
+
+Impact
+- GitNexus upstream impact for `handleExtensionManifestFile` and the reused `triggerSettingsImport` pattern was LOW.
+- Each had one direct dependent and zero affected execution flows.
+
+Verification
+- SettingsView.software-shell.test.ts: 7/7 passed.
+- Exact two-file ESLint passed.
+- vue-tsc --noEmit --pretty false passed.
+- Vite reported one raw-test page reload and no runtime error.
+- http://127.0.0.1:3005/ returned HTTP 200; the existing InkForge native process remained alive.
+
+Remaining visible gate
+- Open Extensions and verify the styled chooser, cancel, select, focus ring, disabled install state, and narrow-width layout.

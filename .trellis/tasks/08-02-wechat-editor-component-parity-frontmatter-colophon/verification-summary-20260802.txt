@@ -1,0 +1,43 @@
+InkForge WeChat editor-component parity verification - 2026-08-02
+
+Automated regression:
+- Focused Vitest: PASS, 10 files / 134 tests
+- Serial export Vitest: PASS, 48 files / 1482 tests
+- Exact changed-file ESLint: PASS
+- vue-tsc --noEmit: PASS
+- Production web build: PASS, 5575 modules, 48.99 seconds
+
+Application preflight:
+- Status: application-ready
+- SVG modules: 27
+- SVG families: 7
+- Module/persona pairs: 108
+- Application gallery issues: 0
+- WeChat application slot/surface/export-pipeline/option issues: 0
+- WeChat-safe violations: 0
+- Module sentinel failures: 0
+
+Native release acceptance:
+- Final Release SHA-256: 6afaa6c0b7f4e1410d9013e81c5cb823ab2ec8899e66f85827c9965230b62bd4
+- Release E2E: PASS, 1 spec / 13 tests, 55.3 seconds
+- 16 current presets: full native structure/component/visual matrix complete
+- Ten real edit/preset rounds: PASS
+- Final marker and final preset survived delayed recheck
+- Internal render p50/p95: 11/12 ms
+- Edit plus settled preview wall p50/p95: 1104/1180 ms
+
+Real WeChat PC ordinary paste:
+- Matrix Release SHA-256: 119c5a0b197fe6436d13db6839950a78356fa7dcb13231df2e7b6af47866ce28
+- 16/16 preset rows passed
+- Trusted text/plain + text/html clipboard channel: 16/16
+- Required sentinels: 16/16
+- Horizontal overflow rows: 0
+- Unsafe DOM findings: 0
+- SVG-bearing flagship source-relative preservation: 4/4
+- Post-matrix product changes removed a duplicate PublishView clipboard fallback, exposed the real delivery media fields with accessible validation, parsed the delivery snapshot through the existing Schema boundary, invalidated stale preview metadata immediately, preserved an explicit empty WeChat state, normalized Markdown URL delimiters, and added a flagship song-frame category distinction.
+- The matrix remains bound to its matrix Release hash and was not rerun against the final handoff binary. The exact final Release hash passed the complete native 13-test E2E suite.
+
+Boundaries:
+- No WeChat save, phone preview, Dark Mode, native media-card, cover, sync, scheduled-send, group-send, or publish proof was attempted or claimed.
+- Xiaohongshu and Zhihu account upload/publish tests were cancelled by user request; only local negative leakage coverage applies.
+- This file intentionally excludes local absolute paths, process/session identifiers, browser state, account artifacts, QR codes, cookies, tokens, HAR data, and private platform screenshots.

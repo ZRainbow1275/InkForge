@@ -1,0 +1,3 @@
+pid=51656 count=15 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - Ê×Ò³","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - Ê×Ò³ - Web ÄÚÈÝ","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}

@@ -1,0 +1,13 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "核验 Vue/TypeScript 变更、真实 UI 行为、回归测试和无重复实现。"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "核验统一组件语言、键盘可达、焦点、空状态和响应式桌面布局。"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "核验排版、样式、布局、搜索和灵感来源只有一个可写事实源。"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "核验信任边界、迁移、平台和 Tauri 命令没有宽泛类型或吞错。"}
+{"file": ".trellis/spec/frontend/wechat-svg-modules.md", "reason": "核验微信 SVG/样式产物符合本地执行规则，同时不冒充外部平台证明。"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "核验原生窗口、文件写入、凭据与发布失败可见且可恢复。"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "核验 Rust/Tauri 边界的输入验证、测试、跨平台和回滚质量。"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "核验删除的是重复呈现而非底层业务能力，并避免新增平行架构。"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "核验 UI 到 Store、renderer、持久化、Tauri 和磁盘回读的完整链路。"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "核验不同桌面系统、缩放、窗口和路径行为。"}
+{"file": ".trellis/tasks/07-22-workbench-rendering-software-ux/research/screenshot-audit.md", "reason": "逐项复验截图中 23 个问题，不用相邻需求或窄测试代替。"}
+{"file": ".trellis/tasks/07-22-workbench-rendering-software-ux/research/current-code-audit.md", "reason": "核验共享根因已修复且保留能力没有遗漏。"}
+{"file": ".trellis/tasks/07-22-workbench-rendering-software-ux/research/platform-rules-refresh-2026-07.md", "reason": "核验三平台独立规则、来源标注和人工发布边界。"}

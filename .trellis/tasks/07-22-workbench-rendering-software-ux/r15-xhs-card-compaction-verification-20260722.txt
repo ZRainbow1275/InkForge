@@ -1,0 +1,58 @@
+XHS Real-Article Card Compaction Verification - 2026-07-22
+
+Source:
+- Article: IF0722-ARTICLE-A
+- Paragraphs: 20 real paragraphs read from the running native editor
+- Portable source: r14-r15-real-article-20260722.json
+
+Rejected state:
+- Ordinary Markdown blank lines flushed every paragraph into its own card.
+- The complete source expanded to 20 sparse pages and failed the current 18-page local checklist.
+- Ordinary wrapped prose lines were rendered with list bullets.
+
+Implemented root fix:
+- Blank lines delimit paragraphs but do not force card breaks.
+- A wrapped paragraph that fits on the next card remains intact.
+- Per-card source-line ranges follow the actual packed paragraph groups.
+- Only real Markdown list rows receive list markers.
+- Explicit headings, xhs-page-break rows, fenced code blocks, and true capacity overflow keep their existing behavior.
+
+Real artifact result:
+- Directory: r15-native-artifacts-20260722/xhs-cards-full-article
+- Manifest: r15-native-artifacts-20260722/manifest.json
+- Page count: 10
+- Dimensions: 1080x1440 for 10/10 PNG files
+- SHA-256 readback: 10/10 files match the manifest
+- Source coverage: IF0722-FOCUS-P01 through IF0722-FOCUS-P20, plus SELECTION-PROBE
+- validateXhsImageArtifactManifest(): 0 issues
+- Current 18-page local limit: passed
+
+Visual review:
+- All 10 pages inspected in one contact view.
+- No title/subtitle/body overlap.
+- No cropped body text.
+- No paragraph split across pages when the paragraph fits the next page.
+- No false prose bullets.
+- No empty page.
+
+Verification:
+- Focused slicer regression: PASS, 1 file / 8 tests
+- Integrated XHS/style regression: PASS, 4 files / 402 tests
+- Full export service regression: PASS, 44 files / 1383 tests
+- Exact changed-file ESLint: PASS
+- vue-tsc --noEmit: PASS
+- Production build: PASS, 4675 modules, 59.68 seconds
+- Independent Python dimensions/hash/source-marker audit: PASS
+- GitNexus detect-changes scope=all: completed; expected XHS slice/render flows are present. The aggregate critical result covers 257 symbols across the pre-existing 107-file dirty worktree; both edited production symbols had isolated pre-edit LOW impact with zero direct dependents.
+- Exact tracked diff check and sensitive-artifact scan: PASS
+
+Runtime readback:
+- Source/test edits caused the expected Vite development-page reload.
+- The native InkForge process remained running.
+- IF0722-ARTICLE-A remained selected and saved.
+- The recovery banner remained visible.
+
+Boundary:
+- Full XHS plain text remains blocked at 1171 characters by the current text limit.
+- This proves the local source-owned SVG-to-PNG artifact pack only.
+- It does not prove the running WebView export action, XHS account upload, platform preview, public rendering, scheduled send, or publication.

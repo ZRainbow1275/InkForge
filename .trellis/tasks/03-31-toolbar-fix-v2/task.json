@@ -1,0 +1,41 @@
+{
+  "id": "toolbar-fix-v2",
+  "name": "toolbar-fix-v2",
+  "title": "FloatingToolbar定位修复",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": "feature/toolbar-fix-v2",
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-fix-v2",
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "relatedFiles": [],
+  "notes": ""
+}

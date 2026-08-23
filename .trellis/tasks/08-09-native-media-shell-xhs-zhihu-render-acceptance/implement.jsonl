@@ -1,0 +1,12 @@
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend pre-development entrypoint and required quality workflow."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Vue accessibility, Lucide icon, real-control, focus, keyboard, and no-fake-UI contracts."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict TypeScript and Zod validation for component metadata, URLs, manifests, native commands, and external evidence."}
+{"file":".trellis/spec/frontend/visual-variant-system.md","reason":"Single artifact/renderer, editor-preview correspondence, preset invariants, and real component data."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Tauri WeChat/window command validation, explicit errors, and no swallowed native failures."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Authoritative WeChat draft request limits, service-side validation, real API readback, and cleanup contract; verify current official parity before editing."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Trace editor, export, Tauri commands, browser handoff, persistence, and evidence end to end."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Reuse the current converter, registry, delivery resolver, desktop service, manifests, and proof audit."}
+{"file":".trellis/spec/guides/cross-platform-thinking-guide.md","reason":"Keep WeChat, XHS, and Zhihu output contracts and platform-specific degradation isolated."}
+{"file":".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/research/current-capability-map.md","reason":"Compact current source, test, GitNexus, Serena, Tauri, and single-renderer map for implementation."}
+{"file":".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/research/market-platform-evidence-map.md","reason":"Curated existing doocs/md, 135, Xiumi, WeChat, XHS, Zhihu research and live-test/no-publish boundaries."}
+{"file":".trellis/tasks/08-09-native-media-shell-xhs-zhihu-render-acceptance/research/implementation-contracts-context.md","reason":"Compact state, quality, WeChat-native, Tauri interaction, cross-platform, evidence, and no-claim contracts without truncated megabyte specs."}

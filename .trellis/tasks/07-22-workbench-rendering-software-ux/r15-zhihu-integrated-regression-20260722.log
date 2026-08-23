@@ -1,0 +1,13 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ src/services/export/persona-distinction.test.ts (5 tests) 195ms
+ ✓ src/services/export/shared-typography.test.ts (2 tests) 211ms
+ ✓ src/services/export/zhihu.test.ts (14 tests) 28ms
+ ✓ src/services/export/themes-migration.test.ts (255 tests) 32ms
+
+ Test Files  4 passed (4)
+      Tests  276 passed (276)
+   Start at  16:35:03
+   Duration  4.46s (transform 1.26s, setup 0ms, import 2.39s, tests 467ms, environment 955ms)
+

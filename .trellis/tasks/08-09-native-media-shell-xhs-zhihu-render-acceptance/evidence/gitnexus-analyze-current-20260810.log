@@ -1,0 +1,20 @@
+
+  GitNexus Analyzer
+
+[2K  Skipped 4 large files (>512KB, likely generated/vendored)
+[2K  - experiment/清明，烧Token，祭图灵.mhtml
+[2K  - inkforge/src/services/export/platform-export-rendering.test.ts
+[2K  - prompts/0601/COMPLETION-REPORT.md
+[2K  - prompts/0601/evidence/README.md
+[2K  Set GITNEXUS_MAX_FILE_SIZE=<KB> to include files above the default cap.
+[2KIncremental: changed=10, added=0, deleted=0 (skipping wipe + 1498 unchanged file rows preserved)
+[2KIncremental: +2 importer(s) added to writable set (BFS depth ≤ 4)
+[2KParse cache: pruned 1 stale chunk entries
+
+  Repository indexed successfully (100.5s)
+
+  23,059 nodes | 42,203 edges | 1201 clusters | 300 flows
+  <WORKSPACE>
+
+(node:57716) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)

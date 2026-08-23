@@ -134,12 +134,3 @@ Remaining decision/verification candidates are:
 ## 6. Guardrail
 
 Do not interpret a mature tool's authoring DOM, extension chrome, template HTML, CDN URLs, network payloads, or successful local preview as reusable source or WeChat proof. Extract only source-owned interaction patterns and independently verified platform contracts.
-
-## 7. Implementation baseline binding (2026-08-21)
-
-- Branch/commit: `dev/visual-fixes@51696357e44a1314e7ec05152f7c217240affa46`.
-- The baseline was committed from an isolated clean worktree after focused Vitest (34/34), `vue-tsc`, focused ESLint (0 errors), production build, Rust WeChat tests (27/27), `cargo fmt --check`, Git diff checks and two independent read-only reviews.
-- It retains ordinary draft publishing, an opaque process-local cover handle, bounded/pinned remote-image fetching, strict Rust trust-boundary validation and the single `PublishView` owner.
-- It intentionally excludes the destructive live-round-trip/delete/recovery chain found in the planning dirty snapshot. P0 does not depend on that removed capability and must use the visible unique-title + body-sentinel workflow for any later approved external readback/cleanup.
-- Pinned choices from `style-proof:wechat-style-samples --json`: ordinary inline `wechat-classic-inline`, SVG-heavy flagship `wechat-flagship-kiln`, and paste-safe fallback `wechat-flagship-kiln-paste-safe`; all three were `usable=true` at binding time.
-- The user's main dirty worktree was preserved byte-for-byte across the branch fast-forward; P0 implementation proceeds only in the isolated bound worktree.

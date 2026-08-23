@@ -1,0 +1,10 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts (5 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  17:06:25
+   Duration  719ms (transform 307ms, setup 0ms, import 571ms, tests 8ms, environment 0ms)
+

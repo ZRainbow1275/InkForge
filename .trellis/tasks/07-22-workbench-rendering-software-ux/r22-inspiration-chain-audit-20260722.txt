@@ -1,0 +1,25 @@
+R-22 Inspiration Source Chain Audit - 2026-07-22
+
+Scope
+- Read-only source and regression audit while the user owns the native foreground window.
+- No Hub state, article, localStorage row, AI setting, credential, provider, clipboard, or external account was changed.
+
+Production chain
+- loadHubInspirationState() defaults safely to a real bundled local quote and validates persisted source/local/AI rows.
+- Local mode exposes bounded editable text and author controls; blur normalization prevents an unusable empty row.
+- One deep watcher persists source, local content, and AI content through saveHubInspirationState(); storage failure has visible status.
+- AI unavailable state routes to Settings instead of claiming generation.
+- AI available state calls the existing aiStore.generate() service, exposes a polite loading status, validates/parses bounded text and author, renders provider errors as an alert, and keeps visible retry controls.
+- AI mode with no result stays an honest empty state; it does not display the local quote as generated content.
+
+Verification
+- Command: pnpm -C inkforge exec vitest run src/views/__tests__/HubView.cards.test.ts src/stores/settings.ai.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+- Result: PASS; 2 files / 19 tests.
+- Hub coverage: explicit local/AI switch, editable local fields, no eager AI request, real localStorage round trip, malformed-state recovery.
+- AI Store coverage: disabled and missing-key states do not record success; provider prompts reach three real failed Ollama requests.
+- The three ECONNREFUSED 127.0.0.1:1 messages are deliberate test evidence for the real failure path; both test files pass.
+
+Boundary
+- No deterministic source gap was found, so no product code was added.
+- Visible local edit/restart, AI unconfigured, loading, failure, retry, and configured-provider result remain user hand-test gates.
+- No provider success is inferred from persistence or failure-path tests.

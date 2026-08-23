@@ -1,0 +1,28 @@
+{
+  "id": "brand-rendering-design-recovery",
+  "name": "brand-rendering-design-recovery",
+  "title": "恢复品牌化渲染设计并重构视觉预设",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-07-30",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-31-preset-brand-differentiation"
+  ],
+  "parent": "08-02-rendering-editor-wechat-design-system-parent",
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

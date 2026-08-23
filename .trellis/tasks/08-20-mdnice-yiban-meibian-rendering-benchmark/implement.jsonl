@@ -1,5 +1,6 @@
 {"file":".trellis/spec/frontend/index.md","reason":"前端开发入口、质量门禁与真实 UI 验收边界。"}
 {"file":".trellis/spec/frontend/type-safety.md","reason":"编辑器桥、产物 receipt 与外部输入必须使用严格 Schema 并 fail closed。"}
+{"file":".trellis/spec/frontend/visual-variant-system.md","reason":"复用单一 renderer、既有预设与编辑预览同源合同，禁止第二主题系统。"}
 {"file":".trellis/spec/frontend/wechat-svg-modules.md","reason":"微信安全 SVG、source-owned 模块、sanitizer、市场证据和外部手机证明合同。"}
 {"file":".trellis/spec/frontend/flagship-element-catalog.md","reason":"复核 style choice 应用状态、channel 状态分离、市场残留与代表性样式选择合同。"}
 {"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"追踪 Markdown、canonical artifact、channel payload、宿主 readback 与外部证据的完整链路。"}

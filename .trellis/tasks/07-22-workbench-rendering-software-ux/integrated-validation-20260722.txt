@@ -1,0 +1,81 @@
+InkForge 07-22 Integrated Validation - 2026-07-22
+
+Scope
+- Current worktree acceptance for the 23-row Workstation/rendering/software UX task.
+- Heavy checks ran serially to protect local memory.
+- No XHS/Zhihu account upload or publication automation.
+- No WeChat phone, credentialed sync, scheduled-send, or publication claim.
+
+Automated regression
+1. Focused task group
+   Result: PASS - 22 files / 136 tests
+   Evidence: focused-vitest-20260722.log
+
+2. Cross-platform renderer group
+   Result: PASS - 4 files / 416 tests
+   Evidence: cross-platform-vitest-20260722.log
+
+3. Complete export service suite
+   Result: PASS - 44 files / 1,378 tests
+   Evidence: full-export-vitest-20260722.log
+
+4. Initial full Vitest suite
+   Result: FAIL - 14 tests, all in:
+   - scripts/style-proof-external-handoff.test.ts
+   - scripts/style-proof-release-preflight.test.ts
+   Root cause: committed proof collected on 2026-07-03 correctly became stale under the
+   14-day production freshness window on the current date, 2026-07-22. Vitest fake timers do
+   not cross the spawned Node-process boundary.
+
+5. Temporal regression repair
+   Change: the two test-only subprocess environments pin Date.now() to the committed snapshot
+   date. Production code, proof manifests, collectedAt values, and the 14-day freshness rule are
+   unchanged.
+   Target result: PASS - 2 files / 23 tests
+   Evidence: style-proof-clock-regression-20260722.log
+
+6. Final full Vitest suite
+   Result: PASS - 119 files / 1,895 tests
+   Evidence: full-vitest-20260722.log
+
+Static and native checks
+- ESLint: PASS - 55 exact changed TS/Vue files (53 product + 2 CLI test files)
+- vue-tsc --noEmit --pretty false: PASS
+- pnpm build with NODE_OPTIONS=--max-old-space-size=3072: PASS
+  4,675 modules, 1m11s
+  Evidence: build-20260722.log
+- cargo check: PASS
+  Evidence: cargo-check-20260722.log
+- cargo test: PASS - 28 passed / 0 failed
+  Evidence: cargo-test-20260722.log
+- Generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Style application readiness
+- Command: pnpm --silent style-proof:release-preflight --scope=application --json
+- Result: application-ready
+- canClaimApplicationReady: true
+- canClaimReleaseComplete: false
+- 27 modules
+- 4 personas
+- 108 module/persona pairs
+- 13 selectable/rendered style choices
+- 45 SVG modules in style samples
+- 0 application/style issues
+- Evidence: style-proof-application-preflight-20260722.json
+
+Current-clock strict release state
+- Direct production preflight used the actual 2026-07-22 system clock.
+- Result: blocked-by-external; canClaimComplete: false
+- externalHandoffRows: 12
+- uniqueNextRows: 3
+- Evidence: style-proof-release-preflight-current-20260722.json
+- This is expected and must not be converted to green by changing historical collectedAt values.
+
+Repository impact and boundary
+- GitNexus detect_changes scope=all reported changed_count=242, affected_count=22,
+  changed_files=99, aggregate risk=critical.
+- The report covers the entire pre-existing 143-entry dirty worktree, including unrelated
+  AGENTS/CLAUDE/tooling changes. It is not attributable solely to this task.
+- No broad stage, commit, reset, or cleanup was performed.
+- Final release acceptance remains dependent on the user's visible hand test for the
+  implementation-tested rows in acceptance-matrix.md.

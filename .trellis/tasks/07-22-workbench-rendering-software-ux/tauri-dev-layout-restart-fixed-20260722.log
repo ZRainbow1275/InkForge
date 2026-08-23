@@ -1,0 +1,87 @@
+
+> inkforge@0.1.0 tauri D:\Desktop\Inkforge\inkforge
+> tauri "dev"
+
+     Running BeforeDevCommand (`pnpm dev --host 127.0.0.1 --port 3005`)
+
+> inkforge@0.1.0 dev D:\Desktop\Inkforge\inkforge
+> vite "--host" "127.0.0.1" "--port" "3005"
+
+
+  VITE v6.4.1  ready in 444 ms
+
+  ➜  Local:   http://127.0.0.1:3005/
+        Info Watching D:\Desktop\Inkforge\inkforge\src-tauri for changes...
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.92s
+09:26:53 [vite] (client) page reload src/views/__tests__/WorkstationView.desktop-layout.test.ts
+09:27:46 [vite] (client) hmr update /src/components/workstation/InspectorWidgetContent.vue?vue&type=style&index=0&scoped=efa7dcb2&lang.css
+09:50:38 [vite] (client) hmr update /src/components/file/FileManager.vue, /src/styles/main.css
+09:50:38 [vite] (client) hmr update /src/components/tag-system/TagBrowser.vue, /src/styles/main.css, /src/components/tag-system/TagBrowser.vue?vue&type=style&index=0&scoped=472d2c5e&lang.css
+09:51:11 [vite] (client) hmr update /src/components/file/FileManager.vue, /src/styles/main.css
+09:51:34 [vite] (client) page reload src/components/file/FileManager.information-architecture.test.ts
+09:53:12 [vite] (client) hmr update /src/components/file/FileManager.vue, /src/styles/main.css
+09:53:39 [vite] (client) hmr update /src/components/file/FileManager.vue?vue&type=style&index=0&scoped=8e478daf&lang.css
+10:02:15 [vite] (client) page reload src/extensions/__tests__/TypewriterMode.decorations.test.ts
+10:02:45 [vite] (client) hmr update /src/styles/main.css, /src/components/editor/EditorPanel.vue
+10:20:21 [vite] (client) page reload src/components/settings/UpdateCard.vue
+10:24:18 [vite] (client) page reload src/views/__tests__/SettingsView.software-shell.test.ts
+10:24:46 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
+10:33:58 [vite] (client) page reload src/views/__tests__/SettingsView.software-shell.test.ts
+10:34:25 [vite] (client) page reload src/views/__tests__/SettingsView.software-shell.test.ts
+10:40:33 [vite] (client) page reload src/views/__tests__/SettingsView.software-shell.test.ts
+10:41:01 [vite] (client) hmr update /src/views/SettingsView.vue?vue&type=style&index=0&scoped=5e0b544f&lang.css
+10:53:50 [vite] (client) page reload src/components/export/ExportModal.svg-options.test.ts
+10:53:50 [vite] (client) page reload src/views/__tests__/PublishView.wechat-presets.test.ts
+10:53:50 [vite] (client) page reload src/views/__tests__/WorkstationView.desktop-layout.test.ts
+10:54:48 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css
+10:57:14 [vite] (client) hmr update /src/components/export/ExportModal.vue, /src/styles/main.css
+10:57:38 [vite] (client) hmr update /src/components/export/ExportModal.vue, /src/styles/main.css
+10:58:09 [vite] (client) hmr update /src/components/export/ExportModal.vue, /src/styles/main.css
+10:58:33 [vite] (client) hmr update /src/components/export/ExportModal.vue, /src/styles/main.css
+10:58:56 [vite] (client) hmr update /src/components/export/ExportModal.vue, /src/styles/main.css
+10:58:56 [vite] Internal server error: Element is missing end tag.
+  Plugin: vite:vue
+  File: D:/Desktop/Inkforge/inkforge/src/components/export/ExportModal.vue:1873:15
+  1871|  
+  1872|                <!-- Style Options -->
+  1873|                <details class="ctrl-section style-options-drawer">
+     |                 ^
+  1874|                  <summary class="drawer-summary">
+  1875|                    <span>高级参数</span>
+      at createCompilerError (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-core@3.5.29\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-core@3.5.29\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-core@3.5.29\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-core@3.5.29\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-core@3.5.29\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-core@3.5.29\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-dom@3.5.29\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@vue+compiler-sfc@3.5.29\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/@vitejs+plugin-vue@5.2.4_vi_94005cb7b7c86431e5d617b7bc6496fd/node_modules/@vitejs/plugin-vue/dist/index.mjs:71:43)
+      at handleHotUpdate (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/@vitejs+plugin-vue@5.2.4_vi_94005cb7b7c86431e5d617b7bc6496fd/node_modules/@vitejs/plugin-vue/dist/index.mjs:2198:26)
+10:59:16 [vite] (client) hmr update /src/components/export/ExportModal.vue, /src/styles/main.css
+node:internal/fs/watchers:321
+    const error = new UVException({
+                  ^
+
+Error: EBUSY: resource busy or locked, watch 'D:\Desktop\Inkforge\inkforge\src\components\export\.ExportModal.vue.15096.2.tmp'
+    at FSWatcher.<computed> (node:internal/fs/watchers:321:19)
+    at Object.watch (node:fs:2548:36)
+    at createFsWatchInstance (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:22195:17)
+    at setFsWatchListener (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:22242:15)
+    at NodeFsHandler._watchWithNodeFs (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:22397:14)
+    at NodeFsHandler._handleFile (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:22461:23)
+    at NodeFsHandler._addToNodeFs (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:22703:21)
+Emitted 'error' event on FSWatcher instance at:
+    at FSWatcher._handleError (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:23896:10)
+    at NodeFsHandler._addToNodeFs (file:///D:/Desktop/Inkforge/inkforge/node_modules/.pnpm/vite@6.4.1_@types+node@25.6_21924d08d12a43bc56da4eb1f10f7283/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:22711:18) {
+  errno: -4082,
+  syscall: 'watch',
+  code: 'EBUSY',
+  path: 'D:\\Desktop\\Inkforge\\inkforge\\src\\components\\export\\.ExportModal.vue.15096.2.tmp',
+  filename: 'D:\\Desktop\\Inkforge\\inkforge\\src\\components\\export\\.ExportModal.vue.15096.2.tmp'
+}
+
+Node.js v24.16.0
+ ELIFECYCLE  Command failed with exit code 1.
+       Error The "beforeDevCommand" terminated with a non-zero status code.
+ ELIFECYCLE  Command failed with exit code 1.

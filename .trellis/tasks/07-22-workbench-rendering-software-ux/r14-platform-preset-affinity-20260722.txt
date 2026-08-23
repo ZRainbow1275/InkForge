@@ -1,0 +1,59 @@
+R-14/R-15 Workstation Platform-Preset Affinity - 2026-07-22
+
+Scope:
+- Keep each Workstation preview platform bound to a valid visibly selected preset.
+- Send the same preset ID shown as active into the canonical preview renderer.
+- Preserve all 16 WeChat, 5 XHS, and 3 Zhihu choices and existing renderers.
+
+Pre-edit GitNexus impact:
+- selectPreviewPlatform
+  Risk: LOW
+  Direct dependents: 0
+  Affected processes: 0
+  Affected modules: 0
+- applyPreset
+  Risk: LOW
+  Direct dependents: 0
+  Affected processes: 0
+  Affected modules: 0
+
+Root cause:
+- Workstation changed selectedPlatform without changing the preset consumed by usePreviewRenderer.
+- A prior-platform preset ID was invalid for the new platform and silently degraded to that renderer's default.
+- None of the new platform's visible preset chips appeared active.
+
+Change:
+- Added the same per-platform session preset memory already used by ExportModal and ThemesView.
+- Seeded the stored platform/preset pair only when it belongs to that platform.
+- Platform switching synchronizes defaultPlatform and its valid current preset.
+- Preset selection updates the current platform slot and the persisted default pair.
+- Preview rendering and the active-chip class consume selectedPreviewPresetId.
+
+TDD:
+- Red: WorkstationView.desktop-layout.test.ts failed exactly 1 of 12 tests because no platform preset affinity existed.
+- Green: WorkstationView.desktop-layout.test.ts passed 12 of 12 tests.
+
+Validation:
+- pnpm -C inkforge exec vitest run src/views/__tests__/WorkstationView.desktop-layout.test.ts src/composables/usePreviewRenderer.test.ts src/views/__tests__/ThemesView.canonical-presets.test.ts src/services/export/persona-distinction.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 24 tests
+  XHS preview similarity: 1.0000
+- pnpm -C inkforge exec eslint src/views/WorkstationView.vue src/views/__tests__/WorkstationView.desktop-layout.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=3072' pnpm -C inkforge build
+  PASS: 4,675 modules transformed; built in 1m18s
+- Development endpoint
+  PASS: HTTP 200
+- Native runtime
+  PASS: InkForge.exe PID 21140 remained alive
+- Vite runtime
+  PASS: expected raw-test reload and Workstation HMR; job remained running
+- Generated inkforge/tsconfig.tsbuildinfo was restored because it was clean before validation.
+
+Manual gates still required:
+- Switch WeChat, XHS, Zhihu, and back with the real IF0722-ARTICLE-A.
+- Confirm exactly one active preset immediately on every platform.
+- Select a non-default preset per platform and confirm current-session return affinity.
+- Confirm every selection causes the right preview to change through its platform-native renderer.
+- XHS/Zhihu account upload and publication remain user-manual and are not claimed.

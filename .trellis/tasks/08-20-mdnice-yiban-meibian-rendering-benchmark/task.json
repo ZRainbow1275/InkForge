@@ -3,7 +3,7 @@
   "name": "mdnice-yiban-meibian-rendering-benchmark",
   "title": "mdnice、壹伴与美编渲染体验对标研究",
   "description": "对标 mdnice、壹伴与美编，先补真实微信证据，再决定是否需要最小编辑页 companion。",
-  "status": "in_progress",
+  "status": "planning",
   "dev_type": null,
   "scope": "wechat-rendering-fidelity-evidence",
   "package": null,
@@ -12,31 +12,23 @@
   "assignee": "ZRainbow1275",
   "createdAt": "2026-08-20",
   "completedAt": null,
-  "branch": "dev/visual-fixes",
+  "branch": null,
   "base_branch": "dev/visual-fixes",
   "worktree_path": null,
-  "commit": "51696357e44a1314e7ec05152f7c217240affa46",
+  "commit": null,
   "pr_url": null,
   "subtasks": [],
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "规划证据采自 dev/visual-fixes@9a2f56e0 与其 dirty working tree；本地实施已绑定 dev/visual-fixes@51696357，破坏性的 live round-trip/delete/recovery 链未进入该基线且不作为 P0 依赖。外部微信写入仍需另行批次批准。",
+  "notes": "规划证据采自 dev/visual-fixes@9a2f56e0 与其 dirty working tree；实施基线尚未绑定，dirty-only 能力落定前禁止 task.py start。",
   "meta": {
     "evidenceBaseline": {
       "branch": "dev/visual-fixes",
       "head": "9a2f56e0b679ec9e8a9cb5951690ad222a49199a",
       "dirty": true,
-      "implementationBaseBound": true,
-      "implementationBranch": "dev/visual-fixes",
-      "implementationCommit": "51696357e44a1314e7ec05152f7c217240affa46",
-      "latestImplementationCommit": "3a5711464526d6b11964ca52ee99849cbbe7cdcf"
+      "implementationBaseBound": false
     },
-    "representativeWechatChoices": [
-      "wechat-classic-inline",
-      "wechat-flagship-kiln",
-      "wechat-flagship-kiln-paste-safe"
-    ],
     "planningApproved": "true",
     "planningApprovedAt": "2026-08-21"
   }

@@ -1,0 +1,36 @@
+
+ RUN  v4.1.5 <WORKSPACE>/inkforge
+
+··············stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > sanitizes export-only custom CSS before the WeChat inline pass
+[InkForge] [WARN] 2026-08-09T09:49:20.887Z | CSS 安全: 移除危险模式 [JavaScript URL] | {"description":"JavaScript 协议 URL"}
+[InkForge] [WARN] 2026-08-09T09:49:20.888Z | CSS 安全: 移除危险模式 [Style Tag Injection] | {"description":"</style> 标签注入尝试"}
+[InkForge] [WARN] 2026-08-09T09:49:20.888Z | CSS 安全: 移除危险模式 [Script Tag Injection] | {"description":"<script> 标签注入尝试"}
+
+························································································································stderr | src/services/export/platform-export-rendering.test.ts > platform native export rendering rules > degrades WeChat LaTeX output to self-contained readable formula text
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+···································································································································································································································································stderr | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — WeChat > produces compliant HTML through full markdown → wechat pipeline
+Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.
+
+·stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — Xiaohongshu > preview: renderXhsMockHtml strips to text closely matching native artifact
+[XHS preview similarity] = 0.9979
+
+stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-platform pipeline — Xiaohongshu > detectQuality reports only known boundary errors for xiaohongshu
+[xhs detectQuality errors] = ["xhs-markdown-control-leak"]
+
+stderr | src/services/export/__tests__/pipeline-cross-platform.test.ts > hard-limit boundaries > wechat: oversize HTML beyond ReDoS threshold returns without throwing
+[InkForge] [WARN] 2026-08-09T09:49:25.291Z | [安全警告] normalizeImageAttributes: 输入长度 514554 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-08-09T09:49:25.291Z | [安全警告] fixNestedLists: 输入长度 514554 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-08-09T09:49:25.356Z | [安全警告] normalizeImageAttributes: 输入长度 514554 超过限制 500000，跳过处理
+[InkForge] [WARN] 2026-08-09T09:49:25.356Z | [安全警告] fixNestedLists: 输入长度 514554 超过限制 500000，跳过处理
+
+···········stdout | src/services/export/__tests__/pipeline-cross-platform.test.ts > cross-route fidelity > xhs: fidelity HTML stripped text ≥0.95 similarity vs native text
+[cross-route XHS similarity] = 0.9979
+
+···································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································
+
+ Test Files  51 passed (51)
+      Tests  1496 passed (1496)
+   Start at  17:49:12
+   Duration  39.34s (transform 3.15s, setup 0ms, import 11.71s, tests 14.48s, environment 5.51s)
+

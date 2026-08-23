@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/08-23-engineering-branch-asset-audit/research/engineering-inventory.md","reason":"Recheck implementation against the preservation-first inventory, exact hashes/counts, user decisions, and no-force-push boundary."}
+{"file":".trellis/tasks/08-23-engineering-branch-asset-audit/implement.md","reason":"Verify every phase exit, exact ref/path operation, tree invariant, and remote-race gate."}
+{"file":".trellis/tasks/08-23-engineering-branch-asset-audit/research/secret-scan-safe.json","reason":"Verify final current/history scans contain no active secret and retain the revoked-history exception accurately."}
+{"file":"audit/engineering-state-2026-08-23/nested-wip/RESTORE.md","reason":"Re-run nested bundle restoration before retiring the nested Git metadata."}

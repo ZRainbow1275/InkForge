@@ -1,0 +1,47 @@
+
+Execution of 1 workers started at 2026-07-26T21:25:35.750Z
+
+[0-0] [InkForge E2E] tauri-driver PID 17320 owns port 4444
+[0-0] RUNNING in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico.html
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+[0-0] Asset `favicon.ico` not found; fallback to index.html
+[0-0] [InkForge E2E] isolated WebView2 data verified in scoped_dir52928_1466539094
+[0-0] [InkForge E2E] selected main WebView from 2 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] selected main WebView from 1 window handle(s)
+[0-0] [InkForge E2E] host/client bounds aligned: host=1401x900, client=1400x900, gap=1x0
+[0-0] [InkForge E2E] kiln scroll probe {"ancestors":[{"bottom":6781.395843505859,"className":"style-choice-list","clientHeight":6486,"overflowY":"visible","position":"static","scrollHeight":6486,"scrollTop":0,"tag":"DIV","top":295.5520935058594},{"bottom":6797.3961181640625,"className":"drawer-content style-catalog-area","clientHeight":7468,"overflowY":"visible","position":"static","scrollHeight":7468,"scrollTop":0,"tag":"DIV","top":-671.0833740234375},{"bottom":-670.4167060852051,"className":"ctrl-section style-diagnostics-drawer","clientHeight":63,"overflowY":"visible","position":"static","scrollHeight":63,"scrollTop":0,"tag":"DETAILS","top":-734.0833740234375},{"bottom":736.5000457763672,"className":"control-scroll","clientHeight":582,"overflowY":"auto","position":"static","scrollHeight":2180,"scrollTop":1598,"tag":"DIV","top":154.6666717529297},{"bottom":810.0000457763672,"className":"control-column","clientHeight":655,"overflowY":"visible","position":"static","scrollHeight":655,"scrollTop":0,"tag":"DIV","top":154.6666717529297},{"bottom":810.0000457763672,"className":"export-body","clientHeight":655,"overflowY":"hidden","position":"static","scrollHeight":655,"scrollTop":0,"tag":"DIV","top":154.6666717529297},{"bottom":810,"className":"export-panel","clientHeight":720,"overflowY":"hidden","position":"static","scrollHeight":720,"scrollTop":0,"tag":"DIV","top":90},{"bottom":900,"className":"export-overlay","clientHeight":900,"overflowY":"visible","position":"fixed","scrollHeight":900,"scrollTop":0,"tag":"DIV","top":0}],"kiln":{"bottom":2446.61474609375,"height":351.84375,"top":2094.77099609375}}
+[0-0] Error in "InkForge — SVG flagship typesetting (PR7, multi-round, real binary).surfaces style capability gates for all platforms in the real ExportModal"
+Error: Kiln capability button did not enter the visible modal viewport
+    at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+    at async Browser.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+    at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1534:5)
+    at async Context.executeAsync (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1108:20)
+    at async Context.testFrameworkFnWrapper (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1188:14)
+[0-0] [InkForge E2E] isolated OS credential removed
+[0-0] FAILED in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[webview2 150.0.4078.99 windows #0-0] Running: webview2 (v150.0.4078.99) on windows
+[webview2 150.0.4078.99 windows #0-0] Session ID: 571cd5443f64f148c4042862e004a985
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] » tests\e2e\specs\svg-render.spec.cjs
+[webview2 150.0.4078.99 windows #0-0] InkForge — SVG flagship typesetting (PR7, multi-round, real binary)
+[webview2 150.0.4078.99 windows #0-0]    ✖ surfaces style capability gates for all platforms in the real ExportModal
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 1 failing (10.6s)
+[webview2 150.0.4078.99 windows #0-0]
+[webview2 150.0.4078.99 windows #0-0] 1) InkForge — SVG flagship typesetting (PR7, multi-round, real binary) surfaces style capability gates for all platforms in the real ExportModal
+[webview2 150.0.4078.99 windows #0-0] Kiln capability button did not enter the visible modal viewport
+[webview2 150.0.4078.99 windows #0-0] Error: Kiln capability button did not enter the visible modal viewport
+[webview2 150.0.4078.99 windows #0-0]     at <anonymous> (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\webdriverio@9.27.2\node_modules\webdriverio\build\node.js:6013:15)
+[webview2 150.0.4078.99 windows #0-0]     at async Browser.wrapCommandFn (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:982:23)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.<anonymous> (D:\Desktop\Inkforge\inkforge\tests\e2e\specs\svg-render.spec.cjs:1534:5)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.executeAsync (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1108:20)
+[webview2 150.0.4078.99 windows #0-0]     at async Context.testFrameworkFnWrapper (D:\Desktop\Inkforge\inkforge\node_modules\.pnpm\@wdio+utils@9.27.2\node_modules\@wdio\utils\build\index.js:1188:14)
+
+
+Spec Files:	 0 passed, 1 failed, 1 total (100% completed) in 00:00:16  
+

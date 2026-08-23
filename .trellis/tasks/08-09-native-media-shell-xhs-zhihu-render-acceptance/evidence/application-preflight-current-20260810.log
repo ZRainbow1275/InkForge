@@ -1,0 +1,65 @@
+
+> inkforge@0.1.0 style-proof:application-preflight <WORKSPACE>\inkforge
+> tsx scripts/style-proof-release-preflight.ts --scope=application
+
+InkForge style-proof application preflight
+scope: application
+status: application-ready
+applicationReady: true
+canClaimReleaseComplete: false
+svgModuleCount: 27
+svgFamilyCount: 7
+personaCount: 4
+renderedModulePersonaPairs: 108
+applicationGalleryStatus: application-gallery-ready
+wechatStyleSamplesStatus: wechat-style-samples-ready
+applicationGalleryRenderedModulePersonaPairs: 108
+applicationGalleryWechatSafeViolationCount: 0
+applicationGalleryModuleSentinelFailureCount: 0
+applicationGalleryIssueCount: 0
+wechatApplicationSvgSlotCount: 5
+wechatApplicationSvgShowcaseModuleCount: 27
+wechatApplicationSvgSlotFailureCount: 0
+wechatApplicationSurfaceCount: 2
+wechatApplicationSurfaceFailureCount: 0
+wechatExportPipelineContractCount: 3
+wechatExportPipelineFailureCount: 0
+wechatOptionInjectedModuleCount: 27
+wechatOptionInjectionFailureCount: 0
+wechatSafeViolationCount: 0
+moduleSentinelFailureCount: 0
+wechatStyleChoiceCount: 17
+wechatUsableChoiceCount: 8
+wechatSelectableChoiceCount: 13
+wechatRenderedStyleChoiceCount: 13
+wechatStyleSampleIssueCount: 0
+wechatStyleSampleSvgBearingChoiceCount: 13
+wechatStyleSampleTotalSvgModuleCount: 45
+usableButUnselectableWechatChoices: 0
+actionableLocalRows: 0
+catalogBlockedLocalRows: 11
+manualDeferredOpenSteps: 7
+releaseBlockingOpenSteps: 23
+externalHandoffRows: 12
+nextExternalRows: 3
+
+application issues:
+- moduleIssues: 0
+- applicationGalleryIssues: 0
+- wechatApplicationSlotIssues: 0
+- wechatApplicationSurfaceIssues: 0
+- wechatExportPipelineIssues: 0
+- wechatOptionIssues: 0
+- wechatStyleSampleIssues: 0
+- choiceIssues: 0
+
+external proof boundary (not proof):
+- releaseStatus: blocked-by-external
+- releaseCanClaimComplete: false
+- requiresManualWeChatProof: true
+- xhsZhihuPublishAutomationDeferred: true
+
+scope note:
+- Application preflight proves only the local app-level SVG/style selector and WeChat-safe rendering surface.
+- It does not prove WeChat phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview, public rendering, or publish success.
+- XHS/Zhihu publish-side automation remains manually deferred for this round.

@@ -1,0 +1,118 @@
+﻿pid=51656 hwnd=6426424 count=144 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 工作站","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-68,33,2255,1350","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 工作站 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-68,33,2256,1350","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 工作站","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"-68,33,2256,1350","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-2,47,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1963,33,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2038,33,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2113,33,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回首页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-47,100,51,51","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-35,112,27,27","Patterns":""}
+{"Index":9,"Type":"Edit","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"22,100,600,51","Patterns":"Value"}
+{"Index":10,"Type":"Text","Name":"已同步 · 已保存","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"667,114,113,23","Patterns":""}
+{"Index":11,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1530,100,51,51","Patterns":"Invoke"}
+{"Index":12,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1543,113,25,25","Patterns":""}
+{"Index":13,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1590,100,51,51","Patterns":"Invoke"}
+{"Index":14,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1603,113,25,25","Patterns":""}
+{"Index":15,"Type":"Button","Name":"进入专注模式 (F11)","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1650,100,51,51","Patterns":"Invoke"}
+{"Index":16,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1663,113,25,25","Patterns":""}
+{"Index":17,"Type":"Group","Name":"布局预设","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1710,99,143,53","Patterns":""}
+{"Index":18,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1715,104,64,43","Patterns":"Invoke"}
+{"Index":19,"Type":"Button","Name":"写作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1784,104,64,43","Patterns":"Invoke"}
+{"Index":20,"Type":"Group","Name":"工作模式","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1862,99,173,53","Patterns":""}
+{"Index":21,"Type":"Button","Name":"审阅","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1867,104,64,43","Patterns":"Toggle"}
+{"Index":22,"Type":"Button","Name":"分栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1936,104,94,43","Patterns":"ExpandCollapse"}
+{"Index":23,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1950,114,23,23","Patterns":""}
+{"Index":24,"Type":"Text","Name":"分栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1980,113,36,24","Patterns":""}
+{"Index":25,"Type":"Button","Name":"发布","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2044,98,123,55","Patterns":"Invoke"}
+{"Index":26,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2071,115,21,21","Patterns":""}
+{"Index":27,"Type":"Group","Name":"Open documents","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-68,165,2256,63","Patterns":""}
+{"Index":28,"Type":"Tab","Name":"Open Workstation documents","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-50,179,2169,39","Patterns":""}
+{"Index":29,"Type":"TabItem","Name":"IF0722-ARTICLE-A - Saved","AutomationId":"workstation-tab-af045582-95c9-4472-8ed2-bfbd76e7f969","Enabled":true,"Offscreen":false,"Rect":"-50,179,232,39","Patterns":"SelectionItem"}
+{"Index":30,"Type":"Button","Name":"Pin IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"184,183,31,31","Patterns":"Invoke"}
+{"Index":31,"Type":"Button","Name":"Close IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"217,183,31,31","Patterns":"Invoke"}
+{"Index":32,"Type":"Button","Name":"Restore recently closed tab","AutomationId":"","Enabled":false,"Offscreen":false,"Rect":"2131,179,39,39","Patterns":"Invoke"}
+{"Index":33,"Type":"Button","Name":"展开文件管理面板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-68,228,18,1155","Patterns":"Invoke"}
+{"Index":34,"Type":"Pane","Name":"IF0722-ARTICLE-A - Saved","AutomationId":"workstation-document-panel","Enabled":true,"Offscreen":false,"Rect":"-50,228,1668,1155","Patterns":""}
+{"Index":35,"Type":"Group","Name":"主编辑区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-50,228,1667,1107","Patterns":""}
+{"Index":36,"Type":"Edit","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,-1638,804,2829","Patterns":"Value"}
+{"Index":37,"Type":"Text","Name":"IF0722-FOCUS-P01 第一段用于验证真实打字机滚动。 InkForge 应当把当前光标稳定在编辑视口中部，而不是任由正文跳到窗口底边。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-1246,794,74","Patterns":""}
+{"Index":38,"Type":"Text","Name":"IF0722-FOCUS-P02 第二段用于观察相邻段落。当前段保持完全清晰，距离一段的文字应产生明显但仍然可读的弱化。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-1142,771,74","Patterns":""}
+{"Index":39,"Type":"Text","Name":"IF0722-FOCUS-P03 第三段继续提供真实文本高度。这里包含第二句话，用于验证句子级聚焦是否只突出光标所在句。另一句话应适度淡化。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-1038,796,74","Patterns":""}
+{"Index":40,"Type":"Text","Name":"IF0722-FOCUS-P04 第四段用于滚动边界验证。切换模式时不得改变文稿内容，也不得丢失当前选择范围。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-935,796,75","Patterns":""}
+{"Index":41,"Type":"Text","Name":"IF0722-FOCUS-P05 第五段用于暗角聚焦。顶部和底部暗角应当形成清晰可感知的视觉边界，中部正文仍然保持正常亮度。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-831,796,75","Patterns":""}
+{"Index":42,"Type":"Text","Name":"IF0722-FOCUS-P06 第六段用于关闭反转。关闭暗角后，覆盖层必须立即消失；关闭打字机后，段落透明度必须恢复。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-727,796,74","Patterns":""}
+{"Index":43,"Type":"Text","Name":"IF0722-FOCUS-P07 第七段用于长文编辑。真实应用中用户会持续输入、移动光标、选择文本并切换写作辅助功能。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-623,796,74","Patterns":""}
+{"Index":44,"Type":"Text","Name":"IF0722-FOCUS-P08 第八段用于位置校准。光标位置配置应当决定垂直锚点，并且尊重系统减少动态效果设置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-520,796,75","Patterns":""}
+{"Index":45,"Type":"Text","Name":"IF0722-FOCUS-P09 第九段用于保持滚动容器稳定。展开右侧检查器时，编辑器几何不得发生位移。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-416,796,75","Patterns":""}
+{"Index":46,"Type":"Text","Name":"IF0722-FOCUS-P10 第十段用于段间梯度。远离光标的段落可以更暗，但最低透明度仍需保证正文可辨认。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-312,769,74","Patterns":""}
+{"Index":47,"Type":"Text","Name":"IF0722-FOCUS-P11 第十一段用于键盘操作。 F9 必须真实切换打字机模式，而不是只改变按钮的显示状态。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-208,786,74","Patterns":""}
+{"Index":48,"Type":"Text","Name":"IF0722-FOCUS-P12 第十二段用于持久化检查。切换写作辅助状态后，文稿正文仍应正常自动保存。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-104,769,74","Patterns":""}
+{"Index":49,"Type":"Text","Name":"IF0722-FOCUS-P13 第十三段用于选择范围保护。选中的文字在切换模式前后应保持完全一致。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,-1,794,75","Patterns":""}
+{"Index":50,"Type":"Text","Name":"IF0722-FOCUS-P14 第十四段用于暗角高度检查。不同高度只改变渐变覆盖范围，不应遮挡输入和鼠标操作。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"374,103,794,75","Patterns":""}
+{"Index":51,"Type":"Text","Name":"IF0722-FOCUS-P15 第十五段用于动态装饰刷新。设置变化后， ProseMirror 应当立即重算段落装饰。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,207,752,74","Patterns":""}
+{"Index":52,"Type":"Text","Name":"IF0722-FOCUS-P16 第十六段用于活动段标识。当前块需要有稳定、克制但明显的视觉焦点。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,311,794,74","Patterns":""}
+{"Index":53,"Type":"Text","Name":"IF0722-FOCUS-P17 第十七段用于长文末端。底部占位空间应允许最后一段也移动到配置的光标高度。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,415,794,74","Patterns":""}
+{"Index":54,"Type":"Text","Name":"IF0722-FOCUS-P18 第十八段用于恢复检查。关闭功能后不得留下额外空白、残留类或错误滚动位置。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,518,794,75","Patterns":""}
+{"Index":55,"Type":"Text","Name":"IF0722-FOCUS-P19 第十九段用于最终选择测试。下面一段的末尾单词将作为选择范围的真实证据。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,622,794,74","Patterns":""}
+{"Index":56,"Type":"Text","Name":"IF0722-FOCUS-P20 第二十段位于长文末端，负责验证最后一段居中、模式反转以及选择保持。 ","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,726,771,74","Patterns":""}
+{"Index":57,"Type":"Text","Name":"SELECTION-PROBE","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"698,764,236,36","Patterns":""}
+{"Index":58,"Type":"Button","Name":"拖拽移动此块","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"374,1190,36,37","Patterns":"Invoke"}
+{"Index":59,"Type":"Button","Name":"当前文稿状态：写作中，点击打开草稿箱","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-26,1343,101,33","Patterns":"Invoke"}
+{"Index":60,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"100,1349,22,21","Patterns":""}
+{"Index":61,"Type":"Text","Name":"773 字","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"127,1347,53,24","Patterns":""}
+{"Index":62,"Type":"Text","Name":"20 段","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"205,1347,43,24","Patterns":""}
+{"Index":63,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"272,1349,22,21","Patterns":""}
+{"Index":64,"Type":"Text","Name":"2 分钟","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"299,1347,52,24","Patterns":""}
+{"Index":65,"Type":"Text","Name":"B","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"778,1348,11,23","Patterns":""}
+{"Index":66,"Type":"Group","Name":"当前模式：Typora","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1202,1343,110,33","Patterns":""}
+{"Index":67,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1218,1350,19,19","Patterns":""}
+{"Index":68,"Type":"Text","Name":"Typora","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1242,1348,54,23","Patterns":""}
+{"Index":69,"Type":"Button","Name":"打开编辑器设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1323,1343,34,33","Patterns":"Invoke"}
+{"Index":70,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1330,1349,20,21","Patterns":""}
+{"Index":71,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1382,1349,22,21","Patterns":""}
+{"Index":72,"Type":"Text","Name":"渲染: 20ms","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1409,1351,89,17","Patterns":""}
+{"Index":73,"Type":"Text","Name":"行 20:67","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1522,1351,77,17","Patterns":""}
+{"Index":74,"Type":"Button","Name":"微信","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1642,238,114,45","Patterns":"Invoke"}
+{"Index":75,"Type":"Button","Name":"小红书","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1758,238,115,45","Patterns":"Invoke"}
+{"Index":76,"Type":"Button","Name":"知乎","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1875,238,114,45","Patterns":"Invoke"}
+{"Index":77,"Type":"Group","Name":"平台预览小组件操作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2010,242,114,37","Patterns":""}
+{"Index":78,"Type":"Button","Name":"在 InkForge 内浮动平台预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2010,242,36,37","Patterns":"Invoke"}
+{"Index":79,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2018,250,20,21","Patterns":""}
+{"Index":80,"Type":"Button","Name":"将平台预览摘到桌面","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2049,242,36,37","Patterns":"Invoke"}
+{"Index":81,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2057,250,20,21","Patterns":""}
+{"Index":82,"Type":"Button","Name":"关闭平台预览小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2088,242,36,37","Patterns":"Invoke"}
+{"Index":83,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2096,250,20,21","Patterns":""}
+{"Index":84,"Type":"Button","Name":"收起面板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2127,239,42,43","Patterns":"Invoke"}
+{"Index":85,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2137,250,22,21","Patterns":""}
+{"Index":86,"Type":"Group","Name":"平台预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1643,403,519,832","Patterns":""}
+{"Index":87,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,438,110,36","Patterns":""}
+{"Index":88,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,480,77,26","Patterns":""}
+{"Index":89,"Type":"Text","Name":" · ","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1749,480,23,26","Patterns":""}
+{"Index":90,"Type":"Text","Name":"刚刚","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1771,480,38,26","Patterns":""}
+{"Index":91,"Type":"Text","Name":"IF0722-FOCUS-P01 第一段用于验证真实打字机滚动。 InkForge 应当把当前光标稳定在编辑视口中部，而不是任由正文跳到窗口底边。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,561,429,152","Patterns":""}
+{"Index":92,"Type":"Text","Name":"IF0722-FOCUS-P02 第二段用于观察相邻段落。当前段保持完全清晰，距离一段的文字应产生明显但仍然可读的弱化。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,742,442,113","Patterns":""}
+{"Index":93,"Type":"Text","Name":"IF0722-FOCUS-P03 第三段继续提供真实文本高度。这里包含第二句话，用于验证句子级聚焦是否只突出光标所在句。另一句话应适度淡化。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,884,442,151","Patterns":""}
+{"Index":94,"Type":"Text","Name":"IF0722-FOCUS-P04 第四段用于滚动边界验证。切换模式时不得改变文稿内容，也不得丢失当前选择范围。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,1065,429,112","Patterns":""}
+{"Index":95,"Type":"Text","Name":"IF0722-FOCUS-P05 第五段用于暗角聚焦。顶部和底部暗角应当形成清晰可感知的视觉边界，中部正文仍然保持正常亮度。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1673,1207,429,151","Patterns":""}
+{"Index":96,"Type":"Text","Name":"IF0722-FOCUS-P06 第六段用于关闭反转。关闭暗角后，覆盖层必须立即消失；关闭打字机后，段落透明度必须恢复。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,1387,430,113","Patterns":""}
+{"Index":97,"Type":"Text","Name":"IF0722-FOCUS-P07 第七段用于长文编辑。真实应用中用户会持续输入、移动光标、选择文本并切换写作辅助功能。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,1530,442,112","Patterns":""}
+{"Index":98,"Type":"Text","Name":"IF0722-FOCUS-P08 第八段用于位置校准。光标位置配置应当决定垂直锚点，并且尊重系统减少动态效果设置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,1672,442,113","Patterns":""}
+{"Index":99,"Type":"Text","Name":"IF0722-FOCUS-P09 第九段用于保持滚动容器稳定。展开右侧检查器时，编辑器几何不得发生位移。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,1814,442,113","Patterns":""}
+{"Index":100,"Type":"Text","Name":"IF0722-FOCUS-P10 第十段用于段间梯度。远离光标的段落可以更暗，但最低透明度仍需保证正文可辨认。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,1956,442,113","Patterns":""}
+{"Index":101,"Type":"Text","Name":"IF0722-FOCUS-P11 第十一段用于键盘操作。 F9 必须真实切换打字机模式，而不是只改变按钮的显示状态。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2098,435,113","Patterns":""}
+{"Index":102,"Type":"Text","Name":"IF0722-FOCUS-P12 第十二段用于持久化检查。切换写作辅助状态后，文稿正文仍应正常自动保存。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2240,442,113","Patterns":""}
+{"Index":103,"Type":"Text","Name":"IF0722-FOCUS-P13 第十三段用于选择范围保护。选中的文字在切换模式前后应保持完全一致。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2383,429,112","Patterns":""}
+{"Index":104,"Type":"Text","Name":"IF0722-FOCUS-P14 第十四段用于暗角高度检查。不同高度只改变渐变覆盖范围，不应遮挡输入和鼠标操作。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2525,429,113","Patterns":""}
+{"Index":105,"Type":"Text","Name":"IF0722-FOCUS-P15 第十五段用于动态装饰刷新。设置变化后， ProseMirror 应当立即重算段落装饰。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2667,427,113","Patterns":""}
+{"Index":106,"Type":"Text","Name":"IF0722-FOCUS-P16 第十六段用于活动段标识。当前块需要有稳定、克制但明显的视觉焦点。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2809,442,113","Patterns":""}
+{"Index":107,"Type":"Text","Name":"IF0722-FOCUS-P17 第十七段用于长文末端。底部占位空间应允许最后一段也移动到配置的光标高度。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,2951,429,113","Patterns":""}
+{"Index":108,"Type":"Text","Name":"IF0722-FOCUS-P18 第十八段用于恢复检查。关闭功能后不得留下额外空白、残留类或错误滚动位置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,3093,442,113","Patterns":""}
+{"Index":109,"Type":"Text","Name":"IF0722-FOCUS-P19 第十九段用于最终选择测试。下面一段的末尾单词将作为选择范围的真实证据。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,3236,429,112","Patterns":""}
+{"Index":110,"Type":"Text","Name":"IF0722-FOCUS-P20 第二十段位于长文末端，负责验证最后一段居中、模式反转以及选择保持。 SELECTION-PROBE","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1673,3378,442,113","Patterns":""}
+{"Index":111,"Type":"Text","Name":"预览 · 微信公众号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1814,3544,162,26","Patterns":""}
+{"Index":112,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1662,1311,235,54","Patterns":"Invoke"}
+{"Index":113,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1695,1327,22,22","Patterns":""}
+{"Index":114,"Type":"Button","Name":"全屏导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1908,1311,235,54","Patterns":"Invoke"}
+{"Index":115,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1971,1327,22,22","Patterns":""}
+{"Index":116,"Type":"Group","Name":"应用内悬浮检查器小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"-68,87,2256,1296","Patterns":""}

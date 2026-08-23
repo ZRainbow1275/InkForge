@@ -1,0 +1,13 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "工作台、设置、Hub、标签、文件树和可摘出检查器卡片必须复用现有 Vue 组件与可访问交互约定。"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "统一排版、布局、样式、每日来源和产物状态，避免继续产生平行 Store。"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "约束 useEdgeMagnetism、useTypography、usePreviewRenderer 等 composable 的共享根因修改。"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "平台、样式、检查器 surface、迁移和原生命令边界需要严格联合类型与 Schema 校验。"}
+{"file": ".trellis/spec/frontend/wechat-svg-modules.md", "reason": "微信公众号 SVG/H5 安全子集、证据门禁和不可宣称边界的现有执行规范。"}
+{"file": ".trellis/spec/frontend/flagship-element-catalog.md", "reason": "非旗舰与旗舰内容类型样式的元素配方、结构差异和复用边界。"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Tauri 实用窗口、目录写入和发布渠道错误必须显式、可恢复且不伪造成功。"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "去除重复入口时优先复用既有命令、Store、renderer、诊断和迁移。"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "覆盖 Vue 状态、Dexie 持久化、Tauri 命令和真实文件系统的跨层数据流。"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Windows/macOS/Linux 桌面布局、路径和 Tauri 能力需要一致降级。"}
+{"file": ".trellis/tasks/07-22-workbench-rendering-software-ux/research/screenshot-audit.md", "reason": "25 张实机截图与 R-01..R-23 的直接视觉证据和复验要求。"}
+{"file": ".trellis/tasks/07-22-workbench-rendering-software-ux/research/current-code-audit.md", "reason": "五个共享根因、当前调用链、保留能力和每项代码锚点。"}
+{"file": ".trellis/tasks/07-22-workbench-rendering-software-ux/research/platform-rules-refresh-2026-07.md", "reason": "微信、小红书、知乎当前来源层级、产物规则和外部人工边界。"}

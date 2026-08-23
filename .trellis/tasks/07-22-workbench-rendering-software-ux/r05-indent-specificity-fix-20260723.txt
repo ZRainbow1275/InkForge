@@ -1,0 +1,51 @@
+R-05 First-Paragraph Indent Specificity Fix - 2026-07-23
+
+Scope
+- Local WeChat typography override behavior only.
+- No foreground input, clipboard mutation, browser/account operation, sync, upload, or publish action.
+
+Root cause
+- Several presets, including thesis, own a more-specific `#nice p:first-of-type` rule.
+- The former user override used only `#nice p`, so the preset could keep the first ordinary paragraph at `0` while later paragraphs used `2em`.
+- The former generic paragraph override also allowed paragraphs inside blockquotes to inherit body indentation.
+
+Pre-fix executable readback
+- Thesis fixture: first ordinary paragraph `0`, second ordinary paragraph `2em`.
+- Across all 16 canonical WeChat presets: first ordinary paragraph indented in 13/16; second ordinary paragraph indented in 16/16.
+- Quote paragraphs could receive `2em`, so the existing broad assertion was not sufficient proof of body-paragraph behavior.
+
+Shared-root repair
+- `typographyToWechatCss()` now emits one specificity-matched body rule:
+  `#nice p, #nice p:first-of-type { text-indent: <0|2em>; }`
+- It immediately emits the quote boundary:
+  `#nice blockquote p, #nice blockquote p:first-of-type { text-indent: 0; }`
+- `convertToWechatWithStats()` uses the same selector pair whenever `enableTextIndent` is explicitly supplied.
+- No new state, renderer, preset, dependency, or platform adapter was added.
+
+Post-fix all-preset readback
+- Indent ON: first ordinary paragraph 16/16 at `2em`; second ordinary paragraph 16/16 at `2em`; quote paragraph 16/16 unindented.
+- Indent OFF: first ordinary paragraph 16/16 unindented; second ordinary paragraph 16/16 unindented; quote paragraph 16/16 unindented.
+
+Regression verification
+- Focused:
+  `pnpm exec vitest run src/services/export/shared-typography.test.ts src/composables/usePreviewRenderer.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 2 files / 8 tests.
+- Expanded rendering chain:
+  PASS: 6 files / 405 tests.
+- Exact changed-file ESLint: PASS.
+- `pnpm exec vue-tsc --noEmit --pretty false`: PASS.
+- `NODE_OPTIONS=--max-old-space-size=3072 pnpm -C inkforge build`: PASS, 4,675 modules in 51.81s.
+- Generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Impact and runtime
+- GitNexus pre-edit impact: `typographyToWechatCss` LOW (1 direct dependent, zero affected processes/modules); `convertToWechatWithStats` LOW (4 direct dependents, 13 impacted nodes, zero affected processes).
+- Post-edit aggregate dirty-worktree detection: 339 changed symbols, 117 files, 31 affected processes, aggregate critical. This is the existing worktree-wide commit-boundary warning, not the isolated symbol risk.
+- Vite emitted shared-module HMR at 00:38:30 and source-test full reloads at 00:38:30 / 00:38:56. Native PID 21140 remained responsive and port 3005 remained HTTP 200.
+- Because the development page reloaded, the operator must reconfirm the visible article before continuing stateful native hand testing.
+
+Remaining visible gate
+- Through the running Tauri UI, toggle first-line indent ON and OFF on a paragraph-rich article.
+- ON must indent the first and second ordinary paragraphs while leaving the quote paragraph unindented.
+- OFF must leave both ordinary paragraphs and the quote paragraph unindented.
+- Compare the same result in Workstation preview, Export artifact, Settings preview copy, and WeChat Publish artifact.
+- This evidence does not claim WeChat phone, sync, schedule, publish, or XHS/Zhihu account acceptance.

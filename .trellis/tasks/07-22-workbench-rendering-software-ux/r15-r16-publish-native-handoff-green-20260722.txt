@@ -1,0 +1,14 @@
+R15/R16 Publish native handoff source contract - GREEN - 2026-07-22
+Scope: production source contract; no account upload or platform publication.
+
+PASS: imports canonical native exporter
+PASS: stores typed native result
+PASS: guards stale asynchronous generations
+PASS: keeps WeChat rich copy and sanitized fallback inside the HTML branch
+PASS: routes non-HTML artifacts through text clipboard only
+PASS: names each primary artifact truthfully
+PASS: records exact copied artifact bytes
+PASS: labels the secondary file as preview HTML
+
+Result: 8/8 passed; 0 missing.
+Boundary: WeChat copies rich HTML; XHS copies native text; Zhihu copies native Markdown. External account actions remain user-manual.

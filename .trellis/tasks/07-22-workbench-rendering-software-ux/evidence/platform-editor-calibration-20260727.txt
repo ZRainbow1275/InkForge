@@ -1,0 +1,71 @@
+InkForge platform editor calibration — 2026-07-27
+
+Scope
+- One existing managed CloakBrowser session was reused for the complete task.
+- The logged-in authoring surfaces for WeChat Official Account, Xiaohongshu, Zhihu, 135 normal,
+  135 SVG, and Xiumi were inspected visually and through their currently rendered DOM/CSS.
+- No account publication, synchronization, purchase, phone preview, or credential mutation was
+  performed.
+- No cookie, token, account identifier, browser profile, private draft, raw vendor template,
+  hosted material URL, QR code, or account screenshot is retained in this evidence.
+
+Observed platform authoring surfaces
+- WeChat: ProseMirror title/body editing; approximately 586px outer body canvas and 578px content
+  after side padding; 17px / 27.2px ordinary body rhythm; direct article sections commonly use a
+  24px bottom rhythm; word-break and overflow-wrap protect long text.
+- Zhihu: approximately 800px Draft.js authoring width; 32px / 44.8px title; 16px / 25.6px body.
+  The visible toolbar covers semantic headings, emphasis, lists, quote, divider, code, image,
+  video, link, formula, table, attachment, import, and backup. The CC selector is an independent
+  delivery choice.
+- Xiaohongshu: the current one-click layout/card surface rendered two approximately 330x550 pages
+  with about 293px readable content width; the TipTap/ProseMirror authoring body uses a 16px base
+  and approximately 25px inter-block rhythm. This is an observed authoring/card surface, not an
+  official immutable platform limit.
+
+Observed 135 normal editor application
+- A concrete visible free style was inserted from the left library into the center UEditor body.
+- The inserted source-owned sample was a three-column image/text gallery with five image slots,
+  nested sections, and inline presentation styles.
+- The learned rule is the geometry and behavior family only: equal-column gallery, explicit image
+  slots, readable DOM order, bounded spacing, and static fallback.
+- Vendor wrapper classes, numeric template ids, account material, hosted assets, and template copy
+  remain prohibited in InkForge output.
+
+Observed 135 SVG editor application
+- A concrete free-trial layered slide effect was inserted into the center effect canvas and opened
+  in the editor's own preview.
+- The preview used a zero-gap outer wrapper: font-size/line-height zero, margin/padding zero,
+  overflow hidden, plus nested scale/rotation normalization.
+- The reusable InkForge model is: safe zero-gap wrapper, image-slot manifest, trigger-zone
+  manifest, motion parameters, static-expanded or raster fallback, and an explicit mobile-proof
+  gate.
+- Empty material slots did not become proof of a complete visual effect. The editor itself stated
+  that final behavior depends on mobile preview; no QR or phone proof was collected.
+
+Observed Xiumi application
+- A concrete visible SVG template was inserted into the center paper.
+- The applied module used a 1080x1440 SVG viewBox, four SVG elements, two declarative animations,
+  surrounding image slots, nested flex rows, and line-height zero for gap control.
+- A transparent click region covered approximately 16.39% x 13.83% of the SVG at about
+  40.72% / 49.01%; one click animation faded content over 0.2s and a second changed height after
+  0.2s over 1s with freeze semantics.
+- InkForge translates this into its own trigger region, fade/expand state machine, image manifest,
+  readable static-expanded fallback, layout report, and residue blocker. No vendor source or
+  asset is copied.
+
+Applied local contracts
+- Market observations are translated into InkForge-owned renderer schemas and fallback rules;
+  authoring DOM never becomes a publish artifact directly.
+- Untrusted Markdown HTML is sanitized before trusted InkForge decorators execute.
+- WeChat keeps only allowlisted inline HTML/SVG; Xiaohongshu receives exact text or raster/card
+  artifacts; Zhihu receives clean Markdown plus trusted image fallback.
+- Platform preview wrappers may calibrate canvas size, containment, typography baseline, and
+  scrolling, but must not flatten preset identity or invent account/publish chrome.
+- Native WebView2 acceptance must exercise real buttons, route transitions, clipboard/export
+  artifacts, and software state. Browser research is not accepted as desktop-software proof.
+
+Evidence boundary
+- This record proves applied-editor taxonomy and local rule calibration only.
+- Xiaohongshu and Zhihu publication are manual user acceptance for this round.
+- WeChat ordinary paste, phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail,
+  credentialed sync, scheduled send, and publish remain external proof gates.

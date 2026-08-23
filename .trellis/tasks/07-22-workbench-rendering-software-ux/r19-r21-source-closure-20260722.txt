@@ -1,0 +1,47 @@
+R-19 / R-21 deterministic source closure — 2026-07-22
+
+Scope
+- R-19: shared Settings action buttons must not retain pointer/hover affordance while disabled.
+- R-21: Hub creation entry points must be limited to the Start area and bottom-right red FAB.
+- No article, clipboard, account, external platform, or browser-profile state was touched.
+
+Pre-edit impact
+- File:inkforge/src/views/HubView.vue — LOW, 0 direct dependents, 0 affected processes.
+- File:inkforge/src/views/SettingsView.vue — LOW, 0 direct dependents, 0 affected processes.
+- convertToNativeFormat — LOW, 0 direct dependents, 0 affected processes.
+
+Red regression
+Command:
+pnpm exec vitest run src/views/__tests__/HubView.cards.test.ts src/views/__tests__/SettingsView.software-shell.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+
+Result before product repair:
+- 2 files failed.
+- 2 tests failed / 21 passed.
+- Hub failed because class="hero-empty-actions" still existed.
+- Settings failed because .sv-action-btn:hover:not(:disabled) and .sv-action-btn:disabled did not exist.
+
+Minimal repair
+- Removed the Hero blank/template action group and the article-list empty-state “新建文章” button.
+- Retained the explanatory empty-state copy, canonical Start card, bottom-right red FAB, template actions, import action, keyboard shortcut, and all real creation functions.
+- Replaced unconditional .sv-action-btn:hover with :hover:not(:disabled).
+- Added the shared disabled opacity and not-allowed cursor state.
+
+Green verification
+- Focused Vitest: 2 files / 23 tests passed.
+- Core R-01..R-23 serial regression: 15 files / 96 tests passed; XHS preview similarity remained 1.0000.
+- Exact ESLint for the two views and two tests: passed.
+- vue-tsc --noEmit --pretty false: passed.
+- Production build: 4,675 modules transformed; passed in 1m20s.
+- Generated tsconfig.tsbuildinfo restored.
+- Vite endpoint: HTTP 200.
+- Native process remained alive: InkForge.exe PID 21140.
+- GitNexus detect-changes over the pre-existing outer dirty worktree reports 346 changed symbols, 116 files, 31 affected processes, and aggregate critical risk. This is not an isolated-slice risk claim; the exact pre-edit Hub and Settings file impacts above remain LOW with zero affected processes.
+
+Zhihu native-format review disposition
+- No arbitrary preset-to-Markdown transform was added.
+- The task's recorded contract keeps clean Zhihu Markdown semantic and makes the local preview/HTML body rhythm preset-aware.
+- Zhihu visual presets therefore change the preview renderer, while the native handoff remains clean Markdown; account/editor acceptance remains the user's manual gate.
+
+Remaining visible gates
+- R-19: disabled appearance, focus ring, file-picker cancel/select, long labels, and narrow layout in the native Settings view.
+- R-21: only Start and red FAB visible, retained blank/template/import routes, keyboard shortcut, menu close, and focus return in the native Hub.

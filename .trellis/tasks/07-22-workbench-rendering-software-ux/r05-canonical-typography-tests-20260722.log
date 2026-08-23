@@ -1,0 +1,56 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ src/views/__tests__/SettingsView.software-shell.test.ts (8 tests) 18ms
+ ✓ src/views/__tests__/WorkstationView.desktop-layout.test.ts (14 tests) 23ms
+stderr | src/stores/settings.editor.test.ts > settings editor preferences > falls back to the Notion behavior for an invalid persisted value
+[InkForge] [WARN] 2026-07-22T13:01:09.526Z | 设置数据校验失败，使用默认值 | {"zodErrors":["Invalid option: expected one of \"notion\"|\"typora\""]}
+
+ ✓ src/stores/settings.export-history.test.ts (3 tests) 68ms
+ ✓ src/stores/settings.editor.test.ts (8 tests) 89ms
+ ✓ src/stores/settings.data.test.ts (3 tests) 91ms
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1
+}
+ ✓ src/stores/settings.ai.test.ts (4 tests) 149ms
+ ✓ src/components/export/ExportModal.svg-options.test.ts (7 tests) 20ms
+ ✓ src/services/export/shared-typography.test.ts (2 tests) 363ms
+     ✓ inlines canonical typography into the real WeChat artifact  354ms
+stdout | src/composables/usePreviewRenderer.test.ts > usePreviewRenderer — platform routing (P3-T11) > xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output
+[XHS preview similarity] = 1.0000
+
+ ✓ src/views/__tests__/PublishView.wechat-presets.test.ts (11 tests) 714ms
+     ✓ renders every publish-center WeChat preset through the real Markdown export path  623ms
+ ✓ src/composables/usePreviewRenderer.test.ts (5 tests) 1851ms
+     ✓ xiaohongshu: preview text similarity ≥0.95 vs markdownToXiaohongshuText output  381ms
+     ✓ zhihu: preview HTML contains equation img + table elements  362ms
+     ✓ wechat: preview HTML uses mock renderer with wechat-article container  365ms
+     ✓ wechat: canonical typography changes every supported preview rule  369ms
+     ✓ empty body: renders sample content and flags previewMeta.isSample = true  367ms
+
+ Test Files  10 passed (10)
+      Tests  65 passed (65)
+   Start at  21:01:07
+   Duration  5.95s (transform 8.93s, setup 0ms, import 16.90s, tests 3.39s, environment 6.99s)
+

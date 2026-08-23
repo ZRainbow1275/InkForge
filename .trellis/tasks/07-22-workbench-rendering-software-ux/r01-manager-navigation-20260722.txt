@@ -1,0 +1,49 @@
+R-01 Manager Navigation Repair - 2026-07-22
+
+Scope:
+- Correct the original image-1 manager navigation crowding.
+- Preserve all five real manager destinations, state, content, persistence, and collapse behavior.
+- Do not take foreground focus or mutate the user's article, clipboard, account, or external platform state.
+
+Evidence correction:
+- image-1 is the left manager group: 文件 / 版本 / 大纲 / 标签 / 对话.
+- The prior restored command-bar screenshot proves shell geometry for R-04/R-10, not R-01.
+- Pre-fix source used a horizontal five-item flex strip inside the default 280px manager, with margins, a separate collapse action, inline SVG plus label, hidden overflow, and ellipsis.
+
+GitNexus pre-edit impact:
+- WorkstationView.vue: LOW, 0 direct upstream dependents, 0 affected processes.
+- WorkstationView.desktop-layout.test.ts: not mapped by the current index; compensated by focused red/green and adjacent regression checks.
+
+Implementation:
+- panel-tab-strip is a five-column minmax(0, 1fr) grid.
+- Each tab uses a compact vertical icon/label layout and a complete visible label.
+- Hand-written tab SVG blocks are replaced by installed Lucide Folder, GitBranch, ListTree, Tags, and MessageSquare components.
+- All five buttons expose type=button, data-manager-tab, aria-pressed, title, active state, and the existing click handler.
+- The independent collapse action uses the installed PanelLeftClose icon and has explicit button and accessible-label semantics.
+- Focus uses the existing --focus-ring token.
+- No manager state, content component, Store, renderer, article, clipboard, or platform action changed.
+
+TDD:
+- RED 1: WorkstationView.desktop-layout.test.ts failed 1/15 because only 2/5 manager destinations had deterministic hooks.
+- RED 2: the strengthened icon-ownership contract failed 1/15 on the remaining hand-written collapse SVG.
+- GREEN: WorkstationView.desktop-layout.test.ts passed 15/15 after the shared template/CSS repair.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/views/__tests__/WorkstationView.desktop-layout.test.ts src/views/__tests__/WorkstationView.focus-collision.test.ts src/views/__tests__/WorkstationView.vignette.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 3 files / 25 tests.
+- pnpm -C inkforge exec eslint src/views/WorkstationView.vue src/views/__tests__/WorkstationView.desktop-layout.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=3072 pnpm -C inkforge build
+  PASS: 4,675 modules, 55.20s on the final source.
+- inkforge/tsconfig.tsbuildinfo restored after the build.
+- Vite accepted the HMR and the existing native process remained available for user hand test.
+- Runtime liveness: http://127.0.0.1:3005 returned HTTP 200 and InkForge.exe PID 21140 remained alive.
+- GitNexus post-edit aggregate: 344 changed symbols, 117 files, 31 affected processes, critical. This covers the complete pre-existing dirty worktree; isolated R-01 pre-edit impact was LOW with zero affected processes.
+- Exact-scope git diff --check passed; generated tsconfig.tsbuildinfo is clean.
+
+Boundary:
+- This proves the deterministic source geometry, accessibility contract, compilation, and adjacent Workstation regression only.
+- Current native visual confirmation is still required at default/narrow/scaled widths, Light/Dark themes, pointer/keyboard activation, and collapse/reopen.
+- It does not claim XHS/Zhihu account upload/publication or any external platform success.

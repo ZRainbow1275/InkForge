@@ -1,0 +1,346 @@
+﻿pid=51656 hwnd=6426424 count=381 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 工作站","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 工作站 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 工作站","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"230,45,2100,1350","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"296,59,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2105,45,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2180,45,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2255,45,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回首页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"251,112,51,51","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"263,124,27,27","Patterns":""}
+{"Index":9,"Type":"Edit","Name":"IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"320,112,600,51","Patterns":"Value"}
+{"Index":10,"Type":"Text","Name":"已同步 · 已保存","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"965,126,113,23","Patterns":""}
+{"Index":11,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1672,112,51,51","Patterns":"Invoke"}
+{"Index":12,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1685,125,25,25","Patterns":""}
+{"Index":13,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1732,112,51,51","Patterns":"Invoke"}
+{"Index":14,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1745,125,25,25","Patterns":""}
+{"Index":15,"Type":"Button","Name":"进入专注模式 (F11)","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1792,112,51,51","Patterns":"Invoke"}
+{"Index":16,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1805,125,25,25","Patterns":""}
+{"Index":17,"Type":"Group","Name":"布局预设","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1852,111,143,53","Patterns":""}
+{"Index":18,"Type":"Button","Name":"默认","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1857,116,64,43","Patterns":"Invoke"}
+{"Index":19,"Type":"Button","Name":"写作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1926,116,64,43","Patterns":"Invoke"}
+{"Index":20,"Type":"Group","Name":"工作模式","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2004,111,173,53","Patterns":""}
+{"Index":21,"Type":"Button","Name":"审阅","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2009,116,64,43","Patterns":"Toggle"}
+{"Index":22,"Type":"Button","Name":"分栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2078,116,94,43","Patterns":"ExpandCollapse"}
+{"Index":23,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2092,126,23,23","Patterns":""}
+{"Index":24,"Type":"Text","Name":"分栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2122,125,36,24","Patterns":""}
+{"Index":25,"Type":"Button","Name":"发布","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2186,110,123,55","Patterns":"Invoke"}
+{"Index":26,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2213,127,21,21","Patterns":""}
+{"Index":27,"Type":"Group","Name":"Open documents","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,177,2100,63","Patterns":""}
+{"Index":28,"Type":"Tab","Name":"Open Workstation documents","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,191,2013,39","Patterns":""}
+{"Index":29,"Type":"TabItem","Name":"IF0722-ARTICLE-A - Saved","AutomationId":"workstation-tab-af045582-95c9-4472-8ed2-bfbd76e7f969","Enabled":true,"Offscreen":false,"Rect":"248,191,232,39","Patterns":"SelectionItem"}
+{"Index":30,"Type":"Button","Name":"Pin IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"482,195,31,31","Patterns":"Invoke"}
+{"Index":31,"Type":"Button","Name":"Close IF0722-ARTICLE-A","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"515,195,31,31","Patterns":"Invoke"}
+{"Index":32,"Type":"Button","Name":"Restore recently closed tab","AutomationId":"","Enabled":false,"Offscreen":false,"Rect":"2273,191,39,39","Patterns":"Invoke"}
+{"Index":33,"Type":"Button","Name":"展开文件管理面板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,240,18,1155","Patterns":"Invoke"}
+{"Index":34,"Type":"Pane","Name":"IF0722-ARTICLE-A - Saved","AutomationId":"workstation-document-panel","Enabled":true,"Offscreen":false,"Rect":"248,240,1512,1155","Patterns":""}
+{"Index":35,"Type":"Group","Name":"主编辑区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"248,240,1511,1107","Patterns":""}
+{"Index":36,"Type":"Edit","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,384,804,2049","Patterns":"Value"}
+{"Index":37,"Type":"Text","Name":"IF0722-FOCUS-P01 第一段用于验证真实打字机滚动。 InkForge 应当把当前光标稳定在编辑视口中部，而不是任由正文跳到窗口底边。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,385,794,74","Patterns":""}
+{"Index":38,"Type":"Text","Name":"IF0722-FOCUS-P02 第二段用于观察相邻段落。当前段保持完全清晰，距离一段的文字应产生明显但仍然可读的弱化。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,488,771,75","Patterns":""}
+{"Index":39,"Type":"Text","Name":"IF0722-FOCUS-P03 第三段继续提供真实文本高度。这里包含第二句话，用于验证句子级聚焦是否只突出光标所在句。另一句话应适度淡化。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,592,796,74","Patterns":""}
+{"Index":40,"Type":"Text","Name":"IF0722-FOCUS-P04 第四段用于滚动边界验证。切换模式时不得改变文稿内容，也不得丢失当前选择范围。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,696,796,74","Patterns":""}
+{"Index":41,"Type":"Text","Name":"IF0722-FOCUS-P05 第五段用于暗角聚焦。顶部和底部暗角应当形成清晰可感知的视觉边界，中部正文仍然保持正常亮度。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,800,796,74","Patterns":""}
+{"Index":42,"Type":"Text","Name":"IF0722-FOCUS-P06 第六段用于关闭反转。关闭暗角后，覆盖层必须立即消失；关闭打字机后，段落透明度必须恢复。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,903,796,75","Patterns":""}
+{"Index":43,"Type":"Text","Name":"IF0722-FOCUS-P07 第七段用于长文编辑。真实应用中用户会持续输入、移动光标、选择文本并切换写作辅助功能。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,1007,796,75","Patterns":""}
+{"Index":44,"Type":"Text","Name":"IF0722-FOCUS-P08 第八段用于位置校准。光标位置配置应当决定垂直锚点，并且尊重系统减少动态效果设置。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,1111,796,74","Patterns":""}
+{"Index":45,"Type":"Text","Name":"IF0722-FOCUS-P09 第九段用于保持滚动容器稳定。展开右侧检查器时，编辑器几何不得发生位移。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,1215,796,74","Patterns":""}
+{"Index":46,"Type":"Text","Name":"IF0722-FOCUS-P10 第十段用于段间梯度。远离光标的段落可以更暗，但最低透明度仍需保证正文可辨认。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"594,1319,769,74","Patterns":""}
+{"Index":47,"Type":"Text","Name":"IF0722-FOCUS-P11 第十一段用于键盘操作。 F9 必须真实切换打字机模式，而不是只改变按钮的显示状态。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,1422,786,75","Patterns":""}
+{"Index":48,"Type":"Text","Name":"IF0722-FOCUS-P12 第十二段用于持久化检查。切换写作辅助状态后，文稿正文仍应正常自动保存。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,1526,769,74","Patterns":""}
+{"Index":49,"Type":"Text","Name":"IF0722-FOCUS-P13 第十三段用于选择范围保护。选中的文字在切换模式前后应保持完全一致。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,1630,794,74","Patterns":""}
+{"Index":50,"Type":"Text","Name":"IF0722-FOCUS-P14 第十四段用于暗角高度检查。不同高度只改变渐变覆盖范围，不应遮挡输入和鼠标操作。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,1734,794,74","Patterns":""}
+{"Index":51,"Type":"Text","Name":"IF0722-FOCUS-P15 第十五段用于动态装饰刷新。设置变化后， ProseMirror 应当立即重算段落装饰。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,1837,752,75","Patterns":""}
+{"Index":52,"Type":"Text","Name":"IF0722-FOCUS-P16 第十六段用于活动段标识。当前块需要有稳定、克制但明显的视觉焦点。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,1941,794,75","Patterns":""}
+{"Index":53,"Type":"Text","Name":"IF0722-FOCUS-P17 第十七段用于长文末端。底部占位空间应允许最后一段也移动到配置的光标高度。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,2045,794,74","Patterns":""}
+{"Index":54,"Type":"Text","Name":"IF0722-FOCUS-P18 第十八段用于恢复检查。关闭功能后不得留下额外空白、残留类或错误滚动位置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,2149,794,74","Patterns":""}
+{"Index":55,"Type":"Text","Name":"IF0722-FOCUS-P19 第十九段用于最终选择测试。下面一段的末尾单词将作为选择范围的真实证据。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,2253,794,74","Patterns":""}
+{"Index":56,"Type":"Text","Name":"IF0722-FOCUS-P20 第二十段位于长文末端，负责验证最后一段居中、模式反转以及选择保持。 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,2356,771,75","Patterns":""}
+{"Index":57,"Type":"Text","Name":"SELECTION-PROBE","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"918,2395,236,36","Patterns":""}
+{"Index":58,"Type":"Button","Name":"拖拽移动此块","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"594,2459,36,37","Patterns":"Invoke"}
+{"Index":59,"Type":"Button","Name":"当前文稿状态：写作中，点击打开草稿箱","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"272,1355,101,33","Patterns":"Invoke"}
+{"Index":60,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"398,1361,22,21","Patterns":""}
+{"Index":61,"Type":"Text","Name":"773 字","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"425,1359,53,24","Patterns":""}
+{"Index":62,"Type":"Text","Name":"20 段","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"503,1359,43,24","Patterns":""}
+{"Index":63,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"570,1361,22,21","Patterns":""}
+{"Index":64,"Type":"Text","Name":"2 分钟","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"597,1359,52,24","Patterns":""}
+{"Index":65,"Type":"Text","Name":"B","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"998,1360,11,23","Patterns":""}
+{"Index":66,"Type":"Group","Name":"当前模式：Typora","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1344,1355,110,33","Patterns":""}
+{"Index":67,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1360,1362,19,19","Patterns":""}
+{"Index":68,"Type":"Text","Name":"Typora","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1384,1360,54,23","Patterns":""}
+{"Index":69,"Type":"Button","Name":"打开编辑器设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1465,1355,34,33","Patterns":"Invoke"}
+{"Index":70,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1472,1361,20,21","Patterns":""}
+{"Index":71,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1524,1361,22,21","Patterns":""}
+{"Index":72,"Type":"Text","Name":"渲染: 49ms","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1551,1363,89,17","Patterns":""}
+{"Index":73,"Type":"Text","Name":"行 20:67","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1664,1363,77,17","Patterns":""}
+{"Index":74,"Type":"Button","Name":"微信","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1784,250,114,45","Patterns":"Invoke"}
+{"Index":75,"Type":"Button","Name":"小红书","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1900,250,115,45","Patterns":"Invoke"}
+{"Index":76,"Type":"Button","Name":"知乎","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2017,250,114,45","Patterns":"Invoke"}
+{"Index":77,"Type":"Group","Name":"平台预览小组件操作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2152,254,114,37","Patterns":""}
+{"Index":78,"Type":"Button","Name":"在 InkForge 内浮动平台预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2152,254,36,37","Patterns":"Invoke"}
+{"Index":79,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2160,262,20,21","Patterns":""}
+{"Index":80,"Type":"Button","Name":"将平台预览摘到桌面","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2191,254,36,37","Patterns":"Invoke"}
+{"Index":81,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2199,262,20,21","Patterns":""}
+{"Index":82,"Type":"Button","Name":"关闭平台预览小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2230,254,36,37","Patterns":"Invoke"}
+{"Index":83,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2238,262,20,21","Patterns":""}
+{"Index":84,"Type":"Button","Name":"收起面板","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2269,251,42,43","Patterns":"Invoke"}
+{"Index":85,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2279,262,22,21","Patterns":""}
+{"Index":86,"Type":"Group","Name":"平台预览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,415,519,832","Patterns":""}
+{"Index":87,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,450,110,36","Patterns":""}
+{"Index":88,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,492,77,26","Patterns":""}
+{"Index":89,"Type":"Text","Name":" · ","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1891,492,23,26","Patterns":""}
+{"Index":90,"Type":"Text","Name":"刚刚","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1913,492,38,26","Patterns":""}
+{"Index":91,"Type":"Text","Name":"IF0722-FOCUS-P01 第一段用于验证真实打字机滚动。 InkForge 应当把当前光标稳定在编辑视口中部，而不是任由正文跳到窗口底边。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,573,429,152","Patterns":""}
+{"Index":92,"Type":"Text","Name":"IF0722-FOCUS-P02 第二段用于观察相邻段落。当前段保持完全清晰，距离一段的文字应产生明显但仍然可读的弱化。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,754,442,113","Patterns":""}
+{"Index":93,"Type":"Text","Name":"IF0722-FOCUS-P03 第三段继续提供真实文本高度。这里包含第二句话，用于验证句子级聚焦是否只突出光标所在句。另一句话应适度淡化。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,896,442,151","Patterns":""}
+{"Index":94,"Type":"Text","Name":"IF0722-FOCUS-P04 第四段用于滚动边界验证。切换模式时不得改变文稿内容，也不得丢失当前选择范围。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,1077,429,112","Patterns":""}
+{"Index":95,"Type":"Text","Name":"IF0722-FOCUS-P05 第五段用于暗角聚焦。顶部和底部暗角应当形成清晰可感知的视觉边界，中部正文仍然保持正常亮度。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1815,1219,429,151","Patterns":""}
+{"Index":96,"Type":"Text","Name":"IF0722-FOCUS-P06 第六段用于关闭反转。关闭暗角后，覆盖层必须立即消失；关闭打字机后，段落透明度必须恢复。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,1399,430,113","Patterns":""}
+{"Index":97,"Type":"Text","Name":"IF0722-FOCUS-P07 第七段用于长文编辑。真实应用中用户会持续输入、移动光标、选择文本并切换写作辅助功能。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,1542,442,112","Patterns":""}
+{"Index":98,"Type":"Text","Name":"IF0722-FOCUS-P08 第八段用于位置校准。光标位置配置应当决定垂直锚点，并且尊重系统减少动态效果设置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,1684,442,113","Patterns":""}
+{"Index":99,"Type":"Text","Name":"IF0722-FOCUS-P09 第九段用于保持滚动容器稳定。展开右侧检查器时，编辑器几何不得发生位移。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,1826,442,113","Patterns":""}
+{"Index":100,"Type":"Text","Name":"IF0722-FOCUS-P10 第十段用于段间梯度。远离光标的段落可以更暗，但最低透明度仍需保证正文可辨认。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,1968,442,113","Patterns":""}
+{"Index":101,"Type":"Text","Name":"IF0722-FOCUS-P11 第十一段用于键盘操作。 F9 必须真实切换打字机模式，而不是只改变按钮的显示状态。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2110,435,113","Patterns":""}
+{"Index":102,"Type":"Text","Name":"IF0722-FOCUS-P12 第十二段用于持久化检查。切换写作辅助状态后，文稿正文仍应正常自动保存。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2252,442,113","Patterns":""}
+{"Index":103,"Type":"Text","Name":"IF0722-FOCUS-P13 第十三段用于选择范围保护。选中的文字在切换模式前后应保持完全一致。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2395,429,112","Patterns":""}
+{"Index":104,"Type":"Text","Name":"IF0722-FOCUS-P14 第十四段用于暗角高度检查。不同高度只改变渐变覆盖范围，不应遮挡输入和鼠标操作。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2537,429,113","Patterns":""}
+{"Index":105,"Type":"Text","Name":"IF0722-FOCUS-P15 第十五段用于动态装饰刷新。设置变化后， ProseMirror 应当立即重算段落装饰。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2679,427,113","Patterns":""}
+{"Index":106,"Type":"Text","Name":"IF0722-FOCUS-P16 第十六段用于活动段标识。当前块需要有稳定、克制但明显的视觉焦点。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2821,442,113","Patterns":""}
+{"Index":107,"Type":"Text","Name":"IF0722-FOCUS-P17 第十七段用于长文末端。底部占位空间应允许最后一段也移动到配置的光标高度。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,2963,429,113","Patterns":""}
+{"Index":108,"Type":"Text","Name":"IF0722-FOCUS-P18 第十八段用于恢复检查。关闭功能后不得留下额外空白、残留类或错误滚动位置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,3105,442,113","Patterns":""}
+{"Index":109,"Type":"Text","Name":"IF0722-FOCUS-P19 第十九段用于最终选择测试。下面一段的末尾单词将作为选择范围的真实证据。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,3248,429,112","Patterns":""}
+{"Index":110,"Type":"Text","Name":"IF0722-FOCUS-P20 第二十段位于长文末端，负责验证最后一段居中、模式反转以及选择保持。 SELECTION-PROBE","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1815,3390,442,113","Patterns":""}
+{"Index":111,"Type":"Text","Name":"预览 · 微信公众号","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1956,3556,162,26","Patterns":""}
+{"Index":112,"Type":"Button","Name":"复制微信富文本","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1804,1323,235,54","Patterns":"Invoke"}
+{"Index":113,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1837,1339,22,22","Patterns":""}
+{"Index":114,"Type":"Button","Name":"全屏导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2050,1323,235,54","Patterns":"Invoke"}
+{"Index":115,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2113,1339,22,22","Patterns":""}
+{"Index":116,"Type":"Text","Name":"检查器","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1749,320,54,24","Patterns":""}
+{"Index":117,"Type":"Button","Name":"管理检查器小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2180,314,36,37","Patterns":"Invoke"}
+{"Index":118,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2188,322,20,21","Patterns":""}
+{"Index":119,"Type":"Button","Name":"钉住右栏（禁用磁吸自动收起）","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2228,314,36,37","Patterns":"Toggle"}
+{"Index":120,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2236,322,20,21","Patterns":""}
+{"Index":121,"Type":"Button","Name":"收起右栏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2276,314,36,37","Patterns":"Invoke"}
+{"Index":122,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2283,322,22,21","Patterns":""}
+{"Index":123,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,387,21,21","Patterns":""}
+{"Index":124,"Type":"Text","Name":"排版风格","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,385,74,24","Patterns":""}
+{"Index":125,"Type":"Button","Name":"Constructive Red","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,429,42,42","Patterns":"Toggle"}
+{"Index":126,"Type":"Button","Name":"Swiss Blue","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1812,429,42,42","Patterns":"Toggle"}
+{"Index":127,"Type":"Button","Name":"Classic Purple","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1869,429,42,42","Patterns":"Toggle"}
+{"Index":128,"Type":"Button","Name":"墨青","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1926,429,42,42","Patterns":"Toggle"}
+{"Index":129,"Type":"Button","Name":"雅黑","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1983,429,42,42","Patterns":"Toggle"}
+{"Index":130,"Type":"Button","Name":"论文翻译 academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,489,116,63","Patterns":"Toggle"}
+{"Index":131,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,500,18,19","Patterns":""}
+{"Index":132,"Type":"Text","Name":"论文翻译","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1792,498,66,23","Patterns":""}
+{"Index":133,"Type":"Text","Name":"academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,524,65,21","Patterns":""}
+{"Index":134,"Type":"Button","Name":"法学研讨 academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1880,489,116,63","Patterns":"Toggle"}
+{"Index":135,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1893,500,18,19","Patterns":""}
+{"Index":136,"Type":"Text","Name":"法学研讨","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1917,498,66,23","Patterns":""}
+{"Index":137,"Type":"Text","Name":"academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1893,524,65,21","Patterns":""}
+{"Index":138,"Type":"Button","Name":"行业研报 academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2005,489,116,63","Patterns":"Toggle"}
+{"Index":139,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2018,500,18,19","Patterns":""}
+{"Index":140,"Type":"Text","Name":"行业研报","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2042,498,66,23","Patterns":""}
+{"Index":141,"Type":"Text","Name":"academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2018,524,65,21","Patterns":""}
+{"Index":142,"Type":"Button","Name":"时事点评 business","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2130,489,116,63","Patterns":"Toggle"}
+{"Index":143,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2143,500,18,19","Patterns":""}
+{"Index":144,"Type":"Text","Name":"时事点评","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2167,498,66,23","Patterns":""}
+{"Index":145,"Type":"Text","Name":"business","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2143,524,59,21","Patterns":""}
+{"Index":146,"Type":"Button","Name":"AIGC business","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,560,87,64","Patterns":"Toggle"}
+{"Index":147,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,572,18,19","Patterns":""}
+{"Index":148,"Type":"Text","Name":"AIGC","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1792,570,37,23","Patterns":""}
+{"Index":149,"Type":"Text","Name":"business","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,596,59,20","Patterns":""}
+{"Index":150,"Type":"Button","Name":"编程创造 creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1850,560,117,64","Patterns":"Toggle"}
+{"Index":151,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1863,572,19,19","Patterns":""}
+{"Index":152,"Type":"Text","Name":"编程创造","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1887,570,67,23","Patterns":""}
+{"Index":153,"Type":"Text","Name":"creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1863,596,55,20","Patterns":""}
+{"Index":154,"Type":"Button","Name":"学习笔记 lifestyle","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1975,560,117,64","Patterns":"Toggle"}
+{"Index":155,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1988,572,19,19","Patterns":""}
+{"Index":156,"Type":"Text","Name":"学习笔记","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2012,570,67,23","Patterns":""}
+{"Index":157,"Type":"Text","Name":"lifestyle","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1988,596,54,20","Patterns":""}
+{"Index":158,"Type":"Button","Name":"新闻 creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2100,560,84,64","Patterns":"Toggle"}
+{"Index":159,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2113,572,19,19","Patterns":""}
+{"Index":160,"Type":"Text","Name":"新闻","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2137,570,34,23","Patterns":""}
+{"Index":161,"Type":"Text","Name":"creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2113,596,55,20","Patterns":""}
+{"Index":162,"Type":"Button","Name":"整活 creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2192,560,84,64","Patterns":"Toggle"}
+{"Index":163,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2205,572,19,19","Patterns":""}
+{"Index":164,"Type":"Text","Name":"整活","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2229,570,34,23","Patterns":""}
+{"Index":165,"Type":"Text","Name":"creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2205,596,55,20","Patterns":""}
+{"Index":166,"Type":"Button","Name":"人生感悟 lifestyle","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,632,116,64","Patterns":"Toggle"}
+{"Index":167,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,644,18,19","Patterns":""}
+{"Index":168,"Type":"Text","Name":"人生感悟","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1792,642,66,22","Patterns":""}
+{"Index":169,"Type":"Text","Name":"lifestyle","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,667,53,21","Patterns":""}
+{"Index":170,"Type":"Button","Name":"优雅 lifestyle","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1880,632,83,64","Patterns":"Toggle"}
+{"Index":171,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1893,644,18,19","Patterns":""}
+{"Index":172,"Type":"Text","Name":"优雅","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1917,642,33,22","Patterns":""}
+{"Index":173,"Type":"Text","Name":"lifestyle","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1893,667,53,21","Patterns":""}
+{"Index":174,"Type":"Button","Name":"科技 creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1972,632,83,64","Patterns":"Toggle"}
+{"Index":175,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1985,644,18,19","Patterns":""}
+{"Index":176,"Type":"Text","Name":"科技","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2009,642,33,22","Patterns":""}
+{"Index":177,"Type":"Text","Name":"creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1985,667,54,21","Patterns":""}
+{"Index":178,"Type":"Button","Name":"赤陶旗舰 creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2064,632,116,64","Patterns":"Toggle"}
+{"Index":179,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2077,644,18,19","Patterns":""}
+{"Index":180,"Type":"Text","Name":"赤陶旗舰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2101,642,66,22","Patterns":""}
+{"Index":181,"Type":"Text","Name":"creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2077,667,54,21","Patterns":""}
+{"Index":182,"Type":"Button","Name":"赤陶兼容旗舰 creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,704,149,63","Patterns":"Toggle"}
+{"Index":183,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,716,18,19","Patterns":""}
+{"Index":184,"Type":"Text","Name":"赤陶兼容旗舰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1792,713,99,23","Patterns":""}
+{"Index":185,"Type":"Text","Name":"creative","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1768,739,56,21","Patterns":""}
+{"Index":186,"Type":"Button","Name":"铜绿旗舰 academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1913,704,116,63","Patterns":"Toggle"}
+{"Index":187,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1926,716,18,19","Patterns":""}
+{"Index":188,"Type":"Text","Name":"铜绿旗舰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1950,713,66,23","Patterns":""}
+{"Index":189,"Type":"Text","Name":"academic","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1926,739,65,21","Patterns":""}
+{"Index":190,"Type":"Button","Name":"黄铜旗舰 business","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2038,704,116,63","Patterns":"Toggle"}
+{"Index":191,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2051,716,18,19","Patterns":""}
+{"Index":192,"Type":"Text","Name":"黄铜旗舰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2075,713,66,23","Patterns":""}
+{"Index":193,"Type":"Text","Name":"business","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2051,739,59,21","Patterns":""}
+{"Index":194,"Type":"Text","Name":"赤陶兼容旗舰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,802,109,24","Patterns":""}
+{"Index":195,"Type":"Text","Name":"视觉签名","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2213,806,61,18","Patterns":""}
+{"Index":196,"Type":"List","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,838,499,77","Patterns":""}
+{"Index":197,"Type":"ListItem","Name":"节奏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,838,43,21","Patterns":""}
+{"Index":198,"Type":"Text","Name":"节奏","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,839,30,19","Patterns":""}
+{"Index":199,"Type":"Text","Name":"赤陶兼容节奏 · 微信粘贴优先","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1828,838,192,21","Patterns":""}
+{"Index":200,"Type":"ListItem","Name":"标题","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,866,43,21","Patterns":""}
+{"Index":201,"Type":"Text","Name":"标题","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,867,30,19","Patterns":""}
+{"Index":202,"Type":"Text","Name":"兼容封面 · 赤陶色块标题","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1828,866,162,21","Patterns":""}
+{"Index":203,"Type":"ListItem","Name":"引用","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,894,43,21","Patterns":""}
+{"Index":204,"Type":"Text","Name":"引用","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1775,895,30,18","Patterns":""}
+{"Index":205,"Type":"Text","Name":"赤陶角标引用卡","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1828,894,105,20","Patterns":""}
+{"Index":206,"Type":"Text","Name":"SVG 兼容封面","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,930,83,19","Patterns":""}
+{"Index":207,"Type":"Text","Name":"本期目录","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1893,930,55,19","Patterns":""}
+{"Index":208,"Type":"Text","Name":"vessel 结束标","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1973,930,81,19","Patterns":""}
+{"Index":209,"Type":"Hyperlink","Name":"查看全部预设","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,984,536,28","Patterns":"Invoke,Value"}
+{"Index":210,"Type":"Button","Name":"高级排版参数 微信安全字体、节奏与模块装饰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1756,1030,534,78","Patterns":"ExpandCollapse"}
+{"Index":211,"Type":"Text","Name":"高级排版参数","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1771,1043,108,25","Patterns":""}
+{"Index":212,"Type":"Text","Name":"微信安全字体、节奏与模块装饰","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1771,1073,210,21","Patterns":""}
+{"Index":213,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2254,1058,21,22","Patterns":""}
+{"Index":214,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,1164,21,22","Patterns":""}
+{"Index":215,"Type":"Text","Name":"文稿统计","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1785,1162,74,25","Patterns":""}
+{"Index":216,"Type":"Group","Name":"文稿统计小组件操作","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2177,1157,114,37","Patterns":""}
+{"Index":217,"Type":"Button","Name":"在 InkForge 内浮动文稿统计","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2177,1157,36,37","Patterns":"Invoke"}
+{"Index":218,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2185,1165,20,21","Patterns":""}
+{"Index":219,"Type":"Button","Name":"将文稿统计摘到桌面","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2216,1157,36,37","Patterns":"Invoke"}
+{"Index":220,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2224,1165,20,21","Patterns":""}
+{"Index":221,"Type":"Button","Name":"关闭文稿统计小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2255,1157,36,37","Patterns":"Invoke"}
+{"Index":222,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2263,1165,20,21","Patterns":""}
+{"Index":223,"Type":"Group","Name":"文稿统计","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1755,1208,536,371","Patterns":""}
+{"Index":224,"Type":"Text","Name":"文稿字数","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1774,1228,66,23","Patterns":""}
+{"Index":225,"Type":"Text","Name":"773","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1774,1261,52,41","Patterns":""}
+{"Index":226,"Type":"Text","Name":"预计阅读","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2048,1228,66,23","Patterns":""}
+{"Index":227,"Type":"Text","Name":"2","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2048,1261,18,41","Patterns":""}
+{"Index":228,"Type":"Text","Name":" 分钟","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2065,1275,38,23","Patterns":""}
+{"Index":229,"Type":"Text","Name":"非空字符","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1774,1355,66,23","Patterns":""}
+{"Index":230,"Type":"Text","Name":"1,125","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1774,1388,78,41","Patterns":""}
+{"Index":231,"Type":"Text","Name":"段落","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2048,1355,33,23","Patterns":""}
+{"Index":232,"Type":"Text","Name":"20","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"2048,1388,35,41","Patterns":""}
+{"Index":233,"Type":"Text","Name":"标题","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,1482,33,23","Patterns":""}
+{"Index":234,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,1516,18,41","Patterns":""}
+{"Index":235,"Type":"Text","Name":"引用","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2048,1482,33,23","Patterns":""}
+{"Index":236,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2048,1516,18,41","Patterns":""}
+{"Index":237,"Type":"Group","Name":"写作辅助","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,1627,536,1293","Patterns":""}
+{"Index":238,"Type":"Text","Name":"写作辅助","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,1636,72,28","Patterns":""}
+{"Index":239,"Type":"Button","Name":"专注","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2191,1627,100,46","Patterns":"Invoke"}
+{"Index":240,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2207,1638,23,23","Patterns":""}
+{"Index":241,"Type":"Text","Name":"写作目标","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,1713,72,25","Patterns":""}
+{"Index":242,"Type":"Text","Name":"当前文稿","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,1772,66,23","Patterns":""}
+{"Index":243,"Type":"Text","Name":"773 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2080,1772,32,23","Patterns":""}
+{"Index":244,"Type":"Text","Name":"/","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2111,1772,8,23","Patterns":""}
+{"Index":245,"Type":"Button","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2124,1769,70,31","Patterns":"Invoke"}
+{"Index":246,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2170,1776,16,16","Patterns":""}
+{"Index":247,"Type":"Group","Name":"当前文稿 0%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2212,1754,60,61","Patterns":""}
+{"Index":248,"Type":"Text","Name":"今日","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,1847,33,23","Patterns":""}
+{"Index":249,"Type":"Text","Name":"0 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2097,1847,15,23","Patterns":""}
+{"Index":250,"Type":"Text","Name":"/","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2111,1847,8,23","Patterns":""}
+{"Index":251,"Type":"Button","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2124,1844,70,31","Patterns":"Invoke"}
+{"Index":252,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2170,1851,16,16","Patterns":""}
+{"Index":253,"Type":"Group","Name":"今日 0%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2212,1829,60,61","Patterns":""}
+{"Index":254,"Type":"Text","Name":"本周","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,1922,33,23","Patterns":""}
+{"Index":255,"Type":"Text","Name":"1,025 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2069,1922,43,23","Patterns":""}
+{"Index":256,"Type":"Text","Name":"/","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2111,1922,8,23","Patterns":""}
+{"Index":257,"Type":"Button","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2124,1919,70,31","Patterns":"Invoke"}
+{"Index":258,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2170,1926,16,16","Patterns":""}
+{"Index":259,"Type":"Group","Name":"本周 0%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2212,1904,60,61","Patterns":""}
+{"Index":260,"Type":"Button","Name":"打字机模式 开启","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2023,242,52","Patterns":"Invoke"}
+{"Index":261,"Type":"Button","Name":"暗角聚焦 18%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2030,2023,242,52","Patterns":"Invoke"}
+{"Index":262,"Type":"Text","Name":"聚焦范围 130px","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2090,114,23","Patterns":""}
+{"Index":263,"Type":"Slider","Name":"聚焦范围 130px","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2124,498,25","Patterns":"Value,RangeValue"}
+{"Index":264,"Type":"Group","Name":"暗处强度 18%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2163,498,60","Patterns":""}
+{"Index":265,"Type":"Text","Name":"暗处强度 18%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2164,101,23","Patterns":""}
+{"Index":266,"Type":"Slider","Name":"暗处强度 18%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2198,498,25","Patterns":"Value,RangeValue"}
+{"Index":267,"Type":"Group","Name":"光标位置 50%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2237,498,60","Patterns":""}
+{"Index":268,"Type":"Text","Name":"光标锚点 50%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2238,103,23","Patterns":""}
+{"Index":269,"Type":"Slider","Name":"光标位置 50%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2272,498,25","Patterns":"Value,RangeValue"}
+{"Index":270,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2381,24,25","Patterns":""}
+{"Index":271,"Type":"Text","Name":"25:00","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1813,2357,85,45","Patterns":""}
+{"Index":272,"Type":"Text","Name":"就绪 · 0/4","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1813,2406,72,23","Patterns":""}
+{"Index":273,"Type":"Button","Name":"配置番茄钟","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2230,2372,42,43","Patterns":"Invoke"}
+{"Index":274,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2240,2382,22,22","Patterns":""}
+{"Index":275,"Type":"Group","Name":"0/4 轮","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2446,498,13","Patterns":""}
+{"Index":276,"Type":"Button","Name":"开始","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2475,89,43","Patterns":"Invoke"}
+{"Index":277,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1787,2486,20,20","Patterns":""}
+{"Index":278,"Type":"Button","Name":"暂停","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1873,2475,90,43","Patterns":"Invoke"}
+{"Index":279,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1886,2486,20,20","Patterns":""}
+{"Index":280,"Type":"Button","Name":"重置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1973,2475,89,43","Patterns":"Invoke"}
+{"Index":281,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1986,2486,20,20","Patterns":""}
+{"Index":282,"Type":"Button","Name":"跳过","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2072,2475,90,43","Patterns":"Invoke"}
+{"Index":283,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2085,2486,20,20","Patterns":""}
+{"Index":284,"Type":"Button","Name":"最近记录 (0)","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2533,144,40","Patterns":"Invoke"}
+{"Index":285,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1787,2543,20,20","Patterns":""}
+{"Index":286,"Type":"Text","Name":"环境音","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2632,54,25","Patterns":""}
+{"Index":287,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2251,2634,21,22","Patterns":""}
+{"Index":288,"Type":"Button","Name":"深夜书房","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2674,118,40","Patterns":"Invoke"}
+{"Index":289,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1788,2686,17,17","Patterns":""}
+{"Index":290,"Type":"Button","Name":"户外咖啡","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1900,2674,118,40","Patterns":"Invoke"}
+{"Index":291,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1915,2686,17,17","Patterns":""}
+{"Index":292,"Type":"Button","Name":"图书馆","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2027,2674,101,40","Patterns":"Invoke"}
+{"Index":293,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2041,2686,17,17","Patterns":""}
+{"Index":294,"Type":"Button","Name":"雨声","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2730,89,43","Patterns":"Invoke"}
+{"Index":295,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1787,2741,20,20","Patterns":""}
+{"Index":296,"Type":"Button","Name":"咖啡馆","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1873,2730,108,43","Patterns":"Invoke"}
+{"Index":297,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1886,2741,20,20","Patterns":""}
+{"Index":298,"Type":"Button","Name":"白噪声","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1991,2730,107,43","Patterns":"Invoke"}
+{"Index":299,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2004,2741,20,20","Patterns":""}
+{"Index":300,"Type":"Button","Name":"自然声","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2108,2730,108,43","Patterns":"Invoke"}
+{"Index":301,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2121,2741,20,20","Patterns":""}
+{"Index":302,"Type":"Button","Name":"雷暴","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2782,89,43","Patterns":"Invoke"}
+{"Index":303,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1787,2793,20,21","Patterns":""}
+{"Index":304,"Type":"Button","Name":"键盘","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1873,2782,90,43","Patterns":"Invoke"}
+{"Index":305,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1886,2793,20,21","Patterns":""}
+{"Index":306,"Type":"Button","Name":"壁炉","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1973,2782,89,43","Patterns":"Invoke"}
+{"Index":307,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1986,2793,20,21","Patterns":""}
+{"Index":308,"Type":"Button","Name":"鸟鸣","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2072,2782,90,43","Patterns":"Invoke"}
+{"Index":309,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2085,2793,20,21","Patterns":""}
+{"Index":310,"Type":"Text","Name":"音量 100%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2842,77,23","Patterns":""}
+{"Index":311,"Type":"Slider","Name":"音量 100%","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1774,2876,498,25","Patterns":"Value,RangeValue"}
+{"Index":312,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,2971,21,22","Patterns":""}
+{"Index":313,"Type":"Text","Name":"素材","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1785,2969,37,25","Patterns":""}
+{"Index":314,"Type":"Button","Name":"上传素材文件","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,3013,536,208","Patterns":"Invoke"}
+{"Index":315,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1996,3052,54,55","Patterns":""}
+{"Index":316,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1770,3252,21,22","Patterns":""}
+{"Index":317,"Type":"Edit","Name":"搜索素材","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,3238,228,51","Patterns":"Value"}
+{"Index":318,"Type":"Text","Name":"1 个素材 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2000,3252,69,23","Patterns":""}
+{"Index":319,"Type":"Text","Name":"/ 1.4 KB","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2068,3252,56,23","Patterns":""}
+{"Index":320,"Type":"Button","Name":"全选","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2142,3240,45,46","Patterns":"Invoke"}
+{"Index":321,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2154,3252,21,22","Patterns":""}
+{"Index":322,"Type":"Button","Name":"网格视图","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2200,3242,45,43","Patterns":"Invoke"}
+{"Index":323,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2211,3252,22,22","Patterns":""}
+{"Index":324,"Type":"Button","Name":"列表视图","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2245,3242,45,43","Patterns":"Invoke"}
+{"Index":325,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2257,3252,21,22","Patterns":""}
+{"Index":326,"Type":"Button","Name":"选择素材 favicon.svg","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,3306,121,201","Patterns":"Toggle"}
+{"Index":327,"Type":"Image","Name":"favicon.svg","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1756,3307,119,119","Patterns":""}
+{"Index":328,"Type":"Text","Name":"SVG","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1827,3320,30,21","Patterns":""}
+{"Index":329,"Type":"Text","Name":"favicon.svg","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1771,3439,86,25","Patterns":""}
+{"Index":330,"Type":"Text","Name":"1.4 KB","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1771,3469,45,23","Patterns":""}
+{"Index":331,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,3581,21,22","Patterns":""}
+{"Index":332,"Type":"Text","Name":"引用链接","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1785,3579,74,25","Patterns":""}
+{"Index":333,"Type":"Group","Name":"引用链接小组件操作","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2177,3573,114,37","Patterns":""}
+{"Index":334,"Type":"Button","Name":"在 InkForge 内浮动引用链接","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2177,3573,36,37","Patterns":"Invoke"}
+{"Index":335,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2185,3581,20,21","Patterns":""}
+{"Index":336,"Type":"Button","Name":"将引用链接摘到桌面","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2216,3573,36,37","Patterns":"Invoke"}
+{"Index":337,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2224,3581,20,21","Patterns":""}
+{"Index":338,"Type":"Button","Name":"关闭引用链接小组件","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2255,3573,36,37","Patterns":"Invoke"}
+{"Index":339,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2263,3581,20,21","Patterns":""}
+{"Index":340,"Type":"Group","Name":"引用链接","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1755,3624,536,595","Patterns":""}
+{"Index":341,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"2005,3865,36,37","Patterns":""}
+{"Index":342,"Type":"Text","Name":"暂无外部引用","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1964,3912,118,27","Patterns":""}
+{"Index":343,"Type":"Text","Name":"在 Markdown 中使用 `[说明文字](https://…)` 添加引用链接。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1804,3953,438,23","Patterns":""}
+{"Index":344,"Type":"Group","Name":"应用内悬浮检查器小组件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"230,99,2100,1296","Patterns":""}

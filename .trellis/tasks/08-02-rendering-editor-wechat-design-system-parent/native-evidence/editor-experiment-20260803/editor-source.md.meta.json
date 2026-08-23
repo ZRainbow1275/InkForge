@@ -1,0 +1,40 @@
+{
+  "componentIds": [
+    "MpProfile",
+    "AuthorBlock",
+    "QRCodeBlock",
+    "TipBlock",
+    "InfoGrid",
+    "TableBlock",
+    "TimelineBlock",
+    "CompareBlock",
+    "StatBlock",
+    "GalleryBlock",
+    "CitationBlock",
+    "SongBlock",
+    "ImageBlock",
+    "LinkBlock",
+    "ArticleBlock",
+    "ContactCard",
+    "WechatMediaBlock"
+  ],
+  "componentLabels": [
+    "公众号 / 作者名片",
+    "作者信息",
+    "二维码",
+    "提示框",
+    "信息网格",
+    "表格",
+    "时间线",
+    "对比卡",
+    "数据统计卡",
+    "图集",
+    "引文来源",
+    "歌曲",
+    "图片",
+    "链接卡片",
+    "关联文章",
+    "联系人 / 名片",
+    "微信原生媒体描述"
+  ]
+}

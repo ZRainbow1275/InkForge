@@ -1,0 +1,260 @@
+﻿pid=51656 hwnd=6426424 count=295 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,0,2048,1218","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 设置 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,0,2049,1218","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 设置","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"0,0,2049,1218","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"66,14,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1824,0,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1899,0,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1974,0,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回上一页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"48,65,60,61","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"64,82,28,27","Patterns":""}
+{"Index":9,"Type":"Text","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"132,75,54,41","Patterns":""}
+{"Index":10,"Type":"Button","Name":"重置高级 Tab","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1690,68,159,55","Patterns":"Invoke"}
+{"Index":11,"Type":"Button","Name":"创建回滚点","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1861,68,140,55","Patterns":"Invoke"}
+{"Index":12,"Type":"Text","Name":"设置搜索","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"341,-8,73,21","Patterns":""}
+{"Index":13,"Type":"Edit","Name":"设置搜索","AutomationId":"settings-search-input","Enabled":true,"Offscreen":true,"Rect":"341,28,278,54","Patterns":"Value"}
+{"Index":14,"Type":"List","Name":"设置搜索结果","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,97,278,390","Patterns":"Value"}
+{"Index":15,"Type":"Button","Name":"视觉系统诊断 高级 / 设备级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"341,97,263,83","Patterns":"Invoke"}
+{"Index":16,"Type":"Button","Name":"CustomCSS 高级 / 账户级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,188,263,83","Patterns":"Invoke"}
+{"Index":17,"Type":"Button","Name":"桌面运行时 高级 / 设备级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,279,263,83","Patterns":"Invoke"}
+{"Index":18,"Type":"Button","Name":"日志级别 高级 / 设备级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,370,263,83","Patterns":"Invoke"}
+{"Index":19,"Type":"Button","Name":"Developer Mode 高级 / 设备级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,462,263,83","Patterns":"Invoke"}
+{"Index":20,"Type":"Button","Name":"Feature Flags 高级 / 设备级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"341,553,263,83","Patterns":"Invoke"}
+{"Index":21,"Type":"Button","Name":"性能 SLO 账本 高级 / 设备级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"341,644,263,83","Patterns":"Invoke"}
+{"Index":22,"Type":"Button","Name":"Schema 与回滚点 高级 / 账户级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"341,735,263,83","Patterns":"Invoke"}
+{"Index":23,"Type":"Button","Name":"外观","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,539,292,60","Patterns":"Invoke"}
+{"Index":24,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,555,28,28","Patterns":""}
+{"Index":25,"Type":"Button","Name":"编辑器","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,601,292,60","Patterns":"Invoke"}
+{"Index":26,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,617,28,28","Patterns":""}
+{"Index":27,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,663,292,60","Patterns":"Invoke"}
+{"Index":28,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,679,28,28","Patterns":""}
+{"Index":29,"Type":"Button","Name":"AI 服务","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,725,292,60","Patterns":"Invoke"}
+{"Index":30,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,741,28,28","Patterns":""}
+{"Index":31,"Type":"Button","Name":"数据","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,788,292,60","Patterns":"Invoke"}
+{"Index":32,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,804,28,28","Patterns":""}
+{"Index":33,"Type":"Button","Name":"同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,850,292,60","Patterns":"Invoke"}
+{"Index":34,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,866,28,28","Patterns":""}
+{"Index":35,"Type":"Button","Name":"审计日志","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,912,292,60","Patterns":"Invoke"}
+{"Index":36,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,928,28,28","Patterns":""}
+{"Index":37,"Type":"Button","Name":"工作区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,974,292,60","Patterns":"Invoke"}
+{"Index":38,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,990,28,28","Patterns":""}
+{"Index":39,"Type":"Button","Name":"扩展插件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1037,292,60","Patterns":"Invoke"}
+{"Index":40,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1053,28,28","Patterns":""}
+{"Index":41,"Type":"Button","Name":"快捷键","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1099,292,60","Patterns":"Invoke"}
+{"Index":42,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1115,28,28","Patterns":""}
+{"Index":43,"Type":"Button","Name":"高级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1161,292,60","Patterns":"Invoke"}
+{"Index":44,"Type":"Button","Name":"关于","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"334,1223,292,60","Patterns":"Invoke"}
+{"Index":45,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"362,1239,28,28","Patterns":""}
+{"Index":46,"Type":"Text","Name":"高级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,222,940,59","Patterns":""}
+{"Index":47,"Type":"Text","Name":"面向高级用户的真实运行时控制；CustomCSS 只作用于 .editor-content 与真实 ProseMirror 编辑区，不会定制应用外壳。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,293,918,57","Patterns":""}
+{"Index":48,"Type":"Text","Name":"视觉系统诊断","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,386,683,36","Patterns":""}
+{"Index":49,"Type":"Text","Name":"这里只读展示 ThemeEngine、FontSystem 与 Typography 的实时 token；可修改的主题、字体与排版仍集中在“外观”。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,431,681,50","Patterns":""}
+{"Index":50,"Type":"Text","Name":"2.1-compatible-baseline","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1457,394,204,20","Patterns":""}
+{"Index":51,"Type":"Text","Name":"解析主题","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,534,73,22","Patterns":""}
+{"Index":52,"Type":"Text","Name":"light","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,570,53,30","Patterns":""}
+{"Index":53,"Type":"Text","Name":"来源：light","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,615,91,22","Patterns":""}
+{"Index":54,"Type":"Text","Name":"字体栈","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,534,55,22","Patterns":""}
+{"Index":55,"Type":"Text","Name":"宋体 / Serif","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,570,126,30","Patterns":""}
+{"Index":56,"Type":"Text","Name":"CJK / Latin / Mono 已拆分","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,615,160,49","Patterns":""}
+{"Index":57,"Type":"Text","Name":"Token 数量","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,534,94,22","Patterns":""}
+{"Index":58,"Type":"Text","Name":"60","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,570,32,30","Patterns":""}
+{"Index":59,"Type":"Text","Name":"写入 documentElement","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,615,154,49","Patterns":""}
+{"Index":60,"Type":"Text","Name":"品牌冻结","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,534,73,22","Patterns":""}
+{"Index":61,"Type":"Text","Name":"启用","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,570,49,30","Patterns":""}
+{"Index":62,"Type":"Text","Name":"内置主题保护核心品牌色","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,615,163,49","Patterns":""}
+{"Index":63,"Type":"Button","Name":"查看当前 Token 快照","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"758,728,896,30","Patterns":"ExpandCollapse"}
+{"Index":64,"Type":"Text","Name":"查看当前 Token 快照","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"758,730,185,25","Patterns":""}
+{"Index":65,"Type":"Text","Name":"CustomCSS","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,838,835,37","Patterns":""}
+{"Index":66,"Type":"Text","Name":"自动限定到 .editor-content 与真实 ProseMirror 编辑区；禁止 @import、远程 url、主动内容协议和 !important。关闭后不注入 style，但保留草稿。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,883,803,51","Patterns":""}
+{"Index":67,"Type":"Text","Name":"未启用","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1610,846,51,21","Patterns":""}
+{"Index":68,"Type":"CheckBox","Name":"启用 CustomCSS 首次启用会二次确认；SafeMode 或错误过载时会自动停用。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1612,1016,64,37","Patterns":"Toggle,Value"}
+{"Index":69,"Type":"Text","Name":"启用 CustomCSS","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1005,159,25","Patterns":""}
+{"Index":70,"Type":"Text","Name":"首次启用会二次确认；SafeMode 或错误过载时会自动停用。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1040,489,22","Patterns":""}
+{"Index":71,"Type":"ComboBox","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1098,541,55","Patterns":"Value,ExpandCollapse"}
+{"Index":72,"Type":"Text","Name":"CUSTOMCSS SOURCE","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1195,214,22","Patterns":""}
+{"Index":73,"Type":"Text","Name":"CSS / .EDITOR-CONTENT + PROSEMIRROR","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1243,1195,411,22","Patterns":""}
+{"Index":74,"Type":"Edit","Name":"h1 {\\n color: var(--paper-brand);\\n}","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"799,1253,858,331","Patterns":"Value"}
+{"Index":75,"Type":"Text","Name":"长度 0 / 50000","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,1669,126,22","Patterns":""}
+{"Index":76,"Type":"Text","Name":"规则 0 / 1000","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"895,1669,112,22","Patterns":""}
+{"Index":77,"Type":"Text","Name":"style id: inkforge-custom-css","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1021,1669,250,22","Patterns":""}
+{"Index":78,"Type":"Button","Name":"应用","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,1733,90,56","Patterns":"Invoke"}
+{"Index":79,"Type":"Button","Name":"重置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"840,1734,87,55","Patterns":"Invoke"}
+{"Index":80,"Type":"Button","Name":"导入","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"941,1734,87,55","Patterns":"Invoke"}
+{"Index":81,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1042,1734,87,55","Patterns":"Invoke"}
+{"Index":82,"Type":"Button","Name":"导入 CustomCSS 文件: 未选择文件","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,1766,2,2","Patterns":"Invoke,Value"}
+{"Index":83,"Type":"Button","Name":"错误日志（0 / 20）","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1831,896,33","Patterns":"ExpandCollapse"}
+{"Index":84,"Type":"Text","Name":"错误日志（0 / 20）","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1834,186,26","Patterns":""}
+{"Index":85,"Type":"Text","Name":"运行时与维护","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2014,940,60","Patterns":""}
+{"Index":86,"Type":"Text","Name":"桌面能力、引导、设置迁移、日志、开发者面板与性能账本集中在此，不再混入“关于”。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2085,817,26","Patterns":""}
+{"Index":87,"Type":"Text","Name":"实验功能","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2146,613,37","Patterns":""}
+{"Index":88,"Type":"Text","Name":"灰度开关集中在高级设置；只有已经接入真实消费者的能力才会标记为可用。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2191,613,22","Patterns":""}
+{"Index":89,"Type":"Text","Name":"Markdown 提示","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2266,156,26","Patterns":""}
+{"Index":90,"Type":"Text","Name":"保留 Markdown 提示的灰度配置；当前没有独立受控面板。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2304,317,49","Patterns":""}
+{"Index":91,"Type":"Text","Name":"预留配置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"891,2369,68,21","Patterns":""}
+{"Index":92,"Type":"CheckBox","Name":"功能开关：Markdown 提示","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1112,2315,60,31","Patterns":"Toggle,Value"}
+{"Index":93,"Type":"Text","Name":"多标签草稿","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2266,105,26","Patterns":""}
+{"Index":94,"Type":"Text","Name":"保留多文稿灰度配置；当前工作台标签能力不受此预留开关控制。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2304,324,49","Patterns":""}
+{"Index":95,"Type":"Text","Name":"预留配置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1369,2369,68,21","Patterns":""}
+{"Index":96,"Type":"CheckBox","Name":"功能开关：多标签草稿","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1590,2315,61,31","Patterns":"Toggle,Value"}
+{"Index":97,"Type":"Text","Name":"AI 自动补全","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2462,111,26","Patterns":""}
+{"Index":98,"Type":"Text","Name":"保留 AI 自动补全灰度配置；当前请求链尚未接入。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2500,316,49","Patterns":""}
+{"Index":99,"Type":"Text","Name":"预留配置","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"891,2565,68,21","Patterns":""}
+{"Index":100,"Type":"CheckBox","Name":"功能开关：AI 自动补全","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1112,2512,60,30","Patterns":"Toggle,Value"}
+{"Index":101,"Type":"Text","Name":"性能监测","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2476,84,26","Patterns":""}
+{"Index":102,"Type":"Text","Name":"启用实时性能诊断与额外监测面板。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2513,288,22","Patterns":""}
+{"Index":103,"Type":"Text","Name":"已接入性能账本","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1325,2551,118,21","Patterns":""}
+{"Index":104,"Type":"CheckBox","Name":"功能开关：性能监测","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1590,2512,61,30","Patterns":"Toggle,Value"}
+{"Index":105,"Type":"Text","Name":"Desktop Runtime","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2677,830,37","Patterns":""}
+{"Index":106,"Type":"Text","Name":"Tauri desktop baseline uses real runtime detection and explicit web fallback. Web mode does not mock native success.","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2722,825,51","Patterns":""}
+{"Index":107,"Type":"Button","Name":"刷新","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1589,2677,87,55","Patterns":"Invoke"}
+{"Index":108,"Type":"Text","Name":"Runtime","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2826,73,22","Patterns":""}
+{"Index":109,"Type":"Text","Name":"Tauri Desktop","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2862,164,30","Patterns":""}
+{"Index":110,"Type":"Text","Name":"tauri-v1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,2907,65,22","Patterns":""}
+{"Index":111,"Type":"Text","Name":"Window","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1080,2826,72,22","Patterns":""}
+{"Index":112,"Type":"Text","Name":"main","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1080,2862,58,30","Patterns":""}
+{"Index":113,"Type":"Text","Name":"1 native window(s)","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1080,2907,158,22","Patterns":""}
+{"Index":114,"Type":"Text","Name":"App Data","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1399,2826,81,22","Patterns":""}
+{"Index":115,"Type":"Text","Name":"windows","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1399,2862,106,30","Patterns":""}
+{"Index":116,"Type":"Text","Name":"C:\\Users\\HP\\AppData\\Roaming\\io.inkforge.app","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1399,2907,400,22","Patterns":""}
+{"Index":117,"Type":"Text","Name":"Application Info: available","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,2990,225,22","Patterns":""}
+{"Index":118,"Type":"Text","Name":"Window Management: available","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1039,2990,278,22","Patterns":""}
+{"Index":119,"Type":"Text","Name":"Native File Dialog: available","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1372,2990,239,22","Patterns":""}
+{"Index":120,"Type":"Text","Name":"Reveal in File Manager: available","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,3049,284,22","Patterns":""}
+{"Index":121,"Type":"Text","Name":"External URL Open: available","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1097,3049,251,22","Patterns":""}
+{"Index":122,"Type":"Text","Name":"Clipboard Text: available","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1403,3049,215,22","Patterns":""}
+{"Index":123,"Type":"Text","Name":"File Watcher: planned","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,3108,190,22","Patterns":""}
+{"Index":124,"Type":"Text","Name":"System Tray: planned","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1003,3108,189,22","Patterns":""}
+{"Index":125,"Type":"Text","Name":"Global Shortcut: planned","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1248,3108,216,22","Patterns":""}
+{"Index":126,"Type":"Text","Name":"Update Notification: planned","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,3167,250,22","Patterns":""}
+{"Index":127,"Type":"Text","Name":"Platform Authentication: planned","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1063,3167,288,22","Patterns":""}
+{"Index":128,"Type":"Text","Name":"Package Signing: planned","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1406,3167,227,22","Patterns":""}
+{"Index":129,"Type":"Text","Name":"Native runtime information loaded from real Tauri commands.","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3204,522,22","Patterns":""}
+{"Index":130,"Type":"Text","Name":"首次使用与帮助","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3254,706,37","Patterns":""}
+{"Index":131,"Type":"Text","Name":"轻量欢迎、内置帮助和真实快捷键卡片。重置只影响 FTUE 状态，不会改动文章或账户。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3299,706,22","Patterns":""}
+{"Index":132,"Type":"Text","Name":"欢迎已显示","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1576,3262,85,21","Patterns":""}
+{"Index":133,"Type":"Button","Name":"帮助中心 打开内置帮助 Markdown 速查、快捷键和主题文档均来自当前真实配置。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3348,302,209","Patterns":"Invoke"}
+{"Index":134,"Type":"Button","Name":"FTUE 重置欢迎流程 确认后立即重新打开欢迎弹窗；正常启动仍遵循不重复打扰策略，不会生成示例数据。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1055,3348,302,209","Patterns":"Invoke"}
+{"Index":135,"Type":"Text","Name":"已读帮助","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1399,3373,73,22","Patterns":""}
+{"Index":136,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1399,3409,17,30","Patterns":""}
+{"Index":137,"Type":"Text","Name":"IndexedDB ftue records","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1399,3454,202,22","Patterns":""}
+{"Index":138,"Type":"Text","Name":"Schema 与回滚点","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3580,654,37","Patterns":""}
+{"Index":139,"Type":"Text","Name":"每次全量、Tab 或快捷键重置都会先写入回滚点；这里展示真实 schema 与快照。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3625,654,22","Patterns":""}
+{"Index":140,"Type":"Text","Name":"v3 / current 3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1547,3588,114,21","Patterns":""}
+{"Index":141,"Type":"Text","Name":"当前 Schema","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,3700,112,22","Patterns":""}
+{"Index":142,"Type":"Text","Name":"3","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,3736,16,30","Patterns":""}
+{"Index":143,"Type":"Text","Name":"Store schema version","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,3781,185,22","Patterns":""}
+{"Index":144,"Type":"Text","Name":"回滚点","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1080,3700,55,22","Patterns":""}
+{"Index":145,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1080,3736,17,30","Patterns":""}
+{"Index":146,"Type":"Text","Name":"最多保留 10 个","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1080,3781,120,22","Patterns":""}
+{"Index":147,"Type":"Button","Name":"手动快照 创建当前设置回滚点 用于高风险调整前的本地恢复。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1374,3675,302,181","Patterns":"Invoke"}
+{"Index":148,"Type":"Text","Name":"当前没有回滚点。执行重置或手动创建后会显示在这里。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,3880,488,25","Patterns":""}
+{"Index":149,"Type":"Text","Name":"运行时控制","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,3992,529,37","Patterns":""}
+{"Index":150,"Type":"Text","Name":"日志级别会实时绑定到统一 logger，并随设置导入导出一并保留。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4037,529,22","Patterns":""}
+{"Index":151,"Type":"Text","Name":"DEBUG","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1601,4000,60,21","Patterns":""}
+{"Index":152,"Type":"Text","Name":"日志级别","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4090,85,26","Patterns":""}
+{"Index":153,"Type":"ComboBox","Name":"日志级别","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4130,458,55","Patterns":"Value,ExpandCollapse"}
+{"Index":154,"Type":"Text","Name":"安全上下文","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1218,4090,105,26","Patterns":""}
+{"Index":155,"Type":"Text","Name":"已启用","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1237,4150,63,26","Patterns":""}
+{"Index":156,"Type":"Text","Name":"用户代理","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4223,85,26","Patterns":""}
+{"Index":157,"Type":"Text","Name":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,4282,897,51","Patterns":""}
+{"Index":158,"Type":"Text","Name":"Developer Mode","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4411,698,37","Patterns":""}
+{"Index":159,"Type":"Text","Name":"启用生产保留的 DevPanel；正常启动不会挂载面板，首次激活后才动态加载诊断抽屉。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4456,698,22","Patterns":""}
+{"Index":160,"Type":"Text","Name":"已隐藏","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1610,4419,51,21","Patterns":""}
+{"Index":161,"Type":"CheckBox","Name":"启用开发者模式 Ctrl+Shift+D 三连可临时启用；持久开关会保存到本机 Settings。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1131,4551,63,37","Patterns":"Toggle,Value"}
+{"Index":162,"Type":"Text","Name":"启用开发者模式","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4526,137,25","Patterns":""}
+{"Index":163,"Type":"Text","Name":"Ctrl+Shift+D 三连可临时启用；持久开关会保存到本机 Settings。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4561,363,50","Patterns":""}
+{"Index":164,"Type":"Text","Name":"Panel","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1218,4509,57,26","Patterns":""}
+{"Index":165,"Type":"Button","Name":"打开开发者面板","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"1218,4549,458,57","Patterns":"Invoke"}
+{"Index":166,"Type":"Text","Name":"数据策略","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4658,85,26","Patterns":""}
+{"Index":167,"Type":"Text","Name":"只读取真实 TipTap、Pinia、ActivityLogger、Performance、IndexedDB 与 Network 诊断；URL query 与敏感字段会脱敏，IndexedDB 写回在 baseline 中禁用。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,4718,877,57","Patterns":""}
+{"Index":168,"Type":"Text","Name":"开发者工具","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4855,474,37","Patterns":""}
+{"Index":169,"Type":"Text","Name":"导出调试快照前会自动脱敏 AI Key、代理密码等敏感字段。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,4900,474,22","Patterns":""}
+{"Index":170,"Type":"Button","Name":"刷新","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1398,4855,87,55","Patterns":"Invoke"}
+{"Index":171,"Type":"Button","Name":"导出调试 JSON","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1499,4855,177,55","Patterns":"Invoke"}
+{"Index":172,"Type":"Text","Name":"数据库","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,4975,55,22","Patterns":""}
+{"Index":173,"Type":"Text","Name":"InkForgeDB","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,5011,137,30","Patterns":""}
+{"Index":174,"Type":"Text","Name":"Dexie v20","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,5056,86,22","Patterns":""}
+{"Index":175,"Type":"Text","Name":"功能开关","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1000,4975,73,22","Patterns":""}
+{"Index":176,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1000,5011,12,30","Patterns":""}
+{"Index":177,"Type":"Text","Name":"当前启用数量","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1000,5056,109,22","Patterns":""}
+{"Index":178,"Type":"Text","Name":"文章 / 素材","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,4975,88,22","Patterns":""}
+{"Index":179,"Type":"Text","Name":"3 / 1","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,5011,47,30","Patterns":""}
+{"Index":180,"Type":"Text","Name":"真实业务数据","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,5056,108,22","Patterns":""}
+{"Index":181,"Type":"Text","Name":"更新时间","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1479,4975,73,22","Patterns":""}
+{"Index":182,"Type":"Text","Name":"07/24 01:31:07","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1479,5011,99,66","Patterns":""}
+{"Index":183,"Type":"Text","Name":"最近一次刷新","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1479,5092,109,22","Patterns":""}
+{"Index":184,"Type":"Text","Name":"categories","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5180,98,25","Patterns":""}
+{"Index":185,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,5180,34,25","Patterns":""}
+{"Index":186,"Type":"Text","Name":"articles","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5253,68,25","Patterns":""}
+{"Index":187,"Type":"Text","Name":"3 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,5253,38,25","Patterns":""}
+{"Index":188,"Type":"Text","Name":"contents","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5327,81,25","Patterns":""}
+{"Index":189,"Type":"Text","Name":"3 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,5327,38,25","Patterns":""}
+{"Index":190,"Type":"Text","Name":"documents","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5400,104,25","Patterns":""}
+{"Index":191,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,5400,38,25","Patterns":""}
+{"Index":192,"Type":"Text","Name":"versions","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5473,79,25","Patterns":""}
+{"Index":193,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,5473,38,25","Patterns":""}
+{"Index":194,"Type":"Text","Name":"assets","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5546,60,25","Patterns":""}
+{"Index":195,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,5546,34,25","Patterns":""}
+{"Index":196,"Type":"Text","Name":"accounts","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5620,85,25","Patterns":""}
+{"Index":197,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,5620,34,25","Patterns":""}
+{"Index":198,"Type":"Text","Name":"recoveryPoints","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5693,139,25","Patterns":""}
+{"Index":199,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,5693,34,25","Patterns":""}
+{"Index":200,"Type":"Text","Name":"ftue","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5766,37,25","Patterns":""}
+{"Index":201,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,5766,34,25","Patterns":""}
+{"Index":202,"Type":"Text","Name":"syncOutbox","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5839,112,25","Patterns":""}
+{"Index":203,"Type":"Text","Name":"5 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1620,5839,37,25","Patterns":""}
+{"Index":204,"Type":"Text","Name":"syncLogs","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5913,90,25","Patterns":""}
+{"Index":205,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,5913,38,25","Patterns":""}
+{"Index":206,"Type":"Text","Name":"syncConflicts","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,5986,127,25","Patterns":""}
+{"Index":207,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,5986,38,25","Patterns":""}
+{"Index":208,"Type":"Text","Name":"auditLogs","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6059,91,25","Patterns":""}
+{"Index":209,"Type":"Text","Name":"40 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1606,6059,51,25","Patterns":""}
+{"Index":210,"Type":"Text","Name":"resourcePermissions","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6132,194,25","Patterns":""}
+{"Index":211,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6132,38,25","Patterns":""}
+{"Index":212,"Type":"Text","Name":"extensions","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6206,101,25","Patterns":""}
+{"Index":213,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6206,38,25","Patterns":""}
+{"Index":214,"Type":"Text","Name":"extensionStorage","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6279,162,25","Patterns":""}
+{"Index":215,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6279,38,25","Patterns":""}
+{"Index":216,"Type":"Text","Name":"profiles","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6352,70,25","Patterns":""}
+{"Index":217,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,6352,34,25","Patterns":""}
+{"Index":218,"Type":"Text","Name":"profileSharedTemplates","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6425,220,25","Patterns":""}
+{"Index":219,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6425,38,25","Patterns":""}
+{"Index":220,"Type":"Text","Name":"profileSharedExportPresets","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6499,254,25","Patterns":""}
+{"Index":221,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6499,38,25","Patterns":""}
+{"Index":222,"Type":"Text","Name":"profileSharedAIConfigs","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6572,215,25","Patterns":""}
+{"Index":223,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6572,38,25","Patterns":""}
+{"Index":224,"Type":"Text","Name":"performanceSamples","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6645,199,25","Patterns":""}
+{"Index":225,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6645,38,25","Patterns":""}
+{"Index":226,"Type":"Text","Name":"performanceDegradationEvents","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6718,295,25","Patterns":""}
+{"Index":227,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6718,38,25","Patterns":""}
+{"Index":228,"Type":"Text","Name":"assetRefs","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6792,91,25","Patterns":""}
+{"Index":229,"Type":"Text","Name":"1 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1623,6792,34,25","Patterns":""}
+{"Index":230,"Type":"Text","Name":"comments","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6865,97,25","Patterns":""}
+{"Index":231,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6865,38,25","Patterns":""}
+{"Index":232,"Type":"Text","Name":"marginNotes","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,6938,118,25","Patterns":""}
+{"Index":233,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,6938,38,25","Patterns":""}
+{"Index":234,"Type":"Text","Name":"trackChanges","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7011,129,25","Patterns":""}
+{"Index":235,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7011,38,25","Patterns":""}
+{"Index":236,"Type":"Text","Name":"activityLogs","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7085,113,25","Patterns":""}
+{"Index":237,"Type":"Text","Name":"44 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1606,7085,51,25","Patterns":""}
+{"Index":238,"Type":"Text","Name":"exportLogs","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7158,105,25","Patterns":""}
+{"Index":239,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7158,38,25","Patterns":""}
+{"Index":240,"Type":"Text","Name":"layoutStates","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7231,114,25","Patterns":""}
+{"Index":241,"Type":"Text","Name":"3 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7231,38,25","Patterns":""}
+{"Index":242,"Type":"Text","Name":"backlinks","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7304,88,25","Patterns":""}
+{"Index":243,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7304,38,25","Patterns":""}
+{"Index":244,"Type":"Text","Name":"snippets","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7378,79,25","Patterns":""}
+{"Index":245,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7378,38,25","Patterns":""}
+{"Index":246,"Type":"Text","Name":"tags","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7451,41,25","Patterns":""}
+{"Index":247,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7451,38,25","Patterns":""}
+{"Index":248,"Type":"Text","Name":"docTags","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7524,79,25","Patterns":""}
+{"Index":249,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7524,38,25","Patterns":""}
+{"Index":250,"Type":"Text","Name":"updaterSkipped","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"755,7597,147,25","Patterns":""}
+{"Index":251,"Type":"Text","Name":"0 条","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1619,7597,38,25","Patterns":""}
+{"Index":252,"Type":"Text","Name":"性能监测","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,7702,678,37","Patterns":""}
+{"Index":253,"Type":"Text","Name":"基于 requestAnimationFrame、Dexie 读取、浏览器导航指标和内存 API 实时采样。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,7747,678,22","Patterns":""}
+{"Index":254,"Type":"Text","Name":"需开启 feature flag","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1508,7710,153,21","Patterns":""}
+{"Index":255,"Type":"Text","Name":"在 AI 服务页启用 ","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,7822,153,25","Patterns":""}
+{"Index":256,"Type":"Text","Name":"performance-metrics","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"913,7823,205,24","Patterns":""}
+{"Index":257,"Type":"Text","Name":" 后，这里会显示真实采样结果。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1117,7822,279,25","Patterns":""}
+{"Index":258,"Type":"Text","Name":"未启用 performance-metrics 功能开关；最近采样：07/24 01:31:07","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,7875,550,22","Patterns":""}

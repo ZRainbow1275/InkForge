@@ -1,0 +1,104 @@
+﻿pid=51656 hwnd=6426424 count=124 title=InkForge
+{"Index":0,"Type":"Pane","Name":"InkForge - 设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,0,2048,1218","Patterns":""}
+{"Index":1,"Type":"Pane","Name":"InkForge - 设置 - Web 内容","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"0,0,2049,1218","Patterns":""}
+{"Index":2,"Type":"Document","Name":"InkForge - 设置","AutomationId":"RootWebArea","Enabled":true,"Offscreen":false,"Rect":"0,0,2049,1218","Patterns":"Value"}
+{"Index":3,"Type":"Text","Name":"InkForge","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"66,14,85,26","Patterns":""}
+{"Index":4,"Type":"Button","Name":"最小化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1824,0,75,54","Patterns":"Invoke"}
+{"Index":5,"Type":"Button","Name":"最大化","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1899,0,75,54","Patterns":"Invoke"}
+{"Index":6,"Type":"Button","Name":"关闭","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1974,0,75,54","Patterns":"Invoke"}
+{"Index":7,"Type":"Button","Name":"返回上一页","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"48,65,60,61","Patterns":"Invoke"}
+{"Index":8,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"64,82,28,27","Patterns":""}
+{"Index":9,"Type":"Text","Name":"设置","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"132,75,54,41","Patterns":""}
+{"Index":10,"Type":"Button","Name":"重置工作区 Tab","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1672,68,177,55","Patterns":"Invoke"}
+{"Index":11,"Type":"Button","Name":"创建回滚点","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1861,68,140,55","Patterns":"Invoke"}
+{"Index":12,"Type":"Text","Name":"设置搜索","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,175,73,21","Patterns":""}
+{"Index":13,"Type":"Edit","Name":"设置搜索","AutomationId":"settings-search-input","Enabled":true,"Offscreen":false,"Rect":"341,211,278,54","Patterns":"Value"}
+{"Index":14,"Type":"List","Name":"设置搜索结果","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,280,278,265","Patterns":"Value"}
+{"Index":15,"Type":"Button","Name":"工作区注册表 工作区 / 共享级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,280,278,83","Patterns":"Invoke"}
+{"Index":16,"Type":"Button","Name":"Profile 数据库隔离 工作区 / 共享级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,371,278,83","Patterns":"Invoke"}
+{"Index":17,"Type":"Button","Name":"原生文件根边界 工作区 / 设备级","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"341,462,278,83","Patterns":"Invoke"}
+{"Index":18,"Type":"Button","Name":"外观","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,596,292,60","Patterns":"Invoke"}
+{"Index":19,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,612,28,28","Patterns":""}
+{"Index":20,"Type":"Button","Name":"编辑器","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,659,292,60","Patterns":"Invoke"}
+{"Index":21,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,675,28,28","Patterns":""}
+{"Index":22,"Type":"Button","Name":"导出","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,721,292,60","Patterns":"Invoke"}
+{"Index":23,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,737,28,28","Patterns":""}
+{"Index":24,"Type":"Button","Name":"AI 服务","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,783,292,60","Patterns":"Invoke"}
+{"Index":25,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,799,28,28","Patterns":""}
+{"Index":26,"Type":"Button","Name":"数据","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,845,292,60","Patterns":"Invoke"}
+{"Index":27,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,861,28,28","Patterns":""}
+{"Index":28,"Type":"Button","Name":"同步","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,908,292,60","Patterns":"Invoke"}
+{"Index":29,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,924,28,28","Patterns":""}
+{"Index":30,"Type":"Button","Name":"审计日志","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,970,292,60","Patterns":"Invoke"}
+{"Index":31,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,986,28,28","Patterns":""}
+{"Index":32,"Type":"Button","Name":"工作区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1032,292,60","Patterns":"Invoke"}
+{"Index":33,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1048,28,28","Patterns":""}
+{"Index":34,"Type":"Button","Name":"扩展插件","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1094,292,60","Patterns":"Invoke"}
+{"Index":35,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"362,1110,28,28","Patterns":""}
+{"Index":36,"Type":"Button","Name":"快捷键","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"334,1157,292,60","Patterns":"Invoke"}
+{"Index":37,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"362,1173,28,28","Patterns":""}
+{"Index":38,"Type":"Button","Name":"高级","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"334,1219,292,60","Patterns":"Invoke"}
+{"Index":39,"Type":"Button","Name":"关于","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"334,1281,292,60","Patterns":"Invoke"}
+{"Index":40,"Type":"Image","Name":"","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"362,1297,28,28","Patterns":""}
+{"Index":41,"Type":"Text","Name":"工作区 Profile","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,222,940,59","Patterns":""}
+{"Index":42,"Type":"Text","Name":"管理本地 Profile 注册表、独立 IndexedDB namespace、软删除恢复和真实原生边界","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,293,794,25","Patterns":""}
+{"Index":43,"Type":"Text","Name":"隔离总览","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,354,776,37","Patterns":""}
+{"Index":44,"Type":"Text","Name":"Profile registry 来自 IndexedDB `profiles` 表；每个工作区会初始化独立 `inkforge-{profileId}` 数据库。本基线不迁移现有文章，也不伪造 Tauri 文件根或多窗口成功。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,399,764,51","Patterns":""}
+{"Index":45,"Type":"Button","Name":"刷新工作区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1535,354,141,55","Patterns":"Invoke"}
+{"Index":46,"Type":"Text","Name":"活跃工作区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,503,91,22","Patterns":""}
+{"Index":47,"Type":"Text","Name":"1","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,539,11,30","Patterns":""}
+{"Index":48,"Type":"Text","Name":"active registry rows","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"761,584,168,22","Patterns":""}
+{"Index":49,"Type":"Text","Name":"恢复期","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,503,55,22","Patterns":""}
+{"Index":50,"Type":"Text","Name":"0","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,539,17,30","Patterns":""}
+{"Index":51,"Type":"Text","Name":"7 天软删除缓冲","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1000,584,124,22","Patterns":""}
+{"Index":52,"Type":"Text","Name":"当前 ID","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,503,59,22","Patterns":""}
+{"Index":53,"Type":"Text","Name":"local-default","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,537,151,30","Patterns":""}
+{"Index":54,"Type":"Text","Name":"active Profile pointer","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1240,580,111,49","Patterns":""}
+{"Index":55,"Type":"Text","Name":"数据库","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,503,55,22","Patterns":""}
+{"Index":56,"Type":"Text","Name":"inkforge-local-default","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,537,151,62","Patterns":""}
+{"Index":57,"Type":"Text","Name":"独立 IndexedDB namespace","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1479,612,134,49","Patterns":""}
+{"Index":58,"Type":"Text","Name":"创建工作区","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,747,940,37","Patterns":""}
+{"Index":59,"Type":"Text","Name":"创建会写入真实 Profile registry、初始化独立 Profile 数据库并记录审计日志。Tauri 可通过原生选择器绑定文件根；浏览器 runtime 不接受手动路径。","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,792,927,51","Patterns":""}
+{"Index":60,"Type":"Text","Name":"工作区名称","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,873,106,26","Patterns":""}
+{"Index":61,"Type":"Edit","Name":"工作区名称","AutomationId":"profile-name-input","Enabled":true,"Offscreen":false,"Rect":"736,914,458,55","Patterns":"Value"}
+{"Index":62,"Type":"Text","Name":"头像图标","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1218,873,84,26","Patterns":""}
+{"Index":63,"Type":"ComboBox","Name":"头像图标","AutomationId":"profile-avatar-select","Enabled":true,"Offscreen":false,"Rect":"1218,914,458,55","Patterns":"Value,ExpandCollapse"}
+{"Index":64,"Type":"Text","Name":"强调色","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,995,64,26","Patterns":""}
+{"Index":65,"Type":"Button","Name":"选择强调色 #2563EB","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1049,46,46","Patterns":"Invoke"}
+{"Index":66,"Type":"Button","Name":"选择强调色 #7C3AED","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"796,1050,46,46","Patterns":"Invoke"}
+{"Index":67,"Type":"Button","Name":"选择强调色 #059669","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"856,1050,46,46","Patterns":"Invoke"}
+{"Index":68,"Type":"Button","Name":"选择强调色 #EA580C","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"916,1050,46,46","Patterns":"Invoke"}
+{"Index":69,"Type":"Button","Name":"选择强调色 #DC2626","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"976,1050,46,46","Patterns":"Invoke"}
+{"Index":70,"Type":"Button","Name":"选择强调色 #0891B2","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1036,1050,46,46","Patterns":"Invoke"}
+{"Index":71,"Type":"Button","Name":"选择强调色 #B45309","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1096,1050,46,46","Patterns":"Invoke"}
+{"Index":72,"Type":"Button","Name":"选择强调色 #475569","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"1156,1050,46,46","Patterns":"Invoke"}
+{"Index":73,"Type":"Text","Name":"文件根目录（可选）","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1122,190,26","Patterns":""}
+{"Index":74,"Type":"Button","Name":"选择原生目录","AutomationId":"","Enabled":true,"Offscreen":false,"Rect":"736,1163,159,55","Patterns":"Invoke"}
+{"Index":75,"Type":"Text","Name":"尚未分配文件根；创建后状态为“未分配”。路径只接受 Tauri 原生目录选择器返回值。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"761,1254,738,25","Patterns":""}
+{"Index":76,"Type":"Button","Name":"创建真实工作区","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"736,1328,940,56","Patterns":"Invoke"}
+{"Index":77,"Type":"Text","Name":"工作区列表","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,1445,940,37","Patterns":""}
+{"Index":78,"Type":"Text","Name":"切换只更新当前 Profile 指针、lastActiveAt 和审计证据，不会自动关闭文档；彻底删除数据库和文件根不在本基线内执行。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,1490,927,51","Patterns":""}
+{"Index":79,"Type":"Button","Name":"本 本地账户 UserCircle / 未分配 2026/5/26 10:40:11","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1588,896,159","Patterns":"ExpandCollapse"}
+{"Index":80,"Type":"Text","Name":"本","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"774,1600,20,25","Patterns":""}
+{"Index":81,"Type":"Text","Name":"本地账户","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1648,85,25","Patterns":""}
+{"Index":82,"Type":"Text","Name":"UserCircle / 未分配","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1685,188,26","Patterns":""}
+{"Index":83,"Type":"Text","Name":"2026/5/26 10:40:11","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"758,1723,163,21","Patterns":""}
+{"Index":84,"Type":"Text","Name":"Profile ID","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"802,1788,80,21","Patterns":""}
+{"Index":85,"Type":"Text","Name":"local-default","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"802,1822,151,29","Patterns":""}
+{"Index":86,"Type":"Text","Name":"全局唯一标识","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"802,1865,109,22","Patterns":""}
+{"Index":87,"Type":"Text","Name":"DB Namespace","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1094,1788,134,21","Patterns":""}
+{"Index":88,"Type":"Text","Name":"inkforge-local-default","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1094,1822,177,62","Patterns":""}
+{"Index":89,"Type":"Text","Name":"独立数据库名称","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1094,1897,127,22","Patterns":""}
+{"Index":90,"Type":"Text","Name":"创建时间","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1385,1788,73,21","Patterns":""}
+{"Index":91,"Type":"Text","Name":"2026/5/26 10:40:11","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1385,1822,128,62","Patterns":""}
+{"Index":92,"Type":"Text","Name":"registry createdAt","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1385,1897,154,22","Patterns":""}
+{"Index":93,"Type":"Text","Name":"文件根：尚未分配文件根","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"802,1986,215,25","Patterns":""}
+{"Index":94,"Type":"Button","Name":"当前工作区","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"1327,1972,141,55","Patterns":"Invoke"}
+{"Index":95,"Type":"Button","Name":"进入恢复期","AutomationId":"","Enabled":false,"Offscreen":true,"Rect":"1482,1972,153,55","Patterns":"Invoke"}
+{"Index":96,"Type":"Text","Name":"本地账户与安全","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2209,582,37","Patterns":""}
+{"Index":97,"Type":"Text","Name":"账户资料来自本机 IndexedDB accounts 表，安全能力只展示真实状态。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2254,582,22","Patterns":""}
+{"Index":98,"Type":"Text","Name":"本地账户","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1593,2217,68,21","Patterns":""}
+{"Index":99,"Type":"Button","Name":"账户切换 本地账户 进入 /account 创建、切换、导出本地 Profile。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"736,2304,461,182","Patterns":"Invoke"}
+{"Index":100,"Type":"Text","Name":"系统凭据隔离","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2331,107,21","Patterns":""}
+{"Index":101,"Type":"Text","Name":"AI 与同步密钥不进入设置文件","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2366,299,28","Patterns":""}
+{"Index":102,"Type":"Text","Name":"敏感值由桌面系统凭据服务托管；设置、导出与调试快照只保留非敏感元数据。","AutomationId":"","Enabled":true,"Offscreen":true,"Rect":"1240,2409,396,49","Patterns":""}

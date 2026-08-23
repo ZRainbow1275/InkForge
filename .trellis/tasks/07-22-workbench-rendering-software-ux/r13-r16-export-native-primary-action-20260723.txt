@@ -1,0 +1,45 @@
+R-13 / R-16 Export native primary action closure — 2026-07-23
+
+Observed production defect
+- ExportModal exposed two copy/download pairs.
+- The pinned bottom action used previewHtml and called every platform result a styled HTML artifact.
+- A second Platform native artifact card used nativeResult.
+- Therefore the visually primary XHS/Zhihu action could copy HTML preview rather than the canonical text/Markdown artifact, while WeChat showed a redundant long action label that wrapped in existing native evidence.
+
+Root fix
+- Removed the previewHtml copy/download handlers and their duplicate success state/timer.
+- Removed the duplicate mini copy/download controls from the native artifact card.
+- Kept the existing nativeResult, nativeFormatLabel, handleCopyNative, handleDownloadNative, history, clipboard, MIME, and filename paths as the single authority.
+- The pinned action bar now copies/downloads HTML, plain text, or Markdown according to nativeResult.format and remains disabled until that real artifact exists.
+- No renderer, preset registry, store schema, dependency, route, account action, or external publish claim changed.
+
+GitNexus pre-edit impact
+- handleCopy: LOW, 1 direct dependent, 0 affected processes/modules.
+- handleDownload: LOW, 1 direct dependent, 0 affected processes/modules.
+- handleCopyNative: LOW, 1 direct dependent, 0 affected processes/modules.
+- handleDownloadNative: LOW, 1 direct dependent, 0 affected processes/modules.
+- buildExportFilename: LOW, 2 direct dependents, 0 affected processes, Export module only.
+
+Red / green
+- Red: ExportModal.local-delivery.test.ts failed 1/3 because async function handleCopy() and the duplicate preview-HTML action still existed.
+- Green: ExportModal.local-delivery.test.ts passed 3/3 after consolidation.
+
+Integrated verification
+- 6 files / 417 tests passed:
+  - ExportModal.local-delivery.test.ts
+  - ExportModal.svg-options.test.ts
+  - WorkstationView.desktop-layout.test.ts
+  - PublishView.wechat-presets.test.ts
+  - platform-export-rendering.test.ts
+  - settings.export-history.test.ts
+- Exact ESLint passed.
+- vue-tsc --noEmit --pretty false passed.
+- Production build passed: 4,675 modules transformed, built in 1m34s with a 4096 MB heap bound.
+- Generated tsconfig.tsbuildinfo was restored.
+- Vite accepted both ExportModal HMR updates without an error; the Tauri app remains the user's minimized hand-test instance.
+- GitNexus post-edit aggregate detection reports 339 changed symbols, 120 files, 31 affected processes, and critical risk across the pre-existing dirty worktree; this does not replace the LOW exact pre-edit impacts above.
+
+Remaining native gate
+- Restore the existing InkForge window, open Export for WeChat/XHS/Zhihu, and confirm exactly one pinned copy/download pair is visible.
+- Confirm labels remain one line and read Copy/Download HTML, Plain Text, or Markdown according to platform.
+- Copy/download real artifacts and compare exact bytes/history. No account upload or publication success is inferred.

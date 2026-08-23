@@ -1,0 +1,47 @@
+R-13 / R-14 Canonical Theme Compatibility — 2026-07-22
+
+Scope
+- Read-only reachability audit followed by a compatibility-layer repair.
+- No article write, clipboard mutation, account action, browser action, or external publish.
+
+Root cause
+- ThemesView wrote the canonical Settings pair and then separately called themeStore.applyPreset().
+- stores/theme.ts hard-coded ten legacy presets and generated an independent generic CSS template.
+- Retained CMSTools reconstructed a partial ExportPreset and called marked.parse() + convertToWechat(), which would omit canonical SVG decorators and dual-track CSS if remounted.
+
+Repair
+- ARTICLE_PRESETS now projects all 16 canonical themePresets.
+- Legacy preset migration occurs only when no canonical Settings pair is persisted; canonical Settings wins otherwise.
+- Writable legacy theme properties proxy settings.appearance.typography, settings.appearance.fontFamily/accentColor, and settings.export fields.
+- Compatibility generatedCSS delegates to generateThemeCSS() + typographyToWechatCss() and adapts only the host selector.
+- ThemesView writes only settings.export.defaultPlatform/defaultPresetId.
+- CMSTools reuses convertToNativeFormat() + copyWechatHtmlToClipboard() and reports clipboard denial as failure.
+- Existing modules/components remain present; no account upload/publication path was added or claimed.
+
+GitNexus pre-edit impact
+- ARTICLE_PRESETS: LOW, 0 affected processes.
+- stores/theme.ts applyPreset: LOW, 1 direct dependent, 0 affected processes.
+- generatedCSS: LOW, 0 affected processes.
+- ThemesView applyPreset: LOW, 1 direct dependent, 0 affected processes.
+- initFromStorage: LOW, 1 direct dependent, 0 affected processes.
+- CMSTools copyWeChat: LOW, 1 direct dependent, 0 affected processes.
+- Compatibility fields: LOW where resolved; ambiguous duplicate-const candidates had maximum LOW risk.
+
+Verification
+- pnpm -C inkforge exec vitest run src/stores/theme.test.ts src/views/__tests__/ThemesView.canonical-presets.test.ts --reporter=default
+  PASS: 2 files / 7 tests.
+- Integrated theme/Settings/Workstation/preview/Export/Publish regression
+  PASS: 9 files / 307 tests; XHS preview similarity 1.0000.
+- Exact changed-file ESLint
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=3072 pnpm -C inkforge build
+  PASS: 4,675 modules, built in 1m17s.
+- Generated inkforge/tsconfig.tsbuildinfo restored after build.
+- GitNexus detect_changes(scope=all): 336 changed symbols, 113 files, 31 affected processes, aggregate critical for the pre-existing dirty worktree. Every exact pre-edit symbol in this slice was LOW with zero affected processes.
+
+Boundary
+- Deterministic duplicate preset/state/renderer implementation gap is closed.
+- Native visual confirmation remains required for one selected preset, all 16 WeChat styles, WeChat/XHS/Zhihu return affinity, advanced-pane behavior, and matching Workstation/Export/Publish output.
+- XHS/Zhihu account upload/publication remains user-manual and is not inferred from local artifacts.

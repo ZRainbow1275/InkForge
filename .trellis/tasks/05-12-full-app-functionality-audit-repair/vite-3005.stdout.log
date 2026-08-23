@@ -3,19 +3,81 @@
 > vite "--host" "127.0.0.1" "--port" "3005"
 
 
-  VITE v6.4.1  ready in 787 ms
+  [32m[1mVITE[22m v6.4.1[39m  [2mready in [0m[1m586[22m[2m[0m ms[22m
 
-  ➜  Local:   http://127.0.0.1:3005/
-11:33:10 [vite] (client) hmr update /src/components/file/FileManager.vue, /src/styles/main.css
-11:52:56 [vite] (client) hmr update /src/components/version/VersionDiffModal.vue, /src/styles/main.css
-13:28:59 [vite] (client) hmr update /src/views/HubView.vue, /src/styles/main.css
-13:29:47 [vite] (client) hmr update /src/views/HubView.vue, /src/styles/main.css
-13:40:00 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css
-13:53:53 [vite] (client) hmr update /src/views/ThemesView.vue, /src/styles/main.css
-13:54:00 [vite] (client) hmr update /src/views/ThemesView.vue?vue&type=style&index=0&scoped=475da50d&lang.css
-14:01:49 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
-14:39:48 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
-14:43:12 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
-15:36:51 [vite] (client) page reload src/extensions/TyporaMode.ts
-15:36:51 [vite] (client) hmr update /src/components/editor/EditorPanel.vue, /src/styles/main.css
-15:36:51 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m3005[22m/[39m
+[2m02:24:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-AZwOSo/gallery.html[22m
+[2m02:24:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-AZwOSo/gallery.html[22m
+[2m02:57:29[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-P5Fy9G/gallery.html[22m
+[2m02:57:29[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-P5Fy9G/gallery.html[22m
+[2m03:03:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/SettingsView.vue, /src/styles/main.css[22m
+[2m03:16:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-QFwvKE/gallery.html[22m
+[2m03:16:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-QFwvKE/gallery.html[22m
+[2m05:41:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/hub/insights/TagCloud.vue, /src/styles/main.css, /src/components/hub/insights/TagCloud.vue?vue&type=style&index=0&scoped=6beb694e&lang.css[22m
+[2m05:41:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/hub/insights/TagCloud.vue, /src/styles/main.css, /src/components/hub/insights/TagCloud.vue?vue&type=style&index=0&scoped=6beb694e&lang.css[22m
+[2m05:41:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css, /src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m05:41:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m05:48:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css[22m
+[2m05:48:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css[22m
+[2m05:49:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m05:49:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m05:49:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m05:50:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css[22m
+[2m06:01:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css[22m
+[2m06:30:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-90dhas/gallery.html[22m
+[2m06:30:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-90dhas/gallery.html[22m
+[2m07:57:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/schemas/article.ts[22m
+[2m07:57:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/stores/category.ts[22m
+[2m07:58:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/category/AddCategoryModal.vue, /src/styles/main.css, /src/components/category/AddCategoryModal.vue?vue&type=style&index=0&scoped=e5ba5309&lang.css[22m
+[2m07:58:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css, /src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m07:59:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css[22m
+[2m07:59:18[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m07:59:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/file/FileManager.vue, /src/styles/main.css[22m
+[2m08:00:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/file/FileManager.vue, /src/styles/main.css[22m
+[2m08:01:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/HubView.vue, /src/styles/main.css, /src/views/HubView.vue?vue&type=style&index=0&scoped=0474e125&lang.css[22m
+[2m08:03:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/file/FileManager.vue, /src/styles/main.css[22m
+[2m08:13:18[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/stores/category.ts[22m
+[2m08:28:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/file/FileManager.vue, /src/styles/main.css[22m
+[2m08:34:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/file/FileManager.vue, /src/styles/main.css[22m
+[2m09:09:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagBadge.vue, /src/styles/main.css, /src/components/tag-system/TagBadge.vue?vue&type=style&index=0&scoped=a32ff3d4&lang.css[22m
+[2m09:09:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagInput.vue, /src/styles/main.css[22m
+[2m09:09:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagManagerModal.vue, /src/styles/main.css, /src/components/tag-system/TagManagerModal.vue?vue&type=style&index=0&scoped=195c2853&lang.css[22m
+[2m09:09:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagBrowser.vue, /src/styles/main.css[22m
+[2m09:09:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagBrowser.vue, /src/styles/main.css[22m
+[2m09:10:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagBrowser.vue, /src/styles/main.css[22m
+[2m09:24:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagManagerModal.vue?vue&type=style&index=0&scoped=195c2853&lang.css[22m
+[2m09:28:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagManagerModal.vue, /src/styles/main.css[22m
+[2m09:29:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/tag-system/TagManagerModal.vue, /src/styles/main.css[22m
+[2m09:55:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/hub/insights/DataInsightsSection.vue, /src/styles/main.css[22m
+[2m09:55:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/hub/insights/DataInsightsSection.vue, /src/styles/main.css[22m
+[2m10:04:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/settings/ShortcutInput.vue, /src/styles/main.css[22m
+[2m10:07:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/settings/ShortcutInput.vue, /src/styles/main.css[22m
+[2m10:15:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/file/FileManager.vue, /src/styles/main.css[22m
+[2m10:42:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-qW4MaN/gallery.html[22m
+[2m10:42:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.tmp-style-proof-gallery-qW4MaN/gallery.html[22m
+[2m11:47:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m12:10:25[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue, /src/styles/main.css[22m
+[2m13:13:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/main.css, /src/views/WorkstationView.vue[22m
+[2m13:13:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue, /src/styles/main.css, /src/components/workstation/WorkstationTabBar.vue?vue&type=style&index=0&scoped=80882a0e&lang.css[22m
+[2m13:13:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m13:41:19[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m13:41:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m13:42:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue, /src/styles/main.css[22m
+[2m13:42:29[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue?vue&type=style&index=0&scoped=80882a0e&lang.css[22m
+[2m13:42:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue, /src/styles/main.css[22m
+[2m13:45:14[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue, /src/styles/main.css[22m
+[2m14:12:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/chrome/ViewTransition.vue, /src/styles/main.css[22m
+[2m14:21:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m14:24:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m14:32:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m14:32:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m14:32:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m14:38:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/stores/editor.ts[22m
+[2m15:11:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/chrome/ViewTransition.vue, /src/styles/main.css[22m
+[2m15:46:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m15:46:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/editor/EditorPanel.vue, /src/styles/main.css[22m
+[2m15:47:19[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m15:47:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/workstation/WorkstationTabBar.vue, /src/styles/main.css[22m
+[2m15:47:43[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m15:55:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m
+[2m15:57:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/WorkstationView.vue, /src/styles/main.css[22m

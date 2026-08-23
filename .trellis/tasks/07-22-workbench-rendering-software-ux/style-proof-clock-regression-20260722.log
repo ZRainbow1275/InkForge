@@ -1,0 +1,31 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ scripts/style-proof-external-handoff.test.ts (16 tests) 8505ms
+     ✓ prints markdown handoff rows and blocks completion while external gates remain open  334ms
+     ✓ prints a human WeChat checklist for manual proof collection without creating proof  681ms
+     ✓ emits the raw handoff packet JSON without claiming external proof completion  336ms
+     ✓ rejects invalid output modes before reading or claiming proof success  1053ms
+     ✓ filters JSON handoff rows by platform, gate kind, and next-row priority without claiming completion  315ms
+     ✓ prints a filtered markdown handoff view for operator collection focus  315ms
+     ✓ filters freshness-only stale rows after the PC proof refresh without treating absence as completion  310ms
+     ✓ prints a redacted operator worksheet template for the next credentialed proof row without creating proof  324ms
+     ✓ feeds template manifest draft skeletons into manifest-intake without schema errors or proof claims  557ms
+     ✓ defers Zhihu public-host worksheet rows out of this release handoff scope  326ms
+     ✓ prints a deduplicated manifest draft pack for the next external rows without creating proof  313ms
+     ✓ can mark handoff generation as CLI-success while preserving cannot-claim payloads  1250ms
+     ✓ feeds manifest-drafts output directly into manifest-intake as an incomplete draft pack  538ms
+     ✓ rejects invalid filter values before reading or claiming proof success  1303ms
+ ✓ scripts/style-proof-release-preflight.test.ts (7 tests) 5586ms
+     ✓ emits compact JSON and blocks release claims while external gates remain open  747ms
+     ✓ emits an application-scope JSON gate for the narrowed local round target  1377ms
+     ✓ prints copy-safe next-row commands in text output without claiming release success  742ms
+     ✓ prints application-scope text without claiming phone or account proof  1390ms
+     ✓ prints help with a successful exit code  671ms
+     ✓ rejects unknown arguments before reading or claiming release success  655ms
+
+ Test Files  2 passed (2)
+      Tests  23 passed (23)
+   Start at  15:35:57
+   Duration  14.57s (transform 101ms, setup 0ms, import 133ms, tests 14.09s, environment 0ms)
+

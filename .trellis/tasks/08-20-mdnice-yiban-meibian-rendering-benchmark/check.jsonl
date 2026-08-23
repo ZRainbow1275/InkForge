@@ -1,5 +1,6 @@
 {"file":".trellis/spec/frontend/index.md","reason":"复核前端、真实 UI、构建和回归要求。"}
 {"file":".trellis/spec/frontend/type-safety.md","reason":"复核跨 isolated/MAIN world 消息、nonce、摘要和错误边界。"}
+{"file":".trellis/spec/frontend/visual-variant-system.md","reason":"复核没有第二 renderer、重复 preset 或 preview-only 分叉。"}
 {"file":".trellis/spec/frontend/wechat-svg-modules.md","reason":"复核 source ownership、兼容 lint、DOMPurify/publish-copy sanitizer 与手机证据边界。"}
 {"file":".trellis/spec/frontend/flagship-element-catalog.md","reason":"复核代表性 style choice、channel 状态分离、market residue 和 blocked/unavailable 合同。"}
 {"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"复核 canonical result、channel payload、宿主 canonical readback 三层没有被混为同一字节产物。"}

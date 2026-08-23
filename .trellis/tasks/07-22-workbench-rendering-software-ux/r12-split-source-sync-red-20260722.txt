@@ -1,0 +1,29 @@
+R-12 split-view source-mode synchronized-scroll audit — 2026-07-22
+
+Scope
+- Read-only audit of the real Workstation -> EditorPanel -> useSyncScroll path.
+- No article content, IndexedDB record, recovery payload, or external platform state was changed.
+
+Observed pre-fix contradiction
+- EditorPanel.getEditorScrollElement() always returned editorScrollRef.
+- Source mode hides that Typora .editor-scroll surface and renders CodeMirror with .cm-scroller as the active scroll owner.
+- useSyncScroll bound listeners only when enabled/active changed; switching Typora <-> Source while split view stayed active did not rebind the left listener.
+- Workstation still supplied the hidden TipTap editor for source-mode anchor reconstruction, so source-mode anchor offsets could not represent the visible CodeMirror surface.
+
+Result
+- Typora split scrolling had a valid left surface.
+- Source-mode split scrolling could bind to a hidden/stale surface and could build anchors from hidden TipTap DOM.
+- Therefore the existing open/close UIA evidence did not prove bidirectional synchronized scrolling across both editable modes.
+
+Required shared-root repair
+- Return the live CodeMirror .cm-scroller in source mode and retain .editor-scroll in Typora mode.
+- Rebind useSyncScroll listeners when the editor mode changes.
+- Use heading anchors only for visible Typora; source mode must use the existing proportional fallback.
+
+GitNexus pre-edit impact
+- EditorPanel.getEditorScrollElement: LOW, 0 indexed upstream dependents, 0 affected processes.
+- useSyncScroll: LOW, 1 direct dependent (WorkstationView.vue), 0 affected processes.
+- Workstation getSplitLeftScrollElement: LOW, 0 indexed upstream dependents, 0 affected processes.
+
+Boundary
+- This audit proves a deterministic source-path defect. It does not itself prove native pointer/keyboard divider movement, live bidirectional scroll, platform-style switching, restart persistence, or narrow-width fallback.

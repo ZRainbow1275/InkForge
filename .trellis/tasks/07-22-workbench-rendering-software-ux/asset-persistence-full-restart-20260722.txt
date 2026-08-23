@@ -1,0 +1,29 @@
+R-11 canonical asset and full-process persistence evidence - 2026-07-22
+
+Scope
+- Real Tauri application at http://127.0.0.1:3005/.
+- Existing disposable article IF0722-ARTICLE-A in category IF0722-CAT-B.
+- Real project-owned SVG source: inkforge/public/favicon.svg.
+- No storage injection, mock record, DOM fixture, or synthetic upload was used.
+
+Native upload path
+1. Opened the production Inspector asset uploader.
+2. Used the native Windows Open dialog and selected the real SVG by full local path.
+3. The production FileManager immediately showed `素材 (1)` and the real file name `favicon.svg` with its rendered SVG thumbnail.
+4. Pre-restart screenshot: asset-persistence-before-restart-20260722.png.
+
+Full-process restart path
+1. Stopped the complete `pnpm tauri dev` background process tree.
+2. Verified that the InkForge native process exited and port 3005 stopped responding.
+3. Started a fresh `pnpm tauri dev` process tree.
+4. Verified Vite returned HTTP 200 and the new native InkForge process was responsive.
+5. The fresh Hub showed `IF0722-ARTICLE-A` as the continue target and `IF0722-CAT-B` with one article.
+6. Re-entering the article restored its 20-paragraph body, the `IF0722-CAT-B (1)` relation, and `素材 (1)` / `favicon.svg` in the canonical FileManager surface.
+
+Post-restart screenshots
+- asset-persistence-after-full-restart-20260722.png
+- asset-persistence-after-full-restart-editor-20260722.png
+
+Boundary
+- This proves the local article/category/asset persistence and canonical FileManager presentation contract.
+- It does not claim WeChat credentialed synchronization, mobile preview, scheduled send, or publication success.

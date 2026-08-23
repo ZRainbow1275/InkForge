@@ -1,0 +1,49 @@
+Current-Round Application Acceptance - 2026-07-23
+
+Command
+pnpm style-proof:current-round
+
+Result
+- Exit 0.
+- status: application-acceptance-ready.
+- canClaimApplicationReady: true.
+- canClaimReleaseComplete: false.
+
+Current round target
+- scope: application-svg-style-wechat-local.
+- status: current-round-ready.
+- canClaimCurrentRoundTarget: true.
+- releaseProofNotClaimed: true.
+- strictReleaseBlockedByExternal: true.
+- xhsZhihuPublishAutomationDeferred: true.
+- remainingExternalProofOwnedByOperator: true.
+
+Passed checks
+- application-preflight: exit 0 / application-ready.
+- wechat-style-readiness: exit 0 / wechat-style-ready.
+- wechat-style-export-samples: exit 0 / wechat-style-samples-ready.
+- application-gallery: exit 0 / application-gallery-ready.
+- wechat-manual-checklist: exit 0 / manual-checklist-ready.
+- wechat-manual-template: exit 0 / manual-template-ready.
+- wechat-manual-manifest-drafts: exit 0 / manual-manifest-drafts-ready.
+- strict-release-boundary: expected exit 1 / blocked-by-external; check passes because the boundary is preserved.
+
+Application summary
+- 27 SVG modules.
+- 108 module/persona renders.
+- 108 application gallery renders.
+- 0 application issues and 0 gallery issues.
+- 5 application SVG slots / 0 failures.
+- 2 application surfaces / 0 failures.
+- 3 export pipeline contracts / 0 failures.
+- 27 option-injected modules / 0 failures.
+- 13 selectable and 13 rendered WeChat style samples.
+- 45 SVG modules across style samples.
+- 0 usable-but-unselectable choices.
+- 0 actionable local rows.
+- strict release boundary preserved.
+
+Boundary
+- This proves the declared local application SVG/style/WeChat round target is ready for user hand testing.
+- It does not prove WeChat phone preview, mobile Dark Mode/SMIL/click, cover acceptance, credentialed sync/publish, or XHS/Zhihu account publication.
+- The broader R-01..R-23 goal remains active until the native visible gates in handtest-remaining-20260722.md are exercised.

@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/08-23-engineering-branch-asset-audit/research/engineering-inventory.md","reason":"Authoritative live audit of Git topology, dirty assets, nested WIP, worktrees, branch ancestry, task drift, and preservation gates."}
+{"file":".trellis/tasks/08-23-engineering-branch-asset-audit/implement.md","reason":"User-approved exact execution order, history constraints, phase exits, and no-force-push boundary."}
+{"file":".trellis/tasks/08-23-engineering-branch-asset-audit/research/preservation-and-secret-scan.md","reason":"Verified S0 recovery evidence, revoked historical credential disposition, structured scan, and OCR gate."}
+{"file":"audit/engineering-state-2026-08-23/manifest.json","reason":"Repository-side source-to-archive manifest for nested WIP and external worktree assets."}

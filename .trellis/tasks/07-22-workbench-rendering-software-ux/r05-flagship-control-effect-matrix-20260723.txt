@@ -1,0 +1,78 @@
+R-05 flagship canonical typography effect matrix — 2026-07-23
+
+Scope
+- Final WeChat artifacts produced by convertToNativeFormat(..., 'wechat').
+- All 16 canonical WeChat presets.
+- Eight canonical controls: font size, line height, letter spacing, paragraph spacing,
+  first-line indent, font family, heading style, and blockquote style.
+- 16 presets × 8 controls = 128 preset/control pairs.
+
+Red evidence
+- A temporary final-output audit found 8 no-effect pairs.
+- All 8 were confined to four flagship presets:
+  - flagship-kiln: headingStyle, blockquoteStyle
+  - flagship-kiln-paste-safe: headingStyle, blockquoteStyle
+  - flagship-tempera: headingStyle, blockquoteStyle
+  - flagship-amber: headingStyle, blockquoteStyle
+- A persistent end-to-end regression reproduced the same failure: 1 failed / 3 passed.
+- Juice correctly inlined the canonical override onto the source h2/h3/blockquote.
+  The later flagship decorators replaced those semantic nodes and discarded their attributes.
+- Observed canonical suffixes before decoration included:
+  - heading border-left: border-left: 4px solid #D95B3F; padding-left: 0.5em;
+  - modern quote: border: 0; border-left: 0; background: #F7F8FA;
+    border-radius: 8px; box-shadow: inset 4px 0 0 #D95B3F; padding: 14px 18px;
+
+Impact
+- GitNexus pre-edit impact was LOW for decorateFlagshipH2, decorateFlagshipH3, and
+  decorateFlagshipBlockquote: one direct dependent, 13 transitive symbols, zero affected
+  indexed processes/modules.
+- Post-edit aggregate detection reports 345 changed symbols, 118 files, 31 affected processes,
+  and critical risk across the pre-existing dirty worktree. This aggregate result is a commit-
+  boundary warning and does not replace the isolated LOW results above.
+
+Minimal shared-root repair
+- html-blocks.ts recognizes only the sanitized canonical non-default heading/blockquote suffixes
+  that were already inlined onto the semantic source node.
+- The recognized suffix is appended to the generated outer flagship block before the source node
+  is replaced.
+- Default heading none and blockquote classic preserve the flagship preset's native identity.
+- Arbitrary source attributes are not copied. No public API, Store, selector, renderer, dependency,
+  or platform boundary was added.
+
+Green evidence
+- Persistent all-preset final-output matrix: 128/128 effective; noEffect = [].
+- Independent temporary audit after repair: 128/128 effective; noEffect = []; temporary script
+  removed with no repository residue.
+- Direct decorator plus matrix regression:
+  2 files / 73 tests passed.
+- Expanded rendering chain:
+  8 files / 152 tests passed.
+- Full serial export regression:
+  44 files / 1,386 tests passed.
+- Focused matrix rerun after type-fixture cleanup:
+  1 file / 4 tests passed.
+- Exact ESLint: passed with no output.
+- vue-tsc --noEmit --pretty false: passed.
+- Production build: 4,675 modules transformed; passed in 2m 4s with a 3,072 MB heap cap.
+- Generated tsconfig.tsbuildinfo was restored.
+- Application style preflight: application-ready; 27 SVG modules, 7 families, 108/108
+  module/persona renders, 5/5 application slots, 2/2 application surfaces, 3/3 export-pipeline
+  contracts, 13/13 selectable rendered style samples, 45 sample SVG modules, and zero local
+  gallery/safety/sentinel/choice issues.
+- Preflight artifact: r05-flagship-application-preflight-20260723.json.
+
+Runtime
+- Tauri development job j-5ocjls remains running.
+- InkForge.exe PID 21140 and Vite PID 39544 remain alive.
+- http://127.0.0.1:3005 returns HTTP 200.
+- Vite reloaded shared-typography.test.ts at 01:18:08 after the final test-only cleanup.
+
+Acceptance boundary
+- This proves that every canonical control changes every canonical WeChat final artifact and that
+  flagship decoration no longer swallows heading/quote overrides.
+- The application preflight truthfully remains canClaimReleaseComplete=false because phone/account
+  and other external proof is separate from local application readiness.
+- It does not replace visible native comparison. The user must still select a flagship preset,
+  change heading and quote styles, and compare Workstation preview, Export artifact, and WeChat
+  Publish artifact in the running app.
+- No Xiaohongshu/Zhihu account upload or publication is claimed.

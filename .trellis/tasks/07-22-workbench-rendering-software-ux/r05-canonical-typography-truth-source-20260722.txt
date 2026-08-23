@@ -1,0 +1,51 @@
+R-05 Canonical Typography Truth-Source Audit - 2026-07-22
+
+Scope
+- Local application state/render audit only.
+- No clipboard mutation, article edit, platform action, account upload, or publish action.
+
+Authoritative flow
+- Writable state: settings.appearance.typography
+- Workstation controls: useTypography()
+- Editor surface: EditorPanel CSS variables and heading/blockquote data attributes
+- Workstation/utility preview: usePreviewRenderer()
+- Export: ExportModal effective options
+- Publish: PublishView effective WeChat options
+- Settings preview copy: convertToPlatform() with canonical typography overrides
+
+Gap found
+- Settings > Export exposed a second visible first-line-indent switch bound to settings.export.textIndent.
+- Settings preview markdown and its WeChat export options also consumed that stale field.
+- Main Workstation, ExportModal, and Publish already consumed appearance.typography.paragraphIndent.
+
+Repair
+- Removed the duplicate Settings Export indent control.
+- Settings preview markdown and rendering now read appearance.typography.paragraphIndent.
+- Settings preview passes the complete canonical typography object plus the canonical font family to convertToPlatform().
+- Legacy export.textIndent remains schema-compatible and migrates into paragraphIndent only when the canonical field is absent.
+- An explicit canonical paragraphIndent value, including false, always wins over the legacy value.
+
+GitNexus pre-edit impact
+- buildSettingsCandidate: HIGH aggregate upstream reach; 2 direct callers, 0 affected processes.
+- buildExportSettingsMarkdown: LOW; 1 direct caller, 0 affected processes.
+- buildExportSettingsPreviewHtml: LOW; 1 direct caller, 0 affected processes.
+
+Verification
+- Focused Settings/store tests: 2 files / 16 tests passed.
+- Integrated Settings stores + Settings shell + shared typography + preview + ExportModal + Publish + Workstation: 10 files / 65 tests passed.
+- Exact changed-file ESLint: passed.
+- vue-tsc --noEmit --pretty false: passed.
+- Production build: passed, 4,675 modules, 1m20s.
+- HTTP http://127.0.0.1:3005/: 200.
+- InkForge.exe PID 21140: Responding=True.
+- Generated tsconfig.tsbuildinfo restored.
+- GitNexus post-edit aggregate: 321 changed symbols, 110 files, 31 affected processes, critical because the existing worktree contains many unrelated slices.
+
+Expected test diagnostics
+- Invalid list-enter setting emits the intended Zod fallback warning.
+- AI unavailable-state tests intentionally attempt 127.0.0.1:1 and still pass.
+
+Remaining visible gate
+- In the real Tauri UI, change font size, line height, letter spacing, paragraph spacing, first-line indent, heading style, and quote style one at a time.
+- Compare the live editor, Workstation WeChat preview, Settings preview copy, Export artifact, and WeChat Publish artifact.
+- Confirm no visible control is a no-op and no second conflicting indent switch remains.

@@ -1,0 +1,30 @@
+Native Window Passive Geometry Audit - 2026-07-23
+
+Scope
+- Read-only Win32 geometry audit prompted by an older screenshot showing the white InkForge surface near a large black region.
+- No restore, focus, click, key, route change, article mutation, clipboard operation, or account action.
+
+Evidence age
+- The referenced screenshot file was created on 2026-07-16, before the current 07-22 task implementation and runtime evidence.
+- It cannot prove the current window state or identify the black region's owner by itself.
+
+Current live state
+- `InkForge.exe` PID 21140 remained responsive.
+- The operator had the main window minimized: `showCmd=2`, `IsIconic=true`, `IsZoomed=false`.
+- Persisted normal placement was `148,10,1605,889`, size `1457x879`, at window DPI 144.
+- The current logical work area was `0,0,1707,912`; the persisted normal placement fits that work area.
+
+Minimized-window measurement trap
+- Win32 returned a minimized sentinel host rectangle of `-21333,-21333,-21175,-21307` (`158x26`).
+- DWM returned the off-screen minimized frame rectangle `-32000,-32000,-31763,-31961`.
+- The visible `Intermediate D3D Window` child still reported `1707x912` while the parent was minimized.
+- Therefore a minimized `PrintWindow`, child-window rectangle, or host/client comparison can produce black, stale, or displaced-looking evidence. It must not be treated as a product layout defect.
+
+Existing executable guard
+- `tests/e2e/wdio.conf.cjs` already requires a selected, focused, desktop-interactable main WebView before measuring bounds.
+- It rejects an absolute host/client width or height gap above 8 px.
+
+Disposition
+- No current deterministic production defect was proven, so no speculative window-resize hook or WebView workaround was added.
+- The valid next measurement is after the operator has the current app visibly restored: capture host rectangle and `window.innerWidth/innerHeight` in normal and maximized states, then repair only if either absolute gap exceeds 8 px or a black region is visibly inside the InkForge host.
+- This audit does not change any R-01..R-23 completion status.

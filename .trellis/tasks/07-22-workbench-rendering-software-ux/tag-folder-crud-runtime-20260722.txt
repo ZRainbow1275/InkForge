@@ -1,0 +1,30 @@
+InkForge R-02 / R-11 visible Tauri acceptance - 2026-07-22
+
+Scope and data boundary
+- Only disposable records prefixed IF0722-* were changed.
+- Existing non-test articles, categories, tags, browser profiles, account state, and recovery records were not modified.
+- All actions used visible production controls with Windows UI Automation and native keyboard input.
+- No Pinia, localStorage, IndexedDB, repository, or synthetic DOM/contextmenu mutation was used as proof.
+
+Article and category
+- Existing disposable article was moved into IF0722-CAT-A before this resumed slice.
+- FileManager context-menu rename changed the article to IF0722-ARTICLE-A.
+- Workstation header, active tab, FileManager row, and editor accessible name all agreed on IF0722-ARTICLE-A.
+- Native Ctrl+R retained the same four projections and did not restore the old title.
+- Category context-menu rename changed IF0722-CAT-A to IF0722-CAT-B with count 1.
+- Native Ctrl+R retained IF0722-CAT-B, its count 1, and the owned IF0722-ARTICLE-A row.
+
+Tag lifecycle
+- Created IF0722-TAG-A and assigned it to IF0722-ARTICLE-A in one production action.
+- Selected the tag and applied OR filtering; the UI reported one matching document.
+- Renamed it to IF0722-TAG-B and proved the renamed assignment after native Ctrl+R.
+- Removed the assignment; the UI showed no current tags and docCount 0.
+- Production orphan cleanup removed exactly one zero-reference tag.
+- Created and assigned IF0722-TAG-C plus IF0722-TAG-D, merged D into C, and verified D disappeared while C retained one deduplicated document relation.
+- Removed C and cleaned the resulting orphan.
+- Created and assigned IF0722-TAG-E plus IF0722-TAG-F, cleared prior filter selection, selected both tags, switched to AND mode, and applied filtering; the UI reported one matching document.
+- Merged F into E, removed E from the article, cleared selection, and cleaned the resulting orphan.
+- Final visible lookup found no IF0722-TAG-* rows.
+
+Remaining R-11 boundary
+- Full Tauri process-restart persistence and one real owned-asset row in the canonical FileManager asset surface remain separate acceptance gates.

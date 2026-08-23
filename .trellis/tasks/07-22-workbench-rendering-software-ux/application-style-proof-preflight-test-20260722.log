@@ -1,0 +1,16 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ scripts/style-proof-release-preflight.test.ts (7 tests) 8569ms
+     ✓ emits compact JSON and blocks release claims while external gates remain open  1153ms
+     ✓ emits an application-scope JSON gate for the narrowed local round target  2198ms
+     ✓ prints copy-safe next-row commands in text output without claiming release success  1174ms
+     ✓ prints application-scope text without claiming phone or account proof  2042ms
+     ✓ prints help with a successful exit code  1004ms
+     ✓ rejects unknown arguments before reading or claiming release success  995ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  20:40:33
+   Duration  8.89s (transform 59ms, setup 0ms, import 81ms, tests 8.57s, environment 0ms)
+
