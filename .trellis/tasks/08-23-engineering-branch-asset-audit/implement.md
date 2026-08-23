@@ -75,7 +75,7 @@
 
 状态：恢复演练、Git object 检查、Gitleaks、Vitest `2156/2156`、typecheck、readonly ESLint、Web build、Rust `fmt/check/test`、Tauri MSI/NSIS bundle、隔离原生进程 smoke 和无扩展 Playwright UI smoke 已完成。测试/构建产生的 exact tracked 副作用均恢复为提交字节。保守 non-thin pack preflight 通过；本地 `main` 已 fast-forward 至已验证产品 tip `732b4791df4bdfc6b5067fd6c38b127b2629e83c`。远端竞态门确认 `origin/main` 仍为锁定的 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后执行普通 push，随后以 docs-only 回执提交收敛到 `fd37133abe2f5743b2e549130f4b741815ecec7b`。本地、tracking ref 与 `git ls-remote` 回读一致。用户明确以本任务验证证据为验收依据并要求继续，产品验收门通过。
 
-## Phase 5 — Retire duplicate Git topology（执行中）
+## Phase 5 — Retire duplicate Git topology（已完成）
 
 1. 确认嵌套 WIP bundle 已同时存在于远端 `main` 和独立备份，并再次验证恢复。
 2. 解析并验证精确目标 `D:/Desktop/Inkforge/inkforge/.git` 后才移除它；外层 `D:/Desktop/Inkforge/.git` 绝不触碰。随后断言产品文件 hash 和外层 status 没有意外变化。
@@ -85,7 +85,7 @@
 
 退出条件：唯一长期分支为 `main`；只有外层 Git 根；无 linked worktree 遗留；全部保全材料仍可恢复。
 
-状态：删除前门已通过。两份 S0 的 46 个 artifact 已重新逐项校验；repository-side nested bundle 与远端 Git blob 一致，并已在隔离仓库重新 fetch、核对 `59feabcd...` / `ca59620...`、执行 `fsck`。三个 linked worktree 的全部 dirty/untracked 内容已逐项映射到 `main` 或 repository archive；PR #1–#4 已因 ancestry 集成显示为 `MERGED`。
+状态：删除前门与退出门均已通过。嵌套 `.git`、三个 linked worktree、八条本地开发分支和五条远端开发分支已按 exact path/ref 退役；PR #1–#4 已因 ancestry 集成显示为 `MERGED`。当前只有外层 Git 根、主 worktree 和本地/远端 `main`，所有旧 tip 仍由 `main` ancestry 可达。删除后 outer/nested bundle 再次隔离恢复通过，完整回执见 `research/topology-retirement.md`。
 
 ## Phase 6 — Task and filesystem convergence（后续独立小任务）
 

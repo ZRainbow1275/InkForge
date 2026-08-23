@@ -45,4 +45,4 @@ Vitest 每次会重写 10 个既有 fidelity HTML/stats 文件；每次都先断
 
 ## Remaining boundary
 
-自动、构建、恢复和非交互真实运行门已通过。本地 `main` 已 fast-forward 至验证产品 tip；远端 race check 确认 `origin/main` 仍为 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后完成普通 push，随后以 docs-only 回执提交收敛到 `fd37133abe2f5743b2e549130f4b741815ecec7b`，本地、tracking ref 与 `git ls-remote` 回读一致。用户随后明确表示人工验收以本任务已经完成的验证证据为准并要求继续，因此产品验收门通过。删除前又重新逐项核对两份 S0，并在隔离仓库恢复 repository-side nested bundle、核对两个 WIP exact ref、执行 `fsck`；Phase 5 可以开始。
+自动、构建、恢复和非交互真实运行门已通过。本地 `main` 已 fast-forward 至验证产品 tip；远端 race check 确认 `origin/main` 仍为 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后完成普通 push，随后以 docs-only 回执提交收敛到 `fd37133abe2f5743b2e549130f4b741815ecec7b`，本地、tracking ref 与 `git ls-remote` 回读一致。用户随后明确表示人工验收以本任务已经完成的验证证据为准并要求继续，因此产品验收门通过。删除前重新逐项核对两份 S0，并在隔离仓库恢复 repository-side nested bundle、核对两个 WIP exact ref、执行 `fsck`。Phase 5 已完成；当前只有外层 Git 根、主 worktree 和本地/远端 `main`，删除后 outer/nested bundle 再恢复与 Git connectivity check 均通过。完整回执见 `topology-retirement.md`。
