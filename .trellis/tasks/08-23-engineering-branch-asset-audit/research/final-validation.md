@@ -1,7 +1,7 @@
 # Final integration validation
 
 日期：2026-08-23
-验证 tip：`bcca0951caedb09dd9aa69b421174b6da31eaa50`
+验证产品 tip：`732b4791df4bdfc6b5067fd6c38b127b2629e83c`
 
 ## Git 与恢复
 
@@ -45,4 +45,4 @@ Vitest 每次会重写 10 个既有 fidelity HTML/stats 文件；每次都先断
 
 ## Remaining boundary
 
-自动、构建、恢复和非交互真实运行门已通过。尚未发生的动作：本地 `main` fast-forward、远端 race check、普通 push，以及 push 后的用户验收。嵌套 `.git`、旧分支、PR 和 linked worktree 在用户验收前继续保留，不提前破坏性清理。
+自动、构建、恢复和非交互真实运行门已通过。本地 `main` 已 fast-forward 至验证产品 tip；远端 race check 确认 `origin/main` 仍为 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后完成普通 push，push 后 `git ls-remote` 与 fetch 回读均确认远端为 `732b4791df4bdfc6b5067fd6c38b127b2629e83c`。当前仅剩用户验收门；嵌套 `.git`、旧分支、PR 和 linked worktree 在用户验收前继续保留，不提前破坏性清理。

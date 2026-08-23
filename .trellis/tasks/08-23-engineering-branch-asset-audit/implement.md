@@ -63,7 +63,7 @@
 
 状态：锁定并重新核对 `origin/main=7640cae929ac48240f4877cb081d9ef4790a24fe` 后，以双亲 merge commit `ed4c2ca217a466eec7fa1e51b20b815dc177a2b7` 纳入其 20 个独有路径；冲突的 `start.py` 与远端 blob `42726b952a0610a197bb16772cff07246da7a715` 完全一致。随后三个 `-s ours` ancestry merge 分别生成 `cbe6e161...`、`75b2f287...`、`06160e0b...`，每次 tree 均保持 `ef215a1c7686fd2aacb0a7168bb342aef1380968` 不变。最终 integration tip 为 `06160e0b8f23d7f24e0e2870fc89040d5567569a`；全部本地、remote-tracking、feature/codex 来源 tip 的 ancestry 断言通过，工作树 clean。
 
-## Phase 4 — Validate and fast-forward `main`（执行中）
+## Phase 4 — Validate and fast-forward `main`（自动门与远端发布已完成；等待用户验收）
 
 1. 运行相关目标测试、typecheck、lint/build、Tauri/真实运行验证和最终 diff 审查。
 2. 对 integration tip 的完整 history 再跑 secret scan；对 Git object database 跑 `git fsck`；再次恢复验证两套 bundle。
@@ -73,7 +73,7 @@
 
 退出条件：本地/远端 `main` 同 tip，包含完整历史和全量快照；无 force-push；用户确认主线可用。
 
-状态：恢复演练、Git object 检查、Gitleaks、Vitest `2156/2156`、typecheck、readonly ESLint、Web build、Rust `fmt/check/test`、Tauri MSI/NSIS bundle、隔离原生进程 smoke 和无扩展 Playwright UI smoke 已完成。测试/构建产生的 exact tracked 副作用均恢复为提交字节。待提交本轮验证回执后执行 pack preflight、本地 `main` fast-forward、远端 race check 与普通 push；旧拓扑继续保留到用户验收。
+状态：恢复演练、Git object 检查、Gitleaks、Vitest `2156/2156`、typecheck、readonly ESLint、Web build、Rust `fmt/check/test`、Tauri MSI/NSIS bundle、隔离原生进程 smoke 和无扩展 Playwright UI smoke 已完成。测试/构建产生的 exact tracked 副作用均恢复为提交字节。保守 non-thin pack preflight 通过；本地 `main` 已 fast-forward 至已验证产品 tip `732b4791df4bdfc6b5067fd6c38b127b2629e83c`。远端竞态门确认 `origin/main` 仍为锁定的 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后执行普通 push，随后 `git ls-remote` 与 fetch 回读均确认远端为 `732b4791df4bdfc6b5067fd6c38b127b2629e83c`。旧拓扑继续保留到用户验收。
 
 ## Phase 5 — Retire duplicate Git topology（已授权；通过最终门禁后执行）
 
