@@ -1,0 +1,59 @@
+===== CARGO FMT CHECK =====
+cargo_fmt_exit=0
+
+===== CARGO CHECK =====
+    Checking inkforge v0.1.0 (D:\Desktop\Inkforge\inkforge\src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.89s
+cargo_check_exit=0
+
+===== CARGO TEST =====
+   Compiling inkforge v0.1.0 (D:\Desktop\Inkforge\inkforge\src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.61s
+     Running unittests src\main.rs (target\debug\deps\inkforge-e5465ba05ca3e493.exe)
+
+running 41 tests
+test commands::wechat::tests::access_token_cache_ttl_applies_refresh_skew_without_underflow ... ok
+test commands::wechat::tests::access_token_cache_can_be_cleared_after_endpoint_token_error ... ok
+test commands::wechat::tests::access_token_cache_misses_when_app_id_differs ... ok
+test commands::wechat::tests::access_token_cache_reuses_same_app_id_until_skewed_expiry ... ok
+test commands::wechat::tests::env_file_candidates_prefer_nearest_and_nested_app_file ... ok
+test commands::wechat::tests::cleanup_decision_deletes_only_exact_and_reconciles_absence ... ok
+test commands::wechat::tests::draft_digest_accepts_120_characters_and_rejects_121 ... ok
+test commands::wechat::tests::build_wechat_url_percent_encodes_query_values ... ok
+test commands::wechat::tests::draft_payload_omits_null_optional_fields_and_defaults_cover_visibility ... ok
+test commands::wechat::tests::draft_payload_uses_wechat_api_snake_case_fields ... ok
+test commands::wechat::tests::cover_upload_response_exposes_only_an_opaque_process_handle ... ok
+test commands::wechat::tests::endpoint_token_error_codes_trigger_cache_refresh_retry ... ok
+test commands::wechat::tests::api_error_code_zero_is_success ... ok
+test commands::wechat::tests::draft_validation_rejects_invalid_cover_flag_and_long_content ... ok
+test commands::wechat::tests::extract_img_srcs_finds_multiple_sources ... ok
+test commands::wechat::tests::extract_img_srcs_handles_gt_inside_quoted_attributes ... ok
+test commands::wechat::tests::extract_img_srcs_handles_multibyte_attrs_and_unquoted_sources ... ok
+test commands::wechat::tests::extract_img_srcs_includes_srcset_candidates_for_validation ... ok
+test commands::wechat::tests::ordinary_draft_response_does_not_serialize_raw_media_id ... ok
+test commands::wechat::tests::parse_env_contents_skips_comments_and_export_prefix ... ok
+test commands::wechat::tests::receipt_exposes_only_redacted_contract_fields ... ok
+test commands::wechat::tests::recovery_hash_uses_only_normalized_readable_fields ... ok
+test commands::wechat::tests::sanitize_env_value_trims_quotes ... ok
+test commands::wechat::tests::remote_image_response_validation_rejects_unhandled_redirects ... ok
+test commands::wechat::tests::pagination_and_candidate_scan_fail_closed ... ok
+test commands::wechat::tests::remote_image_url_validation_rejects_local_network_targets ... ok
+test commands::window::tests::inspector_label_is_stable_and_tauri_safe ... ok
+test commands::window::tests::identity_and_query_boundaries_reject_or_encode_untrusted_values ... ok
+test commands::wechat::tests::wechat_image_host_check_is_strict ... ok
+test commands::window::tests::inspector_surface_is_whitelist_only ... ok
+test commands::window::tests::inspector_reuse_context_matches_the_frontend_handshake_shape ... ok
+test commands::desktop::tests::rejects_existing_targets_without_touching_destination ... ok
+test commands::desktop::tests::rejects_unsafe_or_conflicting_paths_before_touching_destination ... ok
+test commands::desktop::tests::copy_fallback_preserves_no_clobber_and_exact_bytes ... ok
+test commands::wechat::tests::env_file_values_merge_nearest_first_without_shadowing_missing_keys ... ok
+test commands::wechat::tests::remote_fetch_pins_and_resolves_every_redirect_hop ... ok
+test commands::desktop::tests::removes_partial_install_after_commit_failure ... ok
+test commands::desktop::tests::rejects_target_created_after_staging_without_overwriting_it ... ok
+test commands::wechat::tests::journal_transition_is_atomic_strict_and_clearable ... ok
+test commands::desktop::tests::writes_text_and_binary_files_with_exact_readback ... ok
+test commands::wechat::tests::upload_validation_rejects_unsupported_mime_and_oversized_images ... ok
+
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+cargo_test_exit=0

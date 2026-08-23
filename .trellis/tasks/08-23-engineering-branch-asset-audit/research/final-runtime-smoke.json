@@ -1,0 +1,18 @@
+{
+  "binary": "inkforge/src-tauri/target/release/inkforge.exe",
+  "sha256": "82e7702869fe0e0a0f973dff09f8069948d4b32088af9d18cb2a6b878b42bd04",
+  "pid": 44076,
+  "started": "2026-08-23T21:32:43.5547744+08:00",
+  "alive_after_seconds": 8,
+  "responding": true,
+  "main_window_observed": true,
+  "main_window_handle": 10487412,
+  "main_window_title": "InkForge",
+  "webview2_child_observed": true,
+  "isolated_appdata": true,
+  "isolated_webview2_user_data": true,
+  "process_tree_stopped": true,
+  "isolated_runtime_data_removed": true,
+  "computer_use_native_pipe_available": false,
+  "visual_interaction_verified": false
+}

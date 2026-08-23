@@ -1,0 +1,10 @@
+Total messages: 8 (Errors: 8, Warnings: 0)
+
+[ERROR] Loading the font 'http://at.alicdn.com/t/font_1334179_yeeyzhmgwya.woff?t=1564991718045' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'http://at.alicdn.com/t/font_1334179_yeeyzhmgwya.woff?t=1564991718045' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'http://at.alicdn.com/t/font_1334179_yeeyzhmgwya.ttf?t=1564991718045' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'http://at.alicdn.com/t/font_1334179_yeeyzhmgwya.ttf?t=1564991718045' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'https://cdn.yiban.io/fonts/AlimamaShuHeiTi/AlimamaShuHeiTi-Bold.woff2' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'https://cdn.yiban.io/fonts/AlimamaShuHeiTi/AlimamaShuHeiTi-Bold.woff2' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'https://cdn.yiban.io/fonts/AlimamaShuHeiTi/AlimamaShuHeiTi-Bold.woff' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0
+[ERROR] Loading the font 'https://cdn.yiban.io/fonts/AlimamaShuHeiTi/AlimamaShuHeiTi-Bold.woff' violates the following Content Security Policy directive: "font-src 'self' data: https://fonts.gstatic.com". The action has been blocked. @ http://127.0.0.1:4179/:0

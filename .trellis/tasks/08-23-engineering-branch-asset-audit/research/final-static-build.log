@@ -1,0 +1,1156 @@
+===== TYPECHECK =====
+
+> inkforge@0.1.0 typecheck D:\Desktop\Inkforge\inkforge
+> vue-tsc --noEmit
+
+typecheck_exit=0
+
+===== ESLINT READONLY =====
+
+D:\Desktop\Inkforge\inkforge\src\App.vue
+  350:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  351:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  352:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  353:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  354:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  355:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  356:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  357:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  358:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  359:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  360:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  361:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  362:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  363:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  364:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  365:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  366:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  367:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  368:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  369:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  370:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  371:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  372:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  373:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  374:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  375:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  376:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  377:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  378:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  379:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  380:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  381:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  382:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  383:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  384:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  385:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  386:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  387:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  388:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  389:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  390:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  391:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  392:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  393:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+  394:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  395:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  396:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  397:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  398:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  399:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  400:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  401:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  402:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  403:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  404:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  405:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  406:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  407:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  408:1  warning  Expected indentation of 10 spaces but found 8 spaces   vue/html-indent
+
+D:\Desktop\Inkforge\inkforge\src\components\asset\AssetManager.vue
+  739:44  warning  Expected 1 line break after opening tag (`<h4>`), but no line breaks found    vue/singleline-html-element-content-newline
+  739:48  warning  Expected 1 line break before closing tag (`</h4>`), but no line breaks found  vue/singleline-html-element-content-newline
+  904:46  warning  Expected 1 line break after opening tag (`<h3>`), but no line breaks found    vue/singleline-html-element-content-newline
+  904:50  warning  Expected 1 line break before closing tag (`</h3>`), but no line breaks found  vue/singleline-html-element-content-newline
+
+D:\Desktop\Inkforge\inkforge\src\components\chrome\ForgeNibMark.vue
+  277:29  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  277:50  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  278:30  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  278:51  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  279:31  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  279:52  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  354:29  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  355:30  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  356:31  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  364:29  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  364:50  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  365:30  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  365:51  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  366:31  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  366:52  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  374:29  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  374:50  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  375:30  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  375:51  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+  376:31  warning  'stop-color' should be on a new line    vue/max-attributes-per-line
+  376:52  warning  'stop-opacity' should be on a new line  vue/max-attributes-per-line
+
+D:\Desktop\Inkforge\inkforge\src\components\chrome\TitleBar.vue
+  193:24  warning  'y1' should be on a new line      vue/max-attributes-per-line
+  193:32  warning  'x2' should be on a new line      vue/max-attributes-per-line
+  193:40  warning  'y2' should be on a new line      vue/max-attributes-per-line
+  216:23  warning  'y' should be on a new line       vue/max-attributes-per-line
+  216:29  warning  'width' should be on a new line   vue/max-attributes-per-line
+  216:40  warning  'height' should be on a new line  vue/max-attributes-per-line
+  216:52  warning  'rx' should be on a new line      vue/max-attributes-per-line
+  232:23  warning  'y' should be on a new line       vue/max-attributes-per-line
+  232:29  warning  'width' should be on a new line   vue/max-attributes-per-line
+  232:40  warning  'height' should be on a new line  vue/max-attributes-per-line
+  232:52  warning  'rx' should be on a new line      vue/max-attributes-per-line
+  254:24  warning  'y1' should be on a new line      vue/max-attributes-per-line
+  254:31  warning  'x2' should be on a new line      vue/max-attributes-per-line
+  254:39  warning  'y2' should be on a new line      vue/max-attributes-per-line
+  255:24  warning  'y1' should be on a new line      vue/max-attributes-per-line
+  255:32  warning  'x2' should be on a new line      vue/max-attributes-per-line
+  255:40  warning  'y2' should be on a new line      vue/max-attributes-per-line
+
+D:\Desktop\Inkforge\inkforge\src\components\editor\EditorPanel.vue
+  1329:28  warning  'class' should be on a new line        vue/max-attributes-per-line
+  1329:65  warning  'aria-hidden' should be on a new line  vue/max-attributes-per-line
+  1392:28  warning  'class' should be on a new line        vue/max-attributes-per-line
+  1392:68  warning  'aria-hidden' should be on a new line  vue/max-attributes-per-line
+  1423:37  warning  '@click' should be on a new line       vue/max-attributes-per-line
+  1487:35  warning  '@click' should be on a new line       vue/max-attributes-per-line
+
+D:\Desktop\Inkforge\inkforge\src\components\editor\MarkdownEditor.vue
+  16:3  warning  Prop "modelValue" should be optional  vue/no-required-prop-with-default
+
+D:\Desktop\Inkforge\inkforge\src\components\editor\MarkdownPreview.vue
+  89:7  warning  'v-html' directive can lead to XSS attack  vue/no-v-html
+
+D:\Desktop\Inkforge\inkforge\src\components\editor\WritingComponentLibrary.vue
+  558:23  warning  'v-html' directive can lead to XSS attack  vue/no-v-html
+
+D:\Desktop\Inkforge\inkforge\src\components\export\ExportModal.local-delivery.test.ts
+  136:40  warning  There is more than one component in this file  vue/one-component-per-file
+  206:40  warning  There is more than one component in this file  vue/one-component-per-file
+  286:40  warning  There is more than one component in this file  vue/one-component-per-file
+
+D:\Desktop\Inkforge\inkforge\src\components\export\ExportModal.vue
+  1964:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  1965:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1966:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  1967:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  1968:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1969:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1970:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1971:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1972:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1973:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1974:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1975:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1976:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1977:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1978:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1979:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1980:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1981:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1982:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1983:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  1984:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  1985:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1986:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1987:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  1988:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1989:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1990:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1991:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1992:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  1993:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1994:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  1995:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  1996:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  1997:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  1998:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  1999:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2000:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2001:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2002:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2003:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2004:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2005:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2006:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2007:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2008:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2009:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2010:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2011:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2012:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2013:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2014:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2015:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2016:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2017:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2018:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2019:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2020:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2021:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2022:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2023:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2024:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2025:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2026:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2027:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2028:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2029:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2030:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2031:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2032:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2033:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2034:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2035:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2036:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2037:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2038:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2039:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2040:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2041:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2042:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2043:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2044:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2045:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2046:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2047:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2048:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2049:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2050:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2051:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2052:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2053:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2054:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2055:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2056:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2057:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2058:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2059:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2060:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2061:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2062:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2063:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2064:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2065:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2066:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2067:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2068:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2069:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2070:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2071:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2072:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2073:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2074:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2075:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2076:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2077:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2078:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2079:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2080:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2081:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2082:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2083:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2084:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2085:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2086:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2087:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2088:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2089:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2090:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2091:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2092:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2093:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2094:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2095:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2096:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2097:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2098:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2099:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2100:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2101:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2102:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2103:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2104:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2105:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2106:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2107:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2108:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2109:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2110:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2111:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2112:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2113:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2114:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2115:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2116:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2117:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2118:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2119:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2120:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2121:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2122:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2123:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2124:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2125:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2126:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2127:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2128:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2129:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2130:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2131:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2132:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2133:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2134:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2135:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2136:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2137:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2138:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2139:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2140:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2141:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2142:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2143:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2144:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2145:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2146:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2147:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2148:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2149:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2150:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2151:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2152:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2153:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2154:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2155:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2156:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2157:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2158:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2159:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2160:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2161:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2162:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2163:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2164:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2165:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2166:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2167:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2168:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2169:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2170:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2171:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2172:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2183:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2184:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2185:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2187:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2188:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2189:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2190:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2191:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2192:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2193:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2194:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2195:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2196:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2197:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2198:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2199:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2200:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2201:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2202:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2203:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2204:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2205:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2206:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2207:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2208:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2209:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2210:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2211:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2213:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2214:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2215:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2216:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2217:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2218:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2219:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2220:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2221:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2222:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2223:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2224:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2225:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2226:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2227:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2229:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2230:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2231:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2232:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2233:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2234:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2235:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2236:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2237:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2238:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2239:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2240:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2241:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2242:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2243:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2244:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2245:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2246:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2247:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2248:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2249:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2250:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2252:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2253:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2254:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2255:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2256:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2257:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2258:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2259:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2260:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2261:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2262:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2263:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2264:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2265:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2266:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2267:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2268:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2269:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2270:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2271:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2272:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2273:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2274:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2275:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2276:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2277:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2278:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2279:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2280:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2281:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2282:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2283:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2284:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2285:1   warning  Expected indentation of 30 spaces but found 28 spaces  vue/html-indent
+  2286:1   warning  Expected indentation of 30 spaces but found 28 spaces  vue/html-indent
+  2287:1   warning  Expected indentation of 30 spaces but found 28 spaces  vue/html-indent
+  2288:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2289:1   warning  Expected indentation of 30 spaces but found 28 spaces  vue/html-indent
+  2290:1   warning  Expected indentation of 28 spaces but found 26 spaces  vue/html-indent
+  2291:1   warning  Expected indentation of 26 spaces but found 24 spaces  vue/html-indent
+  2292:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2293:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2294:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2295:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2297:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2298:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2299:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2300:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2301:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2302:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2303:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2304:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2305:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2306:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2307:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2308:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2309:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2310:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2311:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2312:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2313:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2314:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2315:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2317:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2318:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2319:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2320:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2321:1   warning  Expected indentation of 24 spaces but found 22 spaces  vue/html-indent
+  2322:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2323:1   warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  2324:1   warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  2325:1   warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  2821:17  warning  'v-html' directive can lead to XSS attack              vue/no-v-html
+
+D:\Desktop\Inkforge\inkforge\src\components\file\FileManager.vue
+  1300:27  warning  'y1' should be on a new line  vue/max-attributes-per-line
+  1300:34  warning  'x2' should be on a new line  vue/max-attributes-per-line
+  1300:41  warning  'y2' should be on a new line  vue/max-attributes-per-line
+  1301:26  warning  'y1' should be on a new line  vue/max-attributes-per-line
+  1301:33  warning  'x2' should be on a new line  vue/max-attributes-per-line
+  1301:41  warning  'y2' should be on a new line  vue/max-attributes-per-line
+
+D:\Desktop\Inkforge\inkforge\src\components\tag-system\TagManagerModal.vue
+  109:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  110:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  111:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  112:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  113:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  114:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  115:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  116:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  117:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  118:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  119:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  120:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  121:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  122:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  123:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  124:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  125:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  126:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  127:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  128:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  129:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  130:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  131:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  132:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  133:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  134:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  135:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  136:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  137:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  138:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  139:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  140:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  141:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  142:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  143:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  144:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  145:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  146:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  147:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  148:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  149:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  150:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  151:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  152:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  153:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  154:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  155:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  156:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  157:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  158:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  159:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  160:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  161:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  162:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  163:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  164:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  165:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  166:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  167:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  168:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  169:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  170:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  171:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  172:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  173:1  warning  Expected indentation of 22 spaces but found 20 spaces  vue/html-indent
+  174:1  warning  Expected indentation of 20 spaces but found 18 spaces  vue/html-indent
+  175:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  176:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  177:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  178:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  179:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  180:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  181:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  182:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  183:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  184:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  188:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  189:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  190:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  191:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  192:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  193:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  194:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  195:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  196:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  197:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  198:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  199:1  warning  Expected indentation of 18 spaces but found 16 spaces  vue/html-indent
+  200:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  201:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  202:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  203:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  204:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  205:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  206:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  207:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  208:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  209:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  210:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  211:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  212:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  213:1  warning  Expected indentation of 16 spaces but found 14 spaces  vue/html-indent
+  214:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  215:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  216:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  217:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  218:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  219:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  220:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  221:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  222:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  223:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  224:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  225:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  226:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  227:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  228:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  229:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  230:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  231:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  232:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+  233:1  warning  Expected indentation of 14 spaces but found 12 spaces  vue/html-indent
+  234:1  warning  Expected indentation of 12 spaces but found 10 spaces  vue/html-indent
+
+D:\Desktop\Inkforge\inkforge\src\components\trash\TrashPanel.vue
+  193:37  warning  Expected 1 line break after opening tag (`<p>`), but no line breaks found    vue/singleline-html-element-content-newline
+  193:45  warning  Expected 1 line break before closing tag (`</p>`), but no line breaks found  vue/singleline-html-element-content-newline
+  322:45  warning  Expected 1 line break after opening tag (`<p>`), but no line breaks found    vue/singleline-html-element-content-newline
+  322:86  warning  Expected 1 line break before closing tag (`</p>`), but no line breaks found  vue/singleline-html-element-content-newline
+
+D:\Desktop\Inkforge\inkforge\src\components\workstation\InspectorWidgetContent.vue
+  90:11  warning  'v-html' directive can lead to XSS attack  vue/no-v-html
+
+D:\Desktop\Inkforge\inkforge\src\views\HubView.vue
+  1486:16  warning  Expected 1 line break after opening tag (`<button>`), but no line breaks found    vue/multiline-html-element-content-newline
+  1486:18  warning  Expected 1 line break before closing tag (`</button>`), but no line breaks found  vue/multiline-html-element-content-newline
+
+D:\Desktop\Inkforge\inkforge\src\views\PublishView.vue
+  1184:460  warning  Expected 1 line break after opening tag (`<template>`), but no line breaks found    vue/singleline-html-element-content-newline
+  1184:508  warning  Expected 1 line break before closing tag (`</template>`), but no line breaks found  vue/singleline-html-element-content-newline
+  1320:11   warning  Attribute "v-show" should go before "id"                                            vue/attributes-order
+  1358:17   warning  'v-html' directive can lead to XSS attack                                           vue/no-v-html
+  1407:11   warning  Attribute "v-show" should go before "id"                                            vue/attributes-order
+
+D:\Desktop\Inkforge\inkforge\src\views\SettingsView.vue
+  3402:17  warning  Expected 1 line break before closing tag (`</section>`), but 2 line breaks found  vue/multiline-html-element-content-newline
+  3510:19  warning  Attribute "v-model" should go before ":aria-describedby"                          vue/attributes-order
+  3538:19  warning  Attribute "v-model" should go before ":aria-describedby"                          vue/attributes-order
+  3566:19  warning  Attribute "v-model" should go before ":aria-describedby"                          vue/attributes-order
+  7478:17  warning  Expected 1 line break before closing tag (`</section>`), but 2 line breaks found  vue/multiline-html-element-content-newline
+
+D:\Desktop\Inkforge\inkforge\src\views\ThemesView.vue
+  312:13  warning  'v-html' directive can lead to XSS attack  vue/no-v-html
+
+D:\Desktop\Inkforge\inkforge\src\views\WorkstationView.vue
+  3711:19  warning  'v-html' directive can lead to XSS attack                                   vue/no-v-html
+  3759:17  warning  'v-html' directive can lead to XSS attack                                   vue/no-v-html
+  4234:64  warning  Expected 1 line break after opening tag (`<div>`), but 2 line breaks found  vue/multiline-html-element-content-newline
+  4236:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4237:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4238:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4239:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4240:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4241:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4242:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4243:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4244:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4245:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4246:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4247:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4248:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4249:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4250:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4251:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4252:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4253:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4255:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4256:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4257:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4258:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4259:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4260:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4261:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4262:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4263:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4264:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4265:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4266:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4267:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4268:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4269:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4270:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4271:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4272:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4273:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4274:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4275:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4277:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4278:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4279:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4280:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4281:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4282:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4283:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4284:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4285:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4286:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4287:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4288:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4289:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4291:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4292:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4293:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4294:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4295:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4296:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4297:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4298:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4299:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4300:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4301:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4302:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4303:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4304:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4305:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4306:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4308:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4309:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4310:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4311:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4312:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4313:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4314:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4315:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4316:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4317:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4318:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4319:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4320:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4321:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4322:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4323:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4325:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4326:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4327:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4328:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4329:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4330:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4331:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4332:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4333:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4334:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4335:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4336:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4337:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4338:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4339:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4340:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4341:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4343:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4344:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4345:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4346:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4347:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4348:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4349:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4350:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4351:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4352:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4353:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4354:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4355:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4356:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4357:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4358:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4359:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4361:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4362:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4363:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4364:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4365:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4366:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4367:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4368:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4369:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4370:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4371:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4372:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4373:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4374:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4375:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4376:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4378:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4379:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4380:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4381:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4382:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4383:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4384:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4385:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4386:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4387:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4388:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4389:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4390:1   warning  Expected indentation of 24 spaces but found 20 spaces                       vue/html-indent
+  4391:1   warning  Expected indentation of 22 spaces but found 18 spaces                       vue/html-indent
+  4392:1   warning  Expected indentation of 20 spaces but found 16 spaces                       vue/html-indent
+  4393:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4395:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+  4396:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4397:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4398:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4399:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4400:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4401:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4402:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4403:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4404:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4405:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4406:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4407:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4408:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4409:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4410:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4411:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4412:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4413:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4414:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4415:1   warning  Expected indentation of 26 spaces but found 20 spaces                       vue/html-indent
+  4416:1   warning  Expected indentation of 26 spaces but found 20 spaces                       vue/html-indent
+  4417:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4418:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4419:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4420:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4422:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4423:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4424:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4425:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4426:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4427:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4428:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4429:1   warning  Expected indentation of 24 spaces but found 18 spaces                       vue/html-indent
+  4430:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4431:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4432:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4433:1   warning  Expected indentation of 22 spaces but found 16 spaces                       vue/html-indent
+  4434:1   warning  Expected indentation of 20 spaces but found 14 spaces                       vue/html-indent
+  4435:1   warning  Expected indentation of 18 spaces but found 14 spaces                       vue/html-indent
+
+✖ 800 problems (0 errors, 800 warnings)
+  0 errors and 761 warnings potentially fixable with the `--fix` option.
+
+eslint_exit=0
+
+===== WEB BUILD =====
+
+> inkforge@0.1.0 build D:\Desktop\Inkforge\inkforge
+> vue-tsc -b && vite build
+
+vite v6.4.1 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 5580 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/KaTeX_Size3-Regular-CTq5MqoE.woff           4.42 kB
+dist/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2          4.93 kB
+dist/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2          5.21 kB
+dist/assets/KaTeX_Size1-Regular-mCD8mA8B.woff2          5.47 kB
+dist/assets/KaTeX_Size4-Regular-BF-4gkZK.woff           5.98 kB
+dist/assets/KaTeX_Size2-Regular-oD1tc_U0.woff           6.19 kB
+dist/assets/KaTeX_Size1-Regular-C195tn64.woff           6.50 kB
+dist/assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2    6.91 kB
+dist/assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2       6.91 kB
+dist/assets/KaTeX_Size3-Regular-DgpXs0kz.ttf            7.59 kB
+dist/assets/KaTeX_Caligraphic-Regular-CTRA-rTL.woff     7.66 kB
+dist/assets/KaTeX_Caligraphic-Bold-BEiXGLvX.woff        7.72 kB
+dist/index.html                                         8.09 kB │ gzip:   2.98 kB
+dist/assets/KaTeX_Script-Regular-D3wIWfF6.woff2         9.64 kB
+dist/assets/KaTeX_SansSerif-Regular-DDBCnlJ7.woff2     10.34 kB
+dist/assets/KaTeX_Size4-Regular-DWFBv043.ttf           10.36 kB
+dist/assets/KaTeX_Script-Regular-D5yQViql.woff         10.59 kB
+dist/assets/KaTeX_Fraktur-Regular-CTYiF6lA.woff2       11.32 kB
+dist/assets/KaTeX_Fraktur-Bold-CL6g_b3V.woff2          11.35 kB
+dist/assets/KaTeX_Size2-Regular-B7gKUWhC.ttf           11.51 kB
+dist/assets/KaTeX_SansSerif-Italic-C3H0VqGB.woff2      12.03 kB
+dist/assets/KaTeX_SansSerif-Bold-D1sUS0GD.woff2        12.22 kB
+dist/assets/KaTeX_Size1-Regular-Dbsnue_I.ttf           12.23 kB
+dist/assets/KaTeX_SansSerif-Regular-CS6fqUqJ.woff      12.32 kB
+dist/assets/KaTeX_Caligraphic-Regular-wX97UBjC.ttf     12.34 kB
+dist/assets/KaTeX_Caligraphic-Bold-ATXxdsX0.ttf        12.37 kB
+dist/assets/KaTeX_Fraktur-Regular-Dxdc4cR9.woff        13.21 kB
+dist/assets/KaTeX_Fraktur-Bold-BsDP51OF.woff           13.30 kB
+dist/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2    13.57 kB
+dist/assets/KaTeX_SansSerif-Italic-DN2j7dab.woff       14.11 kB
+dist/assets/KaTeX_SansSerif-Bold-DbIhKOiC.woff         14.41 kB
+dist/assets/KaTeX_Typewriter-Regular-C0xS9mPB.woff     16.03 kB
+dist/assets/KaTeX_Math-BoldItalic-CZnvNsCZ.woff2       16.40 kB
+dist/assets/KaTeX_Math-Italic-t53AETM-.woff2           16.44 kB
+dist/assets/KaTeX_Script-Regular-C5JkGWo-.ttf          16.65 kB
+dist/assets/KaTeX_Main-BoldItalic-DxDJ3AOS.woff2       16.78 kB
+dist/assets/KaTeX_Main-Italic-NWA7e6Wa.woff2           16.99 kB
+dist/assets/KaTeX_Math-BoldItalic-iY-2wyZ7.woff        18.67 kB
+dist/assets/KaTeX_Math-Italic-DA0__PXp.woff            18.75 kB
+dist/assets/KaTeX_Main-BoldItalic-SpSLRI95.woff        19.41 kB
+dist/assets/KaTeX_SansSerif-Regular-BNo7hRIc.ttf       19.44 kB
+dist/assets/KaTeX_Fraktur-Regular-CB_wures.ttf         19.57 kB
+dist/assets/KaTeX_Fraktur-Bold-BdnERNNW.ttf            19.58 kB
+dist/assets/KaTeX_Main-Italic-BMLOBm91.woff            19.68 kB
+dist/assets/KaTeX_SansSerif-Italic-YYjJ1zSn.ttf        22.36 kB
+dist/assets/KaTeX_SansSerif-Bold-CFMepnvq.ttf          24.50 kB
+dist/assets/KaTeX_Main-Bold-Cx986IdX.woff2             25.32 kB
+dist/assets/KaTeX_Main-Regular-B22Nviop.woff2          26.27 kB
+dist/assets/KaTeX_Typewriter-Regular-D3Ib7_Hf.ttf      27.56 kB
+dist/assets/KaTeX_AMS-Regular-BQhdFMY1.woff2           28.08 kB
+dist/assets/KaTeX_Main-Bold-Jm3AIy58.woff              29.91 kB
+dist/assets/KaTeX_Main-Regular-Dr94JaBh.woff           30.77 kB
+dist/assets/KaTeX_Math-BoldItalic-B3XSjfu4.ttf         31.20 kB
+dist/assets/KaTeX_Math-Italic-flOr_0UB.ttf             31.31 kB
+dist/assets/KaTeX_Main-BoldItalic-DzxPMmG6.ttf         32.97 kB
+dist/assets/KaTeX_AMS-Regular-DMm9YOAa.woff            33.52 kB
+dist/assets/KaTeX_Main-Italic-3WenGoN9.ttf             33.58 kB
+dist/assets/KaTeX_Main-Bold-waoOVXN0.ttf               51.34 kB
+dist/assets/KaTeX_Main-Regular-ypZvNtVU.ttf            53.58 kB
+dist/assets/KaTeX_AMS-Regular-DRggAlZN.ttf             63.63 kB
+dist/assets/NotFoundView-CSYuLDHF.css                   0.86 kB │ gzip:   0.41 kB
+dist/assets/DevPanel-Bpk8NAZs.css                       4.79 kB │ gzip:   1.32 kB
+dist/assets/DeliveryAdornmentPanel-BEgQsz2i.css         6.97 kB │ gzip:   1.66 kB
+dist/assets/ThemesView-Dguk4V3p.css                     9.31 kB │ gzip:   2.02 kB
+dist/assets/AccountWelcome-DmBCJHFa.css                10.24 kB │ gzip:   2.31 kB
+dist/assets/PublishView-DLs5baMl.css                   16.47 kB │ gzip:   3.40 kB
+dist/assets/DraftsView-CqNehNEf.css                    27.57 kB │ gzip:   4.56 kB
+dist/assets/math-katex-wklAmtGL.css                    29.24 kB │ gzip:   8.04 kB
+dist/assets/SettingsView-DBjhIbu9.css                  68.20 kB │ gzip:  10.04 kB
+dist/assets/index-CvgJIKpA.css                         76.54 kB │ gzip:  15.13 kB
+dist/assets/HubView-C2GlqmHU.css                      121.46 kB │ gzip:  18.09 kB
+dist/assets/WorkstationView-Y0p7GiF0.css              267.62 kB │ gzip:  38.45 kB
+dist/assets/clone-B4QhFTEx.js                           0.08 kB │ gzip:   0.10 kB
+dist/assets/tauri-vepBW1O3.js                           0.10 kB │ gzip:   0.11 kB
+dist/assets/channel-qGVREilb.js                         0.11 kB │ gzip:   0.13 kB
+dist/assets/init-C0SZ43gy.js                            0.14 kB │ gzip:   0.13 kB
+dist/assets/chunk-QZHKN3VN-BDjqHalG.js                  0.20 kB │ gzip:   0.16 kB
+dist/assets/chunk-55IACEB6-CdhutDLO.js                  0.23 kB │ gzip:   0.21 kB
+dist/assets/clipboard-C1h7A_9p.js                       0.29 kB │ gzip:   0.19 kB
+dist/assets/chunk-4BX2VUAB-CoKpgTQi.js                  0.30 kB │ gzip:   0.20 kB
+dist/assets/diff-UJJ5BM9S.js                            0.31 kB │ gzip:   0.24 kB
+dist/assets/chunk-FMBD7UC4-DdZL9iH3.js                  0.38 kB │ gzip:   0.27 kB
+dist/assets/chunk-EDXVE4YY-D4F--BCj.js                  0.53 kB │ gzip:   0.37 kB
+dist/assets/app-UdKIhPoX.js                             0.53 kB │ gzip:   0.22 kB
+dist/assets/brainfuck-CtZaYBKt.js                       0.56 kB │ gzip:   0.32 kB
+dist/assets/min-FaMEx5CT.js                             0.58 kB │ gzip:   0.36 kB
+dist/assets/tauri-B58KQ7h4.js                           0.59 kB │ gzip:   0.36 kB
+dist/assets/stateDiagram-v2-QKLJ7IA2-BHLPJ4wH.js        0.62 kB │ gzip:   0.38 kB
+dist/assets/os-CogG4xzK.js                              0.66 kB │ gzip:   0.28 kB
+dist/assets/properties-_nPj978X.js                      0.67 kB │ gzip:   0.35 kB
+dist/assets/classDiagram-6PBFFD2Q-CX763Nkm.js           0.69 kB │ gzip:   0.41 kB
+dist/assets/classDiagram-v2-HSJHXN6E-CX763Nkm.js        0.69 kB │ gzip:   0.41 kB
+dist/assets/NotFoundView-CqtAP37v.js                    0.74 kB │ gzip:   0.51 kB
+dist/assets/asciiarmor-D5V0T9Cu.js                      0.77 kB │ gzip:   0.42 kB
+dist/assets/cmake-DXn5xaP-.js                           0.77 kB │ gzip:   0.47 kB
+dist/assets/solr-78MBEUkU.js                            0.82 kB │ gzip:   0.46 kB
+dist/assets/infoDiagram-42DDH7IO-cRdPmbh-.js            0.83 kB │ gzip:   0.51 kB
+dist/assets/http-BKJkqRj4.js                            0.85 kB │ gzip:   0.43 kB
+dist/assets/protobuf-B4y9do6W.js                        0.90 kB │ gzip:   0.51 kB
+dist/assets/updater-NgNzPjif.js                         0.90 kB │ gzip:   0.46 kB
+dist/assets/troff-Ce85hlLp.js                           0.97 kB │ gzip:   0.44 kB
+dist/assets/toml-BVJm5Fzd.js                            1.05 kB │ gzip:   0.54 kB
+dist/assets/wechat-mock-DLRdUaxo.js                     1.12 kB │ gzip:   0.63 kB
+dist/assets/spreadsheet-CGlWr0eM.js                     1.14 kB │ gzip:   0.54 kB
+dist/assets/ordinal-CVjKTKEW.js                         1.18 kB │ gzip:   0.57 kB
+dist/assets/mbox-DoeuZPxA.js                            1.37 kB │ gzip:   0.65 kB
+dist/assets/ntriples-BSwWqoLa.js                        1.43 kB │ gzip:   0.60 kB
+dist/assets/raster-DURIk_bZ.js                          1.52 kB │ gzip:   0.85 kB
+dist/assets/event-BM53HT1u.js                           1.62 kB │ gzip:   0.77 kB
+dist/assets/sieve-r025o_jW.js                           1.63 kB │ gzip:   0.77 kB
+dist/assets/rpm-DI_rRufH.js                             1.65 kB │ gzip:   0.83 kB
+dist/assets/factor-Bk9_H-XT.js                          1.67 kB │ gzip:   0.62 kB
+dist/assets/dialog-DQsizkvU.js                          1.68 kB │ gzip:   0.46 kB
+dist/assets/z80-D8p3gKXp.js                             1.74 kB │ gzip:   0.81 kB
+dist/assets/eiffel-DR5c0IrL.js                          1.79 kB │ gzip:   0.92 kB
+dist/assets/ebnf-B-Df8AvO.js                            1.80 kB │ gzip:   0.76 kB
+dist/assets/elm-DompmV0j.js                             1.87 kB │ gzip:   0.83 kB
+dist/assets/types-DXU5ovF-.js                           1.87 kB │ gzip:   0.96 kB
+dist/assets/chunk-YZCP3GAM-uxMj9iuR.js                  1.88 kB │ gzip:   0.83 kB
+dist/assets/mathematica-IIbmv7SK.js                     1.90 kB │ gzip:   0.81 kB
+dist/assets/dockerfile-DVQ9Q8O9.js                      1.93 kB │ gzip:   0.66 kB
+dist/assets/turtle-BkSuIpt-.js                          1.94 kB │ gzip:   0.90 kB
+dist/assets/smalltalk-C7J3IyEP.js                       2.00 kB │ gzip:   0.86 kB
+dist/assets/dtd-DI9Herc-.js                             2.00 kB │ gzip:   0.89 kB
+dist/assets/mumps-zvxmGV4l.js                           2.04 kB │ gzip:   0.96 kB
+dist/assets/fcl-CVaBTCzQ.js                             2.04 kB │ gzip:   0.96 kB
+dist/assets/yacas-I8QjZlxf.js                           2.14 kB │ gzip:   1.10 kB
+dist/assets/pascal-CafrKXZF.js                          2.25 kB │ gzip:   1.17 kB
+dist/assets/simple-mode-CjHKX61j.js                     2.26 kB │ gzip:   1.08 kB
+dist/assets/apl-CXdQSnD-.js                             2.27 kB │ gzip:   1.23 kB
+dist/assets/commonlisp-vq6DHwts.js                      2.31 kB │ gzip:   1.11 kB
+dist/assets/octave-C4hdQ5Hf.js                          2.32 kB │ gzip:   1.09 kB
+dist/assets/tcl-B2fODqDH.js                             2.34 kB │ gzip:   1.21 kB
+dist/assets/shell-DvLxwmZY.js                           2.35 kB │ gzip:   0.86 kB
+dist/assets/index-ireU3seL.js                           2.49 kB │ gzip:   1.54 kB
+dist/assets/pig-CwGJVRC4.js                             2.50 kB │ gzip:   1.35 kB
+dist/assets/webidl-CGwyPRYs.js                          2.51 kB │ gzip:   1.24 kB
+dist/assets/puppet-Bc-yJKzi.js                          2.53 kB │ gzip:   1.21 kB
+dist/assets/forth-POgR1ypr.js                           2.54 kB │ gzip:   1.33 kB
+dist/assets/shell-BLav31RL.js                           2.54 kB │ gzip:   1.20 kB
+dist/assets/editor-bridge-Jyu6-3MZ.js                   2.63 kB │ gzip:   1.13 kB
+dist/assets/velocity-BdD_26Jv.js                        2.66 kB │ gzip:   1.11 kB
+dist/assets/index-8siLzGa4.js                           2.69 kB │ gzip:   1.54 kB
+dist/assets/optional-renderers-CA1dNjCg.js              2.70 kB │ gzip:   1.25 kB
+dist/assets/fs-DLjU0HaQ.js                              2.71 kB │ gzip:   0.87 kB
+dist/assets/modelica-DSrSSXCg.js                        2.78 kB │ gzip:   1.30 kB
+dist/assets/tiddlywiki-BgR6AEZu.js                      2.80 kB │ gzip:   1.08 kB
+dist/assets/repository-DKeL_wXF.js                      2.85 kB │ gzip:   1.03 kB
+dist/assets/oz-qQq7irPq.js                              2.85 kB │ gzip:   1.28 kB
+dist/assets/r-BA4EbLKE.js                               2.88 kB │ gzip:   1.34 kB
+dist/assets/diagram-5BDNPKRD-CRKJcxw7.js                3.02 kB │ gzip:   1.44 kB
+dist/assets/stex-9_wePcov.js                            3.10 kB │ gzip:   1.15 kB
+dist/assets/tiki-CI-ztowC.js                            3.17 kB │ gzip:   1.25 kB
+dist/assets/index-5e8L57lv.js                           3.20 kB │ gzip:   1.56 kB
+dist/assets/vhdl-CWWH2SUo.js                            3.30 kB │ gzip:   1.54 kB
+dist/assets/lua-8DXOpKDz.js                             3.34 kB │ gzip:   1.43 kB
+dist/assets/index-g7HqOA6-.js                           3.35 kB │ gzip:   1.71 kB
+dist/assets/arc-CDGIroDB.js                             3.40 kB │ gzip:   1.45 kB
+dist/assets/sparql-BRLJFz69.js                          3.52 kB │ gzip:   1.63 kB
+dist/assets/mscgen-B2igx18G.js                          3.55 kB │ gzip:   0.99 kB
+dist/assets/cypher-gJDei3ni.js                          3.56 kB │ gzip:   1.51 kB
+dist/assets/d-BShv7fp-.js                               3.70 kB │ gzip:   1.68 kB
+dist/assets/xiaohongshu-mock-7OI-33bC.js                3.76 kB │ gzip:   1.73 kB
+dist/assets/coffeescript-BTDxI-eT.js                    3.85 kB │ gzip:   1.69 kB
+dist/assets/vb-BHgjm0DN.js                              3.87 kB │ gzip:   1.78 kB
+dist/assets/asn1-DWPaVWf6.js                            3.94 kB │ gzip:   1.95 kB
+dist/assets/swift-B_XXVlXX.js                           3.99 kB │ gzip:   1.77 kB
+dist/assets/q-mUfi2b_o.js                               4.00 kB │ gzip:   1.69 kB
+dist/assets/ttcn-cfg-CKJxb-l2.js                        4.03 kB │ gzip:   1.71 kB
+dist/assets/dylan-DkEP81N9.js                           4.03 kB │ gzip:   1.64 kB
+dist/assets/livescript-HO6ttBFx.js                      4.06 kB │ gzip:   1.63 kB
+dist/assets/groovy-DnIzCrpZ.js                          4.12 kB │ gzip:   1.76 kB
+dist/assets/haskell-CLQs6EAM.js                         4.16 kB │ gzip:   1.90 kB
+dist/assets/asterisk-B46aRdXb.js                        4.39 kB │ gzip:   1.78 kB
+dist/assets/cose-bilkent-S5V4N54A-BuANqJPS.js           4.40 kB │ gzip:   1.92 kB
+dist/assets/gas-bV0CklSb.js                             4.54 kB │ gzip:   1.28 kB
+dist/assets/diagram-TYMM5635-fkAMqBVm.js                4.58 kB │ gzip:   1.97 kB
+dist/assets/defaultLocale-BsH76t_G.js                   4.60 kB │ gzip:   2.13 kB
+dist/assets/fortran-DL7KluxX.js                         4.61 kB │ gzip:   1.99 kB
+dist/assets/zhihu-mock-B4g_nV6L.js                      4.70 kB │ gzip:   2.08 kB
+dist/assets/ttcn-BxnYHtq8.js                            4.78 kB │ gzip:   2.12 kB
+dist/assets/mllike-3c2dg9RT.js                          4.79 kB │ gzip:   1.55 kB
+dist/assets/index-BjF-dUMZ.js                           4.99 kB │ gzip:   2.37 kB
+dist/assets/shortcuts-DT-uUuK_.js                       5.06 kB │ gzip:   2.07 kB
+dist/assets/ecl-DPFc0Uaf.js                             5.10 kB │ gzip:   2.30 kB
+dist/assets/crystal-CRzZ78HM.js                         5.10 kB │ gzip:   2.05 kB
+dist/assets/ruby-CR-u2WLS.js                            5.13 kB │ gzip:   2.14 kB
+dist/assets/julia-DjdwvFuI.js                           5.34 kB │ gzip:   2.12 kB
+dist/assets/pieDiagram-DEJITSTG-Bk1y6TrH.js             5.46 kB │ gzip:   2.40 kB
+dist/assets/linear-XRAY_e2V.js                          5.56 kB │ gzip:   2.26 kB
+dist/assets/transform-messages-CQIZUSBF.js              5.74 kB │ gzip:   2.26 kB
+dist/assets/vbscript-Dawdd5GZ.js                        5.77 kB │ gzip:   2.51 kB
+dist/assets/mirc-DkvFAiy5.js                            5.92 kB │ gzip:   2.69 kB
+dist/assets/ThemesView-CvvQhqgv.js                      6.09 kB │ gzip:   2.57 kB
+dist/assets/cobol-stawOqaz.js                           6.15 kB │ gzip:   2.93 kB
+dist/assets/diagram-MMDJMWI5-ke_YF7ce.js                6.30 kB │ gzip:   2.55 kB
+dist/assets/scheme-qjP0V5Ag.js                          6.35 kB │ gzip:   2.39 kB
+dist/assets/python-DD-Q2bae.js                          6.41 kB │ gzip:   2.70 kB
+dist/assets/pug-BTvK5tSS.js                             6.54 kB │ gzip:   1.83 kB
+dist/assets/xquery-CVDBqZPY.js                          6.55 kB │ gzip:   2.57 kB
+dist/assets/textile-BuVhTOzU.js                         6.74 kB │ gzip:   2.44 kB
+dist/assets/nsis-Cx8FAvMN.js                            6.81 kB │ gzip:   2.99 kB
+dist/assets/nginx-B4hAVlXN.js                           7.29 kB │ gzip:   2.71 kB
+dist/assets/haxe-D25e-2l-.js                            7.71 kB │ gzip:   2.89 kB
+dist/assets/powershell-D1ly3AHC.js                      7.73 kB │ gzip:   3.31 kB
+dist/assets/performance-DTQCITqD.js                     7.89 kB │ gzip:   2.59 kB
+dist/assets/erlang-BuqgqA5h.js                          7.93 kB │ gzip:   2.89 kB
+dist/assets/_baseUniq-C-c5V-sy.js                       8.08 kB │ gzip:   3.32 kB
+dist/assets/verilog-B4LBqg_1.js                         8.20 kB │ gzip:   3.45 kB
+dist/assets/graph-Dk-o3WKz.js                           8.90 kB │ gzip:   2.95 kB
+dist/assets/sas-Bqaci40L.js                             9.33 kB │ gzip:   4.11 kB
+dist/assets/perl-tdMlh9QA.js                            9.54 kB │ gzip:   3.44 kB
+dist/assets/gherkin-B6X1vGSW.js                        10.16 kB │ gzip:   5.09 kB
+dist/assets/stateDiagram-FHFEXIEX-ksCvqxFW.js          10.63 kB │ gzip:   3.68 kB
+dist/assets/clojure-DiuoqK-z.js                        10.80 kB │ gzip:   3.99 kB
+dist/assets/dagre-KV5264BT-DzZ0LpSB.js                 11.49 kB │ gzip:   4.23 kB
+dist/assets/idl-pcmmZuaN.js                            11.69 kB │ gzip:   4.52 kB
+dist/assets/AccountWelcome-Bq_cKpkO.js                 11.76 kB │ gzip:   4.41 kB
+dist/assets/window-DG780erX.js                         11.82 kB │ gzip:   2.29 kB
+dist/assets/index-CneHeMlp.js                          12.54 kB │ gzip:   5.51 kB
+dist/assets/DeliveryAdornmentPanel-DCZS-G5-.js         13.43 kB │ gzip:   4.13 kB
+dist/assets/asset-hFAlzNGt.js                          13.78 kB │ gzip:   4.66 kB
+dist/assets/index-hnjkoA7G.js                          14.71 kB │ gzip:   5.91 kB
+dist/assets/tags-CHgcwa-1.js                           15.70 kB │ gzip:   5.20 kB
+dist/assets/diagram-G4DWMVQ6-deDCLbjt.js               15.94 kB │ gzip:   5.53 kB
+dist/assets/index-tnqo3nw2.js                          16.29 kB │ gzip:   7.46 kB
+dist/assets/javascript-BpzJj0-u.js                     16.54 kB │ gzip:   5.68 kB
+dist/assets/DevPanel-CA2p0-j3.js                       16.69 kB │ gzip:   5.62 kB
+dist/assets/json-parse-DlySwPvl.js                     17.34 kB │ gzip:   5.93 kB
+dist/assets/ishikawaDiagram-UXIWVN3A-Biru0o_D.js       17.62 kB │ gzip:   6.53 kB
+dist/assets/editor-codemirror-languages-f_dGqReC.js    19.70 kB │ gzip:   4.96 kB
+dist/assets/kanban-definition-6JOO6SKY-BL66P718.js     20.37 kB │ gzip:   7.14 kB
+dist/assets/index-cDWcHlsn.js                          20.84 kB │ gzip:   9.30 kB
+dist/assets/index-DqmAyHmM.js                          21.10 kB │ gzip:   9.68 kB
+dist/assets/sankeyDiagram-XADWPNL6-Bd8t3S_r.js         22.13 kB │ gzip:   7.94 kB
+dist/assets/clike-fQ55tJiR.js                          22.15 kB │ gzip:   7.79 kB
+dist/assets/index-xX1R0bl-.js                          22.88 kB │ gzip:  10.23 kB
+dist/assets/mindmap-definition-QFDTVHPH-B4eAKSbO.js    23.36 kB │ gzip:   7.87 kB
+dist/assets/journeyDiagram-VCZTEJTY-DcQZb9b_.js        23.61 kB │ gzip:   8.25 kB
+dist/assets/wardleyDiagram-NUSXRM2D-VurFLHfy.js        24.91 kB │ gzip:   6.60 kB
+dist/assets/stylus-Bdo_Aemu.js                         25.75 kB │ gzip:   8.60 kB
+dist/assets/erDiagram-SMLLAGMA-DYSp-tNA.js             26.52 kB │ gzip:   9.23 kB
+dist/assets/css-ZjFoif2m.js                            26.94 kB │ gzip:   8.43 kB
+dist/assets/layout-UBAzGQcp.js                         28.50 kB │ gzip:  10.03 kB
+dist/assets/PublishView-BRaJp7E1.js                    28.70 kB │ gzip:   9.99 kB
+dist/assets/gitGraphDiagram-UUTBAWPF-Lg1vU5-A.js       30.25 kB │ gzip:   8.86 kB
+dist/assets/index-BnBKg0eV.js                          30.75 kB │ gzip:  12.56 kB
+dist/assets/requirementDiagram-MS252O5E-CKdq1xOq.js    31.11 kB │ gzip:   9.68 kB
+dist/assets/timeline-definition-GMOUNBTQ-RpQItam5.js   31.28 kB │ gzip:  10.13 kB
+dist/assets/DraftsView-CQhmXv8z.js                     31.93 kB │ gzip:  10.08 kB
+dist/assets/quotes-BSLssSyZ.js                         32.01 kB │ gzip:  13.85 kB
+dist/assets/index-D1bakgfJ.js                          32.11 kB │ gzip:  12.95 kB
+dist/assets/quadrantDiagram-34T5L4WZ-HYYVjQ87.js       34.01 kB │ gzip:   9.91 kB
+dist/assets/chunk-OYMX7WX6-Bqr6ZwVv.js                 36.37 kB │ gzip:  11.68 kB
+dist/assets/sql-B3SPsWL6.js                            37.01 kB │ gzip:  10.93 kB
+dist/assets/zhihu-BQp_3UeN.js                          38.06 kB │ gzip:  13.23 kB
+dist/assets/xychartDiagram-5P7HB3ND-C8xfE7XC.js        40.19 kB │ gzip:  11.20 kB
+dist/assets/index-w7hZrR7L.js                          40.79 kB │ gzip:  16.79 kB
+dist/assets/vennDiagram-DHZGUBPP-DLTNjxDL.js           41.42 kB │ gzip:  15.00 kB
+dist/assets/ui-icons-BfpURjI_.js                       42.41 kB │ gzip:  12.97 kB
+dist/assets/index-B7EXjpKj.js                          44.72 kB │ gzip:  18.89 kB
+dist/assets/chunk-4TB4RGXK-DuVyq4Xm.js                 46.78 kB │ gzip:  14.83 kB
+dist/assets/flowDiagram-DWJPFMVM-DxwMs02V.js           60.34 kB │ gzip:  19.24 kB
+dist/assets/ganttDiagram-T4ZO3ILL-DMcSo5FI.js          68.75 kB │ gzip:  22.37 kB
+dist/assets/c4Diagram-AHTNJAMY-CD0gzYEJ.js             69.33 kB │ gzip:  19.33 kB
+dist/assets/index-HIF7bkMZ.js                          70.78 kB │ gzip:  25.82 kB
+dist/assets/blockDiagram-DXYQGD6D-CWhMBsC4.js          70.90 kB │ gzip:  19.98 kB
+dist/assets/HubView-Cjyvk2GK.js                        84.68 kB │ gzip:  28.01 kB
+dist/assets/index-WiwzTd61.js                          97.45 kB │ gzip:  28.16 kB
+dist/assets/index-CurDDgOB.js                         100.55 kB │ gzip:  33.59 kB
+dist/assets/anthropic-messages-BhLFfAdz.js            103.83 kB │ gzip:  25.97 kB
+dist/assets/vendor-vue-runtime-BcpmA4aN.js            108.76 kB │ gzip:  40.88 kB
+dist/assets/sequenceDiagram-FGHM5R23-CGNcdBOa.js      115.99 kB │ gzip:  30.28 kB
+dist/assets/openai-completions-BohMi4wX.js            128.70 kB │ gzip:  33.90 kB
+dist/assets/architectureDiagram-Q4EWVU46-Bljutpaq.js  146.44 kB │ gzip:  40.03 kB
+dist/assets/index-D2Ocli54.js                         157.61 kB │ gzip:  41.47 kB
+dist/assets/data-runtime-BnHyvp2p.js                  166.36 kB │ gzip:  48.89 kB
+dist/assets/syntax-lowlight-core-Dm9w0hOm.js          174.19 kB │ gzip:  51.98 kB
+dist/assets/SettingsView-Cm8dp6jD.js                  206.09 kB │ gzip:  60.44 kB
+dist/assets/math-katex-tB01thyX.js                    260.53 kB │ gzip:  76.37 kB
+dist/assets/editor-prosemirror-Duucq92q.js            396.55 kB │ gzip: 123.74 kB
+dist/assets/WorkstationView-f6C46pC7.js               461.97 kB │ gzip: 140.80 kB
+dist/assets/markdown-rendering-BMTrZ8kr.js            467.76 kB │ gzip: 165.76 kB
+dist/assets/wardley-RL74JXVD-BF8OC4FN.js              480.06 kB │ gzip: 106.88 kB
+dist/assets/diagram-layout-engines-BOfoeC28.js        505.15 kB │ gzip: 153.55 kB
+dist/assets/index-ChWUJghK.js                         534.95 kB │ gzip: 163.71 kB
+dist/assets/mermaid.core-Dmp1LAYh.js                  541.22 kB │ gzip: 120.85 kB
+dist/assets/editor-codemirror-core-BKj51spz.js        614.80 kB │ gzip: 206.80 kB
+dist/assets/index-DWLCKIIP.js                         644.41 kB │ gzip: 154.94 kB
+✓ built in 1m 32s
+build_exit=0

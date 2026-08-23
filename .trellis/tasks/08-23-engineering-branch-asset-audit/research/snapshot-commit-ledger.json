@@ -113,9 +113,23 @@
     "gitleaks_product_staged_findings": 0,
     "gitleaks_runtime_staged_findings": 2,
     "gitleaks_runtime_classification": "two previously reviewed MHTML false positives",
-    "full_vitest": "145 files, 2156 tests passed",
+    "full_vitest": "145 files, 2156 tests passed with maxWorkers=4",
+    "default_concurrency_vitest": "2155 passed, one 5000ms timeout; targeted retry passed",
     "typecheck": "passed",
-    "eslint": "0 errors, 800 warnings"
+    "eslint": "0 errors, 800 warnings",
+    "web_build": "passed, 5580 modules",
+    "cargo_fmt_check": "passed",
+    "cargo_check_locked": "passed",
+    "cargo_test_locked": "41 passed",
+    "tauri_bundle": "MSI and NSIS passed after verified official WebView2 cache",
+    "outer_bundle_restore_refs": 15,
+    "nested_bundle_restore_refs": 4,
+    "outer_fsck": "no corrupt or missing objects; 339 dangling blobs and 1 dangling commit",
+    "nested_fsck": "passed; 0 dangling",
+    "native_runtime_smoke": "alive and responding after 8 seconds; InkForge window and isolated WebView2 child observed",
+    "playwright_production_preview": "1400x900 rendered; 0 console errors and 0 warnings",
+    "history_gitleaks": "4 findings: 2 revoked historical bearer occurrences, 2 MHTML false positives",
+    "directory_gitleaks": "36 findings: 34 GitNexus hashes, 2 MHTML false positives"
   },
   "secrets_in_ledger": false
 }
