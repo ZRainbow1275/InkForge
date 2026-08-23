@@ -20,6 +20,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 | [State Management](./state-management.md) | Local state, global state, server state | Active |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | Active |
 | [Type Safety](./type-safety.md) | Type patterns, validation | Active |
+| [Article Visual Variant System](./visual-variant-system.md) | Seven variants, ten profiles, legacy preset compatibility, and platform adaptation | Active |
 | [WeChat-Safe SVG Modules](./wechat-svg-modules.md) | Inline-SVG typesetting subset, injection contract, opt-in flagship presets | Active |
 | [Flagship Element Catalog](./flagship-element-catalog.md) | Market-informed InkForge element families and flagship rule catalog | Active |
 

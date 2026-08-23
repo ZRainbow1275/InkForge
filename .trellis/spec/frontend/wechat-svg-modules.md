@@ -314,6 +314,14 @@ construct breaks.
   raster, exact-artifact, XHS artifact-manifest, and sensitive-hygiene rows, but it must not be
   used as Xiaohongshu account upload, platform preview, public URL acceptance, scheduled-send, or
   publish proof.
+- Wrapped XHS card titles must own their vertical geometry. `renderXhsMarkdownCardSliceSvg()` must
+  derive subtitle and body baselines from the final rendered title baseline for both two-line
+  section titles and three-line cover titles. A focused regression must fail if subtitle/body
+  content returns to the former fixed-coordinate overlap.
+- Ordinary blank-line-separated XHS prose must be capacity-packed without treating every paragraph
+  as a page break. A paragraph that fits on the next card stays whole, per-card source-line ranges
+  remain traceable, and only actual Markdown list rows receive list markers. Explicit headings,
+  `xhs-page-break`, fenced code blocks, and true capacity overflow remain valid boundaries.
 - 2026-06-21 Zhihu available clean Markdown evidence contract:
   `zhihu-academic-latex-column` and `zhihu-wechat-adapted` may use committed
   `markdownToZhihuClean()` artifacts as local exact-artifact proof. Academic LaTeX proof covers
@@ -984,6 +992,14 @@ publish, or publish success.
 - `hostStatus='platform-hosted'` requires `uploaded:true`; without real upload proof, keep the
   capability `blocked` / `unavailable`.
 - `requirePlatformUpload:true` requires every artifact to be `platform-hosted`.
+- A locally materialized Zhihu Markdown/image bundle must keep `requirePlatformUpload:true` even
+  while `finalSrc` is still a relative local path. Its writer may treat host/upload findings as
+  external-only so exact local bytes remain deliverable, but neither the manifest nor UI may imply
+  that platform upload is optional.
+- The factory may use a non-persisted manifest clone with `requirePlatformUpload:false` only while
+  constructing and validating local metadata and bytes. `convertToNativeFormat()`, the returned
+  `nativeResult`, the emitted manifest, bundle report, and platform gate must all receive and expose
+  the strict `requirePlatformUpload:true` manifest; this seam must never be used by a publish path.
 - Before platform upload, artifacts must prove local file existence with `exists:true` and a
   positive `bytes` value.
 - Every artifact needs non-empty `alt`. Formula, diagram, table, and semantic images also need a
@@ -1079,7 +1095,7 @@ Platform style parity matrix:
 - `svg-modules/__tests__/registry.test.ts` — 26 modules, unique ids, every module × 4 persona → `checkWechatSafe()===[]`.
 - `svg-modules/__tests__/inject.test.ts` — anchor replacement, **idempotency** (decorate twice = identical), preview inline vs xhs/zhihu rasterize seam.
 - `services/export/__tests__/flagship-pipeline-smoke.test.ts` — real `convertToWechatWithStats` end-to-end: each flagship plan's module ids present, every `<section data-ink-svg>` block `checkWechatSafe===[]` AFTER full pipeline, idempotent, non-flagship preset emits **no** `data-ink-svg`/`<svg>`.
-- Assertion points: `data-ink-svg` present, outer `<svg>` has `width="100%"`+`viewBox`, zero safe violations, `generatePersonaBaseCSS` still has `min(22em` + `font-size: 17px` (20-22 CJK chars/line lock unchanged).
+- Assertion points: `data-ink-svg` present, outer `<svg>` has `width="100%"`+`viewBox`, zero safe violations, `generatePersonaBaseCSS` keeps `min(24em` + `font-size: 16px` (about 22–24 CJK chars per line at 375px; 22 is the minimum).
 - Platform leakage tests are required for every new family: XHS output must not contain
   `<svg>`, `<section data-ink-block>`, HTML tags, or raw Markdown control leakage; Zhihu output
   must not contain WeChat decorations or inline CSS dependency.
@@ -2581,6 +2597,12 @@ Required checks:
   `collectedAt` value on the same row.
 - Tests must continue proving that local-only artifact manifests and sensitive-hygiene rows remain
   satisfiable without timestamps.
+- Subprocess CLI tests that assert a historical committed-proof snapshot must pin `Date.now()` only
+  inside the spawned test process to that snapshot's real collection date. The production CLI and
+  operator preflight must continue using the actual system clock.
+- A test failure caused by elapsed wall-clock time must not be fixed by rewriting `collectedAt`,
+  extending the freshness window, or weakening stale-proof validation. Keep deterministic
+  fixed-clock regression coverage and a separate current-clock strict-preflight result.
 - Documentation and evidence must state that freshness accounting does not prove phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, public-host
   acceptance, upload, or publish success.
@@ -3169,7 +3191,7 @@ Required checks:
 - Unit or E2E coverage must assert the visible checklist count, the no-publish/no-sync success
   warning, and all four group labels and counts.
 - Tauri/WebView2 E2E must open the real ExportModal, read the checklist from the actual DOM, and
-  keep the existing SVG flagship and 20-22 CJK chars/line assertions passing.
+  keep the existing SVG flagship and 22-24 CJK chars/line assertions passing.
 - CloakBrowser visual verification must use a real local article and the real `发布` modal at
   desktop and mobile widths, confirming `document.scrollWidth === document.clientWidth` and no
   checklist group overflows its container.
@@ -3279,7 +3301,7 @@ Contracts:
 Required checks:
 - E2E coverage must open the real ExportModal and assert the local actionability summary, the
   zero-actionable warning, both group labels/counts, and the release preflight row copy.
-- Tauri/WebView2 E2E must keep the existing SVG flagship and 20-22 CJK chars/line assertions
+- Tauri/WebView2 E2E must keep the existing SVG flagship and 22-24 CJK chars/line assertions
   passing after the local actionability surface is added.
 - CloakBrowser verification must use a real local article and the real `发布` modal at a narrow
   viewport, confirming `document.scrollWidth === document.clientWidth`, `overflowCount=0`, and the
@@ -3430,7 +3452,7 @@ Contracts:
 Required checks:
 - E2E coverage must open the real ExportModal and assert the handoff summary, `safeExternalRows=0`,
   `actionableLocalRows=0`, the cannot-auto-complete text, and all five category counts.
-- Tauri/WebView2 E2E must keep the existing SVG flagship and 20-22 CJK chars/line assertions
+- Tauri/WebView2 E2E must keep the existing SVG flagship and 22-24 CJK chars/line assertions
   passing after the handoff surface is added.
 - CloakBrowser verification should use a real local article and the real `发布` modal at a narrow
   viewport, confirming `document.scrollWidth === document.clientWidth`, `overflowCount=0`, and the
@@ -15174,8 +15196,8 @@ const ruleFamilies = [
   decorated or pre-compliance string.
 - `platform-rules/wechat.ts` must keep `data-wechat-clamp="1"`, the centered
   `max-width:677px` wrapper contract, and `svg` inside the opaque tags used by CJK spacing.
-- `preset-fonts.ts` must keep the 20-22 CJK chars-per-line source lock:
-  `max-width: min(22em, calc(100vw - 32px))`, `font-size: 17px`, and strict line breaking.
+- `preset-fonts.ts` must keep the 22–24 CJK chars-per-line source lock at 375px:
+  `max-width: min(24em, calc(100vw - 16px))`, `font-size: 16px`, and strict line breaking.
 - Source-contract issues must be sanitized strings only. They must not record local browser
   runtime artifacts, account data, credential material, network captures, or image artifacts.
 
@@ -15186,7 +15208,7 @@ const ruleFamilies = [
   - `<section id="nice">`;
   - `data-wechat-clamp="1"`;
   - `max-width:677px`;
-  - `font-size:17px`;
+  - `font-size:16px`;
   - no `<script>`;
   - no `<style>`;
   - no `foreignObject`.
@@ -16635,3 +16657,703 @@ export const ENABLE_ENCRYPTION = hasTauriRuntime
 ~~~
 
 The actual native runtime determines whether the OS credential store exists. Local WeChat rendering readiness remains a separate claim from external platform acceptance.
+
+## 322. ExportModal Primary-Flow Diagnostics Hierarchy - 2026-07-22
+
+### Scope
+
+This contract applies when `ExportModal.vue` exposes style selection, supported parameters,
+quality results, style-proof accounting, and local artifact actions in the same dialog.
+
+### Contract
+
+- `preset-grid` is the single primary platform-style selector. Style-catalog rows may describe
+  availability and proof state, but they must not become a second clickable selector.
+- Supported style parameters remain in the native default-closed
+  `details.style-options-drawer` disclosure.
+- Style capability/proof data remains in the native default-closed
+  `details.style-diagnostics-drawer` disclosure.
+- Quality detection and Export preflight remain intact but live in the native default-closed
+  `details.export-diagnostics-drawer` disclosure. They must not permanently occupy the normal
+  platform/style/options/artifact flow.
+- None of these disclosures carries the `open` attribute by default. Their `summary` controls must
+  retain native mouse and keyboard disclosure semantics and a visible focus state.
+- Moving diagnostics is presentation deduplication only. It must not delete quality issues,
+  preflight rows, style availability, cannot-claim accounting, copy/download/local delivery,
+  or the separation between local Export and credentialed/manual Publish.
+
+### Required checks
+
+- `ExportModal.svg-options.test.ts` must prove there is one `preset-grid`, all three secondary
+  disclosures exist, quality and preflight content are inside the Export diagnostics disclosure,
+  and no former style-choice click handler recreates a second selector.
+- Exact ESLint and `vue-tsc --noEmit` must pass after template changes.
+- Native hand test must confirm each disclosure starts closed, opens/closes by mouse and keyboard,
+  exposes all retained content, and leaves the primary export path readable without proof-text
+  overflow.
+
+## 323. Canonical WeChat Paragraph-Indent Specificity Contract - 2026-07-23
+
+### 1. Scope / Trigger
+
+- This contract applies when canonical typography or an explicit WeChat export option overrides a
+  preset's paragraph indentation.
+- Presets may own `p:first-of-type` rules. A user override must therefore cover the first ordinary
+  paragraph with equal-or-greater specificity without treating quote paragraphs as body prose.
+
+### 2. Signatures
+
+```ts
+export function typographyToWechatCss(config: TypographyConfig, accentColor?: string): string
+
+export function convertToWechatWithStats(
+  html: string,
+  preset: ExportPreset,
+  options?: WechatExportOptions,
+): ExportResult
+```
+
+No public signature changes are required. `WechatExportOptions.enableTextIndent` remains
+`boolean | undefined`.
+
+### 3. Contracts
+
+- Canonical typography CSS must emit
+  `#nice p, #nice p:first-of-type { text-indent: <0|2em>; }`.
+- It must then emit
+  `#nice blockquote p, #nice blockquote p:first-of-type { text-indent: 0; }` so quote content does
+  not inherit body indentation.
+- `convertToWechatWithStats()` must use the same two selector groups when
+  `enableTextIndent !== undefined`.
+- When `enableTextIndent` is omitted from a direct converter call, the preset remains authoritative;
+  omission must not silently become an explicit OFF override.
+- Preview selector adaptation must preserve both `p:first-of-type` and the blockquote reset.
+
+### 4. Validation & Error Matrix
+
+| Input/state | Required result |
+| --- | --- |
+| Explicit ON | First and later ordinary paragraphs inline to `2em`; quote paragraphs inline to `0`. |
+| Explicit OFF | First and later ordinary paragraphs inline to `0`; quote paragraphs inline to `0`. |
+| Direct converter option omitted | Keep preset-owned indentation behavior. |
+| Preset owns a more-specific first-paragraph rule | Explicit ON/OFF still wins for the first ordinary paragraph. |
+| Paragraph appears inside `blockquote` | Body indentation never applies after final CSS inlining. |
+
+### 5. Good / Base / Bad Cases
+
+- Good: ON produces `2em` for the first and second ordinary paragraphs and `0` for the quote.
+- Base: OFF produces `0` for ordinary and quote paragraphs.
+- Bad: append only `#nice p { text-indent: 2em }`; a preset's `#nice p:first-of-type` can still win.
+- Bad: omit the quote reset; quote paragraphs can be mistaken for body prose.
+
+### 6. Tests Required
+
+- A focused final-HTML regression must assert the first ordinary paragraph, second ordinary
+  paragraph, and quote paragraph independently; a broad “any paragraph has 2em” assertion is not
+  sufficient.
+- Preview tests must assert the specificity-matched selector and quote reset survive selector
+  adaptation.
+- Acceptance for a preset-registry change must run an all-canonical-WeChat-preset ON/OFF matrix.
+- Exact ESLint, type-check, production build, and final inline-output readback remain required when
+  this shared path changes.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```css
+#nice p { text-indent: 2em; }
+```
+
+#### Correct
+
+```css
+#nice p, #nice p:first-of-type { text-indent: 2em; }
+#nice blockquote p, #nice blockquote p:first-of-type { text-indent: 0; }
+```
+
+## 324. Post-Juice Flagship Canonical-Override Preservation - 2026-07-23
+
+### 1. Scope / Trigger
+
+- This contract applies to a WeChat preset that runs a text-bearing HTML decorator after Juice has
+  inlined canonical typography CSS.
+- It currently covers flagship replacement of `h2`, `h3`, and `blockquote` in
+  `src/services/export/svg-modules/html-blocks.ts`.
+- The canonical Store, selector, preview, and native-export pipeline remain authoritative. A
+  decorator must not create a second typography state or renderer.
+
+### 2. Contracts
+
+- If a decorator replaces a semantic source node, it must preserve a recognized canonical
+  non-default visual override already inlined on that node.
+- Heading preservation covers the canonical `underline`, `background`, and `border-left` suffixes.
+- Blockquote preservation covers the canonical `modern` and `minimal` suffixes.
+- Canonical defaults (`headingStyle: none`, `blockquoteStyle: classic`) must leave the flagship
+  preset's native visual identity unchanged.
+- Preservation must be allowlisted. A decorator must not copy arbitrary source attributes, event
+  handlers, classes, IDs, or unknown CSS into the generated block.
+- The recognized suffix belongs on the generated outer block so later node replacement cannot
+  discard it.
+- No public API or persisted schema change is required.
+
+### 3. Validation & Error Matrix
+
+| State | Required result |
+| --- | --- |
+| Non-flagship preset | Existing canonical inlining remains unchanged. |
+| Flagship + heading default | Keep the flagship heading treatment. |
+| Flagship + heading non-default | Final artifact visibly contains the selected canonical heading override. |
+| Flagship + quote classic | Keep the flagship quote/callout/pullquote treatment. |
+| Flagship + quote modern/minimal | Final generated outer quote block contains the selected canonical override. |
+| Unknown source style/attribute | Do not transfer it through this preservation path. |
+| Decorator rerun | Existing sentinel remains authoritative; output stays idempotent. |
+
+### 4. Tests Required
+
+- Final-output coverage must compare baseline and one changed value for every canonical typography
+  control in every canonical WeChat preset. Checking only generated CSS or pre-decoration HTML is
+  insufficient.
+- The current minimum matrix is 16 presets × 8 controls = 128 pairs and must report no no-effect
+  pair.
+- Direct decorator regression, expanded rendering-chain regression, exact ESLint, type-check, and
+  production build are required when this preservation path changes.
+- Native acceptance must still switch heading and quote styles in a flagship preset and compare
+  Workstation, Export, and WeChat Publish output; automation does not substitute for that visual
+  check.
+
+### 5. Wrong vs Correct
+
+- Wrong: inline canonical CSS onto `h2`, then replace the node with a new `<section>` that ignores
+  all recognized canonical visual overrides.
+- Wrong: copy the complete source attribute string onto the generated block.
+- Correct: extract only a known sanitized canonical suffix and append it to the generated outer
+  block; preserve flagship defaults when no non-default suffix is present.
+
+## 325. Applied Platform Editor Calibration Contract
+
+### 1. Scope
+
+This contract applies to Workstation platform preview, split preview, full preview, floating
+inspector, native inspector utility, and the three local preview-fidelity wrappers. It is based on
+the 2026-07-27 applied-editor inspection of WeChat Official Account, Xiaohongshu long-form, Zhihu,
+135 normal/SVG, and Xiumi. It does not prove account publish, sync, phone preview, or platform
+acceptance.
+
+### 2. Platform Canvas Baselines
+
+| Platform | Required local fidelity marker | Measured baseline |
+| --- | --- | --- |
+| WeChat | `data-platform-editor="wechat"` and `data-editor-canvas-width="586"` | 586px editor canvas, 578px inner content, 17px / 27.2px body |
+| Xiaohongshu | `data-platform-editor="xiaohongshu"` and `data-editor-canvas-width="896"` | 896px long-form canvas, 16px / 28px body, 24px / 36px H1 |
+| Zhihu | `data-platform-editor="zhihu"` and `data-editor-canvas-width="800"` | 800px Draft.js canvas, 16px / 25.6px body, 19.2px / 28.8px H2 |
+
+The Workstation host must expose the selected platform through `data-platform`. The shared host may
+control width, overflow, containment, and background only. It must not rewrite nested article
+typography with broad `!important` selectors.
+
+### 3. Theme and Artifact Authority
+
+- Platform baseline CSS is injected before preset CSS. Preset CSS must remain able to distinguish
+  every persona and flagship.
+- WeChat Workstation preview must run the selected preset's existing
+  `preset.decorate(renderedHtml, 'preview')` before `renderWechatMockHtml()` wraps the result.
+  This is the same decorator authority used by export, not a second renderer. The wrapper must
+  preserve its allowlisted inline SVG/SMIL.
+- Xiaohongshu preview wraps the real plain-text artifact. Rich card appearance belongs to the
+  raster/card artifact pipeline and must not be invented in the text wrapper.
+- Zhihu preview renders real clean Markdown and converts InkForge inline SVG modules to image
+  fallback. The fallback is not public-host or platform-upload proof.
+- Preview wrappers must not invent account names, timestamps, publish state, platform watermarks,
+  or success claims.
+- Clipboard, export, and publish payloads must never be derived from local preview chrome. They
+  continue to use `convertToNativeFormat` and the platform-native artifact.
+
+### 4. 135 and Xiumi Integration Boundary
+
+- 135 normal styles inform nested section semantics, inline-safe styles, static SVG, and quality
+  detection.
+- 135 SVG and Xiumi interaction templates inform an allowlisted state-machine vocabulary:
+  static, SMIL-auto, click-swap, click-expand, carousel, link, media, and blocked-script.
+- Xiumi-style Dark Mode must map concrete fill/stroke/text/image-overlay tokens. Global inversion is
+  forbidden.
+- Third-party template assets, copy, account data, private runtime code, purchase state, and
+  credentials must never enter InkForge.
+
+### 5. Required Regression Coverage
+
+- Assert all three platform markers and measured canvas/typography baselines.
+- Assert WeChat retains inline SVG while Zhihu converts it to image fallback.
+- Assert Xiaohongshu text fidelity remains exact when local metadata controls are disabled.
+- Assert no wrapper emits fake account, timestamp, watermark, gradient marketing card, or publish
+  claim.
+- Assert Workstation carries platform data hooks and contains no broad Stage typography
+  `!important` flattening.
+- Assert a selected flagship preset emits its expected `data-ink-svg` modules inside the real
+  Workstation platform preview, with responsive `width="100%"` SVG and no `script` or
+  `foreignObject`.
+- Run focused preview-fidelity and Workstation source contracts, `usePreviewRenderer`, export
+  cross-platform regression, exact ESLint, type-check, production build, and native Tauri
+  acceptance.
+
+### 6. External Evidence Boundary
+
+Xiaohongshu and Zhihu publication are manual user acceptance for this round. WeChat PC paste, phone
+preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail, credentialed sync, scheduled send,
+and publish success remain external evidence rows and must not be inferred from local tests.
+
+## 326. Rendering Trust Order And Native Acceptance Contract
+
+### 1. Trust Order
+
+- Markdown-originated raw HTML is untrusted. Sanitize it before any InkForge-owned preset decorator
+  or SVG module decorator executes.
+- Trusted decorators may emit only their registered, allowlisted HTML/SVG contract. A sanitizer
+  must not run after decoration in a way that silently destroys trusted flagship output.
+- Zhihu may convert only registered InkForge SVG module identities to an image fallback. Arbitrary
+  user SVG, vendor SVG, scripts, event handlers, `foreignObject`, or unknown module IDs must not
+  survive by resembling a trusted wrapper.
+- Xiaohongshu metadata controls are additive only. When title and hashtag attachment are disabled,
+  the result must be the complete converted body rather than an empty or truncated artifact.
+
+### 2. Async Preview Authority
+
+- One render token owns one preview result. A stale async Markdown render or stale decorator result
+  must never overwrite the latest selected article, platform, preset, or editor content.
+- A selected WeChat preset decorator executes exactly once per accepted render token. Do not add a
+  second decorator watcher or a second style state.
+- Platform fidelity wrappers may add canvas markers, width, containment, scrolling, and a measured
+  baseline. They must not become clipboard/export/publish source and must not flatten nested preset
+  typography or SVG with broad selectors.
+
+### 3. Style Capability Interaction
+
+- A catalog row mapped to an existing canonical preset is a real `button`, invokes the existing
+  `selectPreset(presetId)` path, and exposes `aria-pressed`.
+- Rows without a safe current-round application are native `disabled`; visual opacity alone is not
+  a disabled state.
+- Selecting a catalog row must update the same active preset card, persisted export default, preview
+  artifact, and preflight text. Do not introduce `selectStyleChoice` or another catalog selection
+  store.
+- Catalog blocker/proof text remains visible after a safe fallback preset is selected; local
+  selection does not upgrade phone, sync, or publish proof.
+
+### 4. Native WebView2 Acceptance
+
+- E2E setup preconditions are hard failures. Missing real Tauri binary, missing driver, wrong
+  WebView, non-isolated app-data directory, or host/client geometry mismatch must not be converted
+  to skipped tests.
+- Native actions use WebDriver interaction on actual controls. Script-dispatched clicks are not
+  completion evidence.
+- Long modal rows must be scrolled into their owning viewport before the WebDriver click. Route
+  interactions must wait until the route shell is no longer in a view transition and has settled
+  opacity.
+- On desktop, the Inspector must remain the final root-layout sibling. Collapsed and expanded states
+  consume their own rail width and must not cover the editor, Stage, platform selector, preset
+  controls, or Stage actions.
+- Raw inline `style` attributes and the final exported artifact are the authority for clipboard
+  CSS/SVG assertions. A WebDriver `CSSStyleDeclaration` object is not a serialized clipboard
+  artifact.
+- Export-history clear, capability selection, Workstation platform switches, and SVG preset output
+  require fresh post-action DOM readback.
+
+### 5. Applied Market Translation
+
+- 135 equal-column galleries translate to InkForge-owned image-slot manifests, bounded responsive
+  geometry, readable source order, and single-column fallback.
+- 135 zero-gap SVG wrappers translate to a scoped `safe-zero-wrapper`, never a page-wide zero
+  font-size rule.
+- Xiumi click/fade/expand samples translate to an InkForge-owned trigger-region state machine,
+  image manifest, layout report, static-expanded fallback, and raster fallback.
+- Market authoring wrappers, IDs, classes, URLs, private assets, and runtime code remain detector
+  residue. Applied-editor inspection does not loosen platform sanitizers or proof gates.
+
+### 6. Required Tests
+
+- Untrusted-HTML sanitizer ordering, trusted Zhihu SVG identity, Xiaohongshu exact body retention,
+  stale async renders, and exactly-once decoration require focused regression coverage.
+- Capability cards require source-contract tests and native WebView2 click/readback coverage.
+- The final native suite must report every declared test as passed with zero skips before packaging.
+- Xiaohongshu/Zhihu publication and WeChat phone/sync/publish evidence remain manual/external and
+  must be reported separately from local software acceptance.
+
+## 327. Tauri Runtime Preview Style CSP Contract
+
+### 1. Root Cause Boundary
+
+- Tauri 1 production builds append nonce/hash sources to configured CSP directives unless the
+  directive is excluded through `dangerousDisableAssetCspModification`.
+- A nonce/hash in `style-src` causes WebView2 to ignore `'unsafe-inline'`. In that state,
+  sanitized theme `<style>` elements and inline styles inserted through `v-html` remain present in
+  the DOM but have no active stylesheet or computed-layout effect.
+- This failure presents as raw 14px host typography, zero article spacing, inactive preset CSS,
+  and full-column nested SVG even though the generated HTML is structurally correct. Do not patch
+  individual themes or `svgSection` for this production-CSP symptom.
+
+### 2. Required Configuration
+
+```json
+{
+  "security": {
+    "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; ...",
+    "dangerousDisableAssetCspModification": ["style-src"]
+  }
+}
+```
+
+- Disable Tauri asset CSP modification for `style-src` only. Do not disable all CSP modification.
+- `script-src` remains self-only, without `'unsafe-inline'` or `'unsafe-eval'`, and retains Tauri's
+  production nonce/hash hardening.
+- Raw document HTML remains untrusted and must pass the existing sanitizer before InkForge-owned
+  decorators run. The CSP change does not authorize scripts, event handlers, arbitrary SVG, remote
+  script origins, or unsandboxed custom CSS.
+
+### 3. Required Regression and Native Proof
+
+- A config regression test must assert the exact `["style-src"]` scope, self-only script policy,
+  and explicit inline-style policy.
+- Acceptance must rebuild the Tauri binary; a Vite/browser run cannot prove the compiled CSP.
+- Native WebView2 proof must assert that the generated theme style has a non-null stylesheet with
+  rules, ordinary paragraphs receive non-zero theme spacing, and nested flagship mark/seal SVGs
+  retain their intended bounded geometry.
+- All 16 WeChat presets must activate a stylesheet in one native session, retain readable
+  font/line-height/spacing, keep SVG within the measured editor canvas, and produce their distinct
+  visual signatures.
+
+## 328. Writing-Time Components And Complete Article Baseline
+
+### 1. Shared Article Contract
+
+- `generatePersonaBaseCSS()` is the shared semantic baseline for Stage, split preview, fullscreen,
+  WeChat copy, and export. At a 375px canvas, ordinary Chinese body text must render at about 22–24
+  CJK characters per line, with 22 as the minimum, and must not overflow from 320px through 586px.
+- The baseline must cover H1–H6, paragraphs, strong/emphasis/deletion, inline and block code, KaTeX,
+  Mermaid fallback, quotations, tips, ordered/unordered/task lists, tables, images, galleries,
+  captions, links, dividers, sources, footnotes, and closing information.
+- Each preset inherits the complete baseline and preserves at least three distinct visual dimensions
+  through its existing theme tokens and decoration recipe. A preset must not be reduced to an accent
+  colour change.
+- Pairwise preset checks compare song, metrics, writing-component, profile/close, and masthead
+  structure after colours, text, and numeric values are normalized. Every pair must differ in at
+  least three categories; flagship framing is part of the real exported song-card geometry.
+
+### 2. Real-Data Masthead
+
+- The idempotent delivery-adornment chain may render an optional real song, a framed icon or title
+  motif, the fixed guide text `文章值得您享受`, computed reading time, and the article's real category
+  before the body.
+- Missing song, category, author, source, image, number, or platform fields are omitted or remain
+  editable. Final platform output must not invent examples or counterfeit native media.
+- A component already rendered in the masthead must not be reported or emitted again as a suffix
+  component.
+
+### 3. One Component Registry And Editor Entry
+
+- The writing component registry is the single declaration boundary for author/public-account
+  profile, QR code, tip, info grid, table, timeline, comparison card, statistics card, gallery,
+  citation source, song, image, link, related article, contact card, and supported WeChat media
+  descriptions.
+- Props cross a Zod trust boundary. Unknown IDs, unsupported versions, dangerous keys, scripts,
+  events, `iframe`, and arbitrary untrusted HTML must not enter final output.
+- Source mode uses registered PascalCase self-closing JSX-style syntax outside inline/fenced code.
+  TipTap uses the matching atomic `inkComponent` node and stable serialization so Typora/Source,
+  autosave, close, reopen, and restart preserve ID, version, fields, position, and order.
+- Stage exposes one visible component-library button, and `/组件` opens the same library after saving
+  the current editor selection. Confirmed insertion occurs at that selection and restores focus.
+- WeChat emits the existing safe HTML/SVG subset. Xiaohongshu and Zhihu use existing local safe
+  fallbacks; account publication remains a user-operated external test.
+
+### 4. Required Checks
+
+- Keep regressions for the independent Inspector rail, Chinese context menu, 22–24-character mobile
+  geometry, complete semantic CSS, masthead idempotency and real-data omission, registry validation,
+  JSX round-trip, TipTap atomic insertion, Stage entry, `/组件`, and isolated platform fallback.
+- Native line-density checks must use the Stage renderer's computed font stack and letter spacing,
+  a long punctuation-free CJK sample at 360px/16px, and `Range` rectangles to count a complete line.
+  Do not divide a short mixed-language paragraph by total lines: Latin glyph widths and the partial
+  final line make that average an invalid CJK-capacity measurement.
+- Final acceptance requires focused tests, the serial export suite, exact ESLint, TypeScript,
+  production web and Tauri release builds, plus interaction and visual checks in the rebuilt native
+  `InkForge.exe`. A browser/Vite frame is not software acceptance evidence.
+
+## 329. Real WeChat PC Paste Contrast Preservation
+
+### 1. Final Artifact Authority
+
+- A preset is not accepted merely because its source CSS or local preview has a valid palette.
+  Acceptance must inspect the final inline artifact after theme CSS, visual-variant CSS, optional
+  typography overrides, `postProcessForWechat`, platform CSS enforcement, system clipboard copy,
+  ordinary OS `Ctrl+V`, and WeChat PC editor sanitization.
+- Real WeChat DOM readback must reject light-on-light or dark-on-dark foreground/background pairs,
+  unexpected generic emphasis surfaces inside mastheads, typography controls that erase a
+  composition's contrast surface, and horizontal overflow.
+- PC paste evidence proves only authenticated desktop-editor retention and rendering. It does not
+  prove phone preview, mobile interaction, Dark Mode, cover acceptance, sync, schedule, group-send,
+  or publish success.
+
+### 2. Typography Merge Contract
+
+- User typography controls may change every unlocked article property. A historical inline
+  `!important` marker does not create a lock and must not receive catch-all preservation.
+- `mergeInlineStyle()` may preserve a conflicting property only when the owning composition
+  explicitly identifies that property for that node. Ownership is contextual and allowlisted; the
+  same property remains adjustable elsewhere, and callers must not infer ownership from
+  `!important` alone.
+- The current typography-merge allowlist is limited to the `industry-section` blockquote's
+  `background` and `color` declarations.
+- `knowledge-weave` uses a source-owned masthead-title rule with transparent `background` and a
+  readable `color` over its dark parent. It does not depend on catch-all merge preservation.
+- Report quote `padding`, `border`, and other geometry remain user-adjustable. Heading style also
+  remains user-adjustable; composition preservation must not freeze it.
+- A canonical user-controlled shorthand removes overlapping historical longhands, and a canonical
+  longhand removes an overlapping historical shorthand. The same conflict relation applies to an
+  explicit ownership allowlist: preserving `background` may retain existing `background-*`
+  declarations, but it must not retain unrelated `padding`, `border`, or other geometry.
+- An emitted `!important` may strengthen an explicitly owned declaration, but it must never expand
+  the owned property list or turn arbitrary historical CSS into a lock.
+- Opening-tag rewrites must be quote-aware. A legal `>` inside a quoted attribute value, such as an
+  image `alt`, must remain part of that attribute and must not terminate or corrupt the tag.
+
+### 3. Required Regression And Native Proof
+
+- Regression coverage must render the final WeChat HTML with a real typography configuration and
+  assert the report quotation's owned background/foreground contrast while configured
+  padding/border geometry and heading style still apply.
+- Notes coverage must assert a transparent masthead-title background and a readable foreground over
+  its dark parent.
+- Native acceptance must rebuild `InkForge.exe`, use the application's existing copy button, verify
+  that the system clipboard carries rich HTML, and paste through ordinary Windows `Ctrl+V` into the
+  authenticated WeChat article body.
+- The repaired `industry-section` and `knowledge-weave` compositions require computed-style
+  readback in the WeChat editor, visible inspection, complete title/body/end text, retained brand
+  anchors, and zero horizontal overflow.
+
+## 330. Editor, Preview, Clipboard Parity And Native Acceptance
+
+### 1. One Immutable Artifact
+
+- Workstation must build one immutable WeChat artifact-options snapshot from the current article,
+  category, appearance, preset and delivery Settings. The Stage preview and the existing rich-copy
+  action must pass that same snapshot through `convertToNativeFormat('wechat')`.
+- The delivery snapshot must be parsed and cloned through the existing delivery Schema boundary
+  before it leaves Workstation. A render must not retain a live reactive Settings reference or pass
+  a Vue Proxy into a clone API.
+- The resulting HTML, statistics and delivery report belong to one render token. A stale token must
+  discard the whole result; it must not combine current HTML with an older word count, reading time
+  or delivery report.
+- Scheduling a replacement render immediately sets loading and clears the previous metadata. An
+  empty WeChat draft returns the explicit software empty state with no sample HTML or stale stats;
+  preset-aware sample content remains limited to Xiaohongshu and Zhihu previews.
+- The preview wrapper may provide only InkForge software chrome. It must not maintain another
+  masthead, body, song, statistics or suffix renderer.
+
+### 2. Editor Projection And Clipboard Contract
+
+- TipTap component cards reuse the validated wrapper-free visual body from the existing writing
+  component registry. Canonical JSX remains the only persisted body source; editor chrome and
+  automatic front/end projections never enter Markdown, undo history or the exported artifact.
+- Automatic song, reading metrics and public-account profile projections consume the same delivery
+  slots and converter statistics as final WeChat output. Missing real fields produce an actionable
+  omitted/error state, never invented media, identity, image, number or platform status.
+- The delivery editor exposes every schema-supported real media field used by those projections:
+  song cover URL and public-account description, avatar URL, and QR image URL. Invalid controls use
+  `aria-invalid` and point to the visible validation alert; invalid drafts never overwrite the last
+  valid snapshot.
+- Allowed HTTP(S) URLs are normalized once at the shared delivery boundary. Literal Markdown
+  destination parentheses are percent-encoded before Zhihu Markdown is emitted, so a valid URL
+  cannot terminate a link and inject a second image or link token.
+- Rich copy uses the native `ClipboardItem` path with both `text/html` and `text/plain` when the
+  platform supports it. The existing selection plus `execCommand('copy')` path remains only the
+  compatibility fallback; it must not become a second artifact renderer.
+- TipTap regression coverage must select an atomic component NodeView, delete it, undo the deletion,
+  serialize the document, and reopen it with the exact canonical source preserved.
+
+### 3. Real WeChat Target And SVG Proof
+
+- A real WeChat acceptance row must bind the trusted paste event, resulting mutation, sentinel
+  readback and width measurements to the same editable article body. Selecting the first visible
+  `.ProseMirror`, or accepting a candidate from width/height alone, is not proof.
+- The 16-preset matrix records source-relative SVG preservation. A preset with no source SVG must
+  not gain one after paste; each SVG-bearing flagship must retain the expected safe inline SVG
+  count with no `script`, `foreignObject` or event-handler attributes.
+- WeChat PC ordinary paste proves desktop-editor retention only. It must never be promoted to phone
+  preview, Dark Mode, native media card, cover, sync, scheduled send, group send or publish proof.
+
+### 4. Native Performance Gate
+
+- The release-application check performs at least ten real ProseMirror edits and ten visible preset
+  changes, then verifies that Stage contains only the final marker and final preset after a delayed
+  recheck. The final visual must retain the expected preset SVG modules and editor visibility.
+- Read internal render time from the application's existing `.stat-item.render-time`; report p50 and
+  p95 separately from native edit-plus-settle wall time. Do not add a cache or another renderer
+  without measured evidence that the existing token-gated pipeline misses its threshold.
+
+## 331. Executable WeChat Rendering Rule Catalog And Final Artifact Matrix
+
+### 1. Single Catalog Boundary
+
+- `getWechatRenderingRuleCatalog()` in `services/export/themes.ts` is the only typed read API for
+  the current sixteen WeChat preset composition rules. It must derive rows from `themePresets` and
+  reuse the existing variant/profile resolvers and writing-component registry; callers must not
+  maintain a second preset-id or component-id list.
+- Each `WechatRenderingRuleCatalogEntry` exposes preset identity, variant/profile compatibility,
+  shared brand anchors, six composition zones, implementation-side structure fingerprints,
+  platform degradation, safety invariants, customization knobs, locked fields, and dynamically
+  enumerated writing-component ids.
+- The catalog describes the real implementation. It stores no HTML/CSS template and never renders
+  an artifact. Rendering remains exclusively on the existing preset/decorator/converter pipeline.
+
+### 2. Six-Zone Contract
+
+- The required zones are `masthead`, `headingRhythm`, `bodyFlow`, `semanticBlocks`,
+  `componentsAndDelivery`, and `ending`.
+- Shared brand identity, real metadata, safe fonts, continuous reading, narrow-screen readability,
+  and one colophon may remain invariant. Their presence must not force shared visible geometry.
+- `customizationKnobs` may expose only controls already owned by Settings/preset/converter paths.
+  Locked flagship identity fields remain locked; arbitrary template HTML/CSS is not a catalog knob.
+
+### 3. Final Artifact Independence Gate
+
+- Regression must render one deterministic full-structure article through
+  `convertToWechatWithStats()` for every real preset and fingerprint the final inlined/sanitized
+  WeChat HTML, not only source CSS, `visualSignature`, or decorator strings.
+- The fixture must exercise headings, continuous paragraphs, quote, list, table, code, divider,
+  writing component, reading metrics, optional real song/contact-card fields, CC, and ending.
+- Final normalization removes text copy, ids, classes, `data-*`, URLs, colors, custom properties,
+  and truly empty decoration wrappers. It retains effective tag hierarchy and non-color inline
+  geometry, so recoloring, renaming, source links, data markers, or empty nodes cannot manufacture
+  uniqueness.
+- All six final zones must be non-empty, all sixteen final signatures must be unique, and all 120
+  preset pairs must differ in at least three final composition zones.
+- A paste-safe preset may replace fragile SVG/geometry with source-owned static flow HTML, but it
+  must still preserve an independent ending and at least the same three-zone pairwise threshold.
+
+### 4. Custom Development Workflow
+
+1. Change the nearest existing preset, visual variant, profile, recipe, builder, or decorator; do
+   not add another renderer, theme DSL, store, or dependency.
+2. Update that preset's complete `visualSignature` to describe the actual six-zone result.
+3. Keep writing components registry-derived and real-data-only; missing media/identity fields omit,
+   degrade, or request manual native insertion rather than creating sample values.
+4. Run the catalog/final-artifact matrix, export regressions, strict type-check, production build,
+   and release Tauri/WebView2 visual acceptance.
+5. Re-run ordinary WeChat PC paste for the exact release artifact when claiming desktop-editor
+   retention. Local catalog/build success never proves phone preview, Dark Mode, native media,
+   cover acceptance, sync, schedule, group-send, or publish success.
+
+## 332. Release Artifact, Platform Readback, And WeChat Live-Round-Trip Contract
+
+### 1. Scope / Trigger
+
+- Apply this contract whenever release Export writes XHS/Zhihu platform artifacts, or the Publish
+  Center invokes the side-effecting WeChat draft calibration operation.
+- Keep three proof types separate: `releaseArtifactReceipt` proves current release to exact local
+  bytes; `platformReadbackReceipt` proves exact bytes through a visible platform ingress; and
+  `wechatApiLiveReceipt` proves one live official draft add/get/delete/absence transaction.
+
+### 2. Signatures
+
+```ts
+interface WechatDraftLiveRoundTripInput {
+  coverHandle: string
+  manualCleanupConfirmed?: boolean
+}
+
+interface WechatDraftLiveRoundTripReceipt {
+  hash: string // empty or exactly 32 hexadecimal characters
+  count: {
+    added: number
+    readBack: number
+    deleted: number
+    candidates: number
+    remaining: number
+  }
+  error: string | null
+  cleanupState:
+    | 'not-started'
+    | 'blocked'
+    | 'cleanup-pending'
+    | 'confirmed'
+    | 'manual-cleanup-confirmed'
+}
+
+runWechatDraftLiveRoundTrip(
+  input: WechatDraftLiveRoundTripInput,
+): Promise<WechatDraftLiveRoundTripReceipt>
+```
+
+The matching Tauri boundary is:
+
+```rust
+pub async fn wechat_draft_live_round_trip(
+    app: AppHandle,
+    input: WechatDraftLiveRoundTripInput,
+) -> WechatDraftLiveRoundTripReceipt
+```
+
+### 3. Contracts
+
+- The Web request is strict camelCase. `coverHandle` is trimmed, must be an opaque process-local
+  32-hex handle previously issued by the Rust cover upload boundary, and
+  `manualCleanupConfirmed` defaults to `false`; unknown Rust input fields are rejected.
+- The response schema is strict: hash is empty or 32 hexadecimal characters, every count is a
+  non-negative integer, `error` is nullable text, and cleanup state is explicit.
+- Raw media IDs, draft IDs, markers, credentials, cookies, and cleanup-journal paths must never be
+  returned to Web, logs, ActivityLog, export output, or repository evidence.
+- Credentials remain in the existing Tauri environment/file resolution boundary. The private
+  app-data journal is operational recovery state, not article, Settings, or IndexedDB state.
+- XHS/Zhihu release writers must consume current production converter results and visible native
+  file/directory choices, then hash bytes read from disk. They must not synthesize a manifest only
+  for tests.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+| --- | --- |
+| Non-Tauri runtime or invalid response schema | reject through the existing typed AppError path |
+| Missing/invalid cover material or digest over 120 characters | fail before draft add |
+| Pending journal with one exact marker + recovery hash candidate | clean that candidate and confirm absence |
+| Zero or multiple recovery candidates | `blocked`; never guess an ID |
+| Pagination stalls, permission is missing, or cleanup outcome is unknown | keep `remaining > 0` or explicit blocked/error state |
+| Login is unavailable for WeChat/XHS/Zhihu | local receipt may remain valid; platform/live receipt is absent and status is `blocked` |
+| Artifact bytes, ingress, target surface, release/backend/schema, or cleanup protocol changes | invalidate and rerun the matching receipt according to its ownership |
+
+### 5. Good / Base / Bad Cases
+
+- Good: release UI writes and re-reads exact XHS/Zhihu bundles, then an authenticated visible editor
+  imports those same hashes and yields a separate redacted readback receipt without publishing.
+- Base: local writer and validator pass while platform login is unavailable. Report `local` plus
+  `blocked`; do not claim platform rendering.
+- Bad: reuse a historical image, test-built manifest, static WeChat media lookalike, success toast,
+  login page, or raw draft/media ID as proof.
+
+### 6. Tests Required
+
+- TypeScript unit tests assert camelCase invocation, strict receipt parsing, raw-ID rejection, digest
+  120/121 parity, and failure propagation.
+- Rust tests cover intent/journal transitions, add/get/list/delete failures, exact-candidate cleanup,
+  zero/multiple candidate blocking, complete 20-item pagination, canonical recovery hashing, redacted
+  receipts, and absence readback.
+- Release WDIO must use visible UI plus native dialogs, read written bytes, assert manifest/order, and
+  emit only hashes/counts with `published=false`. A stale receipt from the previous platform must be
+  cleared before accepting the next platform's readback.
+- Authenticated editor checks use only the dedicated task browser session and visible platform
+  controls. They stop before save/publish actions outside the approved gate.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```ts
+// Local conversion or a previous receipt is not external proof.
+status = converter.ok ? 'platform-editor-rendered' : 'blocked'
+```
+
+#### Correct
+
+```ts
+releaseStatus = writtenBytesMatchManifest ? 'local' : 'blocked'
+platformStatus = authenticatedVisibleReadbackMatchesExactHashes
+  ? 'platform-editor-rendered'
+  : 'blocked'
+```

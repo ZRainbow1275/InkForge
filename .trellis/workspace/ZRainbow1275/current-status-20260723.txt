@@ -1,0 +1,165 @@
+ M .claude/agents/trellis-check.md
+ M .claude/agents/trellis-implement.md
+ M .claude/agents/trellis-research.md
+ M .claude/commands/trellis/continue.md
+ M .claude/hooks/inject-subagent-context.py
+ M .claude/hooks/inject-workflow-state.py
+ M .claude/hooks/session-start.py
+ M .claude/skills/gitnexus/gitnexus-cli/SKILL.md
+ M .claude/skills/gitnexus/gitnexus-debugging/SKILL.md
+ M .claude/skills/gitnexus/gitnexus-exploring/SKILL.md
+ M .claude/skills/gitnexus/gitnexus-guide/SKILL.md
+ M .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md
+ M .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md
+ M .claude/skills/trellis-before-dev/SKILL.md
+ M .claude/skills/trellis-brainstorm/SKILL.md
+ M .claude/skills/trellis-break-loop/SKILL.md
+ M .claude/skills/trellis-check/SKILL.md
+ M .claude/skills/trellis-meta/SKILL.md
+ M .claude/skills/trellis-meta/references/customize-local/change-agents.md
+ M .claude/skills/trellis-meta/references/customize-local/change-context-loading.md
+ M .claude/skills/trellis-meta/references/customize-local/change-hooks.md
+ M .claude/skills/trellis-meta/references/customize-local/change-skills-or-commands.md
+ M .claude/skills/trellis-meta/references/customize-local/change-spec-structure.md
+ M .claude/skills/trellis-meta/references/customize-local/change-workflow.md
+ M .claude/skills/trellis-meta/references/customize-local/overview.md
+ M .claude/skills/trellis-meta/references/local-architecture/context-injection.md
+ M .claude/skills/trellis-meta/references/local-architecture/generated-files.md
+ M .claude/skills/trellis-meta/references/local-architecture/overview.md
+ M .claude/skills/trellis-meta/references/local-architecture/spec-system.md
+ M .claude/skills/trellis-meta/references/local-architecture/task-system.md
+ M .claude/skills/trellis-meta/references/platform-files/agents.md
+ M .claude/skills/trellis-meta/references/platform-files/hooks-and-settings.md
+ M .claude/skills/trellis-meta/references/platform-files/overview.md
+ M .claude/skills/trellis-meta/references/platform-files/platform-map.md
+ M .claude/skills/trellis-meta/references/platform-files/skills-and-commands.md
+ D .claude/skills/trellis-spec-bootstarp/SKILL.md
+ D .claude/skills/trellis-spec-bootstarp/references/mcp-setup.md
+ D .claude/skills/trellis-spec-bootstarp/references/repository-analysis.md
+ D .claude/skills/trellis-spec-bootstarp/references/spec-task-planning.md
+ D .claude/skills/trellis-spec-bootstarp/references/spec-writing.md
+ M .serena/project.yml
+ M .trellis/.template-hashes.json
+ M .trellis/.version
+ M .trellis/config.yaml
+ M .trellis/scripts/add_session.py
+ M .trellis/scripts/common/active_task.py
+ M .trellis/scripts/common/cli_adapter.py
+ M .trellis/scripts/common/config.py
+ M .trellis/scripts/common/io.py
+ M .trellis/scripts/common/safe_commit.py
+ M .trellis/scripts/common/session_context.py
+ M .trellis/scripts/common/task_context.py
+ M .trellis/scripts/common/task_store.py
+ M .trellis/scripts/common/task_utils.py
+ M .trellis/scripts/common/workflow_phase.py
+ M .trellis/scripts/task.py
+ M .trellis/spec/backend/quality-guidelines.md
+ M .trellis/spec/frontend/component-guidelines.md
+ M .trellis/spec/frontend/quality-guidelines.md
+ M .trellis/spec/frontend/state-management.md
+ M .trellis/spec/frontend/wechat-svg-modules.md
+ M .trellis/tasks/05-12-full-app-functionality-audit-repair/vite-3005.stdout.log
+ M .trellis/workflow.md
+ M AGENTS.md
+ M CLAUDE.md
+ M docs/platform-rendering-rules/market-practices-catalog.md
+ M docs/platform-rendering-rules/wechat-rules.md
+ M docs/platform-rendering-rules/xiaohongshu-rules.md
+ M docs/platform-rendering-rules/zhihu-rules.md
+ M inkforge/scripts/style-proof-external-handoff.test.ts
+ M inkforge/scripts/style-proof-release-preflight.test.ts
+ M inkforge/scripts/style-proof-release-preflight.ts
+ M inkforge/src-tauri/src/commands/desktop.rs
+ M inkforge/src-tauri/src/commands/window.rs
+ M inkforge/src-tauri/src/main.rs
+ M inkforge/src/App.vue
+ M inkforge/src/components/chrome/ViewTransition.vue
+ M inkforge/src/components/cms/CMSTools.vue
+ M inkforge/src/components/editor/EditorPanel.vue
+ M inkforge/src/components/editor/ThemePanel.vue
+ M inkforge/src/components/editor/WritingAssistPanel.vue
+ M inkforge/src/components/export/ExportModal.svg-options.test.ts
+ M inkforge/src/components/export/ExportModal.vue
+ M inkforge/src/components/file/FileManager.vue
+ M inkforge/src/components/hub/TemplateMarketGrid.vue
+ M inkforge/src/components/settings/UpdateCard.vue
+ M inkforge/src/components/tag-system/TagBadge.vue
+ M inkforge/src/components/tag-system/TagBrowser.vue
+ M inkforge/src/components/tag-system/TagInput.vue
+ M inkforge/src/composables/usePreviewRenderer.test.ts
+ M inkforge/src/composables/usePreviewRenderer.ts
+ M inkforge/src/composables/useSyncScroll.ts
+ M inkforge/src/composables/useTypography.ts
+ M inkforge/src/data/quotes.ts
+ M inkforge/src/extensions/TypewriterMode.ts
+ M inkforge/src/extensions/__tests__/TypewriterMode.decorations.test.ts
+ M inkforge/src/services/desktop/index.test.ts
+ M inkforge/src/services/desktop/index.ts
+ M inkforge/src/services/desktop/types.ts
+ M inkforge/src/services/export/index.ts
+ M inkforge/src/services/export/preview-fidelity/xiaohongshu-mock.test.ts
+ M inkforge/src/services/export/preview-fidelity/xiaohongshu-mock.ts
+ M inkforge/src/services/export/shared-typography.ts
+ M inkforge/src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts
+ M inkforge/src/services/export/svg-modules/html-blocks.ts
+ M inkforge/src/services/export/svg-modules/xhs-card-slicer.ts
+ M inkforge/src/services/export/wechat.ts
+ M inkforge/src/services/export/zhihu.ts
+ M inkforge/src/services/layout-persistence/defaults.ts
+ M inkforge/src/services/layout-persistence/layout-persistence.test.ts
+ M inkforge/src/services/layout-persistence/migration.ts
+ M inkforge/src/services/layout-persistence/types.ts
+ M inkforge/src/services/visual-system/index.ts
+ M inkforge/src/stores/editor.ts
+ M inkforge/src/stores/settings.editor.test.ts
+ M inkforge/src/stores/settings.export-history.test.ts
+ M inkforge/src/stores/settings.ts
+ M inkforge/src/stores/theme.ts
+ M inkforge/src/views/HubView.vue
+ M inkforge/src/views/PublishView.vue
+ M inkforge/src/views/SettingsView.vue
+ M inkforge/src/views/ThemesView.vue
+ M inkforge/src/views/WorkstationView.vue
+ M inkforge/src/views/__tests__/HubView.cards.test.ts
+ M inkforge/src/views/__tests__/PublishView.wechat-presets.test.ts
+ M prompts/0601/evidence/e2e/flagship-amber.png
+ M prompts/0601/evidence/e2e/flagship-kiln.png
+ M prompts/0601/evidence/e2e/flagship-tempera.png
+?? .claude/skills/trellis-channel/
+?? .claude/skills/trellis-meta/references/local-architecture/bundled-skills.md
+?? .claude/skills/trellis-meta/references/local-architecture/multi-agent-channel.md
+?? .claude/skills/trellis-session-insight/
+?? .claude/skills/trellis-spec-bootstrap/
+?? .trellis/agents/
+?? .trellis/tasks/05-26-render-wechat-fidelity-test/
+?? .trellis/tasks/07-15-agent-dinner-frontier-protocol-knowledge-graph/
+?? .trellis/tasks/07-22-workbench-rendering-software-ux/
+?? .trellis/workspace/ZRainbow1275/current-status-20260723.txt
+?? experiment/
+?? inkforge/__fidelity__/
+?? inkforge/src/components/chrome/ViewTransition.test.ts
+?? inkforge/src/components/export/ExportModal.local-delivery.test.ts
+?? inkforge/src/components/file/FileManager.information-architecture.test.ts
+?? inkforge/src/components/workstation/InspectorWidgetActions.vue
+?? inkforge/src/components/workstation/InspectorWidgetContent.vue
+?? inkforge/src/composables/useSyncScroll.test.ts
+?? inkforge/src/services/export/local-delivery.test.ts
+?? inkforge/src/services/export/local-delivery.ts
+?? inkforge/src/services/export/persona-distinction.test.ts
+?? inkforge/src/services/export/shared-typography.test.ts
+?? inkforge/src/services/inspector-widgets/
+?? inkforge/src/stores/theme.test.ts
+?? inkforge/src/views/InspectorUtilityView.vue
+?? inkforge/src/views/__tests__/SettingsView.software-shell.test.ts
+?? inkforge/src/views/__tests__/ThemesView.canonical-presets.test.ts
+?? inkforge/src/views/__tests__/WorkstationView.desktop-layout.test.ts
+?? prompts/0526/mobile-typography-chars/
+?? prompts/0526/preview-device-size/
+?? prompts/0526/verification-evidence/preview-frame-20chars-evidence-2026-05-27T08-58-46-596Z.png
+?? prompts/0526/verification-evidence/stage-panel-19chars-evidence-2026-05-27T09-12-30-488Z.png
+?? prompts/0526/verification-evidence/typewriter-5block-after-stage-padding-fix-2026-05-27T09-14-18-919Z.png
+?? prompts/0526/verification-evidence/typewriter-5block-dim-distribution-2026-05-27T08-59-34-024Z.png
+?? prompts/0527/visual-polish-evidence/app-vite-no-tauri-2026-05-27T16-08-13-356Z.png
+?? prompts/0528/logo-aha-evidence/
+?? resource/

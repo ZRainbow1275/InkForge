@@ -193,6 +193,9 @@ and still run the narrow checks for the touched scope.
 - Pure text/Markdown native platforms must not be claimed to publish arbitrary CSS. If XHS/Zhihu publish-side checks are operator-owned for the current round, keep automated evidence limited to local renderer output and document the manual boundary.
 - Browser smoke must use a real Workstation article and real Settings/Pinia persistence. At minimum set a non-WeChat default platform, remount Workstation, verify Stage and ExportModal initial platform, restore the original setting, and verify no XHS/Zhihu/WeChat publish action or external upload is claimed.
 - For export CSS changes, browser smoke must write a real `settings.export.customCss` value through Settings/Pinia, open WeChat ExportModal from a real Workstation article, verify a body paragraph carries inline style in `.preview-render #nice`, restore the original setting, and verify runtime `#inkforge-custom-css` did not receive the export CSS.
+- ExportModal has one primary copy/download pair. It must consume `nativeResult`: WeChat rich HTML, XHS plain text, or Zhihu Markdown. `previewHtml` is a visual surface and must not own a second generic “styled HTML” handoff.
+- Format metadata may remain visible in the native artifact card, but duplicate copy/download controls must not be reintroduced there. The pinned action labels must use the existing native format label, stay single-line at supported widths, and write the exact native bytes into export history.
+- Local file download, folder delivery, and static-blog output belong to Export. Publish may preview, inspect/copy source, hand off the platform-native artifact, and run channel/account actions, but it must not duplicate a local preview-HTML download action.
 
 ## CustomCSS Quality Gate
 
@@ -288,3 +291,20 @@ expect(report.canClaimReleaseComplete).toBe(false)
 ```
 
 A green unit test is not a substitute for visible rendering proof when UI changed. Do not replace real platform/export proof with mock artifacts.
+
+## Packaged Desktop Acceptance Gate
+
+- InkForge is accepted as a Tauri desktop application, not as a Vite page or a browser tab. Browser
+  inspection may diagnose DOM or platform-editor behavior, but it cannot close a product UI,
+  persistence, native-command, window, clipboard, file, installer, or release row.
+- Final desktop evidence must come from the real `InkForge.exe` process. For release handoff, build
+  the production frontend and Tauri release binary, generate the supported Windows installer
+  bundles, record their exact paths, sizes, and SHA-256 hashes, and launch the release executable
+  without the Vite development server.
+- Native acceptance should use Windows UI Automation, Win32 window geometry/capture, typed Tauri
+  command results, and durable file/IndexedDB/localStorage readback as appropriate. It must not
+  substitute direct browser storage mutation, mock providers, synthetic publish success, or a
+  localhost screenshot.
+- WebView2 is the Tauri 1 Windows rendering runtime. Its presence does not make a browser tab an
+  acceptable release artifact; the shipped boundary remains the native process, native window,
+  Tauri command whitelist, packaged assets, and installer.

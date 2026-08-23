@@ -119,7 +119,7 @@ live operation.
 - Tauri commands:
   - `wechat_publish_status() -> { configured, missingKeys, source, appIdHint }`
   - `wechat_upload_article_image(input) -> { remoteUrl }`
-  - `wechat_upload_cover_image(input) -> { remoteUrl, coverHandle }`
+  - `wechat_upload_cover_image(input) -> { remoteUrl, mediaId }`
   - `wechat_create_draft(article) -> { articleCount }`
 - Frontend service entry points:
   - `getWechatPublishStatus()`
@@ -127,9 +127,6 @@ live operation.
   - `uploadWechatCoverImage(image)`
   - `rewriteWechatArticleImages(html)`
   - `createWechatDraft(article)`
-  - `planWechatDraftPublish(input) -> non-mutating plan`
-  - `approveWechatDraftPublishPlan(plan, approval) -> transient exact-plan approval`
-  - `publishWechatDraft(input, plan, approval)`
 
 ### 3. Contracts
 - Env keys:
@@ -166,13 +163,13 @@ live operation.
 - Draft request contract:
   - Renderer/Tauri invoke input uses camelCase fields such as
     `coverHandle`, `showCoverPic`, `contentSourceUrl`, `needOpenComment`.
-    `coverHandle` is an opaque process-local 32-hex handle resolved to the raw
-    cover media ID only inside Rust; it expires when the backend process exits.
+    `coverHandle` is an opaque process-local 32-hex handle resolved to the raw cover media ID only
+    inside Rust; it is not a WeChat identifier and expires when the backend process exits.
   - The outbound WeChat `draft/add` payload must be serialized to snake_case:
     `thumb_media_id`, `show_cover_pic`, `content_source_url`,
     `need_open_comment`, `only_fans_can_comment`.
-  - Optional draft fields must be trimmed once and omitted when absent or
-    whitespace-only, not serialized as JSON `null` or sent with padding.
+  - Optional draft fields must be omitted when absent, not serialized as JSON
+    `null`.
   - WeChat draft/material identifiers remain backend-only. The ordinary
     `wechat_create_draft` response exposes only non-sensitive counts/status;
     raw `media_id` values must not cross the Rust-to-Web serialization boundary.
@@ -180,28 +177,11 @@ live operation.
     `title` max 32 characters, `author` max 16 characters, `digest` max 120
     characters, `content_source_url` max 1 KB and HTTP(S)-only, and `content`
     fewer than 20,000 characters and 1 MB.
-    The current official `draft/add` documentation and its 2026-07-14 change
-    log explicitly align the API digest limit to 120 characters:
-    `https://developers.weixin.qq.com/doc/service/api/draftbox/draftmanage/api_draft_add`.
   - Local draft preflight must run before any WeChat-side mutation. The publish
     orchestration must reject missing `coverHandle` / `coverImage` and invalid
     draft metadata before uploading article images. If a cover image must be
     uploaded as permanent material, the rewritten draft content must pass local
     validation before the permanent material upload starts.
-  - The shared plan must normalize every local asset/blob source, classify each
-    unique image once, count WeChat-hosted images as zero uploads, and bind the
-    frozen input plus prepared candidates to deterministic input/plan SHA-256
-    fingerprints without invoking Tauri.
-  - Execution requires the exact in-memory plan plus a transient confirmation
-    whose plan fingerprint, visible-editor target match, and per-kind upload /
-    draft upper bounds equal the plan. Missing, stale, copied, or mismatched
-    approval must fail before the first upload or draft command.
-  - `PublishView` is the sole credentialed product owner for ordinary draft
-    creation. It must block when `appIdHint` is absent, show that hint plus the
-    short plan fingerprint and side-effect bounds in one native confirmation,
-    and persist none of those target values. `ExportModal` remains a local
-    copy/download surface and must not call `publishWechatDraft()` or accept raw
-    WeChat media identifiers.
 - Draft content contract:
   - Article `content` must stay below the WeChat 20,000-character boundary.
   - `<img src>` and `srcset` candidates must already point at WeChat-hosted
@@ -256,9 +236,6 @@ live operation.
   - `inkforge-asset://` sources normalize to `dataUrl`
   - repeated HTML image sources upload once and rewrite deterministically
   - draft creation rejects foreign image hosts
-  - draft metadata is trimmed once and whitespace-only optional fields are omitted
-  - deferred render/publish results cannot attach old HTML or cover handles to a new article
-  - the Workstation publish CTA enters `PublishView` while the export button keeps `ExportModal`
   - WeChat Markdown Mermaid output uses readable PNG/JPG-placeholder content,
     the visible reading header matches returned AST-backed stats, and Mermaid is
     not duplicated as a generic unsupported code-language warning
@@ -345,3 +322,31 @@ record the exact failing paths and still run the narrower service-layer checks.
 - Were scoped tests and non-mutating lint run?
 - If full gates failed, are the failures outside the task scope and documented
   with exact file paths?
+
+## Native Local Delivery Command Contract
+
+- `write_local_delivery_bundle` accepts only a picker title plus at most 512 files / 128 MiB. The
+  command itself opens the owned OS directory picker and returns `None` on cancellation; the
+  renderer cannot provide a destination root. Only the internal synchronous writer receives the
+  picker-selected directory. Each file supplies exactly one UTF-8 `content` value or Base64
+  `base64` value.
+- Canonicalize the destination root and accept only portable relative file paths. Reject absolute paths, `.`, `..`, roots/prefixes, control or Windows-invalid characters, reserved Windows names, duplicate case-folded paths, file/parent conflicts, transaction-name collisions, and symbolic-link traversal.
+- Stage every file inside a unique directory under the destination root so installation remains on the same filesystem. Flush staged files before replacing destination files.
+- Existing destination targets are conflicts, not replacements. Reject the entire bundle before commit when any target already exists. Install with `hard_link` when supported; if that filesystem rejects hard links, fall back to `OpenOptions::create_new(true)` plus streamed copy, `flush`, and `sync_all`. `AlreadyExists` never enters the fallback. This preserves the atomic no-clobber reservation even on exFAT/FAT or compatible network shares; failed fallback copies remove only their newly created partial target.
+- After installation, read every target and compare exact bytes before returning success. Any install or readback error removes only files and empty directories created by that transaction. If rollback itself fails, return both the primary and rollback errors; never report success.
+- Failure before commit leaves the destination untouched. Cleanup failure after successful byte-for-byte readback is a visible `cleanupWarning`, not proof of external publication.
+- Keep this command file-oriented and whitelist-only. Do not add arbitrary shell commands, static-site build hooks, remote blog credentials, or platform publish actions to the local delivery boundary.
+
+Required focused checks:
+
+```bash
+cargo test commands::desktop::tests -- --nocapture
+pnpm -C inkforge exec vitest run \
+  src/services/export/local-delivery.test.ts \
+  src/services/desktop/index.test.ts \
+  src/components/export/ExportModal.local-delivery.test.ts \
+  --reporter=default --maxWorkers=1 --no-file-parallelism
+```
+
+The Rust suite must directly exercise the copy fallback with exact binary readback and prove that an
+existing target is unchanged.

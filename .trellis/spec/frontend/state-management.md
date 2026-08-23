@@ -65,6 +65,102 @@ is represented by the sync service and provider contracts:
 - Do not persist unvalidated session/localStorage payloads into durable layout
   or store state.
 
+## Scenario: Canonical Typography State
+
+### 1. Scope / Trigger
+- Apply this contract when Settings, Workstation, EditorPanel, preview, ExportModal, Publish, or a settings migration reads or writes document typography.
+
+### 2. Signatures
+- Writable state: `settings.appearance.typography: TypographySettings`.
+- Font-family companion: `settings.appearance.fontFamily` enters renderer boundaries as `TypographyConfig.fontFamily`.
+- Migration aliases: `appearance.fontSize`, `appearance.lineHeight`, and `export.textIndent` are read only by `buildSettingsCandidate()` when the matching canonical field is absent.
+
+### 3. Contracts
+- Visible controls and active renderers must never read or write a migration alias.
+- `fontSize`, `lineHeight`, `letterSpacing`, `paragraphSpacing`, `paragraphIndent`, `headingStyle`, and `blockquoteStyle` flow from the same canonical object.
+- Workstation/EditorPanel, `usePreviewRenderer()`, ExportModal, Publish, and Settings preview copy must consume that object; unsupported platform parameters must not be presented as successful output.
+
+### 4. Validation & Error Matrix
+- Canonical field present, including `false` or `0` -> canonical value wins.
+- Canonical field absent and valid legacy alias present -> migrate once into the canonical field.
+- Both absent -> use `TypographySchema` defaults.
+- Invalid imported payload -> Settings schema validation fails closed through the existing default/rollback path.
+
+### 5. Good/Base/Bad Cases
+- Good: changing `paragraphIndent` updates editor, WeChat preview, Export, Publish, and Settings preview copy.
+- Base: an old settings payload with only `export.textIndent=true` loads with canonical `paragraphIndent=true`.
+- Bad: a visible control binds to `settings.export.textIndent`, producing a second value that disagrees with Workstation.
+
+### 6. Tests Required
+- Store migration must prove legacy fallback and explicit canonical precedence.
+- Source contracts must reject active `settings.export.textIndent` consumers.
+- Shared typography tests must assert every supported property reaches final WeChat inline output; visible Tauri acceptance must change each control separately.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+```vue
+<input v-model="settings.export.textIndent" type="checkbox">
+```
+
+#### Correct
+```vue
+<input v-model="settings.appearance.typography.paragraphIndent" type="checkbox">
+```
+
+---
+
+## Scenario: Canonical Platform Preset Compatibility
+
+### 1. Scope / Trigger
+- Apply this contract when changing `stores/theme.ts`, `ThemesView.vue`, retained `ThemePanel` / `MarkdownPreview` / `CMSTools` compatibility components, or platform preset selection.
+
+### 2. Signatures
+- Preset authority: `themePresets: ExportPreset[]` in `services/export/themes.ts`.
+- Writable selection: `settings.export.defaultPlatform` plus `settings.export.defaultPresetId`.
+- Compatibility projection: `ARTICLE_PRESETS = themePresets.map(toLegacyThemePreset)`.
+- Renderer boundaries: `generateThemeCSS()`, `typographyToWechatCss()`, and `convertToNativeFormat()`.
+
+### 3. Contracts
+- Active Themes, Workstation, Export, and Publish surfaces write only the canonical Settings platform/preset pair; they must not also call `themeStore.applyPreset()`.
+- The legacy Store may retain one old WeChat preset ID for migration/compatibility. Its writable typography, font, color, export-option, and Custom CSS properties must proxy canonical Settings rather than own parallel refs.
+- Compatibility `generatedCSS` may adapt `#nice` selectors for the old `.preview-content` host, but the CSS must originate from `generateThemeCSS()` plus `typographyToWechatCss()`; it must not contain a second hand-written theme template.
+- Retained copy tools use `convertToNativeFormat()` and the strict platform clipboard helper. Reconstructing an `ExportPreset` from legacy fields is forbidden because it drops SVG decorators and dual-track CSS.
+
+### 4. Validation & Error Matrix
+- Valid persisted canonical platform/preset pair -> canonical pair wins; the legacy ID cannot replace it.
+- Canonical pair absent + valid legacy WeChat ID -> migrate once to `wechat` plus that ID.
+- Invalid legacy ID -> ignore it and keep validated Settings defaults.
+- Legacy localStorage write failure -> keep the in-memory canonical selection and expose `storageWarning`; never claim persistence.
+- Canonical platform is XHS/Zhihu -> retain that pair; a remembered legacy WeChat ID is compatibility-only until the user explicitly selects a WeChat preset.
+
+### 5. Good/Base/Bad Cases
+- Good: applying `flagship-amber` in a retained legacy panel writes canonical Settings and renders the same flagship CSS/SVG pipeline used by Workstation.
+- Base: no legacy key loads the validated Settings pair unchanged.
+- Bad: ThemesView writes Settings and then calls `themeStore.applyPreset()`, or CMSTools calls `marked.parse()` plus `convertToWechat()` with a reconstructed preset.
+
+### 6. Tests Required
+- Assert compatibility IDs exactly equal all canonical WeChat IDs.
+- Assert valid legacy migration and explicit canonical precedence.
+- Assert compatibility CSS contains canonical theme and typography output and no former hand-written template marker.
+- Source-contract retained copy tools against `convertToNativeFormat()` / strict rich-copy and reject `marked.parse()`, direct `convertToWechat()`, and `ARTICLE_PRESETS` reconstruction.
+- Run adjacent Workstation, Themes, preview, Export, Publish, Settings, persona, and 16-preset migration suites, then changed-file ESLint, `vue-tsc`, and production build.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+```ts
+settings.export.defaultPresetId = selectedPreset
+themeStore.applyPreset(selectedPreset)
+const html = convertToWechat(marked.parse(markdown), reconstructedPreset, options)
+```
+
+#### Correct
+```ts
+settings.export.defaultPresetId = selectedPreset
+const result = await convertToNativeFormat(markdown, 'wechat', { presetId: selectedPreset })
+```
+
 ---
 
 ## Scenario: Sync Store UI State
@@ -324,14 +420,15 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
 - Store: `useSettingsStore()`.
 - Read field: `settings.export.exportHistory: ExportHistoryEntry[]`.
 - Actions: `recordExportHistory(entry)` and `clearExportHistory()`.
-- Entry fields: `id`, `platform`, `title`, `exportedAt`, `bytes`, and `action` (`copy`, `download`, or `settings-preview`).
+- Entry fields: `id`, `platform`, `title`, `exportedAt`, `bytes`, and `action` (`copy`, `download`, `write-local`, or `settings-preview`). Social artifacts use `platform='wechat' | 'xiaohongshu' | 'zhihu'`; native folder/static-site delivery uses `platform='local'`.
 
 ### 3. Contracts
 - Keep at most the latest 10 entries and persist them through the existing `inkforge-settings` Settings storage. Do not create a second history repository or demo rows.
-- Record only after the user-facing operation succeeds: Clipboard API returns success, or the local Blob/anchor download trigger completes without throwing. Failed render/copy/download attempts must not create entries.
+- Record only after the user-facing operation succeeds: Clipboard API returns success, the local Blob/anchor download trigger completes without throwing, or native local delivery completes its byte-for-byte readback. Failed render/copy/download/write attempts must not create entries.
 - ExportModal styled/native copy and download, Workstation quick copy, Publish Center rich/text copy and HTML download, Settings preview copy, and Settings JSON download must use the same store action.
 - For WeChat styled/rich copy, success requires either `ClipboardItem` rich HTML write or the Publish Center's sanitized DOM-selection fallback with `document.execCommand('copy') === true`. A plain-text fallback cannot preserve SVG/style and therefore must fail closed instead of recording or displaying styled-copy success.
 - `download` means InkForge successfully generated the Blob and triggered the browser/Tauri download boundary. It does not prove the operating system saved a file at a particular path.
+- `write-local` means the Tauri local-delivery transaction installed every file and completed byte-for-byte readback. It must use `platform='local'`; the currently selected social preview platform must never label that row.
 - Clearing history must be an explicit typed-confirm UI action and must not reset articles, presets, CustomCSS, or any other export setting.
 - XHS/Zhihu account upload and publish are outside this history contract and remain operator-owned; local copy/download entries must not be presented as platform publish evidence.
 
@@ -340,6 +437,7 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
 - Successful WeChat rich copy -> one `platform='wechat'`, `action='copy'`, non-zero-byte entry appears and survives reload.
 - Modern rich HTML unavailable but plain text writable -> WeChat style copy succeeds only if the sanitized DOM-selection fallback explicitly returns true; otherwise it shows no success claim and writes no history row.
 - Successful native/styled download trigger -> `action='download'` entry records generated content bytes; UI labels it `下载文件` rather than `下载设置`.
+- Successful personal-folder/static-site write -> `platform='local'`, `action='write-local'`, and the Settings UI labels it `本地交付 / 本地写入并回读` after the native readback result succeeds.
 - More than 10 successful actions -> only the newest 10 persist in newest-first order.
 - Typed clear confirmation -> history becomes empty immediately and remains empty after reload.
 
@@ -349,7 +447,7 @@ queryParams.value = { profileId, from: Date.now() - ninetyDays, limit: 50, offse
 - Bad: recording on button click before clipboard/download success, treating plain-text fallback as WeChat style success, maintaining component-local history, or clearing the whole Export tab to remove history.
 
 ### 6. Tests Required
-- Unit-test the 10-entry cap, newest-first order, Settings persistence/reload, and durable clear.
+- Unit-test the 10-entry cap, newest-first order, Settings persistence/reload, durable clear, and `local` + `write-local` migration-safe round trip.
 - Unit-test that WeChat style copy fails closed when only plain-text fallback exists, that the sanitized DOM-selection fallback trusts only an explicit true result, and that ordinary copy retains its compatibility fallback.
 - Type-check and lint every consumer after changing the shared store or clipboard boundary.
 - Real Tauri/WebView2 test: seed a real article, execute WeChat styled copy, read the Store/localStorage/Settings DOM row, reload, typed-confirm clear, reload again, and assert no section overflow or implicit submit button.
@@ -1798,6 +1896,42 @@ try {
 }
 ```
 
+## Scenario: Article Title Authority Across Metadata And Edited Content
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing FileManager article rename, the Workstation title input, `stores/editor.ts`, `stores/article.ts`, edited-content persistence, tabs, or article snapshot synchronization.
+- The contract covers active and inactive local articles. It must not require a second repository or a display-only title override.
+
+### 2. Authorities And Signatures
+
+- Before an `EditedContent` row exists, `Article.title` is the creation authority.
+- After edited content exists, title changes route through `useEditorStore().renameArticleTitle(articleId, title)` so `EditedContent.title` and the projected `Article.title` advance through the existing editor write queue.
+- `syncArticleSnapshot()` remains the single projection from edited content into article metadata.
+
+### 3. Contracts
+
+- FileManager must not update only `Article.title` for a document that already has edited content. A later editor hydration would otherwise overwrite that metadata with the stale edited-content title.
+- Normalize and reject an empty title before persistence. Serialize rename with the existing content write queue, persist edited content first, then reuse the existing article snapshot synchronization.
+- If no edited-content row exists, update the article metadata directly; the first editor hydration then creates edited content from that title.
+- A successful rename must keep the Workstation title input, active tab, FileManager row, editor accessible name, durable edited content, and article metadata consistent after reload.
+
+### 4. Validation Matrix
+
+| Condition | Required state |
+| --- | --- |
+| Active article has edited content | Queued edited-content update succeeds; all visible title projections agree |
+| Inactive article has edited content | Repository row updates without replacing the active editor; article metadata follows |
+| Article has no edited content | Article metadata updates and later content creation inherits the same title |
+| Blank title | No durable or visible mutation |
+| Reload after FileManager rename | New title remains; stale edited content cannot restore the old title |
+
+### 5. Tests Required
+
+- Keep a focused regression that rejects direct FileManager-only article metadata rename and pins the queued editor-store authority path.
+- Run changed-file ESLint and `vue-tsc --noEmit` after changing the store/component contract.
+- Real Tauri acceptance must rename through the visible FileManager context menu, wait for durable save, prove the title in the Workstation header/tab/tree/editor, reload, and prove the same title again. Direct Pinia, localStorage, or IndexedDB mutation is not acceptance evidence.
+
 ## Scenario: Tag Relations, Recoverable Actions, And Manager Layout
 
 ### 1. Scope / Trigger
@@ -1887,3 +2021,138 @@ emit('update', id, patch, () => {
 - Prove both sides of the shortcut boundary: transient same-trigger blur keeps recording, while visible focus departure and the production title-bar minimize action stop recording.
 - Prove category/article inline rename survives the WebView blur/focus pair and still commits through Enter or a stable in-window focus departure.
 - Include a timezone-sensitive Hub insight case whose current local-day article appears in heatmap/trend output without changing product thresholds or injecting analytics rows.
+
+## Scenario: Native Local Folder And Static-Site Delivery
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing `components/export/ExportModal.vue`, `services/export/local-delivery.ts`, `services/desktop/index.ts`, or the Tauri `write_local_delivery_bundle` command.
+- This is a local artifact-delivery contract. It does not prove WeChat draft creation, account sync, scheduled send, Xiaohongshu/Zhihu upload, or external publication.
+
+### 2. Authorities And Signatures
+
+- Source authority: the current article Markdown and title passed to `ExportModal`; generated HTML is derived and never written back into the article.
+- Bundle authority: `buildLocalDeliveryBundle({ target, format, title, markdown })`, where `target` is `folder | blog` and `format` is `markdown | html`.
+- Native boundary: `writeLocalDeliveryBundle(files, pickerTitle)` invokes
+  `write_local_delivery_bundle({ pickerTitle, files })`; the Tauri command owns the visible OS
+  directory picker and passes its selection only to the internal synchronous writer. The renderer
+  must never supply `destinationRoot`.
+- Durable success boundary: the Tauri command returns only after every installed file has been read back byte-for-byte with `readbackVerified=true`.
+
+### 3. Contracts
+
+- Web runtime reports native directory selection and native bundle writing as unavailable. It must not accept a manually typed path or display a simulated write success.
+- Personal-folder output preserves the article payload without adding blog metadata. Static-site blog output preserves existing frontmatter exactly; when absent, it adds portable title/date/draft frontmatter.
+- `inkforge-asset://` references are resolved through the existing asset snapshot service, rewritten to deterministic relative paths, and sent in the same native bundle as the entry file. Missing or unreadable assets fail the whole preparation step.
+- The picker-selected destination may be returned as transient component result state for visible
+  readback and reveal-in-file-manager only. It is not a reusable write capability; every write opens
+  the owned picker again, and switching or reopening the modal must not invent a previous selection.
+- UI success, export history, and reveal-directory actions may occur only after the native readback result succeeds. A staging cleanup warning is visible but does not rewrite a verified success as an external publish claim.
+- Personal blog means a Hugo/Hexo/Jekyll-compatible static content directory in this task. Do not invent WordPress/Ghost credentials, remote endpoints, shell hooks, or publication success.
+
+### 4. Validation Matrix
+
+| Condition | Required state |
+| --- | --- |
+| Empty article | Bundle preparation rejects; no native write is invoked |
+| Existing frontmatter | Output preserves it byte-for-byte |
+| Blog without frontmatter | Deterministic portable frontmatter is generated |
+| Local asset reference | Entry uses a relative path and the binary file is included once |
+| Web runtime | Typed unavailable result; no success history row |
+| Invalid/traversal/conflicting path | Native command rejects before touching existing destination files |
+| Destination filesystem rejects hard links | Native writer uses a `create_new` copy fallback, flushes/syncs it, and never overwrites an existing target |
+| Partial install or readback failure | Newly installed files are removed and previous files are restored |
+| Successful native write | Every returned file has exact bytes and `readbackVerified=true` |
+
+### 5. Tests Required
+
+- Unit-test safe deterministic slugs, frontmatter preservation/generation, empty input, and unresolved local-reference detection.
+- Unit-test web-runtime unavailability, invalid native-write input, cancellation, and that the
+  renderer invocation contains only `pickerTitle` plus files, never a destination path.
+- Rust tests must write real text and binary files, reject unsafe/conflicting paths without touching prior data, force a partial commit failure that proves rollback, and directly prove the no-clobber copy fallback preserves exact bytes.
+- Real Tauri acceptance must choose a disposable directory through the visible OS picker, write Markdown and HTML through the visible Export flow, inspect the real files read-only, and verify no transaction directory remains. Do not inject component state or call the command directly as UI proof.
+
+## Scenario: Edge Inspector Geometry And Writing-Focus Activation
+
+### 1. Scope / Trigger
+
+- Apply this contract when changing `composables/useEdgeMagnetism.ts`, the Workstation inspector presentation, `extensions/TypewriterMode.ts`, `components/editor/EditorPanel.vue`, or the writing-assist controls.
+- Reuse the existing inspector refs, settings state, writing-assist store, and TipTap extension. Do not add a second hover, focus, typewriter, or vignette state system.
+
+### 2. Contracts
+
+- An unpinned right-edge inspector is an overlay. Opening, holding, and collapsing it must not change the editor rectangle; only an explicitly pinned inspector reserves layout width.
+- Native acceptance on scaled Windows displays must use a DPI-aware coordinate process. A DPI-virtualized pointer miss is invalid test evidence, not a product failure.
+- Typewriter option refresh continues through the existing EditorPanel metadata transaction. A `disabled -> enabled` transition must perform one caret-anchor scroll even when the ProseMirror selection is unchanged; later updates scroll only when the selection moves.
+- The activation scroll preserves the real selection and uses the existing configured cursor position. Reduced-motion state still forces `behavior: 'auto'`.
+- Dimming, the active-block treatment, and the conditional end spacer disappear when Typewriter mode is disabled. Vignette remains independently toggleable, affects only the bounded top/bottom editor regions, and must not intercept input or alter selection.
+
+### 3. Tests Required
+
+- The real plugin test must fail if unchanged-selection activation does not call the shared scroll path, while retaining cursor-movement and both reduced-motion cases.
+- Real Tauri acceptance must run repeated DPI-aware edge enter/hold/far-leave cycles and compare editor rectangles at every phase.
+- Use a real multi-paragraph disposable article to prove button and keyboard activation, configured caret position, visible dim/vignette effects, immediate reversal, and unchanged selected text. Restore both modes after the check.
+
+## Scenario: Native Inspector Same-Window Article Context Reuse
+
+### 1. Scope / Trigger
+
+- Apply when changing `create_inspector_widget`, `createInspectorWidgetWindow`, `InspectorUtilityView`, or the Inspector native-window handshake.
+- A native Inspector label is intentionally stable for one `surfaceId + profileId`; therefore opening the same surface for another article may reuse the existing window instead of rebuilding it.
+
+### 2. Signatures
+
+- Frontend: `createInspectorWidgetWindow(surfaceId, profileId, articleId)`.
+- Tauri: `create_inspector_widget(app, surface_id, profile_id, article_id) -> Result<String, String>`.
+- Reuse payload on `inkforge://inspector-widget-state`: `{ surfaceId, articleId, windowLabel }`.
+- Live state reply: `{ windowLabel, payload: InspectorWidgetPayload }` where `payload.articleId` equals the requested article.
+
+### 3. Contracts
+
+- The initial utility URL is immutable and may retain article A. When the stable window is reused for article B, Rust emits the validated reuse payload before focusing the window.
+- The utility accepts the payload only when `surfaceId` and `windowLabel` match its own request, switches its active article, clears stale live payload, then sends the existing `ready` handshake so the main window returns a complete live state envelope.
+- Rendering, links, statistics, and the visible article title derive from the active/live article id, never permanently from the initial query string.
+- `data-inspector-article-id` and `data-inspector-context-source` are read-only acceptance markers; they are not another state store.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| Empty or overlong identity | Tauri rejects before creating/focusing a window |
+| Unknown surface | Tauri whitelist rejects it |
+| Existing matching window, article A -> B | Same window label/handle, live payload reads back B |
+| Payload label/surface mismatch | Utility ignores it; no cross-window context adoption |
+| Requested article absent locally | Utility requests main-window state and shows an honest syncing message |
+
+### 5. Good / Base / Bad Cases
+
+- Good: the same native References window keeps its original A route but displays B after a validated event and live-state handshake.
+- Base: first open creates a new utility window from the validated query and then receives ordinary live state.
+- Bad: focusing an existing window without changing context leaves A visible while the main Workstation is on B.
+
+### 6. Tests Required
+
+- Rust tests verify surface/identity validation and the exact camelCase reuse payload shape.
+- Type/lint checks cover the utility event parser and active article state.
+- Packaged Tauri/WebView2 E2E creates two real disposable articles, proves one utility handle, asserts the immutable route still names A while live DOM readback names B, and removes both articles through the visible File Manager.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```rust
+if let Some(window) = app.get_window(&label) {
+    window.set_focus()?;
+    return Ok(label);
+}
+```
+
+#### Correct
+
+```rust
+if let Some(window) = app.get_window(&label) {
+    window.emit("inkforge://inspector-widget-state", validated_context)?;
+    window.set_focus()?;
+    return Ok(label);
+}
+```

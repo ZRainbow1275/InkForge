@@ -210,3 +210,61 @@ Asset UI is a cross-layer surface, not a gallery-only component.
 - A destructive `alertdialog` must focus its safe cancel action when opened, wrap both Tab directions, support Escape while cancellation is still safe, and restore focus to the connected invoking control when it closes.
 - Focus traps must test whether `document.activeElement` is one of the currently focusable elements. `container.contains(activeElement)` is insufficient when mutation temporarily disables every action and leaves focus on the dialog container.
 - Errors for an active nested dialog belong inside that dialog and must be linked through `aria-describedby`; an error rendered only behind the modal is not visible acceptance feedback.
+
+## Workstation Inspector Independent-Rail Contract
+
+The desktop Workstation has one authoritative platform switch in the Stage header. The Inspector is
+the final root-layout sibling and must never cover the editor, Stage, platform preview, or preset
+controls.
+
+- Keep exactly one WeChat/XHS/Zhihu platform selector. Do not duplicate it inside the Inspector.
+- At desktop widths (`min-width: 901px`), the collapsed Inspector occupies only its narrow rail; the
+  expanded Inspector occupies its persisted width as a real flex/grid column.
+- Do not use an absolute-positioned expanded Inspector over the workspace. `pinned` and pointer
+  magnetism control presentation only; they do not decide whether the Inspector consumes layout
+  width.
+- Detached cards may use the existing in-app floating surface or native utility window without
+  moving, duplicating, or replacing the authoritative Inspector body.
+- Native widget close, redock, or float transitions commit their persisted placement only after the
+  owned native window close command succeeds. BroadcastChannel and Tauri event duplicates share one
+  in-flight close result; failure keeps the native placement and produces visible feedback.
+- Narrow stacked behavior remains owned by the existing responsive rules. Standard, narrow,
+  maximized, and restored windows must preserve a usable editor and Stage.
+
+Required validation:
+
+- A source regression must require the Inspector as the final root-layout sibling, reject the old
+  absolute overlay branch, and keep exactly one `platformOptions` loop.
+- Workstation layout/focus/persistence tests, exact ESLint, type-check, and production build must
+  pass after geometry changes.
+- A current DPI-aware Tauri frame with the Inspector open must show 微信、小红书、知乎 and Stage
+  actions unobscured. Collapse, expand, detach, close, reopen, pointer/keyboard platform switching,
+  and preset retention remain separate interaction gates.
+
+## Workstation Panel Transition And Scroll-Owner Contract
+
+The editor viewport must keep one constrained vertical scroll owner while manager, split, and
+Inspector geometry changes. Responsive layout must not silently replace that owner with the route
+document.
+
+- Resolve the active editor scroll owner from the mounted editor surface. Typora mode uses the
+  nearest real scrollable ancestor of the ProseMirror DOM; Source mode uses the live CodeMirror
+  `.cm-scroller`.
+- `.editor-split-shell` and `.split-pane-left` remain height-constrained flex containers at
+  responsive breakpoints. Switching either container to unconstrained block layout is forbidden
+  because it can expand to article height, replace the scroll owner, and jump the current paragraph.
+- A manager width transition captures the current selection's viewport anchor before geometry
+  changes and restores that anchor after the CSS transition settles. It must preserve the current
+  article, selection, editor mode, manager tab, file-tree state, and split state.
+- A collapsed manager reopens only through an explicit named control. A hidden hover strip must not
+  expand it behind the user's pointer or steal horizontal space.
+- Transition animation must respect reduced motion. The no-motion path still preserves the same
+  viewport and focus invariants.
+
+Required validation:
+
+- Focused tests must reject a responsive block-layout fallback, require the shared scroll-owner
+  resolver, and cover collapse/reopen state semantics.
+- Real Tauri acceptance must keep a paragraph near the current caret visible through
+  expand/collapse/reopen and must prove that dwelling at the collapsed edge does not reopen the
+  manager.
