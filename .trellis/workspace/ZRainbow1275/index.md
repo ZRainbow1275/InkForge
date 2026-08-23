@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 17
-- **Last Active**: 2026-07-05
+- **Total Sessions**: 18
+- **Last Active**: 2026-08-23
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~630 | Active |
+| `journal-1.md` | ~683 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 18 | 2026-08-23 | InkForge 工程资产收拢与 Git 拓扑退役 | `2401910ba7fb2aa57295841536fcbb429b5784a9`, `65d3cd5a38c176f49039019ea12ec320334522cd`, `9a681debbc08653e7a100060927b657770ff75c2`, `795b3f56b9bdd354720f9b2426975ca60f4e34ca`, `551345a6f1c4dc7dcbc15367e74688055fc2099e`, `61aa6efceb16d821a8d2a3ea7f8afc1defc87c22`, `98c914db9fa22993a07b527ef2f1ec3567252eb3`, `717cc534aa86aaa802f540179e81c2b56185aeaa`, `ed4c2ca217a466eec7fa1e51b20b815dc177a2b7`, `cbe6e1616515d2463d2af0ce20fba89a048e5f9d`, `75b2f287b1cd1bace8b1c3fd448453b21f55d7a9`, `06160e0b8f23d7f24e0e2870fc89040d5567569a`, `bcca0951caedb09dd9aa69b421174b6da31eaa50`, `732b4791df4bdfc6b5067fd6c38b127b2629e83c`, `fd37133abe2f5743b2e549130f4b741815ecec7b`, `f79cfd1422eba94849f577ef276c31b7bc28658d`, `2af17220fb1027338ccc397e7a9222b6278b8b88` | `main` |
 | 17 | 2026-07-05 | 06-01 current-round SVG/style acceptance closeout | `b7d0f9e`, `247acc2`, `3f89e84`, `f56cab4`, `be85f4f`, `ce6a599`, `4a8339f`, `31b0a01`, `d7a4fc5` | `dev/visual-fixes` |
 | 16 | 2026-06-08 | SVG R5 flagship element slice | `a01eee3` | `dev/visual-fixes` |
 | 15 | 2026-06-08 | Multiplatform rendering rules closeout | `70f5622` | `dev/visual-fixes` |

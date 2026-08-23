@@ -644,3 +644,40 @@ deferred to the operator for this round.
   checklist/template/manifest-draft commands.
 - Operator will manually test Xiaohongshu and Zhihu publish-side flows outside this automatic
   current-round gate.
+
+
+## Session 18: InkForge 工程资产收拢与 Git 拓扑退役
+
+**Date**: 2026-08-23
+**Task**: InkForge 工程资产收拢与 Git 拓扑退役
+**Branch**: `main`
+
+### Summary
+
+完成双副本保全与恢复演练、全量 Git 可见快照提交、origin/main 与遗留 ancestry 集成、完整自动/构建/运行验证、普通推送，以及 nested Git、linked worktree、本地/远端开发分支的 exact-path 退役；最终仅保留外层仓库、主 worktree 和 main，旧 tip 仍由 main ancestry 与 bundle 双重恢复。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2401910ba7fb2aa57295841536fcbb429b5784a9` | (see git log) |
+| `65d3cd5a38c176f49039019ea12ec320334522cd` | (see git log) |
+| `9a681debbc08653e7a100060927b657770ff75c2` | (see git log) |
+| `795b3f56b9bdd354720f9b2426975ca60f4e34ca` | (see git log) |
+| `551345a6f1c4dc7dcbc15367e74688055fc2099e` | (see git log) |
+| `61aa6efceb16d821a8d2a3ea7f8afc1defc87c22` | (see git log) |
+| `98c914db9fa22993a07b527ef2f1ec3567252eb3` | (see git log) |
+| `717cc534aa86aaa802f540179e81c2b56185aeaa` | (see git log) |
+| `ed4c2ca217a466eec7fa1e51b20b815dc177a2b7` | (see git log) |
+| `cbe6e1616515d2463d2af0ce20fba89a048e5f9d` | (see git log) |
+| `75b2f287b1cd1bace8b1c3fd448453b21f55d7a9` | (see git log) |
+| `06160e0b8f23d7f24e0e2870fc89040d5567569a` | (see git log) |
+| `bcca0951caedb09dd9aa69b421174b6da31eaa50` | (see git log) |
+| `732b4791df4bdfc6b5067fd6c38b127b2629e83c` | (see git log) |
+| `fd37133abe2f5743b2e549130f4b741815ecec7b` | (see git log) |
+| `f79cfd1422eba94849f577ef276c31b7bc28658d` | (see git log) |
+| `2af17220fb1027338ccc397e7a9222b6278b8b88` | (see git log) |
+
+### Status
+
+[OK] **Completed**
