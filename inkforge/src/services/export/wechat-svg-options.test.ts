@@ -83,7 +83,7 @@ describe('WeChat SVG option injection', () => {
     expect(result.html).toContain('<section id="nice"')
     expect(result.html).toContain('data-wechat-clamp="1"')
     expect(result.html).toContain('max-width:677px')
-    expect(result.html).toMatch(/font-size:\s*17px/i)
+    expect(result.html).toMatch(/font-size:\s*16px/i)
   })
 
   it('can apply every registered SVG module as an explicit WeChat export option module', async () => {

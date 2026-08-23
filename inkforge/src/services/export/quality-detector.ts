@@ -2193,7 +2193,7 @@ function collectDiagramFenceLanguages(markdown: string): string[] {
     .filter(language => DIAGRAM_FENCE_LANGUAGES.has(language))
 }
 
-interface MarkdownImageRef {
+export interface MarkdownImageRef {
   alt: string
   src: string
 }
@@ -2211,7 +2211,7 @@ function collectFencedCodeBlocks(markdown: string): FencedCodeBlock[] {
     }))
 }
 
-function collectMarkdownImages(markdown: string): MarkdownImageRef[] {
+export function collectMarkdownImages(markdown: string): MarkdownImageRef[] {
   return Array.from(markdown.matchAll(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+["'][^)]*["'])?\)/g))
     .map(match => ({
       alt: match[1] ?? '',

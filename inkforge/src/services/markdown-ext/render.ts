@@ -13,6 +13,7 @@ import {
   type FootnoteRenderState,
 } from '@/services/citation'
 import { parseWikiLink, renderWikiLinkLabel } from '@/services/wiki-link'
+import { renderWritingComponentSource } from '@/services/writing-components'
 import type { MarkdownHeading } from './types'
 
 type TocOptions = { depth: number; numbered: boolean }
@@ -20,6 +21,7 @@ type RenderContext = { footnotes: FootnoteRenderState; citations: CitationRender
 type HeadingWithLevel = MarkdownHeading & { source: string }
 
 const DEFAULT_TOC_DEPTH = 3
+export const CJK_EMPHASIS_BOUNDARY = '\u00A0\uE000\u00A0'
 const HIGHLIGHT_COLORS: Record<string, string> = {
   default: 'yellow',
   yellow: 'yellow',
@@ -47,32 +49,86 @@ function escapeHtml(value: string): string {
 function escapeAttribute(value: string): string {
   return escapeHtml(value).replace(/`/g, '&#96;')
 }
-function isFenceLine(line: string): boolean {
-  return /^\s*(```|~~~)/.test(line)
+type MarkdownFence = { marker: '`' | '~'; length: number }
+function readFence(line: string): (MarkdownFence & { tail: string }) | null {
+  const match = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line)
+  if (!match) return null
+  return { marker: match[1][0] as '`' | '~', length: match[1].length, tail: match[2] }
+}
+function transitionFence(line: string, current: MarkdownFence | null): {
+  boundary: boolean
+  fence: MarkdownFence | null
+} {
+  const candidate = readFence(line)
+  if (!candidate) return { boundary: false, fence: current }
+  if (!current) {
+    return { boundary: true, fence: { marker: candidate.marker, length: candidate.length } }
+  }
+  const closes = candidate.marker === current.marker
+    && candidate.length >= current.length
+    && /^[\t ]*$/.test(candidate.tail)
+  return closes ? { boundary: true, fence: null } : { boundary: false, fence: current }
 }
 function mapNonFenceLines(markdown: string, mapper: (line: string) => string): string {
   const lines = markdown.split('\n')
-  let inFence = false
+  let fence: MarkdownFence | null = null
   return lines.map((line) => {
-    if (isFenceLine(line)) {
-      inFence = !inFence
-      return line
-    }
-    return inFence ? line : mapper(line)
+    const transition = transitionFence(line, fence)
+    fence = transition.fence
+    if (transition.boundary || fence) return line
+    return mapper(line)
   }).join('\n')
 }
 function splitInlineCode(line: string): Array<{ value: string; code: boolean }> {
   const segments: Array<{ value: string; code: boolean }> = []
-  const pattern = /(`+)([^`]*?)\1/g
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-  while ((match = pattern.exec(line)) !== null) {
-    if (match.index > lastIndex) segments.push({ value: line.slice(lastIndex, match.index), code: false })
-    segments.push({ value: match[0], code: true })
-    lastIndex = match.index + match[0].length
+  let plainStart = 0
+  let searchCursor = 0
+  while (searchCursor < line.length) {
+    const opener = line.indexOf('`', searchCursor)
+    if (opener < 0) break
+    let openerEnd = opener
+    while (line[openerEnd] === '`') openerEnd += 1
+    const delimiterLength = openerEnd - opener
+    let searchFrom = openerEnd
+    let closerEnd = -1
+    while (searchFrom < line.length) {
+      const closer = line.indexOf('`', searchFrom)
+      if (closer < 0) break
+      let runEnd = closer
+      while (line[runEnd] === '`') runEnd += 1
+      if (runEnd - closer === delimiterLength) {
+        closerEnd = runEnd
+        break
+      }
+      searchFrom = runEnd
+    }
+    if (closerEnd < 0) {
+      searchCursor = openerEnd
+      continue
+    }
+    if (opener > plainStart) segments.push({ value: line.slice(plainStart, opener), code: false })
+    segments.push({ value: line.slice(opener, closerEnd), code: true })
+    plainStart = closerEnd
+    searchCursor = closerEnd
   }
-  if (lastIndex < line.length) segments.push({ value: line.slice(lastIndex), code: false })
+  if (plainStart < line.length) segments.push({ value: line.slice(plainStart), code: false })
   return segments.length > 0 ? segments : [{ value: line, code: false }]
+}
+function appendCjkEmphasisBoundary(value: string, pattern: RegExp): string {
+  return value.replace(pattern, match => `${match}${CJK_EMPHASIS_BOUNDARY}`)
+}
+export function normalizeCjkAdjacentEmphasis(markdown: string): string {
+  return mapNonFenceLines(markdown, line => splitInlineCode(line)
+    .map((segment) => {
+      if (segment.code) return segment.value
+
+      return [
+        /(?<![\\*])\*\*\*(?!\*)(?:[^*\n]*?[\p{P}\p{S}])\*\*\*(?!\*)(?=[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}])/gu,
+        /(?<![\\*])\*\*(?!\*)(?:[^*\n]*?[\p{P}\p{S}])\*\*(?!\*)(?=[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}])/gu,
+        /(?<![\\*])\*(?!\*)(?:[^*\n]*?[\p{P}\p{S}])\*(?!\*)(?=[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}])/gu,
+      ].reduce(appendCjkEmphasisBoundary, segment.value)
+    })
+    .join(''))
 }
 function stripMarkdownForText(value: string): string {
   return value
@@ -100,13 +156,11 @@ function parseHeadingLine(line: string): { level: number; text: string } | null 
 function collectHeadings(markdown: string): HeadingWithLevel[] {
   const usedSlugs = new Map<string, number>()
   const headings: HeadingWithLevel[] = []
-  let inFence = false
+  let fence: MarkdownFence | null = null
   markdown.split('\n').forEach((line) => {
-    if (isFenceLine(line)) {
-      inFence = !inFence
-      return
-    }
-    if (inFence) return
+    const transition = transitionFence(line, fence)
+    fence = transition.fence
+    if (transition.boundary || fence) return
     const heading = parseHeadingLine(line)
     if (!heading) return
     const text = stripMarkdownForText(heading.text)
@@ -214,15 +268,16 @@ async function transformTocAndHeadings(markdown: string, context: RenderContext)
   const headings = collectHeadings(markdown)
   let headingIndex = 0
   let tocRendered = false
-  let inFence = false
+  let fence: MarkdownFence | null = null
   const outputLines: string[] = []
   for (const line of markdown.split('\n')) {
-    if (isFenceLine(line)) {
-      inFence = !inFence
+    const transition = transitionFence(line, fence)
+    fence = transition.fence
+    if (transition.boundary) {
       outputLines.push(line)
       continue
     }
-    if (inFence) {
+    if (fence) {
       outputLines.push(line)
       continue
     }
@@ -244,7 +299,7 @@ async function transformTocAndHeadings(markdown: string, context: RenderContext)
       continue
     }
     const inlineHeading = await renderInlineMarkdown(transformInlineExtensions(heading.text, context))
-    outputLines.push(`<h${heading.level} id="${escapeAttribute(collected.slug)}" class="ink-heading ink-heading--h${heading.level}">${inlineHeading}</h${heading.level}>`)
+    outputLines.push(`<h${heading.level} id="${escapeAttribute(collected.slug)}" class="ink-heading ink-heading--h${heading.level}">${inlineHeading}</h${heading.level}>\n`)
   }
   return outputLines.join('\n')
 }
@@ -277,17 +332,18 @@ async function renderCitationBlock(quoteLines: string[], context: RenderContext)
 async function transformCitationBlocks(markdown: string, context: RenderContext): Promise<string> {
   const lines = markdown.split('\n')
   const outputLines: string[] = []
-  let inFence = false
+  let fence: MarkdownFence | null = null
   let index = 0
   while (index < lines.length) {
     const line = lines[index]
-    if (isFenceLine(line)) {
-      inFence = !inFence
+    const transition = transitionFence(line, fence)
+    fence = transition.fence
+    if (transition.boundary) {
       outputLines.push(line)
       index += 1
       continue
     }
-    if (inFence || !/^\s*>/.test(line)) {
+    if (fence || !/^\s*>/.test(line)) {
       outputLines.push(line)
       index += 1
       continue
@@ -305,17 +361,18 @@ async function transformCitationBlocks(markdown: string, context: RenderContext)
 async function transformDetailsContainers(markdown: string, context: RenderContext): Promise<string> {
   const lines = markdown.split('\n')
   const outputLines: string[] = []
-  let inFence = false
+  let fence: MarkdownFence | null = null
   let index = 0
   while (index < lines.length) {
     const line = lines[index]
-    if (isFenceLine(line)) {
-      inFence = !inFence
+    const transition = transitionFence(line, fence)
+    fence = transition.fence
+    if (transition.boundary) {
       outputLines.push(line)
       index += 1
       continue
     }
-    if (inFence) {
+    if (fence) {
       outputLines.push(line)
       index += 1
       continue
@@ -365,14 +422,25 @@ export async function renderInkforgeMarkdownExtensions(
     footnotes: createFootnoteRenderState(extracted.definitions),
     citations: createCitationRenderState(options),
   }
-  let staged = extracted.markdown
+  const protectedComponents: Array<{ token: string; html: string }> = []
+  let marker = 'inkforge-opaque-writing-component'
+  while (extracted.markdown.includes(marker)) marker += '-x'
+  let staged = mapNonFenceLines(extracted.markdown, (line) => {
+    const rendered = renderWritingComponentSource(line)
+    if (!rendered) return line
+    const token = `<!--${marker}:${protectedComponents.length}-->`
+    protectedComponents.push({ token, html: rendered })
+    return token
+  })
   staged = await transformDetailsContainers(staged, context)
   staged = await transformCitationBlocks(staged, context)
   staged = await transformTocAndHeadings(staged, context)
   staged = transformInlineExtensions(staged, context)
+  for (const component of protectedComponents) {
+    staged = staged.split(component.token).join(component.html)
+  }
   const footnotes = await renderFootnoteSection(context)
   const bibliography = renderBibliographySection(context.citations)
   const appendices = [footnotes, bibliography].filter(Boolean).join('\n\n')
   return appendices ? `${staged}\n\n${appendices}` : staged
 }
-

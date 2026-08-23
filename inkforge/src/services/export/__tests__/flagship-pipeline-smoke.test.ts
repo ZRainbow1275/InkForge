@@ -198,16 +198,16 @@ describe('PR7 — flagship SVG pipeline smoke (real end-to-end, no mock)', () =>
         }
       })
 
-      // ─── AC3: 20-22 字/行铁律不被破坏 ────────────────────────────────────
-      it('keeps the #nice 20-22 chars/line width lock unchanged (AC3)', () => {
-        // 1) 源头权威锁：persona base CSS 仍带 min(22em …) + font-size: 17px。
+      // ─── AC3: 22-24 字/行铁律不被破坏 ────────────────────────────────────
+      it('keeps the #nice 22-24 chars/line width lock unchanged (AC3)', () => {
+        // 1) 源头权威锁：persona base CSS 带 min(24em …) + font-size: 16px。
         const baseCss = generatePersonaBaseCSS(fixture.persona)
-        expect(baseCss).toContain('min(22em')
-        expect(baseCss).toContain('font-size: 17px')
+        expect(baseCss).toContain('min(24em')
+        expect(baseCss).toContain('font-size: 16px')
 
         // 2) 预设 export/preview CSS 内嵌该锁（旗舰装饰未覆盖正文宽度）。
-        expect(preset.exportCSS ?? '').toContain('min(22em')
-        expect(preset.previewCSS ?? '').toContain('min(22em')
+        expect(preset.exportCSS ?? '').toContain('min(24em')
+        expect(preset.previewCSS ?? '').toContain('min(24em')
 
         // 3) 渲染产物仍带 max-width 约束（677 clamp 包裹），且注入的 SVG
         //    全部 width="100%" —— 是全宽块，不会强加固定内宽改写 #nice 行宽。

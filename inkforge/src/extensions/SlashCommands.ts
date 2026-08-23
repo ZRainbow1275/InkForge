@@ -30,6 +30,7 @@ export interface SlashCommandItem {
 export interface SlashCommandActionContext {
   onImageRequested?: (editor: Editor) => void
   onLinkRequested?: (editor: Editor) => void
+  onComponentRequested?: (editor: Editor) => void
 }
 
 /** 扩展 storage 状态 */
@@ -93,6 +94,8 @@ const SLASH_COMMANDS: SlashCommandItem[] = [
   { id: 'h2', label: '二级标题', description: '中等标题', icon: 'Heading2', category: 'heading', action: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 2 }).run() },
   { id: 'h3', label: '三级标题', description: '小标题', icon: 'Heading3', category: 'heading', action: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 3 }).run() },
   { id: 'h4', label: '四级标题', description: '更细一级的小节标题', icon: 'Heading4', category: 'heading', action: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 4 }).run() },
+  { id: 'h5', label: '五级标题', description: '正文内的细分标题', icon: 'Heading5', category: 'heading', action: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 5 }).run() },
+  { id: 'h6', label: '六级标题', description: '最细一级的标题', icon: 'Heading6', category: 'heading', action: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 6 }).run() },
   { id: 'paragraph', label: '正文段落', description: '恢复为普通正文段落', icon: 'Pilcrow', category: 'heading', action: (editor: Editor) => editor.chain().focus().setParagraph().run() },
   { id: 'quote', label: '引用块', description: '插入引用', icon: 'Quote', category: 'block', action: (editor: Editor) => editor.chain().focus().toggleBlockquote().run() },
   { id: 'code', label: '代码块', description: '插入代码', icon: 'Code2', category: 'block', action: (editor: Editor) => editor.chain().focus().toggleCodeBlock().run() },
@@ -105,6 +108,7 @@ const SLASH_COMMANDS: SlashCommandItem[] = [
   { id: 'table', label: '表格', description: '插入 3x3 表格', icon: 'Table', category: 'insert', action: (editor: Editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
   { id: 'image', label: '图片', description: '从本地文件选择图片', icon: 'ImagePlus', category: 'insert', action: (editor: Editor, context: SlashCommandActionContext) => { context.onImageRequested?.(editor) } },
   { id: 'link', label: '链接', description: '打开链接输入浮层', icon: 'Link', category: 'insert', action: (editor: Editor, context: SlashCommandActionContext) => { context.onLinkRequested?.(editor) } },
+  { id: 'component', label: '组件库', description: '配置并插入结构化组件', icon: 'Blocks', category: 'insert', action: (editor: Editor, context: SlashCommandActionContext) => { context.onComponentRequested?.(editor) } },
   { id: 'highlight', label: '高亮', description: '切换黄色文本高亮', icon: 'Highlighter', category: 'advanced', action: (editor: Editor) => editor.chain().focus().toggleHighlight({ color: '#FFEB3B' }).run() },
   { id: 'textColor', label: '文字颜色', description: '应用主题强调色', icon: 'Palette', category: 'advanced', action: (editor: Editor) => editor.chain().focus().setColor('#D32F2F').run() },
   { id: 'alignCenter', label: '居中对齐', description: '当前段落居中', icon: 'AlignCenter', category: 'advanced', action: (editor: Editor) => editor.chain().focus().setTextAlign('center').run() },
@@ -122,6 +126,8 @@ export interface SlashCommandsOptions {
   onImageRequested?: (editor: Editor) => void
   /** 链接编辑请求，由宿主复用真实链接输入浮层 */
   onLinkRequested?: (editor: Editor) => void
+  /** 组件库请求，由宿主保存当前选择并打开写作组件库 */
+  onComponentRequested?: (editor: Editor) => void
 }
 
 /**
@@ -158,6 +164,7 @@ export const SlashCommands = Extension.create<SlashCommandsOptions, SlashCommand
       commands: SLASH_COMMANDS,
       onImageRequested: undefined,
       onLinkRequested: undefined,
+      onComponentRequested: undefined,
     }
   },
 
@@ -172,6 +179,7 @@ export const SlashCommands = Extension.create<SlashCommandsOptions, SlashCommand
       actionContext: {
         onImageRequested: this.options.onImageRequested,
         onLinkRequested: this.options.onLinkRequested,
+        onComponentRequested: this.options.onComponentRequested,
       },
     }
   },
@@ -203,6 +211,7 @@ export const SlashCommands = Extension.create<SlashCommandsOptions, SlashCommand
                   storage.actionContext = {
                     onImageRequested: options.onImageRequested,
                     onLinkRequested: options.onLinkRequested,
+                    onComponentRequested: options.onComponentRequested,
                   }
                   storage.filteredCommands = [...options.commands]
 

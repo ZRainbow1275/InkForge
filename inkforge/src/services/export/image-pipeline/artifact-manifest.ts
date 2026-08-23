@@ -128,7 +128,9 @@ export function inferZhihuImageHostStatus(src: string): ZhihuImageHostStatus {
     const value = src.trim()
     if (!value) return 'missing'
     if (/^(?:blob:|data:|file:)/i.test(value)) return 'local-only'
-    if (/^(?:\.{1,2}\/|\/|[a-z]:\\|[a-z]:\/)/i.test(value)) return 'local-only'
+    if (/^(?:\.{1,2}\/|[a-z]:\\|[a-z]:\/)/i.test(value)) return 'local-only'
+    if (value.startsWith('/') && !value.startsWith('//')) return 'local-only'
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(value) && !value.startsWith('//')) return 'local-only'
 
     let url: URL
     try {
@@ -364,14 +366,46 @@ function normalizeOptionalNonEmptyString(value: string | undefined, field: strin
 }
 
 function isLocalOrPrivateHost(host: string): boolean {
-    return host === 'localhost'
-        || host === '[::1]'
-        || host.endsWith('.local')
-        || /^127\./.test(host)
-        || host === '0.0.0.0'
-        || /^10\./.test(host)
-        || /^192\.168\./.test(host)
-        || /^172\.(?:1[6-9]|2\d|3[0-1])\./.test(host)
+    const normalized = host.toLowerCase().replace(/^\[|\]$/g, '')
+    if (normalized === 'localhost' || normalized.endsWith('.local')) return true
+
+    const ipv4 = normalized.split('.').map(part => Number(part))
+    if (ipv4.length === 4 && ipv4.every(part => Number.isInteger(part) && part >= 0 && part <= 255)) {
+        const [first, second, third] = ipv4
+        return first === 0
+            || first === 10
+            || first === 127
+            || (first === 100 && second >= 64 && second <= 127)
+            || (first === 169 && second === 254)
+            || (first === 172 && second >= 16 && second <= 31)
+            || (first === 192 && second === 0 && third === 0)
+            || (first === 192 && second === 0 && third === 2)
+            || (first === 192 && second === 88 && third === 99)
+            || (first === 192 && second === 168)
+            || (first === 198 && (second === 18 || second === 19))
+            || (first === 198 && second === 51 && third === 100)
+            || (first === 203 && second === 0 && third === 113)
+            || first >= 224
+    }
+
+    if (!normalized.includes(':')) return false
+    const segments = normalized.split(':')
+    const first = Number.parseInt(segments[0] || '0', 16)
+    const second = Number.parseInt(segments[1] || '0', 16)
+    return normalized === '::'
+        || normalized === '::1'
+        || normalized.includes('%')
+        || normalized.startsWith('::ffff:')
+        || (first & 0xfe00) === 0xfc00
+        || (first & 0xffc0) === 0xfe80
+        || (first & 0xffc0) === 0xfec0
+        || (first & 0xff00) === 0xff00
+        || (first === 0x0064 && second === 0xff9b)
+        || first === 0x0100
+        || (first === 0x2001 && second <= 0x01ff)
+        || (first === 0x2001 && second === 0x0db8)
+        || first === 0x2002
+        || (first & 0xfff0) === 0x3ff0
 }
 
 function isWechatImageHost(host: string): boolean {

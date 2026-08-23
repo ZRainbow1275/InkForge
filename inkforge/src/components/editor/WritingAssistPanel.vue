@@ -34,7 +34,7 @@ import {
 import { normalizeWritingGoalValue, useSettingsStore } from '@/stores/settings'
 import { formatDuration, computeWpm } from '@/services/writing-assist/stats'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   currentDocumentWords: number
   todayWords: number
   weeklyWords: number
@@ -46,7 +46,10 @@ const props = defineProps<{
   weeklyPercent?: number
   isFocusMode: boolean
   typewriterMode: boolean
-}>()
+  showOverview?: boolean
+}>(), {
+  showOverview: true,
+})
 
 const emit = defineEmits<{
   toggleFocus: []
@@ -85,6 +88,9 @@ const {
 } = storeToRefs(writingAssistStore)
 
 const cursorPositionPercent = computed(() => Math.round(cursorPosition.value * 100))
+const vignetteIntensityPercent = computed(() => Math.round(
+  (Number.isFinite(vignette.value.intensity) ? vignette.value.intensity : 0.18) * 100,
+))
 
 const soundOptions: ReadonlyArray<{ type: AmbientSoundType; label: string; icon: LucideIcon }> = [
   { type: 'rain', label: '雨声', icon: Waves },
@@ -374,7 +380,10 @@ function ringOffset(percent: number | undefined): number {
       </button>
     </header>
 
-    <div class="assist-grid">
+    <div
+      v-if="showOverview"
+      class="assist-grid"
+    >
       <article class="assist-card primary">
         <div class="assist-card-label">
           <Target :size="14" /> 当前文稿
@@ -549,13 +558,13 @@ function ringOffset(percent: number | undefined): number {
         @click="writingAssistStore.setVignetteEnabled(!vignette.isEnabled)"
       >
         暗角聚焦
-        <span>{{ vignette.isEnabled ? `${vignette.height}px` : '关闭' }}</span>
+        <span>{{ vignette.isEnabled ? `${vignetteIntensityPercent}%` : '关闭' }}</span>
       </button>
       <label
         class="assist-range"
         :class="{ disabled: !vignette.isEnabled }"
       >
-        <span>暗角高度</span>
+        <span>聚焦范围 {{ vignette.height }}px</span>
         <input
           type="range"
           min="40"
@@ -568,10 +577,26 @@ function ringOffset(percent: number | undefined): number {
       </label>
       <label
         class="assist-range"
+        :class="{ disabled: !vignette.isEnabled }"
+        :aria-label="`暗处强度 ${vignetteIntensityPercent}%`"
+      >
+        <span>暗处强度 {{ vignetteIntensityPercent }}%</span>
+        <input
+          type="range"
+          min="0.08"
+          max="0.32"
+          step="0.02"
+          :disabled="!vignette.isEnabled"
+          :value="vignette.intensity"
+          @input="writingAssistStore.setVignetteIntensity(Number(($event.target as HTMLInputElement).value))"
+        >
+      </label>
+      <label
+        class="assist-range"
         :class="{ disabled: !typewriterMode }"
         :aria-label="`光标位置 ${cursorPositionPercent}%`"
       >
-        <span>光标位置 {{ cursorPositionPercent }}%</span>
+        <span>光标锚点 {{ cursorPositionPercent }}%</span>
         <input
           type="range"
           min="0.3"

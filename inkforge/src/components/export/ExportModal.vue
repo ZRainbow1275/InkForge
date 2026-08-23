@@ -2,13 +2,15 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import {
   X, Copy, Download, CheckCircle,
-  Hash, Link2, AlertCircle, Loader2, Lightbulb, Palette, Type, ArrowUpRight
+  Hash, Link2, AlertCircle, Loader2, Lightbulb, Palette, Type, ArrowUpRight,
+  FolderOpen, Save
 } from 'lucide-vue-next'
 import {
+  buildLocalDeliveryBundle,
   convertToPlatform, getPlatformPresets,
   convertToNativeFormat, copyTextToClipboard,
   copyToClipboard, copyWechatHtmlToClipboard, getDefaultPreset, isClipboardWriteAvailable,
-  detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
+  detectQuality, themePresets,
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
   getPlatformStyleMarketCapabilityReport,
   getPlatformStyleProofAcceptanceAuditReport,
@@ -21,34 +23,49 @@ import {
   getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
   getWechatSvgApplicationSlotModuleId,
+  parseDeliveryAdornmentConfig,
   normalizeWechatSvgApplicationPlan,
   setWechatSvgApplicationSlot,
   SVG_MODULES,
   WECHAT_SVG_APPLICATION_SLOTS,
-  WECHAT_DRAFT_TITLE_MAX_CHARS,
-  markdownToWechatWithStats
+  VISUAL_VARIANTS,
+  markdownToWechatWithStats, resolveVisualVariant, typographyToWechatCss
 } from '@/services/export'
+import {
+  buildPlatformArtifactBundle,
+  type PlatformArtifactBundle,
+} from '@/services/export/platform-artifact-bundle'
+import {
+  buildWechatNativeComponentHandoffReport,
+  formatWechatNativeComponentHandoffReport,
+  type WechatNativeComponentHandoffReport,
+} from '@/services/export/wechat-native-handoff'
 import { resolveExportIcon } from '@/utils/iconography'
 import type {
-  Platform, ExportOptions, ExportStats,
+  Platform, ExportOptions, ExportStats, WechatExportOptions,
   CommittedStyleProofReleaseGateBlocker,
   CommittedStyleProofExternalHandoffReport,
   CommittedStyleProofExternalProofChecklistGroup,
   CommittedStyleProofLocalActionabilityReport,
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
-  WechatPublishStatus,
-  ExportFontFamily, ExportFontSize,
   StyleArtifactType, StyleChoiceApplication, StyleChoiceApplicationAvailability,
   StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
   StyleMarketCapability, StyleMarketCapabilityFamily, StyleMarketCapabilityStatus,
   StyleMarketTriggerMode, StyleMotionLevel, StyleProofAcceptanceAuditStatus,
   StyleProofAcceptanceRequirementAudit, StyleProofCollectionGate, StyleProofCollectionStep,
   StyleProofExecutionRunbookStep, StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength,
-  SvgModuleFamily, SvgInjectionPlan, WechatSvgApplicationSlotId
+  SvgModuleFamily, SvgInjectionPlan, WechatSvgApplicationSlotId,
+  DeliveryAdornmentConfig, LocalDeliveryFormat, LocalDeliveryTarget
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore, type ExportHistoryEntry } from '@/stores/settings'
+import DeliveryAdornmentPanel from './DeliveryAdornmentPanel.vue'
+import {
+  revealPathInFileManager,
+  writeLocalDeliveryBundle,
+  type LocalDeliveryWriteResult,
+} from '@/services/desktop'
 
 // ─── Constants ───────────────────────────────────────────
 const FEEDBACK_DURATION = 2000
@@ -63,18 +80,19 @@ const CODE_THEMES: { id: CodeTheme; label: string }[] = [
   { id: 'dracula', label: 'Dracula' },
 ]
 
-const STYLE_FONT_OPTIONS: { id: ExportFontFamily; label: string }[] = [
-  { id: 'sans-serif', label: '无衬线' },
+const STYLE_FONT_OPTIONS = [
+  { id: 'sans', label: '无衬线' },
   { id: 'serif', label: '衬线' },
-  { id: 'monospace', label: '等宽' },
-]
+  { id: 'kai', label: '楷体' },
+  { id: 'mono', label: '等宽' },
+] as const
 
-const STYLE_SIZE_OPTIONS: { id: ExportFontSize; label: string }[] = [
-  { id: '14px', label: '14' },
-  { id: '15px', label: '15' },
-  { id: '16px', label: '16' },
-  { id: '17px', label: '17' },
-  { id: '18px', label: '18' },
+const STYLE_SIZE_OPTIONS = [
+  { id: 14, label: '14' },
+  { id: 15, label: '15' },
+  { id: 16, label: '16' },
+  { id: 17, label: '17' },
+  { id: 18, label: '18' },
 ]
 
 const STYLE_COLOR_OPTIONS: { id: string; label: string; color: string }[] = [
@@ -87,9 +105,9 @@ const STYLE_COLOR_OPTIONS: { id: string; label: string; color: string }[] = [
 ]
 
 const PLATFORMS = [
-  { id: 'wechat' as Platform, name: '微信公众号', icon: 'wechat', copyLabel: '复制到微信' },
-  { id: 'xiaohongshu' as Platform, name: '小红书', icon: 'xiaohongshu', copyLabel: '复制到小红书' },
-  { id: 'zhihu' as Platform, name: '知乎', icon: 'zhihu', copyLabel: '复制到知乎' },
+  { id: 'wechat' as Platform, name: '微信公众号', icon: 'wechat' },
+  { id: 'xiaohongshu' as Platform, name: '小红书', icon: 'xiaohongshu' },
+  { id: 'zhihu' as Platform, name: '知乎', icon: 'zhihu' },
 ] as const
 
 const NATIVE_FORMAT_LABELS: Record<NativeExportResult['format'], string> = {
@@ -121,12 +139,6 @@ interface PreflightRow {
   key: string
   label: string
   state: 'ready' | 'blocked' | 'warning'
-  detail: string
-}
-
-interface PublishIntegrationStatus {
-  configured: boolean
-  state: PreflightRow['state']
   detail: string
 }
 
@@ -181,6 +193,7 @@ const props = defineProps<{
   visible: boolean
   content: string
   title?: string
+  articleCategory?: string
   initialPlatform?: Platform
   exportCustomCss?: string
 }>()
@@ -190,6 +203,12 @@ const emit = defineEmits<{
 }>()
 
 const settingsStore = useSettingsStore()
+const deliveryAdornmentConfig = computed<DeliveryAdornmentConfig>({
+  get: () => settingsStore.settings.export.deliveryAdornment,
+  set: value => {
+    settingsStore.settings.export.deliveryAdornment = parseDeliveryAdornmentConfig(value)
+  },
+})
 
 // ─── Platform ────────────────────────────────────────────
 function normalizeInitialPlatform(platform: Platform | undefined): Platform {
@@ -208,6 +227,8 @@ interface PresetDisplay {
   name: string
   icon: string
   description?: string
+  variantName: string
+  variantDescription: string
   primaryColor: string
 }
 
@@ -216,24 +237,29 @@ const platformPresetIds = ref<Record<Platform, string>>({
   xiaohongshu: 'xhs-fresh',
   zhihu: 'zhihu-academic',
 })
+const storedPlatform = settingsStore.settings.export.defaultPlatform
+const storedPresetId = settingsStore.settings.export.defaultPresetId
+if (getPlatformPresets(storedPlatform).some(preset => preset.id === storedPresetId)) {
+  platformPresetIds.value[storedPlatform] = storedPresetId
+}
 
 const selectedPresetId = computed(() => platformPresetIds.value[selectedPlatform.value])
 
-const selectedStyleChoiceIds = ref<Record<Platform, string | null>>({
-  wechat: null,
-  xiaohongshu: null,
-  zhihu: null,
-})
-
 const currentPresets = computed((): PresetDisplay[] => {
   const presets = getPlatformPresets(selectedPlatform.value)
-  return presets.map(p => ({
-    id: p.id,
-    name: p.name,
-    icon: p.icon,
-    primaryColor: p.primaryColor,
-    description: 'description' in p ? (p as ExportPreset).description : undefined,
-  }))
+  return presets.map((preset) => {
+    const variantId = resolveVisualVariant(selectedPlatform.value, preset.id).variantId
+    const variant = VISUAL_VARIANTS.find(item => item.id === variantId)!
+    return {
+      id: preset.id,
+      name: preset.name,
+      icon: preset.icon,
+      primaryColor: preset.primaryColor,
+      description: 'description' in preset ? (preset as ExportPreset).description : undefined,
+      variantName: variant.name,
+      variantDescription: variant.description,
+    }
+  })
 })
 
 const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityReport(selectedPlatform.value))
@@ -392,10 +418,15 @@ const styleProofExternalChecklistRows = computed<ExternalProofChecklistDisplay[]
     detail: styleProofExternalChecklistGroupDetail(group),
   })),
 )
+const selectedStyleChoiceApplications = computed(() =>
+  styleApplicationReport.value.filter(item =>
+    item.application?.presetId === selectedPresetId.value,
+  ),
+)
 const selectedStyleChoiceApplication = computed(() =>
-  styleApplicationReport.value.find(item =>
-    item.availability.choice.id === selectedStyleChoiceIds.value[selectedPlatform.value],
-  ) ?? null,
+  selectedStyleChoiceApplications.value.find(item => item.selectable && item.application)
+  ?? selectedStyleChoiceApplications.value[0]
+  ?? null,
 )
 const styleRenderableApplicationSummary = computed(() => {
   const renderableRows = styleApplicationReport.value.filter(isRenderableStyleApplication)
@@ -429,6 +460,9 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const runbook = styleProofExecutionRunbook.value
   const limitedCount = report.stats.blocked + report.stats.unavailable
   const selectedAction = selectedStyleChoiceApplication.value
+  const selectedCapabilityLabels = selectedStyleChoiceApplications.value
+    .filter(item => item.selectable && item.application)
+    .map(item => item.availability.choice.label)
   const proofTail = `待补证据 ${proofPlan.summary.total}；门禁 ${proofQueue.summary.totalGates}；下一步 ${styleProofNextGateLabel.value}；执行手册 ${runbook.summary.openSteps}；不可宣称 ${runbook.summary.cannotClaimSteps}；本地 ${proofPlan.summary.safeToAutomate}；手机 ${proofPlan.summary.phoneSteps}；账号/平台 ${proofPlan.summary.externalAccountSteps}`
 
   if (selectedAction?.selectable && selectedAction.application) {
@@ -436,7 +470,7 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
       key: 'style-catalog',
       label: '样式能力目录',
       state: 'ready',
-      detail: `已选择 ${selectedAction.availability.choice.label} → ${selectedAction.application.presetLabel}（${selectedAction.application.presetId}）；可用 ${report.stats.usable}/${report.stats.total}；${proofTail}`,
+      detail: `已选择 ${selectedAction.application.presetLabel}（${selectedAction.application.presetId}）；对应能力 ${selectedCapabilityLabels.length} 项：${selectedCapabilityLabels.join('、')}；可用 ${report.stats.usable}/${report.stats.total}；受限 ${report.stats.blocked}；不可用 ${report.stats.unavailable}；${proofTail}`,
     }
   }
 
@@ -755,7 +789,7 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
       availability: item.availability,
       application: item.application,
       selectable: item.selectable,
-      selected: selectedStyleChoiceIds.value[selectedPlatform.value] === item.availability.choice.id,
+      selected: item.application?.presetId === selectedPresetId.value,
       statusClass: `style-choice-${item.availability.status}`,
       statusLabel: styleStatusLabel(item.availability.status, item.availability.usable),
       outputLabel: styleArtifactLabel(item.availability.choice.primaryOutput),
@@ -1160,42 +1194,18 @@ function styleChoiceDetail(availability: StyleChoiceAvailability): string {
   return `${detail}；${fallback}`
 }
 
-function selectPreset(id: string, source: 'preset' | 'style-choice' = 'preset') {
+function selectPreset(id: string) {
+  invalidatePlatformArtifactWrite()
   platformPresetIds.value[selectedPlatform.value] = id
-  if (source === 'preset') {
-    selectedStyleChoiceIds.value[selectedPlatform.value] = null
-  }
+  settingsStore.settings.export.defaultPlatform = selectedPlatform.value
+  settingsStore.settings.export.defaultPresetId = id
   if (selectedPlatform.value === 'wechat') {
     const preset = themePresets.find(item => item.id === id) || getDefaultPreset()
     exportOptions.value.primaryColor = preset.primaryColor
-    exportOptions.value.fontFamily = normalizeExportFontFamily(preset.fontFamily)
-    exportOptions.value.fontSize = normalizeExportFontSize(preset.fontSize)
   }
 }
 
-function selectStyleChoice(row: StyleChoiceDisplay) {
-  if (!row.selectable || !row.application) {
-    showOperationFeedback('error', `${row.availability.choice.label} 当前不能应用到真实导出 preset。`)
-    return
-  }
-
-  selectedStyleChoiceIds.value[selectedPlatform.value] = row.availability.choice.id
-  selectPreset(row.application.presetId, 'style-choice')
-  showOperationFeedback('info', `已应用 ${row.availability.choice.label}，实际使用 ${row.application.presetLabel}。`)
-}
-
-function normalizeExportFontFamily(value: string): ExportFontFamily {
-  if (value === 'serif' || value === 'monospace') return value
-  return 'sans-serif'
-}
-
-function normalizeExportFontSize(value: string): ExportFontSize {
-  return STYLE_SIZE_OPTIONS.some(option => option.id === value)
-    ? value as ExportFontSize
-    : '16px'
-}
-
-const defaultWechatPreset = getDefaultPreset()
+const defaultWechatPreset = themePresets.find(item => item.id === platformPresetIds.value.wechat) || getDefaultPreset()
 
 // ─── Export Options ──────────────────────────────────────
 const exportOptions = ref<ExportOptions>({
@@ -1209,17 +1219,32 @@ const exportOptions = ref<ExportOptions>({
   codeTheme: 'atom-one-dark',
   readingSpeed: 300,
   primaryColor: defaultWechatPreset.primaryColor,
-  fontFamily: normalizeExportFontFamily(defaultWechatPreset.fontFamily),
-  fontSize: normalizeExportFontSize(defaultWechatPreset.fontSize),
 })
 
-const effectiveExportOptions = computed<ExportOptions>(() => {
-  const nextOptions: ExportOptions = { ...exportOptions.value }
+const effectiveExportOptions = computed<WechatExportOptions>(() => {
+  const nextOptions: WechatExportOptions = { ...exportOptions.value }
+  nextOptions.articleTitle = props.title
+  nextOptions.articleCategory = props.articleCategory
+  const appearance = settingsStore.settings.appearance
+  const deliveryAdornment = parseDeliveryAdornmentConfig(deliveryAdornmentConfig.value)
+  nextOptions.deliveryAdornment = deliveryAdornment
+  nextOptions.enableReadingTime = deliveryAdornment.readingTime.enabled
+  nextOptions.readingSpeed = deliveryAdornment.readingTime.wordsPerMinute
+  const typographyCss = selectedPlatform.value === 'wechat'
+    ? typographyToWechatCss({
+        ...appearance.typography,
+        fontFamily: appearance.fontFamily,
+      }, nextOptions.primaryColor ?? appearance.accentColor)
+    : ''
   const exportCustomCss = props.exportCustomCss?.trim()
-  if (exportCustomCss) {
-    nextOptions.customCss = exportCustomCss
+  const customCss = [typographyCss, exportCustomCss].filter(Boolean).join('\n')
+  if (customCss) {
+    nextOptions.customCss = customCss
   } else {
     delete nextOptions.customCss
+  }
+  if (selectedPlatform.value === 'wechat') {
+    nextOptions.enableTextIndent = appearance.typography.paragraphIndent
   }
   return nextOptions
 })
@@ -1295,6 +1320,10 @@ const previewHtml = ref('')
 const qualityReport = ref<QualityReport | null>(null)
 const wechatStats = ref<ExportStats | null>(null)
 const nativeResult = ref<NativeExportResult | null>(null)
+const wechatNativeHandoffReport = ref<WechatNativeComponentHandoffReport | null>(null)
+const wechatNativeRegistryLocalCount = computed(() => (
+  wechatNativeHandoffReport.value?.currentArtifactExecutedOccurrenceCount ?? 0
+))
 const renderErrorMessage = ref('')
 const isRendering = ref(false)
 
@@ -1302,103 +1331,30 @@ const nativeFormatLabel = computed(() => {
   if (!nativeResult.value) return '平台原生格式'
   return NATIVE_FORMAT_LABELS[nativeResult.value.format]
 })
+const nativeDownloadLabel = computed(() => {
+  if (selectedPlatform.value === 'xiaohongshu') return '导出小红书图文包'
+  if (selectedPlatform.value === 'zhihu') return '导出知乎 Markdown 资产包'
+  return `下载 ${nativeFormatLabel.value}`
+})
+const nativeArtifactDetail = computed(() => {
+  if (selectedPlatform.value === 'xiaohongshu') {
+    return '软件将写出纯文本、真实 PNG 图片页和 manifest，并由 Tauri 逐文件回读。'
+  }
+  if (selectedPlatform.value === 'zhihu') {
+    return '软件将写出清洁 Markdown、真实图片 fallback 和 manifest；平台 host 仍需外部编辑器读回。'
+  }
+  return `${platformInfo.value.name} 推荐复制格式，${nativeResult.value?.content.length ?? 0} 字符`
+})
 
-const wechatPublishStatus = ref<WechatPublishStatus | null>(null)
-const isWechatPublishStatusLoading = ref(false)
-const wechatPublishStatusError = ref('')
-let publishStatusVersion = 0
-
-function cleanDraftTitle(title: string): string {
-  return title
+function inferExportTitle(markdown: string): string {
+  const heading = markdown.match(/^\s{0,3}#\s+(.+)$/m)?.[1]
+  const candidate = heading || markdown.split(/\r?\n/).find(line => line.trim().length > 0) || ''
+  return candidate
     .replace(/<[^>]+>/g, '')
     .replace(/[#*_`[\]()>~-]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, WECHAT_DRAFT_TITLE_MAX_CHARS)
 }
-
-function inferWechatDraftTitle(markdown: string): string {
-  const heading = markdown.match(/^\s{0,3}#\s+(.+)$/m)?.[1]
-  if (heading) {
-    const title = cleanDraftTitle(heading)
-    if (title) return title
-  }
-
-  const firstContentLine = markdown
-    .split(/\r?\n/)
-    .map(line => cleanDraftTitle(line))
-    .find(line => line.length > 0)
-
-  return firstContentLine || 'Inkforge 微信草稿'
-}
-
-async function refreshPublishIntegrationStatus() {
-  if (!props.visible || selectedPlatform.value !== 'wechat') {
-    publishStatusVersion += 1
-    wechatPublishStatus.value = null
-    wechatPublishStatusError.value = ''
-    isWechatPublishStatusLoading.value = false
-    return
-  }
-
-  const thisVersion = ++publishStatusVersion
-  isWechatPublishStatusLoading.value = true
-  wechatPublishStatusError.value = ''
-
-  try {
-    const status = await getWechatPublishStatus()
-    if (publishStatusVersion !== thisVersion) return
-    wechatPublishStatus.value = status
-  } catch (error) {
-    if (publishStatusVersion !== thisVersion) return
-    wechatPublishStatus.value = null
-    wechatPublishStatusError.value = error instanceof Error ? error.message : '未知错误'
-  } finally {
-    if (publishStatusVersion === thisVersion) {
-      isWechatPublishStatusLoading.value = false
-    }
-  }
-}
-
-const publishIntegrationStatus = computed<PublishIntegrationStatus>(() => {
-  if (selectedPlatform.value !== 'wechat') {
-    return {
-      configured: false,
-      state: 'blocked',
-      detail: `${platformInfo.value.name} 尚未接入真实 API 发布链；当前只提供可复制、可下载的真实导出产物。`,
-    }
-  }
-
-  if (isWechatPublishStatusLoading.value) {
-    return {
-      configured: false,
-      state: 'warning',
-      detail: '正在检测微信公众号真实发布能力...',
-    }
-  }
-
-  if (wechatPublishStatusError.value) {
-    return {
-      configured: false,
-      state: 'blocked',
-      detail: `微信公众号发布状态检测失败：${wechatPublishStatusError.value}`,
-    }
-  }
-
-  if (wechatPublishStatus.value) {
-    return {
-      configured: wechatPublishStatus.value.configured,
-      state: wechatPublishStatus.value.configured ? 'ready' : 'blocked',
-      detail: describeWechatPublishStatus(wechatPublishStatus.value),
-    }
-  }
-
-  return {
-    configured: false,
-    state: 'warning',
-    detail: '等待检测微信公众号真实发布能力。',
-  }
-})
 
 const preflightRows = computed<PreflightRow[]>(() => {
   const rows: PreflightRow[] = [
@@ -1433,12 +1389,6 @@ const preflightRows = computed<PreflightRow[]>(() => {
         ? '浏览器提供剪贴板写入能力，最终仍受用户手势与权限控制'
         : '当前环境未暴露剪贴板写入能力，可改用下载文件',
     },
-    {
-      key: 'publish',
-      label: selectedPlatform.value === 'wechat' ? '微信 API 授权' : '直连发布',
-      state: publishIntegrationStatus.value.state,
-      detail: publishIntegrationStatus.value.detail,
-    },
   ]
 
   return rows
@@ -1450,10 +1400,30 @@ watch(
   () => props.visible,
   (visible, wasVisible) => {
     if (visible && !wasVisible) {
-      selectedPlatform.value = normalizeInitialPlatform(props.initialPlatform)
+      const nextPlatform = normalizeInitialPlatform(props.initialPlatform)
+      const nextPresetId = settingsStore.settings.export.defaultPresetId
+      if (getPlatformPresets(nextPlatform).some(preset => preset.id === nextPresetId)) {
+        platformPresetIds.value[nextPlatform] = nextPresetId
+      }
+      selectedPlatform.value = nextPlatform
+      if (nextPlatform === 'wechat') {
+        const preset = themePresets.find(item => item.id === platformPresetIds.value.wechat) || getDefaultPreset()
+        exportOptions.value.primaryColor = preset.primaryColor
+      }
     }
   },
 )
+
+function selectPlatform(platform: Platform): void {
+  invalidatePlatformArtifactWrite()
+  selectedPlatform.value = platform
+  settingsStore.settings.export.defaultPlatform = platform
+  settingsStore.settings.export.defaultPresetId = platformPresetIds.value[platform]
+  if (platform === 'wechat') {
+    const preset = themePresets.find(item => item.id === platformPresetIds.value.wechat) || getDefaultPreset()
+    exportOptions.value.primaryColor = preset.primaryColor
+  }
+}
 
 watch(
   [() => props.content, () => props.visible, selectedPlatform, selectedPresetId, effectiveExportOptions],
@@ -1463,6 +1433,7 @@ watch(
       qualityReport.value = null
       wechatStats.value = null
       nativeResult.value = null
+      wechatNativeHandoffReport.value = null
       renderErrorMessage.value = ''
       isRendering.value = false
       return
@@ -1502,11 +1473,21 @@ watch(
         exportOptions: renderExportOptions,
       })
       if (renderVersion !== thisVersion) return
+      const nativeHandoff = platform === 'wechat'
+        ? await buildWechatNativeComponentHandoffReport({
+            markdown: props.content,
+            artifactContent: native.content,
+            deliveryConfig: deliveryAdornmentConfig.value,
+          })
+        : null
+      if (renderVersion !== thisVersion) return
       nativeResult.value = native
+      wechatNativeHandoffReport.value = nativeHandoff
     } catch (error) {
       if (renderVersion !== thisVersion) return
       previewHtml.value = ''
       nativeResult.value = null
+      wechatNativeHandoffReport.value = null
       wechatStats.value = null
       renderErrorMessage.value = error instanceof Error ? error.message : '导出渲染失败'
       showOperationFeedback('error', `导出渲染失败：${renderErrorMessage.value}`)
@@ -1519,23 +1500,15 @@ watch(
   { immediate: true, deep: true }
 )
 
-watch(
-  [() => props.visible, selectedPlatform],
-  () => {
-    void refreshPublishIntegrationStatus()
-  },
-  { immediate: true }
-)
-
 // ─── Copy ────────────────────────────────────────────────
-const copySuccess = ref(false)
 const nativeCopySuccess = ref(false)
 const externalHandoffCopySuccess = ref(false)
+const nativeComponentHandoffCopySuccess = ref(false)
 const operationFeedback = ref<OperationFeedback | null>(null)
 
-let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 let nativeCopyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 let externalHandoffCopyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
+let nativeComponentHandoffCopyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 let operationFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 
 function showOperationFeedback(kind: FeedbackKind, message: string) {
@@ -1546,15 +1519,10 @@ function showOperationFeedback(kind: FeedbackKind, message: string) {
   }, FEEDBACK_DURATION + 1000)
 }
 
-function buildExportFilename(kind: 'styled' | 'native'): string {
+function buildExportFilename(format: NativeExportResult['format']): string {
   const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
-
-  if (kind === 'native' && nativeResult.value) {
-    const extension = NATIVE_FILE_EXTENSIONS[nativeResult.value.format]
-    return `inkforge-${selectedPlatform.value}-native-${timestamp}.${extension}`
-  }
-
-  return `inkforge-${selectedPlatform.value}-styled-${timestamp}.html`
+  const extension = NATIVE_FILE_EXTENSIONS[format]
+  return `inkforge-${selectedPlatform.value}-native-${timestamp}.${extension}`
 }
 
 function downloadArtifact(content: string, filename: string, mimeType: string) {
@@ -1570,10 +1538,15 @@ function downloadArtifact(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url)
 }
 
-function recordExportArtifact(content: string, action: 'copy' | 'download', label: string): void {
-  const title = (props.title?.trim() || inferWechatDraftTitle(props.content) || '未命名文章').slice(0, 120)
+function recordExportArtifact(
+  content: string,
+  action: ExportHistoryEntry['action'],
+  label: string,
+  platform: ExportHistoryEntry['platform'] = selectedPlatform.value,
+): void {
+  const title = (props.title?.trim() || inferExportTitle(props.content) || '未命名文章').slice(0, 120)
   settingsStore.recordExportHistory({
-    platform: selectedPlatform.value,
+    platform,
     title: `${title} · ${label}`,
     bytes: new Blob([content]).size,
     action,
@@ -1584,24 +1557,6 @@ async function copyHtmlToPlatformClipboard(content: string): Promise<boolean> {
   return selectedPlatform.value === 'wechat'
     ? copyWechatHtmlToClipboard(content)
     : copyToClipboard(content)
-}
-
-async function handleCopy() {
-  const content = previewHtml.value
-  if (!content || isRendering.value) return
-
-  showOperationFeedback('info', '正在写入剪贴板，请等待浏览器权限返回。')
-  const success = await copyHtmlToPlatformClipboard(content)
-
-  if (success) {
-    recordExportArtifact(content, 'copy', '样式版 HTML')
-    copySuccess.value = true
-    showOperationFeedback('success', `已复制 ${platformInfo.value.name} 样式版 HTML，可粘贴到平台编辑器。`)
-    clearTimeout(copyFeedbackTimer)
-    copyFeedbackTimer = setTimeout(() => { copySuccess.value = false }, FEEDBACK_DURATION)
-  } else {
-    showOperationFeedback('error', '复制失败：浏览器拒绝剪贴板写入，请使用下载文件或检查剪贴板权限。')
-  }
 }
 
 async function handleCopyNative() {
@@ -1638,32 +1593,239 @@ async function handleCopyExternalHandoff() {
   }
 }
 
-// ─── Download ────────────────────────────────────────────
-function handleDownload() {
-  const content = previewHtml.value
-  if (!content || isRendering.value) return
-
-  try {
-    downloadArtifact(content, buildExportFilename('styled'), 'text/html;charset=utf-8')
-    recordExportArtifact(content, 'download', '样式版 HTML')
-    showOperationFeedback('success', '已生成样式版 HTML 下载文件。')
-  } catch {
-    showOperationFeedback('error', '下载失败：浏览器未能创建本地文件，请稍后重试。')
+async function handleCopyNativeComponentHandoff() {
+  const report = wechatNativeHandoffReport.value
+  if (!report) return
+  const success = await copyTextToClipboard(formatWechatNativeComponentHandoffReport(report))
+  if (!success) {
+    showOperationFeedback('error', '复制微信原生组件交接失败：当前环境不允许写入剪贴板。')
+    return
   }
+  nativeComponentHandoffCopySuccess.value = true
+  showOperationFeedback('success', '已复制微信原生组件人工交接；原生插入仍需在公众号编辑器读回。')
+  clearTimeout(nativeComponentHandoffCopyFeedbackTimer)
+  nativeComponentHandoffCopyFeedbackTimer = setTimeout(() => {
+    nativeComponentHandoffCopySuccess.value = false
+  }, FEEDBACK_DURATION)
 }
 
-function handleDownloadNative() {
+// ─── Download ────────────────────────────────────────────
+async function handleDownloadNative() {
   const result = nativeResult.value
   if (!result?.content || isRendering.value) return
 
+  if (selectedPlatform.value !== 'wechat') {
+    await handleWritePlatformArtifactBundle()
+    return
+  }
+
   try {
-    downloadArtifact(result.content, buildExportFilename('native'), NATIVE_MIME_TYPES[result.format])
+    downloadArtifact(result.content, buildExportFilename(result.format), NATIVE_MIME_TYPES[result.format])
     recordExportArtifact(result.content, 'download', `${NATIVE_FORMAT_LABELS[result.format]} 原生产物`)
     showOperationFeedback('success', `已生成 ${NATIVE_FORMAT_LABELS[result.format]} 原生下载文件。`)
   } catch {
     showOperationFeedback('error', '下载原生产物失败：浏览器未能创建本地文件，请稍后重试。')
   }
 }
+
+// ─── Native Folder / Static Blog Delivery ────────────────
+const localDeliveryTarget = ref<LocalDeliveryTarget>('folder')
+const localDeliveryFormat = ref<LocalDeliveryFormat>('markdown')
+const localDeliveryDirectory = ref('')
+const localDeliveryResult = ref<LocalDeliveryWriteResult | null>(null)
+const isWritingLocalDelivery = ref(false)
+const isWritingPlatformArtifact = ref(false)
+type PlatformArtifactTarget = Exclude<Platform, 'wechat'>
+interface PlatformArtifactWriteRequest {
+  version: number
+  platform: PlatformArtifactTarget
+  markdown: string
+  title: string
+  presetId: string
+  nativeOptions: WechatExportOptions
+}
+
+let platformArtifactWriteVersion = 0
+const platformArtifactWriteSummary = ref<{
+  platform: PlatformArtifactBundle['platform']
+  entryPath: string
+  manifestPath: string
+  fileCount: number
+  externalIssueCount: number
+} | null>(null)
+
+function snapshotWechatExportOptions(options: WechatExportOptions): WechatExportOptions {
+  return JSON.parse(JSON.stringify(options)) as WechatExportOptions
+}
+
+function invalidatePlatformArtifactWrite(): void {
+  platformArtifactWriteVersion += 1
+  if (isWritingPlatformArtifact.value) {
+    operationFeedback.value = null
+  }
+}
+
+function isCurrentPlatformArtifactWriteRequest(request: PlatformArtifactWriteRequest): boolean {
+  return request.version === platformArtifactWriteVersion
+    && request.platform === selectedPlatform.value
+    && request.markdown === props.content
+    && request.title === (props.title?.trim() || inferExportTitle(props.content))
+    && request.presetId === selectedPresetId.value
+    && JSON.stringify(request.nativeOptions) === JSON.stringify(snapshotWechatExportOptions(effectiveExportOptions.value))
+}
+
+const localDeliveryTargetLabel = computed(() => (
+  localDeliveryTarget.value === 'blog' ? '个人博客' : '个人文件夹'
+))
+const localDeliveryFormatLabel = computed(() => (
+  localDeliveryFormat.value === 'html' ? 'HTML' : 'Markdown'
+))
+
+async function handleWriteLocalDelivery() {
+  if (isWritingLocalDelivery.value || !props.content.trim()) return
+
+  isWritingLocalDelivery.value = true
+  localDeliveryResult.value = null
+  showOperationFeedback('info', `正在写入${localDeliveryTargetLabel.value}，完成后会逐文件回读。`)
+
+  try {
+    const bundle = await buildLocalDeliveryBundle({
+      target: localDeliveryTarget.value,
+      format: localDeliveryFormat.value,
+      title: props.title?.trim() || inferExportTitle(props.content) || '未命名文章',
+      markdown: props.content,
+    })
+    const result = await writeLocalDeliveryBundle(
+      bundle.files,
+      localDeliveryTarget.value === 'blog' ? '选择静态站点内容目录' : '选择个人文件夹',
+    )
+    if (!result.ok) {
+      showOperationFeedback(
+        result.reason === 'cancelled' ? 'info' : 'error',
+        result.reason === 'cancelled' ? '已取消选择目录。' : `写入失败：${result.message}`,
+      )
+      return
+    }
+
+    localDeliveryResult.value = result.value
+    localDeliveryDirectory.value = result.value.rootPath
+    const entry = bundle.files.find(file => file.relativePath === bundle.entryPath)
+    recordExportArtifact(entry?.content ?? props.content, 'write-local', `${localDeliveryTargetLabel.value} ${localDeliveryFormatLabel.value}`, 'local')
+    showOperationFeedback(
+      result.value.cleanupWarning ? 'info' : 'success',
+      result.value.cleanupWarning
+        ? `已写入并回读 ${result.value.files.length} 个文件；${result.value.cleanupWarning}`
+        : `已写入并回读 ${result.value.files.length} 个文件，入口为 ${bundle.entryPath}。`,
+    )
+  } catch (error) {
+    showOperationFeedback('error', `写入失败：${error instanceof Error ? error.message : String(error)}`)
+  } finally {
+    isWritingLocalDelivery.value = false
+  }
+}
+
+async function handleWritePlatformArtifactBundle() {
+  if (
+    isWritingPlatformArtifact.value
+    || selectedPlatform.value === 'wechat'
+    || !props.content.trim()
+  ) return
+
+  const platform = selectedPlatform.value
+  const request: PlatformArtifactWriteRequest = {
+    version: ++platformArtifactWriteVersion,
+    platform,
+    markdown: props.content,
+    title: props.title?.trim() || inferExportTitle(props.content),
+    presetId: selectedPresetId.value,
+    nativeOptions: snapshotWechatExportOptions(effectiveExportOptions.value),
+  }
+  isWritingPlatformArtifact.value = true
+  localDeliveryResult.value = null
+  platformArtifactWriteSummary.value = null
+  showOperationFeedback(
+    'info',
+    `正在生成${PLATFORMS.find(item => item.id === request.platform)?.name ?? request.platform}真实资产包并逐文件回读。`,
+  )
+
+  try {
+    const bundle = await buildPlatformArtifactBundle({
+      platform: request.platform,
+      markdown: request.markdown,
+      title: request.title,
+      nativeOptions: {
+        presetId: request.presetId,
+        exportOptions: request.nativeOptions,
+      },
+    })
+    if (!isCurrentPlatformArtifactWriteRequest(request)) return
+
+    const result = await writeLocalDeliveryBundle(
+      bundle.files,
+      `选择${PLATFORMS.find(item => item.id === request.platform)?.name ?? request.platform}资产包目录`,
+    )
+    if (!isCurrentPlatformArtifactWriteRequest(request)) return
+    if (!result.ok) {
+      showOperationFeedback(
+        result.reason === 'cancelled' ? 'info' : 'error',
+        result.reason === 'cancelled' ? '已取消选择目录。' : `资产包写入失败：${result.message}`,
+      )
+      return
+    }
+
+    nativeResult.value = bundle.nativeResult
+    localDeliveryResult.value = result.value
+    localDeliveryDirectory.value = result.value.rootPath
+    platformArtifactWriteSummary.value = {
+      platform: bundle.platform,
+      entryPath: bundle.entryPath,
+      manifestPath: bundle.manifestPath,
+      fileCount: result.value.files.length,
+      externalIssueCount: bundle.manifestIssues.filter(issue => issue.severity === 'error').length,
+    }
+    recordExportArtifact(
+      bundle.nativeResult.content,
+      'write-local',
+      `${PLATFORMS.find(item => item.id === request.platform)?.name ?? request.platform}原生资产包`,
+      request.platform,
+    )
+    showOperationFeedback(
+      result.value.cleanupWarning ? 'info' : 'success',
+      result.value.cleanupWarning
+        ? `已写入并回读 ${result.value.files.length} 个真实文件；${result.value.cleanupWarning}`
+        : `已写入并回读 ${result.value.files.length} 个真实文件；入口 ${bundle.entryPath}，manifest ${bundle.manifestPath}。`,
+    )
+  } catch (error) {
+    if (!isCurrentPlatformArtifactWriteRequest(request)) return
+    showOperationFeedback('error', `资产包生成失败：${error instanceof Error ? error.message : String(error)}`)
+  } finally {
+    isWritingPlatformArtifact.value = false
+  }
+}
+
+async function handleRevealLocalDelivery() {
+  if (!localDeliveryResult.value) return
+  const result = await revealPathInFileManager(localDeliveryResult.value.rootPath)
+  if (!result.ok) showOperationFeedback('error', `无法打开目录：${result.message}`)
+}
+
+watch(
+  [
+    localDeliveryTarget,
+    localDeliveryFormat,
+    selectedPlatform,
+    selectedPresetId,
+    effectiveExportOptions,
+    () => props.content,
+    () => props.title,
+  ],
+  () => {
+    invalidatePlatformArtifactWrite()
+    localDeliveryResult.value = null
+    platformArtifactWriteSummary.value = null
+  },
+  { flush: 'sync' },
+)
 
 // ─── Quality Helpers ─────────────────────────────────────
 function severityIcon(severity: QualityIssueSeverity): Component {
@@ -1693,9 +1855,9 @@ watch(() => props.visible, (visible) => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
-  clearTimeout(copyFeedbackTimer)
   clearTimeout(nativeCopyFeedbackTimer)
   clearTimeout(externalHandoffCopyFeedbackTimer)
+  clearTimeout(nativeComponentHandoffCopyFeedbackTimer)
   clearTimeout(operationFeedbackTimer)
 })
 </script>
@@ -1746,7 +1908,7 @@ onUnmounted(() => {
                     type="button"
                     class="pill-btn"
                     :class="{ active: selectedPlatform === p.id }"
-                    @click="selectedPlatform = p.id"
+                    @click="selectPlatform(p.id)"
                   >
                     <component
                       :is="resolveExportIcon(p.icon, p.id)"
@@ -1773,13 +1935,17 @@ onUnmounted(() => {
                     :class="{ active: selectedPresetId === preset.id }"
                     @click="selectPreset(preset.id)"
                   >
-                    <component
-                      :is="resolveExportIcon(preset.id || preset.icon, preset.id)"
-                      class="preset-icon"
-                      :size="16"
-                      :stroke-width="2"
-                    />
-                    <span class="preset-name">{{ preset.name }}</span>
+                    <span class="preset-heading">
+                      <component
+                        :is="resolveExportIcon(preset.id || preset.icon, preset.id)"
+                        class="preset-icon"
+                        :size="16"
+                        :stroke-width="2"
+                      />
+                      <span class="preset-name">{{ preset.name }}</span>
+                    </span>
+                    <span class="preset-variant">{{ preset.variantName }}</span>
+                    <span class="preset-signature">{{ preset.variantDescription }}</span>
                     <span
                       class="preset-color-bar"
                       :style="{ backgroundColor: preset.primaryColor }"
@@ -1789,9 +1955,14 @@ onUnmounted(() => {
               </div>
 
               <!-- Style Capability Catalog -->
-              <div class="ctrl-section style-catalog-area">
+              <details class="ctrl-section style-diagnostics-drawer">
+                <summary class="drawer-summary">
+                  <span>渲染诊断与证据</span>
+                  <small>能力目录、质量门禁与外部验收边界</small>
+                </summary>
+                <div class="drawer-content style-catalog-area">
                 <div class="section-label">
-                  样式能力
+                  样式能力目录
                 </div>
                 <div class="style-catalog-summary">
                   <span>{{ platformInfo.name }} 可应用渲染样式 {{ styleRenderableApplicationSummary.selectable }}/{{ styleRenderableApplicationSummary.total }}</span>
@@ -1899,6 +2070,7 @@ onUnmounted(() => {
                     :key="row.availability.choice.id"
                     type="button"
                     class="style-choice-card"
+                    :data-style-choice-id="row.availability.choice.id"
                     :class="[
                       row.statusClass,
                       {
@@ -1906,9 +2078,9 @@ onUnmounted(() => {
                         'style-choice-disabled': !row.selectable,
                       },
                     ]"
-                    :disabled="!row.selectable"
                     :aria-pressed="row.selected"
-                    @click="selectStyleChoice(row)"
+                    :disabled="!row.selectable"
+                    @click="row.application && selectPreset(row.application.presetId)"
                   >
                     <div class="style-choice-head">
                       <span class="style-choice-name">{{ row.availability.choice.label }}</span>
@@ -1998,10 +2170,16 @@ onUnmounted(() => {
                     </div>
                   </button>
                 </div>
-              </div>
+                </div>
+              </details>
 
               <!-- Style Options -->
-              <div class="ctrl-section">
+              <details class="ctrl-section style-options-drawer">
+                <summary class="drawer-summary">
+                  <span>高级参数</span>
+                  <small>字体、字号、主题色与 SVG 模块</small>
+                </summary>
+                <div class="drawer-content">
                 <div class="section-label">
                   样式
                 </div>
@@ -2024,8 +2202,8 @@ onUnmounted(() => {
                         :key="font.id"
                         type="button"
                         class="segment-btn"
-                        :class="{ active: exportOptions.fontFamily === font.id }"
-                        @click="exportOptions.fontFamily = font.id"
+                        :class="{ active: settingsStore.settings.appearance.fontFamily === font.id }"
+                        @click="settingsStore.settings.appearance.fontFamily = font.id"
                       >
                         {{ font.label }}
                       </button>
@@ -2040,8 +2218,8 @@ onUnmounted(() => {
                         :key="size.id"
                         type="button"
                         class="segment-btn"
-                        :class="{ active: exportOptions.fontSize === size.id }"
-                        @click="exportOptions.fontSize = size.id"
+                        :class="{ active: settingsStore.settings.appearance.typography.fontSize === size.id }"
+                        @click="settingsStore.settings.appearance.typography.fontSize = size.id"
                       >
                         {{ size.label }}
                       </button>
@@ -2145,7 +2323,8 @@ onUnmounted(() => {
                     <span class="toggle-text">Mac 窗口风格代码块</span>
                   </label>
                 </div>
-              </div>
+                </div>
+              </details>
 
               <!-- Format Options -->
               <div class="ctrl-section">
@@ -2153,16 +2332,6 @@ onUnmounted(() => {
                   格式
                 </div>
                 <div class="toggle-list">
-                  <label
-                    v-if="selectedPlatform === 'wechat'"
-                    class="toggle-item"
-                  >
-                    <input
-                      v-model="exportOptions.enableReadingTime"
-                      type="checkbox"
-                    >
-                    <span class="toggle-text">阅读时间</span>
-                  </label>
                   <label class="toggle-item">
                     <input
                       v-model="exportOptions.enableEnhancedTable"
@@ -2212,93 +2381,106 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <!-- Quality Detection -->
-              <div
-                v-if="qualityReport"
-                class="ctrl-section quality-area"
-              >
-                <div class="section-label">
-                  质量检测
-                </div>
-                <div
-                  class="quality-banner"
-                  :class="qualityReport.passed ? 'quality-passed' : 'quality-failed'"
-                >
-                  <span>{{ qualityReport.passed ? '检测通过' : '发现问题' }}</span>
-                  <div class="quality-counts">
-                    <span
-                      v-if="qualityReport.stats.errors"
-                      class="qc-badge qc-error"
-                    >
-                      {{ qualityReport.stats.errors }} 错误
-                    </span>
-                    <span
-                      v-if="qualityReport.stats.warnings"
-                      class="qc-badge qc-warning"
-                    >
-                      {{ qualityReport.stats.warnings }} 警告
-                    </span>
-                    <span
-                      v-if="qualityReport.stats.suggestions"
-                      class="qc-badge qc-info"
-                    >
-                      {{ qualityReport.stats.suggestions }} 建议
-                    </span>
-                  </div>
-                </div>
-                <div
-                  v-if="qualityReport.issues.length"
-                  class="quality-list"
-                >
-                  <div
-                    v-for="issue in qualityReport.issues"
-                    :key="issue.id"
-                    class="quality-item"
-                    :class="issue.severity"
-                  >
-                    <component
-                      :is="severityIcon(issue.severity)"
-                      class="qi-icon"
-                      :size="14"
-                    />
-                    <div class="qi-body">
-                      <p class="qi-message">
-                        {{ issue.message }}
-                      </p>
-                      <p
-                        v-if="issue.suggestion"
-                        class="qi-tip"
-                      >
-                        {{ issue.suggestion }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <DeliveryAdornmentPanel
+                v-model="deliveryAdornmentConfig"
+                :platform="selectedPlatform"
+              />
 
-              <!-- Export Preflight -->
-              <div class="ctrl-section preflight-area">
-                <div class="section-label">
-                  导出预检
-                </div>
-                <div class="preflight-list">
+              <!-- Quality Detection and Export Preflight -->
+              <details class="ctrl-section export-diagnostics-drawer">
+                <summary class="drawer-summary">
+                  <span>质量与导出预检</span>
+                  <small>按需查看质量问题、渲染状态与证据门禁</small>
+                </summary>
+                <div class="drawer-content export-diagnostics-content">
                   <div
-                    v-for="row in preflightRows"
-                    :key="row.key"
-                    class="preflight-row"
-                    :class="`preflight-${row.state}`"
+                    v-if="qualityReport"
+                    class="export-diagnostics-section quality-area"
                   >
-                    <span
-                      class="preflight-dot"
-                      aria-hidden="true"
-                    />
-                    <div class="preflight-copy">
-                      <span class="preflight-label">{{ row.label }}</span>
-                      <span class="preflight-detail">{{ row.detail }}</span>
+                    <div class="section-label">
+                      质量检测
+                    </div>
+                    <div
+                      class="quality-banner"
+                      :class="qualityReport.passed ? 'quality-passed' : 'quality-failed'"
+                    >
+                      <span>{{ qualityReport.passed ? '检测通过' : '发现问题' }}</span>
+                      <div class="quality-counts">
+                        <span
+                          v-if="qualityReport.stats.errors"
+                          class="qc-badge qc-error"
+                        >
+                          {{ qualityReport.stats.errors }} 错误
+                        </span>
+                        <span
+                          v-if="qualityReport.stats.warnings"
+                          class="qc-badge qc-warning"
+                        >
+                          {{ qualityReport.stats.warnings }} 警告
+                        </span>
+                        <span
+                          v-if="qualityReport.stats.suggestions"
+                          class="qc-badge qc-info"
+                        >
+                          {{ qualityReport.stats.suggestions }} 建议
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      v-if="qualityReport.issues.length"
+                      class="quality-list"
+                    >
+                      <div
+                        v-for="issue in qualityReport.issues"
+                        :key="issue.id"
+                        class="quality-item"
+                        :class="issue.severity"
+                      >
+                        <component
+                          :is="severityIcon(issue.severity)"
+                          class="qi-icon"
+                          :size="14"
+                        />
+                        <div class="qi-body">
+                          <p class="qi-message">
+                            {{ issue.message }}
+                          </p>
+                          <p
+                            v-if="issue.suggestion"
+                            class="qi-tip"
+                          >
+                            {{ issue.suggestion }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Export Preflight -->
+                  <div class="export-diagnostics-section preflight-area">
+                    <div class="section-label">
+                      导出预检
+                    </div>
+                    <div class="preflight-list">
+                      <div
+                        v-for="row in preflightRows"
+                        :key="row.key"
+                        class="preflight-row"
+                        :class="`preflight-${row.state}`"
+                      >
+                        <span
+                          class="preflight-dot"
+                          aria-hidden="true"
+                        />
+                        <div class="preflight-copy">
+                          <span class="preflight-label">{{ row.label }}</span>
+                          <span class="preflight-detail">{{ row.detail }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </details>
 
               <!-- Native Output -->
               <div class="ctrl-section native-area">
@@ -2311,28 +2493,77 @@ onUnmounted(() => {
                 >
                   <div class="native-card-main">
                     <span class="native-format">{{ nativeFormatLabel }}</span>
-                    <span class="native-detail">
-                      {{ platformInfo.name }} 推荐复制格式，{{ nativeResult.content.length }} 字符
+                    <span class="native-detail">{{ nativeArtifactDetail }}</span>
+                    <span
+                      v-if="platformArtifactWriteSummary"
+                      class="native-detail"
+                    >
+                      已回读 {{ platformArtifactWriteSummary.fileCount }} 个文件；入口
+                      {{ platformArtifactWriteSummary.entryPath }}；manifest
+                      {{ platformArtifactWriteSummary.manifestPath }}。
                     </span>
                   </div>
-                  <div class="native-actions">
-                    <button
-                      type="button"
-                      class="mini-action"
-                      :class="{ success: nativeCopySuccess }"
-                      :disabled="isRendering || !nativeResult.content"
-                      @click="handleCopyNative"
+                  <div
+                    v-if="selectedPlatform === 'wechat' && wechatNativeHandoffReport"
+                    class="wechat-native-handoff"
+                  >
+                    <div class="wechat-native-handoff__head">
+                      <div>
+                        <strong>微信原生组件交接</strong>
+                        <span>
+                          registry {{ wechatNativeHandoffReport.registryMatrix.length }} 项已动态枚举；
+                          当前文稿实例本地执行 {{ wechatNativeRegistryLocalCount }}/{{ wechatNativeHandoffReport.currentArtifactOccurrenceCount }}；
+                          {{ wechatNativeHandoffReport.issues.length ? `${wechatNativeHandoffReport.issues.length} 个本地阻断` : '本地执行账本有效' }}；
+                          {{ wechatNativeHandoffReport.handoffs.length }} 个当前实例待处理。
+                        </span>
+                      </div>
+                      <button
+                        v-if="wechatNativeHandoffReport.handoffs.length"
+                        type="button"
+                        class="mini-action"
+                        :class="{ success: nativeComponentHandoffCopySuccess }"
+                        @click="handleCopyNativeComponentHandoff"
+                      >
+                        <CheckCircle
+                          v-if="nativeComponentHandoffCopySuccess"
+                          :size="13"
+                        />
+                        <Copy
+                          v-else
+                          :size="13"
+                        />
+                        {{ nativeComponentHandoffCopySuccess ? '已复制交接' : '复制人工交接' }}
+                      </button>
+                    </div>
+                    <p class="wechat-native-handoff__boundary">
+                      静态卡只保证可读；歌曲、名片、文章和媒体必须在公众号编辑器原生插入并读回，当前未证明原生绑定，未发布。
+                    </p>
+                    <div
+                      v-if="wechatNativeHandoffReport.handoffs.length"
+                      class="wechat-native-handoff__list"
                     >
-                      {{ nativeCopySuccess ? '已复制' : '复制原生' }}
-                    </button>
-                    <button
-                      type="button"
-                      class="mini-action"
-                      :disabled="isRendering || !nativeResult.content"
-                      @click="handleDownloadNative"
+                      <article
+                        v-for="handoff in wechatNativeHandoffReport.handoffs"
+                        :key="handoff.occurrenceKey"
+                        class="wechat-native-handoff__item"
+                        :class="{ blocked: handoff.status === 'blocked' }"
+                      >
+                        <div class="wechat-native-handoff__title">
+                          <strong>{{ handoff.label }}</strong>
+                          <span>{{ handoff.status === 'blocked' ? '已阻断' : '平台原生手动插入' }}</span>
+                        </div>
+                        <p>{{ handoff.expectedIdentity || '缺少真实可见名称' }}</p>
+                        <small>{{ handoff.anchor }}</small>
+                        <small>{{ handoff.action }}</small>
+                        <small v-if="handoff.issues.length">{{ handoff.issues.join('；') }}</small>
+                      </article>
+                    </div>
+                    <p
+                      v-else
+                      class="wechat-native-handoff__empty"
                     >
-                      下载原生
-                    </button>
+                      当前产物没有需要平台原生插入的组件；安全富文本仍按现有微信链路输出。
+                    </p>
                   </div>
                 </div>
                 <div
@@ -2342,6 +2573,124 @@ onUnmounted(() => {
                   原生产物会在真实渲染完成后生成。
                 </div>
               </div>
+
+              <details
+                class="ctrl-section local-delivery-area"
+                open
+              >
+                <summary class="drawer-summary">
+                  <span>保存到本机</span>
+                  <small>真实写入个人文件夹或 Hugo / Hexo / Jekyll 内容目录</small>
+                </summary>
+                <div class="drawer-content local-delivery-content">
+                  <div class="local-delivery-field">
+                    <span class="local-delivery-label">目标</span>
+                    <div
+                      class="segmented-control local-delivery-segments"
+                      role="radiogroup"
+                      aria-label="本地保存目标"
+                    >
+                      <button
+                        type="button"
+                        class="segment-btn"
+                        :class="{ active: localDeliveryTarget === 'folder' }"
+                        :aria-pressed="localDeliveryTarget === 'folder'"
+                        @click="localDeliveryTarget = 'folder'"
+                      >
+                        个人文件夹
+                      </button>
+                      <button
+                        type="button"
+                        class="segment-btn"
+                        :class="{ active: localDeliveryTarget === 'blog' }"
+                        :aria-pressed="localDeliveryTarget === 'blog'"
+                        @click="localDeliveryTarget = 'blog'"
+                      >
+                        个人博客
+                      </button>
+                    </div>
+                  </div>
+                  <div class="local-delivery-field">
+                    <span class="local-delivery-label">格式</span>
+                    <div
+                      class="segmented-control local-delivery-segments"
+                      role="radiogroup"
+                      aria-label="本地保存格式"
+                    >
+                      <button
+                        type="button"
+                        class="segment-btn"
+                        :class="{ active: localDeliveryFormat === 'markdown' }"
+                        :aria-pressed="localDeliveryFormat === 'markdown'"
+                        @click="localDeliveryFormat = 'markdown'"
+                      >
+                        Markdown
+                      </button>
+                      <button
+                        type="button"
+                        class="segment-btn"
+                        :class="{ active: localDeliveryFormat === 'html' }"
+                        :aria-pressed="localDeliveryFormat === 'html'"
+                        @click="localDeliveryFormat = 'html'"
+                      >
+                        HTML
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="local-directory-picker"
+                    :disabled="isWritingLocalDelivery || isWritingPlatformArtifact || !props.content.trim()"
+                    @click="handleWriteLocalDelivery"
+                  >
+                    <FolderOpen :size="15" />
+                    <span>{{ localDeliveryDirectory ? '重新选择并写入' : '选择目录并写入' }}</span>
+                  </button>
+                  <p
+                    class="local-directory-path"
+                    :class="{ empty: !localDeliveryDirectory }"
+                    :title="localDeliveryDirectory || undefined"
+                  >
+                    {{ localDeliveryDirectory || '尚未选择；写入时会打开系统目录选择器。' }}
+                  </p>
+                  <div class="local-delivery-actions">
+                    <button
+                      type="button"
+                      class="mini-action local-delivery-save"
+                      :disabled="isWritingLocalDelivery || !props.content.trim()"
+                      @click="handleWriteLocalDelivery"
+                    >
+                      <Loader2
+                        v-if="isWritingLocalDelivery"
+                        class="spin"
+                        :size="14"
+                      />
+                      <Save
+                        v-else
+                        :size="14"
+                      />
+                      {{ isWritingLocalDelivery ? '写入并回读中' : `写入${localDeliveryTargetLabel}` }}
+                    </button>
+                    <button
+                      v-if="localDeliveryResult"
+                      type="button"
+                      class="mini-action"
+                      @click="handleRevealLocalDelivery"
+                    >
+                      <FolderOpen :size="14" />
+                      打开目录
+                    </button>
+                  </div>
+                  <div
+                    v-if="localDeliveryResult"
+                    class="local-delivery-result"
+                    role="status"
+                  >
+                    <CheckCircle :size="14" />
+                    <span>{{ localDeliveryResult.files.length }} 个文件已逐一回读验证</span>
+                  </div>
+                </div>
+              </details>
 
               <div
                 v-if="operationFeedback"
@@ -2386,30 +2735,38 @@ onUnmounted(() => {
               <button
                 type="button"
                 class="act-btn act-secondary"
-                :disabled="isRendering || !previewHtml"
-                @click="handleDownload"
+                :disabled="isRendering || isWritingPlatformArtifact || !nativeResult?.content"
+                @click="handleDownloadNative"
               >
-                <Download :size="14" />
-                <span>下载样式版</span>
+                <Loader2
+                  v-if="isWritingPlatformArtifact"
+                  class="spin"
+                  :size="14"
+                />
+                <Download
+                  v-else
+                  :size="14"
+                />
+                <span>{{ isWritingPlatformArtifact ? '生成并回读中' : nativeDownloadLabel }}</span>
               </button>
               <button
                 type="button"
                 class="act-btn act-primary"
-                :class="{ 'act-success': copySuccess }"
-                :disabled="isRendering || !previewHtml"
-                @click="handleCopy"
+                :class="{ 'act-success': nativeCopySuccess }"
+                :disabled="isRendering || !nativeResult?.content"
+                @click="handleCopyNative"
               >
                 <CheckCircle
-                  v-if="copySuccess"
+                  v-if="nativeCopySuccess"
                   :size="14"
                 />
                 <Copy
                   v-else
                   :size="14"
                 />
-                <span>{{ copySuccess ? '已复制' : `${platformInfo.copyLabel}样式版` }}</span>
+                <span>{{ nativeCopySuccess ? '已复制' : `复制 ${nativeFormatLabel}` }}</span>
                 <ArrowUpRight
-                  v-if="!copySuccess"
+                  v-if="!nativeCopySuccess"
                   class="act-nib"
                   :size="14"
                 />
@@ -2490,8 +2847,8 @@ onUnmounted(() => {
 /* ── Panel ── */
 .export-panel {
   width: 92vw;
-  max-width: 900px;
-  max-height: 80vh;
+  max-width: 1180px;
+  max-height: 88vh;
   background: var(--bg-surface);
   border-radius: var(--radius-xlarge);
   display: flex;
@@ -2562,13 +2919,13 @@ onUnmounted(() => {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Left Column: Controls (400px)
+   Left Column: Controls (360px)
    ═══════════════════════════════════════════════════════════ */
 .control-column {
-  width: 400px;
-  max-width: 400px;
+  width: 360px;
+  max-width: 360px;
   min-width: 0;
-  flex: 0 0 400px;
+  flex: 0 0 360px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--hairline);
@@ -2592,6 +2949,75 @@ onUnmounted(() => {
 
 .ctrl-section:last-child {
   border-bottom: none;
+}
+
+details.ctrl-section {
+  padding: 0;
+}
+
+.drawer-summary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 42px 14px 20px;
+  color: var(--text-primary);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.drawer-summary::-webkit-details-marker {
+  display: none;
+}
+
+.drawer-summary::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--text-muted);
+  border-bottom: 1.5px solid var(--text-muted);
+  transform: rotate(45deg);
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+details[open] > .drawer-summary::after {
+  transform: translateY(4px) rotate(225deg);
+}
+
+.drawer-summary span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.drawer-summary small {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.drawer-summary:hover,
+.drawer-summary:focus-visible {
+  background: var(--bg-rice-paper);
+  outline: none;
+}
+
+.drawer-content {
+  padding: 0 20px 16px;
+}
+
+.export-diagnostics-content {
+  display: grid;
+  gap: 16px;
+}
+
+.export-diagnostics-section + .export-diagnostics-section {
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
 }
 
 .section-label {
@@ -2661,9 +3087,10 @@ onUnmounted(() => {
 .preset-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 8px 0;
+  align-items: stretch;
+  gap: 4px;
+  min-height: 98px;
+  padding: 10px 10px 0;
   border: 1px solid var(--hairline);
   border-radius: 12px;
   background: var(--bg-surface);
@@ -2671,7 +3098,7 @@ onUnmounted(() => {
   transition: border-color var(--motion-fast) var(--ease-out-quart),
     background-color var(--motion-fast) var(--ease-out-quart),
     box-shadow var(--motion-fast) var(--ease-out-quart);
-  text-align: center;
+  text-align: left;
   overflow: hidden;
 }
 
@@ -2697,6 +3124,13 @@ onUnmounted(() => {
   color: var(--text-secondary);
 }
 
+.preset-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
 .preset-card.active .preset-icon {
   color: var(--ember);
 }
@@ -2710,6 +3144,25 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.preset-variant {
+  color: var(--ember);
+  font-family: var(--font-cjk);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.preset-signature {
+  display: -webkit-box;
+  min-height: 30px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .preset-color-bar {
@@ -2932,17 +3385,13 @@ onUnmounted(() => {
   font: inherit;
   text-align: left;
   overflow: hidden;
-  cursor: default;
+  cursor: pointer;
   transition: border-color var(--motion-fast) var(--ease-out-quart),
     background-color var(--motion-fast) var(--ease-out-quart),
     box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
-.style-choice-card:not(:disabled) {
-  cursor: pointer;
-}
-
-.style-choice-card:not(:disabled):hover {
+.style-choice-card:hover:not(:disabled) {
   border-color: var(--ember-border);
   background: var(--ember-soft);
 }
@@ -2955,6 +3404,7 @@ onUnmounted(() => {
 
 .style-choice-card.style-choice-disabled {
   opacity: 0.82;
+  cursor: not-allowed;
 }
 
 .style-choice-head {
@@ -3608,9 +4058,177 @@ onUnmounted(() => {
   color: var(--text-secondary);
 }
 
-.native-actions {
+.wechat-native-handoff {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+
+.wechat-native-handoff__head,
+.wechat-native-handoff__title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wechat-native-handoff__head > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wechat-native-handoff__head strong,
+.wechat-native-handoff__title strong {
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.wechat-native-handoff__head span,
+.wechat-native-handoff__boundary,
+.wechat-native-handoff__empty,
+.wechat-native-handoff__item p,
+.wechat-native-handoff__item small {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.wechat-native-handoff__head .mini-action {
+  flex: 0 0 auto;
+}
+
+.wechat-native-handoff__boundary {
+  padding: 7px 8px;
+  border-left: 3px solid var(--warning);
+  background: color-mix(in srgb, var(--warning-light) 52%, var(--bg-surface));
+}
+
+.wechat-native-handoff__list {
+  display: grid;
+  gap: 6px;
+}
+
+.wechat-native-handoff__item {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+
+.wechat-native-handoff__item.blocked {
+  border-color: color-mix(in srgb, var(--error) 34%, var(--hairline));
+}
+
+.wechat-native-handoff__title span {
+  color: var(--warning);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.wechat-native-handoff__item.blocked .wechat-native-handoff__title span {
+  color: var(--error);
+}
+
+/* ── Native folder / static blog delivery ── */
+.local-delivery-content {
+  display: grid;
+  gap: 12px;
+}
+
+.local-delivery-field {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.local-delivery-label {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.local-delivery-segments {
+  width: 100%;
+}
+
+.local-directory-picker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.local-directory-picker:hover:not(:disabled) {
+  border-color: var(--ember-border);
+  color: var(--ember);
+}
+
+.local-directory-picker:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.local-directory-picker:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.local-directory-path {
+  min-width: 0;
+  margin: -4px 0 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.local-directory-path.empty {
+  color: var(--text-muted);
+  font-family: inherit;
+}
+
+.local-delivery-actions {
   display: flex;
   gap: 8px;
+}
+
+.local-delivery-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-color: var(--ember-border);
+  background: var(--ember-soft);
+  color: var(--ember);
+}
+
+.local-delivery-result {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--success);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .mini-action {
@@ -3864,8 +4482,10 @@ onUnmounted(() => {
   background: var(--bg-surface);
   border: 1px solid var(--hairline);
   border-radius: 12px;
-  padding: 24px;
-  width: 100%;
+  padding: 18px;
+  width: 390px;
+  max-width: 100%;
+  margin: 0 auto;
   box-sizing: border-box;
   min-height: 200px;
   word-break: break-word;
@@ -3950,7 +4570,7 @@ onUnmounted(() => {
   .act-btn {
     min-width: 0;
     padding: 10px 12px;
-    white-space: normal;
+    white-space: nowrap;
   }
 
   .preview-column {

@@ -42,6 +42,7 @@ const BLOCK_JSON_TYPES = new Set([
   'doc',
   'heading',
   'horizontalRule',
+  'inkComponent',
   'orderedList',
   'paragraph',
   'richCodeBlock',

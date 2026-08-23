@@ -40,6 +40,40 @@ function textContentOf(html: string): string {
 }
 
 describe('Publish Center rich-copy fallback sanitizer', () => {
+  it('uses modern WeChat rich copy before the browser-selection fallback', async () => {
+    const write = vi.fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('modern clipboard unavailable'))
+    vi.stubGlobal('navigator', { clipboard: { write } })
+    vi.stubGlobal('ClipboardItem', class {})
+    const originalExecCommand = document.execCommand
+    const execCommand = vi.fn().mockReturnValue(true)
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: execCommand,
+    })
+    const initialChildCount = document.body.childElementCount
+    const html = '<section style="color:#123456"><strong>微信公众号富文本</strong></section>'
+
+    try {
+      expect(await copyWechatHtmlToClipboard(html)).toBe(true)
+      expect(write).toHaveBeenCalledTimes(1)
+      expect(execCommand).not.toHaveBeenCalled()
+
+      expect(await copyWechatHtmlToClipboard(html)).toBe(true)
+      expect(write).toHaveBeenCalledTimes(2)
+      expect(execCommand).toHaveBeenCalledWith('copy')
+      expect(document.body.childElementCount).toBe(initialChildCount)
+      expect(window.getSelection()?.rangeCount ?? 0).toBe(0)
+    } finally {
+      Object.defineProperty(document, 'execCommand', {
+        configurable: true,
+        value: originalExecCommand,
+      })
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('does not report WeChat style copy success when only plain-text fallback is available', async () => {
     const write = vi.fn().mockResolvedValue(undefined)
     const writeText = vi.fn().mockResolvedValue(undefined)

@@ -31,6 +31,7 @@ export interface UseSyncScrollReturn {
   rebuildAnchors: () => void
   scheduleRebuild: (delayMs?: number) => void
   alignFromLeft: () => void
+  rebind: () => void
   dispose: () => void
 }
 
@@ -190,6 +191,13 @@ export function useSyncScroll(options: UseSyncScrollOptions): UseSyncScrollRetur
     scheduleRebuild(REBUILD_DELAY_MS)
   }
 
+  function rebind(): void {
+    clearScheduledWork()
+    loopDetector.reset()
+    syncingFrom = null
+    bindListeners()
+  }
+
   function alignFromLeft(): void {
     if (!isReady()) return
     if (registry.count === 0) rebuildAnchors()
@@ -209,14 +217,12 @@ export function useSyncScroll(options: UseSyncScrollOptions): UseSyncScrollRetur
   watch(
     () => [options.enabled.value, options.active.value] as const,
     () => {
-      clearScheduledWork()
-      loopDetector.reset()
-      void nextTick(() => bindListeners())
+      void nextTick(rebind)
     },
     { immediate: true },
   )
 
   onBeforeUnmount(dispose)
 
-  return { anchorCount, rebuildAnchors, scheduleRebuild, alignFromLeft, dispose }
+  return { anchorCount, rebuildAnchors, scheduleRebuild, alignFromLeft, rebind, dispose }
 }

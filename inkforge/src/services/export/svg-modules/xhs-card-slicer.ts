@@ -60,6 +60,7 @@ interface PendingSlice {
   kind: Exclude<XhsMarkdownCardSliceKind, 'cover'>
   title: string
   lines: string[]
+  sourceLineNumbers?: number[]
   language?: string
   sourceLineStart: number
   sourceLineEnd: number
@@ -112,6 +113,7 @@ export function sliceMarkdownToXhsCards(
       kind: 'section',
       title: sourceTitle,
       lines: [],
+      sourceLineNumbers: [],
       sourceLineStart: lineNumber,
       sourceLineEnd: lineNumber,
     }
@@ -163,6 +165,7 @@ export function sliceMarkdownToXhsCards(
         kind: 'section',
         title: heading.text || sourceTitle,
         lines: [],
+        sourceLineNumbers: [],
         sourceLineStart: lineNumber,
         sourceLineEnd: lineNumber,
       }
@@ -170,13 +173,12 @@ export function sliceMarkdownToXhsCards(
     }
 
     const normalized = normalizeMarkdownLine(rawLine)
-    if (!normalized) {
-      flushCurrent(lineNumber - 1)
-      continue
-    }
+    if (!normalized) continue
 
     const target = ensureCurrent(lineNumber)
-    target.lines.push(...wrapTextLine(normalized, maxCharsPerLine))
+    const wrappedLines = wrapTextLine(normalized, maxCharsPerLine)
+    target.lines.push(...wrappedLines)
+    target.sourceLineNumbers?.push(...wrappedLines.map(() => lineNumber))
     target.sourceLineEnd = lineNumber
   }
 
@@ -194,12 +196,13 @@ export function sliceMarkdownToXhsCards(
 
   const slices: XhsMarkdownCardSlice[] = []
   if (includeCover) {
+    const coverLines = pending.flatMap(item => item.lines).filter(Boolean).slice(0, 4)
     slices.push({
       page: 1,
       kind: 'cover',
       title: sourceTitle,
-      subtitle: options.subtitle?.trim() || 'Markdown carousel',
-      lines: ['H2 sections', 'manual page breaks', 'lists', 'code cards'],
+      subtitle: options.subtitle?.trim() || '图文卡片',
+      lines: coverLines,
       sourceLineStart: 1,
       sourceLineEnd: Math.max(1, sourceLines.length),
       overflow: false,
@@ -208,16 +211,16 @@ export function sliceMarkdownToXhsCards(
   }
 
   for (const item of pending) {
-    const chunks = chunkLines(item.lines.length > 0 ? item.lines : ['内容待补充'], maxLinesPerCard)
+    const chunks = chunkPendingLines(item, maxLinesPerCard)
     for (const [chunkIndex, chunk] of chunks.entries()) {
       slices.push({
         page: slices.length + 1,
         kind: item.kind,
         title: chunks.length > 1 ? `${item.title} ${chunkIndex + 1}/${chunks.length}` : item.title,
-        lines: chunk,
+        lines: chunk.lines,
         language: item.language,
-        sourceLineStart: item.sourceLineStart,
-        sourceLineEnd: item.sourceLineEnd,
+        sourceLineStart: chunk.sourceLineNumbers[0] ?? item.sourceLineStart,
+        sourceLineEnd: chunk.sourceLineNumbers[chunk.sourceLineNumbers.length - 1] ?? item.sourceLineEnd,
         overflow: false,
         bodyReference: slices.length + 1,
       })
@@ -262,11 +265,13 @@ export function renderXhsMarkdownCardSliceSvg(
   })
   const { palette } = theme
   const isCover = slice.kind === 'cover'
-  const bodyTop = isCover ? 520 : 420
   const lineHeight = slice.kind === 'code' ? 58 : 66
   const titleLines = wrapTextLine(slice.title, isCover ? 10 : 12).slice(0, isCover ? 3 : 2)
   const titleSize = isCover ? 92 : 78
   const titleStartY = isCover ? 300 : 260
+  const titleLastBaseline = titleStartY + Math.max(0, titleLines.length - 1) * (titleSize + 18)
+  const subtitleY = Math.max(isCover ? 468 : 372, titleLastBaseline + 64)
+  const bodyTop = Math.max(isCover ? 520 : 420, subtitleY + (isCover ? 52 : 48))
   const contentLines = slice.lines.slice(0, isCover ? 6 : 10)
 
   const titleNodes = titleLines.map((line, index) =>
@@ -294,11 +299,14 @@ export function renderXhsMarkdownCardSliceSvg(
         fontFamily: SAFE_FONT_MONO,
       })
     }
+    const hasMarker = isCover || /^-\s+/.test(line)
     const marker = isCover
       ? rect({ x: 96, y: y - 28, width: 18, height: 18, rx: 4, ry: 4, fill: palette.paper, opacity: 0.82 })
-      : circle({ cx: 106, cy: y - 12, r: 7, fill: palette.accent })
+      : hasMarker
+        ? circle({ cx: 106, cy: y - 12, r: 7, fill: palette.accent })
+        : ''
     return marker + textLine({
-      x: 136,
+      x: hasMarker ? 136 : 96,
       y,
       text: stripListMarker(line),
       fill: isCover ? palette.paper : palette.ink,
@@ -348,7 +356,7 @@ export function renderXhsMarkdownCardSliceSvg(
     titleNodes +
     textLine({
       x: 96,
-      y: isCover ? 468 : 372,
+      y: subtitleY,
       text: subtitle,
       fill: isCover ? palette.paper : palette.inkSoft,
       fontSize: 34,
@@ -380,7 +388,7 @@ export function renderXhsMarkdownCardSliceSvg(
     textLine({
       x: 96,
       y: CARD_VIEWBOX_HEIGHT - 112,
-      text: slice.overflow ? 'overflow needs split before publish' : `source lines ${slice.sourceLineStart}-${slice.sourceLineEnd}`,
+      text: slice.overflow ? '内容超出，请拆分页' : `素材行 ${slice.sourceLineStart}-${slice.sourceLineEnd}`,
       fill: isCover ? palette.paper : palette.inkSoft,
       fontSize: 26,
       fontWeight: 500,
@@ -479,12 +487,56 @@ function chunkLines(lines: readonly string[], size: number): string[][] {
   return chunks.length > 0 ? chunks : [['内容待补充']]
 }
 
+function chunkPendingLines(
+  item: PendingSlice,
+  size: number,
+): Array<{ lines: string[]; sourceLineNumbers: number[] }> {
+  const lines = item.lines.length > 0 ? item.lines : ['内容待补充']
+  const sourceLineNumbers = item.sourceLineNumbers
+  if (!sourceLineNumbers || sourceLineNumbers.length !== lines.length) {
+    return chunkLines(lines, size).map(chunk => ({ lines: chunk, sourceLineNumbers: [] }))
+  }
+
+  const chunks: Array<{ lines: string[]; sourceLineNumbers: number[] }> = []
+  let current = { lines: [] as string[], sourceLineNumbers: [] as number[] }
+  const flush = () => {
+    if (current.lines.length === 0) return
+    chunks.push(current)
+    current = { lines: [], sourceLineNumbers: [] }
+  }
+
+  for (let index = 0; index < lines.length;) {
+    const sourceLine = sourceLineNumbers[index]
+    let end = index + 1
+    while (end < lines.length && sourceLineNumbers[end] === sourceLine) end += 1
+    const groupLines = lines.slice(index, end)
+    const groupSources = sourceLineNumbers.slice(index, end)
+
+    if (groupLines.length > size) {
+      flush()
+      for (let offset = 0; offset < groupLines.length; offset += size) {
+        chunks.push({
+          lines: groupLines.slice(offset, offset + size),
+          sourceLineNumbers: groupSources.slice(offset, offset + size),
+        })
+      }
+    } else {
+      if (current.lines.length > 0 && current.lines.length + groupLines.length > size) flush()
+      current.lines.push(...groupLines)
+      current.sourceLineNumbers.push(...groupSources)
+    }
+    index = end
+  }
+  flush()
+  return chunks.length > 0 ? chunks : [{ lines: ['内容待补充'], sourceLineNumbers: [] }]
+}
+
 function stripListMarker(line: string): string {
   return line.replace(/^-\s+/, '')
 }
 
 function getSliceKindLabel(kind: XhsMarkdownCardSliceKind): string {
-  if (kind === 'cover') return 'Markdown carousel'
-  if (kind === 'code') return 'Code card'
-  return 'Section card'
+  if (kind === 'cover') return '图文卡片'
+  if (kind === 'code') return '代码卡片'
+  return '正文卡片'
 }

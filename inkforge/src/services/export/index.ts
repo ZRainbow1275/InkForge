@@ -28,6 +28,7 @@ marked.use({
 // 类型导出
 export type {
   ExportOptions,
+  WechatExportOptions,
   ExportFontFamily,
   ExportFontSize,
   ExportResult,
@@ -45,6 +46,7 @@ export type {
   PresetPersona,
   ExportTarget,
   FontSpec,
+  PresetVisualSignature,
   // 原生格式导出类型
   XiaohongshuTextResult,
   XiaohongshuTextOptions,
@@ -58,10 +60,85 @@ export type {
 } from './types'
 
 export type {
+  ArticleProfileDefinition,
+  ArticleProfileId,
+  LegacyPresetVariantCompatibility,
+  ResolvedArticleProfile,
+  ResolvedVisualVariant,
+  VisualVariantDefinition,
+  VisualVariantId,
+  VisualVariantMastheadPresentation,
+} from './visual-variants'
+export {
+  ARTICLE_PROFILE_IDS,
+  ARTICLE_PROFILES,
+  LEGACY_PRESET_VARIANTS,
+  VISUAL_VARIANT_IDS,
+  VISUAL_VARIANTS,
+  getPlatformPresetForVariant,
+  getVisualVariantCSS,
+  getVisualVariantMastheadPresentation,
+  isArticleProfileId,
+  isVisualVariantId,
+  resolveArticleProfile,
+  resolveVisualVariant,
+} from './visual-variants'
+
+export type {
   SvgInjectionPlan,
   SvgModuleFamily,
   SvgModuleSpec,
 } from './svg-modules'
+
+export type {
+  LocalDeliveryBundle,
+  LocalDeliveryBundleOptions,
+  LocalDeliveryFormat,
+  LocalDeliveryTarget,
+} from './local-delivery'
+export {
+  buildLocalDeliveryBundle,
+  containsInkforgeAssetReference,
+  createLocalDeliverySlug,
+} from './local-delivery'
+
+export type {
+  ApplyDeliveryAdornmentsInput,
+  ApplyDeliveryAdornmentsResult,
+  CreativeCommonsLicenseId,
+  CreativeCommonsLicenseOption,
+  CreateDeliveryAdornmentFragmentsInput,
+  DeliveryAdornmentComponentReport,
+  DeliveryAdornmentComponentStatus,
+  DeliveryAdornmentConfig,
+  DeliveryAdornmentFormat,
+  DeliveryAdornmentFragments,
+  DeliveryAdornmentLicenseReport,
+  DeliveryAdornmentOutputStatus,
+  DeliveryAdornmentReadingTimeReport,
+  DeliveryAdornmentReport,
+  DeliveryComponentType,
+  DeliveryMastheadSong,
+  DeliveryPlatformComponent,
+  ResolvedDeliveryAdornmentSlots,
+  ResolvedDeliveryReadingTime,
+} from './delivery-adornments'
+export {
+  CREATIVE_COMMONS_LICENSE_OPTIONS,
+  CREATIVE_COMMONS_LICENSE_VALUES,
+  DELIVERY_COMPONENT_TYPE_VALUES,
+  DeliveryAdornmentConfigSchema,
+  DeliveryPlatformComponentSchema,
+  applyDeliveryAdornmentsToOutput,
+  createDeliveryAdornmentFragments,
+  getCreativeCommonsLicenseOption,
+  getDefaultDeliveryAdornmentConfig,
+  getDeliveryComponentTypeLabel,
+  getDeliveryMastheadSong,
+  parseDeliveryAdornmentConfig,
+  resolveDeliveryAdornmentSlots,
+  resolveDeliveryReadingTime,
+} from './delivery-adornments'
 
 export {
   SVG_MODULES,
@@ -225,11 +302,17 @@ export {
 } from './wechat-style-export-samples'
 
 // 主题相关导出
+export type {
+  WechatRenderingCompositionZones,
+  WechatRenderingRuleCatalogEntry,
+  WechatRenderingStructureFingerprint,
+} from './themes'
 export {
   themePresets,
   baseCSS,
   codeThemeCSS,
   generateThemeCSS,
+  getWechatRenderingRuleCatalog,
   getPresetById,
   getDefaultPreset,
   applyHeadingDecorations
@@ -282,6 +365,7 @@ export {
   convertToWechatWithStats,
   markdownToWechat,
   markdownToWechatWithStats,
+  normalizeWechatExportCustomCss,
   postProcessForWechat
 } from './wechat'
 
@@ -427,6 +511,7 @@ export {
 export {
   typographyToCssVars,
   typographyToInlineCss,
+  typographyToWechatCss,
   type TypographyConfig
 } from './shared-typography'
 
@@ -458,11 +543,8 @@ export type {
   WechatDraftCreateResult,
   WechatDraftPublishInput,
   WechatDraftPublishResult,
-  WechatDraftPublishPlan,
-  WechatDraftPublishPlanIssue,
-  WechatDraftPublishReasonCode,
-  WechatDraftPublishSideEffectUpperBounds,
-  WechatDraftPublishApproval,
+  WechatDraftLiveRoundTripInput,
+  WechatDraftLiveRoundTripReceipt,
   WechatHtmlRewriteResult,
   WechatCoverUploadResult,
 } from './wechat-publish'
@@ -474,8 +556,7 @@ export {
   uploadWechatCoverImage,
   rewriteWechatArticleImages,
   createWechatDraft,
-  planWechatDraftPublish,
-  approveWechatDraftPublishPlan,
+  runWechatDraftLiveRoundTrip,
   publishWechatDraft,
   describeWechatPublishStatus,
   isWechatHostedContentImageUrl,
@@ -488,17 +569,20 @@ export {
 import type {
   Platform, ExportOptions, ExportPreset, XiaohongshuPreset, ZhihuPreset,
   NativeExportResult, XiaohongshuTextOptions, ZhihuMarkdownOptions,
-  QualityIssue, QualityReport,
+  QualityIssue, QualityReport, WechatExportOptions,
 } from './types'
 import type { XhsImageArtifactManifest, ZhihuImageArtifactManifest } from './image-pipeline/types'
 import { getPresetById, getDefaultPreset, themePresets } from './themes'
 import { DEFAULT_PRESET_ID } from '@/constants'
-import { convertToWechat } from './wechat'
+import { convertToWechat, markdownToWechatWithStats } from './wechat'
 import { convertToXiaohongshu, getXiaohongshuPresets } from './xiaohongshu'
 import { convertToZhihu, getZhihuPresets } from './zhihu'
 import { markdownToXiaohongshuText } from './xiaohongshu-text'
 import { markdownToZhihuClean } from './zhihu-markdown'
+import { applyDeliveryAdornmentsToOutput } from './delivery-adornments'
 import { detectQuality, validateXhsImageArtifactManifest, validateZhihuImageArtifactManifest } from './quality-detector'
+import { typographyToWechatCss, type TypographyConfig } from './shared-typography'
+import { normalizeExportHexColor } from './utils'
 
 /**
  * Inspector / Settings 覆盖选项
@@ -509,6 +593,24 @@ export interface RenderOverrides {
   primaryColor?: string
   /** 字体覆盖（来自 Inspector 字体选择器，仅影响 WeChat） */
   fontFamily?: string
+  /** 统一排版参数（仅对支持 CSS 的 WeChat HTML 产物生效） */
+  typography?: TypographyConfig
+}
+
+export interface NativeExportOptions {
+  presetId?: string
+  exportOptions?: WechatExportOptions
+  overrides?: RenderOverrides
+  /** 小红书纯文本选项 */
+  xiaohongshuTextOptions?: XiaohongshuTextOptions
+  /** 小红书图片页/长图本地 artifact manifest；只用于 preflight，不表示平台发布成功 */
+  xiaohongshuImageManifest?: XhsImageArtifactManifest
+  /** 知乎 Markdown 选项 */
+  zhihuMarkdownOptions?: ZhihuMarkdownOptions
+  /** 知乎图片 fallback 本地/平台 artifact manifest；只用于 preflight，不表示平台发布成功 */
+  zhihuImageArtifactManifest?: ZhihuImageArtifactManifest
+  /** 是否附加质量报告 (默认 true) */
+  includeQualityReport?: boolean
 }
 
 /**
@@ -551,36 +653,35 @@ export async function convertToPlatform(
   }
 
   const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
+  const primaryColorOverride = normalizeExportHexColor(options?.overrides?.primaryColor)
 
   switch (platform) {
     case 'wechat': {
-      let preset = getPresetById(options?.presetId || DEFAULT_PRESET_ID) || getDefaultPreset()
-      // 应用 Inspector 覆盖（克隆预设，不修改原始对象）
-      if (options?.overrides) {
-        preset = { ...preset }
-        if (options.overrides.primaryColor) {
-          preset.primaryColor = options.overrides.primaryColor
-        }
-        if (options.overrides.fontFamily) {
-          preset.fontFamily = mapSettingsFontToPresetFont(options.overrides.fontFamily)
-        }
-      }
-      return convertToWechat(html, preset, options?.exportOptions)
+      const { preset, exportOptions } = resolveWechatRenderInputs(options)
+      return convertToWechat(html, preset, exportOptions)
     }
-    case 'xiaohongshu':
-      return convertToXiaohongshu(
+    case 'xiaohongshu': {
+      const converted = convertToXiaohongshu(
         html,
         options?.presetId || 'xhs-fresh',
         {
           enableLineNumbers: options?.exportOptions?.enableLineNumbers,
           enableMacCodeBlock: options?.exportOptions?.enableMacCodeBlock,
-          colorOverrides: options?.overrides ? {
-            primaryColor: options.overrides.primaryColor,
+          colorOverrides: primaryColorOverride ? {
+            primaryColor: primaryColorOverride,
           } : undefined,
         }
       )
-    case 'zhihu':
-      return convertToZhihu(
+      return applyDeliveryAdornmentsToOutput({
+        content: converted,
+        sourceMarkdown: markdown,
+        platform: 'xiaohongshu',
+        format: 'html',
+        config: options?.exportOptions?.deliveryAdornment,
+      }).content
+    }
+    case 'zhihu': {
+      const converted = convertToZhihu(
         html,
         options?.presetId || 'zhihu-academic',
         {
@@ -589,11 +690,19 @@ export async function convertToPlatform(
           enableAlertBlocks: options?.exportOptions?.enableAlertBlocks,
           enableEnhancedTable: options?.exportOptions?.enableEnhancedTable,
           codeTheme: options?.exportOptions?.codeTheme,
-          colorOverrides: options?.overrides ? {
-            primaryColor: options.overrides.primaryColor,
+          colorOverrides: primaryColorOverride ? {
+            primaryColor: primaryColorOverride,
           } : undefined,
         }
       )
+      return applyDeliveryAdornmentsToOutput({
+        content: converted,
+        sourceMarkdown: markdown,
+        platform: 'zhihu',
+        format: 'html',
+        config: options?.exportOptions?.deliveryAdornment,
+      }).content
+    }
     default: {
       // 编译期穷举检查: 如果 Platform 新增值但此处未处理，TypeScript 会报错
       const _exhaustiveCheck: never = platform
@@ -624,26 +733,12 @@ export async function convertToPlatform(
 export async function convertToNativeFormat(
   markdown: string,
   platform: Platform,
-  options?: {
-    presetId?: string
-    exportOptions?: ExportOptions
-    overrides?: RenderOverrides
-    /** 小红书纯文本选项 */
-    xiaohongshuTextOptions?: XiaohongshuTextOptions
-    /** 小红书图片页/长图本地 artifact manifest；只用于 preflight，不表示平台发布成功 */
-    xiaohongshuImageManifest?: XhsImageArtifactManifest
-    /** 知乎 Markdown 选项 */
-    zhihuMarkdownOptions?: ZhihuMarkdownOptions
-    /** 知乎图片 fallback 本地/平台 artifact manifest；只用于 preflight，不表示平台发布成功 */
-    zhihuImageArtifactManifest?: ZhihuImageArtifactManifest
-    /** 是否附加质量报告 (默认 true) */
-    includeQualityReport?: boolean
-  }
+  options?: NativeExportOptions,
 ): Promise<NativeExportResult> {
   // 空文档守卫
   if (!markdown || !markdown.trim()) {
     return {
-      format: 'text',
+      format: platform === 'wechat' ? 'html' : platform === 'zhihu' ? 'markdown' : 'text',
       content: '',
       platform,
     }
@@ -654,16 +749,15 @@ export async function convertToNativeFormat(
   switch (platform) {
     case 'wechat': {
       // 微信：仍然走 HTML 管线（微信只支持内联 CSS HTML）
-      const html = await convertToPlatform(markdown, 'wechat', {
-        presetId: options?.presetId,
-        exportOptions: options?.exportOptions,
-        overrides: options?.overrides,
-      })
+      const { preset, exportOptions } = resolveWechatRenderInputs(options)
+      const result = await markdownToWechatWithStats(markdown, preset, exportOptions)
       return {
         format: 'html',
-        content: html,
+        content: result.html,
         platform: 'wechat',
+        stats: result.stats,
         qualityReport: includeReport ? detectQuality(markdown, 'wechat') : undefined,
+        deliveryAdornment: result.deliveryAdornment,
       }
     }
 
@@ -687,14 +781,22 @@ export async function convertToNativeFormat(
       const qualityReport = includeReport
         ? withAdditionalQualityIssues(detectQuality(markdown, 'xiaohongshu'), manifestIssues)
         : undefined
+      const deliveryResult = applyDeliveryAdornmentsToOutput({
+        content: result.text,
+        sourceMarkdown: markdown,
+        platform: 'xiaohongshu',
+        format: 'text',
+        config: options?.exportOptions?.deliveryAdornment,
+      })
       return {
         format: 'text',
-        content: result.text,
+        content: deliveryResult.content,
         platform: 'xiaohongshu',
         qualityReport,
         artifacts: options?.xiaohongshuImageManifest
           ? { xiaohongshuImageManifest: options.xiaohongshuImageManifest }
           : undefined,
+        deliveryAdornment: deliveryResult.report,
       }
     }
 
@@ -707,14 +809,22 @@ export async function convertToNativeFormat(
       const qualityReport = includeReport
         ? withAdditionalQualityIssues(detectQuality(markdown, 'zhihu'), manifestIssues)
         : undefined
+      const deliveryResult = applyDeliveryAdornmentsToOutput({
+        content: result.markdown,
+        sourceMarkdown: markdown,
+        platform: 'zhihu',
+        format: 'markdown',
+        config: options?.exportOptions?.deliveryAdornment,
+      })
       return {
         format: 'markdown',
-        content: result.markdown,
+        content: deliveryResult.content,
         platform: 'zhihu',
         qualityReport,
         artifacts: options?.zhihuImageArtifactManifest
           ? { zhihuImageArtifactManifest: options.zhihuImageArtifactManifest }
           : undefined,
+        deliveryAdornment: deliveryResult.report,
       }
     }
 
@@ -722,6 +832,43 @@ export async function convertToNativeFormat(
       const _exhaustiveCheck: never = platform
       throw new Error(`未支持的导出平台: ${_exhaustiveCheck}`)
     }
+  }
+}
+
+function resolveWechatRenderInputs(
+  options?: Pick<NativeExportOptions, 'presetId' | 'exportOptions' | 'overrides'>,
+): { preset: ExportPreset; exportOptions: WechatExportOptions } {
+  let preset = getPresetById(options?.presetId || DEFAULT_PRESET_ID) || getDefaultPreset()
+  const primaryColorOverride = normalizeExportHexColor(options?.overrides?.primaryColor)
+
+  if (options?.overrides) {
+    preset = { ...preset }
+    if (primaryColorOverride) preset.primaryColor = primaryColorOverride
+    const fontFamily = options.overrides.fontFamily ?? options.overrides.typography?.fontFamily
+    if (fontFamily) preset.fontFamily = mapSettingsFontToPresetFont(fontFamily)
+  }
+
+  const typography = options?.overrides?.typography
+  if (!typography) {
+    return { preset, exportOptions: options?.exportOptions as WechatExportOptions ?? {} }
+  }
+
+  const typographyCss = typographyToWechatCss(
+    typography,
+    primaryColorOverride ?? preset.primaryColor,
+  )
+  const customCss = [typographyCss, options?.exportOptions?.customCss?.trim()]
+    .filter(Boolean)
+    .join('\n')
+
+  return {
+    preset,
+    exportOptions: {
+      ...options?.exportOptions,
+      enableTextIndent: typography.paragraphIndent,
+      customCss,
+      typography,
+    },
   }
 }
 

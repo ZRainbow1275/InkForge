@@ -176,127 +176,142 @@ watch(selectedArticleId, () => {
       </button>
     </header>
 
-    <div
-      v-if="tagStore.error"
-      class="tag-error"
-      role="alert"
-      data-tag-error
-    >
-      {{ tagStore.error }}
-    </div>
-    <div
-      v-else-if="actionMessage"
-      class="tag-success"
-      role="status"
-      data-tag-success
-    >
-      {{ actionMessage }}
-    </div>
-
-    <section class="tag-section current-doc-section">
-      <div class="section-title">
-        <Tags :size="15" />
-        <span>{{ selectedArticle?.title ?? '尚未选择文稿' }}</span>
-      </div>
-      <TagInput
-        :model-value="currentDocTags"
-        :suggestions="suggestions"
-        :disabled="!selectedArticleId || tagStore.isSaving"
-        placeholder="搜索或创建此文稿的标签"
-        @search="localSearch = $event"
-        @create="handleCreateTag"
-        @add="handleAddTag"
-        @remove="handleRemoveTag"
-      />
-    </section>
-
-    <section class="tag-section">
-      <div class="section-title split">
-        <span>全部标签</span>
-        <span>共 {{ tagStore.tagCount }} 个</span>
-      </div>
-      <input
-        class="tag-search"
-        :value="tagStore.searchQuery"
-        placeholder="筛选标签"
-        @input="tagStore.setSearchQuery(($event.target as HTMLInputElement).value)"
-      >
+    <div class="tag-browser-scroll">
       <div
-        class="tag-list"
-        data-tag-all-list
+        v-if="tagStore.error"
+        class="tag-error"
+        role="alert"
+        data-tag-error
       >
-        <TagBadge
-          v-for="tag in tagStore.visibleTags"
-          :key="tag.id"
-          :tag="tag"
-          :selected="selectedTagSet.has(tag.id)"
-          @select="tagStore.toggleSelectTag($event.id)"
-        />
-        <p
-          v-if="tagStore.visibleTags.length === 0"
-          class="empty-copy"
-        >
-          当前筛选条件下没有匹配的标签。
-        </p>
+        {{ tagStore.error }}
       </div>
-    </section>
+      <div
+        v-else-if="actionMessage"
+        class="tag-success"
+        role="status"
+        data-tag-success
+      >
+        {{ actionMessage }}
+      </div>
 
-    <section class="tag-section filter-section">
-      <div class="section-title">
-        <Filter :size="15" />
-        <span>标签筛选</span>
-      </div>
-      <div class="filter-toolbar">
-        <button
-          type="button"
-          :class="{ active: tagStore.filterMode === 'OR' }"
-          data-tag-filter-mode="OR"
-          @click="tagStore.setFilterMode('OR')"
+      <section class="tag-browser-group current-doc-section">
+        <div class="section-title">
+          <Tags :size="15" />
+          <span>{{ selectedArticle?.title ?? '尚未选择文稿' }}</span>
+        </div>
+        <TagInput
+          :model-value="currentDocTags"
+          :suggestions="suggestions"
+          :disabled="!selectedArticleId || tagStore.isSaving"
+          placeholder="搜索或创建此文稿的标签"
+          @search="localSearch = $event"
+          @create="handleCreateTag"
+          @add="handleAddTag"
+          @remove="handleRemoveTag"
+        />
+      </section>
+
+      <section class="tag-browser-group">
+        <div class="section-title split">
+          <span>全部标签</span>
+          <span>共 {{ tagStore.tagCount }} 个</span>
+        </div>
+        <input
+          class="tag-search"
+          :value="tagStore.searchQuery"
+          placeholder="筛选标签"
+          @input="tagStore.setSearchQuery(($event.target as HTMLInputElement).value)"
         >
-          任一
-        </button>
-        <button
-          type="button"
-          :class="{ active: tagStore.filterMode === 'AND' }"
-          data-tag-filter-mode="AND"
-          @click="tagStore.setFilterMode('AND')"
+        <div
+          class="tag-list"
+          data-tag-all-list
         >
-          全部
-        </button>
-        <button
-          type="button"
-          :disabled="tagStore.selectedTagIds.length === 0 || tagStore.isLoading"
-          data-tag-filter-apply
-          @click="handleFilter"
-        >
-          应用
-        </button>
-        <button
-          type="button"
-          @click="tagStore.clearSelectedTags()"
-        >
-          清除
-        </button>
-      </div>
-      <div class="filtered-docs">
-        <button
-          v-for="doc in tagStore.filteredDocuments"
-          :key="doc.id"
-          type="button"
-          :data-tag-filtered-doc-id="doc.id"
-          @click="handleSelectDocument(doc.id)"
-        >
-          <span>{{ doc.title }}</span>
-          <small>{{ new Date(doc.updatedAt).toLocaleDateString() }}</small>
-        </button>
-        <p
-          v-if="tagStore.selectedTagIds.length > 0 && tagStore.filteredDocuments.length === 0"
-          class="empty-copy"
-        >
-          应用筛选后将列出匹配的文稿。
-        </p>
-      </div>
-    </section>
+          <TagBadge
+            v-for="tag in tagStore.visibleTags"
+            :key="tag.id"
+            :tag="tag"
+            :selected="selectedTagSet.has(tag.id)"
+            @select="tagStore.toggleSelectTag($event.id)"
+          />
+          <p
+            v-if="tagStore.visibleTags.length === 0"
+            class="empty-copy"
+          >
+            当前筛选条件下没有匹配的标签。
+          </p>
+        </div>
+      </section>
+
+      <section class="tag-browser-group filter-section">
+        <div class="section-title">
+          <Filter :size="15" />
+          <span>标签筛选</span>
+        </div>
+        <div class="filter-toolbar">
+          <div
+            class="filter-mode-switch"
+            role="group"
+            aria-label="标签匹配方式"
+          >
+            <button
+              type="button"
+              :class="{ active: tagStore.filterMode === 'OR' }"
+              :aria-pressed="tagStore.filterMode === 'OR'"
+              data-tag-filter-mode="OR"
+              @click="tagStore.setFilterMode('OR')"
+            >
+              任一匹配
+            </button>
+            <button
+              type="button"
+              :class="{ active: tagStore.filterMode === 'AND' }"
+              :aria-pressed="tagStore.filterMode === 'AND'"
+              data-tag-filter-mode="AND"
+              @click="tagStore.setFilterMode('AND')"
+            >
+              全部匹配
+            </button>
+          </div>
+          <div class="filter-actions">
+            <button
+              type="button"
+              class="filter-apply"
+              :disabled="tagStore.selectedTagIds.length === 0 || tagStore.isLoading"
+              data-tag-filter-apply
+              @click="handleFilter"
+            >
+              应用筛选
+            </button>
+            <button
+              type="button"
+              class="filter-clear"
+              :disabled="tagStore.selectedTagIds.length === 0"
+              @click="tagStore.clearSelectedTags()"
+            >
+              清除
+            </button>
+          </div>
+        </div>
+        <div class="filtered-docs">
+          <button
+            v-for="doc in tagStore.filteredDocuments"
+            :key="doc.id"
+            type="button"
+            :data-tag-filtered-doc-id="doc.id"
+            @click="handleSelectDocument(doc.id)"
+          >
+            <span>{{ doc.title }}</span>
+            <small>{{ new Date(doc.updatedAt).toLocaleDateString() }}</small>
+          </button>
+          <p
+            v-if="tagStore.selectedTagIds.length > 0 && tagStore.filteredDocuments.length === 0"
+            class="empty-copy"
+          >
+            应用筛选后将列出匹配的文稿。
+          </p>
+        </div>
+      </section>
+    </div>
 
     <TagManagerModal
       :open="showManager"
@@ -314,16 +329,15 @@ watch(selectedArticleId, () => {
 
 <style scoped>
 .tag-browser-panel {
-  display: grid;
-  gap: 14px;
-  padding: 14px;
-  min-height: 100%;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg-rice-paper);
 }
 
 .tag-browser-head,
 .section-title,
-.filter-toolbar,
 .filtered-docs button {
   display: flex;
   align-items: center;
@@ -332,6 +346,11 @@ watch(selectedArticleId, () => {
 .tag-browser-head {
   justify-content: space-between;
   gap: 12px;
+  flex: 0 0 auto;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--bg-surface);
 }
 
 .tag-browser-head p,
@@ -341,7 +360,7 @@ watch(selectedArticleId, () => {
 }
 
 .tag-browser-head p {
-  color: #d32f2f;
+  color: var(--ember);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -350,7 +369,7 @@ watch(selectedArticleId, () => {
 
 .tag-browser-head h3 {
   margin-top: 4px;
-  color: #263238;
+  color: var(--text-primary);
   font-size: 17px;
 }
 
@@ -366,10 +385,20 @@ watch(selectedArticleId, () => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 999px;
-  padding: 8px 10px;
-  color: #263238;
-  background: #edf2f7;
+  min-height: 34px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 0 10px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+}
+
+.tag-browser-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 12px 14px;
 }
 
 .tag-error,
@@ -390,19 +419,21 @@ watch(selectedArticleId, () => {
   background: #dcfce7;
 }
 
-.tag-section {
+.tag-browser-group {
   display: grid;
   gap: 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.82);
-  padding: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.tag-browser-group:last-child {
+  border-bottom: 0;
 }
 
 .section-title {
   justify-content: flex-start;
   gap: 7px;
-  color: #455a64;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 900;
 }
@@ -412,17 +443,17 @@ watch(selectedArticleId, () => {
 }
 
 .section-title.split span:last-child {
-  color: #90a4ae;
+  color: var(--text-muted);
   font-weight: 700;
 }
 
 .tag-search {
   width: 100%;
-  border: 1px solid #dbe3ea;
-  border-radius: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
   padding: 9px 10px;
-  color: #263238;
-  background: #ffffff;
+  color: var(--text-primary);
+  background: var(--bg-surface);
   outline: none;
 }
 
@@ -433,26 +464,64 @@ watch(selectedArticleId, () => {
 }
 
 .filter-toolbar {
-  flex-wrap: wrap;
-  gap: 7px;
+  display: grid;
+  gap: 8px;
+}
+
+.filter-mode-switch,
+.filter-actions {
+  display: grid;
+  gap: 4px;
+}
+
+.filter-mode-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 3px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--bg-rice-paper);
+}
+
+.filter-actions {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
 }
 
 .filter-toolbar button {
-  border-radius: 999px;
-  padding: 7px 10px;
-  color: #455a64;
-  background: #edf2f7;
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--text-secondary);
+  background: transparent;
 }
 
-.filter-toolbar button.active,
-.filter-toolbar button:last-of-type:not(:disabled) {
-  color: #ffffff;
-  background: #263238;
+.filter-mode-switch button.active {
+  color: var(--ember);
+  background: var(--bg-surface);
+  box-shadow: var(--elev-1);
+}
+
+.filter-actions .filter-apply {
+  color: #fff;
+  background: var(--ember);
+}
+
+.filter-actions .filter-clear {
+  border: 1px solid var(--hairline);
+  color: var(--text-secondary);
+  background: var(--bg-surface);
 }
 
 .filter-toolbar button:disabled {
   cursor: not-allowed;
   opacity: 0.48;
+}
+
+.manager-button:hover,
+.filter-mode-switch button:hover:not(:disabled),
+.filter-actions .filter-clear:hover:not(:disabled) {
+  border-color: var(--ember-border);
+  color: var(--text-primary);
 }
 
 .filtered-docs {
@@ -465,20 +534,28 @@ watch(selectedArticleId, () => {
   gap: 10px;
   border-radius: 13px;
   padding: 10px;
-  color: #263238;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--hairline);
   text-align: left;
 }
 
 .filtered-docs small {
-  color: #78909c;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
 .empty-copy {
-  color: #90a4ae;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.manager-button:focus-visible,
+.filter-toolbar button:focus-visible,
+.filtered-docs button:focus-visible,
+.tag-search:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 </style>

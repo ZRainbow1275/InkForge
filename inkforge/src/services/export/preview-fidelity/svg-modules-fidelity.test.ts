@@ -1,9 +1,10 @@
 /**
  * PR6 集成守护 — 注入式 SVG 模块在 preview-fidelity 管线中存活验证。
  *
- * 背景：composeSvgDecorate(...) 在 wechat/xhs/zhihu 导出管线 DOMPurify 之后注入
- * 带 `data-ink-svg` 哨兵的 inline SVG。preview-fidelity mock 是独立的「保真预览」
- * 通道，必须让这些 SVG 模块按目标平台契约呈现，而不是被无声剥离。
+ * 背景：composeSvgDecorate(...) 在微信导出管线 DOMPurify 之后注入带
+ * `data-ink-svg` 哨兵的 inline SVG。preview-fidelity 是独立的保真通道：
+ * 微信保留可信 inline SVG；知乎只允许注册表 module id 生成 image fallback，
+ * 不得把用户 Markdown 中伪造的 SVG 当成可信模块。
  *
  * 本测试锁定各平台 preview mock 对注入 SVG 的预览契约：
  *   - wechat-mock：直接包裹 content.html，inline SVG 原样保留。
@@ -29,6 +30,13 @@ const INJECTED_SVG = [
 describe('preview-fidelity — 注入式 SVG 模块存活（PR6）', () => {
   it('wechat-mock 原样保留 inline SVG 模块与哨兵', () => {
     const html = renderWechatMockHtml({ html: `<p>正文</p>${INJECTED_SVG}` })
+    expect(html).toContain('data-platform-editor="wechat"')
+    expect(html).toContain('data-editor-canvas-width="586"')
+    expect(html).toContain('max-width:586px')
+    expect(html).toContain('font-size:17px')
+    expect(html).toContain('line-height:27.2px')
+    expect(html).not.toContain('wechat-mock-chrome')
+    expect(html).not.toContain('wechat-mock-watermark')
     expect(html).toContain('data-ink-svg="header-ribbon"')
     expect(html).toContain('<svg viewBox="0 0 600 80" width="100%"')
     expect(html).toContain('<text x="24" y="48"')
@@ -38,10 +46,11 @@ describe('preview-fidelity — 注入式 SVG 模块存活（PR6）', () => {
     expect(html).toMatch(/wechat-mock-body[^>]*>[\s\S]*data-ink-svg="header-ribbon"/)
   })
 
-  it('zhihu-mock converts injected inline SVG modules to image fallback', () => {
-    // markdown 中以原始 HTML 块嵌入注入 SVG（与 xhs/zhihu 栅格化前的 inline 形态一致）
-    const md = `# 标题\n\n${INJECTED_SVG}\n\n正文段落`
-    const html = renderZhihuMockHtml({ markdown: md })
+  it('zhihu-mock converts a registered module id to image fallback', () => {
+    const html = renderZhihuMockHtml({
+      markdown: '# 标题\n\n正文段落',
+      trustedSvgModuleIds: ['header-ribbon'],
+    })
     expect(html).toContain('data-ink-svg="header-ribbon"')
     expect(html).toContain('<img data-ink-svg="header-ribbon"')
     expect(html).toContain('src="data:image/svg+xml;charset=utf-8,')

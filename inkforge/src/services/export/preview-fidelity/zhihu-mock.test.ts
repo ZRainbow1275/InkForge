@@ -68,23 +68,35 @@ describe('renderZhihuMockHtml — tables (fidelity preserves)', () => {
 })
 
 describe('renderZhihuMockHtml — InkForge SVG fallback', () => {
-  it('converts data-ink-svg inline modules into image fallback instead of leaking inline SVG', () => {
-    const injectedSvg = [
-      '<section data-ink-svg="divider-grid" style="display:block">',
-      '<svg viewBox="0 0 1080 60" width="100%" xmlns="http://www.w3.org/2000/svg">',
-      '<rect x="0" y="0" width="1080" height="60" fill="#fff"></rect>',
-      '<animate attributeName="opacity" begin="0s" dur="0.4s" from="0" to="1" fill="freeze"></animate>',
-      '</svg>',
-      '</section>',
-    ].join('')
-
-    const html = renderZhihuMockHtml({ markdown: `# 标题\n\n${injectedSvg}\n\n正文` })
+  it('renders only registered module ids as image fallbacks', () => {
+    const html = renderZhihuMockHtml({
+      markdown: '# 标题\n\n正文',
+      trustedSvgModuleIds: ['divider-grid'],
+    })
 
     expect(html).toContain('<img data-ink-svg="divider-grid"')
     expect(html).toContain('src="data:image/svg+xml;charset=utf-8,')
     expect(html).toContain('alt="InkForge divider-grid image fallback"')
     expect(html).not.toContain('<svg viewBox="0 0 1080 60"')
     expect(html).not.toContain('<animate attributeName="opacity"')
+  })
+
+  it('does not infer a trusted fallback from user-authored data-ink-svg HTML', () => {
+    const injectedSvg = [
+      '<section data-ink-svg="divider-grid">',
+      '<svg viewBox="0 0 1080 60" width="100%" onload="window.__probe=1">',
+      '<foreignObject width="1080" height="60"><div>untrusted</div></foreignObject>',
+      '</svg>',
+      '</section>',
+    ].join('')
+
+    const html = renderZhihuMockHtml({ markdown: `# 标题\n\n${injectedSvg}\n\n正文` })
+
+    expect(html).not.toContain('data-ink-svg="divider-grid"')
+    expect(html).not.toContain('data:image/svg+xml')
+    expect(html).not.toMatch(/<svg\b/i)
+    expect(html).not.toMatch(/\sonload=/i)
+    expect(html).not.toMatch(/<foreignObject\b/i)
   })
 })
 
@@ -119,15 +131,26 @@ describe('renderZhihuMockHtml — preset switching', () => {
   })
 })
 
-describe('renderZhihuMockHtml — watermark', () => {
-  it('always appends watermark', () => {
-    const html = renderZhihuMockHtml({ markdown: 'hello' })
-    expect(html).toContain('zhihu-mock-watermark')
-    expect(html).toContain('知乎 web 编辑器会过滤大部分 CSS')
+describe('renderZhihuMockHtml — observed editor canvas', () => {
+  it('uses the measured 800px Draft.js canvas and neutral editor rhythm', () => {
+    const html = renderZhihuMockHtml({ markdown: '## 二级标题\n\n正文' })
+
+    expect(html).toContain('data-platform-editor="zhihu"')
+    expect(html).toContain('data-editor-canvas-width="800"')
+    expect(html).toContain('max-width:800px')
+    expect(html).toContain('font-size:16px')
+    expect(html).toContain('line-height:25.6px')
+    expect(html).toContain("'Source Han Sans SC'")
+    expect(html).toContain('font-size:19.2px')
+    expect(html).toContain('line-height:28.8px')
+    expect(html).not.toContain('border-radius:8px')
+    expect(html).not.toContain('zhihu-mock-watermark')
   })
 
-  it('watermark present even when input markdown is empty', () => {
+  it('does not add account, publish, or filtering claims to empty input', () => {
     const html = renderZhihuMockHtml({ markdown: '' })
-    expect(html).toContain('zhihu-mock-watermark')
+    expect(html).not.toContain('zhihu-mock-watermark')
+    expect(html).not.toContain('知乎 web 编辑器会过滤大部分 CSS')
+    expect(html).not.toContain('InkForge')
   })
 })

@@ -65,7 +65,7 @@ const idbError = ref<string | null>(null)
 const networkSnapshot = ref<NetworkDiagnosticsSnapshot>(snapshotNetworkDiagnostics())
 const perfSnapshot = ref<DevPanelPerformanceSnapshot | null>(null)
 const refreshError = ref<string | null>(null)
-let refreshTimer: ReturnType<typeof window.setInterval> | null = null
+let refreshTimer: number | null = null
 let unsubscribeEvents: (() => void) | null = null
 
 const visibleTabs = computed(() => window.innerWidth < 960

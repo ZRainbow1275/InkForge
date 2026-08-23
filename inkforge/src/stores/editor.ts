@@ -352,6 +352,24 @@ export const useEditorStore = defineStore('editor', () => {
         return enqueueContentWrite(() => updateContentUnlocked(contentId, updates))
     }
 
+    async function renameArticleTitle(articleId: string, title: string): Promise<void> {
+        const normalizedTitle = title.trim()
+        if (!normalizedTitle) return
+
+        return enqueueContentWrite(async () => {
+            const content = currentContent.value?.articleId === articleId
+                ? currentContent.value
+                : await contentRepository.findByArticleId(articleId)
+
+            if (!content) {
+                await articleStore.updateArticle(articleId, { title: normalizedTitle })
+                return
+            }
+
+            await updateContentUnlocked(content.id, { title: normalizedTitle })
+        })
+    }
+
     // 创建新版本（带版本数量上限检查）
     async function createVersionUnlocked(
         contentId: string,
@@ -588,6 +606,7 @@ export const useEditorStore = defineStore('editor', () => {
         // Actions
         createContent,
         updateContent,
+        renameArticleTitle,
         createVersion,
         pruneVersions,
         switchVersion,

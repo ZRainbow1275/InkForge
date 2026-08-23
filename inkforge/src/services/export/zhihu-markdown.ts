@@ -10,6 +10,7 @@
 
 import type { ZhihuMarkdownResult, ZhihuMarkdownOptions } from './types'
 import { zhihuMarkdownRulesTransform } from './platform-rules/zhihu'
+import { degradeWritingComponentsForPlainText } from '@/services/writing-components'
 
 // ═══════════════════════════════════════════════════════════════════
 // Markdown → 知乎 Markdown 转换
@@ -44,7 +45,7 @@ export function markdownToZhihuClean(
   const codeLangCoerce = options?.codeLangCoerce ?? true
   const defaultLang = options?.defaultLang ?? 'text'
 
-  let result = markdown.trim()
+  let result = degradeWritingComponentsForPlainText(markdown).trim()
   let mermaidCount = 0
   let taskListCount = 0
   const cleanedHtmlTags: string[] = []

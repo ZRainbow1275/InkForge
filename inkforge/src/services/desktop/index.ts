@@ -1,4 +1,5 @@
 import { pickFiles, type FilePickerOptions, type PickedFile } from '@/services/file-picker'
+import { isInspectorWidgetId, type InspectorWidgetId } from '@/services/inspector-widgets'
 import { getAppInfo, tauriInvoke } from '@/utils/platform'
 import { detectDesktopRuntime } from './environment'
 import type {
@@ -10,6 +11,8 @@ import type {
   DesktopRuntimeSnapshot,
   DesktopRuntimeInfo,
   DesktopWindowInfo,
+  LocalDeliveryFileInput,
+  LocalDeliveryWriteResult,
 } from './types'
 
 export type {
@@ -23,6 +26,9 @@ export type {
   DesktopRuntimeSignal,
   DesktopRuntimeSnapshot,
   DesktopWindowInfo,
+  LocalDeliveryFileInput,
+  LocalDeliveryWriteResult,
+  LocalDeliveryWrittenFile,
 } from './types'
 export { detectDesktopRuntime, detectTauriRuntimeSignal, isDesktopRuntime } from './environment'
 
@@ -132,6 +138,36 @@ export async function focusNativeWindow(windowId: string): Promise<DesktopComman
   }
 
   return invokeNative<void>('focus_window', { windowId: trimmedWindowId })
+}
+
+export async function closeNativeWindow(windowId: string): Promise<DesktopCommandResult<void>> {
+  const trimmedWindowId = windowId.trim()
+  if (!trimmedWindowId) {
+    return invalidInput<void>('windowId is required to close a native window.', detectDesktopRuntime().kind)
+  }
+
+  return invokeNative<void>('close_window', { windowId: trimmedWindowId })
+}
+
+export async function createInspectorWidgetWindow(
+  surfaceId: InspectorWidgetId,
+  profileId: string,
+  articleId: string,
+): Promise<DesktopCommandResult<string>> {
+  const trimmedProfileId = profileId.trim()
+  const trimmedArticleId = articleId.trim()
+  if (!isInspectorWidgetId(surfaceId)) {
+    return invalidInput<string>('Inspector widget surface is not allowed.', detectDesktopRuntime().kind)
+  }
+  if (!trimmedProfileId || !trimmedArticleId) {
+    return invalidInput<string>('profileId and articleId are required to create an inspector widget.', detectDesktopRuntime().kind)
+  }
+
+  return invokeNative<string>('create_inspector_widget', {
+    surfaceId,
+    profileId: trimmedProfileId,
+    articleId: trimmedArticleId,
+  })
 }
 
 export async function revealPathInFileManager(filePath: string): Promise<DesktopCommandResult<void>> {
@@ -254,6 +290,32 @@ export async function pickNativeDirectory(title = 'Select workspace directory'):
   } catch (error) {
     return failed<string>(normalizeError(error), runtime.kind)
   }
+}
+
+export async function writeLocalDeliveryBundle(
+  files: LocalDeliveryFileInput[],
+  pickerTitle = 'Select export directory',
+): Promise<DesktopCommandResult<LocalDeliveryWriteResult>> {
+  if (files.length === 0) {
+    return invalidInput<LocalDeliveryWriteResult>(
+      'At least one file is required to write a local delivery bundle.',
+      detectDesktopRuntime().kind,
+    )
+  }
+
+  const result = await invokeNative<LocalDeliveryWriteResult | null>('write_local_delivery_bundle', {
+    input: { pickerTitle: pickerTitle.trim() || 'Select export directory', files },
+  })
+  if (!result.ok) return result
+  if (result.value === null) {
+    return {
+      ok: false,
+      reason: 'cancelled',
+      message: 'Directory selection was cancelled.',
+      source: result.source,
+    }
+  }
+  return { ok: true, value: result.value, source: result.source }
 }
 
 export async function openMarkdownFiles(options: FilePickerOptions = {}): Promise<DesktopCommandResult<PickedFile[]>> {

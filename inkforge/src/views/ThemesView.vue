@@ -1,134 +1,148 @@
 <script setup lang="ts">
 /**
- * ThemesView - 主题选择器
- * 展示 10 种主题预设，点击应用后跳转回工作站
+ * ThemesView - 多平台主题中心
+ * 直接消费共享预设注册表和真实平台渲染器。
  */
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { useThemeStore, ARTICLE_PRESETS } from '@/stores/theme'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ArrowLeft } from 'lucide-vue-next'
+import {
+  convertToPlatform,
+  DEFAULT_SAMPLE_MARKDOWN,
+  getPlatformPresets,
+} from '@/services/export'
+import type { Platform, PresetVisualSignature } from '@/services/export'
+import { logger } from '@/services/error'
+import { useSettingsStore } from '@/stores/settings'
+
+const PLATFORM_OPTIONS: ReadonlyArray<{ value: Platform; label: string }> = [
+  { value: 'wechat', label: '微信公众号' },
+  { value: 'xiaohongshu', label: '小红书' },
+  { value: 'zhihu', label: '知乎' },
+]
+
+const DEFAULT_PRESET_IDS: Record<Platform, string> = {
+  wechat: 'thesis',
+  xiaohongshu: 'xhs-fresh',
+  zhihu: 'zhihu-academic',
+}
+
+const PERSONA_LABELS: Record<string, string> = {
+  academic: '学术',
+  business: '商务',
+  editorial: '编辑',
+  creative: '创意',
+  lifestyle: '生活',
+  technical: '技术',
+}
 
 const router = useRouter()
-const themeStore = useThemeStore()
-const { currentPresetId } = storeToRefs(themeStore)
+const route = useRoute()
+const settingsStore = useSettingsStore()
 
-// 当前选中的预设（预览用）
-const selectedPreset = ref(currentPresetId.value)
-
-// 主题描述映射
-function getDescription(id: string): string {
-  const descriptions: Record<string, string> = {
-    thesis: '学术严谨，苏联红色调',
-    legal: '权威庄重，藏青主色',
-    report: '商务专业，商务蓝',
-    commentary: '犀利观点，新闻红',
-    aigc: '科技前沿，赛博紫',
-    code: '极客风格，终端绿',
-    notes: '温暖活泼，橙色调',
-    news: '经典黑白，极简风',
-    meme: '活力四射，粉色系',
-    life: '淡雅宁静，灰绿色调',
-  }
-  return descriptions[id] || '自定义主题'
+function normalizePlatform(value: unknown): Platform | undefined {
+  const candidate = Array.isArray(value) ? value[0] : value
+  return PLATFORM_OPTIONS.some(option => option.value === candidate)
+    ? candidate as Platform
+    : undefined
 }
 
-// 字体类型标签
-function getFontLabel(family: 'sans' | 'serif' | 'mono'): string {
-  const labels: Record<string, string> = {
-    sans: '无衬线',
-    serif: '衬线',
-    mono: '等宽',
-  }
-  return labels[family] || family
+function isPlatformPreset(platform: Platform, presetId: string): boolean {
+  return getPlatformPresets(platform).some(preset => preset.id === presetId)
 }
 
-// 基础主题标签
-function getBaseThemeLabel(theme: 'default' | 'grace' | 'simple'): string {
-  const labels: Record<string, string> = {
-    default: '默认',
-    grace: '优雅',
-    simple: '简约',
-  }
-  return labels[theme] || theme
+const initialPlatform = normalizePlatform(route.query.platform)
+  ?? settingsStore.settings.export.defaultPlatform
+const selectedPlatform = ref<Platform>(initialPlatform)
+const platformPresetIds = ref<Record<Platform, string>>({ ...DEFAULT_PRESET_IDS })
+const storedPlatform = settingsStore.settings.export.defaultPlatform
+const storedPresetId = settingsStore.settings.export.defaultPresetId
+if (isPlatformPreset(storedPlatform, storedPresetId)) {
+  platformPresetIds.value[storedPlatform] = storedPresetId
 }
 
-// 10 种主题预设（带扩展字段）
-const themes = computed(() => ARTICLE_PRESETS.map(preset => ({
-  ...preset,
-  description: getDescription(preset.id),
-  fontLabel: getFontLabel(preset.fontFamily),
-  baseThemeLabel: getBaseThemeLabel(preset.baseTheme),
-  previewTitle: getPreviewTitle(preset.id),
-  previewText: getPreviewText(preset.id),
+const selectedPreset = computed({
+  get: () => platformPresetIds.value[selectedPlatform.value],
+  set: (presetId: string) => {
+    platformPresetIds.value[selectedPlatform.value] = presetId
+  },
+})
+
+function getSignatureDetails(signature?: PresetVisualSignature): Array<{ label: string; value: string }> {
+  if (!signature) return []
+  return [
+    { label: '节奏', value: signature.rhythm },
+    { label: '标题', value: signature.heading },
+    { label: '引用', value: signature.quote },
+    { label: '分隔', value: signature.divider },
+    { label: '图片', value: signature.media },
+  ]
+}
+
+const themes = computed(() => getPlatformPresets(selectedPlatform.value).map(preset => ({
+  id: preset.id,
+  name: preset.name,
+  description: preset.description || `${preset.name}平台排版配方`,
+  primaryColor: preset.primaryColor,
+  persona: preset.persona,
+  visualSignature: preset.visualSignature,
+  signatureDetails: getSignatureDetails(preset.visualSignature),
 })))
 
-function getPreviewTitle(id: string): string {
-  const titles: Record<string, string> = {
-    thesis: '学术论文排版样张',
-    legal: '法学论述排版样张',
-    report: '行业研报排版样张',
-    commentary: '观点评论排版样张',
-    aigc: '创意写作排版样张',
-    code: '技术文档排版样张',
-    notes: '学习笔记排版样张',
-    news: '新闻稿件排版样张',
-    meme: '轻量短文排版样张',
-    life: '随笔散文排版样张',
-  }
-  return titles[id] || '主题排版样张'
+const selectedThemeData = computed(() => (
+  themes.value.find(theme => theme.id === selectedPreset.value) ?? themes.value[0]!
+))
+const previewHtml = ref('')
+const previewError = ref('')
+const isPreviewRendering = ref(false)
+let previewSequence = 0
+
+function selectPlatform(platform: Platform): void {
+  selectedPlatform.value = platform
 }
 
-function getPreviewText(id: string): string {
-  const texts: Record<string, string> = {
-    thesis: '用于观察论文标题、摘要正文、脚注引用与长段落节奏，不包含任何真实研究结论。',
-    legal: '用于观察法条引用、论证层级与庄重语气的视觉节奏，不替代真实法律文本。',
-    report: '用于观察数据表述、结论段落与摘要结构的排版密度，不含任何市场数字。',
-    commentary: '用于观察观点开头、短段落推进与醒目标题的呈现效果，不对应真实事件。',
-    aigc: '用于观察创意标题、概念段落与行动句式的版面张力，不宣称真实功能结果。',
-    code: 'const layoutToken = "inkforge"; // 用于观察等宽字体、代码块和行内代码效果',
-    notes: '用于观察学习笔记中的小标题、条目、摘录与复盘段落，不引用真实书籍内容。',
-    news: '用于观察新闻稿导语、事实段落与结尾提示的层级关系，不冒充新闻事实。',
-    meme: '用于观察轻量短文的密集语气、短句节奏与强调样式，不包含真实推广承诺。',
-    life: '用于观察随笔段落、柔和标题与引用块之间的留白关系，不代表真实个人经历。',
-  }
-  return texts[id] || '用于观察主题排版结构的样张文本，不包含真实业务数据。'
-}
-
-// 选中主题的完整数据
-const selectedThemeData = computed(() => {
-  return themes.value.find(t => t.id === selectedPreset.value) || themes.value[0]
-})
-
-// 预览区 HTML（排版样张渲染，不冒充真实业务数据）
-const previewHtml = computed(() => {
-  const t = selectedThemeData.value
-  const accentColor = t.primaryColor
-  return `<h2 style="color: ${accentColor}; border-bottom: 2px solid ${accentColor}; padding-bottom: 8px; margin-bottom: 16px; font-size: 18px; font-weight: 700;">排版效果预览</h2>
-<p style="margin-bottom: 14px; line-height: 1.8; color: #37474F;">这是一段排版样张正文，仅用于观察 <strong style="font-weight: 700;">加粗</strong>、<em>斜体</em>、行内代码 <code style="background: ${accentColor}18; color: ${accentColor}; padding: 2px 6px; border-radius: 4px; font-size: 0.9em;">layoutToken</code> 与段落留白效果，不代表真实业务数据。</p>
-<blockquote style="border-left: 4px solid ${accentColor}; background: ${accentColor}0a; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; color: #37474F; font-style: italic;">引用块用于检验主题的引用层级、边线与背景透明度，不冒充真实摘录。</blockquote>
-<h3 style="color: ${accentColor}; margin: 20px 0 12px; font-size: 15px; font-weight: 600;">代码排版</h3>
-<pre style="background: #1E1E1E; color: #D4D4D4; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin-bottom: 16px;"><code><span style="color: #569CD6;">const</span> <span style="color: #9CDCFE;">layoutToken</span> = <span style="color: #CE9178;">"inkforge"</span>;
-<span style="color: #9CDCFE;">renderThemePreview</span>(<span style="color: #9CDCFE;">layoutToken</span>);</code></pre>
-<ul style="margin: 12px 0; padding-left: 20px; color: #37474F; line-height: 2;">
-  <li>标题层级样张</li>
-  <li>段落节奏样张</li>
-  <li>引用与代码样张</li>
-</ul>`
-})
-
-// 选择预设（预览）
-function selectPreset(presetId: string) {
+function selectPreset(presetId: string): void {
   selectedPreset.value = presetId
 }
 
-// 应用预设
-function applyPreset() {
-  themeStore.applyPreset(selectedPreset.value)
-  router.push('/workstation')
+function getPersonaLabel(persona?: string): string {
+  return persona ? PERSONA_LABELS[persona] ?? persona : '平台配方'
 }
 
-// 取消
-function cancel() {
+function isCurrentPreset(presetId: string): boolean {
+  return settingsStore.settings.export.defaultPlatform === selectedPlatform.value
+    && settingsStore.settings.export.defaultPresetId === presetId
+}
+
+async function renderPreview(): Promise<void> {
+  const sequence = ++previewSequence
+  previewError.value = ''
+  isPreviewRendering.value = true
+  try {
+    const html = await convertToPlatform(DEFAULT_SAMPLE_MARKDOWN, selectedPlatform.value, {
+      presetId: selectedPreset.value,
+    })
+    if (sequence === previewSequence) previewHtml.value = html
+  } catch (error) {
+    if (sequence !== previewSequence) return
+    previewError.value = '真实平台预览生成失败，请切换样式重试。'
+    logger.error('主题中心平台预览生成失败', error)
+  } finally {
+    if (sequence === previewSequence) isPreviewRendering.value = false
+  }
+}
+
+watch([selectedPlatform, selectedPreset], () => {
+  void renderPreview()
+}, { immediate: true })
+
+function applyPreset(): void {
+  settingsStore.settings.export.defaultPlatform = selectedPlatform.value
+  settingsStore.settings.export.defaultPresetId = selectedPreset.value
+  void router.push('/workstation')
+}
+
+function cancel(): void {
   router.back()
 }
 </script>
@@ -145,16 +159,10 @@ function cancel() {
           title="返回上一页"
           @click="cancel"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
+          <ArrowLeft
+            :size="16"
+            aria-hidden="true"
+          />
         </button>
         <h1 class="header-title">
           主题中心
@@ -173,6 +181,24 @@ function cancel() {
     <div class="themes-body">
       <!-- Left: Theme Grid -->
       <div class="themes-grid-wrapper">
+        <div
+          class="platform-switch"
+          role="tablist"
+          aria-label="选择排版平台"
+        >
+          <button
+            v-for="option in PLATFORM_OPTIONS"
+            :key="option.value"
+            type="button"
+            class="platform-switch-btn"
+            :class="{ active: selectedPlatform === option.value }"
+            :aria-selected="selectedPlatform === option.value"
+            role="tab"
+            @click="selectPlatform(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
         <div class="themes-grid">
           <button
             v-for="theme in themes"
@@ -192,22 +218,44 @@ function cancel() {
 
             <!-- Current Badge -->
             <span
-              v-if="currentPresetId === theme.id"
+              v-if="isCurrentPreset(theme.id)"
               class="current-badge"
             >当前</span>
 
             <!-- Card Content -->
             <div class="theme-card-content">
+              <div
+                class="theme-card-motif"
+                :style="{ '--theme-accent': theme.primaryColor }"
+                aria-hidden="true"
+              >
+                <span class="theme-card-motif__title" />
+                <span class="theme-card-motif__copy theme-card-motif__copy--long" />
+                <span class="theme-card-motif__copy" />
+                <span class="theme-card-motif__quote" />
+              </div>
               <div class="theme-card-name">
                 {{ theme.name }}
               </div>
               <div class="theme-card-tags">
-                <span class="tag-pill">{{ theme.baseThemeLabel }}</span>
-                <span class="tag-pill">{{ theme.fontLabel }}</span>
+                <span class="tag-pill">{{ PLATFORM_OPTIONS.find(option => option.value === selectedPlatform)?.label }}</span>
+                <span class="tag-pill">{{ getPersonaLabel(theme.persona) }}</span>
               </div>
               <p class="theme-card-preview">
-                {{ theme.previewText }}
+                {{ theme.description }}
               </p>
+              <div
+                v-if="theme.signatureDetails.length"
+                class="theme-card-signatures"
+              >
+                <span
+                  v-for="detail in theme.signatureDetails.slice(0, 3)"
+                  :key="detail.label"
+                >
+                  <small>{{ detail.label }}</small>
+                  {{ detail.value }}
+                </span>
+              </div>
             </div>
           </button>
         </div>
@@ -222,10 +270,44 @@ function cancel() {
           <p class="preview-panel-desc">
             {{ selectedThemeData.description }}
           </p>
+          <dl
+            v-if="selectedThemeData.signatureDetails.length"
+            class="preview-signature-grid"
+          >
+            <div
+              v-for="detail in selectedThemeData.signatureDetails"
+              :key="detail.label"
+            >
+              <dt>{{ detail.label }}</dt>
+              <dd>{{ detail.value }}</dd>
+            </div>
+          </dl>
+          <div
+            v-if="selectedThemeData.visualSignature?.modules.length"
+            class="preview-signature-modules"
+          >
+            <span
+              v-for="moduleName in selectedThemeData.visualSignature.modules"
+              :key="moduleName"
+            >{{ moduleName }}</span>
+          </div>
         </div>
 
         <div class="preview-render-area">
           <div
+            v-if="isPreviewRendering"
+            class="preview-status"
+          >
+            正在生成真实平台预览
+          </div>
+          <div
+            v-else-if="previewError"
+            class="preview-status preview-status-error"
+          >
+            {{ previewError }}
+          </div>
+          <div
+            v-else
             class="preview-render-content"
             v-html="previewHtml"
           />
@@ -255,7 +337,8 @@ function cancel() {
 <style scoped>
 /* ═══ PAGE CONTAINER ═══ */
 .themes-container {
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--bg-rice-paper, #FAFBFC);
@@ -337,6 +420,44 @@ function cancel() {
   flex: 1;
   overflow-y: auto;
   padding: 24px 32px;
+}
+
+.platform-switch {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 18px;
+  padding: 4px;
+  border: 1px solid var(--hairline, #ECEFF1);
+  border-radius: 10px;
+  background: var(--bg-surface, #FFFFFF);
+}
+
+.platform-switch-btn {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary, #607D8B);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.platform-switch-btn:hover {
+  color: var(--text-primary, #263238);
+  background: var(--bg-rice-paper, #F5F5F5);
+}
+
+.platform-switch-btn.active {
+  color: var(--accent-primary-dark, #B71C1C);
+  background: var(--accent-primary-light, #FFEBEE);
+}
+
+.platform-switch-btn:focus-visible {
+  outline: 2px solid var(--accent-primary, #D32F2F);
+  outline-offset: 2px;
 }
 
 .themes-grid {
@@ -422,6 +543,58 @@ function cancel() {
   padding: 20px;
 }
 
+.theme-card-motif {
+  --theme-accent: var(--accent-primary, #D32F2F);
+  position: relative;
+  height: 58px;
+  margin: -5px 0 14px;
+  overflow: hidden;
+  border: 1px solid var(--hairline, #ECEFF1);
+  border-radius: 8px;
+  background: var(--bg-rice-paper, #FAFBFC);
+}
+
+.theme-card-motif__title,
+.theme-card-motif__copy,
+.theme-card-motif__quote {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+}
+
+.theme-card-motif__title {
+  top: 10px;
+  left: 11px;
+  width: 44%;
+  height: 7px;
+  background: var(--theme-accent);
+}
+
+.theme-card-motif__copy {
+  top: 30px;
+  left: 11px;
+  width: 36%;
+  height: 3px;
+  background: var(--text-muted, #90A4AE);
+  opacity: 0.55;
+}
+
+.theme-card-motif__copy--long {
+  top: 22px;
+  width: 58%;
+}
+
+.theme-card-motif__quote {
+  right: 11px;
+  bottom: 9px;
+  width: 25%;
+  height: 22px;
+  border: 1px solid var(--theme-accent);
+  border-left-width: 3px;
+  border-radius: 4px;
+  opacity: 0.75;
+}
+
 .theme-card-name {
   font-size: 14px;
   font-weight: 600;
@@ -453,13 +626,36 @@ function cancel() {
   overflow: hidden;
 }
 
+.theme-card-signatures {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline, #ECEFF1);
+}
+
+.theme-card-signatures span {
+  overflow: hidden;
+  color: var(--text-secondary, #607D8B);
+  font-size: 10px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theme-card-signatures small {
+  margin-right: 5px;
+  color: var(--text-muted, #90A4AE);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
 /* ═══ RIGHT: PREVIEW PANEL ═══ */
 .preview-panel {
   width: 400px;
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  height: calc(100vh - 52px);
+  box-sizing: border-box;
+  height: 100%;
   background: var(--bg-surface, #FFFFFF);
   border-left: 1px solid var(--hairline, #ECEFF1);
   padding: 24px;
@@ -483,6 +679,49 @@ function cancel() {
   color: var(--text-secondary, #607D8B);
 }
 
+.preview-signature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 12px;
+  margin: 14px 0 0;
+}
+
+.preview-signature-grid > div {
+  min-width: 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--hairline, #ECEFF1);
+}
+
+.preview-signature-grid dt {
+  color: var(--text-muted, #90A4AE);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.preview-signature-grid dd {
+  margin: 2px 0 0;
+  color: var(--text-primary, #263238);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.preview-signature-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.preview-signature-modules span {
+  padding: 2px 7px;
+  border: 1px solid var(--hairline, #ECEFF1);
+  border-radius: 999px;
+  background: var(--bg-rice-paper, #FAFBFC);
+  color: var(--text-secondary, #607D8B);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
 /* Render Area — 样张预览场（砚白纸面） */
 .preview-render-area {
   flex: 1;
@@ -498,6 +737,19 @@ function cancel() {
   font-size: 14px;
   line-height: 1.7;
   color: var(--text-secondary, #37474F);
+}
+
+.preview-status {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted, #90A4AE);
+  font-size: 13px;
+  text-align: center;
+}
+
+.preview-status-error {
+  color: var(--accent-primary-dark, #B71C1C);
 }
 
 /* Action Buttons */

@@ -64,8 +64,10 @@ controls remain:
 - **Strict CSP** (`tauri.conf.json` `security.csp`): `default-src 'self';
   script-src 'self'; …` — no inline scripts, no `unsafe-eval`, no remote
   origins, no `data:` JavaScript.
-- **`dangerousDisableAssetCspModification: false`** — Tauri continues to inject
-  nonces/hashes into bundled assets.
+- **Scoped CSP asset modification** —
+  `dangerousDisableAssetCspModification: ["style-src"]` leaves Tauri's
+  nonce/hash injection enabled for `script-src` while allowing InkForge's
+  sanitized, runtime-generated preview CSS and inline export styles to render.
 - **Tauri allowlist minimization** — `allowlist.all = false`; only `fs`,
   `dialog`, `clipboard`, `shell.open`, and scoped `http` (`http://localhost:11434/*`
   for Ollama) are enabled.
@@ -77,6 +79,24 @@ controls remain:
 The `freezePrototype` mitigation only matters if attacker JavaScript can
 already execute in the webview. The combination above keeps that prerequisite
 out of reach.
+
+## Tauri runtime preview styles — scoped `style-src` modification disabled
+
+**File**: `src-tauri/tauri.conf.json`
+**Setting**: `"dangerousDisableAssetCspModification": ["style-src"]`
+
+Tauri 1 normally appends nonces to `style-src` during production builds. CSP
+then ignores `'unsafe-inline'`, so theme `<style>` elements and inline styles
+created from sanitized `v-html` remain visible in the DOM but do not participate
+in layout or paint. This broke all preset typography and expanded nested SVG
+modules to their unstylized container width.
+
+Only Tauri's compile-time modification of `style-src` is disabled. The explicit
+policy still permits only local styles plus `'unsafe-inline'`; `script-src`
+remains `script-src 'self'` and continues to receive Tauri's nonce/hash
+hardening. User-controlled HTML is sanitized before preview, executable tags and
+event handlers are removed, custom CSS rejects active content and
+`!important`, and no remote script origin is allowed.
 
 ### When to revisit
 

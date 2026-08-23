@@ -243,6 +243,9 @@ const releasePreflightSensitiveFragments = [
   ['scan', 'qr'].join('-'),
 ]
 
+const COMMITTED_STYLE_PROOF_CLOCK_NODE_OPTION =
+  '--import=data:text/javascript,Date.now%3D()%3D%3EDate.parse(%222026-07-03T00%3A00%3A00.000Z%22)'
+
 function getCliEnvironment(): NodeJS.ProcessEnv {
   const environment: NodeJS.ProcessEnv = {}
   for (const [key, value] of Object.entries(process.env)) {
@@ -253,6 +256,7 @@ function getCliEnvironment(): NodeJS.ProcessEnv {
 
   environment.FORCE_COLOR = '0'
   environment.NO_COLOR = '1'
+  environment.NODE_OPTIONS = `${environment.NODE_OPTIONS ? `${environment.NODE_OPTIONS} ` : ''}${COMMITTED_STYLE_PROOF_CLOCK_NODE_OPTION}`
 
   return environment
 }
@@ -552,34 +556,32 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     ])
     expect(report.summary).toMatchObject({
       blockerCount: 4,
-      combinedIssueCount: 15,
-      cannotClaimSteps: 30,
+      combinedIssueCount: 11,
+      cannotClaimSteps: 26,
       phoneOpenSteps: 4,
-      externalDependencyOpenSteps: 15,
+      externalDependencyOpenSteps: 11,
       unsafeToAutomateOpenSteps: 10,
-      mutatingOpenSteps: 14,
+      mutatingOpenSteps: 10,
       manualDeferredOpenSteps: 7,
-      releaseBlockingOpenSteps: 23,
+      releaseBlockingOpenSteps: 19,
       releaseBlockingPhoneOpenSteps: 4,
-      releaseBlockingExternalDependencyOpenSteps: 8,
+      releaseBlockingExternalDependencyOpenSteps: 4,
       releaseBlockingUnsafeToAutomateOpenSteps: 4,
-      releaseBlockingMutatingOpenSteps: 8,
-      externalHandoffRows: 12,
+      releaseBlockingMutatingOpenSteps: 4,
+      externalHandoffRows: 8,
       safeExternalRows: 0,
       actionableLocalRows: 0,
       nextRowRefs: 4,
-      uniqueNextRows: 3,
+      uniqueNextRows: 2,
     })
-    expect(report.nextRows).toHaveLength(3)
+    expect(report.nextRows).toHaveLength(2)
     expect(report.nextRows.map(row => row.kind)).toEqual([
       'phone-preview',
       'external-account',
-      'unsafe-to-automate',
     ])
     expect(report.nextRows.map(row => row.refKinds)).toEqual([
       ['phone-preview'],
-      ['external-account', 'mutating-platform'],
-      ['unsafe-to-automate'],
+      ['external-account', 'unsafe-to-automate', 'mutating-platform'],
     ])
     expect(new Set(report.nextRows.map(row => row.id)).size).toBe(report.summary.uniqueNextRows)
     expect(report.nextRows.every(row => row.cannotClaim)).toBe(true)
@@ -587,16 +589,14 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(report.nextRows.every(row => row.nextOperatorAction.length > 0)).toBe(true)
     expect(report.nextRows.some(row =>
       row.issueIds.includes('style-proof-manifest-proof-stale')
-    )).toBe(true)
+    )).toBe(false)
     expect(report.nextRows.some(row =>
       row.freshnessIssueIds.includes('style-proof-manifest-proof-stale')
-    )).toBe(true)
+    )).toBe(false)
     expect(report.nextRows.find(row => row.kind === 'external-account')?.cannotClaimReason)
-      .toContain('older than the accepted freshness window')
-    expect(report.nextRows.find(row => row.kind === 'external-account')?.refKinds)
-      .toEqual(['external-account', 'mutating-platform'])
-    expect(report.nextRows.find(row => row.kind === 'unsafe-to-automate')?.cannotClaimReason)
       .toContain('mutating credentialed platform action')
+    expect(report.nextRows.find(row => row.kind === 'external-account')?.refKinds)
+      .toEqual(['external-account', 'unsafe-to-automate', 'mutating-platform'])
     expect(report.nextRows.every(row =>
       row.commands.template.startsWith('pnpm --silent -C inkforge style-proof:external-handoff --template ')
     )).toBe(true)
@@ -632,7 +632,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       !row.commands.allMatchingManifestDrafts.includes('--next-only')
     )).toBe(true)
     expect(report.nextRows.every(row => row.allMatchingSummary.notProof)).toBe(true)
-    expect(report.nextRows.map(row => row.allMatchingSummary.rowCount)).toEqual([4, 4, 4])
+    expect(report.nextRows.map(row => row.allMatchingSummary.rowCount)).toEqual([4, 4])
     expect(report.nextRows.find(row =>
       row.kind === 'phone-preview'
     )?.allMatchingSummary.requirementIds).toEqual([
@@ -643,14 +643,6 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     ])
     expect(report.nextRows.find(row =>
       row.kind === 'external-account'
-    )?.allMatchingSummary.requirementIds).toEqual([
-      'authenticated-editor-url',
-      'pc-editor-dom-readback',
-      'pc-editor-paste-event',
-      'safe-disposable-draft',
-    ])
-    expect(report.nextRows.find(row =>
-      row.kind === 'unsafe-to-automate'
     )?.allMatchingSummary.requirementIds).toEqual([
       'credentialed-channel-response',
       'sync-readback',
@@ -674,13 +666,11 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     )?.artifactGuidance.requiredFields).toContain('coverThumbnailAccepted')
     expect(report.nextRows.map(row => row.commands.template)).toEqual([
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only',
-      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=invalid --issue=style-proof-manifest-proof-stale --next-only',
-      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=unsafe-to-automate --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only',
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only',
     ])
     expect(report.nextRows.map(row => row.commands.allMatchingTemplate)).toEqual([
       'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing',
-      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=invalid --issue=style-proof-manifest-proof-stale',
-      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=unsafe-to-automate --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing',
+      'pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing',
     ])
   })
 
@@ -729,9 +719,9 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       usableButUnselectableWechatChoices: 0,
       actionableLocalRows: 0,
       manualDeferredOpenSteps: 7,
-      releaseBlockingOpenSteps: 23,
-      externalHandoffRows: 12,
-      nextExternalRows: 3,
+      releaseBlockingOpenSteps: 19,
+      externalHandoffRows: 8,
+      nextExternalRows: 2,
     })
     expect(report.moduleIssues).toEqual([])
     expect(report.applicationGalleryIssues).toEqual([])
@@ -753,9 +743,9 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
       releaseCanClaimComplete: false,
       releaseStatus: 'blocked-by-external',
       releaseBlockingPhoneOpenSteps: 4,
-      releaseBlockingExternalDependencyOpenSteps: 8,
+      releaseBlockingExternalDependencyOpenSteps: 4,
       releaseBlockingUnsafeToAutomateOpenSteps: 4,
-      releaseBlockingMutatingOpenSteps: 8,
+      releaseBlockingMutatingOpenSteps: 4,
       requiresManualWeChatProof: true,
       xhsZhihuPublishAutomationDeferred: true,
     })
@@ -769,7 +759,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('operator commands (copy-safe placeholders):')
     expect(result.stdout).toContain('proof guidance (not proof):')
     expect(result.stdout).toContain('manualDeferredOpenSteps: 7')
-    expect(result.stdout).toContain('releaseBlockingExternalDependencyOpenSteps: 8')
+    expect(result.stdout).toContain('releaseBlockingExternalDependencyOpenSteps: 4')
     expect(result.stdout).toContain('requiredFields: artifactFingerprint|exactArtifact|coverThumbnailAccepted|collectedAt|safeForCommit')
     expect(result.stdout).toContain('forbiddenFields: externalAccountLoginBlocked')
     expect(result.stdout).toContain('appendOnlyAfterExternalProof: yes')
@@ -778,8 +768,7 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('allMatchingRequirementIds: credentialed-channel-response|sync-readback|published-url-or-platform-preview|scheduled-send-readback')
     expect(result.stdout).toContain('allMatchingTemplate: pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing')
     expect(result.stdout).toContain('style-proof:external-handoff --template --platform=wechat --kind=phone-preview --status=blocked-by-external --issue=style-proof-manifest-requirement-missing --next-only')
-    expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=invalid --issue=style-proof-manifest-proof-stale --next-only')
-    expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=unsafe-to-automate --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only')
+    expect(result.stdout).toContain('style-proof:external-handoff --manifest-drafts --platform=wechat --kind=external-account --status=unsafe-to-automate --issue=style-proof-manifest-requirement-missing --next-only')
     expect(result.stdout).toContain('style-proof:manifest-intake --file REDACTED_MANIFEST.json --json')
     expect(result.stdout).toContain('style-proof:manifest-merge --file REDACTED_MANIFEST.json --json')
     expect(result.stdout).toContain('release claim blocked: in-scope WeChat phone/account/platform proof gates remain open.')

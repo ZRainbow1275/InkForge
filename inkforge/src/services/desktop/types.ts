@@ -66,6 +66,25 @@ export interface DesktopRuntimeSnapshot {
   note: string
 }
 
+export interface LocalDeliveryFileInput {
+  relativePath: string
+  content?: string
+  base64?: string
+}
+
+export interface LocalDeliveryWrittenFile {
+  relativePath: string
+  absolutePath: string
+  bytes: number
+  readbackVerified: boolean
+}
+
+export interface LocalDeliveryWriteResult {
+  rootPath: string
+  files: LocalDeliveryWrittenFile[]
+  cleanupWarning: string | null
+}
+
 export type DesktopCommandUnavailableReason = 'unavailable' | 'cancelled' | 'failed' | 'invalid-input'
 
 export type DesktopCommandResult<T> =

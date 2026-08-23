@@ -126,19 +126,19 @@ async function waitForMainWindow() {
 
 async function openSettingsAbout() {
   await browser.execute(() => {
-    const target = '/settings?tab=about&section=desktop-runtime';
-    if (location.pathname !== '/settings' || location.search !== '?tab=about&section=desktop-runtime') {
+    const target = '/settings?tab=advanced&section=desktop-runtime';
+    if (location.pathname !== '/settings' || location.search !== '?tab=advanced&section=desktop-runtime') {
       window.history.pushState({}, '', target);
       window.dispatchEvent(new PopStateEvent('popstate'));
     }
   });
 
   await browser.waitUntil(
-    async () => browser.execute(() => Boolean(document.querySelector('[data-settings-entry="about.desktopRuntime"]'))),
+    async () => browser.execute(() => Boolean(document.querySelector('[data-settings-entry="advanced.desktopRuntime"]'))),
     {
       timeout: 10_000,
       interval: 200,
-      timeoutMsg: 'Settings About desktop runtime section did not render',
+      timeoutMsg: 'Settings Advanced desktop runtime section did not render',
     },
   );
 }
@@ -459,7 +459,7 @@ async function clickAuditButton(label) {
 
 async function readDesktopRuntimeUi() {
   return browser.execute(() => {
-    const section = document.querySelector('[data-settings-entry="about.desktopRuntime"]');
+    const section = document.querySelector('[data-settings-entry="advanced.desktopRuntime"]');
     const cards = Array.from(section?.querySelectorAll('.sv-insight-card') ?? []).map((card) => ({
       label: card.querySelector('.sv-insight-card__label')?.textContent?.trim() ?? '',
       value: card.querySelector('.sv-insight-card__value')?.textContent?.trim() ?? '',

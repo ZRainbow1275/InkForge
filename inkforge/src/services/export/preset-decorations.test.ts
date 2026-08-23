@@ -208,8 +208,8 @@ describe('migrated presets (thesis, legal, report, commentary, aigc)', () => {
         expect(typeof preset?.decorate).toBe('function')
       })
 
-      it('exportCSS contains 22em line-length lock', () => {
-        expect(preset?.exportCSS).toContain('max-width: min(22em')
+      it('exportCSS contains the 24em lock for 22–24 CJK characters per line', () => {
+        expect(preset?.exportCSS).toContain('max-width: min(24em')
       })
 
       it('keeps legacy customCSS for back-compat', () => {

@@ -33,6 +33,7 @@ export interface FocusModeState {
 export interface VignetteConfig {
   isEnabled: boolean
   height: number
+  intensity: number
 }
 
 export type PomodoroPhase = 'idle' | 'running' | 'paused' | 'break' | 'long_break'
@@ -107,6 +108,7 @@ const PomodoroConfigSchema = z.object({
 const VignetteSchema = z.object({
   isEnabled: z.boolean().default(false),
   height: z.number().int().min(40).max(200).default(80),
+  intensity: z.number().min(0.08).max(0.32).default(0.18),
 })
 
 const AmbientSoundTypeSchema = z.enum([
@@ -136,7 +138,7 @@ const GoalStreakSchema = z.object({
 })
 
 const PersistedWritingAssistSchema = z.object({
-  vignette: VignetteSchema.default({ isEnabled: false, height: 80 }),
+  vignette: VignetteSchema.default({ isEnabled: false, height: 80, intensity: 0.18 }),
   pomodoroConfig: PomodoroConfigSchema.default({
     workMinutes: 25,
     shortBreakMinutes: 5,
@@ -155,12 +157,22 @@ const PersistedWritingAssistSchema = z.object({
 const CURSOR_POSITION_MIN = 0.3
 const CURSOR_POSITION_MAX = 0.7
 const CURSOR_POSITION_DEFAULT = 0.5
+const VIGNETTE_INTENSITY_MIN = 0.08
+const VIGNETTE_INTENSITY_MAX = 0.32
+const VIGNETTE_INTENSITY_DEFAULT = 0.18
 
 function clampCursorPosition(value: number): number {
   if (!Number.isFinite(value)) {
     return CURSOR_POSITION_DEFAULT
   }
   return Math.max(CURSOR_POSITION_MIN, Math.min(CURSOR_POSITION_MAX, value))
+}
+
+function clampVignetteIntensity(value: number): number {
+  if (!Number.isFinite(value)) {
+    return VIGNETTE_INTENSITY_DEFAULT
+  }
+  return Math.max(VIGNETTE_INTENSITY_MIN, Math.min(VIGNETTE_INTENSITY_MAX, value))
 }
 
 type PersistedWritingAssist = z.infer<typeof PersistedWritingAssistSchema>
@@ -331,7 +343,11 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
   }
 
   function setVignetteEnabled(isEnabled: boolean): void {
-    vignette.value = { ...vignette.value, isEnabled }
+    vignette.value = {
+      ...vignette.value,
+      isEnabled,
+      intensity: clampVignetteIntensity(vignette.value.intensity),
+    }
     persistSettings()
   }
 
@@ -339,6 +355,15 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
     vignette.value = {
       ...vignette.value,
       height: Math.max(40, Math.min(200, Math.trunc(height))),
+      intensity: clampVignetteIntensity(vignette.value.intensity),
+    }
+    persistSettings()
+  }
+
+  function setVignetteIntensity(intensity: number): void {
+    vignette.value = {
+      ...vignette.value,
+      intensity: clampVignetteIntensity(intensity),
     }
     persistSettings()
   }
@@ -614,6 +639,7 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
     dismissSummary,
     setVignetteEnabled,
     setVignetteHeight,
+    setVignetteIntensity,
     setCursorPosition,
     updateStats,
     startPomodoro,

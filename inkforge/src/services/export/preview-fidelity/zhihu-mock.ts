@@ -1,15 +1,16 @@
 /**
- * 知乎发布预览 — 高保真 mock 渲染器 (P3-T10)
+ * 知乎 Draft.js 编辑器本地保真预览渲染器 (P3-T10)
  *
  * 输入：markdownToZhihuClean(...).markdown 产物（可能包含已转换的 equation img，
  * 也可能保留原始 $$..$$ / $..$ 当 markdown engine 关闭 convertLatexToImg 时）。
- * 输出：self-contained HTML，可直接用于 v-html，反映"知乎实际会渲染"的样貌：
+ * 输出：self-contained HTML，可直接用于 v-html，反映实测编辑画布的样貌：
  *   - 三个 preset (academic / tech / insight) 决定主色与字体
  *   - LaTeX 在 fidelity 中始终强制以 zhihu equation 端点 img 呈现
  *   - 代码块按 marked 输出再注入语言徽章
  *   - GFM 表格保留（fidelity 不接 export 的 fallback 降级）
- *   - InkForge inline SVG modules are shown as image fallbacks, not inline SVG
- *   - 末尾追加 watermark 提醒"知乎 web 编辑器会过滤大部分 CSS"
+ *   - 只有显式注册的 InkForge SVG module id 才能生成 image fallback
+ *   - 用户 Markdown 中的 raw HTML / inline SVG 在可信模块注入前被净化
+ *   - 不伪造账号、发布状态或平台水印；发布能力仍由独立流程证明
  *
  * 本模块 self-contained：
  *   - marked 已是项目依赖
@@ -19,8 +20,11 @@
  */
 
 import { marked } from 'marked'
+import { sanitizeUntrustedPreviewHtml } from './sanitize-untrusted-html'
 import { convertLatexToEquationImg } from '../platform-rules/zhihu'
+import { getSvgModule } from '../svg-modules'
 import { buildSvgDataUri, svgToImgTag } from '../svg-modules/raster'
+import { buildThemeContext } from '../svg-modules/theme'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 类型
@@ -42,11 +46,11 @@ export interface ZhihuMockOptions {
   showCodeLanguageBadge?: boolean
   /**
    * 来自 themes.ts zhihu preset.previewCSS 的主题 CSS，scope 到 `#zhihu-answer`。
-   * 注入后会覆盖 mock 内联 fallback 的字体/装饰/标题颜色等。
-   * 未提供时 mock 仍以内联 PRESET_TOKENS + applyInlineThemeAccents 渲染。
+   * 注入后会覆盖平台基线中的字体/装饰/标题颜色等。
+   * 未提供时按实测的 Draft.js 编辑器排版基线渲染。
    *
    * 注意：preset 中由 composeRecipes 注入的规则使用 `#nice` 前缀，会被
-   * 自动改写为 `#zhihu-answer` 以匹配本 mock 的容器 id。
+   * 自动改写为 `#zhihu-answer` 以匹配本地预览容器 id。
    */
   themeCSS?: string
 }
@@ -62,6 +66,11 @@ export interface ZhihuMockInput {
   mermaidCount?: number
   /** 任务列表数 — 同上 */
   taskListCount?: number
+  /**
+   * 仅接受 InkForge 注册表中的模块 id。不得从 markdown/raw HTML 的
+   * data-ink-svg 属性推断，以免把用户输入提升为可信 SVG。
+   */
+  trustedSvgModuleIds?: readonly string[]
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -76,7 +85,7 @@ interface PresetTokens {
 }
 
 const FONT_STACK =
-  "-apple-system,BlinkMacSystemFont,'Helvetica Neue','PingFang SC','Microsoft YaHei',sans-serif"
+  "-apple-system,BlinkMacSystemFont,'Helvetica Neue','PingFang SC','Microsoft YaHei','Source Han Sans SC','Noto Sans CJK SC','WenQuanYi Micro Hei','MiSans L3','Segoe UI',sans-serif"
 
 const PRESET_TOKENS: Record<ZhihuMockPresetId, PresetTokens> = {
   academic: {
@@ -88,7 +97,7 @@ const PRESET_TOKENS: Record<ZhihuMockPresetId, PresetTokens> = {
   tech: {
     primaryColor: '#2962FF',
     fontFamily: FONT_STACK,
-    fontSize: '15px',
+    fontSize: '16px',
     background: '#ffffff',
   },
   insight: {
@@ -144,40 +153,99 @@ export function renderZhihuMockHtml(
   // Step 2: marked 渲染（沿用全局 gfm/breaks 配置；此处仅显式 parse）
   const rawHtml = marked.parse(md, { async: false, gfm: true, breaks: true }) as string
 
-  // Step 3: 注入代码块语言徽章
-  const htmlWithBadges = showCodeLanguageBadge ? injectCodeLanguageBadges(rawHtml) : rawHtml
+  // Step 3: markdown/raw HTML 是不可信输入。先移除 style、事件、active URL、
+  // data-* 与 inline SVG，再注入下方由 InkForge 代码生成的可信预览装饰。
+  const sanitizedHtml = sanitizeUntrustedPreviewHtml(rawHtml, {
+    additionalAttrs: ['eeimg'],
+  })
 
-  // Step 4: Convert any InkForge inline SVG module into a Zhihu-style image
-  // fallback. Preview stays visual, but it no longer implies that Zhihu accepts
-  // inline SVG in the publishable Markdown path.
-  const htmlWithSvgFallbacks = replaceInkSvgModulesWithImageFallback(htmlWithBadges)
+  // Step 4: 注入代码块语言徽章（仅处理上一步净化后的受控 code 结构）。
+  const htmlWithBadges = showCodeLanguageBadge
+    ? injectCodeLanguageBadges(sanitizedHtml)
+    : sanitizedHtml
 
-  // Step 5: 包装为 zhihu-mock 容器 + 内联主题样式
+  // Step 5: SVG fallback 只来自注册表 id；绝不扫描用户 HTML 中的哨兵。
+  const trustedSvgFallbacks = renderTrustedSvgModuleFallbacks(
+    input.trustedSvgModuleIds,
+    tokens.primaryColor,
+    options?.presetId ?? 'academic',
+  )
+  const htmlWithSvgFallbacks = `${htmlWithBadges}${trustedSvgFallbacks}`
+
+  // Step 6: 2026-07-27 实机测量的 800px Draft.js 编辑画布。
   const containerStyle = [
     `font-family:${tokens.fontFamily}`,
     `font-size:${tokens.fontSize}`,
-    `line-height:1.8`,
-    `color:#1a1a1a`,
+    'line-height:25.6px',
+    'color:#191b1f',
     `background:${tokens.background}`,
-    `padding:24px 28px`,
-    `border-radius:8px`,
-    `--zhihu-mock-primary:${tokens.primaryColor}`,
+    'width:100%',
+    'max-width:800px',
+    'min-height:100%',
+    'margin:0 auto',
+    'padding:0',
+    'box-sizing:border-box',
   ].join(';')
 
-  const themedHtml = applyInlineThemeAccents(htmlWithSvgFallbacks, tokens.primaryColor)
-
-  // Step 6: watermark
-  const watermark = `<div class="zhihu-mock-watermark" style="margin-top:24px;padding:8px 12px;font-size:12px;color:#888;border-top:1px dashed #e5e5e5;text-align:center;">预览 · 知乎 web 编辑器会过滤大部分 CSS</div>`
-
-  // Step 7: preset themeCSS — scoped to `#zhihu-answer`. Injected before body
-  // so cascade order favors mock inline styles only when no preset rule matches.
+  // Step 7: baseline 先于 preset 注入，确保平台默认节奏可被用户选择的预设覆盖。
+  const baselineStyle = renderPlatformBaselineStyle()
   const themeStyle = renderThemeStyle(options?.themeCSS)
 
-  return `<section id="zhihu-answer" class="zhihu-mock zhihu-mock-${escapeAttr(options?.presetId ?? 'academic')}" data-primary="${escapeAttr(tokens.primaryColor)}" style="${containerStyle}">${themeStyle}${themedHtml}${watermark}</section>`
+  return [
+    `<section class="zhihu-editor-canvas" data-platform-editor="zhihu" data-editor-canvas-width="800" style="${containerStyle}">`,
+    baselineStyle,
+    themeStyle,
+    `<article id="zhihu-answer" class="zhihu-mock zhihu-mock-${escapeAttr(options?.presetId ?? 'academic')}" data-primary="${escapeAttr(tokens.primaryColor)}" style="width:100%;min-width:0;--zhihu-mock-primary:${tokens.primaryColor};">`,
+    htmlWithSvgFallbacks,
+    '</article>',
+    '</section>',
+  ].join('')
+}
+
+const ZHIHU_PRESET_PERSONA = {
+  academic: 'academic',
+  tech: 'business',
+  insight: 'creative',
+} as const
+
+function renderTrustedSvgModuleFallbacks(
+  moduleIds: readonly string[] | undefined,
+  primaryColor: string,
+  presetId: ZhihuMockPresetId,
+): string {
+  if (!moduleIds?.length) return ''
+
+  const theme = buildThemeContext({
+    primaryColor,
+    persona: ZHIHU_PRESET_PERSONA[presetId],
+    target: 'zhihu',
+  })
+
+  return [...new Set(moduleIds)]
+    .slice(0, 32)
+    .map((moduleId) => getSvgModule(moduleId))
+    .filter((module) => module !== undefined)
+    .map((module) => replaceInkSvgModulesWithImageFallback(
+      module.render({ theme, text: module.description }),
+    ))
+    .join('')
+}
+
+function renderPlatformBaselineStyle(): string {
+  return [
+    '<style data-platform-baseline="zhihu">',
+    '#zhihu-answer{font-size:16px;line-height:25.6px;color:#191b1f;}',
+    '#zhihu-answer h1{font-size:24px;line-height:36px;font-weight:600;margin:0;padding:0;}',
+    '#zhihu-answer h2{font-size:19.2px;line-height:28.8px;font-weight:600;margin:0;padding:0;}',
+    '#zhihu-answer h3{font-size:17px;line-height:25.6px;font-weight:600;margin:0;padding:0;}',
+    '#zhihu-answer p{margin:0 0 16px;padding:0;}',
+    '#zhihu-answer blockquote{margin:0 0 16px;padding:0 0 0 12px;border-left:2px solid #d3d6db;color:#5c626b;}',
+    '</style>',
+  ].join('')
 }
 
 /**
- * Wrap preset.previewCSS in a `<style>` block scoped to the zhihu mock container.
+ * Wrap preset.previewCSS in a `<style>` block scoped to the Zhihu article.
  *
  * - themes.ts zhihu preset CSS already uses `#zhihu-answer` selectors, injected as-is.
  * - composeRecipes() returns rules prefixed with `#nice` — rewritten to
@@ -237,7 +305,7 @@ function inferSvgImageSize(svgHtml: string): { width: number; height: number } {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 后处理：代码块语言徽章 + preset 主色点缀
+// 后处理：代码块语言徽章
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -254,69 +322,4 @@ function injectCodeLanguageBadges(html: string): string {
       return wrapper
     }
   )
-}
-
-/**
- * 给标题/链接/强调/blockquote 注入主色的内联样式。
- * 注意：marked 输出标准 HTML，这里只 patch 几个常见标签，避免污染纯文本结构。
- */
-function applyInlineThemeAccents(html: string, primary: string): string {
-  let out = html
-
-  // h1：主色下边框
-  out = out.replace(
-    /<h1>([\s\S]*?)<\/h1>/g,
-    (_m, body: string) =>
-      `<h1 style="font-size:24px;font-weight:700;color:#1a1a1a;margin:24px 0 16px;padding-bottom:10px;border-bottom:2px solid ${primary};">${body}</h1>`
-  )
-
-  // h2：左边框
-  out = out.replace(
-    /<h2>([\s\S]*?)<\/h2>/g,
-    (_m, body: string) =>
-      `<h2 style="font-size:20px;font-weight:600;color:#1a1a1a;margin:22px 0 12px;padding-left:10px;border-left:4px solid ${primary};">${body}</h2>`
-  )
-
-  // h3：主色文字
-  out = out.replace(
-    /<h3>([\s\S]*?)<\/h3>/g,
-    (_m, body: string) =>
-      `<h3 style="font-size:17px;font-weight:600;color:${primary};margin:18px 0 10px;">${body}</h3>`
-  )
-
-  // strong：主色加粗
-  out = out.replace(
-    /<strong>([\s\S]*?)<\/strong>/g,
-    (_m, body: string) => `<strong style="color:${primary};font-weight:600;">${body}</strong>`
-  )
-
-  // a：主色下划线
-  out = out.replace(
-    /<a href="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/g,
-    (_m, href: string, attrs: string, body: string) =>
-      `<a href="${href}"${attrs} style="color:${primary};text-decoration:none;border-bottom:1px solid ${primary};">${body}</a>`
-  )
-
-  // blockquote：左边框 + 浅色背景
-  out = out.replace(
-    /<blockquote>([\s\S]*?)<\/blockquote>/g,
-    (_m, body: string) =>
-      `<blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid ${primary};background:#f6f6f6;color:#555;">${body}</blockquote>`
-  )
-
-  // table：基础样式（fidelity 保留 GFM 表格）
-  out = out.replace(
-    /<table>/g,
-    `<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;">`
-  )
-  out = out.replace(
-    /<th>/g,
-    `<th style="border:1px solid #e5e5e5;padding:8px 12px;background:#fafafa;text-align:left;font-weight:600;">`
-  )
-  out = out.replace(
-    /<td>/g,
-    `<td style="border:1px solid #e5e5e5;padding:8px 12px;">`
-  )
-
-  return out
 }

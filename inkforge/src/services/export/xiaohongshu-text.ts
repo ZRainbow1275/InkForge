@@ -8,6 +8,7 @@
  */
 
 import { degradeCitationsForPlainText } from '@/services/citation'
+import { degradeWritingComponentsForPlainText } from '@/services/writing-components'
 import type { XiaohongshuTextResult, XiaohongshuTextOptions } from './types'
 import { parseToAST } from './renderers/ast'
 import {
@@ -159,7 +160,10 @@ export function markdownToXiaohongshuText(
   const decorations = DECORATION_STYLES[emojiStyle] ?? DECORATION_STYLES.fresh
 
   // Step 1: 预处理 — 标准化输入；脚注/引用先降级为小红书可读文本，避免控制语法泄露。
-  let text = degradeCitationsForPlainText(markdown, 'xiaohongshu').trim()
+  let text = degradeCitationsForPlainText(
+    degradeWritingComponentsForPlainText(markdown),
+    'xiaohongshu',
+  ).trim()
 
   // Step 2: 处理代码块（在其他转换前，避免代码块内容被误处理）
   text = convertCodeBlocks(text, decorations)

@@ -36,6 +36,9 @@ export interface TypographyToggleControl {
   label: string
 }
 
+type NumericTypographyKey = 'fontSize' | 'lineHeight' | 'letterSpacing' | 'paragraphSpacing' | 'listSpacing'
+type TypographyControlKey = NumericTypographyKey | 'paragraphIndent'
+
 // ═══════════════════════════════════════════════════════════════════
 // Composable
 // ═══════════════════════════════════════════════════════════════════
@@ -47,7 +50,7 @@ export function useTypography() {
   const typography = computed(() => settingsStore.settings.appearance.typography)
 
   /** 滑块类控制列表（供 v-for 渲染） */
-  const sliderControls = computed<Record<string, TypographySliderControl>>(() => ({
+  const sliderControls = computed<Record<NumericTypographyKey, TypographySliderControl>>(() => ({
     fontSize: {
       value: typography.value.fontSize,
       min: 12,
@@ -59,7 +62,7 @@ export function useTypography() {
     lineHeight: {
       value: typography.value.lineHeight,
       min: 1.2,
-      max: 2.5,
+      max: 2.4,
       step: 0.1,
       label: '行高',
       unit: '',
@@ -80,6 +83,14 @@ export function useTypography() {
       label: '段间距',
       unit: 'px',
     },
+    listSpacing: {
+      value: typography.value.listSpacing,
+      min: 2,
+      max: 16,
+      step: 1,
+      label: '列表项距',
+      unit: 'px',
+    },
   }))
 
   /** 首行缩进开关 */
@@ -92,11 +103,14 @@ export function useTypography() {
    * 更新排版参数
    * 直接修改 store 中的 typography 对象，触发 deep watch 自动持久化
    */
-  function updateTypography(key: string, value: number | boolean): void {
+  function updateTypography(key: TypographyControlKey, value: number | boolean): void {
     const typo = settingsStore.settings.appearance.typography
-    if (key in typo) {
-      ;(typo as Record<string, number | boolean | string>)[key] = value
+    if (key === 'paragraphIndent') {
+      if (typeof value === 'boolean') typo.paragraphIndent = value
+      return
     }
+
+    if (typeof value === 'number') typo[key] = value
   }
 
   /**
@@ -109,8 +123,13 @@ export function useTypography() {
     typo.letterSpacing = 0
     typo.paragraphSpacing = 16
     typo.paragraphIndent = false
+    typo.textAlign = 'left'
+    typo.listSpacing = 8
+    typo.headingScale = 'balanced'
     typo.headingStyle = 'none'
     typo.blockquoteStyle = 'classic'
+    typo.dividerStyle = 'line'
+    typo.mediaStyle = 'plain'
   }
 
   return {

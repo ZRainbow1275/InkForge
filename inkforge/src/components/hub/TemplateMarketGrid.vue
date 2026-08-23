@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from 'vue'
-import { LayoutTemplate, Newspaper, Plus, Star } from 'lucide-vue-next'
+import { LayoutTemplate, Newspaper, Star } from 'lucide-vue-next'
 import { ARTICLE_TEMPLATES, TEMPLATE_CATEGORY_NAMES, type ArticleTemplate } from '@/data/templates'
 
 const emit = defineEmits<{
   (e: 'select', template: ArticleTemplate): void
-  (e: 'create-new'): void
 }>()
 
 type CategoryKey = ArticleTemplate['category'] | 'all'
@@ -85,26 +84,6 @@ function truncate(text: string, max = 24): string {
     </div>
 
     <div class="template-market-grid">
-      <button
-        type="button"
-        class="template-market-card template-market-card--cta"
-        @click="emit('create-new')"
-      >
-        <span
-          class="template-market-cover template-market-cover--cta"
-          aria-hidden="true"
-        >
-          <Plus
-            :size="28"
-            :stroke-width="2.4"
-          />
-        </span>
-        <span class="template-market-body">
-          <strong>新建模板</strong>
-          <span>从空白起稿，保存为常用模板</span>
-        </span>
-      </button>
-
       <button
         v-for="template in filteredTemplates"
         :key="template.id"
@@ -273,23 +252,6 @@ function truncate(text: string, max = 24): string {
   color: #D32F2F;
 }
 
-.template-market-cover--cta {
-  background: linear-gradient(135deg, #FAFBFC 0%, #ECEFF1 100%);
-  color: #455A64;
-  border: 1px dashed #B0BEC5;
-}
-
-.template-market-card--cta {
-  background: #FAFBFC;
-  border-style: dashed;
-  border-color: #CFD8DC;
-}
-
-.template-market-card--cta:hover {
-  border-color: #D32F2F;
-  background: #FFFFFF;
-}
-
 .template-market-body {
   display: flex;
   flex-direction: column;
@@ -411,29 +373,10 @@ html[data-theme="dark"] .template-market-card:hover {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
 }
 
-html.theme-dark .template-market-card--cta,
-html[data-theme="dark"] .template-market-card--cta {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-html.theme-dark .template-market-card--cta:hover,
-html[data-theme="dark"] .template-market-card--cta:hover {
-  background: rgba(239, 83, 80, 0.06);
-  border-color: #EF5350;
-}
-
 html.theme-dark .template-market-cover,
 html[data-theme="dark"] .template-market-cover {
   background: linear-gradient(135deg, rgba(239, 83, 80, 0.20) 0%, rgba(239, 83, 80, 0.06) 100%);
   color: #EF9A9A;
-}
-
-html.theme-dark .template-market-cover--cta,
-html[data-theme="dark"] .template-market-cover--cta {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-  border-color: rgba(255, 255, 255, 0.20);
-  color: #B5BFCC;
 }
 
 html.theme-dark .template-market-tag,

@@ -14,14 +14,12 @@ import { ref, watch, onBeforeUnmount, onMounted, nextTick } from 'vue'
 import type { Editor } from '@tiptap/core'
 import {
   Bold, Italic, Underline, Strikethrough, Code,
-  Heading1, Heading2, Heading3,
-  List, ListOrdered, Quote,
-  Link, Code2, Minus,
+  Link, Minus,
   Image,
   Highlighter, Palette,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Superscript, Subscript,
-  Table, CheckSquare,
+  Table,
   ArrowUpRight
 } from 'lucide-vue-next'
 
@@ -44,6 +42,104 @@ function isActive(type: string | Record<string, unknown>, options?: Record<strin
     return props.editor?.isActive(type, options) ?? false
   }
   return props.editor?.isActive(type) ?? false
+}
+
+const blockFormatOptions = [
+  { value: 'paragraph', label: '正文' },
+  { value: 'heading-1', label: '一级标题' },
+  { value: 'heading-2', label: '二级标题' },
+  { value: 'heading-3', label: '三级标题' },
+  { value: 'heading-4', label: '四级标题' },
+  { value: 'heading-5', label: '五级标题' },
+  { value: 'heading-6', label: '六级标题' },
+  { value: 'blockquote', label: '引用' },
+  { value: 'bullet-list', label: '无序列表' },
+  { value: 'ordered-list', label: '有序列表' },
+  { value: 'task-list', label: '任务列表' },
+  { value: 'code-block', label: '代码块' },
+] as const
+
+type BlockFormat = typeof blockFormatOptions[number]['value']
+type BlockFormatState = BlockFormat | 'mixed'
+
+const currentBlockFormat = ref<BlockFormatState>('paragraph')
+const blockFormatUnavailable = ref(false)
+
+function getNodeBlockFormat(nodeName: string, level?: number): BlockFormat | null {
+  if (nodeName === 'heading' && level && level >= 1 && level <= 6) {
+    return `heading-${level}` as BlockFormat
+  }
+  const formats: Partial<Record<string, BlockFormat>> = {
+    paragraph: 'paragraph',
+    blockquote: 'blockquote',
+    bulletList: 'bullet-list',
+    orderedList: 'ordered-list',
+    taskList: 'task-list',
+    codeBlock: 'code-block',
+  }
+  return formats[nodeName] ?? null
+}
+
+function resolveBlockFormat(editor: Editor): BlockFormatState {
+  const formats = new Set<BlockFormat>()
+  const { doc, selection } = editor.state
+  if (!selection.empty && typeof doc.nodesBetween === 'function') {
+    doc.nodesBetween(selection.from, selection.to, (node, _position, parent) => {
+      const parentName = parent?.type.name
+      if (
+        node.type.name === 'paragraph'
+        && ['blockquote', 'listItem', 'taskItem', 'tableCell', 'tableHeader'].includes(parentName ?? '')
+      ) {
+        return
+      }
+      const format = getNodeBlockFormat(node.type.name, node.attrs.level as number | undefined)
+      if (format) formats.add(format)
+    })
+  }
+  if (formats.size > 1) return 'mixed'
+  if (formats.size === 1) return formats.values().next().value ?? 'paragraph'
+
+  if (editor.isActive('taskList')) return 'task-list'
+  if (editor.isActive('bulletList')) return 'bullet-list'
+  if (editor.isActive('orderedList')) return 'ordered-list'
+  if (editor.isActive('blockquote')) return 'blockquote'
+  if (editor.isActive('codeBlock')) return 'code-block'
+  if (editor.isActive('heading', { level: 1 })) return 'heading-1'
+  if (editor.isActive('heading', { level: 2 })) return 'heading-2'
+  if (editor.isActive('heading', { level: 3 })) return 'heading-3'
+  if (editor.isActive('heading', { level: 4 })) return 'heading-4'
+  if (editor.isActive('heading', { level: 5 })) return 'heading-5'
+  if (editor.isActive('heading', { level: 6 })) return 'heading-6'
+  return 'paragraph'
+}
+
+function applyBlockFormat(format: BlockFormatState): void {
+  const editor = props.editor
+  if (!editor || format === 'mixed' || blockFormatUnavailable.value) return
+
+  const chain = editor.chain().focus()
+  switch (format) {
+    case 'paragraph': chain.setParagraph().run(); break
+    case 'heading-1': chain.toggleHeading({ level: 1 }).run(); break
+    case 'heading-2': chain.toggleHeading({ level: 2 }).run(); break
+    case 'heading-3': chain.toggleHeading({ level: 3 }).run(); break
+    case 'heading-4': chain.toggleHeading({ level: 4 }).run(); break
+    case 'heading-5': chain.toggleHeading({ level: 5 }).run(); break
+    case 'heading-6': chain.toggleHeading({ level: 6 }).run(); break
+    case 'blockquote': chain.toggleBlockquote().run(); break
+    case 'bullet-list': chain.toggleBulletList().run(); break
+    case 'ordered-list': chain.toggleOrderedList().run(); break
+    case 'task-list': chain.toggleTaskList().run(); break
+    case 'code-block': chain.toggleCodeBlock().run(); break
+  }
+  currentBlockFormat.value = resolveBlockFormat(editor)
+}
+
+function updateBlockFormatState(editor: Editor): void {
+  blockFormatUnavailable.value = editor.isActive('inkComponent')
+    || editor.isActive('tableCell')
+    || editor.isActive('tableHeader')
+  currentBlockFormat.value = resolveBlockFormat(editor)
 }
 
 /** toolbar 与选区之间的间距 (px) */
@@ -76,11 +172,13 @@ function updateToolbar(): void {
   const { selection } = state
   const { empty } = selection
 
-  // 空选区 → 隐藏
-  if (empty) {
+  // 块内光标也要显示当前语义；只有编辑器失焦的空选区才隐藏。
+  if (empty && !editor.isFocused) {
     visible.value = false
     return
   }
+
+  updateBlockFormatState(editor)
 
   // 使用原生 Selection API 获取精确选区矩形
   try {
@@ -138,7 +236,9 @@ function updateToolbar(): void {
       top: `${Math.max(4, topY)}px`,
       left: `${centerX}px`,
     }
+    const shouldRemeasure = !toolbarEl.value
     visible.value = true
+    if (shouldRemeasure) void nextTick(updateToolbar)
   } catch {
     // Selection API 异常时静默忽略
     visible.value = false
@@ -151,7 +251,7 @@ let unsubscribe: (() => void) | null = null
 function attachListeners(editor: Editor): void {
   detachListeners()
 
-  const onSelectionUpdate = () => {
+  const onEditorUpdate = () => {
     nextTick(updateToolbar)
   }
   const onBlur = () => {
@@ -164,11 +264,13 @@ function attachListeners(editor: Editor): void {
     }, 150)
   }
 
-  editor.on('selectionUpdate', onSelectionUpdate)
+  editor.on('selectionUpdate', onEditorUpdate)
+  editor.on('transaction', onEditorUpdate)
   editor.on('blur', onBlur)
 
   unsubscribe = () => {
-    editor.off('selectionUpdate', onSelectionUpdate)
+    editor.off('selectionUpdate', onEditorUpdate)
+    editor.off('transaction', onEditorUpdate)
     editor.off('blur', onBlur)
   }
 }
@@ -334,23 +436,36 @@ function resetTextColor(): void {
   showTextColorPanel.value = false
 }
 
-// ---- 点击外部关闭颜色面板 ----
+function closeToolbar(restoreEditorFocus = false): void {
+  visible.value = false
+  showHighlightPanel.value = false
+  showTextColorPanel.value = false
+  showLinkInput.value = false
+  linkUrl.value = ''
+  linkError.value = ''
+  if (restoreEditorFocus) props.editor?.chain().focus().run()
+}
+
+// ---- 点击外部或 Escape 关闭 ----
 function handleClickOutside(e: MouseEvent): void {
-  const target = e.target as Node
-  if (showHighlightPanel.value && highlightPanelEl.value && !highlightPanelEl.value.contains(target)) {
-    showHighlightPanel.value = false
-  }
-  if (showTextColorPanel.value && textColorPanelEl.value && !textColorPanelEl.value.contains(target)) {
-    showTextColorPanel.value = false
-  }
+  if (!(e.target instanceof Node) || toolbarEl.value?.contains(e.target)) return
+  closeToolbar()
+}
+
+function handleKeydown(e: KeyboardEvent): void {
+  if (e.key !== 'Escape' || !visible.value) return
+  e.preventDefault()
+  closeToolbar(true)
 }
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside, true)
+  document.addEventListener('keydown', handleKeydown)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside, true)
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 defineExpose({ openLinkEditor })
@@ -364,277 +479,344 @@ defineExpose({ openLinkEditor })
       class="floating-toolbar"
       :class="{ flipped: isFlipped }"
       :style="toolbarStyle"
+      role="toolbar"
+      aria-label="文本格式工具栏"
       @mousedown.prevent
     >
-      <!-- 格式组: Bold / Italic / Underline / Strikethrough / Code -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('bold') }"
-        title="加粗 (Ctrl+B)"
-        @click="editor?.chain().focus().toggleBold().run()"
-      >
-        <Bold :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('italic') }"
-        title="斜体 (Ctrl+I)"
-        @click="editor?.chain().focus().toggleItalic().run()"
-      >
-        <Italic :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('underline') }"
-        title="下划线 (Ctrl+U)"
-        @click="editor?.chain().focus().toggleUnderline().run()"
-      >
-        <Underline :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('strike') }"
-        title="删除线 (Ctrl+Shift+S)"
-        @click="editor?.chain().focus().toggleStrike().run()"
-      >
-        <Strikethrough :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('code') }"
-        title="行内代码 (Ctrl+Shift+`)"
-        @click="editor?.chain().focus().toggleCode().run()"
-      >
-        <Code :size="15" />
-      </button>
-      <!-- 高亮 (带颜色面板) -->
       <div
-        ref="highlightPanelEl"
-        class="ft-btn-wrapper"
+        class="ft-group ft-block-group"
+        role="group"
+        aria-label="块级语义"
       >
+        <label class="ft-block-selector">
+          <span class="ft-group-label">块级</span>
+          <select
+            v-model="currentBlockFormat"
+            class="ft-block-select"
+            :disabled="blockFormatUnavailable"
+            :aria-label="blockFormatUnavailable ? '块级语义：当前组件或表格单元不可切换' : '块级语义'"
+            :title="blockFormatUnavailable ? '当前组件或表格单元不支持切换块级语义' : '选择正文、标题、引用、列表或代码块'"
+            @mousedown.stop
+            @change="applyBlockFormat(currentBlockFormat)"
+            @keydown.escape.stop.prevent="closeToolbar(true)"
+          >
+            <option
+              v-if="currentBlockFormat === 'mixed'"
+              value="mixed"
+              disabled
+            >
+              多种格式
+            </option>
+            <option
+              v-for="format in blockFormatOptions"
+              :key="format.value"
+              :value="format.value"
+            >
+              {{ format.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div
+        class="ft-group ft-character-group"
+        role="group"
+        aria-label="字符格式"
+      >
+        <span class="ft-group-label">字符</span>
         <button
+          type="button"
           class="ft-btn"
-          :class="{ active: isActive('highlight') }"
-          title="高亮标记 (Ctrl+Shift+H)"
-          @click="toggleHighlightPanel"
+          :class="{ active: isActive('bold') }"
+          title="加粗 (Ctrl+B)"
+          aria-label="加粗"
+          @click="editor?.chain().focus().toggleBold().run()"
         >
-          <Highlighter :size="15" />
+          <Bold
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('italic') }"
+          title="斜体 (Ctrl+I)"
+          aria-label="斜体"
+          @click="editor?.chain().focus().toggleItalic().run()"
+        >
+          <Italic
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('underline') }"
+          title="下划线 (Ctrl+U)"
+          aria-label="下划线"
+          @click="editor?.chain().focus().toggleUnderline().run()"
+        >
+          <Underline
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('strike') }"
+          title="删除线 (Ctrl+Shift+S)"
+          aria-label="删除线"
+          @click="editor?.chain().focus().toggleStrike().run()"
+        >
+          <Strikethrough
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('code') }"
+          title="行内代码 (Ctrl+Shift+`)"
+          aria-label="行内代码"
+          @click="editor?.chain().focus().toggleCode().run()"
+        >
+          <Code
+            :size="15"
+            aria-hidden="true"
+          />
         </button>
         <div
-          v-if="showHighlightPanel"
-          class="ft-color-panel"
+          ref="highlightPanelEl"
+          class="ft-btn-wrapper"
         >
           <button
-            v-for="hc in highlightColors"
-            :key="hc.color"
-            class="ft-color-swatch"
-            :style="{ background: hc.color }"
-            :title="hc.label"
-            @click="applyHighlight(hc.color)"
-          />
-          <button
-            class="ft-color-reset"
-            title="清除高亮"
-            @click="removeHighlight"
+            type="button"
+            class="ft-btn"
+            :class="{ active: isActive('highlight') }"
+            title="高亮标记 (Ctrl+Shift+H)"
+            aria-label="高亮标记"
+            aria-haspopup="true"
+            :aria-expanded="showHighlightPanel"
+            @click="toggleHighlightPanel"
           >
-            清除
+            <Highlighter
+              :size="15"
+              aria-hidden="true"
+            />
           </button>
+          <div
+            v-if="showHighlightPanel"
+            class="ft-color-panel"
+            role="group"
+            aria-label="高亮颜色"
+          >
+            <button
+              v-for="hc in highlightColors"
+              :key="hc.color"
+              type="button"
+              class="ft-color-swatch"
+              :style="{ background: hc.color }"
+              :title="hc.label"
+              :aria-label="`高亮：${hc.label}`"
+              @click="applyHighlight(hc.color)"
+            />
+            <button
+              type="button"
+              class="ft-color-reset"
+              title="清除高亮"
+              aria-label="清除高亮"
+              @click="removeHighlight"
+            >
+              清除
+            </button>
+          </div>
         </div>
-      </div>
-      <!-- 文字颜色 (带颜色面板) -->
-      <div
-        ref="textColorPanelEl"
-        class="ft-btn-wrapper"
-      >
-        <button
-          class="ft-btn"
-          :class="{ active: isActive('textStyle') }"
-          title="文字颜色"
-          @click="toggleTextColorPanel"
-        >
-          <Palette :size="15" />
-        </button>
         <div
-          v-if="showTextColorPanel"
-          class="ft-color-panel"
+          ref="textColorPanelEl"
+          class="ft-btn-wrapper"
         >
           <button
-            v-for="tc in textColors"
-            :key="tc.color"
-            class="ft-color-swatch"
-            :style="{ background: tc.color }"
-            :title="tc.label"
-            @click="applyTextColor(tc.color)"
-          />
-          <button
-            class="ft-color-reset"
-            title="重置颜色"
-            @click="resetTextColor"
+            type="button"
+            class="ft-btn"
+            :class="{ active: isActive('textStyle') }"
+            title="文字颜色"
+            aria-label="文字颜色"
+            aria-haspopup="true"
+            :aria-expanded="showTextColorPanel"
+            @click="toggleTextColorPanel"
           >
-            重置
+            <Palette
+              :size="15"
+              aria-hidden="true"
+            />
           </button>
+          <div
+            v-if="showTextColorPanel"
+            class="ft-color-panel"
+            role="group"
+            aria-label="文字颜色"
+          >
+            <button
+              v-for="tc in textColors"
+              :key="tc.color"
+              type="button"
+              class="ft-color-swatch"
+              :style="{ background: tc.color }"
+              :title="tc.label"
+              :aria-label="`文字颜色：${tc.label}`"
+              @click="applyTextColor(tc.color)"
+            />
+            <button
+              type="button"
+              class="ft-color-reset"
+              title="重置颜色"
+              aria-label="重置文字颜色"
+              @click="resetTextColor"
+            >
+              重置
+            </button>
+          </div>
         </div>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('superscript') }"
+          title="上标"
+          aria-label="上标"
+          @click="editor?.chain().focus().toggleSuperscript().run()"
+        >
+          <Superscript
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('subscript') }"
+          title="下标"
+          aria-label="下标"
+          @click="editor?.chain().focus().toggleSubscript().run()"
+        >
+          <Subscript
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive('link') }"
+          title="链接 (Ctrl+K)"
+          aria-label="链接"
+          @click="handleLinkClick"
+        >
+          <Link
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
       </div>
-      <!-- 上标 / 下标 -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('superscript') }"
-        title="上标"
-        @click="editor?.chain().focus().toggleSuperscript().run()"
-      >
-        <Superscript :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('subscript') }"
-        title="下标"
-        @click="editor?.chain().focus().toggleSubscript().run()"
-      >
-        <Subscript :size="15" />
-      </button>
 
-      <div class="ft-divider" />
-
-      <!-- 标题组: H1 / H2 / H3 -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('heading', { level: 1 }) }"
-        title="一级标题 (Ctrl+1)"
-        @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
+      <div
+        class="ft-group ft-structure-group"
+        role="group"
+        aria-label="结构操作"
       >
-        <Heading1 :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('heading', { level: 2 }) }"
-        title="二级标题 (Ctrl+2)"
-        @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
-      >
-        <Heading2 :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('heading', { level: 3 }) }"
-        title="三级标题 (Ctrl+3)"
-        @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-      >
-        <Heading3 :size="15" />
-      </button>
-
-      <div class="ft-divider" />
-
-      <!-- 块级组: Blockquote / BulletList / OrderedList -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('blockquote') }"
-        title="引用 (Ctrl+Shift+Q)"
-        @click="editor?.chain().focus().toggleBlockquote().run()"
-      >
-        <Quote :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('bulletList') }"
-        title="无序列表 (Ctrl+Shift+])"
-        @click="editor?.chain().focus().toggleBulletList().run()"
-      >
-        <List :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('orderedList') }"
-        title="有序列表 (Ctrl+Shift+[)"
-        @click="editor?.chain().focus().toggleOrderedList().run()"
-      >
-        <ListOrdered :size="15" />
-      </button>
-      <!-- 任务列表 -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('taskList') }"
-        title="任务列表 (Ctrl+Shift+X)"
-        @click="editor?.chain().focus().toggleTaskList().run()"
-      >
-        <CheckSquare :size="15" />
-      </button>
-
-      <div class="ft-divider" />
-
-      <!-- 对齐组: Left / Center / Right / Justify -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'left' }) }"
-        title="左对齐"
-        @click="editor?.chain().focus().setTextAlign('left').run()"
-      >
-        <AlignLeft :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'center' }) }"
-        title="居中对齐"
-        @click="editor?.chain().focus().setTextAlign('center').run()"
-      >
-        <AlignCenter :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'right' }) }"
-        title="右对齐"
-        @click="editor?.chain().focus().setTextAlign('right').run()"
-      >
-        <AlignRight :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'justify' }) }"
-        title="两端对齐"
-        @click="editor?.chain().focus().setTextAlign('justify').run()"
-      >
-        <AlignJustify :size="15" />
-      </button>
-
-      <div class="ft-divider" />
-
-      <!-- 插入组: Link / CodeBlock / HorizontalRule / Table -->
-      <button
-        class="ft-btn"
-        title="插入图片"
-        @click="emit('requestImage')"
-      >
-        <Image :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('link') }"
-        title="链接 (Ctrl+K)"
-        @click="handleLinkClick"
-      >
-        <Link :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('codeBlock') }"
-        title="代码块 (Ctrl+Shift+K)"
-        @click="editor?.chain().focus().toggleCodeBlock().run()"
-      >
-        <Code2 :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        title="分割线 (Ctrl+Enter)"
-        @click="editor?.chain().focus().setHorizontalRule().run()"
-      >
-        <Minus :size="15" />
-      </button>
-      <!-- 插入表格 -->
-      <button
-        class="ft-btn"
-        title="插入表格 (Ctrl+Alt+Shift+T)"
-        @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
-      >
-        <Table :size="15" />
-      </button>
+        <span class="ft-group-label">结构</span>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive({ textAlign: 'left' }) }"
+          title="左对齐"
+          aria-label="左对齐"
+          @click="editor?.chain().focus().setTextAlign('left').run()"
+        >
+          <AlignLeft
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive({ textAlign: 'center' }) }"
+          title="居中对齐"
+          aria-label="居中对齐"
+          @click="editor?.chain().focus().setTextAlign('center').run()"
+        >
+          <AlignCenter
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive({ textAlign: 'right' }) }"
+          title="右对齐"
+          aria-label="右对齐"
+          @click="editor?.chain().focus().setTextAlign('right').run()"
+        >
+          <AlignRight
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          :class="{ active: isActive({ textAlign: 'justify' }) }"
+          title="两端对齐"
+          aria-label="两端对齐"
+          @click="editor?.chain().focus().setTextAlign('justify').run()"
+        >
+          <AlignJustify
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          title="插入图片"
+          aria-label="插入图片"
+          @click="emit('requestImage')"
+        >
+          <Image
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          title="分割线 (Ctrl+Enter)"
+          aria-label="插入分割线"
+          @click="editor?.chain().focus().setHorizontalRule().run()"
+        >
+          <Minus
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          type="button"
+          class="ft-btn"
+          title="插入表格 (Ctrl+Alt+Shift+T)"
+          aria-label="插入表格"
+          @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
+        >
+          <Table
+            :size="15"
+            aria-hidden="true"
+          />
+        </button>
+      </div>
 
       <!-- 链接输入浮层 -->
       <div
@@ -655,6 +837,7 @@ defineExpose({ openLinkEditor })
         <button
           type="button"
           class="ft-link-confirm"
+          aria-label="确认链接"
           @click="confirmLink"
         >
           确定
@@ -666,6 +849,7 @@ defineExpose({ openLinkEditor })
         <button
           type="button"
           class="ft-link-cancel"
+          aria-label="取消链接"
           @click="cancelLink"
         >
           取消
@@ -685,12 +869,14 @@ defineExpose({ openLinkEditor })
 .floating-toolbar {
   position: absolute;
   z-index: 100;
-  max-width: min(calc(100vw - 32px), calc(var(--paper-max-width, 680px) - 16px));
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(calc(100vw - 32px), calc(100% - 16px));
   transform: translateX(-50%);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 2px;
   padding: 6px 8px;
   background: var(--bg-surface);
@@ -701,6 +887,54 @@ defineExpose({ openLinkEditor })
   box-shadow: var(--elev-2);
   pointer-events: auto;
   white-space: normal;
+}
+
+.ft-group {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.ft-group + .ft-group {
+  margin-left: 4px;
+  padding-left: 6px;
+  border-left: 1px solid var(--hairline);
+}
+
+.ft-group-label {
+  padding: 0 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ft-block-selector {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 2px;
+}
+
+.ft-block-select {
+  box-sizing: border-box;
+  min-width: 128px;
+  height: 32px;
+  padding: 0 26px 0 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ft-block-select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .ft-btn {
@@ -739,22 +973,45 @@ defineExpose({ openLinkEditor })
 
 @media (max-width: 480px) {
   .floating-toolbar {
-    max-width: calc(100vw - 24px);
+    width: calc(100vw - 24px);
+    max-width: calc(100% - 16px);
     padding: 6px;
+  }
+
+  .ft-group {
+    flex: 1 1 100%;
+  }
+
+  .ft-group + .ft-group {
+    margin-top: 4px;
+    margin-left: 0;
+    padding-top: 4px;
+    padding-left: 0;
+    border-top: 1px solid var(--hairline);
+    border-left: 0;
+  }
+
+  .ft-block-selector {
+    width: 100%;
+  }
+
+  .ft-block-select {
+    min-width: 0;
+    flex: 1;
   }
 
   .ft-btn {
     width: 30px;
     height: 30px;
   }
-}
 
-.ft-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--hairline);
-  margin: 0 4px;
-  flex-shrink: 0;
+  .ft-color-panel {
+    right: 0;
+    left: auto;
+    max-width: calc(100vw - 40px);
+    transform: none;
+    flex-wrap: wrap;
+  }
 }
 
 /* ---- 按钮容器 (用于包含弹出面板的按钮) ---- */
@@ -825,7 +1082,11 @@ defineExpose({ openLinkEditor })
 /* ---- 链接输入浮层 ---- */
 .ft-link-input {
   display: flex;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
   padding: 4px 6px;
   margin-left: 4px;
@@ -834,6 +1095,8 @@ defineExpose({ openLinkEditor })
 
 .ft-link-field {
   width: 180px;
+  min-width: 0;
+  flex: 1 1 140px;
   height: 26px;
   padding: 0 8px;
   border: 1px solid var(--hairline);
@@ -929,6 +1192,15 @@ defineExpose({ openLinkEditor })
 
 .floating-toolbar.flipped.ft-fade-leave-active {
   animation: ftAppearFlipped 0.1s ease reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-fade-enter-active,
+  .ft-fade-leave-active,
+  .floating-toolbar.flipped.ft-fade-enter-active,
+  .floating-toolbar.flipped.ft-fade-leave-active {
+    animation: none;
+  }
 }
 
 @keyframes ftAppear {

@@ -5,10 +5,9 @@
  *
  * This is a MEANINGFUL multi-round verification: it SEEDS a real draft, opens
  * the real ExportModal, loops the 3 flagship presets, and HARD-asserts that each
- * injects responsive [data-ink-svg] modules. It only this.skip()s when the app
- * genuinely cannot reach the main window OR a draft cannot be seeded — in which
- * case it console.warns the precise reason. Once a draft is loaded, the SVG
- * assertions are HARD (failing when SVG is missing is the entire point).
+ * injects responsive [data-ink-svg] modules. Main-window, draft-seeding, and
+ * Stage-readiness preconditions are HARD failures: an unavailable real product
+ * chain must never be reported as a green skipped acceptance run.
  *
  * ─── PREREQUISITES (this spec does NOT self-build) ──────────────────────────
  *   1. pnpm build                       # refresh inkforge/dist (Tauri embeds it
@@ -50,18 +49,16 @@
  *   paragraphs so every flagship plan injects cover + header(s) + divider +
  *   quote + endmark (themes.ts flagship*Plan).
  *
- *   If the Pinia bridge cannot be reached (future Vue/Pinia internals drift), we
- *   skip with a precise console.warn rather than silently passing.
+ *   If the Pinia bridge cannot be reached (future Vue/Pinia internals drift), the
+ *   suite fails in `before` with the precise reason rather than silently passing.
  *
  * ─── ARCHITECTURE FACTS THIS SPEC RELIES ON (verified against source) ───────
  *   • The [data-ink-svg] modules are injected by `preset.decorate`
- *     (= composeSvgDecorate) which runs ONLY inside the real export pipeline
- *     (markdownToWechatWithStats, wechat.ts:1336). In the live UI that pipeline
- *     feeds the **ExportModal** preview, rendered (v-html) into `.preview-render`.
- *       NOTE: the Stage-panel mini-phone preview (`.device-screen .preview-content`)
- *       uses the high-fidelity *mock* renderer which does NOT run decorate, so it
- *       carries NO [data-ink-svg]. That is why this spec asserts inside the
- *       ExportModal, not the Stage preview.
+ *     (= composeSvgDecorate). The final export pipeline invokes it from
+ *     markdownToWechatWithStats, while `usePreviewRenderer` invokes the same
+ *     decorator with target `preview` for the Workstation Stage/split/full
+ *     surfaces. This spec therefore verifies both the Stage canvas and the
+ *     ExportModal artifact preview.
  *   • The 3 flagship presets live in themes.ts and surface in the ExportModal
  *     preset grid (`.preset-card`) for the WeChat platform (the default platform):
  *         flagship-kiln    赤陶旗舰   #D95B3F  creative
@@ -76,9 +73,9 @@
  *     width="100%" makes the <svg> track its container width responsively.
  *   • The article body is wrapped in `<section id="nice" ...>`; the body
  *     width-lock CSS (preset-fonts.ts generatePersonaBaseCSS) sets
- *         #nice { max-width: min(22em, calc(100vw - 32px)); font-size:17px; }
- *     so 22em·17px ≈ 374px → ~20–22 CJK chars/line on a mobile column. Inside the
- *     ~460px ExportModal preview column it resolves to ~374px (band-asserted).
+ *         #nice { max-width: min(24em, calc(100vw - 16px)); font-size:16px; }
+ *     so the 375px mobile canvas retains about 22–24 CJK chars/line without
+ *     horizontal clipping.
  *
  * ─── SELECTORS (mirror the REAL components) ─────────────────────────────────
  *     WorkstationView.vue → `.panel-stage` (stage panel), `.stage-collapsed-bar`
@@ -90,6 +87,7 @@
  *                           `.preview-render` (v-html preview), `.header-close`.
  */
 const { expect } = require('chai');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -121,7 +119,7 @@ const SEED_MARKDOWN = [
   '',
   '在墨铸的导出管线里，我们把高级排版编译成微信安全的内联矢量图形，',
   '让标题、分隔线、引用卡与结束标都成为可复用的参数化组件，并且严格遵守',
-  '每行二十到二十二个汉字的移动端可读性铁律，不破坏任何既有渲染行为。',
+  '每行二十二到二十四个汉字的移动端可读性铁律，不破坏任何既有渲染行为。',
   '',
   '## 章节标题触发标题头模块',
   '',
@@ -131,11 +129,13 @@ const SEED_MARKDOWN = [
   '### 三级标题触发竖线标题头',
   '',
   '这一段是较长的中文正文，用于测量每行折行后的汉字数量是否落在二十到',
-  '二十二字的舒适区间，从而确认行宽锁在旗舰预设下依旧生效且未被破坏。',
+  '二十四字的舒适区间，从而确认行宽锁在旗舰预设下依旧生效且未被破坏。',
   '',
   '---',
   '',
   '> “真实渲染、真实跑通、零模拟。” —— 墨铸团队',
+  '',
+  '<StatBlock version="1" label="验收覆盖率" value="100%" description="真实桌面链路" source="InkForge 本轮验收" />',
   '',
   '末段补充更多中文内容，确保文末结束标模块能够正确追加到正文之后，',
   '并且整篇文章的多个 SVG 模块都能在导出预览中被探针稳定地观测到。',
@@ -160,6 +160,33 @@ async function waitForMainWindow() {
   );
   // Settle for layout/paint.
   await browser.pause(1500);
+}
+
+async function waitForRouteSettled() {
+  await browser.waitUntil(
+    async () => browser.execute(() => {
+      const shells = Array.from(document.querySelectorAll('.app-route-shell'));
+      const visibleShell = shells.find((shell) => shell.offsetParent !== null);
+      if (!visibleShell) return false;
+
+      const transitionClassNames = [
+        'view-fade-enter-active',
+        'view-fade-enter-from',
+        'view-fade-leave-active',
+        'view-fade-leave-to',
+      ];
+      const transitioning = shells.some((shell) =>
+        transitionClassNames.some((className) => shell.classList.contains(className)));
+      const opacity = Number.parseFloat(getComputedStyle(visibleShell).opacity || '1');
+
+      return !transitioning && Number.isFinite(opacity) && opacity >= 0.99;
+    }),
+    {
+      timeout: 8_000,
+      interval: 100,
+      timeoutMsg: 'route transition did not settle on one fully visible shell',
+    },
+  );
 }
 
 /**
@@ -299,16 +326,21 @@ async function openFlagshipExportPreview(flagshipName) {
     },
   );
 
-  // Click the flagship preset card by its visible name.
-  const clicked = await browser.execute((name) => {
-    const cards = Array.from(document.querySelectorAll('.export-panel .preset-card'));
-    const card = cards.find((c) => (c.textContent || '').includes(name));
-    if (!card) return false;
-    card.click();
-    return true;
-  }, flagshipName);
-
-  expect(clicked, `flagship preset card "${flagshipName}" must exist in the WeChat preset grid`).to.equal(true);
+  const presetCards = await browser.$$('.export-panel .preset-card');
+  let targetPreset = null;
+  for (const card of presetCards) {
+    if ((await card.getText()).includes(flagshipName)) {
+      targetPreset = card;
+      break;
+    }
+  }
+  expect(
+    Boolean(targetPreset),
+    `flagship preset card "${flagshipName}" must exist in the WeChat preset grid`,
+  ).to.equal(true);
+  await targetPreset.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await targetPreset.waitForClickable({ timeout: 5_000 });
+  await targetPreset.click();
 
   // The render watcher is async (markdownToWechatWithStats). A reopened modal can
   // briefly retain the previous preset's SVG DOM, so wait for the requested card
@@ -335,24 +367,20 @@ async function openFlagshipExportPreview(flagshipName) {
 
 async function openExportPanel(platformLabel = '微信') {
   await openExportPanelOnly();
-
-  const selected = await browser.execute((label) => {
-    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
-    const target = pills.find((p) => (p.textContent || '').includes(label)) || pills[0];
-    if (!target) return false;
-    if (!target.classList.contains('active')) target.click();
-    return true;
-  }, platformLabel);
-  expect(selected, `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
-  await browser.pause(400);
+  await selectExportPlatform(platformLabel);
 }
 
 async function openExportPanelOnly() {
-  // Click 全屏导出 to open the ExportModal.
-  await browser.execute(() => {
-    const btn = document.querySelector('.panel-stage .stage-btn-secondary');
-    if (btn && !btn.disabled) btn.click();
-  });
+  await waitForRouteSettled();
+  const collapsedBar = await browser.$('.panel-stage .stage-collapsed-bar');
+  if (await collapsedBar.isExisting() && await collapsedBar.isDisplayed()) {
+    await collapsedBar.waitForClickable({ timeout: 5_000 });
+    await collapsedBar.click();
+  }
+  const exportButton = await browser.$('//aside[contains(@class,"panel-stage")]//button[normalize-space(.)="全屏导出"]');
+  await exportButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await exportButton.waitForClickable({ timeout: 8_000 });
+  await exportButton.click();
 
   // Modal teleports to <body>; wait for the panel + preset grid to mount.
   await browser.waitUntil(
@@ -371,15 +399,32 @@ async function openExportPanelOnly() {
 }
 
 async function selectExportPlatform(platformLabel) {
-  const selected = await browser.execute((label) => {
-    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
-    const target = pills.find((p) => (p.textContent || '').includes(label));
-    if (!target) return false;
-    if (!target.classList.contains('active')) target.click();
-    return true;
-  }, platformLabel);
-  expect(selected, `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
-  await browser.pause(400);
+  await browser.execute(() => {
+    const controlScroll = document.querySelector('.export-panel .control-scroll');
+    if (controlScroll) controlScroll.scrollTop = 0;
+  });
+  const pills = await browser.$$('.export-panel .pill-btn');
+  let target = null;
+  for (const pill of pills) {
+    if ((await pill.getText()).includes(platformLabel)) {
+      target = pill;
+      break;
+    }
+  }
+  expect(Boolean(target), `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
+  await target.scrollIntoView({ block: 'center', inline: 'nearest' });
+  if (!(await target.getAttribute('class')).includes('active')) {
+    await target.waitForClickable({ timeout: 5_000 });
+    await target.click();
+  }
+  await browser.waitUntil(
+    async () => (await target.getAttribute('class')).includes('active'),
+    {
+      timeout: 8_000,
+      interval: 100,
+      timeoutMsg: `platform pill "${platformLabel}" did not become active`,
+    },
+  );
 }
 
 function collectStyleCapabilityProbe() {
@@ -438,11 +483,85 @@ function collectStyleCapabilityProbe() {
   });
 }
 
+async function clickStyleCapabilityChoice(choiceId) {
+  const drawerSelector = '.export-panel details.style-diagnostics-drawer';
+  const drawerOpen = await browser.execute(
+    (selector) => document.querySelector(selector)?.hasAttribute('open') === true,
+    drawerSelector,
+  );
+  if (!drawerOpen) {
+    const summary = await browser.$(`${drawerSelector} > summary`);
+    await summary.scrollIntoView({ block: 'center', inline: 'nearest' });
+    await summary.waitForClickable({ timeout: 5_000 });
+    await summary.click();
+    await browser.waitUntil(
+      async () => browser.execute(
+        (selector) => document.querySelector(selector)?.hasAttribute('open') === true,
+        drawerSelector,
+      ),
+      {
+        timeout: 5_000,
+        interval: 100,
+        timeoutMsg: 'Style diagnostics drawer did not open after the real summary click',
+      },
+    );
+  }
+
+  const selector = `.export-panel [data-style-choice-id="${choiceId}"]`;
+  const button = await browser.$(selector);
+  await browser.execute((targetSelector) => {
+    const target = document.querySelector(targetSelector);
+    if (!target || target.tagName !== 'BUTTON') return;
+    const scrollOwner = target.closest('.control-scroll');
+    if (scrollOwner) {
+      const targetRect = target.getBoundingClientRect();
+      const ownerRect = scrollOwner.getBoundingClientRect();
+      scrollOwner.scrollTop += targetRect.top -
+        ownerRect.top -
+        Math.max(0, (ownerRect.height - targetRect.height) / 2);
+      return;
+    }
+    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+  }, selector);
+  await browser.waitUntil(
+    async () => browser.execute((targetSelector) => {
+      const target = document.querySelector(targetSelector);
+      if (!target || target.tagName !== 'BUTTON' || target.disabled) return false;
+      const rect = target.getBoundingClientRect();
+      const pointX = rect.left + rect.width / 2;
+      const pointY = rect.top + rect.height / 2;
+      return pointX >= 0 &&
+        pointX < window.innerWidth &&
+        pointY >= 0 &&
+        pointY < window.innerHeight &&
+        document.elementFromPoint(pointX, pointY)?.closest('[data-style-choice-id]') === target;
+    }, selector),
+    {
+      timeout: 5_000,
+      interval: 100,
+      timeoutMsg: `Style capability button ${choiceId} did not enter the visible modal viewport`,
+    },
+  );
+  await button.waitForClickable({ timeout: 5_000 });
+  await button.click();
+  await browser.waitUntil(
+    async () => browser.execute(
+      (targetSelector) =>
+        document.querySelector(targetSelector)?.getAttribute('aria-pressed') === 'true',
+      selector,
+    ),
+    {
+      timeout: 12_000,
+      interval: 100,
+      timeoutMsg: `Style capability button ${choiceId} did not become selected`,
+    },
+  );
+}
+
 async function closeExportModal() {
-  await browser.execute(() => {
-    const close = document.querySelector('.export-panel .header-close');
-    if (close) close.click();
-  });
+  const close = await browser.$('.export-panel .header-close');
+  await close.waitForClickable({ timeout: 5_000 });
+  await close.click();
   await browser.waitUntil(
     async () => browser.execute(() => !document.querySelector('.export-panel')),
     {
@@ -473,6 +592,7 @@ async function openSettingsExportHistory() {
       timeoutMsg: 'Settings Export history section did not render',
     },
   );
+  await waitForRouteSettled();
 }
 
 function collectExportHistoryProbe() {
@@ -518,6 +638,8 @@ async function clearExportHistoryThroughUi() {
   const clearButton = await browser.$('[data-export-history-action="clear"]');
   if (!(await clearButton.isExisting())) return false;
 
+  await clearButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+  await clearButton.waitForClickable({ timeout: 5_000 });
   await clearButton.click();
   const input = await browser.$('.sv-confirm-dialog input[aria-label="确认操作校验文本"]');
   await input.waitForDisplayed({ timeout: 5_000 });
@@ -568,6 +690,36 @@ async function setDefaultExportPlatform(platform) {
       current: settingsStore.settings.export.defaultPlatform,
     };
   }, platform);
+}
+
+async function setDeliveryAdornmentConfig(config) {
+  return browser.execute((nextConfig) => {
+    function findPinia() {
+      const root = document.getElementById('app');
+      const app = root && root.__vue_app__;
+      if (!app || !app._context || !app._context.provides) return null;
+      for (const sym of Object.getOwnPropertySymbols(app._context.provides)) {
+        const candidate = app._context.provides[sym];
+        if (candidate && candidate._s && typeof candidate._s.get === 'function') return candidate;
+      }
+      return null;
+    }
+
+    const settingsStore = findPinia()?._s.get('settings');
+    if (!settingsStore?.settings?.export || typeof settingsStore.save !== 'function') {
+      return { ok: false, reason: 'SETTINGS-STORE-MISSING' };
+    }
+
+    const clone = (value) => JSON.parse(JSON.stringify(value));
+    const original = clone(settingsStore.settings.export.deliveryAdornment);
+    settingsStore.settings.export.deliveryAdornment = clone(nextConfig);
+    settingsStore.save();
+    return {
+      ok: true,
+      original,
+      current: clone(settingsStore.settings.export.deliveryAdornment),
+    };
+  }, config);
 }
 
 async function setExportCustomCss(css) {
@@ -752,13 +904,9 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     const seedResult = await seedDraftViaPinia(SEED_TITLE, SEED_MARKDOWN);
     if (!seedResult || !seedResult.ok) {
       seedFailureReason = (seedResult && seedResult.reason) || 'UNKNOWN seeding failure';
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[svg-render] Could not seed a draft via the live Pinia store: ${seedFailureReason}. ` +
-        'The SVG-injection assertions need a loaded document; without one the export button ' +
-        'stays disabled. Skipping the live-UI flagship assertions.',
+      throw new Error(
+        `[svg-render] Native acceptance could not seed a draft via the live Pinia store: ${seedFailureReason}`,
       );
-      return;
     }
     seeded = true;
     seededArticleId = seedResult.articleId;
@@ -767,37 +915,486 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     const reach = await reachWorkstationExport(seedResult.articleId);
     if (!reach.ready) {
       seedFailureReason = reach.reason;
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[svg-render] Draft seeded (article ${seedResult.articleId}) but the Stage 全屏导出 ` +
-        `button never enabled: ${reach.reason}. Skipping live-UI flagship assertions.`,
+      throw new Error(
+        `[svg-render] Native acceptance seeded the draft but Stage 全屏导出 never enabled: ${reach.reason}`,
       );
-      return;
     }
     exportReady = true;
   });
 
   it('seeds a real draft and enables the export pipeline (precondition)', function () {
-    if (!seeded) {
+    expect(
+      seeded,
+      seedFailureReason || 'a real draft was seeded via the live Pinia article store',
+    ).to.equal(true);
+    expect(
+      exportReady,
+      seedFailureReason || '全屏导出 button is enabled (editor status ready)',
+    ).to.equal(true);
+  });
+
+  it('keeps editor components, delivery slots, and all 16 preset geometries aligned with the real WeChat artifact', async function () {
+    const deliveryConfig = {
+      readingTime: { enabled: true, wordsPerMinute: 300 },
+      license: 'cc-by-4.0',
+      components: [
+        {
+          id: 'native-song',
+          type: 'song',
+          enabled: true,
+          title: '夜航',
+          artist: '墨铸编辑部',
+          url: 'https://example.com/night-flight',
+        },
+        {
+          id: 'native-profile',
+          type: 'contact-card',
+          enabled: true,
+          displayName: '墨铸公众号',
+          accountId: 'inkforge',
+          description: '欢迎关注，继续享受好文章。',
+          profileUrl: 'https://example.com/inkforge',
+        },
+      ],
+    };
+    const setResult = await setDeliveryAdornmentConfig(deliveryConfig);
+    expect(setResult.ok, setResult.reason || 'delivery adornment settings write').to.equal(true);
+
+    try {
+      await closeExportModalIfOpen();
+      await browser.execute(() => {
+        const wechatTab = Array.from(document.querySelectorAll('.panel-stage .stage-tab'))
+          .find((tab) => (tab.textContent || '').includes('微信'));
+        if (wechatTab && !wechatTab.classList.contains('active')) wechatTab.click();
+      });
+      try {
+        await browser.waitUntil(
+          async () => browser.execute(() => {
+            const front = document.querySelector('[data-editor-projection="wechat-front"]');
+            const end = document.querySelector('[data-editor-projection="wechat-end"]');
+            const component = document.querySelector(
+              '.tiptap-content .ink-component-card__visual .ink-writing-component--StatBlock',
+            );
+            const text = `${front?.textContent || ''} ${end?.textContent || ''}`;
+            return Boolean(front && end && component) && text.includes('夜航') &&
+              text.includes('墨铸公众号') && /阅读约\s*\d+\s*分钟/.test(text) &&
+              /全文\s*\d+\s*字/.test(text);
+          }),
+          {
+            timeout: 20_000,
+            interval: 200,
+            timeoutMsg: 'editor delivery projections and StatBlock visual did not converge',
+          },
+        );
+      } catch (error) {
+        const diagnostic = await browser.execute(() => ({
+          pathname: location.pathname,
+          search: location.search,
+          activePlatform: document.querySelector('.panel-stage .stage-tab.active')?.textContent?.trim() || '',
+          frontCount: document.querySelectorAll('[data-editor-projection="wechat-front"]').length,
+          endCount: document.querySelectorAll('[data-editor-projection="wechat-end"]').length,
+          componentCardCount: document.querySelectorAll('.tiptap-content .ink-component-card').length,
+          componentVisualCount: document.querySelectorAll('.tiptap-content .ink-component-card__visual').length,
+          statVisualCount: document.querySelectorAll(
+            '.tiptap-content .ink-component-card__visual .ink-writing-component--StatBlock',
+          ).length,
+          frontText: document.querySelector('[data-editor-projection="wechat-front"]')?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          endText: document.querySelector('[data-editor-projection="wechat-end"]')?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          editorText: document.querySelector('.tiptap-content .ProseMirror')?.textContent?.trim().replace(/\s+/g, ' ').slice(0, 240) || '',
+        }));
+        throw new Error(
+          `${error instanceof Error ? error.message : String(error)}; diagnostic=${JSON.stringify(diagnostic)}`,
+          { cause: error },
+        );
+      }
+
+      const editorProbe = await browser.execute(() => {
+        const front = document.querySelector('[data-editor-projection="wechat-front"]');
+        const end = document.querySelector('[data-editor-projection="wechat-end"]');
+        const componentCard = document.querySelector('.tiptap-content .ink-component-card');
+        const componentVisual = componentCard?.querySelector(
+          '.ink-component-card__visual .ink-writing-component--StatBlock',
+        );
+        return {
+          frontText: front?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          endText: end?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          songSlot: Boolean(front?.querySelector('[data-editor-delivery-slot="masthead-song"]')),
+          profileSlot: Boolean(end?.querySelector('[data-editor-delivery-slot="after-body-profile"]')),
+          componentReady: componentCard?.getAttribute('data-ink-component-status') === 'ready',
+          componentVisual: Boolean(componentVisual),
+          visualLinkCount: componentCard?.querySelectorAll('.ink-component-card__visual a[tabindex="-1"][aria-disabled="true"]').length ?? 0,
+        };
+      });
+      expect(editorProbe.frontText).to.include('文章值得您享受');
+      expect(editorProbe.frontText).to.include('夜航');
+      expect(editorProbe.frontText).to.match(/阅读约\s*\d+\s*分钟/);
+      expect(editorProbe.frontText).to.match(/全文\s*[1-9]\d*\s*字/);
+      expect(editorProbe.endText).to.include('墨铸公众号');
+      expect(editorProbe.endText).to.include('CC BY 4.0');
+      expect(editorProbe.songSlot).to.equal(true);
+      expect(editorProbe.profileSlot).to.equal(true);
+      expect(editorProbe.componentReady).to.equal(true);
+      expect(editorProbe.componentVisual).to.equal(true);
+
+      await browser.execute(() => {
+        document.querySelector('[data-editor-projection="wechat-front"]')?.scrollIntoView({ block: 'start' });
+      });
+      await browser.pause(250);
+      await browser.saveScreenshot(path.join(EVIDENCE_DIR, 'editor-wechat-parity-20260802.png'));
+
+      await openExportPanel('微信');
+      try {
+        await browser.waitUntil(
+          async () => browser.execute(() => {
+            const preview = document.querySelector('.export-panel .preview-render');
+            const component = Array.from(preview?.querySelectorAll('section > strong') ?? [])
+              .find(strong => strong.textContent?.trim() === '100%' &&
+                strong.parentElement?.textContent?.includes('验收覆盖率') &&
+                strong.parentElement?.textContent?.includes('来源：InkForge 本轮验收'))
+              ?.parentElement;
+            return Boolean(
+              preview?.querySelector('[data-ink-masthead-song="true"]') &&
+              preview?.querySelector('[data-ink-delivery="profile"]') &&
+              preview?.querySelector('[data-ink-delivery="license"]') &&
+              component &&
+              !document.querySelector('.export-panel .preview-loading'),
+            );
+          }),
+          {
+            timeout: 20_000,
+            interval: 250,
+            timeoutMsg: 'WeChat artifact did not render song, profile, license, and StatBlock together',
+          },
+        );
+      } catch (error) {
+        const diagnostic = await browser.execute(() => {
+          const preview = document.querySelector('.export-panel .preview-render');
+          return {
+            previewCount: document.querySelectorAll('.export-panel .preview-render').length,
+            loading: Boolean(document.querySelector('.export-panel .preview-loading')),
+            songCount: preview?.querySelectorAll('[data-ink-masthead-song="true"]').length ?? 0,
+            deliveryTypes: Array.from(preview?.querySelectorAll('[data-ink-delivery]') ?? [])
+              .map(element => element.getAttribute('data-ink-delivery')),
+            componentIds: Array.from(preview?.querySelectorAll('[data-ink-writing-component]') ?? [])
+              .map(element => element.getAttribute('data-ink-writing-component')),
+            componentClasses: Array.from(preview?.querySelectorAll('[class*="ink-writing-component"]') ?? [])
+              .map(element => element.getAttribute('class')),
+            componentMarkup: Array.from(preview?.querySelectorAll('*') ?? [])
+              .find(element => element.textContent?.trim() === '验收覆盖率')
+              ?.parentElement?.outerHTML.slice(0, 1_000) || '',
+            previewText: preview?.textContent?.trim().replace(/\s+/g, ' ').slice(0, 500) || '',
+          };
+        });
+        throw new Error(
+          `${error instanceof Error ? error.message : String(error)}; diagnostic=${JSON.stringify(diagnostic)}`,
+          { cause: error },
+        );
+      }
+
+      const artifactProbe = await browser.execute(() => {
+        const preview = document.querySelector('.export-panel .preview-render');
+        const song = preview?.querySelector('[data-ink-masthead-song="true"]');
+        const metrics = Array.from(preview?.querySelectorAll('p') ?? [])
+          .find(element => /阅读约\s*\d+\s*分钟/.test(element.textContent || '') &&
+            /全文\s*\d+\s*字/.test(element.textContent || ''));
+        const profile = preview?.querySelector('[data-ink-delivery="profile"]');
+        const license = preview?.querySelector('[data-ink-delivery="license"]');
+        const component = Array.from(preview?.querySelectorAll('section > strong') ?? [])
+          .find(strong => strong.textContent?.trim() === '100%' &&
+            strong.parentElement?.textContent?.includes('验收覆盖率') &&
+            strong.parentElement?.textContent?.includes('来源：InkForge 本轮验收'))
+          ?.parentElement;
+        return {
+          songText: song?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          metricsText: metrics?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          profileText: profile?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          licenseText: license?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          componentText: component?.textContent?.trim().replace(/\s+/g, ' ') || '',
+          scriptCount: preview?.querySelectorAll('script').length ?? 0,
+          foreignObjectCount: preview?.querySelectorAll('foreignObject').length ?? 0,
+        };
+      });
+      expect(artifactProbe.songText).to.include('夜航');
+      expect(artifactProbe.metricsText).to.match(/阅读约\s*\d+\s*分钟/);
+      expect(artifactProbe.metricsText).to.match(/全文\s*[1-9]\d*\s*字/);
+      expect(artifactProbe.profileText).to.include('墨铸公众号');
+      expect(artifactProbe.licenseText).to.include('CC BY 4.0');
+      expect(artifactProbe.componentText).to.include('100%');
+      expect(artifactProbe.scriptCount).to.equal(0);
+      expect(artifactProbe.foreignObjectCount).to.equal(0);
+
+      const cards = await browser.$$('.export-panel .preset-card');
+      expect(cards.length, 'all existing WeChat presets remain present').to.equal(16);
+      const fingerprints = [];
+      let previousHtml = '';
+      for (const [index, card] of cards.entries()) {
+        const name = (await card.getText()).trim().replace(/\s+/g, ' ');
+        await card.scrollIntoView({ block: 'center', inline: 'nearest' });
+        const wasActive = (await card.getAttribute('class')).includes('active');
+        if (!wasActive) {
+          previousHtml = await browser.execute(() => (
+            document.querySelector('.export-panel .preview-render')?.innerHTML || ''
+          ));
+          await card.waitForClickable({ timeout: 5_000 });
+          await card.click();
+          await browser.waitUntil(
+            async () => browser.execute((before) => {
+              const preview = document.querySelector('.export-panel .preview-render');
+              return !document.querySelector('.export-panel .preview-loading') &&
+                Boolean(preview?.querySelector('[data-ink-masthead-song="true"]')) &&
+                preview?.innerHTML !== before;
+            }, previousHtml),
+            {
+              timeout: 20_000,
+              interval: 200,
+              timeoutMsg: `preset "${name}" did not produce a fresh WeChat artifact`,
+            },
+          );
+        }
+
+        const fingerprint = await browser.execute(() => {
+          const preview = document.querySelector('.export-panel .preview-render');
+          const metrics = Array.from(preview?.querySelectorAll('p') ?? [])
+            .find(element => /阅读约\s*\d+\s*分钟/.test(element.textContent || '') &&
+              /全文\s*\d+\s*字/.test(element.textContent || ''));
+          const component = Array.from(preview?.querySelectorAll('section > strong') ?? [])
+            .find(strong => strong.textContent?.trim() === '100%' &&
+              strong.parentElement?.textContent?.includes('验收覆盖率') &&
+              strong.parentElement?.textContent?.includes('来源：InkForge 本轮验收'))
+            ?.parentElement;
+          return [
+            preview?.querySelector('.ink-article-song[data-ink-masthead-song="true"]'),
+            metrics,
+            component,
+            preview?.querySelector('[data-ink-delivery="profile"]'),
+          ].map(element => element?.getAttribute('style') || '').join('|');
+        });
+        expect(fingerprint, `preset "${name}" must render all delivery/component geometry`).to.not.equal('|||');
+        fingerprints.push(fingerprint);
+        await browser.execute(() => {
+          const viewport = document.querySelector('.export-panel .preview-viewport');
+          if (viewport) viewport.scrollTop = 0;
+        });
+        await browser.saveScreenshot(path.join(
+          EVIDENCE_DIR,
+          `preset-visual-${String(index + 1).padStart(2, '0')}-20260802.png`,
+        ));
+        const componentScroll = await browser.execute(() => {
+          const viewport = document.querySelector('.export-panel .preview-viewport');
+          const preview = document.querySelector('.export-panel .preview-render');
+          const target = Array.from(preview?.querySelectorAll('section > strong') ?? [])
+            .find(strong => strong.textContent?.trim() === '100%' &&
+              strong.parentElement?.textContent?.includes('验收覆盖率') &&
+              strong.parentElement?.textContent?.includes('来源：InkForge 本轮验收'))
+            ?.parentElement;
+          if (!viewport || !target) return { found: false, visible: false };
+          const viewportRect = viewport.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          viewport.scrollTop += targetRect.top - viewportRect.top -
+            Math.max(0, (viewportRect.height - targetRect.height) / 2);
+          const visibleRect = target.getBoundingClientRect();
+          return {
+            found: true,
+            visible: visibleRect.top < viewportRect.bottom && visibleRect.bottom > viewportRect.top,
+          };
+        });
+        expect(componentScroll, `preset "${name}" component evidence must be visible`).to.deep.equal({
+          found: true,
+          visible: true,
+        });
+        await browser.saveScreenshot(path.join(
+          EVIDENCE_DIR,
+          `preset-component-${String(index + 1).padStart(2, '0')}-20260802.png`,
+        ));
+        const endScroll = await browser.execute(() => {
+          const viewport = document.querySelector('.export-panel .preview-viewport');
+          const target = document.querySelector(
+            '.export-panel .preview-render [data-ink-delivery="profile"]',
+          );
+          if (!viewport || !target) return { found: false, visible: false };
+          const viewportRect = viewport.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          viewport.scrollTop += targetRect.top - viewportRect.top -
+            Math.max(0, (viewportRect.height - targetRect.height) / 2);
+          const visibleRect = target.getBoundingClientRect();
+          return {
+            found: true,
+            visible: visibleRect.top < viewportRect.bottom && visibleRect.bottom > viewportRect.top,
+          };
+        });
+        expect(endScroll, `preset "${name}" colophon evidence must be visible`).to.deep.equal({
+          found: true,
+          visible: true,
+        });
+        await browser.saveScreenshot(path.join(
+          EVIDENCE_DIR,
+          `preset-end-${String(index + 1).padStart(2, '0')}-20260802.png`,
+        ));
+      }
+      expect(new Set(fingerprints).size, 'all 16 WeChat presets keep distinct rendered geometry').to.equal(16);
+
+      const clipboardPresetNumber = Number.parseInt(
+        process.env.INKFORGE_E2E_CLIPBOARD_PRESET_NUMBER || String(cards.length),
+        10,
+      );
+      expect(
+        clipboardPresetNumber,
+        'requested clipboard preset number must address one of the 16 real cards',
+      ).to.be.within(1, cards.length);
+      const clipboardCard = cards[clipboardPresetNumber - 1];
+      const clipboardPresetName = (await clipboardCard.getText()).trim().replace(/\s+/g, ' ');
+      if (!(await clipboardCard.getAttribute('class')).includes('active')) {
+        const beforeClipboardHtml = await browser.execute(() => (
+          document.querySelector('.export-panel .preview-render')?.innerHTML || ''
+        ));
+        await clipboardCard.scrollIntoView({ block: 'center', inline: 'nearest' });
+        await clipboardCard.waitForClickable({ timeout: 5_000 });
+        await clipboardCard.click();
+        await browser.waitUntil(
+          async () => browser.execute((before) => {
+            const preview = document.querySelector('.export-panel .preview-render');
+            return !document.querySelector('.export-panel .preview-loading') &&
+              Boolean(preview?.querySelector('[data-ink-masthead-song="true"]')) &&
+              preview?.innerHTML !== before;
+          }, beforeClipboardHtml),
+          {
+            timeout: 20_000,
+            interval: 200,
+            timeoutMsg: `clipboard preset "${clipboardPresetName}" did not render`,
+          },
+        );
+      }
+      const clipboardArtifactHtml = await browser.execute(() => (
+        document.querySelector('.export-panel .preview-render')?.innerHTML || ''
+      ));
+      const clipboardArtifactSha256 = crypto
+        .createHash('sha256')
+        .update(clipboardArtifactHtml)
+        .digest('hex');
+      const copyButton = await browser.$('.export-panel .act-btn.act-primary');
+      await copyButton.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await copyButton.waitForClickable({ timeout: 12_000, interval: 200 });
+      await copyButton.click();
+      await browser.waitUntil(
+        async () => browser.execute(() => (
+          (document.querySelector('.export-panel .feedback-success')?.textContent || '').includes('已复制')
+        )),
+        {
+          timeout: 8_000,
+          interval: 100,
+          timeoutMsg: 'full WeChat parity artifact was not written to the real system clipboard',
+        },
+      );
       // eslint-disable-next-line no-console
-      console.warn(`[svg-render] precondition skip — ${seedFailureReason}`);
-      return this.skip();
-    }
-    expect(seeded, 'a real draft was seeded via the live Pinia article store').to.equal(true);
-    if (!exportReady) {
+      console.log(`[svg-render] clipboard preset ${clipboardPresetNumber}: ${clipboardPresetName}`);
       // eslint-disable-next-line no-console
-      console.warn(`[svg-render] export-button skip — ${seedFailureReason}`);
-      return this.skip();
+      console.log(`[svg-render] clipboard artifact sha256: ${clipboardArtifactSha256}`);
+
+      await browser.saveScreenshot(path.join(EVIDENCE_DIR, 'wechat-artifact-parity-20260802.png'));
+    } finally {
+      await closeExportModalIfOpen();
+      await setDeliveryAdornmentConfig(setResult.original);
     }
-    expect(exportReady, '全屏导出 button is enabled (editor status ready)').to.equal(true);
+  });
+
+  it('renders the selected flagship SVG modules in the real Workstation platform preview', async function () {
+    expect(exportReady, seedFailureReason || 'Workstation flagship preview precondition').to.equal(true);
+
+    await closeExportModalIfOpen();
+    await browser.execute(() => {
+      const redock = Array.from(document.querySelectorAll('.panel-stage .stage-widget-placeholder button'))
+        .find((button) => (button.textContent || '').includes('重新停靠预览'));
+      if (redock) redock.click();
+
+      document.querySelector('.panel-inspector .inspector-collapsed-bar')?.click();
+
+      const wechatTab = Array.from(document.querySelectorAll('.panel-stage .stage-tab'))
+        .find((tab) => (tab.textContent || '').includes('微信'));
+      if (wechatTab && !wechatTab.classList.contains('active')) wechatTab.click();
+    });
+
+    await browser.waitUntil(
+      async () => browser.execute(() => {
+        const activeTab = document.querySelector('.panel-stage .stage-tab.active');
+        const kiln = Array.from(document.querySelectorAll('.panel-inspector .preset-chip'))
+          .find((chip) => (chip.textContent || '').includes('赤陶旗舰'));
+        return (activeTab?.textContent || '').includes('微信') && Boolean(kiln?.offsetParent);
+      }),
+      {
+        timeout: 12_000,
+        interval: 200,
+        timeoutMsg: 'Workstation WeChat preset strip never exposed 赤陶旗舰',
+      },
+    );
+
+    const selected = await browser.execute(() => {
+      const kiln = Array.from(document.querySelectorAll('.panel-inspector .preset-chip'))
+        .find((chip) => (chip.textContent || '').includes('赤陶旗舰'));
+      if (!kiln) return false;
+      kiln.click();
+      return true;
+    });
+    expect(selected, 'Workstation should expose the 赤陶旗舰 preset in its real Inspector controls').to.equal(true);
+
+    await browser.waitUntil(
+      async () => browser.execute(() => {
+        const host = document.querySelector(
+          '.panel-stage .device-screen [data-platform-editor-host="wechat"]',
+        );
+        const canvas = host?.querySelector(
+          '[data-platform-editor="wechat"][data-editor-canvas-width="586"]',
+        );
+        const ids = Array.from(host?.querySelectorAll('[data-ink-svg]') ?? [])
+          .map((module) => module.getAttribute('data-ink-svg'));
+        const activeKiln = Array.from(document.querySelectorAll('.panel-inspector .preset-chip.active'))
+          .some((chip) => (chip.textContent || '').includes('赤陶旗舰'));
+        return activeKiln && Boolean(canvas?.getBoundingClientRect().width) &&
+          ids.includes('cover-grid') && ids.includes('divider-forge');
+      }),
+      {
+        timeout: 20_000,
+        interval: 300,
+        timeoutMsg: 'Workstation Stage never rendered flagship-kiln inline SVG modules',
+      },
+    );
+
+    const probe = await browser.execute(() => {
+      const host = document.querySelector(
+        '.panel-stage .device-screen [data-platform-editor-host="wechat"]',
+      );
+      const canvas = host?.querySelector(
+        '[data-platform-editor="wechat"][data-editor-canvas-width="586"]',
+      );
+      const modules = Array.from(host?.querySelectorAll('[data-ink-svg]') ?? []);
+      const svgs = modules.flatMap((module) => Array.from(module.querySelectorAll('svg')));
+      const canvasWidth = canvas?.getBoundingClientRect().width ?? 0;
+      const widestSvg = svgs.reduce(
+        (max, svg) => Math.max(max, svg.getBoundingClientRect().width),
+        0,
+      );
+      return {
+        canvasWidth,
+        widestSvg,
+        moduleIds: modules.map((module) => module.getAttribute('data-ink-svg')),
+        svgCount: svgs.length,
+        responsiveSvgCount: svgs.filter((svg) => svg.getAttribute('width') === '100%').length,
+        scriptCount: host?.querySelectorAll('script').length ?? 0,
+        foreignObjectCount: host?.querySelectorAll('foreignObject').length ?? 0,
+      };
+    });
+
+    expect(probe.canvasWidth, 'measured WeChat editor canvas must be laid out').to.be.greaterThan(200);
+    expect(probe.moduleIds, 'Stage should contain the selected flagship cover').to.include('cover-grid');
+    expect(probe.moduleIds, 'Stage should contain the selected flagship divider').to.include('divider-forge');
+    expect(probe.svgCount, 'Stage should render real inline SVG').to.be.greaterThan(0);
+    expect(probe.responsiveSvgCount, 'every flagship SVG keeps width="100%"').to.equal(probe.svgCount);
+    expect(probe.widestSvg, 'responsive SVG must not exceed its platform canvas').to.be.at.most(probe.canvasWidth + 1);
+    expect(probe.scriptCount, 'WeChat preview must not contain script').to.equal(0);
+    expect(probe.foreignObjectCount, 'WeChat preview must not contain foreignObject').to.equal(0);
   });
 
   it('uses the persisted Settings default export platform as the Workstation and ExportModal initial platform', async function () {
-    if (!exportReady) {
-      // eslint-disable-next-line no-console
-      console.warn(`[svg-render] default export platform skip — ${seedFailureReason}`);
-      return this.skip();
-    }
+    expect(exportReady, seedFailureReason || 'default export platform precondition').to.equal(true);
 
     let originalPlatform = 'wechat';
     const setResult = await setDefaultExportPlatform('zhihu');
@@ -835,11 +1432,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
   });
 
   it('applies Settings export-only custom CSS to the real WeChat export preview without runtime CustomCSS leakage', async function () {
-    if (!exportReady) {
-      // eslint-disable-next-line no-console
-      console.warn(`[svg-render] export custom CSS skip — ${seedFailureReason}`);
-      return this.skip();
-    }
+    expect(exportReady, seedFailureReason || 'export custom CSS precondition').to.equal(true);
 
     const setResult = await setExportCustomCss('#nice p { color: #123456; letter-spacing: 1px; }');
     expect(setResult.ok, setResult.reason || 'settings export.customCss write').to.equal(true);
@@ -853,32 +1446,52 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         async () =>
           browser.execute(() => {
             const para = Array.from(document.querySelectorAll('.export-panel .preview-render #nice p'))
-              .find((p) => !p.closest('[data-ink-svg]'));
-            if (!para) return false;
-            const style = para.getAttribute('style') || '';
-            return /(?:^|;)color:\s*#123456(?:;|$)/.test(style) &&
-              /(?:^|;)letter-spacing:\s*1px(?:;|$)/.test(style);
+              .filter((p) => !p.closest('[data-ink-svg], [data-ink-block]'))
+              .filter((p) => (p.textContent || '').trim())
+              .sort((left, right) =>
+                (right.textContent || '').trim().length - (left.textContent || '').trim().length)[0];
+            return Boolean(para) && !document.querySelector('.export-panel .preview-loading');
           }),
         {
           timeout: 12_000,
           interval: 300,
-          timeoutMsg: 'Settings export.customCss did not inline into the WeChat ExportModal preview paragraph',
+          timeoutMsg: 'WeChat ExportModal preview did not settle on a body paragraph',
         },
       );
 
       const probe = await browser.execute(() => {
         const para = Array.from(document.querySelectorAll('.export-panel .preview-render #nice p'))
-          .find((p) => !p.closest('[data-ink-svg]'));
+          .filter((p) => !p.closest('[data-ink-svg], [data-ink-block]'))
+          .filter((p) => (p.textContent || '').trim())
+          .sort((left, right) =>
+            (right.textContent || '').trim().length - (left.textContent || '').trim().length)[0];
         const runtimeStyle = document.getElementById('inkforge-custom-css');
+        const previewRender = document.querySelector('.export-panel .preview-render');
+        const style = para ? para.getAttribute('style') || '' : '';
         return {
-          style: para ? para.getAttribute('style') || '' : '',
+          style,
+          normalizedStyle: style.replace(/\s+/g, '').toLowerCase(),
+          computedColor: para ? getComputedStyle(para).color : '',
+          computedLetterSpacing: para ? getComputedStyle(para).letterSpacing : '',
+          previewContainsCustomColor: Boolean(
+            previewRender?.innerHTML.toLowerCase().includes('#123456'),
+          ),
+          previewContainsCustomLetterSpacing: Boolean(
+            previewRender?.innerHTML.toLowerCase().includes('letter-spacing: 1px'),
+          ),
           hasRuntimeCustomCss: Boolean(runtimeStyle),
           runtimeStyleContainsExportCss: Boolean(runtimeStyle && runtimeStyle.textContent && runtimeStyle.textContent.includes('#123456')),
         };
       });
 
-      expect(probe.style, 'export preview paragraph carries inline export custom CSS').to.match(/(?:^|;)color:\s*#123456(?:;|$)/);
-      expect(probe.style, 'export preview paragraph carries inline letter spacing').to.match(/(?:^|;)letter-spacing:\s*1px(?:;|$)/);
+      expect(
+        probe.normalizedStyle,
+        `export preview paragraph carries inline export custom CSS (${probe.style})`,
+      ).to.include('color:#123456');
+      expect(
+        probe.normalizedStyle,
+        `export preview paragraph carries inline letter spacing (${probe.style})`,
+      ).to.include('letter-spacing:1px');
       expect(probe.runtimeStyleContainsExportCss, 'export custom CSS must not be injected into runtime editor CustomCSS style tag').to.equal(false);
     } finally {
       await closeExportModalIfOpen();
@@ -887,11 +1500,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
   });
 
   it('applies Settings Advanced runtime CustomCSS to the real editor and removes it without export leakage', async function () {
-    if (!exportReady) {
-      // eslint-disable-next-line no-console
-      console.warn(`[svg-render] runtime CustomCSS skip — ${seedFailureReason}`);
-      return this.skip();
-    }
+    expect(exportReady, seedFailureReason || 'runtime CustomCSS precondition').to.equal(true);
 
     const css = 'p { color: rgb(12, 34, 56); letter-spacing: 2px; }';
     const invalidDraft = 'p { background: url(javascript:alert(1)); color: red !important; }';
@@ -1021,11 +1630,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
   });
 
   it('persists a successful WeChat rich copy in Settings history and clears it through the real UI', async function () {
-    if (!exportReady) {
-      // eslint-disable-next-line no-console
-      console.warn(`[svg-render] export history skip — ${seedFailureReason}`);
-      return this.skip();
-    }
+    expect(exportReady, seedFailureReason || 'export history precondition').to.equal(true);
 
     try {
       await closeExportModalIfOpen();
@@ -1078,7 +1683,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       expect(recorded.domRows, 'Settings renders the same real history row').to.have.length(1);
       expect(recorded.storeHistory[0]).to.include({ platform: 'wechat', action: 'copy' });
       expect(recorded.storeHistory[0].title).to.include(SEED_TITLE);
-      expect(recorded.storeHistory[0].title).to.include('样式版 HTML');
+      expect(recorded.storeHistory[0].title).to.include('HTML 原生产物');
       expect(recorded.storeHistory[0].bytes).to.be.greaterThan(0);
       expect(recorded.domRows[0]).to.include('微信公众号');
       expect(recorded.domRows[0]).to.include('复制到剪贴板');
@@ -1116,11 +1721,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
   });
 
   it('surfaces style capability gates for all platforms in the real ExportModal', async function () {
-    if (!exportReady) {
-      // eslint-disable-next-line no-console
-      console.warn(`[svg-render] style capability gates skip — ${seedFailureReason}`);
-      return this.skip();
-    }
+    expect(exportReady, seedFailureReason || 'style capability gate precondition').to.equal(true);
 
     await openExportPanel('微信');
 
@@ -1262,8 +1863,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       ]);
     expect(wechat.marketOverflowCount, 'WeChat market capability rows wrap inside style cards')
       .to.equal(0);
-    expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 8/17；受限 5；不可用 4');
+    expect(wechat.preflightText, 'WeChat preflight row mirrors the available catalog count')
+      .to.include('可用 8/17');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes execution runbook totals')
@@ -1346,32 +1947,52 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       'plugin transfer stays unavailable without channel-specific proof',
     ).to.equal(true);
 
-    const applicationProbe = await browser.executeAsync((done) => {
-      const finish = () => {
-        const cardsAfter = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
-        const kilnAfter = cardsAfter.find((card) => (card.textContent || '').includes('Kiln creative flagship'));
-        const amberAfter = cardsAfter.find((card) => (card.textContent || '').includes('Amber business flagship'));
-        const toolbarAfter = cardsAfter.find((card) => (card.textContent || '').includes('Toolbar typography parameter map'));
+    await clickStyleCapabilityChoice('wechat-flagship-kiln');
+
+    await browser.waitUntil(
+      async () => browser.execute(() => {
+        const kiln = document.querySelector(
+          '.export-panel [data-style-choice-id="wechat-flagship-kiln"]',
+        );
         const activePreset = Array.from(document.querySelectorAll('.export-panel .preset-card'))
           .find((card) => card.classList.contains('active'));
         const preflight = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
           .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
           .find((text) => text.includes('样式能力目录')) || '';
 
-        done({
-          kilnDisabled: Boolean(kilnAfter?.disabled),
-          kilnPressed: kilnAfter?.getAttribute('aria-pressed') || '',
-          amberDisabled: Boolean(amberAfter?.disabled),
-          toolbarDisabled: Boolean(toolbarAfter?.disabled),
-          activePresetText: (activePreset?.textContent || '').trim().replace(/\s+/g, ' '),
-          preflight,
-        });
-      };
+        return kiln?.getAttribute('aria-pressed') === 'true' &&
+          (activePreset?.textContent || '').includes('赤陶旗舰') &&
+          preflight.includes('已选择 赤陶旗舰（flagship-kiln）') &&
+          preflight.includes('Kiln creative flagship');
+      }),
+      {
+        timeout: 12_000,
+        interval: 100,
+        timeoutMsg: 'Kiln capability click did not settle into the matching active preset and preflight',
+      },
+    );
 
+    const applicationProbe = await browser.execute(() => {
       const cards = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
-      const kiln = cards.find((card) => (card.textContent || '').includes('Kiln creative flagship'));
-      if (kiln && !kiln.disabled) kiln.click();
-      window.setTimeout(finish, 350);
+      const kiln = document.querySelector(
+        '.export-panel [data-style-choice-id="wechat-flagship-kiln"]',
+      );
+      const amber = cards.find((card) => (card.textContent || '').includes('Amber business flagship'));
+      const toolbar = cards.find((card) => (card.textContent || '').includes('Toolbar typography parameter map'));
+      const activePreset = Array.from(document.querySelectorAll('.export-panel .preset-card'))
+        .find((card) => card.classList.contains('active'));
+      const preflight = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+        .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+        .find((text) => text.includes('样式能力目录')) || '';
+
+      return {
+        kilnDisabled: Boolean(kiln?.disabled),
+        kilnPressed: kiln?.getAttribute('aria-pressed') || '',
+        amberDisabled: Boolean(amber?.disabled),
+        toolbarDisabled: Boolean(toolbar?.disabled),
+        activePresetText: (activePreset?.textContent || '').trim().replace(/\s+/g, ' '),
+        preflight,
+      };
     });
     expect(applicationProbe.kilnDisabled, 'Kiln style is selectable because it maps to a real preset').to.equal(false);
     expect(applicationProbe.kilnPressed, 'Kiln style exposes selected state after click').to.equal('true');
@@ -1379,7 +2000,9 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(applicationProbe.toolbarDisabled, 'Toolbar parameter map is selectable as a current-round preset-backed style').to.equal(false);
     expect(applicationProbe.activePresetText, 'style click selects the real Kiln preset').to.include('赤陶旗舰');
     expect(applicationProbe.preflight, 'preflight names the selected style and real preset')
-      .to.include('已选择 Kiln creative flagship → 赤陶旗舰（flagship-kiln）');
+      .to.include('已选择 赤陶旗舰（flagship-kiln）');
+    expect(applicationProbe.preflight, 'preflight lists every capability represented by the shared preset')
+      .to.include('Kiln creative flagship');
 
     await selectExportPlatform('小红书');
     const xhs = await collectStyleCapabilityProbe();
@@ -1403,7 +2026,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(xhs.marketOverflowCount, 'XHS market capability rows wrap inside style cards')
       .to.equal(0);
     expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 7/8；受限 0；不可用 1');
+      .to.include('可用 7/8；受限 0；不可用 1');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes execution runbook totals')
@@ -1451,43 +2074,30 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       'XHS market fallback surfaces market metadata while staying mapped to the real preset action',
     ).to.equal(true);
 
-    const xhsApplicationProbe = await browser.executeAsync((done) => {
-      const clickChoice = (label) => {
-        const card = Array.from(document.querySelectorAll('.export-panel .style-choice-card'))
-          .find((item) => (item.textContent || '').includes(label));
-        if (card && !card.disabled) card.click();
-      };
-      const read = () => {
-        const cardsAfter = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
-        const dataAfter = cardsAfter.find((card) => (card.textContent || '').includes('Data and table image card'));
-        const longAfter = cardsAfter.find((card) => (card.textContent || '').includes('Long report image artifact'));
-        const marketAfter = cardsAfter.find((card) => (card.textContent || '').includes('Market rich card image fallback'));
-        const activePreset = Array.from(document.querySelectorAll('.export-panel .preset-card'))
-          .find((card) => card.classList.contains('active'));
-        const preflight = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
-          .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
-          .find((text) => text.includes('样式能力目录')) || '';
+    await clickStyleCapabilityChoice('xhs-data-card');
+    await clickStyleCapabilityChoice('xhs-long-report');
+    await clickStyleCapabilityChoice('xhs-market-rich-card-fallback');
+    const xhsApplicationProbe = await browser.execute(() => {
+      const cardsAfter = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
+      const dataAfter = cardsAfter.find((card) => (card.textContent || '').includes('Data and table image card'));
+      const longAfter = cardsAfter.find((card) => (card.textContent || '').includes('Long report image artifact'));
+      const marketAfter = cardsAfter.find((card) => (card.textContent || '').includes('Market rich card image fallback'));
+      const activePreset = Array.from(document.querySelectorAll('.export-panel .preset-card'))
+        .find((card) => card.classList.contains('active'));
+      const preflight = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+        .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+        .find((text) => text.includes('样式能力目录')) || '';
 
-        done({
-          dataDisabled: Boolean(dataAfter?.disabled),
-          longDisabled: Boolean(longAfter?.disabled),
-          marketDisabled: Boolean(marketAfter?.disabled),
-          dataPressed: dataAfter?.getAttribute('aria-pressed') || '',
-          longPressed: longAfter?.getAttribute('aria-pressed') || '',
-          marketPressed: marketAfter?.getAttribute('aria-pressed') || '',
-          activePresetText: (activePreset?.textContent || '').trim().replace(/\s+/g, ' '),
-          preflight,
-        });
+      return {
+        dataDisabled: Boolean(dataAfter?.disabled),
+        longDisabled: Boolean(longAfter?.disabled),
+        marketDisabled: Boolean(marketAfter?.disabled),
+        dataPressed: dataAfter?.getAttribute('aria-pressed') || '',
+        longPressed: longAfter?.getAttribute('aria-pressed') || '',
+        marketPressed: marketAfter?.getAttribute('aria-pressed') || '',
+        activePresetText: (activePreset?.textContent || '').trim().replace(/\s+/g, ' '),
+        preflight,
       };
-
-      clickChoice('Data and table image card');
-      window.setTimeout(() => {
-        clickChoice('Long report image artifact');
-        window.setTimeout(() => {
-          clickChoice('Market rich card image fallback');
-          window.setTimeout(read, 350);
-        }, 250);
-      }, 250);
     });
     expect(xhsApplicationProbe.dataDisabled, 'XHS data-card style is selectable').to.equal(false);
     expect(xhsApplicationProbe.longDisabled, 'XHS long-report style is selectable').to.equal(false);
@@ -1498,7 +2108,9 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(xhsApplicationProbe.activePresetText, 'XHS mapped style click selects the real Nature preset')
       .to.include('自然清新');
     expect(xhsApplicationProbe.preflight, 'XHS preflight names the selected style and real preset')
-      .to.include('已选择 Market rich card image fallback → 自然清新（xhs-nature）');
+      .to.include('已选择 自然清新（xhs-nature）');
+    expect(xhsApplicationProbe.preflight, 'XHS preflight lists the selected mapped capability')
+      .to.include('Market rich card image fallback');
 
     await selectExportPlatform('知乎');
     const zhihu = await collectStyleCapabilityProbe();
@@ -1522,7 +2134,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(zhihu.marketOverflowCount, 'Zhihu market capability rows wrap inside style cards')
       .to.equal(0);
     expect(zhihu.preflightText, 'Zhihu preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 4/8；受限 3；不可用 1');
+      .to.include('可用 4/8；受限 3；不可用 1');
     expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes execution runbook totals')
@@ -1568,11 +2180,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
   // responsive [data-ink-svg] modules + saves an evidence screenshot.
   for (const flagship of FLAGSHIP_PRESETS) {
     it(`${flagship.id} (${flagship.name}) injects responsive [data-ink-svg] modules into the export preview`, async function () {
-      if (!exportReady) {
-        // eslint-disable-next-line no-console
-        console.warn(`[svg-render] ${flagship.id} skip — ${seedFailureReason}`);
-        return this.skip();
-      }
+      expect(exportReady, seedFailureReason || `${flagship.id} export precondition`).to.equal(true);
 
       await openFlagshipExportPreview(flagship.name);
 
@@ -1644,109 +2252,272 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     });
   }
 
-  it('flagship body yields a mobile-comfortable ~20–22 CJK chars/line (real layout, ship font)', async function () {
-    if (!exportReady) {
-      // eslint-disable-next-line no-console
-      console.warn(`[svg-render] chars/line skip — ${seedFailureReason}`);
-      return this.skip();
-    }
-    await openFlagshipExportPreview('铜绿旗舰');
+  it('flagship body yields a mobile-comfortable ~22–24 CJK chars/line (real layout, ship font)', async function () {
+    expect(exportReady, seedFailureReason || 'chars/line export precondition').to.equal(true);
+    await closeExportModalIfOpen();
+    await browser.execute(() => {
+      document.querySelector('.panel-stage .stage-collapsed-bar')?.click();
+      document.querySelector('.panel-inspector .inspector-collapsed-bar')?.click();
+      const wechatTab = Array.from(document.querySelectorAll('.panel-stage .stage-tab'))
+        .find((tab) => (tab.textContent || '').includes('微信'));
+      if (wechatTab && !wechatTab.classList.contains('active')) wechatTab.click();
+    });
+    await browser.waitUntil(
+      async () => browser.execute(() => {
+        const activeTab = document.querySelector('.panel-stage .stage-tab.active');
+        const preset = Array.from(document.querySelectorAll('.panel-inspector .preset-chip'))
+          .find((chip) => (chip.textContent || '').includes('铜绿旗舰'));
+        return (activeTab?.textContent || '').includes('微信') && Boolean(preset?.offsetParent);
+      }),
+      {
+        timeout: 12_000,
+        interval: 200,
+        timeoutMsg: 'Workstation WeChat preset strip never exposed 铜绿旗舰',
+      },
+    );
+    await browser.execute(() => {
+      const preset = Array.from(document.querySelectorAll('.panel-inspector .preset-chip'))
+        .find((chip) => (chip.textContent || '').includes('铜绿旗舰'));
+      preset?.click();
+    });
+    await browser.waitUntil(
+      async () => browser.execute(() => {
+        const active = Array.from(document.querySelectorAll('.panel-inspector .preset-chip.active'))
+          .some((chip) => (chip.textContent || '').includes('铜绿旗舰'));
+        const canvas = document.querySelector('.panel-stage [data-platform-editor="wechat"]');
+        return active && Boolean(canvas?.querySelector('p'));
+      }),
+      {
+        timeout: 20_000,
+        interval: 300,
+        timeoutMsg: 'Workstation Stage never rendered 铜绿旗舰 body content',
+      },
+    );
 
-    // WHY a mobile-emulated probe instead of dividing the preview column by its
-    // font-size: the ExportModal preview is a *desktop* ~400px column rendered
-    // with a smaller *preview-only* font (≈15px) and WITHOUT the 22em clamp
-    // (`min(22em, calc(...))` carries calc(), which the WeChat-compliance pass
-    // strips — mobile WeChat instead constrains the body to the phone width).
-    // So the preview column is NOT a faithful chars/line oracle. The shipped
-    // guarantee is: #nice font-size:17px (generatePersonaBaseCSS lock) inside a
-    // mobile body column (~360px = a ~375px phone minus WeChat body padding).
-    // We reproduce THAT here with real glyph layout (catches glyph-advance /
-    // letter-spacing regressions like a stray U+202F injected into CJK runs).
+    // The Stage is the canonical live renderer. Measure the seeded paragraph's
+    // actual Range line boxes so the assertion covers the shipped DOM, font,
+    // padding, punctuation, and CJK wrapping rules without an artificial probe.
     const layout = await browser.execute(() => {
-      const render = document.querySelector('.export-panel .preview-render');
+      const canvas = document.querySelector('.panel-stage [data-platform-editor="wechat"]');
+      const body = Array.from(canvas?.querySelectorAll('p') || [])
+        .find((paragraph) => paragraph.textContent?.includes('在墨铸的导出管线里'));
+      if (!canvas || !body) return null;
 
-      // Longest body <p> NOT inside an injected SVG module (decorative).
-      const paras = Array.from(render.querySelectorAll('p'))
-        .filter((p) => !p.closest('[data-ink-svg]'));
-      let best = null;
-      for (const p of paras) {
-        const text = (p.textContent || '').trim();
-        if (!text) continue;
-        if (!best || text.length > best.text.length) best = { text, el: p };
+      const lines = new Map();
+      const walker = document.createTreeWalker(body, window.NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        for (let index = 0; index < node.textContent.length; index += 1) {
+          if (/\s/.test(node.textContent[index])) continue;
+          const range = document.createRange();
+          range.setStart(node, index);
+          range.setEnd(node, index + 1);
+          const rect = range.getClientRects()[0];
+          if (!rect) continue;
+          const top = Math.round(rect.top);
+          lines.set(top, (lines.get(top) || 0) + 1);
+        }
       }
-
-      const niceEl =
-        best?.el.closest('#nice') ||
-        Array.from(render.querySelectorAll('#nice, section[id="nice"]')).find(
-          (el) => !el.closest('[data-ink-svg]'),
-        ) ||
-        render;
-      const niceBox = niceEl.getBoundingClientRect();
-
-      const SHIP_FONT_PX = 17; // generatePersonaBaseCSS #nice font-size lock
-      const MOBILE_COL_PX = 360; // ~375px phone − WeChat body padding
-      const LINE_HEIGHT = 1.75; // academic persona (铜绿/tempera)
-      let charsPerLine = null;
-      let lineCount = null;
-      let sampleChars = null;
-      if (best) {
-        const cs = getComputedStyle(best.el);
-        const probe = document.createElement('div');
-        probe.style.position = 'absolute';
-        probe.style.left = '-99999px';
-        probe.style.top = '0';
-        probe.style.visibility = 'hidden';
-        probe.style.width = MOBILE_COL_PX + 'px';
-        probe.style.fontSize = SHIP_FONT_PX + 'px';
-        probe.style.lineHeight = String(LINE_HEIGHT);
-        probe.style.whiteSpace = 'normal';
-        probe.style.wordBreak = 'break-word';
-        probe.style.lineBreak = 'strict';
-        // Inherit the real body font stack + kerning so CJK glyph advance is
-        // faithful to what ships (font substitution differs per machine).
-        probe.style.fontFamily = cs.fontFamily;
-        probe.style.fontFeatureSettings = cs.fontFeatureSettings;
-        probe.textContent = best.text;
-        render.appendChild(probe);
-        const lineHeightPx = SHIP_FONT_PX * LINE_HEIGHT;
-        lineCount = Math.max(1, Math.round(probe.scrollHeight / lineHeightPx));
-        sampleChars = best.text.length;
-        charsPerLine = Math.round(sampleChars / lineCount);
-        render.removeChild(probe);
-      }
+      const lineCounts = Array.from(lines.entries())
+        .sort(([a], [b]) => a - b)
+        .map(([, count]) => count);
+      const sourceStyle = getComputedStyle(body);
       return {
-        niceWidth: Math.round(niceBox.width),
-        hadPara: !!best,
-        charsPerLine,
-        lineCount,
-        sampleChars,
+        canvasWidth: Math.round(canvas.getBoundingClientRect().width),
+        bodyWidth: Math.round(body.getBoundingClientRect().width),
+        charsPerLine: lineCounts[0] || 0,
+        lineCounts,
+        fontSize: sourceStyle.fontSize,
+        wordBreak: sourceStyle.wordBreak,
       };
     });
 
-    // A real body paragraph must exist to measure; else the seed contract broke.
-    expect(layout.hadPara, 'a representative body <p> exists to measure chars/line').to.equal(true);
+    expect(layout, 'a representative Stage body <p> exists to measure chars/line').to.not.equal(null);
+    expect(layout.canvasWidth, 'the WeChat Stage canvas is laid out').to.be.greaterThan(200);
 
-    // Sanity: the preview body column is bounded (catches runaway full-bleed width).
-    expect(
-      layout.niceWidth,
-      `#nice body column width bounded (px): ${layout.niceWidth}`,
-    ).to.be.within(280, 760);
-
-    // The shipped guarantee: ~20–22 CJK chars/line on a mobile column at 17px.
-    // Band 18–24 absorbs cross-machine glyph-advance variance while still failing
-    // on a gross regression (e.g. injected thin-spaces or a broken width lock).
     expect(
       layout.charsPerLine,
-      `mobile-emulated CJK chars/line @${360}px/17px (target 20–22; band 18–24): ` +
-        `lines=${layout.lineCount} chars=${layout.sampleChars}`,
-    ).to.be.within(18, 24);
+      `real Stage CJK chars/line @${layout.bodyWidth}px/${layout.fontSize} (target 22–24): ` +
+        `lineCounts=${layout.lineCounts.join(',')} wordBreak=${layout.wordBreak}`,
+    ).to.be.within(22, 24);
 
     // eslint-disable-next-line no-console
     console.log(
-      `[svg-render] chars/line (mobile-emulated): ${layout.charsPerLine} ` +
-        `(${layout.sampleChars} chars over ${layout.lineCount} lines @360px/17px)`,
+      `[svg-render] chars/line (real Stage): ${layout.charsPerLine} ` +
+        `(lines=${layout.lineCounts.join(',')} @${layout.bodyWidth}px/${layout.fontSize})`,
     );
+  });
 
-    await closeExportModal();
+  it('keeps only the latest native edit and preset render after 10 rapid rounds', async function () {
+    expect(exportReady, seedFailureReason || 'native preview performance precondition').to.equal(true);
+    await closeExportModalIfOpen();
+
+    for (const selector of [
+      '.panel-stage .stage-collapsed-bar',
+      '.panel-inspector .inspector-collapsed-bar',
+    ]) {
+      const collapsedBar = await browser.$(selector);
+      if (await collapsedBar.isExisting() && await collapsedBar.isDisplayed()) {
+        await collapsedBar.waitForClickable({ timeout: 5_000, interval: 100 });
+        await collapsedBar.click();
+      }
+    }
+
+    const inspectorPin = await browser.$('.panel-inspector .inspector-pin-btn');
+    if (
+      await inspectorPin.isExisting()
+      && await inspectorPin.isDisplayed()
+      && await inspectorPin.getAttribute('aria-pressed') !== 'true'
+    ) {
+      await inspectorPin.waitForClickable({ timeout: 5_000, interval: 100 });
+      await inspectorPin.click();
+    }
+
+    const stageTabs = await browser.$$('.panel-stage .stage-tab');
+    let wechatTab = null;
+    for (const tab of stageTabs) {
+      if ((await tab.getText()).includes('微信')) {
+        wechatTab = tab;
+        break;
+      }
+    }
+    expect(Boolean(wechatTab), 'the real Workstation Stage exposes the WeChat tab').to.equal(true);
+    if (!(await wechatTab.getAttribute('class')).includes('active')) {
+      await wechatTab.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await wechatTab.waitForClickable({ timeout: 5_000, interval: 100 });
+      await wechatTab.click();
+    }
+
+    const presetNames = [
+      '论文翻译',
+      '法学研讨',
+      '行业研报',
+      '时事点评',
+      'AIGC',
+      '编程创造',
+      '学习笔记',
+      '新闻',
+      '整活',
+      '赤陶旗舰',
+    ];
+    const renderTimes = [];
+    const wallTimes = [];
+    const rounds = [];
+
+    for (const [index, presetName] of presetNames.entries()) {
+      const marker = `INKFORGE-PERF-${String(index + 1).padStart(2, '0')}`;
+      const editor = await browser.$('.tiptap-content .ProseMirror');
+      await editor.waitForDisplayed({ timeout: 10_000, interval: 100 });
+      await (await browser.$('.ink-titlebar')).click();
+      await editor.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await editor.waitForClickable({ timeout: 5_000, interval: 100 });
+      await editor.click();
+      await browser.waitUntil(
+        async () => browser.execute((surface) => (
+          document.activeElement === surface || surface.contains(document.activeElement)
+        ), editor),
+        {
+          timeout: 5_000,
+          interval: 50,
+          timeoutMsg: `round ${index + 1} editor did not receive native keyboard focus`,
+        },
+      );
+
+      const startedAt = Date.now();
+      await browser.keys(['Control', 'End']);
+      await browser.keys('Enter');
+      await browser.keys(marker);
+      await browser.waitUntil(
+        async () => browser.execute((expectedMarker) => (
+          document.querySelector('.tiptap-content .ProseMirror')?.textContent?.includes(expectedMarker) ?? false
+        ), marker),
+        {
+          timeout: 5_000,
+          interval: 50,
+          timeoutMsg: `round ${index + 1} marker "${marker}" did not enter the real ProseMirror body`,
+        },
+      );
+
+      const chips = await browser.$$('.panel-inspector .preset-chip');
+      let targetChip = null;
+      for (const chip of chips) {
+        if ((await chip.getText()).includes(presetName)) {
+          targetChip = chip;
+          break;
+        }
+      }
+      expect(Boolean(targetChip), `round ${index + 1} preset "${presetName}" exists`).to.equal(true);
+      await targetChip.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await targetChip.waitForClickable({ timeout: 5_000, interval: 100 });
+      await targetChip.click();
+
+      await browser.waitUntil(
+        async () => browser.execute((expectedMarker, expectedPreset) => {
+          const host = document.querySelector(
+            '.panel-stage .device-screen [data-platform-editor-host="wechat"]',
+          );
+          const activePreset = Array.from(document.querySelectorAll('.panel-inspector .preset-chip.active'))
+            .some((chip) => (chip.textContent || '').includes(expectedPreset));
+          return activePreset && (host?.textContent || '').includes(expectedMarker);
+        }, marker, presetName),
+        {
+          timeout: 20_000,
+          interval: 100,
+          timeoutMsg: `round ${index + 1} did not settle marker "${marker}" with preset "${presetName}"`,
+        },
+      );
+
+      const renderTimeText = await browser.execute(() => (
+        document.querySelector('.stat-item.render-time')?.textContent || ''
+      ));
+      const renderTimeMatch = renderTimeText.match(/([\d.]+)\s*ms/i);
+      expect(renderTimeMatch, `round ${index + 1} exposes the real preview render time`).to.not.equal(null);
+      const renderTime = Number.parseFloat(renderTimeMatch[1]);
+      const wallTime = Date.now() - startedAt;
+      expect(Number.isFinite(renderTime), `round ${index + 1} render time is finite`).to.equal(true);
+      renderTimes.push(renderTime);
+      wallTimes.push(wallTime);
+      rounds.push({ round: index + 1, marker, presetName, renderTime, wallTime });
+    }
+
+    await browser.pause(600);
+    const finalMarker = `INKFORGE-PERF-${String(presetNames.length).padStart(2, '0')}`;
+    const finalProbe = await browser.execute((marker) => {
+      const host = document.querySelector(
+        '.panel-stage .device-screen [data-platform-editor-host="wechat"]',
+      );
+      const activePreset = Array.from(document.querySelectorAll('.panel-inspector .preset-chip.active'))
+        .find((chip) => (chip.textContent || '').includes('赤陶旗舰'));
+      return {
+        markerPresent: (host?.textContent || '').includes(marker),
+        finalPresetActive: Boolean(activePreset),
+        coverPresent: Boolean(host?.querySelector('[data-ink-svg="cover-grid"]')),
+        dividerPresent: Boolean(host?.querySelector('[data-ink-svg="divider-forge"]')),
+        editorDisplayed: Boolean(document.querySelector('.tiptap-content .ProseMirror')?.offsetParent),
+      };
+    }, finalMarker);
+    expect(finalProbe).to.deep.equal({
+      markerPresent: true,
+      finalPresetActive: true,
+      coverPresent: true,
+      dividerPresent: true,
+      editorDisplayed: true,
+    });
+
+    const sortedRenderTimes = [...renderTimes].sort((a, b) => a - b);
+    const sortedWallTimes = [...wallTimes].sort((a, b) => a - b);
+    const percentile = (values, fraction) => values[Math.ceil(values.length * fraction) - 1];
+    const metrics = {
+      rounds,
+      renderP50: percentile(sortedRenderTimes, 0.5),
+      renderP95: percentile(sortedRenderTimes, 0.95),
+      wallP50: percentile(sortedWallTimes, 0.5),
+      wallP95: percentile(sortedWallTimes, 0.95),
+    };
+    expect(metrics.renderP95, 'preview render p95 remains below a visible two-second freeze').to.be.below(2_000);
+    expect(metrics.wallP95, 'native edit + preset settle p95 remains below five seconds').to.be.below(5_000);
+
+    await browser.saveScreenshot(path.join(EVIDENCE_DIR, 'native-preview-performance-20260802.png'));
+    // eslint-disable-next-line no-console
+    console.log(`[svg-render] native preview performance: ${JSON.stringify(metrics)}`);
   });
 });

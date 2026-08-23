@@ -1,5 +1,9 @@
 ﻿import { marked } from 'marked'
-import { renderInkforgeMarkdownExtensions } from '@/services/markdown-ext'
+import {
+  CJK_EMPHASIS_BOUNDARY,
+  normalizeCjkAdjacentEmphasis,
+  renderInkforgeMarkdownExtensions,
+} from '@/services/markdown-ext/render'
 
 type KatexModule = {
   default?: {
@@ -101,7 +105,7 @@ async function replaceAsync(
 }
 
 export async function renderMarkdownWithOptionalEnhancements(markdown: string): Promise<string> {
-  let staged = markdown || ''
+  let staged = normalizeCjkAdjacentEmphasis(markdown || '')
 
   staged = await replaceAsync(staged, /^```mermaid\s*\n([\s\S]*?)\n```$/gm, async (_match, source) => {
     return await renderMermaid(source)
@@ -122,6 +126,6 @@ export async function renderMarkdownWithOptionalEnhancements(markdown: string): 
     gfm: true,
   })
 
-  return typeof html === 'string' ? html : String(html)
+  return (typeof html === 'string' ? html : String(html)).split(CJK_EMPHASIS_BOUNDARY).join('')
 }
 

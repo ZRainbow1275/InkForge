@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import {
+  InspectorWidgetLayoutsSchema,
+  type InspectorWidgetLayouts,
+} from '@/services/inspector-widgets'
 
 export const LAYOUT_STATE_VERSION = 1
 export const LAYOUT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000
@@ -84,6 +88,7 @@ export const LayoutStateRecordSchema = z.object({
   managerCollapsed: z.boolean(),
   stageCollapsed: z.boolean(),
   inspectorCollapsed: z.boolean(),
+  inspectorPinned: z.boolean().default(false),
   rightPanelMode: RightPanelModeSchema,
   managerTab: ManagerTabSchema,
   editorMode: EditorModeSchema,
@@ -102,12 +107,14 @@ export const LayoutStateRecordSchema = z.object({
   splitViewSyncScroll: z.boolean().default(true),
   splitViewLeftFontScale: z.number().min(SPLIT_VIEW_FONT_SCALE_LIMIT.min).max(SPLIT_VIEW_FONT_SCALE_LIMIT.max).default(SPLIT_VIEW_FONT_SCALE_LIMIT.default),
   splitViewRightFontScale: z.number().min(SPLIT_VIEW_FONT_SCALE_LIMIT.min).max(SPLIT_VIEW_FONT_SCALE_LIMIT.max).default(SPLIT_VIEW_FONT_SCALE_LIMIT.default),
+  inspectorWidgets: InspectorWidgetLayoutsSchema,
   savedAt: TimestampMsSchema,
   createdAt: TimestampMsSchema,
   updatedAt: TimestampMsSchema,
 })
 
 export type LayoutStateRecord = z.infer<typeof LayoutStateRecordSchema>
+export type { InspectorWidgetLayouts }
 
 export type LayoutStatePatch = Partial<Omit<LayoutStateRecord, 'id' | 'schemaVersion' | 'profileId' | 'windowId' | 'layoutVersion' | 'createdAt' | 'updatedAt' | 'savedAt'>> & {
   savedAt?: number

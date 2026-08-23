@@ -31,6 +31,10 @@ import {
   UPDATER_STATUS_VALUES,
   type UpdaterSettings,
 } from '@/services/updater/types'
+import {
+  DeliveryAdornmentConfigSchema,
+  getDefaultDeliveryAdornmentConfig,
+} from '@/services/export/delivery-adornments'
 
 const EDITOR_MODE_VALUES = ['typora', 'source', 'preview'] as const
 const EDITOR_WIDTH_VALUES = ['narrow', 'medium', 'wide', 'full'] as const
@@ -73,7 +77,7 @@ export const SETTINGS_REGISTRY: readonly SettingsRegistryItem[] = [
   { id: 'appearance.fontFamily', tab: 'appearance', path: 'appearance.fontFamily', label: '预览字体', description: '编辑器与预览区域的中文字体族。', scope: 'account', keywords: ['font', '字体', '宋体', '黑体', '楷体', 'mono'], resettable: true },
   { id: 'appearance.accentColor', tab: 'appearance', path: 'appearance.accentColor', label: '主题色', description: '全局强调色与按钮高亮色。', scope: 'account', keywords: ['accent', 'color', '主题色', '颜色', 'hex'], resettable: true },
   { id: 'appearance.typography', tab: 'appearance', path: 'appearance.typography', label: '排版细节', description: '段落、字距、标题和引用块样式。', scope: 'account', keywords: ['typography', 'paragraph', 'line-height', '排版', '段落', '字距'], resettable: true },
-  { id: 'appearance.visualSystem', tab: 'appearance', path: 'appearance.visualSystem', label: '视觉系统基线', description: 'ThemeEngine、FontSystem 与 Typography 的实时 token 诊断。', scope: 'device', keywords: ['visual', 'token', 'theme-engine', 'font-system', '视觉', '主题引擎', '字体系统'], resettable: false },
+  { id: 'advanced.visualSystem', tab: 'advanced', path: 'runtime.visualSystem', label: '视觉系统诊断', description: 'ThemeEngine、FontSystem 与 Typography 的只读实时 token 诊断。', scope: 'device', keywords: ['visual', 'token', 'theme-engine', 'font-system', '视觉', '主题引擎', '字体系统'], resettable: false },
   { id: 'editor.mode', tab: 'editor', path: 'editor.editorMode', label: '编辑模式', description: 'Typora、Source、Preview 三种编辑视图。', scope: 'account', keywords: ['editor', 'typora', 'source', 'preview', '编辑模式'], resettable: true },
   { id: 'editor.width', tab: 'editor', path: 'editor.editorWidth', label: '版心宽度', description: '纸张宽度的四档选择。', scope: 'account', keywords: ['width', 'paper', '版心', '宽度'], resettable: true },
   { id: 'editor.autosave', tab: 'editor', path: 'editor.autoSave', label: '自动保存', description: '编辑器自动保存与保存间隔。', scope: 'account', keywords: ['autosave', 'save', '自动保存'], resettable: true },
@@ -88,6 +92,7 @@ export const SETTINGS_REGISTRY: readonly SettingsRegistryItem[] = [
   { id: 'data.backup', tab: 'data', path: 'data.autoBackup', label: '自动备份', description: '真实版本管理链路的自动快照配置。', scope: 'account', keywords: ['backup', 'snapshot', 'version', '备份', '快照'], resettable: true },
   { id: 'data.storage', tab: 'data', path: 'runtime.storage', label: '存储诊断', description: 'StorageManager、Dexie、Cache Storage 与 Service Worker 状态。', scope: 'device', keywords: ['storage', 'indexeddb', 'dexie', 'cache', '存储'], resettable: false },
   { id: 'sync.status', tab: 'sync', path: 'sync.status', label: '同步状态', description: 'SyncProvider、待同步队列、冲突数量与最后同步时间。', scope: 'shared', keywords: ['sync', 'provider', 'webdav', 'git', 'self-hosted', '同步', '冲突'], resettable: false },
+  { id: 'sync.configuration', tab: 'sync', path: 'sync.configuration', label: '同步配置', description: '按工作区配置 WebDAV、Git 或自有服务，密钥由系统凭据库托管。', scope: 'shared', keywords: ['sync', 'provider', 'webdav', 'git', 'self-hosted', 'credential', '同步', '凭据'], resettable: false },
   { id: 'sync.manual', tab: 'sync', path: 'sync.manual', label: '手动同步', description: '真实调用 SyncEngine.sync，不配置 provider 时保留待同步队列。', scope: 'shared', keywords: ['sync', 'manual', 'outbox', 'queue', '手动同步', '队列'], resettable: false },
   { id: 'audit.ledger', tab: 'audit', path: 'audit.ledger', label: '审计日志', description: '权限、同步、文档和高危操作的本地审计链路。', scope: 'shared', keywords: ['audit', 'permission', 'security', 'ledger', '审计', '权限', '安全'], resettable: false },
   { id: 'audit.integrity', tab: 'audit', path: 'audit.integrity', label: '完整性校验', description: '审计记录的 prevHash 与 entryHash 链式校验。', scope: 'shared', keywords: ['audit', 'hash', 'integrity', 'tamper', '完整性', '哈希'], resettable: false },
@@ -99,13 +104,14 @@ export const SETTINGS_REGISTRY: readonly SettingsRegistryItem[] = [
   { id: 'shortcuts.registry', tab: 'shortcuts', path: 'shortcuts', label: '快捷键绑定', description: '完整快捷键清单、录制、冲突检测和重置。', scope: 'account', keywords: ['shortcut', 'keyboard', 'hotkey', '快捷键', '键盘'], resettable: true },
   { id: 'advanced.customCss', tab: 'advanced', path: 'advanced.customCss', label: 'CustomCSS', description: '仅作用于 .editor-content 的运行时自定义 CSS、沙箱检查和导入导出。', scope: 'account', keywords: ['customcss', 'css', 'style', 'editor-content', '高级', '自定义样式'], resettable: true },
   { id: 'about.updater', tab: 'about', path: 'advanced.updater', label: 'Tauri Updater', description: '仅检查通知、不自动下载的桌面更新状态、跳过版本和禁用策略。', scope: 'device', keywords: ['updater', 'release', 'tauri', 'version', '更新', '版本'], resettable: true },
-  { id: 'about.logLevel', tab: 'about', path: 'advanced.logLevel', label: '日志级别', description: '统一 logger 的 runtime 日志级别。', scope: 'device', keywords: ['log', 'debug', 'logger', '日志'], resettable: true },
-  { id: 'about.devPanel', tab: 'about', path: 'advanced.developerMode', label: 'Developer Mode', description: '启用生产保留的 InkForge DevPanel 诊断抽屉。', scope: 'device', keywords: ['developer', 'devpanel', 'diagnostics', 'debug', '开发者', '诊断'], resettable: true },
-  { id: 'about.featureFlags', tab: 'ai', path: 'featureFlags', label: 'Feature Flags', description: '预留灰度配置与已接入的性能监测开关；未接入的消费者会如实标注。', scope: 'device', keywords: ['feature', 'flag', 'toggle', '功能开关'], resettable: true },
-  { id: 'about.performanceSlo', tab: 'about', path: 'performance.slo', label: '性能 SLO 账本', description: '真实 PerformanceObserver、Navigation、FPS、IndexedDB 与内存采样的本地阈值和降级事件。', scope: 'device', keywords: ['performance', 'slo', 'longtask', 'fps', '性能', '降级'], resettable: false },
-  { id: 'about.proxy', tab: 'ai', path: 'proxy', label: '代理设置', description: 'HTTP、HTTPS、SOCKS5 本机代理配置与脱敏预览；不声明请求链已接入。', scope: 'device', keywords: ['proxy', 'http', 'socks', '代理'], resettable: true },
-  { id: 'about.migration', tab: 'about', path: 'advanced.migrationSnapshots', label: 'Schema 与回滚点', description: 'Settings schema version、迁移证据和回滚快照。', scope: 'account', keywords: ['schema', 'migration', 'rollback', '迁移', '回滚'], resettable: false },
-  { id: 'about.ftue', tab: 'about', path: 'ftue', label: '首次使用与帮助', description: '欢迎弹窗、帮助中心和引导重置。', scope: 'device', keywords: ['ftue', 'help', 'onboarding', '帮助', '引导'], resettable: true },
+  { id: 'advanced.desktopRuntime', tab: 'advanced', path: 'runtime.desktop', label: '桌面运行时', description: 'Tauri 窗口、文件、剪贴板与系统能力的真实运行时状态。', scope: 'device', keywords: ['desktop', 'tauri', 'runtime', 'window', '桌面', '运行时'], resettable: false },
+  { id: 'advanced.logLevel', tab: 'advanced', path: 'advanced.logLevel', label: '日志级别', description: '统一 logger 的 runtime 日志级别。', scope: 'device', keywords: ['log', 'debug', 'logger', '日志'], resettable: true },
+  { id: 'advanced.devPanel', tab: 'advanced', path: 'advanced.developerMode', label: 'Developer Mode', description: '启用生产保留的 InkForge DevPanel 诊断抽屉。', scope: 'device', keywords: ['developer', 'devpanel', 'diagnostics', 'debug', '开发者', '诊断'], resettable: true },
+  { id: 'advanced.featureFlags', tab: 'advanced', path: 'featureFlags', label: 'Feature Flags', description: '预留灰度配置与已接入的性能监测开关；未接入的消费者会如实标注。', scope: 'device', keywords: ['feature', 'flag', 'toggle', '功能开关'], resettable: true },
+  { id: 'advanced.performanceSlo', tab: 'advanced', path: 'performance.slo', label: '性能 SLO 账本', description: '真实 PerformanceObserver、Navigation、FPS、IndexedDB 与内存采样的本地阈值和降级事件。', scope: 'device', keywords: ['performance', 'slo', 'longtask', 'fps', '性能', '降级'], resettable: false },
+  { id: 'ai.proxy', tab: 'ai', path: 'proxy', label: '代理设置', description: 'HTTP、HTTPS、SOCKS5 本机代理配置与脱敏预览；不声明请求链已接入。', scope: 'device', keywords: ['proxy', 'http', 'socks', '代理'], resettable: true },
+  { id: 'advanced.migration', tab: 'advanced', path: 'advanced.migrationSnapshots', label: 'Schema 与回滚点', description: 'Settings schema version、迁移证据和回滚快照。', scope: 'account', keywords: ['schema', 'migration', 'rollback', '迁移', '回滚'], resettable: false },
+  { id: 'advanced.ftue', tab: 'advanced', path: 'ftue', label: '首次使用与帮助', description: '欢迎弹窗、帮助中心和引导重置。', scope: 'device', keywords: ['ftue', 'help', 'onboarding', '帮助', '引导'], resettable: true },
 ] as const
 
 export const EDITOR_MODE_OPTIONS = [
@@ -274,14 +280,19 @@ const TypographySchema = z.object({
   paragraphIndent: z.boolean().default(false),
   paragraphSpacing: z.number().min(0).max(32).default(16),
   letterSpacing: z.number().min(-0.05).max(0.2).default(0),
-  headingStyle: z.enum(['underline', 'background', 'border-left', 'none']).default('none'),
-  blockquoteStyle: z.enum(['classic', 'modern', 'minimal']).default('classic'),
+  textAlign: z.enum(['left', 'justify']).default('left'),
+  listSpacing: z.number().min(2).max(16).default(8),
+  headingScale: z.enum(['compact', 'balanced', 'display']).default('balanced'),
+  headingStyle: z.enum(['underline', 'background', 'border-left', 'pill', 'marker', 'none']).default('none'),
+  blockquoteStyle: z.enum(['classic', 'modern', 'minimal', 'card', 'double-line']).default('classic'),
+  dividerStyle: z.enum(['line', 'dots', 'ornament']).default('line'),
+  mediaStyle: z.enum(['plain', 'rounded', 'framed']).default('plain'),
   fontSize: z.number().min(12).max(24).default(16),
   lineHeight: z.number().min(1.2).max(2.4).default(1.618),
 })
 const AppearanceSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']).default('light'),
-  fontFamily: z.enum(['serif', 'sans', 'kai', 'mono']).default('serif'),
+  fontFamily: z.enum(['serif', 'sans', 'kai', 'fangsong', 'wenkai', 'humanist', 'mono']).default('serif'),
   fontSize: z.number().min(12).max(24).default(16),
   lineHeight: z.number().min(1.4).max(2.4).default(1.8),
   accentColor: z.string().default('#D32F2F'),
@@ -291,8 +302,13 @@ const AppearanceSchema = z.object({
     paragraphIndent: false,
     paragraphSpacing: 16,
     letterSpacing: 0,
+    textAlign: 'left',
+    listSpacing: 8,
+    headingScale: 'balanced',
     headingStyle: 'none',
     blockquoteStyle: 'classic',
+    dividerStyle: 'line',
+    mediaStyle: 'plain',
     fontSize: 16,
     lineHeight: 1.618,
   }),
@@ -334,11 +350,11 @@ const EditorSchema = z.object({
 
 const ExportHistoryEntrySchema = z.object({
   id: z.string().min(1),
-  platform: z.enum(['wechat', 'xiaohongshu', 'zhihu']),
+  platform: z.enum(['wechat', 'xiaohongshu', 'zhihu', 'local']),
   title: z.string().min(1).max(160),
   exportedAt: z.string().min(1),
   bytes: z.number().int().min(0),
-  action: z.enum(['copy', 'download', 'settings-preview']).default('settings-preview'),
+  action: z.enum(['copy', 'download', 'write-local', 'settings-preview']).default('settings-preview'),
 })
 
 const ExportSchema = z.object({
@@ -347,10 +363,14 @@ const ExportSchema = z.object({
   macCodeBlock: z.boolean().default(true),
   lineNumbers: z.boolean().default(false),
   convertFootnotes: z.boolean().default(true),
+  // Legacy import alias only; active UI/renderers use appearance.typography.paragraphIndent.
   textIndent: z.boolean().default(false),
   imageMaxWidth: z.number().min(320).max(1080).default(680),
   codeTheme: z.string().default('atom-one-dark'),
   customCss: z.string().max(50000).default(''),
+  deliveryAdornment: DeliveryAdornmentConfigSchema.default(
+    getDefaultDeliveryAdornmentConfig(),
+  ),
   exportHistory: z.array(ExportHistoryEntrySchema).max(10).default([]),
 })
 
@@ -652,6 +672,16 @@ function migrateLegacyShortcuts(shortcuts: Partial<Record<string, string>> | und
 function buildSettingsCandidate(input: unknown): Settings {
   const defaults = getDefaultSettings()
   const parsed = (typeof input === 'object' && input !== null ? input : {}) as Partial<Settings>
+  const parsedAppearance = (
+    typeof parsed.appearance === 'object' && parsed.appearance !== null
+      ? parsed.appearance
+      : {}
+  ) as Partial<AppearanceSettings>
+  const parsedTypography = (
+    typeof parsedAppearance.typography === 'object' && parsedAppearance.typography !== null
+      ? parsedAppearance.typography
+      : {}
+  ) as Partial<TypographySettings>
   const migratedShortcuts = migrateLegacyShortcuts(parsed.shortcuts)
   const normalizedWritingGoal = normalizeWritingGoalCandidate(parsed.writingGoal)
   const normalizedExportHistory = normalizeExportHistoryCandidate(parsed.export?.exportHistory)
@@ -665,10 +695,19 @@ function buildSettingsCandidate(input: unknown): Settings {
     schemaVersion: CURRENT_SETTINGS_SCHEMA_VERSION,
     appearance: {
       ...defaults.appearance,
-      ...parsed.appearance,
+      ...parsedAppearance,
       typography: {
         ...defaults.appearance.typography,
-        ...parsed.appearance?.typography,
+        ...parsedTypography,
+        fontSize: parsedTypography.fontSize
+          ?? parsedAppearance.fontSize
+          ?? defaults.appearance.typography.fontSize,
+        lineHeight: parsedTypography.lineHeight
+          ?? parsedAppearance.lineHeight
+          ?? defaults.appearance.typography.lineHeight,
+        paragraphIndent: parsedTypography.paragraphIndent
+          ?? parsed.export?.textIndent
+          ?? defaults.appearance.typography.paragraphIndent,
       },
     },
     editor: { ...defaults.editor, ...parsed.editor },
@@ -889,7 +928,6 @@ export const useSettingsStore = defineStore('settings', () => {
         break
       case 'ai':
         settings.value.ai = defaults.ai
-        settings.value.featureFlags = defaults.featureFlags
         settings.value.proxy = defaults.proxy
         break
       case 'data':
@@ -907,13 +945,14 @@ export const useSettingsStore = defineStore('settings', () => {
         settings.value.shortcuts = getDefaultShortcuts()
         break
       case 'advanced':
-        settings.value.advanced.customCss = defaults.advanced.customCss
-        break
-      case 'about':
         settings.value.advanced = {
           ...defaults.advanced,
-          customCss: settings.value.advanced.customCss,
+          updater: settings.value.advanced.updater,
         }
+        settings.value.featureFlags = defaults.featureFlags
+        break
+      case 'about':
+        settings.value.advanced.updater = defaults.advanced.updater
         break
       default: {
         const exhaustive: never = tabId

@@ -66,8 +66,8 @@ describe('PR4 migration — all 16 wechat presets have dual-track schema', () =>
         expect(typeof preset?.decorate).toBe('function')
       })
 
-      it('exportCSS contains 22em line-length lock from persona base', () => {
-        expect(preset?.exportCSS).toContain('max-width: min(22em')
+      it('exportCSS contains the 24em lock for 22–24 CJK characters from persona base', () => {
+        expect(preset?.exportCSS).toContain('max-width: min(24em')
       })
 
       it('exportCSS does not use CSS variables', () => {

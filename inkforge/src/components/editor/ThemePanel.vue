@@ -5,50 +5,22 @@ import { useThemeStore, ARTICLE_PRESETS } from '@/stores/theme'
 const themeStore = useThemeStore()
 const { 
   currentPresetId, 
-  baseTheme, 
   primaryColor, 
   fontFamily, 
   fontSize, 
   lineHeight,
   firstLineIndent,
-  textAlign,
   customCSS 
 } = storeToRefs(themeStore)
-
-// Base themes
-const baseThemes = [
-  { id: 'default', name: '经典' },
-  { id: 'grace', name: '优雅' },
-  { id: 'simple', name: '简洁' }
-] as const
 
 function selectPreset(presetId: string) {
   themeStore.applyPreset(presetId)
 }
 
-function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
-  baseTheme.value = themeId
-}
 </script>
 
 <template>
   <div class="theme-panel">
-    <!-- Base Themes -->
-    <section class="panel-section">
-      <h3>基础主题</h3>
-      <div class="theme-grid">
-        <button 
-          v-for="t in baseThemes" 
-          :key="t.id"
-          class="theme-btn"
-          :class="{ active: baseTheme === t.id }"
-          @click="selectBaseTheme(t.id)"
-        >
-          {{ t.name }}
-        </button>
-      </div>
-    </section>
-
     <!-- Article Presets -->
     <section class="panel-section">
       <h3>文章预设</h3>
@@ -92,6 +64,9 @@ function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
           <option value="serif">
             衬线
           </option>
+          <option value="kai">
+            楷体
+          </option>
           <option value="mono">
             等宽
           </option>
@@ -127,20 +102,6 @@ function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
           首行缩进
         </label>
       </div>
-      <div class="setting-group">
-        <label>对齐方式</label>
-        <select
-          v-model="textAlign"
-          class="select-input"
-        >
-          <option value="left">
-            左对齐
-          </option>
-          <option value="justify">
-            两端对齐
-          </option>
-        </select>
-      </div>
     </section>
 
     <!-- Custom CSS -->
@@ -172,31 +133,6 @@ function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
   text-transform: uppercase;
   margin: 0 0 12px;
   color: #999;
-}
-
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.theme-btn {
-  padding: 10px;
-  border: 1px solid #444;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.15s ease;
-}
-
-.theme-btn:hover {
-  border-color: #666;
-}
-
-.theme-btn.active {
-  border-color: #07c160;
-  background: rgba(7, 193, 96, 0.1);
 }
 
 .preset-list {

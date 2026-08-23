@@ -4,8 +4,19 @@
  * 统一的类型系统，支持微信公众号、知乎、小红书三个平台的导出渲染
  */
 
-import type { ExportPreset, PresetPersona, ExportTarget, FontSpec } from '@/types'
+import type {
+  ExportPreset,
+  PresetPersona,
+  ExportTarget,
+  FontSpec,
+  PresetVisualSignature,
+} from '@/types'
 import type { XhsImageArtifactManifest, ZhihuImageArtifactManifest } from './image-pipeline/types'
+import type {
+  DeliveryAdornmentConfig,
+  DeliveryAdornmentReport,
+} from './delivery-adornments'
+import type { TypographyConfig } from './shared-typography'
 import type { SvgInjectionPlan } from './svg-modules/inject'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -111,6 +122,8 @@ export interface ExportOptions {
   enableLineNumbers?: boolean
   /** 启用阅读时间显示 (默认true) */
   enableReadingTime?: boolean
+  /** 文章真实分类名；缺失时抬头不生成分类占位 */
+  articleCategory?: string
   /** 自定义阅读速度 (字/分钟, 默认300) */
   readingSpeed?: number
   /** 启用代码高亮 (默认true) */
@@ -149,8 +162,16 @@ export interface ExportOptions {
   /**
    * SVG 模块注入计划（cover/headings/replaceHr/blockquote/endmark → 模块 id）。
    * 仅当 enableSvgModules 为 true 时生效；缺省时不注入，保持现有导出行为不变。
-   */
+  */
   svgInjectionPlan?: SvgInjectionPlan
+  /**
+   * 交付附加内容快照。
+   *
+   * - 文前阅读时间、文末 CC 协议与有序平台组件共享同一份类型化配置。
+   * - undefined 完全保留旧输出；渲染器不得为缺失配置自行添加组件。
+   * - 不允许传入原始 HTML，平台不支持或需要凭据的组件会显式降级或省略。
+   */
+  deliveryAdornment?: DeliveryAdornmentConfig
 }
 
 /**
@@ -236,6 +257,8 @@ export interface XiaohongshuPreset {
   exportCSS?: string
   /** Post-process function for export-time decoration injection */
   decorate?: (html: string, target: ExportTarget) => string
+  /** Visual signature derived from this preset's real CSS/decorator chain */
+  visualSignature?: PresetVisualSignature
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -269,6 +292,8 @@ export interface ZhihuPreset {
   exportCSS?: string
   /** Post-process function for export-time decoration injection */
   decorate?: (html: string, target: ExportTarget) => string
+  /** Visual signature derived from this preset's real CSS/decorator chain */
+  visualSignature?: PresetVisualSignature
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -285,7 +310,7 @@ export interface PlatformPresetRegistry {
 }
 
 // 重新导出 ExportPreset 类型 + dual-track schema 类型
-export type { ExportPreset, PresetPersona, ExportTarget, FontSpec }
+export type { ExportPreset, PresetPersona, ExportTarget, FontSpec, PresetVisualSignature }
 
 // ═══════════════════════════════════════════════════════════════════
 // 平台专用导出选项
@@ -327,6 +352,13 @@ export interface ZhihuExportOptions {
  * 默认行为：CJK/Latin 间距开启、677px 内容宽度 clamp 开启、dark-mode 元数据关闭。
  */
 export interface WechatExportOptions extends ExportOptions {
+  /** 文章真实标题；缺失时抬头不生成标题占位 */
+  articleTitle?: string
+  /**
+   * Canonical typography snapshot used to re-apply supported controls after
+   * preset/SVG decorators replace the semantic nodes that Juice originally styled.
+   */
+  typography?: TypographyConfig
   /** 启用 CJK/Latin thin-space 间距（默认 true） */
   enableCjkSpacing?: boolean
   /** 内容列宽度上限 px；传 null 关闭 clamp（默认 677） */
@@ -496,6 +528,8 @@ export interface NativeExportResult {
   content: string
   /** 平台 */
   platform: Platform
+  /** HTML 平台原生产物的真实文章统计；纯文本/Markdown 平台可不提供 */
+  stats?: ExportStats
   /** 质量报告 */
   qualityReport?: QualityReport
   /** 本地导出产物证明；只表示 artifact preflight，不等于平台发布成功 */
@@ -503,4 +537,6 @@ export interface NativeExportResult {
     xiaohongshuImageManifest?: XhsImageArtifactManifest
     zhihuImageArtifactManifest?: ZhihuImageArtifactManifest
   }
+  /** 交付附加内容的实际写入、降级和人工处理报告 */
+  deliveryAdornment?: DeliveryAdornmentReport
 }

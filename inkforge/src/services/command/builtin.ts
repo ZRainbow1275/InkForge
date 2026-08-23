@@ -200,8 +200,8 @@ export function createBuiltinCommands(deps: BuiltinCommandDependencies): Command
       handler: async () => {
         const toggled = deps.toggleDevPanel?.() ?? false
         if (!toggled) {
-          await openSettings(deps, 'about', 'dev-panel')
-          throw new Error('Developer Mode is disabled. Enable it in Settings > About > Developer tools first.')
+          await openSettings(deps, 'advanced', 'dev-panel')
+          throw new Error('Developer Mode is disabled. Enable it in Settings > Advanced > Developer Mode first.')
         }
       },
     },    {

@@ -74,9 +74,52 @@ describe('generatePersonaBaseCSS', () => {
     for (const persona of PERSONAS) {
       const css = generatePersonaBaseCSS(persona)
       expect(css).toContain('#nice {')
-      expect(css).toContain('max-width: min(22em, calc(100vw - 32px))')
-      expect(css).toContain('font-size: 17px')
+      expect(css).toContain('width: 100%')
+      expect(css).toContain('max-width: min(24em, calc(100vw - 16px))')
+      expect(css).toContain('box-sizing: border-box')
+      expect(css).toContain('font-size: 16px')
       expect(css).toContain("font-feature-settings: 'palt'")
+    }
+  })
+
+  it('keeps a 375px WeChat canvas at the confirmed 22–24 CJK characters per line', () => {
+    const css = generatePersonaBaseCSS('academic')
+    const viewportWidth = 375
+    const horizontalGutter = 16
+    const fontSize = 16
+    const maxLineWidth = Math.min(24 * fontSize, viewportWidth - horizontalGutter)
+
+    expect(maxLineWidth / fontSize).toBeGreaterThanOrEqual(22)
+    expect(maxLineWidth / fontSize).toBeLessThanOrEqual(24)
+    expect(css).toContain('overflow-wrap: anywhere')
+  })
+
+  it('provides a safe default rule for every supported semantic article element', () => {
+    const css = generatePersonaBaseCSS('business')
+    for (const selector of [
+      '#nice h1,',
+      '#nice h2,',
+      '#nice h3,',
+      '#nice h4,',
+      '#nice h5,',
+      '#nice h6',
+      '#nice del,',
+      '#nice code',
+      '#nice pre',
+      '#nice blockquote',
+      '#nice ul,',
+      '#nice ol',
+      '#nice table',
+      '#nice img',
+      '#nice figcaption',
+      '#nice hr',
+      '#nice .katex',
+      '#nice .katex-display',
+      '#nice .mermaid,',
+      '#nice .ink-citation,',
+      '#nice .ink-footnotes',
+    ]) {
+      expect(css).toContain(selector)
     }
   })
 

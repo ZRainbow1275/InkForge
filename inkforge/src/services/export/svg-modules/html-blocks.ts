@@ -51,6 +51,29 @@ function firstText(innerHtml: string): string {
     .trim()
 }
 
+const CANONICAL_HEADING_OVERRIDE_PATTERNS = [
+  /border-bottom:\s*2px\s+solid\s+#[0-9a-f]{6};\s*padding-bottom:\s*0\.18em;?\s*$/i,
+  /background:\s*#f7f8fa;\s*padding:\s*0\.12em\s+0\.4em;\s*border-radius:\s*6px;?\s*$/i,
+  /border-left:\s*4px\s+solid\s+#[0-9a-f]{6};\s*padding-left:\s*0\.5em;?\s*$/i,
+]
+
+const CANONICAL_BLOCKQUOTE_OVERRIDE_PATTERNS = [
+  /border:\s*0;\s*border-left:\s*0;\s*background:\s*#f7f8fa;\s*border-radius:\s*8px;\s*box-shadow:\s*inset\s+4px\s+0\s+0\s+#[0-9a-f]{6};\s*padding:\s*14px\s+18px;?\s*$/i,
+  /border:\s*0;\s*border-left:\s*2px\s+solid\s+#[0-9a-f]{6};\s*background:\s*transparent;\s*padding:\s*0\s+0\s+0\s+12px;?\s*$/i,
+]
+
+function getCanonicalStyleOverride(
+  attrs: string | undefined,
+  patterns: readonly RegExp[],
+): string {
+  const style = /style\s*=\s*["']([^"']*)["']/i.exec(attrs ?? '')?.[1] ?? ''
+  for (const pattern of patterns) {
+    const match = pattern.exec(style)?.[0].trim()
+    if (match) return match.endsWith(';') ? match : `${match};`
+  }
+  return ''
+}
+
 /**
  * 解析 marker 段落：剥掉 `[元素]` 前缀后，按 `||` 切条目、条目内按 `|` 切字段。
  * marker 内容按纯文本处理（不保留 HTML，避免 `|` / `||` 与 HTML 混淆）。
@@ -287,6 +310,7 @@ export function decorateFlagshipH2(
     return html.replace(/<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi, (_m, _attrs: string | undefined, inner: string) => {
       n += 1
       const idx = String(n).padStart(2, '0')
+      const headingOverride = getCanonicalStyleOverride(_attrs, CANONICAL_HEADING_OVERRIDE_PATTERNS)
       // 方格铸号（内联 svg，左）
       const numNode = gridNumberSvg(idx)
       // 反白标题
@@ -303,7 +327,7 @@ export function decorateFlagshipH2(
         node(true) + node(false) + node(true) +
         `</p>`
       return (
-        `<section data-ink-block="flagship-h2" style="margin:38px 0 22px;">` +
+        `<section data-ink-block="flagship-h2" style="margin:38px 0 22px;${headingOverride}">` +
         `<section style="background-color:${palette.accentDeep};border-radius:4px;padding:18px 20px;">` +
         numNode +
         titleP +
@@ -324,9 +348,10 @@ export function decorateFlagshipH3(palette: SvgPalette): BlockDecorateFn {
     if (!html) return html
     if (html.includes('data-ink-block="flagship-h3"')) return html
     return html.replace(/<h3(\s[^>]*)?>([\s\S]*?)<\/h3>/gi, (_m, _attrs: string | undefined, inner: string) => {
+      const headingOverride = getCanonicalStyleOverride(_attrs, CANONICAL_HEADING_OVERRIDE_PATTERNS)
       return (
         `<section data-ink-block="flagship-h3" style="margin:28px 0 14px;padding-bottom:8px;` +
-        `border-bottom:1px solid ${palette.accentBorder};">` +
+        `border-bottom:1px solid ${palette.accentBorder};${headingOverride}">` +
         gridSquareMark(palette.accent) +
         `<span style="margin-left:10px;color:${palette.ink};font-size:18px;font-weight:700;letter-spacing:0.5px;` +
         `line-height:1.5;font-family:${HTML_FONT};vertical-align:middle;">${inner}</span>` +
@@ -404,13 +429,14 @@ export function decorateFlagshipBlockquote(palette: SvgPalette): BlockDecorateFn
       return html
     }
     return html.replace(/<blockquote(\s[^>]*)?>([\s\S]*?)<\/blockquote>/gi, (_m, _attrs: string | undefined, inner: string) => {
+      const blockquoteOverride = getCanonicalStyleOverride(_attrs, CANONICAL_BLOCKQUOTE_OVERRIDE_PATTERNS)
       const text = firstText(inner)
       // 优先：金句大字卡（PULLQUOTE）— 满幅大字 feature 卡。
       if (detectPullquote(text)) {
         const bodyHtml = stripPullquoteLead(inner)
         const card =
           `<section data-ink-block="flagship-pullquote" style="margin:30px 0;padding:26px 22px;` +
-          `background-color:${palette.paperWarm};border-radius:10px;text-align:center;">` +
+          `background-color:${palette.paperWarm};border-radius:10px;text-align:center;${blockquoteOverride}">` +
           pullquoteGlyphSvg(palette.accent) +
           `<section style="font-size:22px;font-weight:600;line-height:1.7;letter-spacing:0.04em;color:${palette.ink};` +
           `font-family:${HTML_FONT};">${bodyHtml}</section>` +
@@ -443,7 +469,7 @@ export function decorateFlagshipBlockquote(palette: SvgPalette): BlockDecorateFn
         const bodyHtml = stripLeadKeyword(inner)
         return (
           `<section data-ink-block="flagship-callout" style="margin:24px 0;padding:14px 18px;` +
-          `border-left:5px solid ${callout.color};border-radius:8px;background-color:${tint};">` +
+          `border-left:5px solid ${callout.color};border-radius:8px;background-color:${tint};${blockquoteOverride}">` +
           labelRow +
           `<section style="margin:0;font-size:15px;line-height:1.85;color:${palette.ink};word-break:break-word;">${bodyHtml}</section>` +
           `</section>`
@@ -462,7 +488,7 @@ export function decorateFlagshipBlockquote(palette: SvgPalette): BlockDecorateFn
         `</p>`
       return (
         `<section data-ink-block="flagship-quote" style="margin:26px 0;padding:16px 20px 14px;` +
-        `border-left:7px solid ${palette.accent};background-color:${palette.accentTint};border-radius:0 6px 6px 0;">` +
+        `border-left:7px solid ${palette.accent};background-color:${palette.accentTint};border-radius:0 6px 6px 0;${blockquoteOverride}">` +
         diagonalCornerSvg(palette.accent, palette.paper) +
         `<section style="margin:6px 0 0;font-size:17px;line-height:1.95;letter-spacing:0.04em;color:${palette.ink};word-break:break-word;">${quoteBody}</section>` +
         terminalRow +
@@ -587,12 +613,27 @@ export function decorateFlagshipLists(palette: SvgPalette): BlockDecorateFn {
 
 export function decorateFlagshipFooterCard(
   palette: SvgPalette,
-  opts: { brand: string; tagline: string },
+  opts: { brand: string; tagline: string; layout?: 'standard' | 'paste-safe' },
 ): BlockDecorateFn {
-  const { brand, tagline } = opts
+  const { brand, tagline, layout = 'standard' } = opts
   return (html: string, _target: ExportTarget): string => {
     if (!html) return html
     if (html.includes('data-ink-block="flagship-footer"')) return html
+
+    if (layout === 'paste-safe') {
+      const card =
+        `<section data-ink-block="flagship-footer" style="margin:32px 0 8px;padding:18px 0 12px;` +
+        `border-top:4px solid ${palette.accentDeep};border-bottom:3px double ${palette.accent};text-align:left;">` +
+        `<section style="display:block;padding:0 0 10px;border-bottom:1px solid ${palette.hairline};overflow:hidden;">` +
+        `<span style="display:inline-block;width:68%;font-size:11px;font-weight:700;letter-spacing:2px;color:${palette.accentDeep};">INKFORGE · PASTE SAFE</span>` +
+        `<span style="display:inline-block;width:32%;font-size:11px;text-align:right;color:${palette.inkSoft};">全文完</span>` +
+        `</section>` +
+        `<p style="margin:14px 0 0;font-size:15px;font-weight:700;color:${palette.ink};font-family:${HTML_FONT};">${escapeHtmlText(brand)}</p>` +
+        `<p style="margin:5px 0 0;font-size:13px;color:${palette.inkSoft};font-family:${HTML_FONT};">${escapeHtmlText(tagline)}</p>` +
+        `<section style="display:block;width:100%;height:4px;margin:14px 0 0;border-top:1px solid ${palette.accent};border-bottom:1px solid ${palette.accent};"></section>` +
+        `</section>`
+      return html + card
+    }
 
     // vessel mark：小尺寸内联 SVG（width="100%" + viewBox，由窄 section 限宽居中）。
     // viewBox 200×120，mark 中心 (100,52)，scale 0.85 适配紧凑徽章。
@@ -697,8 +738,8 @@ function readbarKicker(variant: 'kiln' | 'tempera' | 'amber' | string): string {
 // ─── E1. 品牌阅读条 ──────────────────────────────────────────────────────
 /**
  * decorateFlagshipReadingBar — 自动定位 wechat 管线 `buildReadingTimeHeader`
- * 注入的裸阅读头（文本含 阅读+分钟+全文+字），提取字数 Y / 分钟 X，替换为品牌
- * 阅读条（墨铸·persona栏目 ◆ 全文Y字 ◆ 约X分钟 ◆ 第01期 + 上下细线 + 方格 svg + 实心菱形 sep）。
+ * 注入的视觉抬头时保留其完整结构并增加 flagship-readbar 语义哨兵；旧版裸阅读头
+ * 仍按文本提取字数 Y / 分钟 X 并替换为兼容品牌阅读条。
  * 找不到（enableReadingTime=false）则原样返回；幂等 data-ink-block="flagship-readbar"。
  */
 export function decorateFlagshipReadingBar(
@@ -710,7 +751,14 @@ export function decorateFlagshipReadingBar(
     if (!html) return html
     if (html.includes('data-ink-block="flagship-readbar"')) return html
 
-    // buildReadingTimeHeader 注入的是 <div style="...">…<span>阅读约 X 分钟</span>…<span>全文 Y 字</span>…</div>。
+    const mastheadRe = /<section\b(?=[^>]*data-ink-masthead-variant="[^"]+")[^>]*>/i
+    const masthead = mastheadRe.exec(html)
+    if (masthead) {
+      const tagged = masthead[0].replace('<section', '<section data-ink-block="flagship-readbar"')
+      return html.slice(0, masthead.index) + tagged + html.slice(masthead.index + masthead[0].length)
+    }
+
+    // 旧版 buildReadingTimeHeader 注入的是 <div style="...">…阅读约 X 分钟…全文 Y 字…</div>。
     // 严格只匹配 <div>（真品形态）——避免误吞 <section id="nice"> 内层（会吞掉全文 body）。
     // 关键词必须 4-of-4 全中（阅读+分钟+全文+字）以防误判。
     const blockRe = /<div\b([^>]*)>([\s\S]*?)<\/div>/gi
@@ -733,21 +781,27 @@ export function decorateFlagshipReadingBar(
       if (!minMatch || !wordMatch) continue
       const minutes = minMatch[1]
       const words = wordMatch[1]
+      const categoryMatch = /类别\s+(.+?)\s*$/.exec(text)
+      const category = categoryMatch?.[1]?.trim() ?? ''
 
       const sep = diamondSep(palette.accent)
       const square = gridSquareSmall(palette.accent, 14)
+      const categoryNode = category
+        ? `<span style="float:right;vertical-align:middle;">类别 ${escapeHtmlText(category)}</span>`
+        : ''
       const bar =
-        `<section data-ink-block="flagship-readbar" style="margin:0 0 24px;padding:9px 0;` +
+        `<section data-ink-block="flagship-readbar" style="margin:0 0 24px;padding:11px 0;` +
         `border-top:1px solid ${palette.accentBorder};border-bottom:1px solid ${palette.accentBorder};">` +
-        `<p style="margin:0;font-size:13px;color:${palette.inkSoft};letter-spacing:1px;font-family:${HTML_FONT};">` +
+        `<p style="margin:0 0 9px;overflow:hidden;font-size:13px;color:${palette.inkSoft};letter-spacing:1px;font-family:${HTML_FONT};">` +
         square +
         `<span style="margin-left:8px;vertical-align:middle;">墨铸 · ${kicker}</span>` +
+        `<span style="float:right;font-size:12px;vertical-align:middle;">文章值得您享受</span>` +
+        `</p>` +
+        `<p style="margin:0;overflow:hidden;font-size:12px;color:${palette.inkSoft};letter-spacing:0.4px;font-family:${HTML_FONT};">` +
+        `<span style="vertical-align:middle;">阅读约 ${minutes} 分钟</span>` +
         sep +
         `<span style="vertical-align:middle;">全文 ${words} 字</span>` +
-        sep +
-        `<span style="vertical-align:middle;">约 ${minutes} 分钟</span>` +
-        sep +
-        `<span style="vertical-align:middle;">第 01 期</span>` +
+        categoryNode +
         `</p>` +
         `</section>`
       return html.slice(0, m.index) + bar + html.slice(m.index + full.length)

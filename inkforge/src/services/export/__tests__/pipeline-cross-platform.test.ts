@@ -17,6 +17,7 @@ import {
   convertToWechatWithStats,
   detectQuality,
   getDefaultPreset,
+  getPresetById,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
 } from '../index'
@@ -161,6 +162,67 @@ describe('cross-platform pipeline — WeChat', () => {
     expect(result.html).not.toMatch(/javascript:/i)
   })
 
+  it('preserves mark, external-link footnotes, and visible components through the final WeChat sanitizer', async () => {
+    const html = await renderMarkdownWithLazyOptionalEnhancements([
+      '正文含 ==语义高亮== 与 [公开仓库链接](https://github.com/ZRainbow1275/InkForge)。',
+      '',
+      '<TipBlock version="1" title="提示框验收" content="最终清洗仍保留真实可见内容" />',
+    ].join('\n'))
+    const result = convertToWechatWithStats(
+      html,
+      getDefaultPreset(),
+      { enableReadingTime: false },
+    )
+    const document = new DOMParser().parseFromString(result.html, 'text/html')
+    const highlight = document.querySelector('mark')
+    const text = document.body.textContent ?? ''
+
+    expect(highlight?.textContent).toBe('语义高亮')
+    expect(highlight?.getAttribute('style')).toMatch(/background/i)
+    expect(text).toContain('公开仓库链接')
+    expect(text).toContain('引用链接')
+    expect(text).toContain('https://github.com/ZRainbow1275/InkForge')
+    expect(text).toContain('提示框验收')
+    expect(text).toContain('最终清洗仍保留真实可见内容')
+    expect(document.querySelector('a[href^="http"]')).toBeNull()
+    expect(document.querySelector('sup')).not.toBeNull()
+    expect(document.querySelector('[data-ink-component-id]')).toBeNull()
+    expect(document.querySelector('script')).toBeNull()
+  })
+
+  it('keeps bounded image dimensions without allowing width or height on other elements', () => {
+    const preset = getPresetById('flagship-kiln')
+    if (!preset) throw new Error('flagship-kiln preset missing')
+    const result = convertToWechatWithStats(
+      [
+        '<table width="100%"><tbody><tr><td height="500">表格</td></tr></tbody></table>',
+        '<p><img src="https://example.com/image.png" width="640" height="480" alt="实图"></p>',
+      ].join(''),
+      getDefaultPreset(),
+      { enableReadingTime: false, enableCiteStatus: false },
+    )
+    const svgResult = convertToWechatWithStats(
+      '<p>可信旗舰 SVG 尺寸验收</p>',
+      preset,
+      { enableReadingTime: false, enableCiteStatus: false },
+    )
+    const document = new DOMParser().parseFromString(result.html, 'text/html')
+    const svgDocument = new DOMParser().parseFromString(svgResult.html, 'text/html')
+    const image = document.querySelector('img[alt="实图"]')
+    const svg = svgDocument.querySelector('section[data-ink-svg] > svg')
+    const rect = svg?.querySelector('rect[width][height]')
+
+    expect(document.querySelector('table')?.hasAttribute('width')).toBe(false)
+    expect(document.querySelector('td')?.hasAttribute('height')).toBe(false)
+    expect(image?.hasAttribute('width')).toBe(false)
+    expect(image?.hasAttribute('height')).toBe(false)
+    expect(image?.getAttribute('style')).toMatch(/width:\s*640px/i)
+    expect(image?.getAttribute('style')).toMatch(/height:\s*auto/i)
+    expect(svg?.getAttribute('width')).toBe('100%')
+    expect(rect?.getAttribute('width')).toMatch(/^\d+(?:\.\d+)?$/)
+    expect(rect?.getAttribute('height')).toMatch(/^\d+(?:\.\d+)?$/)
+  })
+
   it('detectQuality returns no errors for wechat (warnings/suggestions ok)', () => {
     const report = detectQuality(FIXTURE_MD, 'wechat')
     expect(report.stats.errors).toBe(0)
@@ -252,7 +314,7 @@ describe('cross-platform pipeline — Zhihu', () => {
     expect(result.content).toContain('```ts')
   })
 
-  it('preview: renderZhihuMockHtml renders with academic primary + equation img', () => {
+  it('preview: renderZhihuMockHtml renders the measured editor canvas with academic primary + equation img', () => {
     const cleaned = markdownToZhihuClean(FIXTURE_MD)
     const html = renderZhihuMockHtml(
       {
@@ -266,11 +328,13 @@ describe('cross-platform pipeline — Zhihu', () => {
     )
     expect(html).toContain('zhihu-mock')
     expect(html).toContain('zhihu-mock-academic')
+    expect(html).toContain('data-platform-editor="zhihu"')
+    expect(html).toContain('data-editor-canvas-width="800"')
     // academic primary
     expect(html).toContain('#1565C0')
     // equation img 仍存在
     expect(html).toMatch(/<img src="https:\/\/www\.zhihu\.com\/equation\?tex=/)
-    expect(html).toContain('zhihu-mock-watermark')
+    expect(html).not.toContain('zhihu-mock-watermark')
   })
 
   it('detectQuality returns no errors for zhihu (mermaid is warning)', () => {

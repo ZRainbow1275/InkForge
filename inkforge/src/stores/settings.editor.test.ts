@@ -106,4 +106,91 @@ describe('settings editor preferences', () => {
       weeklyTarget: undefined,
     })
   })
+
+  it('migrates legacy top-level typography values only when canonical values are absent', () => {
+    localStorage.setItem('inkforge-settings', JSON.stringify({
+      schemaVersion: 2,
+      appearance: {
+        fontSize: 21,
+        lineHeight: 2.1,
+      },
+      export: {
+        textIndent: true,
+      },
+    }))
+
+    const migrated = useSettingsStore()
+    expect(migrated.settings.appearance.typography.fontSize).toBe(21)
+    expect(migrated.settings.appearance.typography.lineHeight).toBe(2.1)
+    expect(migrated.settings.appearance.typography.paragraphIndent).toBe(true)
+    expect(migrated.settings.appearance.typography).toMatchObject({
+      textAlign: 'left',
+      listSpacing: 8,
+      headingScale: 'balanced',
+      dividerStyle: 'line',
+      mediaStyle: 'plain',
+    })
+  })
+
+  it('keeps canonical typography values when legacy aliases disagree', () => {
+    localStorage.setItem('inkforge-settings', JSON.stringify({
+      schemaVersion: 3,
+      appearance: {
+        fontSize: 22,
+        lineHeight: 2.2,
+        typography: {
+          fontSize: 17,
+          lineHeight: 1.7,
+          paragraphIndent: false,
+        },
+      },
+      export: {
+        textIndent: true,
+      },
+    }))
+
+    const migrated = useSettingsStore()
+    expect(migrated.settings.appearance.typography.fontSize).toBe(17)
+    expect(migrated.settings.appearance.typography.lineHeight).toBe(1.7)
+    expect(migrated.settings.appearance.typography.paragraphIndent).toBe(false)
+  })
+
+  it('persists canonical typography without relying on legacy aliases', async () => {
+    const store = useSettingsStore()
+    store.settings.appearance.fontFamily = 'wenkai'
+    store.settings.appearance.typography = {
+      fontSize: 19,
+      lineHeight: 1.9,
+      letterSpacing: 0.04,
+      paragraphSpacing: 24,
+      paragraphIndent: true,
+      textAlign: 'justify',
+      listSpacing: 12,
+      headingScale: 'display',
+      headingStyle: 'marker',
+      blockquoteStyle: 'card',
+      dividerStyle: 'dots',
+      mediaStyle: 'framed',
+    }
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(5000)
+
+    setActivePinia(createPinia())
+    const reloaded = useSettingsStore()
+    expect(reloaded.settings.appearance.fontFamily).toBe('wenkai')
+    expect(reloaded.settings.appearance.typography).toEqual({
+      fontSize: 19,
+      lineHeight: 1.9,
+      letterSpacing: 0.04,
+      paragraphSpacing: 24,
+      paragraphIndent: true,
+      textAlign: 'justify',
+      listSpacing: 12,
+      headingScale: 'display',
+      headingStyle: 'marker',
+      blockquoteStyle: 'card',
+      dividerStyle: 'dots',
+      mediaStyle: 'framed',
+    })
+  })
 })

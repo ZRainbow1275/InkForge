@@ -72,6 +72,26 @@ export interface FontSpec {
     latin: string
 }
 
+/**
+ * A compact, user-visible account of the real visual decisions a preset makes.
+ * The fields mirror the output categories covered by persona-distinction tests;
+ * they are descriptive metadata, never a second rendering rule source.
+ */
+export interface PresetVisualSignature {
+    /** Preset-owned masthead composition; descriptive metadata only. */
+    masthead?: string
+    rhythm: string
+    heading: string
+    quote: string
+    divider: string
+    media: string
+    modules: readonly string[]
+    /** Placement and treatment of optional song plus real reading metrics. */
+    delivery?: string
+    /** Preset-owned profile, CC, and colophon close. */
+    ending?: string
+}
+
 export interface ExportPreset {
     id: string
     name: string
@@ -104,5 +124,7 @@ export interface ExportPreset {
     decorate?: (html: string, target: ExportTarget) => string
     /** Optional override of default sample content for empty-state preview */
     sampleContent?: string
+    /** Visual signature derived from this preset's real CSS/decorator chain */
+    visualSignature?: PresetVisualSignature
 }
 

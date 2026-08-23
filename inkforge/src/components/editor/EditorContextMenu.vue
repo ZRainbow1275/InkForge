@@ -36,6 +36,7 @@ const emit = defineEmits<{
 const menuStyle = computed(() => ({
   top: `${props.y}px`,
   left: `${props.x}px`,
+  maxHeight: `calc(100vh - ${props.y}px - 8px)`,
 }))
 
 const selectedText = computed(() => {
@@ -89,7 +90,7 @@ function openSelectionWindow(): void {
     return
   }
 
-  win.document.write(`<!doctype html><html><head><title>InkForge Selection</title><meta charset="utf-8"><style>body{font-family:Georgia,serif;line-height:1.7;padding:32px;white-space:pre-wrap;color:#1f2937}</style></head><body>${escapeHtml(text || props.editor?.getText() || '')}</body></html>`)
+  win.document.write(`<!doctype html><html><head><title>InkForge 选中文本</title><meta charset="utf-8"><style>body{font-family:Georgia,serif;line-height:1.7;padding:32px;white-space:pre-wrap;color:#1f2937}</style></head><body>${escapeHtml(text || props.editor?.getText() || '')}</body></html>`)
   win.document.close()
 }
 
@@ -153,19 +154,19 @@ onBeforeUnmount(() => {
         type="button"
         @click="runCommand(cutSelection)"
       >
-        <Scissors :size="15" /><span>Cut</span>
+        <Scissors :size="15" /><span>剪切</span>
       </button>
       <button
         type="button"
         @click="runCommand(copySelection)"
       >
-        <Clipboard :size="15" /><span>Copy</span>
+        <Clipboard :size="15" /><span>复制</span>
       </button>
       <button
         type="button"
         @click="runCommand(pasteText)"
       >
-        <ClipboardPaste :size="15" /><span>Paste</span>
+        <ClipboardPaste :size="15" /><span>粘贴</span>
       </button>
     </section>
 
@@ -175,28 +176,28 @@ onBeforeUnmount(() => {
         :class="{ active: editor?.isActive('bold') }"
         @click="runCommand(() => editor?.chain().focus().toggleBold().run())"
       >
-        <Bold :size="15" /><span>Bold</span>
+        <Bold :size="15" /><span>粗体</span>
       </button>
       <button
         type="button"
         :class="{ active: editor?.isActive('italic') }"
         @click="runCommand(() => editor?.chain().focus().toggleItalic().run())"
       >
-        <Italic :size="15" /><span>Italic</span>
+        <Italic :size="15" /><span>斜体</span>
       </button>
       <button
         type="button"
         :class="{ active: editor?.isActive('strike') }"
         @click="runCommand(() => editor?.chain().focus().toggleStrike().run())"
       >
-        <Strikethrough :size="15" /><span>Strike</span>
+        <Strikethrough :size="15" /><span>删除线</span>
       </button>
       <button
         type="button"
         :class="{ active: editor?.isActive('code') }"
         @click="runCommand(() => editor?.chain().focus().toggleCode().run())"
       >
-        <Code :size="15" /><span>Inline code</span>
+        <Code :size="15" /><span>行内代码</span>
       </button>
       <button
         type="button"
@@ -211,25 +212,25 @@ onBeforeUnmount(() => {
         type="button"
         @click="runCommand(() => emit('request-link'))"
       >
-        <Link :size="15" /><span>Link</span>
+        <Link :size="15" /><span>链接</span>
       </button>
       <button
         type="button"
         @click="runCommand(() => emit('request-image'))"
       >
-        <ImagePlus :size="15" /><span>Image</span>
+        <ImagePlus :size="15" /><span>图片</span>
       </button>
       <button
         type="button"
         @click="runCommand(() => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run())"
       >
-        <Table :size="15" /><span>Table</span>
+        <Table :size="15" /><span>表格</span>
       </button>
       <button
         type="button"
         @click="runCommand(() => editor?.chain().focus().setHorizontalRule().run())"
       >
-        <Minus :size="15" /><span>Divider</span>
+        <Minus :size="15" /><span>分隔线</span>
       </button>
     </section>
 
@@ -238,19 +239,19 @@ onBeforeUnmount(() => {
         type="button"
         @click="runCommand(() => emit('request-find-replace'))"
       >
-        <Search :size="15" /><span>Find / Replace</span>
+        <Search :size="15" /><span>查找与替换</span>
       </button>
       <button
         type="button"
         @click="runCommand(copySelectionCount)"
       >
-        <TextCursorInput :size="15" /><span>Selection chars: {{ selectionCount }}</span>
+        <TextCursorInput :size="15" /><span>选中字符：{{ selectionCount }}</span>
       </button>
       <button
         type="button"
         @click="runCommand(openSelectionWindow)"
       >
-        <ExternalLink :size="15" /><span>Open in window</span>
+        <ExternalLink :size="15" /><span>在独立窗口打开</span>
       </button>
     </section>
   </div>
@@ -268,6 +269,8 @@ onBeforeUnmount(() => {
   border-radius: 14px;
   box-shadow: var(--elev-3);
   backdrop-filter: blur(12px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .menu-group {

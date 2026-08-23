@@ -61,6 +61,30 @@ export const FONT_STACK_PROFILES: Record<FontFamily, FontStackProfile> = {
     latin: 'Georgia, Times New Roman, Times, serif',
     mono: FONT_STACKS.mono,
   },
+  fangsong: {
+    id: 'fangsong',
+    label: '仿宋 / FangSong',
+    css: FONT_STACKS.fangsong,
+    cjk: 'FangSong, STFangsong, FangSong_GB2312, serif',
+    latin: 'Georgia, Times New Roman, Times, serif',
+    mono: FONT_STACKS.mono,
+  },
+  wenkai: {
+    id: 'wenkai',
+    label: '文楷 / WenKai',
+    css: FONT_STACKS.wenkai,
+    cjk: 'LXGW WenKai Screen, LXGW WenKai, Klee One, KaiTi, serif',
+    latin: 'Klee One, Georgia, Times New Roman, serif',
+    mono: FONT_STACKS.mono,
+  },
+  humanist: {
+    id: 'humanist',
+    label: '人文 / Humanist',
+    css: FONT_STACKS.humanist,
+    cjk: 'HarmonyOS Sans SC, MiSans, OPPO Sans, Source Han Sans SC, sans-serif',
+    latin: 'HarmonyOS Sans, Inter, Helvetica Neue, Arial, sans-serif',
+    mono: FONT_STACKS.mono,
+  },
   mono: {
     id: 'mono',
     label: '等宽 / Mono',
@@ -82,8 +106,13 @@ export const TYPOGRAPHY_PRESETS: readonly TypographyPreset[] = [
       paragraphSpacing: 8,
       paragraphIndent: false,
       letterSpacing: -0.01,
+      textAlign: 'left',
+      listSpacing: 4,
+      headingScale: 'compact',
       headingStyle: 'none',
       blockquoteStyle: 'minimal',
+      dividerStyle: 'dots',
+      mediaStyle: 'plain',
     },
   },
   {
@@ -96,8 +125,13 @@ export const TYPOGRAPHY_PRESETS: readonly TypographyPreset[] = [
       paragraphSpacing: 16,
       paragraphIndent: false,
       letterSpacing: 0,
+      textAlign: 'left',
+      listSpacing: 8,
+      headingScale: 'balanced',
       headingStyle: 'none',
       blockquoteStyle: 'classic',
+      dividerStyle: 'line',
+      mediaStyle: 'rounded',
     },
   },
   {
@@ -110,8 +144,70 @@ export const TYPOGRAPHY_PRESETS: readonly TypographyPreset[] = [
       paragraphSpacing: 24,
       paragraphIndent: true,
       letterSpacing: 0.02,
+      textAlign: 'justify',
+      listSpacing: 12,
+      headingScale: 'display',
       headingStyle: 'border-left',
       blockquoteStyle: 'modern',
+      dividerStyle: 'ornament',
+      mediaStyle: 'rounded',
+    },
+  },
+  {
+    id: 'editorial',
+    label: '刊物',
+    description: '强调标题、引语与图文编排，适合专栏和品牌长文。',
+    typography: {
+      fontSize: 17,
+      lineHeight: 1.82,
+      paragraphSpacing: 20,
+      paragraphIndent: true,
+      letterSpacing: 0.015,
+      textAlign: 'justify',
+      listSpacing: 10,
+      headingScale: 'display',
+      headingStyle: 'marker',
+      blockquoteStyle: 'double-line',
+      dividerStyle: 'ornament',
+      mediaStyle: 'framed',
+    },
+  },
+  {
+    id: 'academic',
+    label: '学术',
+    description: '克制的标题层级与网格表格，适合论文、法研和报告。',
+    typography: {
+      fontSize: 16,
+      lineHeight: 1.76,
+      paragraphSpacing: 16,
+      paragraphIndent: true,
+      letterSpacing: 0,
+      textAlign: 'justify',
+      listSpacing: 8,
+      headingScale: 'compact',
+      headingStyle: 'underline',
+      blockquoteStyle: 'classic',
+      dividerStyle: 'line',
+      mediaStyle: 'plain',
+    },
+  },
+  {
+    id: 'social',
+    label: '醒目',
+    description: '卡片化标题、引用与图片，适合社媒教程和活动内容。',
+    typography: {
+      fontSize: 17,
+      lineHeight: 1.7,
+      paragraphSpacing: 18,
+      paragraphIndent: false,
+      letterSpacing: 0.01,
+      textAlign: 'left',
+      listSpacing: 12,
+      headingScale: 'display',
+      headingStyle: 'pill',
+      blockquoteStyle: 'card',
+      dividerStyle: 'dots',
+      mediaStyle: 'framed',
     },
   },
 ]
@@ -188,16 +284,21 @@ export function buildVisualSystemTokens(
     '--font-cjk': activeFont.cjk,
     '--font-latin': activeFont.latin,
     '--font-mono': activeFont.mono,
-    '--font-size-body': `${appearance.fontSize}px`,
-    '--line-height-body': String(appearance.lineHeight),
+    '--font-size-body': `${typography.fontSize}px`,
+    '--line-height-body': String(typography.lineHeight),
 
     '--typography-font-size': `${typography.fontSize}px`,
     '--typography-line-height': String(typography.lineHeight),
     '--typography-paragraph-spacing': `${typography.paragraphSpacing}px`,
     '--typography-letter-spacing': `${typography.letterSpacing}em`,
     '--typography-text-indent': typography.paragraphIndent ? '2em' : '0',
+    '--typography-text-align': typography.textAlign,
+    '--typography-list-spacing': `${typography.listSpacing}px`,
+    '--typography-heading-scale': typography.headingScale,
     '--typography-heading-style': typography.headingStyle,
     '--typography-blockquote-style': typography.blockquoteStyle,
+    '--typography-divider-style': typography.dividerStyle,
+    '--typography-media-style': typography.mediaStyle,
 
     '--chrome-brand-red': '#D32F2F',
     '--chrome-brand-red-a10': 'rgba(211, 47, 47, 0.1)',
@@ -269,8 +370,13 @@ function matchesTypographyPreset(typography: TypographySettings, preset: Typogra
     && numericEqual(typography.paragraphSpacing, preset.typography.paragraphSpacing)
     && numericEqual(typography.letterSpacing, preset.typography.letterSpacing)
     && typography.paragraphIndent === preset.typography.paragraphIndent
+    && typography.textAlign === preset.typography.textAlign
+    && numericEqual(typography.listSpacing, preset.typography.listSpacing)
+    && typography.headingScale === preset.typography.headingScale
     && typography.headingStyle === preset.typography.headingStyle
     && typography.blockquoteStyle === preset.typography.blockquoteStyle
+    && typography.dividerStyle === preset.typography.dividerStyle
+    && typography.mediaStyle === preset.typography.mediaStyle
 }
 
 function numericEqual(left: number, right: number): boolean {

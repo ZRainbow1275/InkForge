@@ -61,6 +61,17 @@ describe('WorkstationView — vignette class binding decoupled from focus mode',
     expect(overlayBlock, 'WorkstationView must render a .vignette-overlay div').not.toBeNull()
     expect(overlayBlock![0]).not.toMatch(/isFocusMode/)
   })
+
+  it('anchors the soft focus band to the configured cursor position and intensity', () => {
+    expect(WORKSTATION_SOURCE).toContain("'--focus-cursor-position': `${writingAssistStore.cursorPosition * 100}%`")
+    expect(WORKSTATION_SOURCE).toMatch(
+      /'--focus-vignette-intensity': `\$\{Number\.isFinite\(writingAssistStore\.vignette\.intensity\)[\s\S]{0,120}?: 0\.18\}`/,
+    )
+    expect(WORKSTATION_SOURCE).toMatch(
+      /\.focus-vignette \.vignette-overlay\s*\{[\s\S]{0,800}?at 50% var\(--focus-cursor-position\)/,
+    )
+    expect(WORKSTATION_SOURCE).toContain('var(--focus-vignette-intensity)')
+  })
 })
 
 describe('WorkstationView — writingAssistStore.vignette state surface', () => {

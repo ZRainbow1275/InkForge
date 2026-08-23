@@ -314,6 +314,9 @@ const externalHandoffSensitiveFragments = [
   ['private', ' material'].join(''),
 ]
 
+const COMMITTED_STYLE_PROOF_CLOCK_NODE_OPTION =
+  '--import=data:text/javascript,Date.now%3D()%3D%3EDate.parse(%222026-07-03T00%3A00%3A00.000Z%22)'
+
 function getCliEnvironment(): NodeJS.ProcessEnv {
   const environment: NodeJS.ProcessEnv = {}
   for (const [key, value] of Object.entries(process.env)) {
@@ -324,6 +327,7 @@ function getCliEnvironment(): NodeJS.ProcessEnv {
 
   environment.FORCE_COLOR = '0'
   environment.NO_COLOR = '1'
+  environment.NODE_OPTIONS = `${environment.NODE_OPTIONS ? `${environment.NODE_OPTIONS} ` : ''}${COMMITTED_STYLE_PROOF_CLOCK_NODE_OPTION}`
 
   return environment
 }

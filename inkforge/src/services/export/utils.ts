@@ -7,6 +7,12 @@
 import hljs from 'highlight.js/lib/core'
 import { INKFORGE_CODE_LANGUAGE_GRAMMARS } from '@/extensions/codeLanguageGrammars'
 import type { Footnote, ExportStats, CodeTheme, CodeThemeColors, AlertType, AlertTheme } from './types'
+import {
+  getVisualVariantMastheadPresentation,
+  type VisualVariantId,
+  type VisualVariantMastheadPresentation,
+} from './visual-variants'
+import { copySanitizedPublishRichHtmlWithExecCommand } from './publish-copy'
 
 // ═══════════════════════════════════════════════════════════════════
 // 常量定义
@@ -17,6 +23,12 @@ export const EDITOR_LINE_HEIGHT = 27
 
 /** 斜杠命令最大搜索距离 */
 export const SLASH_COMMAND_MAX_DISTANCE = 20
+
+/** 仅允许可安全插入导出 CSS 的六位 HEX 颜色。 */
+export function normalizeExportHexColor(value?: string): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed && /^#[0-9a-f]{6}$/i.test(trimmed) ? trimmed : undefined
+}
 
 let exportCodeLanguagesRegistered = false
 
@@ -707,29 +719,179 @@ export function calculateStats(html: string, readingSpeed: number): ExportStats 
 }
 
 /**
- * 生成阅读时间头部（增强版 — 更多统计指标）
+ * 文章抬头可选的真实元数据。缺失字段必须省略，不得生成占位内容。
  */
-export function buildReadingTimeHeader(stats: ExportStats): string {
-  const dot = `<span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px;"></span>`
-  const items: string[] = [
-    `<span>阅读约 ${stats.readingTime} 分钟</span>`,
-    `<span>全文 ${stats.wordCount} 字</span>`,
-  ]
+export interface ArticleMastheadMetadata {
+  title?: string
+  category?: string
+  /** 只控制阅读分钟提示；七套文章报头始终保留。 */
+  showReadingTime?: boolean
+  variantId?: VisualVariantId
+  presetId?: string
+  song?: {
+    title: string
+    artist?: string
+    url: string
+  }
+}
+
+function buildMastheadIdentity(
+  variantId: VisualVariantId,
+  presentation: VisualVariantMastheadPresentation,
+  title: string,
+  presetId: string,
+): string {
+  const titleNode = title
+    ? `<strong class="ink-article-masthead__title">${escapeHtml(title)}</strong>`
+    : ''
+  const mark = '<span class="ink-article-masthead__mark" aria-hidden="true"></span>'
+  const rule = '<span class="ink-article-masthead__rule" aria-hidden="true"></span>'
+  const name = `<span class="ink-article-masthead__name">${presentation.name}</span>`
+  const index = `<span class="ink-article-masthead__index">${presentation.index}</span>`
+  const strap = `<span class="ink-article-masthead__strap">${presentation.strap}</span>`
+  const profileId = presetId.trim() || variantId
+  const identity = (composition: string, content: string) =>
+    `<section class="ink-article-masthead__identity" data-ink-masthead-composition="${composition}" data-ink-masthead-profile="${escapeHtml(profileId)}">${content}</section>`
+
+  switch (variantId) {
+    case 'critical-translation':
+      return identity(
+        'bound-volume',
+        `<span class="ink-article-masthead__spine">${index}${name}</span><span class="ink-article-masthead__folio">${titleNode}${rule}${strap}</span>`,
+      )
+    case 'jurisprudence-atlas':
+      return identity(
+        'coordinate-field',
+        `<span class="ink-article-masthead__axis"><span class="ink-article-masthead__monogram" aria-hidden="true">J</span>${mark}${index}${name}</span><span class="ink-article-masthead__coordinate">${strap}</span>${titleNode}${rule}`,
+      )
+    case 'industry-section':
+      return identity(
+        'section-cut',
+        `<span class="ink-article-masthead__section-rail">${name}${index}</span><span class="ink-article-masthead__section-title">${titleNode}${rule}</span>${strap}`,
+      )
+    case 'fact-wire': {
+      const isNews = presetId === 'news'
+      return identity(
+        isNews ? 'newswire-front' : 'commentary-brief',
+        isNews
+          ? `<span class="ink-article-masthead__dateline">${index}${name}</span>${titleNode}<span class="ink-article-masthead__wire-deck">${strap}${rule}</span>`
+          : `${titleNode}${rule}<span class="ink-article-masthead__commentary-rail">${index}${name}${strap}</span>`,
+      )
+    }
+    case 'machine-foundry': {
+      if (presetId === 'code') {
+        return identity(
+          'terminal-log',
+          `<span class="ink-article-masthead__terminal"><span class="ink-article-masthead__prompt" aria-hidden="true">&lt;/&gt;</span>${index}${name}</span>${titleNode}<span class="ink-article-masthead__build-track">${strap}${rule}</span>`,
+        )
+      }
+      if (presetId === 'tech') {
+        return identity(
+          'circuit-board',
+          `<span class="ink-article-masthead__circuit">${mark}${name}${index}</span><span class="ink-article-masthead__forge-plate">${titleNode}${strap}</span>${rule}`,
+        )
+      }
+      return identity(
+        'model-matrix',
+        `<span class="ink-article-masthead__model-index">${index}${mark}</span><span class="ink-article-masthead__model-copy">${name}${titleNode}${strap}</span>`,
+      )
+    }
+    case 'knowledge-weave':
+      return identity(
+        'weave-map',
+        `<span class="ink-article-masthead__weave-kicker">${mark}${name}</span><span class="ink-article-masthead__nodes" aria-hidden="true"><span>Q</span><span>C</span><span>E</span><span>A</span><span>R</span></span>${titleNode}<span class="ink-article-masthead__weave-path">${index}${strap}</span>`,
+      )
+    case 'human-margins': {
+      const playful = presetId === 'meme'
+      if (playful) {
+        return identity(
+          'editorial-collage',
+          `<span class="ink-article-masthead__collage-label">${index}${name}</span>${titleNode}<span class="ink-article-masthead__collage-note">${mark}${strap}</span>`,
+        )
+      }
+      if (presetId === 'elegant') {
+        return identity(
+          'archival-letter',
+          `<span class="ink-article-masthead__letter-folio">${index}${name}</span>${rule}${titleNode}<span class="ink-article-masthead__letter-close">${strap}</span>`,
+        )
+      }
+      return identity(
+        'quiet-letter',
+        `<span class="ink-article-masthead__letter-open">${name}${strap}</span>${rule}${titleNode}<span class="ink-article-masthead__letter-folio">${index}</span>`,
+      )
+    }
+  }
+}
+
+/**
+ * 生成文章抬头。仅使用固定编辑提示、真实统计与调用方提供的真实标题、歌曲和分类。
+ */
+export function buildReadingTimeHeader(
+  stats: ExportStats,
+  metadata: ArticleMastheadMetadata = {},
+): string {
+  const variantId = metadata.variantId ?? 'industry-section'
+  const presentation = getVisualVariantMastheadPresentation(variantId)
+  const title = metadata.title?.trim() ?? ''
+  const category = metadata.category?.trim()
+  const readingNode = metadata.showReadingTime === false
+    ? ''
+    : `<span class="ink-article-masthead__reading" style="display:inline-block;width:${category ? '50%' : '100%'};font-size:12px;vertical-align:top;">阅读约 ${stats.readingTime} 分钟</span>`
+  const dot = '<span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 8px;"></span>'
+  const detailItems: string[] = [`<span>全文 ${stats.wordCount} 字</span>`]
 
   if (stats.codeBlockCount > 0) {
-    items.push(`<span>${stats.codeBlockCount} 段代码</span>`)
+    detailItems.push(`<span>${stats.codeBlockCount} 段代码</span>`)
   }
   if (stats.imageCount > 0) {
-    items.push(`<span>${stats.imageCount} 张图</span>`)
+    detailItems.push(`<span>${stats.imageCount} 张图</span>`)
   }
   if (stats.tableCount > 0) {
-    items.push(`<span>${stats.tableCount} 张表</span>`)
+    detailItems.push(`<span>${stats.tableCount} 张表</span>`)
   }
+  const categoryNode = category
+    ? `<span class="ink-article-masthead__category" style="display:inline-block;width:${readingNode ? '50%' : '100%'};font-size:12px;text-align:right;vertical-align:top;">类别 ${escapeHtml(category)}</span>`
+    : ''
+  const songTitle = metadata.song?.title.trim()
+  const songArtist = metadata.song?.artist?.trim()
+  let songUrl = ''
+  try {
+    const parsed = new URL(metadata.song?.url ?? '')
+    if (
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+      && !parsed.username
+      && !parsed.password
+    ) {
+      songUrl = parsed.toString()
+    }
+  } catch {
+    songUrl = ''
+  }
+  const songNode = songTitle && songUrl
+    ? `
+<section class="ink-article-song" data-ink-masthead-song="true" style="margin:12px 0 14px;padding:12px 14px;border:1px solid #D9DEE3;border-left:4px solid #66717B;border-radius:8px;background:transparent;color:inherit;">
+  <a href="${escapeHtml(songUrl)}" target="_blank" rel="noopener noreferrer" style="display:block;color:inherit;text-decoration:none;">
+    <span class="ink-writing-component__label" style="display:block;margin-bottom:4px;font-size:11px;font-weight:700;letter-spacing:.08em;">抬头歌曲</span>
+    <strong class="ink-writing-component__accent" style="display:block;font-size:16px;line-height:1.5;">${escapeHtml(songTitle)}</strong>
+    ${songArtist ? `<span style="display:block;margin-top:3px;font-size:12px;opacity:.7;">${escapeHtml(songArtist)}</span>` : ''}
+    <span style="display:block;margin-top:5px;font-size:11px;opacity:.62;word-break:break-all;">公开歌曲链接；公众号原生曲库需在平台内确认</span>
+  </a>
+</section>`
+    : ''
 
   return `
-<div style="margin:0 0 24px;padding:0 0 14px;border-bottom:1px solid #E8EAED;color:#8E959D;font-size:13px;letter-spacing:0.2px;line-height:1.6;">
-  ${items.join(dot)}
-</div>
+<section class="ink-article-masthead ink-article-masthead--${variantId}" data-ink-masthead-variant="${variantId}" data-ink-masthead-layout="${variantId}" style="margin:0 0 28px;padding:0;border-top:1px solid #D9DEE3;border-bottom:1px solid #E8EAED;color:#4E5963;line-height:1.6;">
+  <p class="ink-article-masthead__lead" style="margin:0;padding:8px 0;overflow:hidden;font-size:0;letter-spacing:0.12em;">
+    <span style="display:inline-block;width:58%;font-size:10px;vertical-align:top;">INKFORGE · ${presentation.englishName}</span><span style="display:inline-block;width:42%;font-size:10px;text-align:right;vertical-align:top;">文章值得您享受</span>
+  </p>
+  ${songNode}
+  ${buildMastheadIdentity(variantId, presentation, title, metadata.presetId ?? '')}
+  <p class="ink-article-masthead__meta" style="margin:0;overflow:hidden;font-size:0;">
+    ${readingNode}
+    ${categoryNode}
+    <span class="ink-article-masthead__details" style="display:block;clear:both;margin-top:5px;">${detailItems.join(dot)}</span>
+  </p>
+</section>
 `
 }
 
@@ -890,5 +1052,10 @@ export async function copyRichHtmlToClipboard(html: string): Promise<boolean> {
  */
 export async function copyWechatHtmlToClipboard(html: string): Promise<boolean> {
   const preparedHtml = prepareWechatClipboardHtml(html)
-  return copyHtmlToClipboard(preparedHtml, prepareWechatClipboardPlainText(preparedHtml), false)
+  const copied = await copyHtmlToClipboard(
+    preparedHtml,
+    prepareWechatClipboardPlainText(preparedHtml),
+    false,
+  )
+  return copied || copySanitizedPublishRichHtmlWithExecCommand(preparedHtml)
 }

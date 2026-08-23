@@ -8,14 +8,14 @@
  * schema-basic) so nested-list anchoring and sentence dimming exercise the
  * same code paths the editor runs in production.
  */
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Schema, type Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { schema as basicSchema } from '@tiptap/pm/schema-basic'
 import { addListNodes } from '@tiptap/pm/schema-list'
 import { EditorState, TextSelection } from '@tiptap/pm/state'
 import { DecorationSet } from '@tiptap/pm/view'
 
-import { TypewriterMode } from '../TypewriterMode'
+import { TYPEWRITER_MODE_REFRESH_META, TypewriterMode } from '../TypewriterMode'
 
 // Build a schema with paragraph, heading, code-block + list nodes so we can
 // exercise nested-list anchoring and sentence-split skip rules.
@@ -43,10 +43,21 @@ function instantiateExtension(opts: Partial<ExtensionShape['options']>): Extensi
 }
 
 interface PMPlugin {
+  spec?: {
+    view?: (view: unknown) => {
+      update: (view: unknown, prevState: EditorState) => void
+      destroy: () => void
+    }
+  }
   props?: {
     decorations?: (state: EditorState) => DecorationSet | null | undefined
   }
 }
+
+afterEach(() => {
+  delete document.documentElement.dataset.reducedMotion
+  vi.unstubAllGlobals()
+})
 
 function getDecorationsPlugin(plugins: unknown[]): PMPlugin {
   // Plugin 2 is the dim/sentence/sidebar decorations plugin.
@@ -75,6 +86,29 @@ function buildState(doc: ProseMirrorNode, selectionFrom: number, options: Partia
     selection: TextSelection.create(doc, selectionFrom),
   })
   return { state, plugin }
+}
+
+function spacerPixels(editorDom: HTMLElement, property: '--typewriter-head-space' | '--typewriter-tail-space'): number {
+  return Number.parseFloat(editorDom.style.getPropertyValue(property)) || 0
+}
+
+function bindEditorScrollGeometry(
+  editorDom: HTMLElement,
+  baseScrollHeight: number,
+  clientHeight = 1000,
+): void {
+  Object.defineProperties(editorDom, {
+    scrollHeight: {
+      configurable: true,
+      get: () => (
+        baseScrollHeight
+        + spacerPixels(editorDom, '--typewriter-head-space')
+        + spacerPixels(editorDom, '--typewriter-tail-space')
+      ),
+    },
+    clientHeight: { configurable: true, value: clientHeight },
+  })
+  editorDom.getBoundingClientRect = () => ({ top: 0, height: clientHeight }) as DOMRect
 }
 
 describe('TypewriterMode plugin 2 — decorations()', () => {
@@ -189,5 +223,369 @@ describe('TypewriterMode plugin 2 — decorations()', () => {
     expect(classes).toContain('typewriter-block-active')
     expect(classes.some(c => c.includes('typewriter-dim-near'))).toBe(false)
     expect(classes.some(c => c.includes('typewriter-dim-far'))).toBe(false)
+  })
+})
+
+describe('TypewriterMode plugin 1 — cursor scrolling()', () => {
+  it('aligns a restored caret on initial mount instead of leaving the document at its stale scroll position', () => {
+    const paragraph = listSchema.nodes.paragraph.create(null, listSchema.text('Restored caret target.'))
+    const doc = listSchema.nodes.doc.create(null, [paragraph])
+    const state = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 8),
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 1200)
+    const scrollBy = vi.fn()
+    editorDom.scrollBy = scrollBy
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    const extension = instantiateExtension({
+      enabled: true,
+      cursorPosition: 0.5,
+      scrollBehavior: 'smooth',
+    })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const lastPosition = doc.content.size - 1
+    const view = {
+      dom: editorDom,
+      state,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 100 + headSpace, bottom: 120 + headSpace }
+        if (position === lastPosition) return { top: 900 + headSpace, bottom: 920 + headSpace }
+        return { top: 650 + headSpace, bottom: 670 + headSpace }
+      },
+    }
+    const pluginView = plugin.spec?.view?.(view)
+
+    expect(pluginView).toBeDefined()
+    // 500px target minus the real 110px paper/content inset.
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('390px')
+    // 500px lower viewport reserve minus the real 290px trailing inset.
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('210px')
+    expect(scrollBy).toHaveBeenCalledWith({ top: 550, behavior: 'auto' })
+    pluginView!.destroy()
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('')
+  })
+
+  it('recalculates the anchor when hydration replaces the document at the same selection position', () => {
+    const previousDoc = listSchema.nodes.doc.create(null, [
+      listSchema.nodes.paragraph.create(null, listSchema.text('Loading.')),
+    ])
+    const hydratedDoc = listSchema.nodes.doc.create(null, [
+      listSchema.nodes.paragraph.create(null, listSchema.text('Hydrated first paragraph.')),
+      listSchema.nodes.paragraph.create(null, listSchema.text('Hydrated final paragraph.')),
+    ])
+    const previousState = EditorState.create({
+      doc: previousDoc,
+      selection: TextSelection.create(previousDoc, 1),
+    })
+    const state = EditorState.create({
+      doc: hydratedDoc,
+      selection: TextSelection.create(hydratedDoc, 1),
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 1200)
+    editorDom.scrollBy = vi.fn()
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    const extension = instantiateExtension({ enabled: true, cursorPosition: 0.5 })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const previousLastPosition = previousDoc.content.size - 1
+    const hydratedLastPosition = hydratedDoc.content.size - 1
+    const previousView = {
+      dom: editorDom,
+      state: previousState,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 100 + headSpace, bottom: 120 + headSpace }
+        if (position === previousLastPosition) return { top: 200 + headSpace, bottom: 220 + headSpace }
+        return { top: 100 + headSpace, bottom: 120 + headSpace }
+      },
+    }
+    const pluginView = plugin.spec?.view?.(previousView)
+
+    expect(pluginView).toBeDefined()
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('390px')
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('0px')
+
+    const hydratedView = {
+      dom: editorDom,
+      state,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 100 + headSpace, bottom: 120 + headSpace }
+        if (position === hydratedLastPosition) return { top: 1100 + headSpace, bottom: 1120 + headSpace }
+        return { top: 100 + headSpace, bottom: 120 + headSpace }
+      },
+    }
+    pluginView!.update(hydratedView, previousState)
+
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('390px')
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('410px')
+    pluginView!.destroy()
+  })
+
+  it('honors an explicit refresh transaction after asynchronous editor hydration settles', () => {
+    const doc = listSchema.nodes.doc.create(null, [
+      listSchema.nodes.paragraph.create(null, listSchema.text('First paragraph.')),
+      listSchema.nodes.paragraph.create(null, listSchema.text('Final paragraph.')),
+    ])
+    const extension = instantiateExtension({ enabled: true, cursorPosition: 0.5 })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const state = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 1),
+      plugins: [plugin as never],
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 1200)
+    editorDom.scrollBy = vi.fn()
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    let lastCaretTop = 200
+    const lastPosition = doc.content.size - 1
+    const coordsAtPos = (position: number) => {
+      const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+      if (position === 1) return { top: 100 + headSpace, bottom: 120 + headSpace }
+      if (position === lastPosition) {
+        return { top: lastCaretTop + headSpace, bottom: lastCaretTop + 20 + headSpace }
+      }
+      return { top: 100 + headSpace, bottom: 120 + headSpace }
+    }
+    const view = { dom: editorDom, state, coordsAtPos }
+    const pluginView = plugin.spec?.view?.(view)
+
+    expect(pluginView).toBeDefined()
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('0px')
+
+    lastCaretTop = 1100
+    const refreshedState = state.apply(
+      state.tr.setMeta(TYPEWRITER_MODE_REFRESH_META, 'hydration-settled'),
+    )
+    pluginView!.update({ ...view, state: refreshedState }, state)
+
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('410px')
+    pluginView!.destroy()
+  })
+
+  it('uses the native DOM scroll chain when a restored caret is outside the declared scroll owner', () => {
+    const paragraph = listSchema.nodes.paragraph.create(
+      null,
+      listSchema.text('Restored caret needs the real nested scroll owner.'),
+    )
+    const doc = listSchema.nodes.doc.create(null, [paragraph])
+    const state = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 8),
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 2400)
+    const scrollBy = vi.fn()
+    editorDom.scrollBy = scrollBy
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    let caretBaseTop = 1800
+    const nativeScrollIntoView = vi.fn(() => {
+      caretBaseTop = 100
+    })
+    const nativeCaretNode = {
+      nodeType: Node.ELEMENT_NODE,
+      scrollIntoView: nativeScrollIntoView,
+    }
+    const lastPosition = doc.content.size - 1
+    const extension = instantiateExtension({ enabled: true, cursorPosition: 0.5 })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const view = {
+      dom: editorDom,
+      state,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 100 + headSpace, bottom: 120 + headSpace }
+        if (position === lastPosition) return { top: 2200 + headSpace, bottom: 2220 + headSpace }
+        return { top: caretBaseTop + headSpace, bottom: caretBaseTop + 20 + headSpace }
+      },
+      domAtPos: () => ({ node: nativeCaretNode, offset: 0 }),
+    }
+    const pluginView = plugin.spec?.view?.(view)
+
+    expect(pluginView).toBeDefined()
+    expect(nativeScrollIntoView).toHaveBeenCalledWith({
+      behavior: 'auto',
+      block: 'center',
+      inline: 'nearest',
+    })
+    expect(scrollBy).not.toHaveBeenCalled()
+    pluginView!.destroy()
+  })
+
+  it.each(['app preference', 'system preference'])('disables smooth scrolling for %s reduced motion', (preference) => {
+    const paragraph = listSchema.nodes.paragraph.create(null, listSchema.text('Cursor movement target.'))
+    const doc = listSchema.nodes.doc.create(null, [paragraph])
+    const previousState = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 1),
+    })
+    const state = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 5),
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 1200)
+    const scrollBy = vi.fn()
+    editorDom.scrollBy = scrollBy
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    if (preference === 'app preference') {
+      document.documentElement.dataset.reducedMotion = 'true'
+    } else {
+      vi.stubGlobal('matchMedia', () => ({ matches: true }))
+    }
+
+    const extension = instantiateExtension({ enabled: true, scrollBehavior: 'smooth' })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const lastPosition = doc.content.size - 1
+    const view = {
+      dom: editorDom,
+      state,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 100 + headSpace, bottom: 120 + headSpace }
+        if (position === lastPosition) return { top: 1100 + headSpace, bottom: 1120 + headSpace }
+        return { top: 700 + headSpace, bottom: 720 + headSpace }
+      },
+    }
+    const pluginView = plugin.spec?.view?.({ ...view, state: previousState })
+
+    expect(pluginView).toBeDefined()
+    pluginView!.update(view, previousState)
+    expect(scrollBy).toHaveBeenCalledWith({ top: 600, behavior: 'auto' })
+
+    scrollBy.mockClear()
+    extension.options.enabled = false
+    pluginView!.update(view, state)
+    extension.options.enabled = true
+    pluginView!.update(view, state)
+    expect(scrollBy).toHaveBeenCalledWith({ top: 600, behavior: 'auto' })
+    pluginView!.destroy()
+  })
+
+  it('sizes the tail spacer from the cursor anchor and keeps typing-sized corrections immediate', () => {
+    const paragraph = listSchema.nodes.paragraph.create(null, listSchema.text('Stable typewriter anchor.'))
+    const doc = listSchema.nodes.doc.create(null, [paragraph])
+    const previousState = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 1),
+    })
+    const state = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 6),
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 1200)
+    const scrollBy = vi.fn()
+    editorDom.scrollBy = scrollBy
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    const extension = instantiateExtension({
+      enabled: true,
+      cursorPosition: 0.65,
+      scrollBehavior: 'smooth',
+    })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const lastPosition = doc.content.size - 1
+    const view = {
+      dom: editorDom,
+      state,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 90 + headSpace, bottom: 110 + headSpace }
+        if (position === lastPosition) return { top: 1100 + headSpace, bottom: 1120 + headSpace }
+        return { top: 180 + headSpace, bottom: 200 + headSpace }
+      },
+    }
+    const pluginView = plugin.spec?.view?.({ ...view, state: previousState })
+
+    expect(pluginView).toBeDefined()
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('550px')
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('260px')
+    pluginView!.update(view, previousState)
+    expect(scrollBy).toHaveBeenCalledWith({ top: 90, behavior: 'auto' })
+    pluginView!.destroy()
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('')
+  })
+
+  it('repositions the current caret and tail spacer when the live cursor anchor changes', () => {
+    const paragraph = listSchema.nodes.paragraph.create(null, listSchema.text('Live typewriter anchor.'))
+    const doc = listSchema.nodes.doc.create(null, [paragraph])
+    const state = EditorState.create({
+      doc,
+      selection: TextSelection.create(doc, 6),
+    })
+    const editorDom = document.createElement('div')
+    editorDom.style.overflowY = 'auto'
+    bindEditorScrollGeometry(editorDom, 1200)
+    const scrollBy = vi.fn()
+    editorDom.scrollBy = scrollBy
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+
+    const extension = instantiateExtension({
+      enabled: true,
+      cursorPosition: 0.5,
+      scrollBehavior: 'smooth',
+    })
+    const plugin = extension.addProseMirrorPlugins()[0] as PMPlugin
+    const lastPosition = doc.content.size - 1
+    const view = {
+      dom: editorDom,
+      state,
+      coordsAtPos: (position: number) => {
+        const headSpace = spacerPixels(editorDom, '--typewriter-head-space')
+        if (position === 1) return { top: 90 + headSpace, bottom: 110 + headSpace }
+        if (position === lastPosition) return { top: 1100 + headSpace, bottom: 1120 + headSpace }
+        return { top: 350 + headSpace, bottom: 370 + headSpace }
+      },
+    }
+    const pluginView = plugin.spec?.view?.(view)
+
+    expect(pluginView).toBeDefined()
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('400px')
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('410px')
+
+    extension.options.cursorPosition = 0.65
+    pluginView!.update(view, state)
+
+    expect(editorDom.style.getPropertyValue('--typewriter-head-space')).toBe('550px')
+    expect(editorDom.style.getPropertyValue('--typewriter-tail-space')).toBe('260px')
+    expect(scrollBy).toHaveBeenCalledWith({ top: 260, behavior: 'auto' })
+    pluginView!.destroy()
   })
 })

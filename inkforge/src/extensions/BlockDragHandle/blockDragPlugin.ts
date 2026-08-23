@@ -147,8 +147,8 @@ class BlockDragController {
   private sourceBlock: BlockInfo | null = null
   private dropTarget: DropTarget | null = null
   private ghostElement: HTMLElement | null = null
-  private showTimer: ReturnType<typeof window.setTimeout> | null = null
-  private hideTimer: ReturnType<typeof window.setTimeout> | null = null
+  private showTimer: number | null = null
+  private hideTimer: number | null = null
   private lastMouseMoveAt = 0
 
   constructor(

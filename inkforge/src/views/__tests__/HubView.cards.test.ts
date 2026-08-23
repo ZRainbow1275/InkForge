@@ -25,7 +25,7 @@
  *       delegates to the real `@/core/lifecycle` helpers so a refactor
  *       affecting either side fails this test.
  */
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { ARTICLE_STATUS } from '@/schemas/article'
 import {
@@ -33,9 +33,13 @@ import {
   isUnfinishedStatus,
 } from '@/core/lifecycle'
 import type { Article } from '@/types'
+import { loadHubInspirationState, saveHubInspirationState } from '@/data/quotes'
 // Vite ?raw suffix imports the file body as a string at build time, avoiding
 // `node:fs` (which is not in the project's tsconfig `types` list).
+import INSPIRATION_SETTINGS_SOURCE from '../../components/settings/InspirationSettingsPanel.vue?raw'
+import TEMPLATE_MARKET_SOURCE from '../../components/hub/TemplateMarketGrid.vue?raw'
 import HUB_VIEW_SOURCE from '../HubView.vue?raw'
+import SETTINGS_VIEW_SOURCE from '../SettingsView.vue?raw'
 
 // ---------------------------------------------------------------------------
 // Behavioural mirror of HubView.vue computed
@@ -134,6 +138,130 @@ describe('HubView.vue — card redundancy invariants (template)', () => {
     // uses (`a.id !== latestArticle?.id`).
     const filterPattern = /\.filter\(\s*\(?\s*(\w+)\s*\)?\s*=>\s*\1\.id\s*!==\s*latestArticle(?:\.value)?\?\.id/
     expect(HUB_VIEW_SOURCE).toMatch(filterPattern)
+  })
+
+  it('keeps only the Start area and red FAB creation surfaces', () => {
+    expect(HUB_VIEW_SOURCE).not.toContain('headerQuickActionTriggerRef')
+    expect(HUB_VIEW_SOURCE).not.toContain('headerQuickActionTriggerId')
+    expect(HUB_VIEW_SOURCE).not.toContain('recent-create-actions')
+    expect(HUB_VIEW_SOURCE).not.toContain('class="hero-empty-actions"')
+    expect(HUB_VIEW_SOURCE).not.toContain('@click="startNewProject"')
+    expect(HUB_VIEW_SOURCE).not.toContain('@create-new="openTemplatePicker"')
+    expect(TEMPLATE_MARKET_SOURCE).not.toContain("emit('create-new')")
+    expect(TEMPLATE_MARKET_SOURCE).not.toContain('template-market-card--cta')
+    expect(HUB_VIEW_SOURCE).toContain('class="new-actions"')
+    expect(HUB_VIEW_SOURCE).toContain('class="quick-action-fab"')
+  })
+
+  it('renders 最近编辑 as a real card heading instead of a small eyebrow', () => {
+    expect(HUB_VIEW_SOURCE).toContain('<h3 class="recent-label">')
+    expect(HUB_VIEW_SOURCE).toMatch(/\.recent-label\s*\{[^}]*font-size:\s*18px;[^}]*font-weight:\s*700;/)
+  })
+
+  it('renders an anchored keyboard-operable search result surface', () => {
+    expect(HUB_VIEW_SOURCE).toContain('class="header-search-results"')
+    expect(HUB_VIEW_SOURCE).toContain('role="listbox"')
+    expect(HUB_VIEW_SOURCE).toContain('@keydown.down.prevent="moveHeaderSearchSelection(1)"')
+    expect(HUB_VIEW_SOURCE).toContain('@keydown.up.prevent="moveHeaderSearchSelection(-1)"')
+    expect(HUB_VIEW_SOURCE).toContain('@keydown.enter.prevent="openActiveHeaderSearchResult"')
+    expect(HUB_VIEW_SOURCE).not.toContain('class="search-box"')
+  })
+
+  it('keeps Ctrl/Cmd+F available even when focus starts inside an editable Hub control', () => {
+    const keydownSource = HUB_VIEW_SOURCE.slice(
+      HUB_VIEW_SOURCE.indexOf('function handleHubKeydown'),
+      HUB_VIEW_SOURCE.indexOf('\nfunction goToSettings'),
+    )
+    const searchShortcutIndex = keydownSource.indexOf("if (primaryKey && normalizedKey === 'f'")
+    const editableGuardIndex = keydownSource.indexOf('if (isEditableTarget(event.target))')
+
+    expect(searchShortcutIndex).toBeGreaterThan(-1)
+    expect(editableGuardIndex).toBeGreaterThan(-1)
+    expect(searchShortcutIndex).toBeLessThan(editableGuardIndex)
+  })
+
+  it('closes a keyboard-focused result with Escape and restores the search input focus', () => {
+    const keydownSource = HUB_VIEW_SOURCE.slice(
+      HUB_VIEW_SOURCE.indexOf('function handleHubKeydown'),
+      HUB_VIEW_SOURCE.indexOf('\nfunction goToSettings'),
+    )
+    const closeSource = HUB_VIEW_SOURCE.slice(
+      HUB_VIEW_SOURCE.indexOf('function closeHeaderSearch'),
+      HUB_VIEW_SOURCE.indexOf('\nfunction clearHeaderSearch'),
+    )
+
+    expect(keydownSource).toContain("headerSearchOpen.value && normalizedKey === 'escape'")
+    expect(keydownSource).toContain('closeHeaderSearch(true)')
+    expect(closeSource).toContain('restoreFocus = false')
+    expect(closeSource).toContain('headerSearchInputRef.value?.focus()')
+  })
+
+  it('keeps Hub inspiration read-only while Settings owns local text and author editing', () => {
+    expect(HUB_VIEW_SOURCE).toContain('class="inspiration-source-switch"')
+    expect(HUB_VIEW_SOURCE).not.toContain('v-model="localInspiration.text"')
+    expect(HUB_VIEW_SOURCE).not.toContain('v-model="localInspiration.author"')
+    expect(HUB_VIEW_SOURCE).not.toContain('aria-label="编辑本地每日灵感"')
+    expect(HUB_VIEW_SOURCE).toContain("goToSettings('editor', 'inspiration')")
+    expect(HUB_VIEW_SOURCE).toContain("inspirationSaveFailed ? '来源保存失败' : '本地配置'")
+    expect(SETTINGS_VIEW_SOURCE).toContain('data-settings-section="inspiration"')
+    expect(SETTINGS_VIEW_SOURCE).toContain('<InspirationSettingsPanel />')
+    expect(INSPIRATION_SETTINGS_SOURCE).toContain('v-model="localText"')
+    expect(INSPIRATION_SETTINGS_SOURCE).toContain('v-model="localAuthor"')
+    expect(INSPIRATION_SETTINGS_SOURCE).toContain('saveHubInspirationState(nextState)')
+    expect(HUB_VIEW_SOURCE).not.toMatch(/^void generateAIInspiration\(\)$/m)
+  })
+
+  it('owns exactly one search focus ring on the shell, never on the inner input', () => {
+    expect(HUB_VIEW_SOURCE).toMatch(/\.header-search-bar:focus-within\s*\{[^}]*border-color:\s*transparent;[^}]*box-shadow:\s*0 0 0 2px rgba\(211,\s*47,\s*47,\s*0\.82\);/)
+    expect(HUB_VIEW_SOURCE).toContain('.header-search-bar.has-value:not(:focus-within)')
+    expect(HUB_VIEW_SOURCE).toMatch(/\.header-search-input:focus,[\s\S]*?\.header-search-input:focus-visible\s*\{[^}]*border:\s*0 !important;[^}]*outline:\s*0 !important;[^}]*box-shadow:\s*none !important;/)
+    expect(HUB_VIEW_SOURCE).not.toMatch(/\.header-search-bar\.has-value\s*\{/)
+  })
+
+  it('binds dashboard regions to the software route shell and releases fixed-screen clipping at constrained viewports', () => {
+    expect(HUB_VIEW_SOURCE).toMatch(/\.hub-page\s*\{[^}]*height:\s*100%;[^}]*min-height:\s*0;/)
+    expect(HUB_VIEW_SOURCE).not.toMatch(/\.hub-page\s*\{[^}]*height:\s*100vh;/)
+    expect(HUB_VIEW_SOURCE).toMatch(/\.hub-region\s*\{[^}]*height:\s*100%;[^}]*min-height:\s*100%;/)
+    expect(HUB_VIEW_SOURCE).toMatch(/grid-template-rows:\s*minmax\(0,\s*1fr\)\s+minmax\(0,\s*1fr\)\s+minmax\(180px,\s*0\.72fr\);/)
+    expect(HUB_VIEW_SOURCE).toMatch(/@media \(max-width:\s*1200px\)\s*\{[\s\S]*?\.hub-region\s*\{[^}]*height:\s*auto;[^}]*overflow:\s*visible;/)
+    expect(HUB_VIEW_SOURCE).toMatch(/@media \(max-width:\s*1200px\)\s*\{[\s\S]*?\.card-inspiration\s*\{[^}]*grid-column:\s*auto;[^}]*grid-row:\s*auto;/)
+    expect(HUB_VIEW_SOURCE).toContain('@media (max-height: 820px) and (min-width: 1201px)')
+  })
+
+  it('uses the available software viewport when the article archive contains only one sparse row', () => {
+    expect(HUB_VIEW_SOURCE).toContain(":class=\"{ 'is-sparse': displayArticles.length <= 3 }\"")
+    expect(HUB_VIEW_SOURCE).toMatch(/\.waterfall-grid\.is-sparse\s*\{[^}]*display:\s*grid;[^}]*min-height:\s*calc\(100dvh - 170px\);/)
+    expect(HUB_VIEW_SOURCE).toMatch(/\.waterfall-grid\.is-sparse \.article-card\s*\{[^}]*min-height:\s*calc\(100dvh - 190px\);/)
+  })
+})
+
+describe('HubView.vue — persisted inspiration preference', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('round-trips source and editable local copy through real localStorage', () => {
+    expect(saveHubInspirationState({
+      source: 'ai',
+      local: { text: '写下真实内容。', author: '本地作者' },
+      ai: { text: '一次真实生成。', author: 'AI 灵感' },
+    })).toBe(true)
+
+    expect(loadHubInspirationState()).toEqual({
+      source: 'ai',
+      local: { text: '写下真实内容。', author: '本地作者' },
+      ai: { text: '一次真实生成。', author: 'AI 灵感' },
+    })
+  })
+
+  it('recovers malformed storage to a valid local quote', () => {
+    localStorage.setItem('inkforge-hub-inspiration', '{broken')
+
+    const state = loadHubInspirationState()
+    expect(state.source).toBe('local')
+    expect(state.local.text.length).toBeGreaterThan(0)
+    expect(state.local.author.length).toBeGreaterThan(0)
+    expect(state.ai).toBeNull()
   })
 })
 

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { db } from '@/utils/db'
 import { useLayoutPersistenceStore } from '@/stores/layoutPersistence'
-import { createDefaultLayoutState, layoutStateKey } from './defaults'
+import { createDefaultLayoutState, getLayoutWindowId, layoutStateKey } from './defaults'
 import { normalizeLayoutStatePatch } from './migration'
 import { LayoutPersistenceService, SYNC_EXCLUDED_LAYOUT_TABLES } from './service'
 import type { LayoutStateRecord } from './types'
@@ -40,6 +40,18 @@ function stubLayoutStateTable(initial: LayoutStateRecord[] = []) {
   return { table }
 }
 
+function createMemoryStorage(initial: Record<string, string> = {}): Storage {
+  const values = new Map(Object.entries(initial))
+  return {
+    get length() { return values.size },
+    clear: () => values.clear(),
+    getItem: key => values.get(key) ?? null,
+    key: index => Array.from(values.keys())[index] ?? null,
+    removeItem: key => { values.delete(key) },
+    setItem: (key, value) => { values.set(key, value) },
+  }
+}
+
 beforeEach(() => {
   setActivePinia(createPinia())
 })
@@ -49,6 +61,20 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+describe('getLayoutWindowId', () => {
+  it('migrates the session-only window id into durable storage and reuses it after restart', () => {
+    const key = 'inkforge.layout.windowId'
+    const durableStorage = createMemoryStorage()
+    const legacySessionStorage = createMemoryStorage({ [key]: 'window-existing' })
+
+    expect(getLayoutWindowId(durableStorage, legacySessionStorage)).toBe('window-existing')
+    expect(durableStorage.getItem(key)).toBe('window-existing')
+
+    legacySessionStorage.setItem(key, 'window-stale')
+    expect(getLayoutWindowId(durableStorage, legacySessionStorage)).toBe('window-existing')
+  })
+})
+
 describe('LayoutPersistenceService', () => {
   it('saves, loads, clears, and isolates layout state by profile and window', async () => {
     const { table } = stubLayoutStateTable()
@@ -56,6 +82,7 @@ describe('LayoutPersistenceService', () => {
 
     await service.save({
       managerCollapsed: true,
+      inspectorPinned: true,
       editorMode: 'source',
       splitViewEnabled: true,
       splitViewRatio: 0.7,
@@ -69,6 +96,7 @@ describe('LayoutPersistenceService', () => {
     expect((await service.load('profile-a', 'window-1'))?.managerCollapsed).toBe(true)
     const splitRecord = await service.load('profile-a', 'window-1')
     expect(splitRecord?.editorMode).toBe('source')
+    expect(splitRecord?.inspectorPinned).toBe(true)
     expect(splitRecord?.splitViewEnabled).toBe(true)
     expect(splitRecord?.splitViewRatio).toBe(0.7)
     expect(splitRecord?.splitViewSyncScroll).toBe(false)
@@ -109,6 +137,36 @@ describe('LayoutPersistenceService', () => {
     expect(record?.activeArticleId).toBe('article-b')
   })
 
+  it('round-trips detachable inspector widget placement without persisting document payloads', async () => {
+    stubLayoutStateTable()
+    const service = new LayoutPersistenceService()
+    const layouts = createDefaultLayoutState('profile-widgets', 'window-widgets').inspectorWidgets
+    layouts['platform-preview'] = {
+      ...layouts['platform-preview'],
+      placement: 'floating',
+      x: 210,
+      y: 120,
+      width: 510,
+      height: 620,
+    }
+    layouts.references = {
+      ...layouts.references,
+      placement: 'native',
+      nativeWindowLabel: 'inspector-references-0123456789abcdef',
+    }
+    layouts['document-statistics'] = {
+      ...layouts['document-statistics'],
+      placement: 'closed',
+    }
+
+    await service.save({ inspectorWidgets: layouts }, 'profile-widgets', 'window-widgets')
+    const record = await service.load('profile-widgets', 'window-widgets')
+
+    expect(record?.inspectorWidgets).toEqual(layouts)
+    expect(JSON.stringify(record?.inspectorWidgets)).not.toContain('previewHtml')
+    expect(JSON.stringify(record?.inspectorWidgets)).not.toContain('articleTitle')
+  })
+
   it('round-trips the ai manager tab and self-corrects unknown tabs to files', async () => {
     stubLayoutStateTable()
     const service = new LayoutPersistenceService()
@@ -142,6 +200,7 @@ describe('LayoutPersistenceService', () => {
     expect(result.migrated).toBe(true)
     expect(result.record?.layoutVersion).toBe(1)
     expect(result.record?.managerCollapsed).toBe(false)
+    expect(result.record?.inspectorPinned).toBe(false)
     expect(result.record?.managerTab).toBe('versions')
     expect(result.record?.panelWidths.manager).toBe(380)
     expect(result.record?.splitViewEnabled).toBe(false)
@@ -149,6 +208,8 @@ describe('LayoutPersistenceService', () => {
     expect(result.record?.splitViewSyncScroll).toBe(true)
     expect(result.record?.splitViewLeftFontScale).toBe(16)
     expect(result.record?.splitViewRightFontScale).toBe(16)
+    expect(result.record?.inspectorWidgets['platform-preview'].placement).toBe('docked')
+    expect(result.record?.inspectorWidgets.references.placement).toBe('docked')
     expect((table.get(key) as LayoutStateRecord).layoutVersion).toBe(1)
   })
 
@@ -209,6 +270,7 @@ describe('LayoutPersistenceService', () => {
     const base = createDefaultLayoutState('profile-a', 'window-1')
     const normalized = normalizeLayoutStatePatch({
       managerCollapsed: true,
+      inspectorPinned: true,
       openTabs: [
         { id: 'tab-1', articleId: 'article-1', title: 'Valid', isPinned: false },
         { id: 'tab-bad', articleId: '', title: 'Invalid', isPinned: false },
@@ -228,6 +290,7 @@ describe('LayoutPersistenceService', () => {
     })
 
     expect(normalized.managerCollapsed).toBe(true)
+    expect(normalized.inspectorPinned).toBe(true)
     expect(normalized.openTabs).toEqual([{ id: 'tab-1', articleId: 'article-1', title: 'Valid', isPinned: false }])
     expect(normalized.tabOrder).toEqual(['tab-1'])
     expect(normalized.activeTabId).toBe('tab-1')
@@ -238,6 +301,7 @@ describe('LayoutPersistenceService', () => {
     expect(normalized.splitViewSyncScroll).toBe(false)
     expect(normalized.splitViewLeftFontScale).toBe(24)
     expect(normalized.splitViewRightFontScale).toBe(12)
+    expect(normalized.inspectorWidgets?.references.placement).toBe('docked')
   })
 
   it('keeps layout states local-only and outside sync table lists', () => {

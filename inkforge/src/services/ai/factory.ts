@@ -5,10 +5,7 @@
 
 import { AppError, ErrorCode } from '@/services/error'
 import type { AIProvider, ProviderConfig, ProviderName } from './types'
-import { OpenAIProvider } from './openai'
-import { AnthropicProvider } from './anthropic'
-import { DeepSeekProvider } from './deepseek'
-import { OllamaProvider } from './ollama'
+import { PiAIProvider } from './pi'
 
 /**
  * 创建 AI Provider 实例
@@ -19,16 +16,10 @@ import { OllamaProvider } from './ollama'
 export function createProvider(config: ProviderConfig): AIProvider {
     switch (config.provider) {
         case 'openai':
-            return new OpenAIProvider(config.apiKey, config.baseUrl, config.model)
-
         case 'anthropic':
-            return new AnthropicProvider(config.apiKey, config.baseUrl)
-
         case 'deepseek':
-            return new DeepSeekProvider(config.apiKey, config.baseUrl)
-
         case 'ollama':
-            return new OllamaProvider(config.ollamaUrl)
+            return new PiAIProvider(config)
 
         default: {
             // 穷举检查（TypeScript exhaustive check）

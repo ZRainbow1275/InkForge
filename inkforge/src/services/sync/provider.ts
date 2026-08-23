@@ -7,6 +7,7 @@ export type ConflictStrategy = 'three-way-merge' | 'manual-always'
 export type SyncCredentials =
     | { kind: 'basic'; username: string; passwordHash: string }
     | { kind: 'digest'; username: string; passwordHash: string }
+    | { kind: 'basic-secret'; username: string; password: string }
     | { kind: 'token'; token: string }
     | { kind: 'ssh'; keyPath: string; passphrase?: string }
     | { kind: 'none' }
@@ -182,6 +183,11 @@ export function validateSyncConfig(config: SyncConfig): SyncConfigValidationResu
         if (!config.credentials.passwordHash.trim()) errors.push('passwordHash is required')
     }
 
+    if (config.credentials.kind === 'basic-secret') {
+        if (!config.credentials.username.trim()) errors.push('username is required')
+        if (!config.credentials.password.trim()) errors.push('password is required')
+    }
+
     if (config.credentials.kind === 'token' && !config.credentials.token.trim()) {
         errors.push('token is required')
     }
@@ -203,6 +209,12 @@ export function assertValidSyncConfig(config: SyncConfig): void {
 export function buildAuthHeaders(credentials: SyncCredentials): HeadersInit {
     if (credentials.kind === 'none') return {}
     if (credentials.kind === 'token') return { Authorization: 'Bearer ' + credentials.token }
+    if (credentials.kind === 'basic-secret') {
+        const source = new TextEncoder().encode(`${credentials.username}:${credentials.password}`)
+        let binary = ''
+        for (const byte of source) binary += String.fromCharCode(byte)
+        return { Authorization: 'Basic ' + btoa(binary) }
+    }
     if (credentials.kind === 'basic' || credentials.kind === 'digest') {
         throw new SyncProviderError(
             'CREDENTIAL_SECRET_UNAVAILABLE',

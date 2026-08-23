@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Plus, Search } from 'lucide-vue-next'
+import { ChevronDown, Plus, Search } from 'lucide-vue-next'
 import type { Tag } from '@/services/tag-system'
 import { TAG_COLOR_PRESETS } from '@/services/tag-system'
 import TagBadge from './TagBadge.vue'
@@ -77,38 +77,60 @@ function handleEnter(): void {
     </div>
 
     <div class="tag-input-row">
-      <Search :size="14" />
-      <input
-        :value="query"
-        :disabled="disabled"
-        :placeholder="placeholder"
-        aria-label="搜索或创建标签"
-        data-tag-query
-        @input="updateQuery(($event.target as HTMLInputElement).value)"
-        @keydown.enter.prevent="handleEnter"
-      >
-      <select
-        v-model="color"
-        :disabled="disabled"
-        aria-label="标签颜色"
-      >
-        <option
-          v-for="preset in TAG_COLOR_PRESETS"
-          :key="preset.hex"
-          :value="preset.hex"
+      <label class="tag-query-field">
+        <Search
+          :size="14"
+          aria-hidden="true"
+        />
+        <input
+          :value="query"
+          :disabled="disabled"
+          :placeholder="placeholder"
+          aria-label="搜索或创建标签"
+          data-tag-query
+          @input="updateQuery(($event.target as HTMLInputElement).value)"
+          @keydown.enter.prevent="handleEnter"
         >
-          {{ preset.name }}
-        </option>
-      </select>
-      <button
-        type="button"
-        :disabled="disabled || !canCreate"
-        data-tag-create
-        @click="createTag"
-      >
-        <Plus :size="14" />
-        <span>创建</span>
-      </button>
+      </label>
+      <div class="tag-input-actions">
+        <label
+          class="tag-color-control"
+          :class="{ 'is-disabled': disabled }"
+          :style="{ '--tag-color': color }"
+        >
+          <span
+            class="tag-color-swatch"
+            aria-hidden="true"
+          />
+          <select
+            v-model="color"
+            :disabled="disabled"
+            aria-label="标签颜色"
+          >
+            <option
+              v-for="preset in TAG_COLOR_PRESETS"
+              :key="preset.hex"
+              :value="preset.hex"
+            >
+              {{ preset.name }}
+            </option>
+          </select>
+          <ChevronDown
+            :size="14"
+            aria-hidden="true"
+          />
+        </label>
+        <button
+          type="button"
+          class="tag-create-button"
+          :disabled="disabled || !canCreate"
+          data-tag-create
+          @click="createTag"
+        >
+          <Plus :size="14" />
+          <span>创建</span>
+        </button>
+      </div>
     </div>
 
     <div
@@ -144,45 +166,100 @@ function handleEnter(): void {
 }
 
 .tag-input-empty {
-  color: #90a4ae;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
 }
 
 .tag-input-row {
   display: grid;
-  grid-template-columns: auto minmax(120px, 1fr);
-  align-items: center;
-  gap: 7px;
-  padding: 7px;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  background: #ffffff;
+  gap: 8px;
 }
 
-.tag-input-row input,
-.tag-input-row select {
+.tag-query-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+}
+
+.tag-query-field input {
   min-width: 0;
   border: 0;
   outline: none;
   background: transparent;
-  color: #263238;
+  color: var(--text-primary);
   font: inherit;
   font-size: 12px;
 }
 
-.tag-input-row select,
-.tag-input-row button {
-  grid-column: 1 / -1;
+.tag-input-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  min-width: 0;
 }
 
-.tag-input-row select {
+.tag-color-control {
+  --tag-color: var(--ember);
+
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+}
+
+.tag-color-control select {
   width: 100%;
-  border-top: 1px solid #edf1f5;
-  padding-top: 7px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 28px 0 30px;
+  border: 0;
+  outline: none;
+  appearance: none;
+  color: var(--text-primary);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
 }
 
-.tag-input-row button,
+.tag-color-control.is-disabled {
+  opacity: 0.55;
+}
+
+.tag-color-control select:disabled {
+  cursor: not-allowed;
+}
+
+.tag-color-swatch {
+  position: absolute;
+  left: 10px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tag-color);
+  pointer-events: none;
+}
+
+.tag-color-control svg {
+  position: absolute;
+  right: 8px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.tag-create-button,
 .tag-suggestions button {
   display: inline-flex;
   align-items: center;
@@ -193,13 +270,16 @@ function handleEnter(): void {
   font-weight: 800;
 }
 
-.tag-input-row button {
-  padding: 7px 9px;
-  color: #ffffff;
-  background: #263238;
+.tag-create-button {
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--ember);
 }
 
-.tag-input-row button:disabled {
+.tag-create-button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -207,9 +287,9 @@ function handleEnter(): void {
 .tag-suggestions button {
   --tag-color: #2563eb;
   padding: 6px 8px;
-  color: #263238;
-  background: color-mix(in srgb, var(--tag-color) 9%, #ffffff);
-  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, #d7dee4);
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--tag-color) 9%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, var(--hairline));
 }
 
 .suggestion-dot {
@@ -220,7 +300,15 @@ function handleEnter(): void {
 }
 
 .suggestion-count {
-  color: #607d8b;
+  color: var(--text-muted);
   font-size: 11px;
+}
+
+.tag-query-field:focus-within,
+.tag-color-control:focus-within,
+.tag-create-button:focus-visible,
+.tag-suggestions button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 </style>

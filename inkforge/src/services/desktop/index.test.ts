@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readText as tauriReadText, writeText as tauriWriteText } from '@tauri-apps/api/clipboard'
 import {
   buildDesktopCapabilityMatrix,
+  createInspectorWidgetWindow,
   pickNativeDirectory,
   readClipboardText,
+  writeLocalDeliveryBundle,
   writeClipboardText,
 } from './index'
 
@@ -121,5 +123,36 @@ describe('desktop directory selection boundary', () => {
       reason: 'unavailable',
       source: 'web',
     })
+  })
+
+  it('validates local bundle input and fails closed in web runtime', async () => {
+    vi.stubGlobal('window', { isSecureContext: true })
+
+    await expect(writeLocalDeliveryBundle([]))
+      .resolves.toMatchObject({ ok: false, reason: 'invalid-input', source: 'web' })
+    await expect(writeLocalDeliveryBundle([{ relativePath: 'article.md', content: '# Article' }]))
+      .resolves.toMatchObject({ ok: false, reason: 'unavailable', source: 'web' })
+  })
+})
+
+describe('desktop inspector widget boundary', () => {
+  it('rejects unlisted surfaces and missing identity before invoking native code', async () => {
+    vi.stubGlobal('window', { isSecureContext: true })
+
+    await expect(createInspectorWidgetWindow('https://example.com' as never, 'profile-a', 'article-a'))
+      .resolves.toMatchObject({ ok: false, reason: 'invalid-input', source: 'web' })
+    await expect(createInspectorWidgetWindow('references', ' ', 'article-a'))
+      .resolves.toMatchObject({ ok: false, reason: 'invalid-input', source: 'web' })
+  })
+
+  it('reports the real web-runtime limit instead of simulating a desktop widget', async () => {
+    vi.stubGlobal('window', { isSecureContext: true })
+
+    await expect(createInspectorWidgetWindow('references', 'profile-a', 'article-a'))
+      .resolves.toMatchObject({
+        ok: false,
+        reason: 'unavailable',
+        source: 'web',
+      })
   })
 })

@@ -86,10 +86,8 @@ async function ensureDomRuntime(): Promise<void> {
     return
   }
 
-  const { JSDOM } = await import('jsdom')
-  const { window } = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
-    url: 'http://127.0.0.1/style-proof-release-preflight',
-  })
+  const { Window } = await import('happy-dom')
+  const window = new Window({ url: 'http://127.0.0.1/style-proof-release-preflight' })
   const windowRecord = window as unknown as Record<string, unknown>
 
   const defineRuntimeValue = (key: keyof DomRuntimeGlobal, value: unknown): void => {
@@ -155,9 +153,9 @@ const APPLICATION_WECHAT_SURFACE_CONTRACTS = [
       'getPublishWechatSvgSlotModuleId(slot.id)',
       'handlePublishWechatSvgSlotChange(slot.id, $event)',
       'enableSvgModules: false',
-      'enableSvgModules: selectedOptions.enableSvgModules',
-      'svgInjectionPlan: selectedOptions.svgInjectionPlan',
-      'markdownToWechatWithStats(content, preset, {',
+      'enableSvgModules: exportOptions.value.enableSvgModules',
+      'svgInjectionPlan: exportOptions.value.svgInjectionPlan',
+      'markdownToWechatWithStats(content, wechatPreset, renderExportOptions)',
     ],
   },
 ] as const satisfies readonly StyleProofApplicationWechatSurfaceContract[]
@@ -192,8 +190,8 @@ const APPLICATION_WECHAT_EXPORT_PIPELINE_CONTRACTS = [
     id: 'wechat-persona-line-width-lock',
     relativePath: 'src/services/export/preset-fonts.ts',
     requiredFragments: [
-      'max-width: min(22em, calc(100vw - 32px));',
-      'font-size: 17px;',
+      'max-width: min(24em, calc(100vw - 16px));',
+      'font-size: 16px;',
       'line-break: strict;',
     ],
   },

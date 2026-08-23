@@ -8,15 +8,154 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
 
 const TAURI_DRIVER_PORT = 4444;
 const E2E_MASTER_KEY_ID = 'com.inkforge.keychain:inkforge_e2e_master_key_v3';
 const MAX_NATIVE_HOST_CLIENT_GAP_PX = 8;
+const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
+const DEFAULT_RELEASE_APPLICATION_PATH = path.resolve(
+  PROJECT_ROOT,
+  'src-tauri',
+  'target',
+  'release',
+  'InkForge.exe',
+);
+const RELEASE_APPLICATION_PATH = process.env.INKFORGE_E2E_APPLICATION
+  ? path.resolve(process.env.INKFORGE_E2E_APPLICATION)
+  : DEFAULT_RELEASE_APPLICATION_PATH;
+const DEFAULT_RELEASE_EXE_SHA256 = '524b72a5fa1b4b72832aff88460a7487fbffbed8024035fb4221b29966e32791';
+const DEFAULT_RELEASE_PRODUCER_SHA256 = '88c35464733fb2f309e895dad536a8a9575c6292f61043f87a5de5a1f3440cf3';
+const RELEASE_PRODUCER_ROOTS = [
+  path.resolve(PROJECT_ROOT, 'src', 'services', 'export'),
+  path.resolve(PROJECT_ROOT, 'src', 'services', 'writing-components.ts'),
+  path.resolve(PROJECT_ROOT, 'src', 'components', 'export', 'ExportModal.vue'),
+];
+const E2E_SCOPE_ID = crypto.createHash('sha256')
+  .update(`${PROJECT_ROOT}\0${TAURI_DRIVER_PORT}\0${RELEASE_APPLICATION_PATH}`)
+  .digest('hex')
+  .slice(0, 16);
+const ISOLATED_WEBVIEW_ROOT = path.resolve(os.tmpdir(), `inkforge-e2e-${E2E_SCOPE_ID}`);
+const ISOLATED_WEBVIEW_USER_DATA_DIR = path.resolve(ISOLATED_WEBVIEW_ROOT, 'EBWebView');
 
 let tauriDriver;
-let isolatedWebViewUserDataDir;
+let releaseIdentity;
 global.__INKFORGE_E2E_DATA_ISOLATED__ = false;
+
+function sha256File(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+function isProducerSourceFile(filePath) {
+  const normalizedPath = filePath.replaceAll('\\', '/');
+  return /\.(?:ts|vue)$/u.test(normalizedPath)
+    && !/(?:\.test\.ts|\/__tests__\/)/u.test(normalizedPath);
+}
+
+function listProducerFiles(targetPath) {
+  const stat = fs.statSync(targetPath);
+  if (stat.isFile()) return [targetPath];
+  return fs.readdirSync(targetPath, { withFileTypes: true })
+    .flatMap(entry => listProducerFiles(path.join(targetPath, entry.name)))
+    .filter(isProducerSourceFile);
+}
+
+function sha256ProducerSourceSet(filePaths) {
+  const hash = crypto.createHash('sha256');
+  for (const filePath of [...filePaths].sort()) {
+    const relativePath = path.relative(PROJECT_ROOT, filePath).split(path.sep).join('/');
+    hash.update(relativePath);
+    hash.update('\0');
+    hash.update(fs.readFileSync(filePath));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
+function assertReleaseIdentity() {
+  if (process.platform !== 'win32') {
+    throw new Error('Refusing release E2E: InkForge release acceptance requires Windows WebView2');
+  }
+  if (!fs.existsSync(RELEASE_APPLICATION_PATH) || !fs.statSync(RELEASE_APPLICATION_PATH).isFile()) {
+    throw new Error('Refusing release E2E: the configured InkForge.exe release binary is missing');
+  }
+  const normalizedApplicationPath = RELEASE_APPLICATION_PATH.replaceAll('\\', '/').toLowerCase();
+  if (!normalizedApplicationPath.endsWith('/inkforge.exe') || normalizedApplicationPath.includes('/target/debug/')) {
+    throw new Error('Refusing release E2E: the configured application is not a release InkForge.exe');
+  }
+
+  const expectedSha256 = (process.env.INKFORGE_E2E_EXPECTED_EXE_SHA256 || DEFAULT_RELEASE_EXE_SHA256)
+    .trim()
+    .toLowerCase();
+  if (!/^[a-f0-9]{64}$/u.test(expectedSha256)) {
+    throw new Error('Refusing release E2E: expected EXE SHA-256 must be exactly 64 hexadecimal characters');
+  }
+  const executableSha256 = sha256File(RELEASE_APPLICATION_PATH);
+  if (executableSha256 !== expectedSha256) {
+    throw new Error(`Refusing release E2E: EXE SHA-256 mismatch; expected ${expectedSha256}, got ${executableSha256}`);
+  }
+  if (RELEASE_PRODUCER_ROOTS.some(producerPath => !fs.existsSync(producerPath))) {
+    throw new Error('Refusing release E2E: the artifact producer source set is incomplete');
+  }
+  const producerFiles = RELEASE_PRODUCER_ROOTS.flatMap(listProducerFiles);
+  const producerSha256 = sha256ProducerSourceSet(producerFiles);
+  const expectedProducerSha256 = (
+    process.env.INKFORGE_E2E_EXPECTED_PRODUCER_SHA256 || DEFAULT_RELEASE_PRODUCER_SHA256
+  ).trim().toLowerCase();
+  if (!/^[a-f0-9]{64}$/u.test(expectedProducerSha256)) {
+    throw new Error('Refusing release E2E: expected producer SHA-256 must be exactly 64 hexadecimal characters');
+  }
+  if (producerSha256 !== expectedProducerSha256) {
+    throw new Error(
+      `Refusing release E2E: producer SHA-256 mismatch; expected ${expectedProducerSha256}, got ${producerSha256}`,
+    );
+  }
+
+  return {
+    applicationPath: RELEASE_APPLICATION_PATH,
+    executableBytes: fs.statSync(RELEASE_APPLICATION_PATH).size,
+    executableSha256,
+    producerLabel: `export-source-set-v1:${producerFiles.length}`,
+    producerSha256,
+  };
+}
+
+function exposeReleaseIdentity(identity) {
+  global.__INKFORGE_E2E_RELEASE_IDENTITY__ = {
+    executableBytes: identity.executableBytes,
+    executableSha256: identity.executableSha256,
+    producerLabel: identity.producerLabel,
+    producerSha256: identity.producerSha256,
+  };
+}
+
+function verifyLaunchedReleaseBinary() {
+  if (!releaseIdentity) throw new Error('Release identity was not established before the native session');
+  const applicationProcessId = Number(global.browser?.capabilities?.['goog:processID']);
+  if (!Number.isInteger(applicationProcessId) || applicationProcessId <= 0) {
+    throw new Error('The launched release application process id is unavailable');
+  }
+  const script = [
+    "$ErrorActionPreference = 'Stop'",
+    `$process = Get-CimInstance Win32_Process -Filter "ProcessId = ${applicationProcessId}"`,
+    "if (-not $process -or $process.Name -ne 'InkForge.exe' -or -not $process.ExecutablePath) { exit 2 }",
+    '[Console]::Out.Write($process.ExecutablePath)',
+  ].join('; ');
+  const result = spawnSync(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', script],
+    { encoding: 'utf8', windowsHide: true },
+  );
+  if (result.error) throw result.error;
+  if (result.status !== 0 || !result.stdout.trim()) {
+    throw new Error('Refusing E2E: unable to read the launched InkForge.exe executable path');
+  }
+  const launchedPath = path.resolve(result.stdout.trim());
+  if (launchedPath.toLowerCase() !== releaseIdentity.applicationPath.toLowerCase()) {
+    throw new Error('Refusing E2E: the WebDriver process is not the configured release InkForge.exe');
+  }
+}
 
 function isNativeHostWebViewBoundsAligned(host, client) {
   return Math.abs(host.width - client.width) <= MAX_NATIVE_HOST_CLIENT_GAP_PX
@@ -41,15 +180,10 @@ process.once('exit', terminateTauriDriverOnProcessExit);
 process.once('SIGINT', () => process.exit(130));
 process.once('SIGTERM', () => process.exit(143));
 
-function getScopedDriverDirectory(userDataDir) {
-  const relativeToTemp = path.relative(os.tmpdir(), userDataDir);
-  const segments = relativeToTemp.split(path.sep);
-  const isScopedDriverDirectory = segments.length === 2
-    && segments[0].startsWith('scoped_dir')
-    && segments[1] === 'EBWebView'
-    && !relativeToTemp.startsWith(`..${path.sep}`)
-    && !path.isAbsolute(relativeToTemp);
-  return isScopedDriverDirectory ? path.dirname(userDataDir) : null;
+function getTaskOwnedDriverDirectory(userDataDir) {
+  return path.resolve(userDataDir).toLowerCase() === ISOLATED_WEBVIEW_USER_DATA_DIR.toLowerCase()
+    ? ISOLATED_WEBVIEW_ROOT
+    : null;
 }
 
 function getListeningProcessId(port) {
@@ -111,7 +245,7 @@ function verifyIsolatedWebViewUserDataDir() {
     "$ErrorActionPreference = 'Stop'",
     `$commandLine = Get-CimInstance Win32_Process -Filter "ParentProcessId = ${applicationProcessId}" | Where-Object { $_.Name -eq 'msedgewebview2.exe' } | Select-Object -First 1 -ExpandProperty CommandLine`,
     'if (-not $commandLine) { exit 2 }',
-    'if ($commandLine -match \'--enable-automation\' -and $commandLine -match \'--user-data-dir="([^"]+)"\') { [Console]::Out.Write($Matches[1]); exit 0 }',
+    'if ($commandLine -match \'--enable-automation\' -and $commandLine -match \'--user-data-dir=(?:"([^"]+)"|([^ ]+))\') { if ($Matches[1]) { [Console]::Out.Write($Matches[1]) } else { [Console]::Out.Write($Matches[2]) }; exit 0 }',
     'exit 3',
   ].join('; ');
   const result = spawnSync(
@@ -125,14 +259,38 @@ function verifyIsolatedWebViewUserDataDir() {
   }
 
   const userDataDir = path.resolve(result.stdout.trim());
-  const scopedDriverDirectory = getScopedDriverDirectory(userDataDir);
-  if (!scopedDriverDirectory) {
-    throw new Error('Refusing to run E2E outside the native driver temporary WebView2 data directory');
+  const taskOwnedDriverDirectory = getTaskOwnedDriverDirectory(userDataDir);
+  if (!taskOwnedDriverDirectory) {
+    const actualLeaf = path.relative(os.tmpdir(), userDataDir).split(path.sep).join('/');
+    const expectedLeaf = path.relative(os.tmpdir(), ISOLATED_WEBVIEW_USER_DATA_DIR).split(path.sep).join('/');
+    throw new Error(`Refusing to run E2E outside the task-owned WebView2 data directory: actual=${actualLeaf}; expected=${expectedLeaf}`);
   }
 
-  isolatedWebViewUserDataDir = userDataDir;
   global.__INKFORGE_E2E_DATA_ISOLATED__ = true;
-  console.log(`[InkForge E2E] isolated WebView2 data verified in ${path.basename(scopedDriverDirectory)}`);
+  console.log(`[InkForge E2E] isolated WebView2 data verified in ${path.basename(taskOwnedDriverDirectory)}`);
+}
+
+async function reloadVerifiedReleaseSession() {
+  const previousProcessId = Number(global.browser?.capabilities?.['goog:processID']);
+  if (!Number.isInteger(previousProcessId) || previousProcessId <= 0) {
+    throw new Error('Refusing restart acceptance: the previous InkForge process id is unavailable');
+  }
+  await global.browser.reloadSession({
+    'tauri:options': {
+      application: RELEASE_APPLICATION_PATH,
+      webviewOptions: {
+        userDataFolder: ISOLATED_WEBVIEW_ROOT,
+      },
+    },
+  });
+  verifyLaunchedReleaseBinary();
+  verifyIsolatedWebViewUserDataDir();
+  await ensureMainApplicationWindowInteractable();
+  const currentProcessId = Number(global.browser?.capabilities?.['goog:processID']);
+  if (currentProcessId === previousProcessId) {
+    throw new Error('Refusing restart acceptance: reloadSession reused the previous InkForge process');
+  }
+  return { previousProcessId, currentProcessId };
 }
 
 async function deleteIsolatedCredential() {
@@ -300,15 +458,13 @@ async function stopTauriDriver() {
 }
 
 async function removeIsolatedWebViewData() {
-  if (!isolatedWebViewUserDataDir) return;
-  const scopedDriverDirectory = getScopedDriverDirectory(isolatedWebViewUserDataDir);
-  isolatedWebViewUserDataDir = undefined;
-  if (!scopedDriverDirectory) {
+  const taskOwnedDriverDirectory = getTaskOwnedDriverDirectory(ISOLATED_WEBVIEW_USER_DATA_DIR);
+  if (!taskOwnedDriverDirectory) {
     throw new Error('Refusing to remove an unverified WebView2 data directory');
   }
   for (let attempt = 0; attempt < 50; attempt += 1) {
     try {
-      fs.rmSync(scopedDriverDirectory, { recursive: true, force: true });
+      fs.rmSync(taskOwnedDriverDirectory, { recursive: true, force: true });
       return;
     } catch (error) {
       if (attempt === 49 || !['EBUSY', 'ENOTEMPTY', 'EPERM'].includes(error.code)) throw error;
@@ -327,15 +483,10 @@ exports.config = {
     {
       maxInstances: 1,
       'tauri:options': {
-        application: path.resolve(
-          __dirname,
-          '..',
-          '..',
-          'src-tauri',
-          'target',
-          'debug',
-          'InkForge.exe',
-        ),
+        application: RELEASE_APPLICATION_PATH,
+        webviewOptions: {
+          userDataFolder: ISOLATED_WEBVIEW_ROOT,
+        },
       },
     },
   ],
@@ -347,31 +498,24 @@ exports.config = {
   hostname: '127.0.0.1',
   port: TAURI_DRIVER_PORT,
 
-  // Build the current frontend and re-embed it in the Tauri debug binary.
-  // Calling cargo directly can reuse an executable with stale dist assets.
   onPrepare: () => {
-    if (process.env.INKFORGE_E2E_SKIP_TAURI_BUILD === '1') return;
-
-    const isWindows = process.platform === 'win32';
-    const result = spawnSync(
-      isWindows ? (process.env.ComSpec || 'cmd.exe') : 'pnpm',
-      isWindows
-        ? ['/d', '/s', '/c', 'pnpm exec tauri build --debug --bundles none']
-        : ['exec', 'tauri', 'build', '--debug', '--bundles', 'none'],
-      {
-        cwd: path.resolve(__dirname, '..', '..'),
-        stdio: 'inherit',
-      },
-    );
-    if (result.error) throw result.error;
-    if (result.status !== 0) throw new Error(`Tauri E2E build failed with exit code ${result.status}`);
+    releaseIdentity = assertReleaseIdentity();
+    exposeReleaseIdentity(releaseIdentity);
+    fs.rmSync(ISOLATED_WEBVIEW_ROOT, { recursive: true, force: true });
+    fs.mkdirSync(ISOLATED_WEBVIEW_ROOT, { recursive: true });
+    console.log('[InkForge E2E] release identity verified', JSON.stringify({
+      executableBytes: releaseIdentity.executableBytes,
+      executableSha256: releaseIdentity.executableSha256,
+      producerSha256: releaseIdentity.producerSha256,
+    }));
   },
 
   // Spawn tauri-driver. It in turn launches msedgedriver on a free port and
   // proxies WebDriver commands into the Tauri WebView2 surface.
   beforeSession: async () => {
+    releaseIdentity = assertReleaseIdentity();
+    exposeReleaseIdentity(releaseIdentity);
     global.__INKFORGE_E2E_DATA_ISOLATED__ = false;
-    isolatedWebViewUserDataDir = undefined;
     const msedgePath = path.resolve(
       os.homedir(),
       '.local',
@@ -392,12 +536,14 @@ exports.config = {
   },
 
   before: async () => {
+    verifyLaunchedReleaseBinary();
     verifyIsolatedWebViewUserDataDir();
     await ensureMainApplicationWindowInteractable();
+    global.__INKFORGE_E2E_RELOAD_RELEASE_SESSION__ = reloadVerifiedReleaseSession;
   },
   beforeTest: async () => {
     if (!global.__INKFORGE_E2E_DATA_ISOLATED__) {
-      throw new Error('E2E requires the native driver scoped WebView2 data root');
+      throw new Error('E2E requires the task-owned WebView2 data root');
     }
     await ensureMainApplicationWindowInteractable();
   },
@@ -411,8 +557,12 @@ exports.config = {
       await removeIsolatedWebViewData();
     } finally {
       global.__INKFORGE_E2E_DATA_ISOLATED__ = false;
+      global.__INKFORGE_E2E_RELOAD_RELEASE_SESSION__ = undefined;
+      global.__INKFORGE_E2E_RELEASE_IDENTITY__ = undefined;
+      releaseIdentity = undefined;
     }
   },
 };
 
 exports.isNativeHostWebViewBoundsAligned = isNativeHostWebViewBoundsAligned;
+exports.isProducerSourceFile = isProducerSourceFile;

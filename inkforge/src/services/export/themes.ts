@@ -2,9 +2,18 @@
  * 主题预设和 CSS 生成
  */
 
-import type { ExportPreset, ExportTarget } from '@/types'
+import type { ExportPreset, ExportTarget, PresetVisualSignature } from '@/types'
 import { DEFAULT_PRESET_ID, FONT_STACKS } from '@/constants'
+import { listWritingComponentDefinitions } from '@/services/writing-components'
 import { PERSONA_FONTS, generatePersonaBaseCSS } from './preset-fonts'
+import {
+  ARTICLE_PROFILES,
+  getPlatformPresetForVariant,
+  getVisualVariantCSS,
+  resolveVisualVariant,
+  type ArticleProfileId,
+  type VisualVariantId,
+} from './visual-variants'
 import {
   composeRecipes,
   chainDecorators,
@@ -183,7 +192,7 @@ const flagshipKilnPasteSafeDecorate = chainDecorators(
   decorateFlagshipH3(kilnPalette),
   decorateFlagshipBlockquote(kilnPalette),
   decorateFlagshipLists(kilnPalette),
-  decorateFlagshipFooterCard(kilnPalette, FLAGSHIP_BRAND),
+  decorateFlagshipFooterCard(kilnPalette, { ...FLAGSHIP_BRAND, layout: 'paste-safe' }),
 )
 
 const flagshipTemperaDecorate = chainDecorators(
@@ -509,6 +518,17 @@ export const themePresets: ExportPreset[] = [
     name: '论文翻译',
     icon: 'thesis',
     description: '学术严谨，墨色单调',
+    visualSignature: {
+      masthead: '书脊卷次与译注双轨扉页',
+      rhythm: '宋体长段 · 1.95 行高 · 2em 缩进',
+      heading: '章节序号 · 极细底线 · § 小节',
+      quote: '纸色左线学术引文',
+      divider: '居中墨点阵列',
+      media: '原比例论文图版',
+      modules: ['中文章节编号', '§ 小节标记', '学术表格'],
+      delivery: '歌曲位于译本导语后 · 分钟与字数进入校勘栏',
+      ending: '文献署名与版本谱系双线收束',
+    },
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '15px',
@@ -565,6 +585,17 @@ ${thesisRecipesExport.css}`,
     name: '法学研讨',
     icon: 'legal',
     description: '法学严谨，近黑庄重',
+    visualSignature: {
+      masthead: '案卷编号与法条坐标标尺',
+      rhythm: '两端对齐 · 首段首字下沉',
+      heading: '双线法典标题 · 罗马章节',
+      quote: '双线法条引文',
+      divider: '法典单线分节',
+      media: '原比例证据图版',
+      modules: ['首字下沉', '罗马章节号', '法条引用块'],
+      delivery: '歌曲作为案卷引入 · 统计进入证据页眉',
+      ending: '案卷名片与卷宗封线',
+    },
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '15px',
@@ -623,6 +654,17 @@ ${legalRecipesExport.css}`,
     name: '行业研报',
     icon: 'report',
     description: '商务理性，商务蓝调',
+    visualSignature: {
+      masthead: '深色产业剖面封面与数据带',
+      rhythm: '商务密排 · 表格数字对齐',
+      heading: '蓝色封条 · 01 章节徽标',
+      quote: '蓝灰研报拉引',
+      divider: '短蓝线衔接灰轨',
+      media: '原比例图表区',
+      modules: ['研报封条', '数字章节徽标', '编号结论列表'],
+      delivery: '歌曲置于摘要带前 · 统计并入指标栏',
+      ending: '机构信息板与结论条',
+    },
     theme: 'default',
     fontFamily: 'serif',
     fontSize: '15px',
@@ -684,6 +726,17 @@ ${reportRecipesExport.css}`,
     name: '时事点评',
     icon: 'commentary',
     description: '观点锋利，热血红调',
+    visualSignature: {
+      masthead: 'WIRE 期号与事实状态报头',
+      rhythm: '短段强节奏 · 新闻式零缩进',
+      heading: '粗黑大标题 · 红色竖轨',
+      quote: '热评大引号',
+      divider: '红色菱形轴线',
+      media: '原比例新闻图片',
+      modules: ['标题红条', '小标题短线', '菱形分隔'],
+      delivery: '歌曲置于观点导语前 · 统计进入编辑签',
+      ending: '来源卡与双规则报尾',
+    },
     theme: 'simple',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -741,6 +794,17 @@ ${commentaryRecipesExport.css}`,
     name: 'AIGC',
     icon: 'aigc',
     description: '科技理性，科技蓝调',
+    visualSignature: {
+      masthead: 'BUILD 标签与模型版本矩阵',
+      rhythm: '无衬线数据节奏 · 模块留白',
+      heading: '数据蓝标题 · 竖线小节',
+      quote: '蓝色信息引文',
+      divider: '双线技术章',
+      media: '原比例数据图',
+      modules: ['竖线小节', '技术章分隔', '代码强调'],
+      delivery: '歌曲置于构建序言 · 统计进入状态轨',
+      ending: '构建身份牌与状态轨终止',
+    },
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -804,6 +868,17 @@ ${aigcRecipesExport.css}`,
     name: '编程创造',
     icon: 'code',
     description: '代码教程，终端绿调',
+    visualSignature: {
+      masthead: '终端提示符与 commit 版本头',
+      rhythm: '等宽紧凑 · 深色终端纸面',
+      heading: '终端绿章节线',
+      quote: '深色日志拉引',
+      divider: '终端虚线',
+      media: '原比例代码截图',
+      modules: ['代码高亮', '罗马步骤列表', '终端表格'],
+      delivery: '歌曲作为运行前引导 · 统计进入命令状态栏',
+      ending: '开发者卡与命令行收束',
+    },
     theme: 'default',
     fontFamily: 'monospace',
     fontSize: '15px',
@@ -872,6 +947,17 @@ ${codeRecipesExport.css}`,
     name: '学习笔记',
     icon: 'notes',
     description: '知识卡片，奶油暖调',
+    visualSignature: {
+      masthead: 'NOTE 索引与问题概念证据页签',
+      rhythm: '文楷慢节奏 · 奶油纸面',
+      heading: '暖橙手账标题',
+      quote: '奶油便签拉引',
+      divider: '手写花体分隔',
+      media: '原比例手账图片',
+      modules: ['首字下沉', '花体分隔', '便签引用'],
+      delivery: '歌曲置于学习引子 · 统计进入便签页眉',
+      ending: '学习者卡与纸张折页',
+    },
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '15px',
@@ -927,6 +1013,17 @@ ${notesRecipesExport.css}`,
     name: '新闻',
     icon: 'news',
     description: '新闻报道，板岩黑调',
+    visualSignature: {
+      masthead: '报纸版次日期与独立报头',
+      rhythm: '报刊短段 · 高密度信息流',
+      heading: '黑色报头 · 极细栏目线',
+      quote: '新闻摘录双线',
+      divider: '报纸实线',
+      media: '原比例新闻图版',
+      modules: ['报头标题', '大引号摘录', '双线拉引'],
+      delivery: '歌曲置于新闻导读 · 统计进入版次栏',
+      ending: '记者名片与报尾双线',
+    },
     theme: 'simple',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -985,6 +1082,17 @@ ${newsRecipesExport.css}`,
     name: '整活',
     icon: 'meme',
     description: 'meme风，热粉破格',
+    visualSignature: {
+      masthead: '编辑贴纸与跳号期次海报',
+      rhythm: '短句强节拍 · 高反差留白',
+      heading: '热粉色块标题 · 竖线小节',
+      quote: '圆角弹幕拉引',
+      divider: '热粉花体虚线',
+      media: '原比例梗图',
+      modules: ['色块标题', '花体分隔', '高亮粗体'],
+      delivery: '歌曲作为开场贴纸 · 统计进入边注标签',
+      ending: '创作者贴纸与印章收束',
+    },
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -1045,6 +1153,17 @@ ${memeRecipesExport.css}`,
     name: '人生感悟',
     icon: 'life',
     description: '生活随笔，棕褐温和',
+    visualSignature: {
+      masthead: '信笺题记日期与安静留白',
+      rhythm: '文楷长呼吸 · 首字下沉',
+      heading: '轻字重随笔标题',
+      quote: '棕褐手札大引号',
+      divider: '花体留白分节',
+      media: '原比例生活相片',
+      modules: ['首字下沉', '大引号', '花体分隔'],
+      delivery: '歌曲置于题记后 · 统计进入信笺角注',
+      ending: '作者信笺与余白结束',
+    },
     theme: 'simple',
     fontFamily: 'serif',
     fontSize: '15px',
@@ -1102,6 +1221,17 @@ ${lifeRecipesExport.css}`,
     name: '优雅',
     icon: 'elegant',
     description: '优雅长文，深紫书卷',
+    visualSignature: {
+      masthead: '典籍扉页章节号与藏书标识',
+      rhythm: '宋体长文 · 2em 缩进',
+      heading: '深紫古典章节 · 竖线小节',
+      quote: '紫灰大引号',
+      divider: '古典双线留白',
+      media: '原比例装帧图版',
+      modules: ['首字下沉', '中文章节号', '竖线小节'],
+      delivery: '歌曲置于扉页后 · 统计进入版心注',
+      ending: '藏书票名片与细饰分隔',
+    },
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '16px',
@@ -1158,6 +1288,17 @@ ${elegantRecipesExport.css}`,
     name: '科技',
     icon: 'tech',
     description: '科技，靛蓝未来',
+    visualSignature: {
+      masthead: '电路节点协议号与版本指标',
+      rhythm: '无衬线模块化 · 紧凑段落',
+      heading: '靛蓝色块 · 竖线小节',
+      quote: '靛蓝提示卡',
+      divider: '靛蓝圆角轨道',
+      media: '原比例产品截图',
+      modules: ['色块标题', '竖线小节', '技术代码块'],
+      delivery: '歌曲置于启动节点 · 统计进入协议状态栏',
+      ending: '技术身份板与节点终止',
+    },
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -1227,6 +1368,17 @@ ${techRecipesExport.css}`,
     name: '赤陶旗舰',
     icon: 'flagship-kiln',
     description: 'SVG 旗舰 · 赤陶炉火，构成主义',
+    visualSignature: {
+      masthead: '构成主义炉火网格封面与铸造编号',
+      rhythm: '赤陶编辑节奏 · 构成主义留白',
+      heading: '网格封面 · 赤陶色块标题',
+      quote: '赤陶角标引用卡',
+      divider: 'Forge 窑印 SVG 分隔',
+      media: '赤陶图版画框',
+      modules: ['SVG 网格封面', '本期目录', 'vessel 结束标'],
+      delivery: '歌曲置于铸场引入 · 统计进入构成式读条',
+      ending: '墨铸印章与厚重底座',
+    },
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -1259,6 +1411,17 @@ ${techRecipesExport.css}`,
     name: '赤陶兼容旗舰',
     icon: 'flagship-kiln-paste-safe',
     description: 'SVG 旗舰 · 赤陶普通粘贴兼容候选，保留 Kiln 色板与 Forge 分隔',
+    visualSignature: {
+      masthead: '纯 HTML 铸造铭牌与渠道状态列',
+      rhythm: '赤陶兼容节奏 · 微信粘贴优先',
+      heading: '兼容封面 · 赤陶色块标题',
+      quote: '赤陶角标引用卡',
+      divider: 'Forge 窑印 SVG 分隔',
+      media: '赤陶兼容图版框',
+      modules: ['SVG 兼容封面', '本期目录', 'vessel 结束标'],
+      delivery: '歌曲使用静态兼容卡 · 统计进入粘贴安全栏',
+      ending: '静态印章与兼容双线',
+    },
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -1289,6 +1452,17 @@ ${techRecipesExport.css}`,
     name: '铜绿旗舰',
     icon: 'flagship-tempera',
     description: 'SVG 旗舰 · 铜绿匠心，学术沉静',
+    visualSignature: {
+      masthead: '画稿页码编辑标签与纸层索引',
+      rhythm: '铜绿学术节奏 · 沉静长段',
+      heading: '括号封面 · 竖规线标题',
+      quote: '铜绿角标引用卡',
+      divider: '铜绿菱形 SVG 轴',
+      media: '铜绿细框图版',
+      modules: ['SVG 括号封面', '数据块', '全文完结束标'],
+      delivery: '歌曲置于画稿导语 · 统计进入画布批注',
+      ending: '编辑名片与画框式收束',
+    },
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '15px',
@@ -1320,6 +1494,17 @@ ${techRecipesExport.css}`,
     name: '黄铜旗舰',
     icon: 'flagship-amber',
     description: 'SVG 旗舰 · 熔铸黄铜，商务克制',
+    visualSignature: {
+      masthead: '琥珀档案封面时间数据轨与编号',
+      rhythm: '黄铜商务节奏 · 克制对齐',
+      heading: '黄铜封面 · 竖规线标题',
+      quote: '黄铜左轨引用卡',
+      divider: '黄铜网格 SVG 分隔',
+      media: '黄铜数据画框',
+      modules: ['SVG 黄铜封面', '对比与时间线', '署名结束标'],
+      delivery: '歌曲置于档案序言 · 统计进入档案索引',
+      ending: '档案名片与铜色终章牌',
+    },
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
@@ -1346,6 +1531,201 @@ ${techRecipesExport.css}`,
   }
 ]
 
+type CompleteWechatVisualSignature = PresetVisualSignature & Required<
+  Pick<PresetVisualSignature, 'masthead' | 'delivery' | 'ending'>
+>
+
+export interface WechatRenderingCompositionZones {
+  masthead: string
+  headingRhythm: string
+  bodyFlow: string
+  semanticBlocks: readonly string[]
+  componentsAndDelivery: readonly string[]
+  ending: string
+}
+
+export interface WechatRenderingStructureFingerprint {
+  masthead: string
+  headingRhythm: string
+  bodyFlow: string
+  semanticBlocks: string
+  componentsAndDelivery: string
+  ending: string
+}
+
+/**
+ * Read-only description of the real preset implementation. This catalog is for
+ * inspector/docs/acceptance consumers; rendering still goes through the preset
+ * decorator and the existing platform converter.
+ */
+export interface WechatRenderingRuleCatalogEntry {
+  version: 1
+  presetId: string
+  presetName: string
+  persona: ExportPreset['persona']
+  variantId: VisualVariantId
+  compatibleProfileIds: readonly ArticleProfileId[]
+  brandAnchors: readonly string[]
+  zones: Readonly<WechatRenderingCompositionZones>
+  runtimeStructureFingerprint: Readonly<WechatRenderingStructureFingerprint>
+  writingComponentIds: readonly string[]
+  platformDegradation: readonly string[]
+  safeInvariants: readonly string[]
+  customizationKnobs: readonly string[]
+  lockedFields: readonly string[]
+}
+
+const WECHAT_RULE_BRAND_ANCHORS = Object.freeze([
+  'InkForge identity',
+  '文章值得您享受',
+  'real article metadata',
+  'single InkForge colophon',
+])
+
+const WECHAT_RULE_SAFE_INVARIANTS = Object.freeze([
+  'single converter path',
+  'real data only',
+  'continuous ordinary paragraph flow',
+  'inline-style and safe-SVG subset',
+  '320px–586px no-overflow reading geometry',
+])
+
+const WECHAT_RULE_TYPOGRAPHY_KNOBS = Object.freeze([
+  'fontFamily',
+  'fontSize',
+  'lineHeight',
+  'letterSpacing',
+  'paragraphSpacing',
+  'paragraphIndent',
+  'headingStyle',
+  'blockquoteStyle',
+])
+
+const WECHAT_RULE_STRUCTURE_SELECTORS: Readonly<Record<keyof WechatRenderingStructureFingerprint, readonly string[]>> = Object.freeze({
+  masthead: Object.freeze([
+    '.ink-article-masthead__identity',
+    '.ink-article-masthead__title',
+  ]),
+  headingRhythm: Object.freeze(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
+  bodyFlow: Object.freeze(['p', 'ul', 'ol']),
+  semanticBlocks: Object.freeze(['blockquote', 'pre', 'table', 'figure', 'hr']),
+  componentsAndDelivery: Object.freeze([
+    '.ink-article-song[data-ink-masthead-song="true"]',
+    '.ink-article-masthead__meta',
+    '.ink-writing-component',
+  ]),
+  ending: Object.freeze([
+    '.ink-delivery-profile[data-ink-delivery="profile"]',
+    '.ink-article-colophon',
+  ]),
+})
+
+function getWechatRuleSelectorFingerprint(css: string, selector: string): string {
+  const expected = `#nice ${selector}`
+  const rules = Array.from(css.matchAll(/([^{}]+)\{([^}]*)\}/g))
+    .filter(match => match[1]
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .split(',')
+      .some(candidate => candidate.trim() === expected))
+    .map(match => match[2]
+      .replace(/#[0-9a-f]{3,8}\b/gi, 'COLOR')
+      .replace(/rgba?\([^)]*\)/gi, 'COLOR')
+      .replace(/(['"])[\s\S]*?\1/g, 'TEXT')
+      .replace(/-?\d+(?:\.\d+)?(?:px|em|rem|%|deg|s|ms)?/gi, 'NUMBER')
+      .replace(/\s+/g, ' ')
+      .trim())
+  return `${selector}:${rules.join('|') || 'none'}`
+}
+
+function getWechatDecoratorMastheadFingerprint(preset: ExportPreset): string {
+  const fixture = '<h1>同一篇真实文章</h1><p>连续正文用于结构验收，不承载外部事实。</p>'
+  const decorated = preset.decorate?.(fixture, 'wechat') ?? fixture
+  const firstParagraph = decorated.search(/<p\b/i)
+  return (firstParagraph >= 0 ? decorated.slice(0, firstParagraph) : decorated)
+    .replace(/<([a-z][\w:-]*)(?:\s[^>]*)?>/gi, '<$1>')
+    .replace(/>[^<]*</g, '><')
+    .replace(/<\/([a-z][\w:-]*)>/gi, '/$1;')
+    .replace(/<([a-z][\w:-]*)>/gi, '$1;')
+    .replace(/\s+/g, '')
+}
+
+function getWechatRuntimeStructureFingerprint(
+  preset: ExportPreset,
+): Readonly<WechatRenderingStructureFingerprint> {
+  const css = generateThemeCSS(preset, 'export')
+  return Object.freeze(Object.fromEntries(
+    Object.entries(WECHAT_RULE_STRUCTURE_SELECTORS).map(([zone, selectors]) => [
+      zone,
+      [
+        ...selectors.map(selector => getWechatRuleSelectorFingerprint(css, selector)),
+        ...(zone === 'masthead' ? [`decorator:${getWechatDecoratorMastheadFingerprint(preset)}`] : []),
+      ].join('||'),
+    ]),
+  ) as unknown as WechatRenderingStructureFingerprint)
+}
+
+function requireWechatVisualSignature(preset: ExportPreset): CompleteWechatVisualSignature {
+  const signature = preset.visualSignature
+  if (
+    !signature?.masthead?.trim()
+    || !signature.delivery?.trim()
+    || !signature.ending?.trim()
+    || signature.modules.length === 0
+  ) {
+    throw new Error(`微信预设 ${preset.id} 缺少完整渲染规则描述`)
+  }
+  return signature as CompleteWechatVisualSignature
+}
+
+export function getWechatRenderingRuleCatalog(): readonly WechatRenderingRuleCatalogEntry[] {
+  const writingComponentIds = Object.freeze(
+    listWritingComponentDefinitions().map(definition => definition.id),
+  )
+  return themePresets.map((preset) => {
+    const signature = requireWechatVisualSignature(preset)
+    const resolved = resolveVisualVariant('wechat', preset.id)
+    const isFlagship = preset.id.startsWith('flagship-')
+    const compatibleProfileIds = ARTICLE_PROFILES
+      .filter(profile => getPlatformPresetForVariant(profile.variantId, 'wechat', profile.id) === preset.id)
+      .map(profile => profile.id)
+
+    return Object.freeze({
+      version: 1 as const,
+      presetId: preset.id,
+      presetName: preset.name,
+      persona: preset.persona,
+      variantId: resolved.variantId,
+      compatibleProfileIds: Object.freeze(compatibleProfileIds),
+      brandAnchors: WECHAT_RULE_BRAND_ANCHORS,
+      zones: Object.freeze({
+        masthead: signature.masthead,
+        headingRhythm: signature.heading,
+        bodyFlow: signature.rhythm,
+        semanticBlocks: Object.freeze([signature.quote, signature.divider, signature.media]),
+        componentsAndDelivery: Object.freeze([...signature.modules, signature.delivery]),
+        ending: signature.ending,
+      }),
+      runtimeStructureFingerprint: getWechatRuntimeStructureFingerprint(preset),
+      writingComponentIds,
+      platformDegradation: Object.freeze([
+        preset.id === 'flagship-kiln-paste-safe'
+          ? 'prefer static flow-safe HTML and allowlisted SVG'
+          : isFlagship
+            ? 'preserve allowlisted SVG; retain readable HTML fallback when stripped'
+            : 'preserve inlined HTML; omit unsupported native media rather than imitate it',
+        'native WeChat media remains a manual platform insertion',
+      ]),
+      safeInvariants: WECHAT_RULE_SAFE_INVARIANTS,
+      customizationKnobs: isFlagship
+        ? WECHAT_RULE_TYPOGRAPHY_KNOBS
+        : Object.freeze([...WECHAT_RULE_TYPOGRAPHY_KNOBS, 'primaryColor']),
+      lockedFields: isFlagship
+        ? Object.freeze(['flagship SVG brand palette'])
+        : Object.freeze([]),
+    })
+  })
+}
+
 /**
  * 生成主题CSS
  *
@@ -1355,18 +1735,39 @@ ${techRecipesExport.css}`,
  * preset.previewCSS is present, the full CSS3 variant is used instead.
  * Presets that haven't been migrated yet fall through to the legacy path.
  */
+function generateWritingComponentThemeCSS(primaryColor: string): string {
+  return `
+#nice .ink-writing-component {
+  border-left-color: ${primaryColor} !important;
+}
+#nice .ink-article-song {
+  border-left-color: ${primaryColor} !important;
+}
+#nice .ink-writing-component__label,
+#nice .ink-writing-component__accent,
+#nice .ink-writing-component a {
+  color: ${primaryColor} !important;
+}
+#nice .ink-writing-component__accent-border {
+  border-color: ${primaryColor} !important;
+}
+`
+}
+
 export function generateThemeCSS(preset: ExportPreset, target: 'preview' | 'export' = 'export'): string {
+  const writingComponentCSS = generateWritingComponentThemeCSS(preset.primaryColor)
+  const visualVariantCSS = getVisualVariantCSS('wechat', preset.id, target)
   // ─── New dual-track path: preset has explicit per-target CSS ──────────
   const dualTrackCSS = target === 'preview' ? preset.previewCSS : preset.exportCSS
   if (dualTrackCSS) {
-    let css = baseCSS + '\n' + dualTrackCSS
+    let css = baseCSS + '\n' + dualTrackCSS + writingComponentCSS
     if (preset.isUseIndent) {
       css += '\n#nice p { text-indent: 2em; }'
     }
     if (preset.isUseJustify) {
       css += '\n#nice p { text-align: justify; }'
     }
-    return css
+    return css + visualVariantCSS
   }
 
   // ─── Legacy path: customCSS + computed font / primary color ───────────
@@ -1412,7 +1813,7 @@ export function generateThemeCSS(preset: ExportPreset, target: 'preview' | 'expo
     css += preset.customCSS
   }
 
-  return css
+  return css + writingComponentCSS + visualVariantCSS
 }
 
 /**

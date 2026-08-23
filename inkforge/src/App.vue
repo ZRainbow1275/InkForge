@@ -31,6 +31,8 @@ import {
 import { notifyAppReady } from '@/services/app-lifecycle/notifyAppReady'
 import TitleBar from '@/components/chrome/TitleBar.vue'
 import ViewTransition from '@/components/chrome/ViewTransition.vue'
+import InspectorUtilityView from '@/views/InspectorUtilityView.vue'
+import { parseInspectorWidgetRequest } from '@/services/inspector-widgets'
 import './styles/tokens.css'
 
 /**
@@ -44,10 +46,12 @@ const articleStore = useArticleStore()
 const commandPaletteStore = useCommandPaletteStore()
 const devPanelStore = useDevPanelStore()
 const updaterStore = useUpdaterStore()
+const inspectorWidgetRequest = parseInspectorWidgetRequest(window.location.search)
 const devPanelActivator = new DevPanelKeyChordActivator()
 let lastCustomCssRuntimeRejectionKey: string | null = null
 const DevPanel = defineAsyncComponent(() => import('@/views/dev/DevPanel.vue'))
 const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
 /** 将 settings 中的外观配置同步到 :root CSS 变量 */
 function syncCSSVariables(): void {
@@ -66,9 +70,10 @@ function syncCSSVariables(): void {
   root.setAttribute('data-typography-heading-style', settingsStore.settings.appearance.typography.headingStyle)
   root.setAttribute('data-typography-blockquote-style', settingsStore.settings.appearance.typography.blockquoteStyle)
 
-  // 减少动画：同时写入 class 与 data attribute，供全局 CSS 和测试稳定识别。
-  root.classList.toggle('reduce-motion', settingsStore.settings.appearance.reducedMotion)
-  root.setAttribute('data-reduced-motion', settingsStore.settings.appearance.reducedMotion ? 'true' : 'false')
+  // 产品设置与系统无障碍偏好任一启用时，全局 CSS 与 JS 都进入 reduced-motion。
+  const reducedMotion = settingsStore.settings.appearance.reducedMotion || reducedMotionQuery.matches
+  root.classList.toggle('reduce-motion', reducedMotion)
+  root.setAttribute('data-reduced-motion', reducedMotion ? 'true' : 'false')
 }
 
 /** 应用主题 class + data-theme，保持 CSS 变量与自动化检查一致 */
@@ -83,6 +88,10 @@ function handleColorSchemeChange(): void {
   if (settingsStore.settings.appearance.theme === 'system') {
     syncCSSVariables()
   }
+}
+
+function handleReducedMotionChange(): void {
+  syncCSSVariables()
 }
 
 function syncCustomCssRuntime(): void {
@@ -200,6 +209,9 @@ function handleGlobalCommandShortcut(event: KeyboardEvent): void {
 onMounted(async () => {
   syncCSSVariables()
   syncCustomCssRuntime()
+  if (inspectorWidgetRequest) {
+    return
+  }
   void ftueStore.initialize()
   devPanelStore.initializeFromStartup()
   commandPaletteStore.registerCommands(createBuiltinCommands({
@@ -215,6 +227,7 @@ onMounted(async () => {
     updaterStore.startIntervalChecks()
   })
   colorSchemeQuery.addEventListener('change', handleColorSchemeChange)
+  reducedMotionQuery.addEventListener('change', handleReducedMotionChange)
   window.addEventListener('keydown', handleGlobalHelpShortcut)
   window.addEventListener('keydown', handleGlobalCommandShortcut)
   window.addEventListener('keydown', handleGlobalDevPanelShortcut)
@@ -227,6 +240,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   colorSchemeQuery.removeEventListener('change', handleColorSchemeChange)
+  reducedMotionQuery.removeEventListener('change', handleReducedMotionChange)
   window.removeEventListener('keydown', handleGlobalHelpShortcut)
   window.removeEventListener('keydown', handleGlobalCommandShortcut)
   window.removeEventListener('keydown', handleGlobalDevPanelShortcut)
@@ -318,15 +332,21 @@ function handleDismiss(): void {
 </script>
 
 <template>
-  <TitleBar :document-title="activeArticleTitle" />
+  <InspectorUtilityView
+    v-if="inspectorWidgetRequest"
+    :request="inspectorWidgetRequest"
+  />
 
-  <div class="app-content">
-    <!-- 错误回退 UI -->
-    <div
-      v-if="hasError"
-      class="error-boundary"
-    >
-      <div class="error-boundary__content">
+  <template v-else>
+    <TitleBar :document-title="activeArticleTitle" />
+
+    <div class="app-content">
+      <!-- 错误回退 UI -->
+      <div
+        v-if="hasError"
+        class="error-boundary"
+      >
+        <div class="error-boundary__content">
         <div class="error-boundary__icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -386,21 +406,22 @@ function handleDismiss(): void {
             尝试恢复
           </button>
         </div>
+        </div>
       </div>
+
+      <!-- Normal content -->
+      <template v-else>
+        <ViewTransition />
+
+        <WelcomeModal />
+        <HelpCenter />
+        <CommandPalette />
+        <UpdateToast />
+        <UpdateDetailsModal />
+        <DevPanel v-if="devPanelStore.shouldRenderPanel" />
+      </template>
     </div>
-
-    <!-- Normal content -->
-    <template v-else>
-      <ViewTransition />
-
-      <WelcomeModal />
-      <HelpCenter />
-      <CommandPalette />
-      <UpdateToast />
-      <UpdateDetailsModal />
-      <DevPanel v-if="devPanelStore.shouldRenderPanel" />
-    </template>
-  </div>
+  </template>
 </template>
 
 <style>
@@ -471,8 +492,9 @@ textarea:focus-visible,
  */
 .app-content {
   width: 100%;
-  height: calc(100vh - var(--ink-titlebar-height, 32px));
-  margin-top: var(--ink-titlebar-height, 32px);
+  height: 100vh;
+  padding-top: var(--ink-titlebar-height, 36px);
+  box-sizing: border-box;
   overflow: hidden;
 }
 

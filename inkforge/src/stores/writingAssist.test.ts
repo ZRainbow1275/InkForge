@@ -26,6 +26,19 @@ function readPersistedCursorPosition(): number | undefined {
   }
 }
 
+function readPersistedVignette(): { isEnabled?: boolean; height?: number; intensity?: number } | undefined {
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) return undefined
+  try {
+    const parsed = JSON.parse(raw) as {
+      vignette?: { isEnabled?: boolean; height?: number; intensity?: number }
+    }
+    return parsed.vignette
+  } catch {
+    return undefined
+  }
+}
+
 beforeEach(() => {
   localStorage.clear()
   setActivePinia(createPinia())
@@ -79,5 +92,41 @@ describe('useWritingAssistStore — cursorPosition', () => {
     localStorage.setItem(STORAGE_KEY, '{ not-json }')
     const store = useWritingAssistStore()
     expect(store.cursorPosition).toBeCloseTo(0.5, 5)
+  })
+})
+
+describe('useWritingAssistStore — vignette focus quality', () => {
+  it('hydrates legacy vignette settings with the canonical focus intensity', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      vignette: { isEnabled: true, height: 120 },
+    }))
+
+    const store = useWritingAssistStore()
+    expect(store.vignette).toEqual({
+      isEnabled: true,
+      height: 120,
+      intensity: 0.18,
+    })
+  })
+
+  it('clamps focus intensity to the readable range and persists it', () => {
+    const store = useWritingAssistStore()
+
+    store.setVignetteIntensity(0.01)
+    expect(store.vignette.intensity).toBeCloseTo(0.08, 5)
+    expect(readPersistedVignette()?.intensity).toBeCloseTo(0.08, 5)
+
+    store.setVignetteIntensity(0.9)
+    expect(store.vignette.intensity).toBeCloseTo(0.32, 5)
+    expect(readPersistedVignette()?.intensity).toBeCloseTo(0.32, 5)
+  })
+
+  it('repairs a live pre-upgrade vignette object when the feature is toggled', () => {
+    const store = useWritingAssistStore()
+    ;(store.vignette as { intensity?: number }).intensity = undefined
+
+    store.setVignetteEnabled(true)
+    expect(store.vignette.intensity).toBeCloseTo(0.18, 5)
+    expect(readPersistedVignette()?.intensity).toBeCloseTo(0.18, 5)
   })
 })

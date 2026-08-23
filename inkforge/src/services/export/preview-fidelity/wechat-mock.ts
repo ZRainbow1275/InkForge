@@ -1,11 +1,12 @@
 /**
- * 微信公众号发布预览 — 高保真 mock 渲染器
+ * 微信公众号本地保真预览渲染器
  *
  * 把已渲染的 HTML 内容包装成微信公众号文章样式的预览 HTML。
- * 与 xhs/zhihu mock 对齐：
+ * 与 xhs/zhihu 本地预览通道对齐：
  *   - 注入 previewCSS 为 <style> 块（浏览器原生渲染伪元素/counter/字体）
  *   - CSS rescoping: #nice -> #wechat-article
  *   - 不走 juice / DOMPurify / postProcessForWechat — 仅用于本地预览
+ *   - 外层只复刻实测编辑画布，不伪造账号、发布时间、发布状态或平台水印
  *
  * 本模块 self-contained：
  *   - 输入已渲染 HTML（由调用方通过 renderMarkdownWithLazyOptionalEnhancements 生成）
@@ -26,10 +27,10 @@ export interface WechatMockOptions {
    * 来自 themes.ts wechat preset.previewCSS 经 generateThemeCSS(preset, 'preview')
    * 生成的主题 CSS。scope 到 `#wechat-article`。
    * 注入后浏览器原生渲染伪元素、counter、字体等 CSS3 特性。
-   * 未提供时 mock 仍以内联 fallback 样式渲染。
+   * 未提供时预览仍以实测的 586px 编辑画布基线渲染。
    *
    * 注意：preset 中使用 `#nice` 前缀的规则会被自动改写为 `#wechat-article`
-   * 以匹配本 mock 的容器 id。
+   * 以匹配本预览的文章容器 id。
    */
   themeCSS?: string
 }
@@ -37,8 +38,6 @@ export interface WechatMockOptions {
 // ─────────────────────────────────────────────────────────────────────────────
 // 常量
 // ─────────────────────────────────────────────────────────────────────────────
-
-const WATERMARK_TEXT = '预览 · 微信公众号'
 
 const FONT_STACK =
   "-apple-system,BlinkMacSystemFont,'Helvetica Neue','PingFang SC','Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif"
@@ -71,42 +70,38 @@ export function renderWechatMockHtml(
   options?: WechatMockOptions
 ): string {
   const presetId = options?.presetId ?? 'aigc'
-  const primaryColor = options?.primaryColor
   const themeStyle = renderThemeStyle(options?.themeCSS)
 
-  // 容器样式：模拟微信公众号文章阅读环境
+  // 2026-07-27 实机测量：编辑画布 586px，左右各 4px 后正文可用宽度 578px，
+  // 默认正文 17px / 27.2px。仅复刻画布，不伪造公众号账号或发布元信息。
   const containerStyle = [
     `font-family:${FONT_STACK}`,
     'font-size:17px',
-    'line-height:1.75',
+    'line-height:27.2px',
     'color:#1a1a1a',
     'background:#ffffff',
-    'padding:24px 20px',
-    'max-width:677px',
+    'width:100%',
+    'max-width:586px',
+    'min-height:100%',
+    'padding:0 4px',
     'margin:0 auto',
     'box-sizing:border-box',
   ].join(';')
 
-  // 水印样式
-  const watermarkStyle = [
-    'margin-top:24px',
-    'padding:8px 12px',
-    'font-size:12px',
-    'color:#999',
-    'border-top:1px dashed #e5e5e5',
-    'text-align:center',
-    'letter-spacing:1px',
+  const articleStyle = [
+    'display:block',
+    'width:100%',
+    'min-width:0',
+    'margin:0 auto',
+    'box-sizing:border-box',
   ].join(';')
 
-  // 微信文章头部 chrome：模拟公众号名称 + 发布时间行
-  const chromeHeader = renderChromeHeader(primaryColor)
-
   return [
-    `<section id="wechat-article" class="wechat-mock wechat-mock-${escapeAttr(presetId)}" style="${containerStyle}">`,
+    `<section class="wechat-editor-canvas" data-platform-editor="wechat" data-editor-canvas-width="586" style="${containerStyle}">`,
     themeStyle,
-    chromeHeader,
+    `<section id="wechat-article" class="wechat-mock wechat-mock-${escapeAttr(presetId)}" style="${articleStyle}">`,
     `<div class="wechat-mock-body">${content.html}</div>`,
-    `<div class="wechat-mock-watermark" style="${watermarkStyle}">${WATERMARK_TEXT}</div>`,
+    '</section>',
     '</section>',
   ].join('')
 }
@@ -116,10 +111,10 @@ export function renderWechatMockHtml(
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Wrap preset.previewCSS in a `<style>` block scoped to the wechat mock container.
+ * Wrap preset.previewCSS in a `<style>` block scoped to the WeChat article.
  *
  * - themes.ts wechat preset CSS uses `#nice` selectors — rewritten to
- *   `#wechat-article` so all preset rules match the actual mock DOM.
+ *   `#wechat-article` so all preset rules match the local fidelity DOM.
  * - composeRecipes() returns rules prefixed with `#nice` — also rewritten.
  * - `</style>` in the payload is escaped to prevent breaking out of the block.
  */
@@ -128,54 +123,4 @@ function renderThemeStyle(css: string | undefined): string {
   const rescoped = css.replace(/#nice\b/g, '#wechat-article')
   const safe = rescoped.replace(/<\/style/gi, '<\\/style')
   return `<style data-preset-theme="wechat-article">${safe}</style>`
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 内部渲染辅助
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * 渲染微信公众号文章顶部的 chrome 元素：
- * 模拟公众号名称行 + 时间行，给预览增加平台真实感。
- */
-function renderChromeHeader(primaryColor?: string): string {
-  const accentColor = primaryColor ?? '#576b95'
-
-  const headerStyle = [
-    'display:block',
-    'margin-bottom:20px',
-    'padding-bottom:16px',
-    'border-bottom:1px solid #f0f0f0',
-  ].join(';')
-
-  const nameStyle = [
-    'font-size:17px',
-    'font-weight:600',
-    'color:#1a1a1a',
-    'line-height:1.4',
-    'margin-bottom:4px',
-  ].join(';')
-
-  const metaStyle = [
-    'font-size:12px',
-    'color:#999',
-    'line-height:1.4',
-  ].join(';')
-
-  const linkStyle = [
-    `color:${accentColor}`,
-    'text-decoration:none',
-    'font-size:12px',
-  ].join(';')
-
-  return [
-    `<header class="wechat-mock-chrome" style="${headerStyle}">`,
-    `<div class="wechat-mock-author" style="${nameStyle}">InkForge</div>`,
-    `<div class="wechat-mock-meta" style="${metaStyle}">`,
-    `<span style="${linkStyle}">InkForge</span>`,
-    ` · `,
-    `<span>刚刚</span>`,
-    `</div>`,
-    `</header>`,
-  ].join('')
 }

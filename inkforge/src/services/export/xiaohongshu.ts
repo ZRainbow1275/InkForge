@@ -12,12 +12,13 @@ import DOMPurify from 'dompurify'
 // 确保 marked 配置一致性
 marked.use({ breaks: true, gfm: true })
 import type { XiaohongshuPreset, XiaohongshuExportOptions, ExportTarget } from './types'
-import { highlightCodeBlocks, renderAlertBlocks, enhanceTableStyles, convertTaskListCheckboxes, cleanEmptyParagraphs, limitConsecutiveBreaks } from './utils'
+import { highlightCodeBlocks, renderAlertBlocks, enhanceTableStyles, convertTaskListCheckboxes, cleanEmptyParagraphs, limitConsecutiveBreaks, normalizeExportHexColor } from './utils'
 import { enforcePlatformCSS } from './css-validator'
 import { REDOS_PROTECTION } from '@/config/security'
 import { logger } from '@/services/error'
 import { PERSONA_FONTS } from './preset-fonts'
 import { composeRecipes } from './preset-decorations'
+import { getVisualVariantCSS } from './visual-variants'
 
 // ─── PR4: per-xhs-preset recipe composers ──────────────────────────────
 // Recipes are scoped to `#nice`; for xhs they bring decorate-time inline
@@ -262,6 +263,14 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
     name: '清新少女',
     icon: 'xhs-fresh',
     description: '清新少女，经典小红书红',
+    visualSignature: {
+      rhythm: '卡片短段 · 高频留白',
+      heading: '红色虚线标题 · 竖条小节',
+      quote: '浅红种草引用',
+      divider: '花体红点分隔',
+      media: '12px 圆角图卡',
+      modules: ['花体分隔', '列表彩点', '阅读签名'],
+    },
     primaryColor: '#FF2442',
     accentColor: '#FFE4E6',
     persona: 'creative',
@@ -270,12 +279,14 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
 #xhs-note h2 { color: #FF2442; font-weight: 700; }
 #xhs-note h3 { border-left: 2px solid #FF2442; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; color: #FF2442; }
 #xhs-note strong { color: #FF2442; }
-${xhsFreshRecipesPreview.css}`,
+${xhsFreshRecipesPreview.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-fresh', 'preview')}`,
     exportCSS: `
 #xhs-note h2 { color: #FF2442; font-weight: 700; }
 #xhs-note h3 { border-left: 2px solid #FF2442; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; color: #FF2442; }
 #xhs-note strong { color: #FF2442; }
-${xhsFreshRecipesExport.css}`,
+${xhsFreshRecipesExport.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-fresh', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => xhsFreshRecipesExport.decorate(html, target),
     customCSS: ``
   },
@@ -285,6 +296,14 @@ ${xhsFreshRecipesExport.css}`,
     name: '极简高级',
     icon: 'xhs-simple',
     description: '极简高级，近黑庄重',
+    visualSignature: {
+      rhythm: '短句留白 · 黑白画册',
+      heading: '极细黑线标题 · 竖条小节',
+      quote: '灰白极简引用',
+      divider: '单线留白分节',
+      media: '12px 圆角图卡',
+      modules: ['极细标题线', '黑白高亮', '阅读签名'],
+    },
     primaryColor: '#1A1A1A',
     accentColor: '#F5F5F5',
     persona: 'business',
@@ -295,14 +314,16 @@ ${xhsFreshRecipesExport.css}`,
 #xhs-note h3 { color: #1A1A1A; border-left: 2px solid #1A1A1A; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; }
 #xhs-note strong { color: #1A1A1A; font-weight: 900; }
 #xhs-note blockquote { border-left-color: #1A1A1A; background: #F5F5F5; }
-${xhsSimpleRecipesPreview.css}`,
+${xhsSimpleRecipesPreview.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-simple', 'preview')}`,
     exportCSS: `
 #xhs-note { background: #FAFAFA; }
 #xhs-note h2 { color: #1A1A1A; font-weight: 700; border-bottom: 1px solid #1A1A1A; padding-bottom: 0.3em; }
 #xhs-note h3 { color: #1A1A1A; border-left: 2px solid #1A1A1A; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; }
 #xhs-note strong { color: #1A1A1A; font-weight: 900; }
 #xhs-note blockquote { border-left-color: #1A1A1A; background: #F5F5F5; }
-${xhsSimpleRecipesExport.css}`,
+${xhsSimpleRecipesExport.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-simple', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => xhsSimpleRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note { background: #FAFAFA; }
@@ -316,6 +337,14 @@ ${xhsSimpleRecipesExport.css}`,
     name: '温暖治愈',
     icon: 'xhs-warm',
     description: '温暖治愈，焦糖暖色',
+    visualSignature: {
+      rhythm: '文楷慢节奏 · 奶油留白',
+      heading: '焦糖渐变便签标题',
+      quote: '奶油大引号',
+      divider: '暖色花体分隔',
+      media: '12px 圆角暖白图卡',
+      modules: ['首字下沉', '大引号', '阅读签名'],
+    },
     primaryColor: '#D4A574',
     accentColor: '#FDF6EC',
     persona: 'lifestyle',
@@ -326,14 +355,16 @@ ${xhsSimpleRecipesExport.css}`,
 #xhs-note h3 { color: #B8860B; font-weight: 600; }
 #xhs-note strong { color: #D4A574; }
 #xhs-note blockquote { border-left-color: #D4A574; background: #FDF6EC; font-style: italic; }
-${xhsWarmRecipesPreview.css}`,
+${xhsWarmRecipesPreview.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-warm', 'preview')}`,
     exportCSS: `
 #xhs-note { background: #FFFDF9; }
 #xhs-note h2 { color: #D4A574; font-weight: 600; }
 #xhs-note h3 { color: #B8860B; font-weight: 600; }
 #xhs-note strong { color: #D4A574; }
 #xhs-note blockquote { border-left-color: #D4A574; background: #FDF6EC; font-style: italic; }
-${xhsWarmRecipesExport.css}`,
+${xhsWarmRecipesExport.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-warm', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => xhsWarmRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note { background: #FFFDF9; }
@@ -347,6 +378,14 @@ ${xhsWarmRecipesExport.css}`,
     name: '科技数码',
     icon: 'xhs-tech',
     description: '科技数码，靛蓝色块',
+    visualSignature: {
+      rhythm: '信息密排 · 模块卡片',
+      heading: '靛蓝色块 · 左轨小节',
+      quote: '靛蓝提示卡',
+      divider: '数码字标分隔',
+      media: '12px 圆角产品图卡',
+      modules: ['色块标题', '列表箭头', '阅读签名'],
+    },
     primaryColor: '#4F46E5',
     accentColor: '#818CF8',
     secondaryBg: '#f0f0ff',
@@ -360,14 +399,16 @@ ${xhsWarmRecipesExport.css}`,
 #xhs-note strong { color: #4F46E5; }
 #xhs-note code { background: rgba(79,70,229,0.08); color: #4F46E5; padding: 0.1em 0.35em; border-radius: 3px; }
 #xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
-${xhsTechRecipesPreview.css}`,
+${xhsTechRecipesPreview.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-tech', 'preview')}`,
     exportCSS: `
 #xhs-note h2 { background: #4F46E5; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; font-weight: 700; }
 #xhs-note h3 { color: #4F46E5; border-left: 2px solid #4F46E5; padding-left: 0.6em; font-weight: 600; }
 #xhs-note strong { color: #4F46E5; }
 #xhs-note code { background: rgba(79,70,229,0.08); color: #4F46E5; padding: 0.1em 0.35em; border-radius: 3px; }
 #xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
-${xhsTechRecipesExport.css}`,
+${xhsTechRecipesExport.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-tech', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => xhsTechRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note strong { color: #4F46E5; }
@@ -380,6 +421,14 @@ ${xhsTechRecipesExport.css}`,
     name: '自然清新',
     icon: 'xhs-nature',
     description: '自然清新，翠绿生机',
+    visualSignature: {
+      rhythm: '轻段落 · 自然留白',
+      heading: '翠绿渐变底线',
+      quote: '薄荷大引号',
+      divider: '自然点阵分隔',
+      media: '12px 圆角清透图卡',
+      modules: ['渐变标题线', '自然列表点', '阅读签名'],
+    },
     primaryColor: '#059669',
     accentColor: '#34D399',
     secondaryBg: '#ecfdf5',
@@ -392,13 +441,15 @@ ${xhsTechRecipesExport.css}`,
 #xhs-note h3 { color: #047857; font-weight: 600; }
 #xhs-note strong { color: #059669; }
 #xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; font-style: italic; }
-${xhsNatureRecipesPreview.css}`,
+${xhsNatureRecipesPreview.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-nature', 'preview')}`,
     exportCSS: `
 #xhs-note h2 { color: #059669; font-weight: 600; border-bottom: 1px solid #34D399; padding-bottom: 0.3em; }
 #xhs-note h3 { color: #047857; font-weight: 600; }
 #xhs-note strong { color: #059669; }
 #xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; font-style: italic; }
-${xhsNatureRecipesExport.css}`,
+${xhsNatureRecipesExport.css}
+${getVisualVariantCSS('xiaohongshu', 'xhs-nature', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => xhsNatureRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note strong { color: #059669; }
@@ -551,9 +602,10 @@ export function convertToXiaohongshu(
   }
 
   let preset = xiaohongshuPresets.find(p => p.id === presetId) || xiaohongshuPresets[0]
+  const primaryColorOverride = normalizeExportHexColor(options?.colorOverrides?.primaryColor)
   // 应用颜色覆盖（克隆预设，不修改原始对象）
-  if (options?.colorOverrides?.primaryColor) {
-    preset = { ...preset, primaryColor: options.colorOverrides.primaryColor, accentColor: options.colorOverrides.primaryColor }
+  if (primaryColorOverride) {
+    preset = { ...preset, primaryColor: primaryColorOverride, accentColor: primaryColorOverride }
   }
 
   // Step 0: Task List Checkbox 转换（必须在 DOMPurify 之前）
@@ -615,6 +667,9 @@ export function convertToXiaohongshu(
   `
   if (preset.customCSS) {
     css += preset.customCSS
+  }
+  if (preset.exportCSS) {
+    css += preset.exportCSS
   }
 
   // Step 9: CSS内联

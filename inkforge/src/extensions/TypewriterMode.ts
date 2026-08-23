@@ -34,6 +34,7 @@ const DEFAULT_OPTIONS: TypewriterModeOptions = {
 
 /** ProseMirror 插件 Key */
 const typewriterPluginKey = new PluginKey('typewriterMode')
+export const TYPEWRITER_MODE_REFRESH_META = 'typewriterModeRefresh'
 
 /** 闲置阈值（ms）— 超过则进入呼吸态 */
 const IDLE_THRESHOLD_MS = 1200
@@ -43,6 +44,13 @@ const SENTENCE_SPLIT_REGEX = /[.!?。！？；;]+\s*/g
 
 /** 不做句子细分的节点类型（代码块/列表整体处理） */
 const SKIP_SENTENCE_SPLIT_TYPES = new Set(['codeBlock', 'code_block', 'listItem', 'list_item', 'taskList', 'task_list', 'taskItem', 'task_item', 'bulletList', 'orderedList'])
+
+function shouldReduceMotion(): boolean {
+    return (
+        (typeof document !== 'undefined' && document.documentElement.dataset.reducedMotion === 'true')
+        || (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true)
+    )
+}
 
 /**
  * 查找最近的"真正可滚动"父元素。
@@ -58,8 +66,9 @@ const SKIP_SENTENCE_SPLIT_TYPES = new Set(['codeBlock', 'code_block', 'listItem'
  *
  * 找不到候选时回退到编辑器自身（如果它本身有可滚动区域）。
  */
-function findScrollParent(element: HTMLElement): HTMLElement | null {
+export function findScrollParent(element: HTMLElement): HTMLElement | null {
     let current: HTMLElement | null = element
+    let declaredScrollParent: HTMLElement | null = null
 
     while (current) {
         const { overflow, overflowY } = getComputedStyle(current)
@@ -67,8 +76,11 @@ function findScrollParent(element: HTMLElement): HTMLElement | null {
             overflow === 'auto' || overflow === 'scroll' ||
             overflowY === 'auto' || overflowY === 'scroll'
 
-        if (overflowAllowsScroll && current.scrollHeight > current.clientHeight) {
-            return current
+        if (overflowAllowsScroll) {
+            declaredScrollParent ??= current
+            if (current.scrollHeight > current.clientHeight) {
+                return current
+            }
         }
 
         current = current.parentElement
@@ -79,7 +91,9 @@ function findScrollParent(element: HTMLElement): HTMLElement | null {
         return element
     }
 
-    return null
+    // 短文在添加上下占位前可能还没有溢出；仍需返回声明了滚动所有权的
+    // 容器，让打字机模式先补足 head/tail space，再完成光标对齐。
+    return declaredScrollParent
 }
 
 /**
@@ -207,14 +221,35 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
             new Plugin({
                 key: typewriterPluginKey,
 
+                state: {
+                    init: () => 0,
+                    apply(transaction, revision: number) {
+                        return transaction.getMeta(TYPEWRITER_MODE_REFRESH_META) === undefined
+                            ? revision
+                            : revision + 1
+                    },
+                },
+
                 view(initialView) {
                     let idleTimer: ReturnType<typeof setTimeout> | null = null
+                    let scrollFrame: number | null = null
+                    let isDestroyed = false
+                    let wasEnabled = extensionOptions.enabled
+                    let previousCursorPosition = Math.max(0.3, Math.min(0.7, extensionOptions.cursorPosition))
+                    let previousRefreshRevision = typewriterPluginKey.getState(initialView.state) ?? 0
 
                     const clearIdle = () => {
                         if (idleTimer !== null) {
                             clearTimeout(idleTimer)
                             idleTimer = null
                         }
+                    }
+
+                    const clearScheduledScroll = () => {
+                        if (scrollFrame !== null && typeof cancelAnimationFrame === 'function') {
+                            cancelAnimationFrame(scrollFrame)
+                        }
+                        scrollFrame = null
                     }
 
                     const setIdleAttr = (view: { dom: Element }, idle: boolean) => {
@@ -233,15 +268,32 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                      * < viewport × (1 - cursorPosition)）。业界标准做法（Typora /
                      * Bear / iA Writer）是给编辑器底部加 50vh spacer，让
                      * scrollHeight 多出一段，使 cursor 在任何位置都能滚到中线。
-                     * 我们用 `[data-typewriter-active-mode="true"]::after { height: 50vh }`
-                     * 实现，CSS 同时只在打字机启用时生效，关闭后自动消失。
+                     * 我们用 `::before` / `::after` 同时提供首段和末段占位，
+                     * CSS 同时只在打字机启用时生效，关闭后自动消失。
                      */
                     const setActiveModeAttr = (view: { dom: Element }, enabled: boolean) => {
                         const dom = view.dom as HTMLElement
                         if (enabled) {
+                            const wasActive = dom.getAttribute('data-typewriter-active-mode') === 'true'
                             dom.setAttribute('data-typewriter-active-mode', 'true')
+                            const headSpace = dom.style.getPropertyValue('--typewriter-head-space').trim()
+                            const tailSpace = dom.style.getPropertyValue('--typewriter-tail-space').trim()
+
+                            // Never overwrite an exact spacer on every editor update. Doing so
+                            // briefly restored the old 50vh fallback between selection updates,
+                            // which produced a visible jump and an oversized blank area after
+                            // HMR/reopen. A zero provisional value is resolved from real editor
+                            // geometry in the same animation frame by scheduleCaretAlignment().
+                            if (!wasActive || !headSpace.endsWith('px')) {
+                                dom.style.setProperty('--typewriter-head-space', '0px')
+                            }
+                            if (!wasActive || !tailSpace.endsWith('px')) {
+                                dom.style.setProperty('--typewriter-tail-space', '0px')
+                            }
                         } else {
                             dom.removeAttribute('data-typewriter-active-mode')
+                            dom.style.removeProperty('--typewriter-head-space')
+                            dom.style.removeProperty('--typewriter-tail-space')
                         }
                     }
 
@@ -253,18 +305,158 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                         }, IDLE_THRESHOLD_MS)
                     }
 
+                    const scheduleCaretAlignment = (
+                        view: typeof initialView,
+                        allowAnimation: boolean,
+                        animateAfterEnable = false,
+                    ) => {
+                        clearScheduledScroll()
+                        scrollFrame = requestAnimationFrame(() => {
+                            scrollFrame = null
+                            if (isDestroyed || !extensionOptions.enabled) return
+
+                            const editorDom = view.dom as HTMLElement
+                            const scrollParent = findScrollParent(editorDom)
+                            if (!scrollParent) return
+
+                            const scrollRect = scrollParent.getBoundingClientRect()
+                            if (scrollRect.height <= 0) return
+
+                            const cursorPosition = Math.max(
+                                0.3,
+                                Math.min(0.7, extensionOptions.cursorPosition),
+                            )
+                            const targetY = scrollRect.height * cursorPosition
+                            const { selection, doc } = view.state
+                            const currentHeadSpace = Number.parseFloat(
+                                editorDom.style.getPropertyValue('--typewriter-head-space'),
+                            ) || 0
+                            const currentTailSpace = Number.parseFloat(
+                                editorDom.style.getPropertyValue('--typewriter-tail-space'),
+                            ) || 0
+                            const midpoint = (coords: ReturnType<typeof view.coordsAtPos>) => {
+                                const bottom = Number.isFinite(coords.bottom)
+                                    ? coords.bottom
+                                    : coords.top
+                                return (coords.top + bottom) / 2
+                            }
+
+                            // Size spacers from the real scroll owner and the document's natural
+                            // first/last caret insets. InkForge's editor already has scroll padding
+                            // plus paper padding; blindly adding cursorPosition * viewportHeight
+                            // double-counted those insets and pushed the first paragraph far below
+                            // the focus band. Existing spacer pixels are subtracted so this remains
+                            // stable across typing, HMR, resize and live cursor-anchor changes.
+                            const firstPosition = Math.min(1, doc.content.size)
+                            const lastPosition = Math.max(
+                                firstPosition,
+                                doc.content.size - 1,
+                            )
+                            let firstCoords: ReturnType<typeof view.coordsAtPos>
+                            let lastCoords: ReturnType<typeof view.coordsAtPos>
+                            try {
+                                firstCoords = view.coordsAtPos(firstPosition)
+                                lastCoords = view.coordsAtPos(lastPosition)
+                            } catch {
+                                return
+                            }
+
+                            const scrollTop = scrollParent.scrollTop
+                            const naturalFirstY = midpoint(firstCoords)
+                                - scrollRect.top
+                                + scrollTop
+                                - currentHeadSpace
+                            const lastCaretContentY = midpoint(lastCoords)
+                                - scrollRect.top
+                                + scrollTop
+                            const naturalTrailingSpace = Math.max(
+                                0,
+                                scrollParent.scrollHeight
+                                    - currentTailSpace
+                                    - lastCaretContentY,
+                            )
+                            const headSpace = Math.max(0, targetY - naturalFirstY)
+                            const tailSpace = Math.max(
+                                0,
+                                scrollRect.height
+                                    - targetY
+                                    - naturalTrailingSpace,
+                            )
+                            editorDom.style.setProperty(
+                                '--typewriter-head-space',
+                                `${Math.round(headSpace)}px`,
+                            )
+                            editorDom.style.setProperty(
+                                '--typewriter-tail-space',
+                                `${Math.round(tailSpace)}px`,
+                            )
+
+                            let coords: ReturnType<typeof view.coordsAtPos>
+                            try {
+                                coords = view.coordsAtPos(selection.head)
+                            } catch {
+                                return
+                            }
+
+                            let currentY = midpoint(coords) - scrollRect.top
+                            if (currentY < 0 || currentY > scrollRect.height) {
+                                try {
+                                    const { node } = view.domAtPos(selection.head)
+                                    const scrollTarget = node.nodeType === Node.ELEMENT_NODE
+                                        ? node as Element
+                                        : node.parentElement
+                                    scrollTarget?.scrollIntoView({
+                                        behavior: 'auto',
+                                        block: 'center',
+                                        inline: 'nearest',
+                                    })
+                                    coords = view.coordsAtPos(selection.head)
+                                    currentY = midpoint(coords) - scrollRect.top
+                                } catch {
+                                    // The normal scroll-owner correction below remains available.
+                                }
+                            }
+                            const scrollOffset = currentY - targetY
+                            if (Math.abs(scrollOffset) <= 2) return
+
+                            const shouldAnimate = allowAnimation && (
+                                animateAfterEnable
+                                || Math.abs(scrollOffset) > scrollRect.height * 0.35
+                            )
+                            scrollParent.scrollBy({
+                                top: scrollOffset,
+                                behavior: shouldReduceMotion() || !shouldAnimate
+                                    ? 'auto'
+                                    : extensionOptions.scrollBehavior,
+                            })
+                        })
+                    }
+
                     // 初始装载：禁用态保证移除任何残留属性
                     setIdleAttr(initialView, false)
                     setActiveModeAttr(initialView, extensionOptions.enabled)
                     if (extensionOptions.enabled) {
                         scheduleIdle(initialView)
+                        // 恢复文章或重建编辑器时，selection 可能已经指向文末，但滚动容器
+                        // 仍停留在旧位置。初始帧必须像一次真实光标恢复一样重新锚定。
+                        scheduleCaretAlignment(initialView, false)
                     }
 
                     return {
                         update(view, prevState) {
+                            const justEnabled = extensionOptions.enabled && !wasEnabled
+                            const cursorPosition = Math.max(0.3, Math.min(0.7, extensionOptions.cursorPosition))
+                            const cursorPositionChanged = cursorPosition !== previousCursorPosition
+                            const refreshRevision = typewriterPluginKey.getState(view.state) ?? 0
+                            const refreshRequested = refreshRevision !== previousRefreshRevision
+                            wasEnabled = extensionOptions.enabled
+                            previousCursorPosition = cursorPosition
+                            previousRefreshRevision = refreshRevision
+
                             // 关闭打字机时清理一切痕迹
                             if (!extensionOptions.enabled) {
                                 clearIdle()
+                                clearScheduledScroll()
                                 setIdleAttr(view, false)
                                 setActiveModeAttr(view, false)
                                 return
@@ -275,43 +467,26 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                             setActiveModeAttr(view, true)
                             scheduleIdle(view)
 
-                            // 只在光标位置发生变化时滚动
+                            // 光标移动或锚点设置变化时重新定位；仅改设置也必须立即生效。
                             const cursorMoved = !prevState.selection.eq(view.state.selection)
-                            if (!cursorMoved) return
+                            const documentChanged = prevState.doc !== view.state.doc
+                            if (
+                                !cursorMoved
+                                && !documentChanged
+                                && !justEnabled
+                                && !cursorPositionChanged
+                                && !refreshRequested
+                            ) return
 
-                            // 使用 requestAnimationFrame 确保 DOM 已更新
-                            // 注意：直接在回调中使用 view 避免 pnpm 重复模块导致的 EditorView 类型冲突
-                            requestAnimationFrame(() => {
-                                const { state } = view
-                                const { selection } = state
-                                const { head } = selection
-
-                                // 获取光标在页面上的坐标
-                                const coords = view.coordsAtPos(head)
-
-                                // 获取编辑器 DOM 元素的可滚动容器
-                                const editorDom = view.dom as HTMLElement
-                                const scrollParent = findScrollParent(editorDom)
-                                if (!scrollParent) return
-
-                                const scrollRect = scrollParent.getBoundingClientRect()
-                                const targetY = scrollRect.height * extensionOptions.cursorPosition
-
-                                // 计算需要滚动的偏移量
-                                const currentY = coords.top - scrollRect.top
-                                const scrollOffset = currentY - targetY
-
-                                if (Math.abs(scrollOffset) > 2) {
-                                    scrollParent.scrollBy({
-                                        top: scrollOffset,
-                                        behavior: extensionOptions.scrollBehavior,
-                                    })
-                                }
-                            })
+                            // 使用 requestAnimationFrame 确保 DOM 已更新。直接传入当前
+                            // view，避免 pnpm 重复模块导致的 EditorView 类型冲突。
+                            scheduleCaretAlignment(view, true, justEnabled)
                         },
 
                         destroy() {
+                            isDestroyed = true
                             clearIdle()
+                            clearScheduledScroll()
                             setIdleAttr(initialView, false)
                             setActiveModeAttr(initialView, false)
                         },
@@ -378,16 +553,16 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                                             decorations.push(
                                                 Decoration.inline(from, to, {
                                                     class: 'typewriter-sentence-dim',
-                                                    style: 'opacity: 0.75;',
+                                                    style: 'opacity: 0.82;',
                                                 }),
                                             )
                                         }
                                     }
                                 }
                             } else {
-                                // 连续梯度：每段距离 ×0.07 衰减，下限 0.18（长文远段继续递浅但仍可见）
-                                // dist 1=0.93, 2=0.86, 3=0.79, 5=0.65, 10=0.30, 12+=0.18 (floor)
-                                const opacity = Math.max(0.18, 1 - distance * 0.07)
+                                // 连续梯度：保留长文上下文可读性，不把远段压成近乎不可见。
+                                // dist 1=0.95, 2=0.89, 3=0.83, 5=0.73, 10=0.45, 12+=0.36 (floor)
+                                const opacity = Math.max(0.36, 1 - distance * 0.055)
                                 const tier = distance === 1 ? 'typewriter-dim-near' : 'typewriter-dim-far'
                                 decorations.push(
                                     Decoration.node(nodeStart, nodeEnd, {

@@ -3,9 +3,8 @@ import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 import { Link, Image, LayoutTemplate, Copy } from 'lucide-vue-next'
-import { marked } from 'marked'
-import { convertToWechat, type ExportOptions } from '@/services/export'
-import { useThemeStore, ARTICLE_PRESETS } from '@/stores/theme'
+import { convertToNativeFormat, copyWechatHtmlToClipboard } from '@/services/export'
+import { useThemeStore } from '@/stores/theme'
 // Import existing ThemePanel logic or recreate simple one
 import ThemePanel from '@/components/editor/ThemePanel.vue'
 
@@ -58,42 +57,15 @@ const extractedImages = computed(() => {
     }
     return images
 })
-// --- Export Logic ---
-const currentPreset = computed(() => {
-  return ARTICLE_PRESETS.find(p => p.id === currentPresetId.value) || ARTICLE_PRESETS[0]
-})
-
-async function copyWeChat() {
-    if (!currentContent.value?.body) return
-    const html = marked.parse(currentContent.value.body) as string
-    const preset = currentPreset.value
-    // 构建完整的 ExportPreset 对象
-    const exportPreset = {
-        id: preset.id,
-        name: preset.name,
-        icon: preset.id,
-        description: preset.name,
-        theme: preset.baseTheme,
-        fontFamily: preset.fontFamily === 'sans' ? 'sans-serif' : preset.fontFamily === 'mono' ? 'monospace' : 'serif',
-        fontSize: `${preset.fontSize}px`,
-        primaryColor: preset.primaryColor,
-        isUseIndent: preset.firstLineIndent,
-        isUseJustify: preset.textAlign === 'justify',
-        customCSS: ''
-    }
-
-    const options: ExportOptions = {
-        enableCiteStatus: true,
-        enableCodeHighlight: true,
-        enableLineNumbers: preset.codeLineNumbers,
-        enableReadingTime: true
-    }
-    const result = convertToWechat(html, exportPreset, options)
-    
-    // Copy
-    const blob = new Blob([result], { type: 'text/html' })
-    await navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })])
-    alert('已复制到公众号格式！')
+async function copyWeChat(): Promise<void> {
+    const markdown = currentContent.value?.body
+    if (!markdown?.trim()) return
+    const result = await convertToNativeFormat(markdown, 'wechat', {
+        presetId: currentPresetId.value,
+    })
+    const copied = result.format === 'html'
+        && await copyWechatHtmlToClipboard(result.content)
+    alert(copied ? '已复制到公众号格式！' : '复制失败，请检查剪贴板权限后重试。')
 }
 </script>
 

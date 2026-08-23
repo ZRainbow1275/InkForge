@@ -3,6 +3,16 @@ export interface Quote {
   author: string
 }
 
+export type HubInspirationSource = 'local' | 'ai'
+
+export interface HubInspirationState {
+  source: HubInspirationSource
+  local: Quote
+  ai: Quote | null
+}
+
+const HUB_INSPIRATION_STORAGE_KEY = 'inkforge-hub-inspiration'
+
 export const quotes: Quote[] = [
   // ============================================================
   // 原有名言（保持不变）
@@ -429,4 +439,48 @@ export function formatNumber(num: number): string {
     return (num / 1000).toFixed(1) + 'K'
   }
   return num.toString()
+}
+
+function normalizeStoredQuote(value: unknown, fallback: Quote | null): Quote | null {
+  if (!value || typeof value !== 'object') return fallback
+
+  const candidate = value as Partial<Quote>
+  const text = typeof candidate.text === 'string' ? candidate.text.trim().slice(0, 160) : ''
+  const author = typeof candidate.author === 'string' ? candidate.author.trim().slice(0, 48) : ''
+  return text && author ? { text, author } : fallback
+}
+
+export function loadHubInspirationState(): HubInspirationState {
+  const fallback = getDailyQuote()
+  const defaultState: HubInspirationState = { source: 'local', local: fallback, ai: null }
+  if (typeof localStorage === 'undefined') return defaultState
+
+  try {
+    const raw = localStorage.getItem(HUB_INSPIRATION_STORAGE_KEY)
+    if (!raw) return defaultState
+
+    const stored = JSON.parse(raw) as Partial<HubInspirationState>
+    return {
+      source: stored.source === 'ai' ? 'ai' : 'local',
+      local: normalizeStoredQuote(stored.local, fallback) ?? fallback,
+      ai: normalizeStoredQuote(stored.ai, null),
+    }
+  } catch {
+    return defaultState
+  }
+}
+
+export function saveHubInspirationState(state: HubInspirationState): boolean {
+  if (typeof localStorage === 'undefined') return false
+
+  try {
+    localStorage.setItem(HUB_INSPIRATION_STORAGE_KEY, JSON.stringify({
+      source: state.source,
+      local: normalizeStoredQuote(state.local, getDailyQuote()) ?? getDailyQuote(),
+      ai: normalizeStoredQuote(state.ai, null),
+    } satisfies HubInspirationState))
+    return true
+  } catch {
+    return false
+  }
 }

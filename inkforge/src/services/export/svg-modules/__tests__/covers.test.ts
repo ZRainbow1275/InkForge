@@ -78,8 +78,9 @@ describe('cover-title shape requirements', () => {
     expect(out).toContain('MOZHU PRESS · SERIAL')
     // 标题文本可见
     expect(out).toContain('标题')
-    // 字号 100（重型杂志巨号）出现
-    expect(out).toContain('font-size="100"')
+    // 标题保持杂志感，但不再使用会在宽屏微信编辑器中过度放大的 100px 巨号字。
+    expect(out).toContain('font-size="72"')
+    expect(out).not.toContain('font-size="100"')
   })
 
   it('places a 篆刻方印 (seal with 墨/铸) at the corner + a double hairline rule', () => {
@@ -113,8 +114,10 @@ describe('cover-grid shape requirements', () => {
     expect(out).toContain('<circle ')
   })
 
-  it('contains the title text', () => {
+  it('contains a restrained, readable title', () => {
     expect(out).toContain('标题')
+    expect(out).toContain('font-size="72"')
+    expect(out).not.toContain('font-size="100"')
   })
 
   it('has a white nameplate header + white 方印 (墨/铸 ≥2 each) on the colored ground', () => {
@@ -146,9 +149,9 @@ describe('cover long-title viewBox overflow guard', () => {
       const xm = /\bx="([\d.]+)"/.exec(attrStr)
       const fsm = /font-size="([\d.]+)"/.exec(attrStr)
       const lsm = /letter-spacing="([\d.]+)"/.exec(attrStr)
-      // 仅收集大字号标题节点（fontSize >= 80），跳过 subtitle/署名小字
+      // 仅收集封面标题节点（fontSize >= 70），跳过 subtitle/署名小字。
       const fontSize = fsm ? Number(fsm[1]) : 0
-      if (fontSize < 80) continue
+      if (fontSize < 70) continue
       out.push({
         x: xm ? Number(xm[1]) : 0,
         fontSize,
@@ -165,7 +168,7 @@ describe('cover long-title viewBox overflow guard', () => {
     const titles = parseTexts(out)
     expect(titles.length).toBeGreaterThanOrEqual(1)
     for (const t of titles) {
-      // 可用宽 = W − 80 − 80 = 920 → floor(920/98) = 9
+      // 可用宽仍充足，但视觉合同主动限制为每行最多 9 字，形成均衡两行。
       expect(t.chars).toBeLessThanOrEqual(9)
       // 估算右缘 = x + chars × (fontSize + letterSpacing) ≤ viewBox 右内缘（1080 − 80 = 1000）
       const rightEdge = t.x + t.chars * (t.fontSize + t.letterSpacing)
@@ -173,14 +176,14 @@ describe('cover long-title viewBox overflow guard', () => {
     }
   })
 
-  it('cover-grid: each title line fits ≤10 chars and right edge ≤ 1000 (no overflow)', () => {
+  it('cover-grid: each title line fits ≤9 chars and right edge ≤ 1000 (no overflow)', () => {
     const m = coverModules.find((c) => c.id === 'cover-grid')!
     const out = m.render({ theme, text: LONG_TITLE, subtitle: SAMPLE_SUBTITLE })
     const titles = parseTexts(out)
     expect(titles.length).toBeGreaterThanOrEqual(1)
     for (const t of titles) {
-      // 可用宽 = innerW − 24 = 920 − 24 = 896 → floor(896/86) = 10
-      expect(t.chars).toBeLessThanOrEqual(10)
+      // 满幅封面使用同一可读字号合同，但保留独立网格构图。
+      expect(t.chars).toBeLessThanOrEqual(9)
       // 估算右缘 = x + chars × (fontSize + letterSpacing) ≤ viewBox 右内缘（padX + innerW = 80 + 920 = 1000）
       const rightEdge = t.x + t.chars * (t.fontSize + t.letterSpacing)
       expect(rightEdge).toBeLessThanOrEqual(1000)

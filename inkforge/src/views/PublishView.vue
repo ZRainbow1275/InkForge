@@ -8,78 +8,116 @@ import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DOMPurify from 'dompurify'
+import { Code2, Copy, Eye } from 'lucide-vue-next'
 import { useArticleStore } from '@/stores/article'
+import { useCategoryStore } from '@/stores/category'
 import { useEditorStore } from '@/stores/editor'
 import { useSettingsStore } from '@/stores/settings'
-import { useThemeStore } from '@/stores/theme'
 import { marked } from 'marked'
 import {
   themePresets,
-  copySanitizedPublishRichHtmlWithExecCommand,
+  convertToNativeFormat,
+  convertToPlatform,
   copyTextToClipboard,
-  copyRichHtmlToClipboard,
   copyWechatHtmlToClipboard,
   markdownToWechatWithStats,
-  convertToXiaohongshu,
-  convertToZhihu,
   calculateStats,
   describeWechatPublishStatus,
+  getPlatformPresets,
+  getXiaohongshuPresets,
+  getZhihuPresets,
   getWechatPublishStatus,
   getWechatSvgApplicationSlotModuleId,
   normalizeWechatSvgApplicationPlan,
-  planWechatDraftPublish,
-  approveWechatDraftPublishPlan,
+  parseDeliveryAdornmentConfig,
   publishWechatDraft,
+  runWechatDraftLiveRoundTrip,
   setWechatSvgApplicationSlot,
   SVG_MODULES,
+  typographyToWechatCss,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   WECHAT_SVG_APPLICATION_SLOTS,
-  xiaohongshuPresets
 } from '@/services/export'
 import type {
+  ExportOptions,
+  DeliveryAdornmentConfig,
+  NativeExportResult,
+  Platform,
   SvgInjectionPlan,
   SvgModuleFamily,
+  WechatDraftLiveRoundTripReceipt,
   WechatDraftPublishResult,
   WechatPublishStatus,
   WechatSvgApplicationSlotId,
 } from '@/services/export'
 import { logger } from '@/services/error'
 import { isLikelyHtmlContent, serializeHtmlToMarkdown } from '@/extensions/TyporaMode'
+import DeliveryAdornmentPanel from '@/components/export/DeliveryAdornmentPanel.vue'
 
 const router = useRouter()
 const route = useRoute()
 const articleStore = useArticleStore()
+const categoryStore = useCategoryStore()
 const editorStore = useEditorStore()
 const settingsStore = useSettingsStore()
-const themeStore = useThemeStore()
+const deliveryAdornmentConfig = computed<DeliveryAdornmentConfig>({
+  get: () => settingsStore.settings.export.deliveryAdornment,
+  set: value => {
+    settingsStore.settings.export.deliveryAdornment = parseDeliveryAdornmentConfig(value)
+  },
+})
 
 const { currentContent } = storeToRefs(editorStore)
-const { currentPresetId } = storeToRefs(themeStore)
+const { selectedArticle } = storeToRefs(articleStore)
+const { categories } = storeToRefs(categoryStore)
+const articleCategory = computed(() => {
+  const categoryId = selectedArticle.value?.categoryId
+  return categoryId
+    ? categories.value.find(category => category.id === categoryId)?.name
+    : undefined
+})
 
 // 平台选择
-const platform = ref<'wechat' | 'xiaohongshu' | 'zhihu'>('wechat')
+const platform = ref<Platform>(settingsStore.settings.export.defaultPlatform)
 
 // 平台信息
 const platformInfo = {
-  wechat: { name: '微信公众号', icon: 'wechat', tip: '复制后粘贴到微信公众号编辑器' },
-  xiaohongshu: { name: '小红书', icon: 'xiaohongshu', tip: '复制后粘贴到小红书笔记编辑器' },
-  zhihu: { name: '知乎', icon: 'zhihu', tip: '复制后粘贴到知乎回答/文章编辑器' },
+  wechat: { name: '微信公众号', icon: 'wechat', artifactLabel: '微信富文本', tip: '复制后粘贴到微信公众号编辑器' },
+  xiaohongshu: { name: '小红书', icon: 'xiaohongshu', artifactLabel: '小红书文本', tip: '复制后粘贴到小红书笔记编辑器' },
+  zhihu: { name: '知乎', icon: 'zhihu', artifactLabel: '知乎 Markdown', tip: '复制后粘贴到知乎回答/文章编辑器' },
 }
 
 // 主题预设
-const selectedPreset = ref(currentPresetId.value || 'thesis')
+const selectedPreset = ref('thesis')
 const quickPresets = computed(() => themePresets)
 
-// 小红书预设
+// 平台预设
 const xhsPreset = ref('xhs-fresh')
-const xhsPresets = xiaohongshuPresets
+const xhsPresets = getXiaohongshuPresets()
+const zhihuPreset = ref('zhihu-academic')
+const zhihuPresets = getZhihuPresets()
+
+const storedPublishPresetId = settingsStore.settings.export.defaultPresetId
+if (getPlatformPresets(platform.value).some(preset => preset.id === storedPublishPresetId)) {
+  if (platform.value === 'wechat') selectedPreset.value = storedPublishPresetId
+  if (platform.value === 'xiaohongshu') xhsPreset.value = storedPublishPresetId
+  if (platform.value === 'zhihu') zhihuPreset.value = storedPublishPresetId
+}
+
+const selectedPublishPresetId = computed(() => {
+  if (platform.value === 'xiaohongshu') return xhsPreset.value
+  if (platform.value === 'zhihu') return zhihuPreset.value
+  return selectedPreset.value
+})
+const selectedWechatPreset = computed(() =>
+  themePresets.find(preset => preset.id === selectedPreset.value) || themePresets[0],
+)
 
 // 导出选项
 interface LocalExportOptions {
   macCodeBlock: boolean
   lineNumbers: boolean
   convertFootnotes: boolean
-  textIndent: boolean
   enableSvgModules: boolean
   svgInjectionPlan?: SvgInjectionPlan
 }
@@ -88,8 +126,34 @@ const exportOptions = ref<LocalExportOptions>({
   macCodeBlock: true,
   lineNumbers: false,
   convertFootnotes: true,
-  textIndent: false,
   enableSvgModules: false,
+})
+
+const effectiveWechatExportOptions = computed(() => {
+  const appearance = settingsStore.settings.appearance
+  const deliveryAdornment = parseDeliveryAdornmentConfig(deliveryAdornmentConfig.value)
+  const typographyCss = typographyToWechatCss({
+    ...appearance.typography,
+    fontFamily: appearance.fontFamily,
+  }, selectedWechatPreset.value.primaryColor)
+  const customCss = [typographyCss, settingsStore.settings.export.customCss.trim()]
+    .filter(Boolean)
+    .join('\n')
+
+  return {
+    articleTitle: currentContent.value?.title?.trim() || undefined,
+    articleCategory: articleCategory.value?.trim() || undefined,
+    enableCiteStatus: exportOptions.value.convertFootnotes,
+    enableLineNumbers: exportOptions.value.lineNumbers,
+    enableMacCodeBlock: exportOptions.value.macCodeBlock,
+    enableTextIndent: appearance.typography.paragraphIndent,
+    enableSvgModules: exportOptions.value.enableSvgModules,
+    svgInjectionPlan: exportOptions.value.svgInjectionPlan,
+    customCss: customCss || undefined,
+    enableReadingTime: deliveryAdornment.readingTime.enabled,
+    readingSpeed: deliveryAdornment.readingTime.wordsPerMinute,
+    deliveryAdornment,
+  }
 })
 
 function svgModuleFamilyLabel(family: SvgModuleFamily): string {
@@ -162,7 +226,14 @@ const viewMode = ref<'preview' | 'code'>('preview')
 
 // 生成结果
 const generatedHtml = ref('')
-const generatedRenderKey = ref('')
+const nativeResult = ref<NativeExportResult | null>(null)
+const sourceViewerContent = computed(() => nativeResult.value?.content ?? generatedHtml.value)
+const sourceViewerLabel = computed(() => {
+  if (!hasPublishSource.value) return '等待真实正文'
+  if (nativeResult.value?.format === 'text') return '小红书纯文本'
+  if (nativeResult.value?.format === 'markdown') return '知乎 Markdown'
+  return '微信公众号 HTML（内联样式）'
+})
 const wechatPublishStatus = ref<WechatPublishStatus | null>(null)
 const isWechatPublishStatusLoading = ref(false)
 const wechatPublishStatusError = ref('')
@@ -170,12 +241,14 @@ const wechatDraftTitle = ref('')
 const wechatDraftCoverHandle = ref('')
 const wechatDraftShowCoverPic = ref(false)
 const isWechatDraftCreating = ref(false)
-const wechatDraftRenderReady = ref(false)
 const wechatDraftError = ref('')
 const wechatDraftResult = ref<WechatDraftPublishResult | null>(null)
+const isWechatDraftLiveRoundTripRunning = ref(false)
+const wechatDraftLiveRoundTripError = ref('')
+const wechatDraftLiveRoundTripReceipt = ref<WechatDraftLiveRoundTripReceipt | null>(null)
 let publishStatusVersion = 0
-let generateHtmlVersion = 0
-let wechatDraftRequestVersion = 0
+let generationVersion = 0
+let wechatDraftLiveRoundTripVersion = 0
 let draftSeedKey = ''
 
 interface LocalStats {
@@ -200,7 +273,6 @@ const isGenerating = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const copySuccess = ref(false)
-let toastHideTimer: ReturnType<typeof setTimeout> | undefined
 
 const EMPTY_STATS: LocalStats = {
   wordCount: 0,
@@ -220,16 +292,16 @@ function getRouteArticleId(): string | null {
 }
 
 async function ensurePublishRouteArticleLoaded() {
+  if (categoryStore.categories.length === 0) {
+    await categoryStore.loadCategories()
+  }
+
   const routeArticleId = getRouteArticleId()
   if (!routeArticleId) return
-  if (
-    currentContent.value?.articleId === routeArticleId
-    && articleStore.selectedArticleId === routeArticleId
-  ) return
+  if (currentContent.value?.articleId === routeArticleId) return
 
   if (!articleStore.articles.some(article => article.id === routeArticleId)) {
     await articleStore.loadArticles()
-    if (getRouteArticleId() !== routeArticleId) return
   }
 
   if (!articleStore.articles.some(article => article.id === routeArticleId)) {
@@ -261,46 +333,18 @@ const publishSourceMarkdown = computed(() => {
 
 const hasPublishSource = computed(() => publishSourceMarkdown.value.length > 0)
 
-function currentPublishArticleIdentity() {
-  return {
-    routeArticleId: getRouteArticleId(),
-    selectedArticleId: articleStore.selectedArticleId ?? null,
-    contentArticleId: currentContent.value?.articleId ?? null,
-  }
-}
-
-const isPublishArticleReady = computed(() => {
-  const { routeArticleId, selectedArticleId, contentArticleId } = currentPublishArticleIdentity()
-  const expectedArticleId = routeArticleId ?? selectedArticleId
-  if (!expectedArticleId) return Boolean(contentArticleId)
-
-  return contentArticleId === expectedArticleId
-    && (!routeArticleId || selectedArticleId === routeArticleId)
-})
-
 const publishTitle = computed(() => {
   const title = currentContent.value?.title?.trim()
   return title && title.length > 0 ? title : '未选择文章'
 })
 
-function currentRenderKey(): string {
-  return JSON.stringify({
-    article: currentPublishArticleIdentity(),
-    content: publishSourceMarkdown.value,
-    platform: platform.value,
-    preset: selectedPreset.value,
-    xhsPreset: xhsPreset.value,
-    options: exportOptions.value,
-  })
-}
-
 function cleanWechatDraftTitle(title: string): string {
-  const cleaned = title
+  return title
     .replace(/<[^>]+>/g, '')
     .replace(/[#*_`[\]()>~-]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
-  return Array.from(cleaned).slice(0, WECHAT_DRAFT_TITLE_MAX_CHARS).join('')
+    .slice(0, WECHAT_DRAFT_TITLE_MAX_CHARS)
 }
 
 function inferWechatDraftTitle(markdown: string): string {
@@ -348,51 +392,27 @@ const wechatPublishStatusDetail = computed(() => {
   return '等待检测微信公众号账号与草稿能力。'
 })
 
-const hasWechatDraftCoverSource = computed(() => {
-  if (wechatDraftCoverHandle.value.trim()) return true
-  if (!generatedHtml.value.trim() || typeof globalThis.DOMParser === 'undefined') return false
-  const image = new globalThis.DOMParser().parseFromString(generatedHtml.value, 'text/html').querySelector('img')
-  return Boolean(image?.getAttribute('src')?.trim())
-})
-
-const hasWechatPublishTargetHint = computed(() => Boolean(wechatPublishStatus.value?.appIdHint?.trim()))
-
-const wechatDraftPreflightDetail = computed(() => {
-  if (!isPublishArticleReady.value) return '正在加载路由指定的文章，草稿创建暂不可用。'
-  if (!hasPublishSource.value) return emptyPublishMessage.value
-  if (isGenerating.value || generatedRenderKey.value !== currentRenderKey()) {
-    return '正在生成与当前文章、平台和样式一致的微信 HTML。'
-  }
-  if (!wechatDraftRenderReady.value) {
-    return '微信专用渲染失败；当前回退内容仅供本地预览、复制或下载，不会创建微信草稿。'
-  }
-  if (wechatPublishStatus.value?.configured && !hasWechatPublishTargetHint.value) {
-    return '微信草稿通道未提供可核对的账号目标提示，创建已阻止。'
-  }
-  if (!wechatDraftTitle.value.trim()) return '需要填写草稿标题。'
-  if (Array.from(wechatDraftTitle.value.trim()).length > WECHAT_DRAFT_TITLE_MAX_CHARS) {
-    return `草稿标题不能超过 ${WECHAT_DRAFT_TITLE_MAX_CHARS} 字。`
-  }
-  if (!hasWechatDraftCoverSource.value) {
-    return '正文至少需要一张真实图片作为永久封面。'
-  }
-  return '已检测到候选封面；创建前仍会校验图片来源、格式和大小。'
-})
-
 const canCreateWechatDraft = computed(() => (
   platform.value === 'wechat'
   && wechatPublishStatus.value?.configured === true
-  && hasWechatPublishTargetHint.value
-  && isPublishArticleReady.value
   && hasPublishSource.value
   && !isGenerating.value
   && !isWechatDraftCreating.value
-  && wechatDraftRenderReady.value
   && Boolean(generatedHtml.value.trim())
-  && generatedRenderKey.value === currentRenderKey()
   && Boolean(wechatDraftTitle.value.trim())
   && Array.from(wechatDraftTitle.value.trim()).length <= WECHAT_DRAFT_TITLE_MAX_CHARS
-  && hasWechatDraftCoverSource.value
+))
+
+const canRunWechatDraftLiveRoundTrip = computed(() => (
+  platform.value === 'wechat'
+  && wechatPublishStatus.value?.configured === true
+  && !isWechatDraftCreating.value
+  && !isWechatDraftLiveRoundTripRunning.value
+))
+
+const canConfirmWechatDraftManualCleanup = computed(() => (
+  wechatDraftLiveRoundTripReceipt.value?.cleanupState === 'blocked'
+  && wechatDraftLiveRoundTripReceipt.value.error === 'recovery-zero-candidates'
 ))
 
 const emptyPublishMessage = computed(() => {
@@ -403,114 +423,119 @@ const emptyPublishMessage = computed(() => {
   return '尚未选择可发布文章。请从工作台打开真实草稿，或先创建并保存一篇文章。'
 })
 
-// 根据平台生成 HTML
-async function generateHtml() {
-  const version = ++generateHtmlVersion
-  const renderKey = currentRenderKey()
-  const articleReady = isPublishArticleReady.value
-  const content = publishSourceMarkdown.value
-  const selectedPlatform = platform.value
-  const presetId = selectedPreset.value
-  const selectedXhsPreset = xhsPreset.value
-  const selectedOptions: LocalExportOptions = {
-    ...exportOptions.value,
-    svgInjectionPlan: exportOptions.value.svgInjectionPlan
-      ? normalizeWechatSvgApplicationPlan(exportOptions.value.svgInjectionPlan)
-      : undefined,
-  }
-  isGenerating.value = true
-  wechatDraftRenderReady.value = false
+const canCopyPublishArtifact = computed(() => (
+  hasPublishSource.value
+  && Boolean(nativeResult.value?.content.trim())
+  && !isGenerating.value
+))
 
-  if (!articleReady || !content) {
-    if (version === generateHtmlVersion) {
-      generatedHtml.value = ''
-      generatedRenderKey.value = renderKey
-      stats.value = { ...EMPTY_STATS }
-      isGenerating.value = false
-    }
+const primaryCopyLabel = computed(() => {
+  if (!hasPublishSource.value) return '等待正文'
+  if (copySuccess.value) return '已复制'
+  return `复制${platformInfo[platform.value].artifactLabel}`
+})
+
+// 生成平台预览与原生发布交接产物
+async function generateHtml() {
+  const version = ++generationVersion
+  isGenerating.value = true
+
+  if (!hasPublishSource.value) {
+    generatedHtml.value = ''
+    nativeResult.value = null
+    stats.value = { ...EMPTY_STATS }
+    isGenerating.value = false
     return
   }
 
-  try {
-    const rawHtml = await renderMarkdownToHtml(content)
-    let nextHtml = ''
-    let nextStats: LocalStats = { ...EMPTY_STATS }
-
-    switch (selectedPlatform) {
-      case 'wechat': {
-        const preset = themePresets.find(item => item.id === presetId) || themePresets[0]
-        const result = await markdownToWechatWithStats(content, preset, {
-          enableCiteStatus: selectedOptions.convertFootnotes,
-          enableLineNumbers: selectedOptions.lineNumbers,
-          enableMacCodeBlock: selectedOptions.macCodeBlock,
-          enableTextIndent: selectedOptions.textIndent,
-          enableSvgModules: selectedOptions.enableSvgModules,
-          svgInjectionPlan: selectedOptions.svgInjectionPlan,
-        })
-        nextHtml = result.html
-        nextStats = result.stats
-        break
-      }
-      case 'xiaohongshu':
-        nextHtml = convertToXiaohongshu(rawHtml, selectedXhsPreset, {
-          enableLineNumbers: selectedOptions.lineNumbers,
-          enableMacCodeBlock: selectedOptions.macCodeBlock,
-        })
-        nextStats = calculateStats(rawHtml, 300)
-        break
-      case 'zhihu':
-        nextHtml = convertToZhihu(rawHtml, undefined, {
+  const content = publishSourceMarkdown.value
+  const currentPlatform = platform.value
+  const presetId = selectedPublishPresetId.value
+  const wechatPreset = selectedWechatPreset.value
+  const deliveryAdornment = parseDeliveryAdornmentConfig(deliveryAdornmentConfig.value)
+  const renderExportOptions: ExportOptions = currentPlatform === 'wechat'
+    ? effectiveWechatExportOptions.value
+    : currentPlatform === 'xiaohongshu'
+      ? {
+          enableLineNumbers: exportOptions.value.lineNumbers,
+          enableMacCodeBlock: exportOptions.value.macCodeBlock,
+          deliveryAdornment,
+        }
+      : {
           enableCodeHighlight: true,
-        })
-        nextStats = calculateStats(rawHtml, 300)
-        break
+          deliveryAdornment,
+        }
+  let rawHtml = ''
+
+  try {
+    rawHtml = await renderMarkdownToHtml(content)
+    let nextPreviewHtml = ''
+    let nextStats: LocalStats
+
+    if (currentPlatform === 'wechat') {
+      const result = await markdownToWechatWithStats(content, wechatPreset, renderExportOptions)
+      nextPreviewHtml = result.html
+      nextStats = result.stats
+    } else {
+      nextPreviewHtml = await convertToPlatform(content, currentPlatform, {
+        presetId,
+        exportOptions: renderExportOptions,
+      })
+      nextStats = calculateStats(rawHtml, 300)
     }
 
-    if (version !== generateHtmlVersion || renderKey !== currentRenderKey()) return
-    generatedHtml.value = nextHtml
-    generatedRenderKey.value = renderKey
-    wechatDraftRenderReady.value = selectedPlatform === 'wechat'
+    const native = await convertToNativeFormat(content, currentPlatform, {
+      presetId,
+      exportOptions: renderExportOptions,
+    })
+    if (version !== generationVersion) return
+
+    generatedHtml.value = nextPreviewHtml
+    nativeResult.value = native
     stats.value = nextStats
-  } catch (error) {
-    const rawHtml = await renderMarkdownToHtml(content)
-    if (version !== generateHtmlVersion || renderKey !== currentRenderKey()) return
+  } catch (e) {
+    if (version !== generationVersion) return
     generatedHtml.value = rawHtml
-    generatedRenderKey.value = renderKey
-    wechatDraftRenderReady.value = false
-    stats.value = calculateStats(rawHtml, 300)
-    logger.error('生成 HTML 失败', error)
+    nativeResult.value = null
+    stats.value = rawHtml ? calculateStats(rawHtml, 300) : { ...EMPTY_STATS }
+    logger.error('生成 HTML 失败', e)
   } finally {
-    if (version === generateHtmlVersion) isGenerating.value = false
+    if (version === generationVersion) isGenerating.value = false
   }
 }
 
 // 监听变化自动生成
 watch(() => route.query.id, () => {
-  generateHtmlVersion += 1
-  wechatDraftRequestVersion += 1
-  generatedHtml.value = ''
-  generatedRenderKey.value = ''
-  wechatDraftRenderReady.value = false
-  stats.value = { ...EMPTY_STATS }
-  wechatDraftError.value = ''
-  wechatDraftResult.value = null
-  wechatDraftCoverHandle.value = ''
   void ensurePublishRouteArticleLoaded()
-}, { immediate: true, flush: 'sync' })
+}, { immediate: true })
 
-watch(currentRenderKey, generateHtml, { immediate: true })
+watch([platform, selectedPublishPresetId], ([nextPlatform, nextPresetId]) => {
+  settingsStore.settings.export.defaultPlatform = nextPlatform
+  settingsStore.settings.export.defaultPresetId = nextPresetId
+}, { immediate: true })
+watch(
+  [
+    publishSourceMarkdown,
+    selectedPreset,
+    effectiveWechatExportOptions,
+    deliveryAdornmentConfig,
+    platform,
+    xhsPreset,
+    zhihuPreset,
+  ],
+  generateHtml,
+  { deep: true, immediate: true },
+)
 watch(platform, () => { void refreshWechatPublishStatus() }, { immediate: true })
-watch(() => JSON.stringify({
-  article: currentPublishArticleIdentity(),
-  platform: platform.value,
-  title: publishTitle.value,
-  content: publishSourceMarkdown.value,
-}), (nextSeedKey) => {
+watch([platform, wechatDraftCoverHandle], () => {
+  wechatDraftLiveRoundTripVersion += 1
+  wechatDraftLiveRoundTripError.value = ''
+  wechatDraftLiveRoundTripReceipt.value = null
+})
+watch([publishTitle, publishSourceMarkdown], ([title, content]) => {
+  const nextSeedKey = `${title}\u0000${content}`
   if (nextSeedKey === draftSeedKey) return
   draftSeedKey = nextSeedKey
-  wechatDraftRequestVersion += 1
-  const title = publishTitle.value
-  const content = publishSourceMarkdown.value
   wechatDraftTitle.value = title !== '未选择文章'
     ? cleanWechatDraftTitle(title)
     : inferWechatDraftTitle(content)
@@ -519,221 +544,135 @@ watch(() => JSON.stringify({
   wechatDraftCoverHandle.value = ''
 }, { immediate: true })
 
-watch(currentRenderKey, () => {
-  wechatDraftRequestVersion += 1
-  wechatDraftRenderReady.value = false
-  wechatDraftError.value = ''
-  wechatDraftResult.value = null
-  wechatDraftCoverHandle.value = ''
-})
-
-function recordPublishExportHistory(label: string, action: 'copy' | 'download'): void {
+function recordPublishExportHistory(
+  label: string,
+  action: 'copy' | 'download',
+  content = generatedHtml.value,
+): void {
   const title = publishTitle.value.slice(0, 120)
   settingsStore.recordExportHistory({
     platform: platform.value,
     title: `${title} · ${label}`,
-    bytes: new Blob([generatedHtml.value]).size,
+    bytes: new Blob([content]).size,
     action,
   })
 }
 
-// 复制富文本
+// 复制平台原生发布交接产物
 async function copyRichText() {
-  if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
+  const result = nativeResult.value
+  if (!hasPublishSource.value || !result?.content.trim()) {
     showToastMessage(emptyPublishMessage.value)
     return
   }
 
   const info = platformInfo[platform.value]
-  const copiedWithModernApi = platform.value === 'wechat'
-    ? await copyWechatHtmlToClipboard(generatedHtml.value)
-    : await copyRichHtmlToClipboard(generatedHtml.value)
-  const copied = copiedWithModernApi || copySanitizedPublishRichHtmlWithExecCommand(generatedHtml.value)
+  let copied: boolean
+  if (result.format === 'html') {
+    copied = await copyWechatHtmlToClipboard(result.content)
+  } else {
+    copied = await copyTextToClipboard(result.content)
+  }
+
   if (!copied) {
-    logger.error('Publish rich-copy failed')
-    showToastMessage('复制失败，请使用下载文件或检查富文本剪贴板权限')
+    logger.error('Publish artifact copy failed', { platform: platform.value, format: result.format })
+    showToastMessage('复制失败，请检查剪贴板权限或前往“导出”下载原生产物')
     return
   }
 
-  recordPublishExportHistory('发布中心富文本', 'copy')
+  recordPublishExportHistory(`发布中心 ${info.artifactLabel}`, 'copy', result.content)
   copySuccess.value = true
-  showToastMessage(`已复制! ${info.tip}`)
+  showToastMessage(`已复制${info.artifactLabel}。${info.tip}`)
   setTimeout(() => { copySuccess.value = false }, 2000)
 }
 
-// 复制 HTML 代码
+// 复制当前平台原生产物源码
 async function copyHtmlCode() {
-  if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
+  const source = sourceViewerContent.value
+  if (!hasPublishSource.value || source.trim().length === 0) {
     showToastMessage(emptyPublishMessage.value)
     return
   }
 
-  const copied = await copyTextToClipboard(generatedHtml.value)
+  const copied = await copyTextToClipboard(source)
   if (!copied) {
     showToastMessage('复制失败，请手动复制')
     return
   }
 
-  recordPublishExportHistory('HTML 代码', 'copy')
-  showToastMessage('HTML 代码已复制到剪贴板')
-}
-
-function buildDownloadFileName(title: string): string {
-  const invalidFileNameChars = /[<>:"/\\|?*]/g
-  const withoutControlChars = Array.from(title.trim())
-    .map(char => (char.charCodeAt(0) < 32 ? '-' : char))
-    .join('')
-
-  const safeTitle = withoutControlChars
-    .replace(invalidFileNameChars, '-')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .slice(0, 80)
-
-  return `${safeTitle || 'inkforge-article'}-${platform.value}.html`
-}
-
-function downloadHtmlFile() {
-  if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
-    showToastMessage(emptyPublishMessage.value)
-    return
-  }
-
-  try {
-    const blob = new Blob([generatedHtml.value], { type: 'text/html;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = buildDownloadFileName(publishTitle.value)
-    document.body.appendChild(anchor)
-    anchor.click()
-    anchor.remove()
-    URL.revokeObjectURL(url)
-    recordPublishExportHistory('发布中心 HTML', 'download')
-    showToastMessage('HTML 文件已生成并触发下载')
-  } catch (error) {
-    logger.error('发布中心 HTML 下载失败', error)
-    showToastMessage('下载失败，请稍后重试')
-  }
+  recordPublishExportHistory(`${sourceViewerLabel.value} 源码`, 'copy', source)
+  showToastMessage(`${sourceViewerLabel.value}已复制到剪贴板`)
 }
 
 async function handleCreateWechatDraft(): Promise<void> {
   if (!canCreateWechatDraft.value) {
-    showToastMessage(
-      wechatPublishStatus.value?.configured
-        ? wechatDraftPreflightDetail.value
-        : wechatPublishStatusDetail.value,
-    )
+    showToastMessage(wechatPublishStatusDetail.value)
     return
   }
 
-  const version = ++wechatDraftRequestVersion
-  const renderKey = generatedRenderKey.value
-  const input = Object.freeze({
-    title: wechatDraftTitle.value.trim(),
-    contentHtml: generatedHtml.value,
-    coverHandle: wechatDraftCoverHandle.value.trim() || undefined,
-    showCoverPic: (wechatDraftShowCoverPic.value ? 1 : 0) as 0 | 1,
-  })
   isWechatDraftCreating.value = true
   wechatDraftError.value = ''
   wechatDraftResult.value = null
-  let mutationStarted = false
 
   try {
-    const plan = await planWechatDraftPublish(input)
-    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
-      showToastMessage('文章或发布设置已变化；本地预检已作废，未执行微信写入。')
-      return
-    }
-    if (!plan.eligible) {
-      wechatDraftError.value = `本地预检未通过：${plan.reasons.map(reason => reason.message).join('；')}`
-      showToastMessage(wechatDraftError.value)
-      return
-    }
-
-    const targetStatus = await getWechatPublishStatus()
-    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
-      showToastMessage('文章或发布设置已变化；账号目标复核已作废，未执行微信写入。')
-      return
-    }
-    wechatPublishStatus.value = targetStatus
-    wechatPublishStatusError.value = ''
-    const targetHint = targetStatus.appIdHint?.trim()
-    if (!targetStatus.configured || !targetHint) {
-      wechatDraftError.value = targetStatus.configured
-        ? '写入前目标复核未提供可核对的账号提示；未执行微信写入。'
-        : '写入前目标复核发现微信公众号草稿通道当前未配置；未执行微信写入。'
-      showToastMessage(wechatDraftError.value)
-      return
-    }
-
-    const bounds = plan.sideEffectUpperBounds
-    const limits = plan.limits
-    const images = plan.images
-    const coverPlan = plan.cover.state === 'existing-handle-unverified'
-      ? '复用既有封面句柄（远端有效性未验证）'
-      : '上传 1 张永久封面'
-    const confirmed = window.confirm([
-      '即将创建微信公众号草稿，请核对：',
-      `目标提示：${targetHint}`,
-      `输入指纹：${plan.inputFingerprint.slice(0, 12)}`,
-      `计划指纹：${plan.planFingerprint.slice(0, 12)}`,
-      `标题：${limits.titleChars}/${limits.titleMaxChars} 字符`,
-      `正文：${limits.contentChars}/${limits.contentMaxCharsExclusive - 1} 字符，${limits.contentBytes}/${limits.contentMaxBytesExclusive - 1} UTF-8 字节`,
-      `正文图片：非微信来源 ${images.uniqueNonWechatImageCount}、已准备上传 ${images.preparedArticleUploadCount}、微信托管 ${images.uniqueWechatHostedImageCount}`,
-      `封面：${coverPlan}`,
-      `副作用上限：草稿 ${bounds.draftCreates}、正文图片 ${bounds.articleImageUploads}、永久封面 ${bounds.permanentCoverUploads}`,
-      '确认该目标与当前可见微信编辑器账号一致，并授权以上上限。',
-    ].join('\n'))
-    if (!confirmed) {
-      showToastMessage('已取消；未执行微信上传或草稿创建。')
-      return
-    }
-    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
-      showToastMessage('文章或发布设置已变化；确认已作废，未执行微信写入。')
-      return
-    }
-
-    const approval = approveWechatDraftPublishPlan(plan, {
-      targetMatched: true,
-      verificationMethod: 'visible-editor-confirmation',
-      approvedSideEffectUpperBounds: Object.freeze({ ...bounds }),
+    const result = await publishWechatDraft({
+      title: wechatDraftTitle.value.trim(),
+      contentHtml: generatedHtml.value,
+      coverHandle: wechatDraftCoverHandle.value.trim() || undefined,
+      showCoverPic: wechatDraftShowCoverPic.value ? 1 : 0,
     })
-    mutationStarted = true
-    const result = await publishWechatDraft(input, plan, approval)
-    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
-      showToastMessage('文章或发布设置已变化；上一快照的微信草稿已创建，请到微信草稿箱核对。')
-      return
-    }
     wechatDraftResult.value = result
     wechatDraftCoverHandle.value = result.coverHandle
     showToastMessage('微信公众号草稿已创建')
   } catch (error) {
-    const detail = error instanceof Error ? error.message : '未知错误'
-    if (!mutationStarted) {
-      wechatDraftError.value = `写入前检查未完成：${detail}`
-      showToastMessage(wechatDraftError.value)
-      return
-    }
-    if (version !== wechatDraftRequestVersion || renderKey !== currentRenderKey()) {
-      showToastMessage('文章或发布设置已变化；上一快照的远端结果未确认，重试前请检查微信草稿箱和素材库。')
-      return
-    }
-    wechatDraftError.value = `创建未完成：${detail}。若请求已进入上传阶段，远端素材或草稿结果可能未确认；重试前请检查微信草稿箱和素材库。`
-    showToastMessage(wechatDraftError.value)
+    wechatDraftError.value = error instanceof Error ? error.message : '创建微信草稿失败'
+    showToastMessage(`创建微信草稿失败：${wechatDraftError.value}`)
   } finally {
     isWechatDraftCreating.value = false
   }
 }
 
+async function handleWechatDraftLiveRoundTrip(manualCleanupConfirmed = false): Promise<void> {
+  if (!canRunWechatDraftLiveRoundTrip.value) {
+    showToastMessage(wechatPublishStatusDetail.value)
+    return
+  }
+
+  const version = ++wechatDraftLiveRoundTripVersion
+  const coverHandle = wechatDraftCoverHandle.value
+  isWechatDraftLiveRoundTripRunning.value = true
+  wechatDraftLiveRoundTripError.value = ''
+  wechatDraftLiveRoundTripReceipt.value = null
+
+  try {
+    const receipt = await runWechatDraftLiveRoundTrip({
+      coverHandle,
+      manualCleanupConfirmed,
+    })
+    if (version !== wechatDraftLiveRoundTripVersion) return
+    wechatDraftLiveRoundTripReceipt.value = receipt
+
+    if (receipt.cleanupState === 'confirmed' && receipt.error === null) {
+      showToastMessage('微信草稿受限往返已完成并确认清理')
+    } else if (receipt.cleanupState === 'manual-cleanup-confirmed') {
+      showToastMessage('已记录人工清理确认')
+    } else {
+      showToastMessage(`受限往返未完成：${receipt.error ?? receipt.cleanupState}`)
+    }
+  } catch (error) {
+    if (version !== wechatDraftLiveRoundTripVersion) return
+    wechatDraftLiveRoundTripError.value = error instanceof Error ? error.message : '微信草稿受限往返失败'
+    showToastMessage(`微信草稿受限往返失败：${wechatDraftLiveRoundTripError.value}`)
+  } finally {
+    isWechatDraftLiveRoundTripRunning.value = false
+  }
+}
+
 function showToastMessage(message: string) {
-  if (toastHideTimer !== undefined) clearTimeout(toastHideTimer)
   toastMessage.value = message
   showToast.value = true
-  toastHideTimer = setTimeout(() => {
+  setTimeout(() => {
     showToast.value = false
-    toastHideTimer = undefined
   }, 3000)
 }
 
@@ -749,8 +688,9 @@ function goBack() {
 }
 
 function goToThemes() {
-  router.push('/themes')
+  router.push({ path: '/themes', query: { platform: platform.value } })
 }
+
 </script>
 
 <template>
@@ -969,8 +909,41 @@ function goToThemes() {
           </div>
         </section>
 
+        <!-- Zhihu Preset -->
+        <section
+          v-if="platform === 'zhihu'"
+          class="sidebar-section"
+        >
+          <h3 class="section-title">
+            文章风格
+          </h3>
+          <div class="preset-grid">
+            <button
+              v-for="preset in zhihuPresets"
+              :key="preset.id"
+              type="button"
+              class="preset-item"
+              :class="{ active: zhihuPreset === preset.id }"
+              @click="zhihuPreset = preset.id"
+            >
+              <div
+                class="preset-color-bar"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <div
+                class="preset-color-dot"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <span class="preset-name">{{ preset.name }}</span>
+            </button>
+          </div>
+        </section>
+
         <!-- Export Options -->
-        <section class="sidebar-section">
+        <section
+          v-if="platform !== 'zhihu'"
+          class="sidebar-section"
+        >
           <h3 class="section-title">
             导出选项
           </h3>
@@ -1029,7 +1002,10 @@ function goToThemes() {
                 <div class="toggle-knob" />
               </div>
             </div>
-            <div class="toggle-row">
+            <div
+              v-if="platform === 'wechat'"
+              class="toggle-row"
+            >
               <div class="toggle-info">
                 <div class="toggle-title">
                   首行缩进
@@ -1040,8 +1016,8 @@ function goToThemes() {
               </div>
               <div
                 class="toggle-switch"
-                :class="{ on: exportOptions.textIndent }"
-                @click="exportOptions.textIndent = !exportOptions.textIndent"
+                :class="{ on: settingsStore.settings.appearance.typography.paragraphIndent }"
+                @click="settingsStore.settings.appearance.typography.paragraphIndent = !settingsStore.settings.appearance.typography.paragraphIndent"
               >
                 <div class="toggle-knob" />
               </div>
@@ -1109,6 +1085,14 @@ function goToThemes() {
           </div>
         </section>
 
+        <section class="sidebar-section delivery-adornment-section">
+          <DeliveryAdornmentPanel
+            v-model="deliveryAdornmentConfig"
+            :platform="platform"
+            compact
+          />
+        </section>
+
         <section
           v-if="platform === 'wechat'"
           class="sidebar-section publish-channel-section"
@@ -1127,24 +1111,17 @@ function goToThemes() {
             <input
               v-model="wechatDraftTitle"
               type="text"
-              :disabled="isWechatDraftCreating"
+              :maxlength="WECHAT_DRAFT_TITLE_MAX_CHARS"
               autocomplete="off"
             >
           </label>
           <div class="publish-channel-status">
             封面自动取正文首张真实图片并上传为永久素材；原始 media_id 仅保留在 Rust 后端，前端只使用短期不透明句柄。
           </div>
-          <div
-            class="publish-channel-status"
-            :class="{ ready: canCreateWechatDraft }"
-          >
-            {{ wechatDraftPreflightDetail }}
-          </div>
           <label class="publish-draft-checkbox">
             <input
               v-model="wechatDraftShowCoverPic"
               type="checkbox"
-              :disabled="isWechatDraftCreating"
             >
             <span>正文显示封面图</span>
           </label>
@@ -1167,6 +1144,50 @@ function goToThemes() {
             class="publish-draft-result error"
           >
             {{ wechatDraftError }}
+          </p>
+          <div class="publish-channel-status">
+            受限往返会新建专用校准草稿、读回、删除并确认不存在；只返回脱敏 hash、计数、错误码与清理状态，不执行预览、群发、定时或发布。
+          </div>
+          <button
+            type="button"
+            class="btn-secondary publish-draft-action"
+            :disabled="!canRunWechatDraftLiveRoundTrip"
+            @click="handleWechatDraftLiveRoundTrip()"
+          >
+            {{ isWechatDraftLiveRoundTripRunning
+              ? '验收中'
+              : (wechatDraftCoverHandle.trim() ? '执行受限往返验收' : '检查并恢复待清理操作') }}
+          </button>
+          <p
+            v-if="canConfirmWechatDraftManualCleanup"
+            class="publish-draft-result"
+          >
+            请先在微信公众号草稿箱确认标题为 InkForge live calibration、正文含 InkForge live draft calibration 的校准草稿已不存在；无法唯一确认时不要删除。点击下方按钮后，后台会再次全量读回标记缺失再关闭清理门禁。
+          </p>
+          <button
+            v-if="canConfirmWechatDraftManualCleanup"
+            type="button"
+            class="btn-secondary publish-draft-action"
+            :disabled="isWechatDraftLiveRoundTripRunning"
+            @click="handleWechatDraftLiveRoundTrip(true)"
+          >
+            确认已人工清理
+          </button>
+          <p
+            v-if="wechatDraftLiveRoundTripReceipt"
+            class="publish-draft-result"
+            :class="{
+              success: wechatDraftLiveRoundTripReceipt.cleanupState === 'confirmed',
+              error: wechatDraftLiveRoundTripReceipt.error,
+            }"
+          >
+            脱敏 hash：{{ wechatDraftLiveRoundTripReceipt.hash || '无' }}；新增 {{ wechatDraftLiveRoundTripReceipt.count.added }}，读回 {{ wechatDraftLiveRoundTripReceipt.count.readBack }}，删除 {{ wechatDraftLiveRoundTripReceipt.count.deleted }}，候选 {{ wechatDraftLiveRoundTripReceipt.count.candidates }}，残留 {{ wechatDraftLiveRoundTripReceipt.count.remaining }}；清理状态 {{ wechatDraftLiveRoundTripReceipt.cleanupState }}<template v-if="wechatDraftLiveRoundTripReceipt.error">；错误码 {{ wechatDraftLiveRoundTripReceipt.error }}</template>。
+          </p>
+          <p
+            v-else-if="wechatDraftLiveRoundTripError"
+            class="publish-draft-result error"
+          >
+            {{ wechatDraftLiveRoundTripError }}
           </p>
         </section>
 
@@ -1201,7 +1222,7 @@ function goToThemes() {
             type="button"
             class="btn-copy-primary"
             :class="{ success: copySuccess }"
-            :disabled="!hasPublishSource || isGenerating"
+            :disabled="!canCopyPublishArtifact"
             @click="copyRichText"
           >
             <svg
@@ -1234,7 +1255,7 @@ function goToThemes() {
             >
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            {{ copySuccess ? '已复制!' : hasPublishSource ? '复制到剪贴板' : '等待正文' }}
+            {{ primaryCopyLabel }}
           </button>
           <div class="btn-row">
             <button
@@ -1242,43 +1263,8 @@ function goToThemes() {
               class="btn-secondary"
               @click="viewMode = 'code'"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="16 18 22 12 16 6" />
-                <polyline points="8 6 2 12 8 18" />
-              </svg>
+              <Code2 :size="14" />
               查看源码
-            </button>
-            <button
-              type="button"
-              class="btn-secondary"
-              :disabled="!hasPublishSource || isGenerating"
-              @click="downloadHtmlFile"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line
-                  x1="12"
-                  y1="15"
-                  x2="12"
-                  y2="3"
-                />
-              </svg>
-              下载HTML
             </button>
           </div>
         </section>
@@ -1288,47 +1274,33 @@ function goToThemes() {
       <div class="publish-content">
         <!-- View Toggle Tabs -->
         <div class="view-toggle-bar">
-          <div class="view-tabs-pill">
+          <div
+            class="view-tabs-pill"
+            role="tablist"
+            aria-label="发布预览视图"
+          >
             <button
               type="button"
               class="tab-btn"
               :class="{ active: viewMode === 'preview' }"
+              role="tab"
+              :aria-selected="viewMode === 'preview'"
+              aria-controls="publish-preview-panel"
               @click="viewMode = 'preview'"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="3"
-                />
-              </svg>
+              <Eye :size="14" />
               预览
             </button>
             <button
               type="button"
               class="tab-btn"
               :class="{ active: viewMode === 'code' }"
+              role="tab"
+              :aria-selected="viewMode === 'code'"
+              aria-controls="publish-source-panel"
               @click="viewMode = 'code'"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="16 18 22 12 16 6" />
-                <polyline points="8 6 2 12 8 18" />
-              </svg>
+              <Code2 :size="14" />
               源码
             </button>
           </div>
@@ -1344,8 +1316,11 @@ function goToThemes() {
 
         <!-- Preview Mode - iPhone Device Frame -->
         <div
+          id="publish-preview-panel"
           v-show="viewMode === 'preview'"
           class="preview-container"
+          role="tabpanel"
+          aria-label="平台预览"
         >
           <div class="device-frame">
             <div class="device-notch" />
@@ -1428,43 +1403,43 @@ function goToThemes() {
 
         <!-- Code Mode -->
         <div
+          id="publish-source-panel"
           v-show="viewMode === 'code'"
           class="code-view-container"
+          role="tabpanel"
+          aria-label="平台原生产物源码"
         >
           <div class="code-panel">
             <div class="code-panel-header">
-              <span class="code-lang-badge">{{ hasPublishSource ? 'HTML (带内联样式)' : '等待真实正文' }}</span>
-              <button
-                type="button"
-                class="code-copy-btn"
-                :disabled="!hasPublishSource || isGenerating"
-                @click="copyHtmlCode"
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+              <div class="code-panel-title">
+                <Code2 :size="15" />
+                <span class="code-lang-badge">{{ sourceViewerLabel }}</span>
+              </div>
+              <div class="code-panel-actions">
+                <button
+                  type="button"
+                  class="code-copy-btn"
+                  :disabled="!hasPublishSource || isGenerating"
+                  @click="copyHtmlCode"
                 >
-                  <rect
-                    x="9"
-                    y="9"
-                    width="13"
-                    height="13"
-                    rx="2"
-                    ry="2"
-                  />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                复制代码
-              </button>
+                  <Copy :size="12" />
+                  复制源码
+                </button>
+                <button
+                  type="button"
+                  class="code-copy-btn code-collapse-btn"
+                  @click="viewMode = 'preview'"
+                >
+                  <Eye :size="12" />
+                  收起源码
+                </button>
+              </div>
             </div>
             <pre
               v-if="hasPublishSource"
               class="code-content"
-            ><code>{{ generatedHtml }}</code></pre>
+              tabindex="0"
+            ><code>{{ sourceViewerContent }}</code></pre>
             <div
               v-else
               class="code-empty-state"
@@ -1581,12 +1556,15 @@ function goToThemes() {
 .publish-main {
   flex: 1;
   display: flex;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
 /* ═══ Left Sidebar (360px) ═══ */
 .publish-sidebar {
   width: 360px;
+  min-height: 0;
   border-right: 1px solid #ECEFF1;
   overflow-y: auto;
   flex-shrink: 0;
@@ -2126,6 +2104,8 @@ function goToThemes() {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   background: #FAFBFC;
 }
@@ -2385,31 +2365,59 @@ function goToThemes() {
 /* ═══ Code View ═══ */
 .code-view-container {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: clamp(12px, 2vw, 24px);
 }
 
 .code-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
   background: #263238;
-  border-radius: 8px;
+  border: 1px solid #37474F;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 12px 30px rgba(28, 39, 44, 0.14);
 }
 
 .code-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex: 0 0 auto;
+  gap: 12px;
   padding: 12px 16px;
   background: #1E272C;
   border-bottom: 1px solid #37474F;
 }
 
+.code-panel-title,
+.code-panel-actions {
+  display: flex;
+  align-items: center;
+}
+
+.code-panel-title {
+  min-width: 0;
+  gap: 8px;
+  color: #90A4AE;
+}
+
+.code-panel-actions {
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
 .code-lang-badge {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 11px;
   font-weight: 600;
   color: #78909C;
@@ -2437,22 +2445,37 @@ function goToThemes() {
   color: white;
 }
 
+.code-copy-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.code-collapse-btn {
+  background: transparent;
+}
+
 .code-content {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   overflow: auto;
   padding: 20px;
   font-family: 'JetBrains Mono', Consolas, monospace;
   font-size: 13px;
   line-height: 1.6;
   color: #E0E0E0;
-  white-space: pre-wrap;
-  word-break: break-all;
+  white-space: pre;
+  word-break: normal;
+  tab-size: 2;
   margin: 0;
-  max-height: 600px;
+  max-height: none;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .code-empty-state {
   flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2461,6 +2484,45 @@ function goToThemes() {
   font-size: 13px;
   line-height: 1.7;
   text-align: center;
+}
+
+@media (max-width: 980px) {
+  .publish-sidebar {
+    width: 320px;
+  }
+
+  .sidebar-section {
+    padding: 16px;
+  }
+
+  .code-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .code-panel-actions {
+    width: 100%;
+  }
+
+  .code-copy-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 840px) {
+  .publish-sidebar {
+    width: 290px;
+  }
+
+  .code-view-container {
+    padding: 10px;
+  }
+
+  .code-content {
+    padding: 16px;
+    font-size: 12px;
+  }
 }
 
 /* ═══ Toast ═══ */

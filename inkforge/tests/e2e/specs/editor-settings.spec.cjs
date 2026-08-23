@@ -1145,6 +1145,38 @@ async function selectListEnterBehavior(label, value) {
   expect(persisted.stored, `${label} persists through the settings store`).to.equal(value);
 }
 
+async function getVisibleHubBlankDraftControl() {
+  const candidates = [
+    ['.recent-create-btn', '空白草稿'],
+    ['.hero-empty-btn', '空白开始'],
+    ['.empty-create-btn', '新建文章'],
+    ['.quick-action-item', '新建空白文档'],
+  ];
+  const findVisible = async () => {
+    for (const [selector, label] of candidates) {
+      for (const candidate of await browser.$$(selector)) {
+        if (await candidate.isDisplayed() && (await candidate.getText()).includes(label)) return candidate;
+      }
+    }
+    return null;
+  };
+
+  const existing = await findVisible();
+  if (existing) return existing;
+
+  const trigger = await browser.$('.quick-action-fab[aria-label="打开快速创建菜单"]');
+  if (await trigger.isExisting() && await trigger.isDisplayed()) {
+    await trigger.waitForClickable({ timeout: 5_000 });
+    await trigger.click();
+    await browser.waitUntil(async () => Boolean(await findVisible()), {
+      timeout: 5_000,
+      interval: 100,
+      timeoutMsg: 'Hub quick-create menu did not expose the blank-draft action',
+    });
+  }
+  return findVisible();
+}
+
 async function createBlankDraft(expectedBehavior, previousLayoutArticleId = null) {
   await openRoute('/', '.hub-page');
   if (previousLayoutArticleId) {
@@ -1169,22 +1201,12 @@ async function createBlankDraft(expectedBehavior, previousLayoutArticleId = null
   });
   expect(hubState.behavior, 'Hub keeps the selected list Enter behavior in memory').to.equal(expectedBehavior);
   expect(hubState.persistedBehavior, 'Hub keeps the selected list Enter behavior in storage').to.equal(expectedBehavior);
-  const clicked = await browser.execute(() => {
-    const candidates = [
-      ['.recent-create-btn', '空白草稿'],
-      ['.hero-empty-btn', '空白开始'],
-      ['.empty-create-btn', '新建文章'],
-      ['.quick-action-item', '新建空白文档'],
-    ];
-    const button = candidates
-      .map(([selector, label]) => Array.from(document.querySelectorAll(selector))
-        .find((candidate) => candidate.textContent?.trim().includes(label) && candidate.offsetParent !== null))
-      .find(Boolean);
-    if (!button) return null;
-    button.click();
-    return { className: button.className, text: button.textContent?.trim() ?? '' };
-  });
+  const createButton = await getVisibleHubBlankDraftControl();
+  const clicked = createButton
+    ? { className: await createButton.getAttribute('class'), text: await createButton.getText() }
+    : null;
   expect(clicked, 'a visible production new-draft control exists').to.be.an('object');
+  await createButton.click();
 
   await browser.waitUntil(
     async () => browser.execute((oldArticleId) => {
@@ -1218,30 +1240,7 @@ async function createBlankDraftThroughHub() {
       : null;
     return pinia?._s.get('article')?.selectedArticleId ?? null;
   });
-  const selectors = ['.recent-create-btn', '.hero-empty-btn', '.empty-create-btn', '.quick-action-item'];
-  await browser.waitUntil(
-    async () => {
-      for (const selector of selectors) {
-        const candidates = await browser.$$(selector);
-        for (const candidate of candidates) {
-          if (await candidate.isDisplayed()) return true;
-        }
-      }
-      return false;
-    },
-    { timeout: 10_000, interval: 200, timeoutMsg: 'Hub did not render a visible production new-draft control' },
-  );
-  let createButton = null;
-  for (const selector of selectors) {
-    const candidates = await browser.$$(selector);
-    for (const candidate of candidates) {
-      if (await candidate.isDisplayed()) {
-        createButton = candidate;
-        break;
-      }
-    }
-    if (createButton) break;
-  }
+  const createButton = await getVisibleHubBlankDraftControl();
   expect(createButton, 'Hub exposes a visible production new-draft control').to.not.equal(null);
   await createButton.scrollIntoView({ block: 'center', inline: 'nearest' });
   await createButton.waitForClickable({ timeout: 5_000 });
@@ -3181,9 +3180,9 @@ async function readAboutSettingsEvidence() {
           consumer: input.getAttribute('data-feature-flag-consumer'),
         } : null];
       }));
-      const proxySection = document.querySelector('[data-settings-entry="about.proxy"]');
-      const migrationSection = document.querySelector('[data-settings-entry="about.migration"]');
-      const performanceSection = document.querySelector('[data-settings-entry="about.performanceSlo"]');
+      const proxySection = document.querySelector('[data-settings-entry="ai.proxy"]');
+      const migrationSection = document.querySelector('[data-settings-entry="advanced.migration"]');
+      const performanceSection = document.querySelector('[data-settings-entry="advanced.performanceSlo"]');
       const performanceLedger = document.querySelector('[data-performance-slo-ledger]');
       return {
         route: `${window.location.pathname}${window.location.search}`,
@@ -3229,7 +3228,7 @@ async function readAboutSettingsEvidence() {
           currentSchemaVersion: Number(migrationSection?.getAttribute('data-current-settings-schema-version') ?? NaN),
           logLevel: document.querySelector('[data-about-log-level]')?.value ?? null,
           runtimeLogLevel: document.querySelector('[data-runtime-log-level]')?.getAttribute('data-runtime-log-level') ?? null,
-          developerModeChecked: document.querySelector('[data-settings-entry="about.devPanel"] input[type="checkbox"]')?.checked ?? null,
+          developerModeChecked: document.querySelector('[data-settings-entry="advanced.devPanel"] input[type="checkbox"]')?.checked ?? null,
           updaterAutoCheckEnabled: document.querySelector('[data-settings-entry="about.updater"] input[type="checkbox"]')?.checked ?? null,
           featureFlags,
           proxyStatus: proxySection?.getAttribute('data-proxy-status') ?? null,
@@ -3356,7 +3355,6 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         const emptyCategory = document.querySelector('.categories-empty');
         const tagEmpty = document.querySelector('.tag-cloud-empty');
         return {
-          headerTriggerTag: document.querySelector('#hub-quick-action-header-trigger')?.tagName ?? null,
           fabTriggerTag: document.querySelector('#hub-quick-action-fab-trigger')?.tagName ?? null,
           menuVisible: Boolean(document.querySelector('#hub-quick-action-menu')),
           chartButtonCount: Array.from(document.querySelectorAll('.chart-container .chart-bar'))
@@ -3372,7 +3370,6 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         };
       });
 
-      expect(initialState.headerTriggerTag, 'the header quick-action trigger is a native button').to.equal('BUTTON');
       expect(initialState.fabTriggerTag, 'the floating quick-action trigger is a native button').to.equal('BUTTON');
       expect(initialState.menuVisible, 'the quick-action menu starts closed').to.equal(false);
       expect(initialState.chartButtonCount, 'all seven weekly bars are keyboard-reachable buttons').to.equal(7);
@@ -3392,9 +3389,9 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
           .to.equal('为文档添加标签后将展示真实标签云');
       }
 
-      const headerTrigger = await browser.$('#hub-quick-action-header-trigger');
-      await headerTrigger.scrollIntoView({ block: 'center', inline: 'center' });
-      await browser.execute((element) => element.focus(), headerTrigger);
+      const fabTrigger = await browser.$('#hub-quick-action-fab-trigger');
+      await fabTrigger.scrollIntoView({ block: 'center', inline: 'center' });
+      await browser.execute((element) => element.focus(), fabTrigger);
       await browser.keys('Enter');
       await browser.waitUntil(
         async () => browser.execute(() => (
@@ -3402,12 +3399,12 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
           && document.querySelectorAll('#hub-quick-action-menu [role="menuitem"]').length === 3
           && document.activeElement === document.querySelector('#hub-quick-action-menu [role="menuitem"]')
         )),
-        { timeout: 5_000, interval: 100, timeoutMsg: 'Enter did not open and focus the header quick-action menu' },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Enter did not open and focus the floating quick-action menu' },
       );
       expect(
         await browser.execute(() => document.querySelector('#hub-quick-action-menu')?.getAttribute('aria-labelledby')),
-        'the menu is labelled by the owning header trigger',
-      ).to.equal('hub-quick-action-header-trigger');
+        'the menu is labelled by the owning floating trigger',
+      ).to.equal('hub-quick-action-fab-trigger');
 
       await browser.keys('ArrowDown');
       expect(
@@ -3431,12 +3428,11 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       await browser.waitUntil(
         async () => browser.execute(() => (
           !document.querySelector('#hub-quick-action-menu')
-          && document.activeElement?.id === 'hub-quick-action-header-trigger'
+          && document.activeElement?.id === 'hub-quick-action-fab-trigger'
         )),
-        { timeout: 5_000, interval: 100, timeoutMsg: 'Escape did not close the menu and restore header focus' },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Escape did not close the menu and restore floating-trigger focus' },
       );
 
-      const fabTrigger = await browser.$('#hub-quick-action-fab-trigger');
       await browser.execute((element) => element.focus(), fabTrigger);
       await browser.keys(' ');
       await browser.waitUntil(
@@ -3457,13 +3453,13 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 5_000, interval: 100, timeoutMsg: 'Escape did not restore floating-trigger focus' },
       );
 
-      await browser.execute((element) => element.focus(), headerTrigger);
+      await browser.execute((element) => element.focus(), fabTrigger);
       await browser.keys('Enter');
       await browser.waitUntil(
         async () => browser.execute(() => (
           document.activeElement === document.querySelector('#hub-quick-action-menu [role="menuitem"]')
         )),
-        { timeout: 5_000, interval: 100, timeoutMsg: 'header menu did not reopen for the create action' },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'floating menu did not reopen for the create action' },
       );
       await browser.keys('Enter');
       await browser.waitUntil(
@@ -7142,7 +7138,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       .to.deep.equal([]);
   });
 
-  it('routes, persists, samples, previews, rolls back, and resets About settings through real boundaries', async function () {
+  it('routes, persists, samples, previews, rolls back, and resets Settings by their real owning tabs', async function () {
     this.timeout(120_000);
     const runtimeErrors = [];
     await startSmartPunctuationErrorProbe();
@@ -7160,28 +7156,28 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       }));
       expect(featureSearchEvidence.value, 'visible search input receives the requested query').to.equal('Feature Flags');
       expect(featureSearchEvidence.results, 'the real Settings registry returns the Feature Flags row')
-        .to.deep.include({ id: 'about.featureFlags', label: 'Feature Flags' });
-      const featureResult = await browser.$('[data-settings-search-result="about.featureFlags"]');
+        .to.deep.include({ id: 'advanced.featureFlags', label: 'Feature Flags' });
+      const featureResult = await browser.$('[data-settings-search-result="advanced.featureFlags"]');
       await featureResult.waitForDisplayed({ timeout: 5_000 });
       await featureResult.click();
       await browser.waitUntil(
-        async () => browser.execute(() => new window.URLSearchParams(window.location.search).get('tab') === 'ai'),
-        { timeout: 5_000, interval: 100, timeoutMsg: 'Feature Flags search result did not route to the real AI tab' },
+        async () => browser.execute(() => new window.URLSearchParams(window.location.search).get('tab') === 'advanced'),
+        { timeout: 5_000, interval: 100, timeoutMsg: 'Feature Flags search result did not route to the real Advanced tab' },
       );
-      const featureSection = await browser.$('[data-settings-entry="about.featureFlags"]');
+      const featureSection = await browser.$('[data-settings-entry="advanced.featureFlags"]');
       await featureSection.waitForDisplayed({ timeout: 5_000 });
 
       await settingsSearch.setValue('代理设置');
-      const proxyResult = await browser.$('[data-settings-search-result="about.proxy"]');
+      const proxyResult = await browser.$('[data-settings-search-result="ai.proxy"]');
       await proxyResult.waitForDisplayed({ timeout: 5_000 });
       await proxyResult.click();
-      const proxySection = await browser.$('[data-settings-entry="about.proxy"]');
+      const proxySection = await browser.$('[data-settings-entry="ai.proxy"]');
       await proxySection.waitForDisplayed({ timeout: 5_000 });
       expect(await browser.execute(() => new window.URLSearchParams(window.location.search).get('tab')),
         'proxy registry navigation stays on the tab that owns the real controls')
         .to.equal('ai');
 
-      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      await openRoute('/settings?tab=advanced', '[data-settings-tab="advanced"]');
       const createSnapshot = await browser.$('[data-migration-action="create"]');
       await createSnapshot.waitForDisplayed({ timeout: 5_000 });
       const initial = await readAboutSettingsEvidence();
@@ -7198,7 +7194,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       );
       const withSnapshot = await readAboutSettingsEvidence();
       const createdSnapshot = withSnapshot.store.snapshots[0];
-      expect(createdSnapshot.reason, 'the visible action creates the expected real rollback point').to.equal('manual:about');
+      expect(createdSnapshot.reason, 'the visible action creates the expected real rollback point').to.equal('manual:advanced');
       expect(withSnapshot.persisted.snapshots[0]?.id, 'snapshot persistence is immediate').to.equal(createdSnapshot.id);
       expect(withSnapshot.persisted.schemaVersion, 'the first visible Settings write persists the current schema')
         .to.equal(withSnapshot.ui.currentSchemaVersion);
@@ -7214,7 +7210,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 5_000, interval: 100, timeoutMsg: 'log level did not reach the runtime logger boundary' },
       );
 
-      await openRoute('/settings?tab=ai', '[data-settings-tab="ai"]');
+      await openRoute('/settings?tab=advanced', '[data-settings-tab="advanced"]');
       await featureSection.waitForDisplayed({ timeout: 5_000 });
       const targetFlags = Object.fromEntries(ABOUT_FEATURE_FLAG_KEYS.map((key) => [
         key,
@@ -7237,6 +7233,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 20_000, interval: 250, timeoutMsg: 'performance flag did not write real IndexedDB samples' },
       );
 
+      await openRoute('/settings?tab=ai', '[data-settings-tab="ai"]');
       await setCheckboxThroughUi('[data-proxy-field="enabled"]', true);
       const proxyHost = await browser.$('[data-proxy-field="host"]');
       await proxyHost.setValue('');
@@ -7266,7 +7263,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       await browser.pause(5_200);
       runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
       await browser.refresh();
-      await (await browser.$('[data-settings-entry="about.featureFlags"]')).waitForDisplayed({ timeout: 10_000 });
+      await (await browser.$('[data-settings-entry="ai.proxy"]')).waitForDisplayed({ timeout: 10_000 });
       await startSmartPunctuationErrorProbe();
       const persisted = await readAboutSettingsEvidence();
       const targetProxy = {
@@ -7312,12 +7309,6 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
           text: `${item.label}: ${item.reason}`,
         })));
 
-      const defaultFlags = {
-        'markdown-hints': true,
-        'multi-tab': false,
-        'ai-autocomplete': false,
-        'performance-metrics': false,
-      };
       const defaultProxy = {
         enabled: false,
         protocol: 'http',
@@ -7347,28 +7338,28 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 10_000, interval: 150, timeoutMsg: 'AI tab reset did not create its rollback point' },
       );
       const aiReset = await readAboutSettingsEvidence();
-      expect(aiReset.store.featureFlags, 'AI reset restores default feature flags').to.deep.equal(defaultFlags);
+      expect(aiReset.store.featureFlags, 'AI reset preserves Advanced-owned feature flags').to.deep.equal(targetFlags);
       expect(aiReset.store.proxy, 'AI reset restores default proxy fields').to.deep.equal(defaultProxy);
-      expect(aiReset.persisted.featureFlags, 'AI reset persists default feature flags').to.deep.equal(defaultFlags);
+      expect(aiReset.persisted.featureFlags, 'AI reset persists the preserved Advanced-owned feature flags').to.deep.equal(targetFlags);
       expect(aiReset.persisted.proxy, 'AI reset persists default proxy fields').to.deep.equal(defaultProxy);
-      expect(aiReset.store.logLevel, 'AI reset does not change the About-owned log level').to.equal(targetLogLevel);
+      expect(aiReset.store.logLevel, 'AI reset does not change the Advanced-owned log level').to.equal(targetLogLevel);
       expect(aiReset.store.snapshots[0]?.reason, 'AI reset creates a rollback point for its real ownership boundary')
         .to.equal('reset-tab:ai');
 
-      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
+      await openRoute('/settings?tab=advanced', '[data-settings-tab="advanced"]');
       await browser.waitUntil(
-        async () => (await readAboutSettingsEvidence()).performance.collecting === false,
-        { timeout: 5_000, interval: 100, timeoutMsg: 'disabled performance flag did not stop the production collector' },
+        async () => (await readAboutSettingsEvidence()).performance.collecting === true,
+        { timeout: 5_000, interval: 100, timeoutMsg: 'AI reset incorrectly stopped the Advanced-owned performance collector' },
       );
-      const disabledPerformance = await readAboutSettingsEvidence();
-      expect(disabledPerformance.ui.performanceSectionVisible, 'disabled performance remains visibly addressable')
+      const preservedPerformance = await readAboutSettingsEvidence();
+      expect(preservedPerformance.ui.performanceSectionVisible, 'Advanced performance remains visibly addressable')
         .to.equal(true);
-      expect(disabledPerformance.ui.performanceEnabled, 'AI reset disables the performance collector flag')
-        .to.equal('false');
-      expect(disabledPerformance.ui.performanceLedgerVisible, 'disabled performance does not present a live ledger')
-        .to.equal(false);
-      expect(disabledPerformance.performance.collecting, 'disabled performance stops the production collector')
-        .to.equal(false);
+      expect(preservedPerformance.ui.performanceEnabled, 'AI reset preserves the Advanced-owned performance flag')
+        .to.equal('true');
+      expect(preservedPerformance.ui.performanceLedgerVisible, 'enabled performance retains the live ledger')
+        .to.equal(true);
+      expect(preservedPerformance.performance.collecting, 'enabled performance keeps the production collector running')
+        .to.equal(true);
 
       const restoreLatest = await browser.$('[data-migration-action="restore-latest"]');
       await restoreLatest.waitForDisplayed({ timeout: 5_000 });
@@ -7400,14 +7391,14 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 5_000, interval: 100, timeoutMsg: 'visible CustomCSS snippet action did not persist a sentinel draft' },
       );
       const customCssSentinel = await readAboutSettingsEvidence();
-      expect(customCssSentinel.persisted.customCss, 'visible CustomCSS sentinel is persisted before About reset')
+      expect(customCssSentinel.persisted.customCss, 'visible CustomCSS sentinel is persisted before the updater reset')
         .to.deep.equal(customCssSentinel.store.customCss);
 
-      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
-      const developerModeInput = await browser.$('[data-settings-entry="about.devPanel"] input[type="checkbox"]');
+      const developerModeInput = await browser.$('[data-settings-entry="advanced.devPanel"] input[type="checkbox"]');
       if (!await developerModeInput.isSelected()) {
-        await (await browser.$('[data-settings-entry="about.devPanel"] label.sv-toggle-row')).click();
+        await (await browser.$('[data-settings-entry="advanced.devPanel"] label.sv-toggle-row')).click();
       }
+      await openRoute('/settings?tab=about', '[data-settings-tab="about"]');
       const updaterAutoCheckInput = await browser.$('[data-settings-entry="about.updater"] input[type="checkbox"]');
       if (await updaterAutoCheckInput.isSelected()) {
         await (await browser.$('[data-settings-entry="about.updater"] label.sv-toggle-row')).click();
@@ -7418,7 +7409,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
           return evidence.store.developerMode === true
             && evidence.store.updater?.autoCheckDisabled === true;
         },
-        { timeout: 5_000, interval: 100, timeoutMsg: 'visible About controls did not establish advanced reset sentinels' },
+        { timeout: 5_000, interval: 100, timeoutMsg: 'visible Advanced and About controls did not establish reset sentinels' },
       );
       const aboutSentinels = await readAboutSettingsEvidence();
       expect(aboutSentinels.ui.developerModeChecked, 'Developer Mode sentinel is visible').to.equal(true);
@@ -7435,15 +7426,15 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         { timeout: 10_000, interval: 150, timeoutMsg: 'About reset did not create its rollback point' },
       );
       const aboutReset = await readAboutSettingsEvidence();
-      expect(aboutReset.persisted.logLevel, 'About reset persists the default runtime log level')
-        .to.equal(aboutReset.store.logLevel);
-      expect(aboutReset.store.logLevel, 'About reset changes the selected non-default log level')
-        .not.to.equal(targetLogLevel);
-      expect(aboutReset.ui.runtimeLogLevel, 'About reset applies the default level to the runtime logger')
-        .to.equal(aboutReset.store.logLevel);
-      expect(aboutReset.store.developerMode, 'About reset restores the Developer Mode default').to.equal(false);
-      expect(aboutReset.persisted.developerMode, 'About reset persists the Developer Mode default').to.equal(false);
-      expect(aboutReset.ui.developerModeChecked, 'About reset updates the visible Developer Mode control').to.equal(false);
+      expect(aboutReset.persisted.logLevel, 'About reset preserves the Advanced-owned runtime log level')
+        .to.equal(targetLogLevel);
+      expect(aboutReset.store.logLevel, 'About reset preserves the selected non-default log level')
+        .to.equal(targetLogLevel);
+      expect(aboutReset.ui.runtimeLogLevel, 'About reset leaves the runtime logger at the selected level')
+        .to.equal(targetLogLevel);
+      expect(aboutReset.store.developerMode, 'About reset preserves the Advanced-owned Developer Mode').to.equal(true);
+      expect(aboutReset.persisted.developerMode, 'About reset persists the preserved Developer Mode').to.equal(true);
+      expect(aboutReset.ui.developerModeChecked, 'About reset leaves the Developer Mode control selected').to.equal(true);
       expect(aboutReset.store.updater, 'About reset restores the complete updater defaults').to.deep.equal(defaultUpdater);
       expect(aboutReset.persisted.updater, 'About reset persists the complete updater defaults').to.deep.equal(defaultUpdater);
       expect(aboutReset.ui.updaterAutoCheckEnabled, 'About reset updates the visible updater control').to.equal(true);
@@ -7451,7 +7442,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
         .to.deep.equal(customCssSentinel.store.customCss);
       expect(aboutReset.persisted.customCss, 'About reset persists the preserved CustomCSS state')
         .to.deep.equal(customCssSentinel.store.customCss);
-      expect(aboutReset.store.featureFlags, 'About reset preserves AI-owned feature flags').to.deep.equal(targetFlags);
+      expect(aboutReset.store.featureFlags, 'About reset preserves Advanced-owned feature flags').to.deep.equal(targetFlags);
       expect(aboutReset.store.proxy, 'About reset preserves AI-owned proxy fields').to.deep.equal(targetProxy);
       expect(aboutReset.store.snapshots[0]?.reason, 'About reset creates its own rollback point')
         .to.equal('reset-tab:about');
@@ -7465,6 +7456,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       expect(aboutReset.persisted.schemaVersion, 'About reset persists the current Settings schema')
         .to.equal(aboutReset.ui.currentSchemaVersion);
 
+      await openRoute('/settings?tab=advanced', '[data-settings-tab="advanced"]');
       const restoreManual = await browser.$(
         `[data-migration-action="restore"][data-migration-snapshot-id="${createdSnapshot.id}"]`,
       );
@@ -7482,7 +7474,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       );
       runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
       await browser.refresh();
-      const aboutSection = await browser.$('[data-settings-entry="about.migration"]');
+      const aboutSection = await browser.$('[data-settings-entry="advanced.migration"]');
       await aboutSection.waitForDisplayed({ timeout: 10_000 });
       await startSmartPunctuationErrorProbe();
       const restored = await readAboutSettingsEvidence();
@@ -7599,7 +7591,7 @@ describe('Settings editor preferences in the real Tauri runtime', () => {
       );
       runtimeErrors.push(...await stopSmartPunctuationErrorProbe());
       await browser.refresh();
-      await (await browser.$('[data-settings-entry="about.migration"]')).waitForDisplayed({ timeout: 10_000 });
+      await (await browser.$('[data-settings-entry="advanced.migration"]')).waitForDisplayed({ timeout: 10_000 });
       await startSmartPunctuationErrorProbe();
       const reloadedFtue = await readAboutSettingsEvidence();
       expect(reloadedFtue.ftue.storeStep, 'skipped FTUE state survives reload in the store').to.equal('skipped');

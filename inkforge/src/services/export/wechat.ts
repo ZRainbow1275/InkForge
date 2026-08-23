@@ -20,6 +20,7 @@ import type {
   ExportStats,
   WechatExportOptions,
 } from './types'
+import type { DeliveryAdornmentReport } from './delivery-adornments'
 import { parseToAST, type InkforgeMeta } from './renderers/ast'
 import {
   wechatComplianceTransform,
@@ -27,6 +28,12 @@ import {
 } from './platform-rules/wechat'
 import { generateThemeCSS, codeThemeCSS, applyHeadingDecorations } from './themes'
 import { applyWechatOptionSvgModules } from './wechat-svg-options'
+import { applyWechatTypographyInlineOverrides } from './shared-typography'
+import {
+  createDeliveryAdornmentFragments,
+  getDeliveryMastheadSong,
+  resolveDeliveryReadingTime,
+} from './delivery-adornments'
 import { FONT_STACKS } from '@/constants'
 import {
   highlightCodeBlocks,
@@ -38,12 +45,20 @@ import {
   enhanceTableStyles,
   convertTaskListCheckboxes,
   cleanEmptyParagraphs,
-  limitConsecutiveBreaks
+  limitConsecutiveBreaks,
+  normalizeExportHexColor,
 } from './utils'
 import { enforcePlatformCSS } from './css-validator'
 import { REDOS_PROTECTION, CSS_INJECTION_PATTERNS } from '@/config/security'
 import { logger } from '@/services/error'
 import { sanitizeCSSString } from '@/services/security/css-sanitizer'
+import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
+import { resolveVisualVariant } from './visual-variants'
+import { sanitizeUntrustedPreviewHtml } from './preview-fidelity/sanitize-untrusted-html'
+
+export interface WechatExportResult extends ExportResult {
+  deliveryAdornment?: DeliveryAdornmentReport
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // CSS 变量处理
@@ -101,9 +116,6 @@ function replaceCssVariables(html: string, primaryColor?: string): string {
 const CSS_UNICODE_ESCAPE_PATTERN = /\\([0-9a-fA-F]{1,6})([ \t\r\n\f])?/g
 
 async function renderWechatMarkdownWithLazyEnhancements(markdown: string): Promise<string> {
-  const { renderMarkdownWithLazyOptionalEnhancements } = await import(
-    '@/services/rendering/lazy-optional-renderer'
-  )
   return renderMarkdownWithLazyOptionalEnhancements(markdown)
 }
 
@@ -814,6 +826,7 @@ function isAttributeNameChar(char: string): boolean {
 
 /** 清理事件属性和 javascript: 链接属性，作为 DOMPurify 之后的最后安全网。 */
 function stripUnsafeAttributesFromTag(tag: string): string {
+  const tagName = /^<\s*([a-z0-9:-]+)/i.exec(tag)?.[1]?.toLowerCase() ?? ''
   let result = ''
   let cursor = 0
 
@@ -857,7 +870,13 @@ function stripUnsafeAttributesFromTag(tag: string): string {
 
     const unsafeEvent = attrName.startsWith('on')
     const unsafeUrl = (attrName === 'href' || attrName === 'src') && attrValue.trim().toLowerCase().startsWith('javascript:')
-    if (!unsafeEvent && !unsafeUrl) {
+    const safeImageDimension = tagName === 'img' && /^\d{1,6}$/.test(attrValue.trim())
+    const safeSvgDimension = (tagName === 'svg' || tagName === 'rect')
+      && /^(?:\d{1,6}(?:\.\d{1,6})?|100%)$/.test(attrValue.trim())
+    const unsafeDimension = (attrName === 'width' || attrName === 'height')
+      && !safeImageDimension
+      && !safeSvgDimension
+    if (!unsafeEvent && !unsafeUrl && !unsafeDimension) {
       result += tag.slice(attrStart, cursor)
     }
   }
@@ -1087,20 +1106,17 @@ function normalizeExportFontSize(value?: ExportFontSize): ExportFontSize | undef
   return value && EXPORT_FONT_SIZES.includes(value) ? value : undefined
 }
 
-function normalizeExportPrimaryColor(value?: string): string | undefined {
-  const trimmed = value?.trim()
-  return trimmed && /^#[0-9a-f]{6}$/i.test(trimmed) ? trimmed : undefined
-}
-
 function applyWechatStyleOptions(
   preset: ExportPreset,
   options: WechatExportOptions
 ): ExportPreset {
-  const primaryColor = normalizeExportPrimaryColor(options.primaryColor)
+  const presetPrimaryColor = normalizeExportHexColor(preset.primaryColor) ?? '#D32F2F'
+  const primaryColor = normalizeExportHexColor(options.primaryColor) ?? presetPrimaryColor
   const fontFamily = normalizeExportFontFamily(options.fontFamily)
   const fontSize = normalizeExportFontSize(options.fontSize)
+  const shouldRewriteColor = primaryColor !== preset.primaryColor
 
-  if (!primaryColor && !fontFamily && !fontSize) {
+  if (!shouldRewriteColor && !fontFamily && !fontSize) {
     return preset
   }
 
@@ -1122,7 +1138,7 @@ function applyWechatStyleOptions(
   const rewriteAndOverlay = (css?: string): string | undefined => {
     if (!css) return css
     let next = css
-    if (primaryColor) {
+    if (shouldRewriteColor && preset.primaryColor) {
       next = next.replace(new RegExp(escapeRegExp(preset.primaryColor), 'gi'), primaryColor)
     }
     if (fontOverlay) {
@@ -1133,7 +1149,7 @@ function applyWechatStyleOptions(
 
   return {
     ...preset,
-    primaryColor: primaryColor ?? preset.primaryColor,
+    primaryColor,
     fontFamily: fontFamily ?? preset.fontFamily,
     fontSize: fontSize ?? preset.fontSize,
     customCSS: rewriteAndOverlay(preset.customCSS),
@@ -1147,12 +1163,13 @@ function applyWechatStyleOptions(
  * 该 helper 只返回 CSS 规则文本，不生成 <style>，避免把设置页/编辑器运行时
  * CustomCSS 与可复制的微信公众号 HTML 混在一起。
  */
-function normalizeWechatExportCustomCss(customCss: string | undefined): string {
+export function normalizeWechatExportCustomCss(customCss: string | undefined): string {
   const rawCss = typeof customCss === 'string' ? customCss.trim() : ''
   if (!rawCss) return ''
 
   return sanitizeCSSString(rawCss)
     .replace(/[^{};]*\/\*\s*\[REMOVED\]\s*\*\/[^{};]*;?/gi, '')
+    .replace(/(^|[;{])\s*[-\w]+\s*:[^;{}]*\burl\s*\([^)]*\)[^;{}]*;?/gi, '$1')
     .replace(/<\/?[a-z][^>]*>/gi, '')
     .replace(/<\/style/gi, '<\\/style')
     .trim()
@@ -1183,7 +1200,7 @@ export function convertToWechatWithStats(
   html: string,
   preset: ExportPreset,
   options: WechatExportOptions = {}
-): ExportResult {
+): WechatExportResult {
   const {
     enableCiteStatus = true,
     enableLineNumbers = false,
@@ -1197,6 +1214,7 @@ export function convertToWechatWithStats(
     enableEnhancedTable = true,
     enableCodeLanguageLabel = true,
     customCss,
+    typography,
     // ─── P2-T6 platform-rules/wechat 合规化开关 ──────────────────────
     enableCjkSpacing = true,
     maxContentWidth = 677,
@@ -1205,17 +1223,25 @@ export function convertToWechatWithStats(
     darkModeBg,
   } = options
 
+  const resolvedDeliveryReadingTime = resolveDeliveryReadingTime(
+    options.deliveryAdornment,
+    enableReadingTime,
+    readingSpeed,
+  )
+  const mastheadSong = getDeliveryMastheadSong(options.deliveryAdornment)
   const effectivePreset = applyWechatStyleOptions(preset, options)
+  const visualVariant = resolveVisualVariant('wechat', effectivePreset.id)
 
   // 计算统计信息
   const statsOverride = (options as WechatExportOptions & { statsOverride?: ExportStats }).statsOverride
-  const stats = statsOverride ?? calculateStats(html, readingSpeed)
+  const stats = statsOverride ?? calculateStats(html, resolvedDeliveryReadingTime.wordsPerMinute)
 
   // Step 1: Task List Checkbox 转换（必须在 DOMPurify 之前，因为 input 标签会被删除）
   const checkboxProcessedHtml = convertTaskListCheckboxes(html, effectivePreset.primaryColor)
   // Step 1.5: KaTeX MathML annotation 会被 DOMPurify 白名单移除，WeChat 公式降级必须抢先保留 TeX 源。
   const latexDegradedHtml = degradeWechatLatexHtml(checkboxProcessedHtml, effectivePreset.primaryColor)
   const mermaidDegradedHtml = degradeWechatMermaidHtml(latexDegradedHtml, effectivePreset.primaryColor)
+  const untrustedSourceSanitizedHtml = sanitizeUntrustedPreviewHtml(mermaidDegradedHtml)
 
   // Step 2: DOMPurify XSS防护 (增强配置)
   // 使用独立实例避免并发时全局状态污染
@@ -1226,7 +1252,11 @@ export function convertToWechatWithStats(
 
   // 配置独立实例的 hooks 进行 style 属性过滤
   // 使用 try-finally 确保 hooks 在任何情况下都被正确清理，保证线程安全
-  purify.addHook('uponSanitizeAttribute', (_node, data) => {
+  purify.addHook('uponSanitizeAttribute', (node, data) => {
+    if (data.attrName === 'width' || data.attrName === 'height') {
+      data.keepAttr = node.nodeName.toLowerCase() === 'img'
+        && /^\d{1,6}$/.test(data.attrValue.trim())
+    }
     if (data.attrName === 'style' && data.attrValue) {
       let styleValue = data.attrValue
       // 检查并移除危险 CSS 模式（每次创建新正则实例，避免状态污染）
@@ -1248,7 +1278,7 @@ export function convertToWechatWithStats(
 
   let sanitizedHtml: string
   try {
-    sanitizedHtml = purify.sanitize(mermaidDegradedHtml, {
+    sanitizedHtml = purify.sanitize(untrustedSourceSanitizedHtml, {
       ALLOWED_TAGS: [
         'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'strong', 'em', 'u', 's', 'del', 'ins',
@@ -1257,10 +1287,10 @@ export function convertToWechatWithStats(
         'blockquote', 'pre', 'code',
         'table', 'thead', 'tbody', 'tr', 'th', 'td',
         'span', 'div', 'section',
-        'sup', 'sub',
+        'sup', 'sub', 'mark',
         'figure', 'figcaption'
       ],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'id', 'target'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'id', 'target', 'width', 'height'],
       // 禁止 data-* 属性，防止属性滥用
       ALLOW_DATA_ATTR: false,
       // 启用 DOM 清理，移除危险的 DOM 节点
@@ -1311,10 +1341,15 @@ export function convertToWechatWithStats(
   // Step 4: 构建最终内容
   let finalContent = ''
 
-  // 添加阅读时间头部
-  if (enableReadingTime) {
-    finalContent += buildReadingTimeHeader(stats)
-  }
+  // 七套文章报头始终存在；阅读时间开关只控制分钟提示。
+  finalContent += buildReadingTimeHeader(stats, {
+    title: options.articleTitle,
+    category: options.articleCategory,
+    showReadingTime: resolvedDeliveryReadingTime.enabled,
+    variantId: visualVariant.variantId,
+    presetId: effectivePreset.id,
+    song: mastheadSong ?? undefined,
+  })
 
   finalContent += processedHtml
 
@@ -1322,6 +1357,17 @@ export function convertToWechatWithStats(
   if (footnotes.length > 0) {
     finalContent += buildFootnoteSection(footnotes)
   }
+
+  const deliveryAdornment = createDeliveryAdornmentFragments({
+    sourceMarkdown: html,
+    platform: 'wechat',
+    format: 'html',
+    config: options.deliveryAdornment,
+    readingTimeAlreadyRendered: resolvedDeliveryReadingTime.enabled,
+    wordCountOverride: stats.wordCount,
+    mastheadComponentId: mastheadSong?.componentId,
+  })
+  finalContent += deliveryAdornment.suffix
 
   // 包装HTML
   const wrappedHtml = `<section id="nice">${finalContent}</section>`
@@ -1336,10 +1382,9 @@ export function convertToWechatWithStats(
   )
 
   // 处理首行缩进选项：显式传入时覆盖预设设置
-  if (enableTextIndent === true) {
-    css += '\n#nice p { text-indent: 2em; }'
-  } else if (enableTextIndent === false) {
-    css = css.replace(/text-indent:\s*2em;?/g, '')
+  if (enableTextIndent !== undefined) {
+    css += `\n#nice p, #nice p:first-of-type { text-indent: ${enableTextIndent ? '2em' : '0'}; }`
+    css += '\n#nice blockquote p, #nice blockquote p:first-of-type { text-indent: 0; }'
   }
 
   const exportCustomCss = normalizeWechatExportCustomCss(customCss)
@@ -1369,6 +1414,15 @@ export function convertToWechatWithStats(
 
   decoratedHtml = applyWechatOptionSvgModules(decoratedHtml, effectivePreset, options)
 
+  if (typography) {
+    decoratedHtml = applyWechatTypographyInlineOverrides(
+      decoratedHtml,
+      typography,
+      effectivePreset.primaryColor,
+      visualVariant.variantId === 'industry-section',
+    )
+  }
+
   // 增强表格样式 — 条纹行、圆角、主色表头（在 juice 内联之后）
   const tableEnhancedHtml = enableEnhancedTable
     ? enhanceTableStyles(decoratedHtml, effectivePreset.primaryColor)
@@ -1394,7 +1448,8 @@ export function convertToWechatWithStats(
 
   return {
     html: finalHtml,
-    stats
+    stats,
+    deliveryAdornment: deliveryAdornment.report,
   }
 }
 
@@ -1444,9 +1499,14 @@ export async function markdownToWechatWithStats(
   markdown: string,
   preset: ExportPreset,
   options: WechatExportOptions = {}
-): Promise<ExportResult> {
+): Promise<WechatExportResult> {
   const html = await renderWechatMarkdownWithLazyEnhancements(markdown)
-  const readingSpeed = options.readingSpeed ?? 300
+  const resolvedDeliveryReadingTime = resolveDeliveryReadingTime(
+    options.deliveryAdornment,
+    options.enableReadingTime ?? true,
+    options.readingSpeed ?? 300,
+  )
+  const readingSpeed = resolvedDeliveryReadingTime.wordsPerMinute
   const baseStats = calculateStats(html, readingSpeed)
 
   // AST 仅用于 stats 增强：旧 marked 渲染管线保持不变，规避回归。
@@ -1463,5 +1523,5 @@ export async function markdownToWechatWithStats(
     statsOverride: mergedStats,
   } as WechatExportOptions)
 
-  return { html: result.html, stats: mergedStats }
+  return result
 }

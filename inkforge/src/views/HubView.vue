@@ -10,13 +10,18 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import {
   ArrowUpRight,
+  Clock3,
   FileText,
   FolderPlus,
   Layers,
   LayoutTemplate,
   Plus,
+  RefreshCw,
   Search,
+  Settings,
+  Sparkles,
   Target,
+  X,
 } from 'lucide-vue-next'
 import { useArticleStore, type FileImportResult } from '@/stores/article'
 import { useCategoryStore } from '@/stores/category'
@@ -35,7 +40,12 @@ import {
   isUnfinishedStatus,
 } from '@/core/lifecycle'
 import { computeContentWordCount, computeWritingWindowStats, extractContentPreviewText } from '@/composables/useTextStats'
-import { getDailyQuote, formatNumber } from '@/data/quotes'
+import {
+  formatNumber,
+  loadHubInspirationState,
+  saveHubInspirationState,
+  type HubInspirationSource,
+} from '@/data/quotes'
 import type { Article } from '@/types'
 import AddCategoryModal from '@/components/category/AddCategoryModal.vue'
 import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
@@ -101,9 +111,14 @@ function updateDateTime(): void {
   currentDateTime.value = now.toLocaleDateString('zh-CN', options)
 }
 
-// ─── AI 灵感状态 ───
+// ─── 每日灵感：首页只读，编辑归 Settings；来源切换 / AI 刷新仍在首页 ───
+const initialInspirationState = loadHubInspirationState()
+const inspirationSource = ref<HubInspirationSource>(initialInspirationState.source)
+const localInspiration = ref(initialInspirationState.local)
 const aiInspirationLoading = ref(false)
-const aiInspiration = ref<{ text: string; author: string } | null>(null)
+const aiInspiration = ref(initialInspirationState.ai)
+const aiInspirationError = ref('')
+const inspirationSaveFailed = ref(false)
 
 // ─── 统计数据 — 全部来自真实 Store，零 Mock ───
 const articleWordCounts = computed(() => new Map(
@@ -232,14 +247,12 @@ function calculateStreak(): number {
   return streak
 }
 
-// ─── 每日名言 ───
-const dailyQuote = ref(getDailyQuote())
-
 /** AI 生成写作灵感 */
 async function generateAIInspiration(): Promise<void> {
   if (aiInspirationLoading.value) return
   if (!aiStore.isAvailable) return
 
+  aiInspirationError.value = ''
   aiInspirationLoading.value = true
   try {
     const result = await aiStore.generate(
@@ -247,28 +260,36 @@ async function generateAIInspiration(): Promise<void> {
       '你是一位富有哲思的写作灵感生成器。直接输出一句金句和作者，不要任何额外说明。',
       '请生成一句关于写作、创作或思考的独特灵感金句（30字以内），并注明作者（可以是"AI灵感"）。格式：灵感内容|作者'
     )
-    const parts = result.split('|')
-    if (parts.length >= 2) {
-      aiInspiration.value = {
-        text: parts[0].trim().replace(/^[""\u201C]|[""\u201D]$/g, ''),
-        author: parts[1].trim(),
-      }
-    } else {
-      aiInspiration.value = {
-        text: result.trim().replace(/^[""\u201C]|[""\u201D]$/g, ''),
-        author: 'AI 灵感',
-      }
-    }
-  } catch {
-    // AI 失败时静默降级，保持本地名言
+    const [rawText, ...rawAuthorParts] = result.split('|')
+    const text = rawText.trim().replace(/^["\u201C]|["\u201D]$/g, '').slice(0, 160)
+    const author = rawAuthorParts.join('|').trim().slice(0, 48) || 'AI 灵感'
+    if (!text) throw new Error('AI 未返回可用灵感')
+
+    aiInspiration.value = { text, author }
+  } catch (error) {
+    aiInspirationError.value = error instanceof Error ? error.message : 'AI 灵感生成失败'
   } finally {
     aiInspirationLoading.value = false
   }
 }
-void generateAIInspiration()
 
-/** 当前展示的灵感（AI 优先，fallback 本地） */
-const displayQuote = computed(() => aiInspiration.value || dailyQuote.value)
+function selectInspirationSource(source: HubInspirationSource): void {
+  inspirationSource.value = source
+  if (source === 'ai' && aiStore.isAvailable && !aiInspiration.value) {
+    void generateAIInspiration()
+  }
+}
+
+/** 当前展示的灵感；AI 模式没有结果时保持空态，不伪装成本地结果。 */
+const displayQuote = computed(() => inspirationSource.value === 'local' ? localInspiration.value : aiInspiration.value)
+
+watch([inspirationSource, localInspiration, aiInspiration], () => {
+  inspirationSaveFailed.value = !saveHubInspirationState({
+    source: inspirationSource.value,
+    local: localInspiration.value,
+    ai: aiInspiration.value,
+  })
+}, { deep: true })
 
 // ─── 分类创建 Modal ───
 const showAddCategoryModal = ref(false)
@@ -297,12 +318,9 @@ const latestImportStatusLabel = computed(() => {
   return '导入未完成'
 })
 const quickActionRef = ref<HTMLElement | null>(null)
-const headerQuickActionTriggerRef = ref<HTMLButtonElement | null>(null)
 const fabQuickActionTriggerRef = ref<HTMLButtonElement | null>(null)
 const quickActionMenuId = 'hub-quick-action-menu'
-const headerQuickActionTriggerId = 'hub-quick-action-header-trigger'
 const fabQuickActionTriggerId = 'hub-quick-action-fab-trigger'
-const lastQuickActionTrigger = ref<'header' | 'fab'>('header')
 
 async function handleAddCategory(data: { name: string; icon: string }): Promise<void> {
   categoryCreatePending.value = true
@@ -337,7 +355,11 @@ const filterMode = ref<'all' | 'week' | 'category'>('all')
 const filterCategoryId = ref<string | null>(null)
 const searchQuery = ref('')
 const sortMode = ref<'recent' | 'title' | 'wordcount'>('recent')
+const headerSearchBarRef = ref<HTMLElement | null>(null)
 const headerSearchInputRef = ref<HTMLInputElement | null>(null)
+const headerSearchOpen = ref(false)
+const headerSearchActiveIndex = ref(0)
+const headerSearchListId = 'hub-header-search-results'
 
 // ─── Bento Grid 专用计算属性 ───
 
@@ -429,6 +451,24 @@ const selectedDateLabel = computed<string>(() => {
   return `${target.getFullYear()} 年 ${target.getMonth() + 1} 月 ${target.getDate()} 日`
 })
 
+const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLocaleLowerCase('zh-CN'))
+
+function articleMatchesSearch(article: Article, query: string): boolean {
+  if (!query) return true
+  return [article.title, article.description, article.sourceName, article.rawContent]
+    .filter((value): value is string => typeof value === 'string')
+    .some(value => value.toLocaleLowerCase('zh-CN').includes(query))
+}
+
+const headerSearchMatches = computed(() => [...articles.value]
+  .filter(article => articleMatchesSearch(article, normalizedSearchQuery.value))
+  .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()))
+const headerSearchResults = computed(() => headerSearchMatches.value.slice(0, 6))
+const headerSearchActiveId = computed(() => {
+  const article = headerSearchResults.value[headerSearchActiveIndex.value]
+  return article ? `hub-search-result-${article.id}` : undefined
+})
+
 /** 筛选+搜索+排序后的文章列表 */
 const displayArticles = computed(() => {
   let result = [...articles.value]
@@ -438,13 +478,7 @@ const displayArticles = computed(() => {
   } else if (filterMode.value === 'category' && filterCategoryId.value) {
     result = result.filter(a => a.categoryId === filterCategoryId.value)
   }
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter(a =>
-      a.title.toLowerCase().includes(q) ||
-      a.rawContent?.toLowerCase().includes(q)
-    )
-  }
+  result = result.filter(article => articleMatchesSearch(article, normalizedSearchQuery.value))
   switch (sortMode.value) {
     case 'recent': result.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()); break
     case 'title': result.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN')); break
@@ -646,12 +680,6 @@ function focusQuickActionItem(index: number): void {
   items[safeIndex]?.focus()
 }
 
-function resolveQuickActionTrigger(): HTMLButtonElement | null {
-  return lastQuickActionTrigger.value === 'header'
-    ? headerQuickActionTriggerRef.value
-    : fabQuickActionTriggerRef.value
-}
-
 function closeQuickActionMenu(restoreFocus = false): void {
   if (!showQuickActionMenu.value) {
     return
@@ -661,13 +689,12 @@ function closeQuickActionMenu(restoreFocus = false): void {
 
   if (restoreFocus) {
     void nextTick(() => {
-      resolveQuickActionTrigger()?.focus()
+      fabQuickActionTriggerRef.value?.focus()
     })
   }
 }
 
-function openQuickActionMenu(source: 'header' | 'fab', focusTarget: 'first' | 'last' = 'first'): void {
-  lastQuickActionTrigger.value = source
+function openQuickActionMenu(focusTarget: 'first' | 'last' = 'first'): void {
   showQuickActionMenu.value = true
   void nextTick(() => {
     const items = getQuickActionItems()
@@ -753,23 +780,7 @@ function isWithinQuickActionControls(target: Node | null): boolean {
     return false
   }
 
-  return Boolean(
-    quickActionRef.value?.contains(target)
-    || headerQuickActionTriggerRef.value?.contains(target)
-    || fabQuickActionTriggerRef.value?.contains(target),
-  )
-}
-
-function getQuickActionTriggerSource(target: EventTarget | null): 'header' | 'fab' | null {
-  if (target === headerQuickActionTriggerRef.value) {
-    return 'header'
-  }
-
-  if (target === fabQuickActionTriggerRef.value) {
-    return 'fab'
-  }
-
-  return null
+  return Boolean(quickActionRef.value?.contains(target))
 }
 
 function isEditableTarget(target: EventTarget | null): boolean {
@@ -786,24 +797,24 @@ function handleHubKeydown(event: KeyboardEvent): void {
   }
 
   const normalizedKey = event.key.toLowerCase()
-  const quickActionTriggerSource = getQuickActionTriggerSource(event.target)
+  const isQuickActionTrigger = event.target === fabQuickActionTriggerRef.value
 
-  if (!showQuickActionMenu.value && quickActionTriggerSource) {
+  if (!showQuickActionMenu.value && isQuickActionTrigger) {
     if (normalizedKey === 'enter' || normalizedKey === ' ') {
       event.preventDefault()
-      openQuickActionMenu(quickActionTriggerSource, 'first')
+      openQuickActionMenu('first')
       return
     }
 
     if (normalizedKey === 'arrowdown') {
       event.preventDefault()
-      openQuickActionMenu(quickActionTriggerSource, 'first')
+      openQuickActionMenu('first')
       return
     }
 
     if (normalizedKey === 'arrowup') {
       event.preventDefault()
-      openQuickActionMenu(quickActionTriggerSource, 'last')
+      openQuickActionMenu('last')
       return
     }
   }
@@ -843,18 +854,28 @@ function handleHubKeydown(event: KeyboardEvent): void {
     }
   }
 
+  if (
+    headerSearchOpen.value && normalizedKey === 'escape'
+    && event.target instanceof Node
+    && headerSearchBarRef.value?.contains(event.target)
+  ) {
+    event.preventDefault()
+    closeHeaderSearch(true)
+    return
+  }
+
   const primaryKey = event.ctrlKey || event.metaKey
+  if (primaryKey && normalizedKey === 'f' && !event.shiftKey && !event.altKey) {
+    event.preventDefault()
+    handleSearchShortcut()
+    return
+  }
+
   if (!primaryKey) {
     return
   }
 
   if (isEditableTarget(event.target)) {
-    return
-  }
-
-  if (normalizedKey === 'f' && !event.shiftKey && !event.altKey) {
-    event.preventDefault()
-    handleSearchShortcut()
     return
   }
 
@@ -894,20 +915,12 @@ function goToAccount(): void {
   void router.push('/account')
 }
 
-/** 滚动到文章列表区（自动展示搜索结果） */
-function scrollToArticlesRegion(): void {
-  const region = regionArticlesRef.value ?? document.querySelector('.hub-region-articles') as HTMLElement | null
-  region?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-/** Header 搜索快捷键：聚焦 header 输入框；如已聚焦则清空 */
+/** Header 搜索快捷键：聚焦并打开锚定结果面板。 */
 function handleSearchShortcut(): void {
   const input = headerSearchInputRef.value
-  if (!input) {
-    const fallback = document.querySelector('.filter-bar .search-input') as HTMLInputElement | null
-    fallback?.focus()
-    return
-  }
+  if (!input) return
+
+  headerSearchOpen.value = true
   if (document.activeElement === input) {
     input.select()
     return
@@ -917,22 +930,53 @@ function handleSearchShortcut(): void {
 }
 
 function onHeaderSearchFocus(): void {
-  if (searchQuery.value.trim()) {
-    scrollToArticlesRegion()
+  headerSearchOpen.value = true
+  headerSearchActiveIndex.value = 0
+}
+
+function onHeaderSearchFocusOut(event: FocusEvent): void {
+  const nextTarget = event.relatedTarget as Node | null
+  if (!nextTarget || !headerSearchBarRef.value?.contains(nextTarget)) {
+    headerSearchOpen.value = false
+  }
+}
+
+function moveHeaderSearchSelection(offset: number): void {
+  const count = headerSearchResults.value.length
+  if (count === 0) return
+
+  headerSearchOpen.value = true
+  headerSearchActiveIndex.value = (headerSearchActiveIndex.value + offset + count) % count
+}
+
+async function openHeaderSearchResult(article: Article): Promise<void> {
+  headerSearchOpen.value = false
+  await openArticle(article.id)
+}
+
+function openActiveHeaderSearchResult(): void {
+  const article = headerSearchResults.value[headerSearchActiveIndex.value]
+  if (article) void openHeaderSearchResult(article)
+}
+
+function closeHeaderSearch(restoreFocus = false): void {
+  headerSearchOpen.value = false
+  if (restoreFocus) {
+    void nextTick(() => headerSearchInputRef.value?.focus())
   }
 }
 
 function clearHeaderSearch(): void {
   searchQuery.value = ''
+  headerSearchOpen.value = true
+  headerSearchActiveIndex.value = 0
   headerSearchInputRef.value?.focus()
 }
 
-/** 输入首字符时自动滚到文章区，让用户即时看到过滤结果 */
-watch(searchQuery, (next, prev) => {
-  const hasNew = !!next.trim()
-  const hadPrev = !!prev.trim()
-  if (hasNew && !hadPrev) {
-    scrollToArticlesRegion()
+watch(searchQuery, () => {
+  headerSearchActiveIndex.value = 0
+  if (document.activeElement === headerSearchInputRef.value) {
+    headerSearchOpen.value = true
   }
 })
 
@@ -1038,10 +1082,13 @@ onMounted(async () => {
       </div>
 
       <div class="header-actions">
-        <!-- 全文搜索：真实输入框，与底部筛选条共享 searchQuery -->
-        <label
+        <!-- 全文搜索：结果锚定在输入框下方，文章区仅作次级反馈 -->
+        <div
+          ref="headerSearchBarRef"
           class="header-search-bar"
           :class="{ 'has-value': !!searchQuery }"
+          role="search"
+          @focusout="onHeaderSearchFocusOut"
         >
           <Search
             class="header-search-icon"
@@ -1056,11 +1103,18 @@ onMounted(async () => {
             class="header-search-input"
             placeholder="搜索文章…"
             aria-label="搜索文章"
+            role="combobox"
+            aria-autocomplete="list"
+            :aria-expanded="headerSearchOpen"
+            :aria-controls="headerSearchListId"
+            :aria-activedescendant="headerSearchOpen ? headerSearchActiveId : undefined"
             spellcheck="false"
             autocomplete="off"
             @focus="onHeaderSearchFocus"
-            @keydown.enter.prevent="scrollToArticlesRegion"
-            @keydown.escape.prevent="searchQuery = ''"
+            @keydown.down.prevent="moveHeaderSearchSelection(1)"
+            @keydown.up.prevent="moveHeaderSearchSelection(-1)"
+            @keydown.enter.prevent="openActiveHeaderSearchResult"
+            @keydown.escape.prevent="closeHeaderSearch()"
           >
           <button
             v-if="searchQuery"
@@ -1069,57 +1123,57 @@ onMounted(async () => {
             aria-label="清空搜索"
             @click="clearHeaderSearch"
           >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+            <X
+              :size="12"
+              :stroke-width="2.4"
               aria-hidden="true"
-            >
-              <line
-                x1="18"
-                y1="6"
-                x2="6"
-                y2="18"
-              />
-              <line
-                x1="6"
-                y1="6"
-                x2="18"
-                y2="18"
-              />
-            </svg>
+            />
           </button>
           <kbd v-else>Ctrl/Cmd+F</kbd>
-        </label>
+
+          <div
+            v-if="headerSearchOpen"
+            :id="headerSearchListId"
+            class="header-search-results"
+            role="listbox"
+            aria-label="文章搜索结果"
+          >
+            <div class="header-search-results-head">
+              <span>{{ normalizedSearchQuery ? `${headerSearchMatches.length} 篇匹配` : '最近文章' }}</span>
+              <span v-if="headerSearchMatches.length > headerSearchResults.length">显示前 {{ headerSearchResults.length }} 篇</span>
+            </div>
+            <button
+              v-for="(article, index) in headerSearchResults"
+              :id="`hub-search-result-${article.id}`"
+              :key="article.id"
+              type="button"
+              class="header-search-result"
+              :class="{ active: index === headerSearchActiveIndex }"
+              role="option"
+              :aria-selected="index === headerSearchActiveIndex"
+              @mousedown.prevent
+              @mouseenter="headerSearchActiveIndex = index"
+              @click="void openHeaderSearchResult(article)"
+            >
+              <span class="header-search-result-copy">
+                <strong>{{ article.title || '未命名文稿' }}</strong>
+                <span>{{ getExcerpt(article) }}</span>
+              </span>
+              <span class="header-search-result-time">{{ formatRelativeTime(article.updatedAt || article.createdAt) }}</span>
+            </button>
+            <div
+              v-if="headerSearchResults.length === 0"
+              class="header-search-empty"
+            >
+              {{ articles.length === 0 ? '还没有文章' : '没有找到匹配文章' }}
+            </div>
+          </div>
+        </div>
 
         <div class="sync-badge">
           <div class="sync-dot" />
           <span>{{ stats.totalArticles }} 篇文章</span>
         </div>
-
-        <button
-          :id="headerQuickActionTriggerId"
-          ref="headerQuickActionTriggerRef"
-          type="button"
-          class="icon-btn"
-          title="快速创建"
-          :aria-label="showQuickActionMenu && lastQuickActionTrigger === 'header' ? '关闭快速创建菜单' : '打开快速创建菜单'"
-          aria-haspopup="menu"
-          :aria-expanded="showQuickActionMenu && lastQuickActionTrigger === 'header'"
-          :aria-controls="quickActionMenuId"
-          @click.stop="showQuickActionMenu && lastQuickActionTrigger === 'header' ? closeQuickActionMenu(true) : openQuickActionMenu('header')"
-        >
-          <Plus
-            :size="20"
-            :stroke-width="2.2"
-            aria-hidden="true"
-          />
-        </button>
 
         <button
           type="button"
@@ -1262,36 +1316,8 @@ onMounted(async () => {
               class="hero-empty-state"
             >
               <p class="hero-empty-title">
-                先写下第一篇，创作流才会真正开始跳动。
+                使用「开始」卡或右下角红色按钮创建第一篇。
               </p>
-              <div
-                class="hero-empty-actions"
-                role="group"
-                aria-label="创作流空状态操作"
-              >
-                <button
-                  type="button"
-                  class="hero-empty-btn"
-                  @click.stop="void startNewProject()"
-                >
-                  <Plus
-                    :size="14"
-                    :stroke-width="2.3"
-                  />
-                  <span>空白开始</span>
-                </button>
-                <button
-                  type="button"
-                  class="hero-empty-btn hero-empty-btn-secondary"
-                  @click.stop="openTemplatePicker"
-                >
-                  <LayoutTemplate
-                    :size="14"
-                    :stroke-width="2.3"
-                  />
-                  <span>从模板创建</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -1564,25 +1590,14 @@ onMounted(async () => {
             :aria-label="latestArticle ? `打开最近文章：${latestArticle.title || '未命名文稿'}` : '暂无最近文章'"
             @click="latestArticle && openArticle(latestArticle.id)"
           >
-            <div class="recent-label">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                /><polyline points="12 6 12 12 16 14" />
-              </svg>
+            <h3 class="recent-label">
+              <Clock3
+                :size="18"
+                :stroke-width="2"
+                aria-hidden="true"
+              />
               最近编辑
-            </div>
+            </h3>
             <template v-if="latestArticle">
               <h3 class="recent-title">
                 {{ latestArticle.title }}
@@ -1675,34 +1690,6 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-          <div
-            class="recent-create-actions"
-            role="group"
-            aria-label="快速创建"
-          >
-            <button
-              type="button"
-              class="recent-create-btn"
-              @click.stop="void startNewProject()"
-            >
-              <Plus
-                :size="14"
-                :stroke-width="2.2"
-              />
-              <span>空白草稿</span>
-            </button>
-            <button
-              type="button"
-              class="recent-create-btn recent-create-btn-template"
-              @click.stop="openTemplatePicker"
-            >
-              <LayoutTemplate
-                :size="14"
-                :stroke-width="2.2"
-              />
-              <span>从模板创建</span>
-            </button>
-          </div>
         </div>
 
         <!-- 6. 灵感卡片 (1col x 1row) -->
@@ -1711,73 +1698,67 @@ onMounted(async () => {
           <div class="inspiration-content">
             <div class="inspiration-top">
               <div class="inspiration-header">
-                <svg
+                <Sparkles
                   class="inspiration-icon"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
+                  :size="18"
+                  :stroke-width="2"
+                  aria-hidden="true"
+                />
                 <span class="inspiration-label">每日灵感</span>
               </div>
-              <!-- AI 可用：刷新按钮 -->
-              <button
-                v-if="aiStore.isAvailable"
-                class="inspiration-refresh"
-                type="button"
-                aria-label="AI 生成新灵感"
-                :class="{ spinning: aiInspirationLoading }"
-                :disabled="aiInspirationLoading"
-                title="AI 生成新灵感"
-                @click.stop="generateAIInspiration"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+              <div class="inspiration-controls">
+                <div
+                  class="inspiration-source-switch"
+                  role="group"
+                  aria-label="每日灵感来源"
                 >
-                  <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
-              </button>
-              <!-- AI 未配置：引导去设置 -->
-              <button
-                v-else
-                class="inspiration-setup"
-                type="button"
-                aria-label="前往设置配置 AI 灵感"
-                title="配置 AI 后可生成灵感"
-                @click.stop="goToSettings()"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  <button
+                    type="button"
+                    :class="{ active: inspirationSource === 'local' }"
+                    :aria-pressed="inspirationSource === 'local'"
+                    @click.stop="selectInspirationSource('local')"
+                  >
+                    本地
+                  </button>
+                  <button
+                    type="button"
+                    :class="{ active: inspirationSource === 'ai' }"
+                    :aria-pressed="inspirationSource === 'ai'"
+                    @click.stop="selectInspirationSource('ai')"
+                  >
+                    AI
+                  </button>
+                </div>
+                <button
+                  v-if="inspirationSource === 'ai' && aiStore.isAvailable"
+                  class="inspiration-refresh"
+                  type="button"
+                  aria-label="AI 生成新灵感"
+                  :class="{ spinning: aiInspirationLoading }"
+                  :disabled="aiInspirationLoading"
+                  title="AI 生成新灵感"
+                  @click.stop="generateAIInspiration"
                 >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
+                  <RefreshCw
+                    :size="14"
+                    :stroke-width="2.4"
+                    aria-hidden="true"
                   />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-              </button>
+                </button>
+                <button
+                  class="inspiration-setup"
+                  type="button"
+                  aria-label="在设置中编辑每日灵感"
+                  title="在设置中编辑每日灵感"
+                  @click.stop="goToSettings('editor', 'inspiration')"
+                >
+                  <Settings
+                    :size="14"
+                    :stroke-width="2"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
             </div>
             <div class="inspiration-body">
               <div
@@ -1810,7 +1791,7 @@ onMounted(async () => {
                   <span class="inspiration-loading-text">AI 正在为你雕琢灵感</span>
                 </div>
               </div>
-              <template v-else>
+              <template v-else-if="displayQuote">
                 <p class="inspiration-quote">
                   "{{ displayQuote.text }}"
                 </p>
@@ -1818,12 +1799,36 @@ onMounted(async () => {
                   -- {{ displayQuote.author }}
                 </p>
               </template>
+              <div
+                v-else
+                class="inspiration-ai-empty"
+              >
+                <Sparkles
+                  :size="24"
+                  :stroke-width="1.7"
+                  aria-hidden="true"
+                />
+                <p>{{ aiStore.isAvailable ? '点击生成，让 AI 写下一条新的创作提示。' : '配置 AI 服务后，可在这里按需生成灵感。' }}</p>
+                <button
+                  type="button"
+                  @click.stop="aiStore.isAvailable ? generateAIInspiration() : goToSettings('ai')"
+                >
+                  {{ aiStore.isAvailable ? '生成灵感' : '配置 AI' }}
+                </button>
+              </div>
+              <p
+                v-if="inspirationSource === 'ai' && aiInspirationError"
+                class="inspiration-error"
+                role="alert"
+              >
+                {{ aiInspirationError }}
+              </p>
             </div>
             <div
               class="inspiration-source"
-              :class="aiInspiration ? 'source-ai' : 'source-local'"
+              :class="inspirationSource === 'ai' ? 'source-ai' : 'source-local'"
             >
-              {{ aiInspiration ? 'AI 创作' : '本地名言' }}
+              {{ inspirationSource === 'ai' ? 'AI 创作' : (inspirationSaveFailed ? '来源保存失败' : '本地配置') }}
             </div>
           </div>
         </div>
@@ -1838,7 +1843,6 @@ onMounted(async () => {
     >
       <TemplateMarketGrid
         @select="(template) => void handleTemplateSelect(template)"
-        @create-new="openTemplatePicker"
       />
 
       <aside
@@ -1900,7 +1904,7 @@ onMounted(async () => {
             </span>
             <span class="quick-link-copy">
               <strong>全文搜索</strong>
-              <span>跳转到筛选条搜索全部文章</span>
+              <span>在顶部直接查找并打开文章</span>
             </span>
           </button>
 
@@ -2056,37 +2060,6 @@ onMounted(async () => {
           </div>
         </div>
         <div class="filter-right">
-          <div class="search-box">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle
-                cx="11"
-                cy="11"
-                r="8"
-              />
-              <line
-                x1="21"
-                y1="21"
-                x2="16.65"
-                y2="16.65"
-              />
-            </svg>
-            <input
-              v-model="searchQuery"
-              type="text"
-              aria-label="搜索最近文章"
-              placeholder="搜索文章..."
-              class="search-input"
-            >
-          </div>
           <select
             v-model="sortMode"
             class="sort-select"
@@ -2111,6 +2084,7 @@ onMounted(async () => {
       <div
         v-if="displayArticles.length > 0"
         class="waterfall-grid"
+        :class="{ 'is-sparse': displayArticles.length <= 3 }"
       >
         <a
           v-for="(article, index) in displayArticles"
@@ -2196,14 +2170,7 @@ onMounted(async () => {
             <polyline points="14 2 14 8 20 8" />
           </svg>
           <h3>开始你的第一篇创作</h3>
-          <p>使用右下角快速创建、创作工具卡或最近编辑卡底部入口，开始第一篇创作。</p>
-          <button
-            class="empty-create-btn"
-            type="button"
-            @click="startNewProject"
-          >
-            新建文章
-          </button>
+          <p>使用开始卡或右下角红色按钮，开始第一篇创作。</p>
         </template>
         <template v-else>
           <svg
@@ -2253,7 +2220,7 @@ onMounted(async () => {
         class="quick-action-menu"
         role="menu"
         aria-label="快速创建菜单"
-        :aria-labelledby="lastQuickActionTrigger === 'header' ? headerQuickActionTriggerId : fabQuickActionTriggerId"
+        :aria-labelledby="fabQuickActionTriggerId"
         aria-orientation="vertical"
       >
         <button
@@ -2311,12 +2278,12 @@ onMounted(async () => {
         ref="fabQuickActionTriggerRef"
         type="button"
         class="quick-action-fab"
-        :class="{ expanded: showQuickActionMenu && lastQuickActionTrigger === 'fab' }"
-        :aria-label="showQuickActionMenu && lastQuickActionTrigger === 'fab' ? '关闭快速创建菜单' : '打开快速创建菜单'"
+        :class="{ expanded: showQuickActionMenu }"
+        :aria-label="showQuickActionMenu ? '关闭快速创建菜单' : '打开快速创建菜单'"
         aria-haspopup="menu"
-        :aria-expanded="showQuickActionMenu && lastQuickActionTrigger === 'fab'"
+        :aria-expanded="showQuickActionMenu"
         :aria-controls="quickActionMenuId"
-        @click.stop="showQuickActionMenu && lastQuickActionTrigger === 'fab' ? closeQuickActionMenu(true) : openQuickActionMenu('fab')"
+        @click.stop="showQuickActionMenu ? closeQuickActionMenu(true) : openQuickActionMenu()"
       >
         <Plus
           :size="24"
@@ -2362,7 +2329,8 @@ onMounted(async () => {
 /* --- 页面容器 --- */
 .hub-page {
   position: relative;
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   background: var(--bg-rice-paper, #FAFBFC);
   padding: 0;
   color: #263238;
@@ -2383,8 +2351,8 @@ onMounted(async () => {
 .hub-region {
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  height: 100vh;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
   padding: 24px 88px 24px var(--space-large); /* 右侧留出 SectionDots 空间；左侧对齐 8px 栅格 */
   display: flex;
   flex-direction: column;
@@ -2414,7 +2382,7 @@ onMounted(async () => {
 
 .hub-region-articles {
   height: auto;
-  min-height: 100vh;
+  min-height: 100%;
   padding-bottom: 64px;
 }
 
@@ -2640,6 +2608,7 @@ onMounted(async () => {
 
 /* === Header 真实搜索框（与底部筛选共享 searchQuery） === */
 .header-search-bar {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -2664,10 +2633,10 @@ onMounted(async () => {
 .header-search-bar:focus-within {
   border-color: transparent;
   background: #FFFFFF;
-  box-shadow: var(--focus-ring);
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.82);
 }
 
-.header-search-bar.has-value {
+.header-search-bar.has-value:not(:focus-within) {
   border-color: rgba(211, 47, 47, 0.42);
 }
 
@@ -2684,6 +2653,7 @@ onMounted(async () => {
 }
 
 .header-search-input {
+  appearance: none;
   flex: 1;
   min-width: 0;
   height: 100%;
@@ -2697,6 +2667,14 @@ onMounted(async () => {
   letter-spacing: 0.02em;
   color: #263238;
   font-family: inherit;
+  box-shadow: none;
+}
+
+.header-search-input:focus,
+.header-search-input:focus-visible {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
 }
 
 .header-search-input::placeholder {
@@ -2746,6 +2724,94 @@ onMounted(async () => {
   border-radius: var(--radius-small);
   line-height: 1.2;
   flex-shrink: 0;
+}
+
+.header-search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(420px, calc(100vw - 48px));
+  padding: 8px;
+  border: 1px solid var(--hairline-light);
+  border-radius: var(--radius-xlarge);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--elev-3);
+  backdrop-filter: blur(16px);
+  z-index: 80;
+}
+
+.header-search-results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px 8px;
+  color: #78909C;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.header-search-results-head span:last-child {
+  color: #B0BEC5;
+  font-weight: 500;
+}
+
+.header-search-result {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: transparent;
+  color: #263238;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header-search-result:hover,
+.header-search-result.active,
+.header-search-result:focus-visible {
+  outline: none;
+  background: #FFF5F5;
+  box-shadow: inset 3px 0 0 #D32F2F;
+}
+
+.header-search-result-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.header-search-result-copy strong,
+.header-search-result-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-search-result-copy strong {
+  font-size: 13px;
+}
+
+.header-search-result-copy span,
+.header-search-result-time {
+  color: #78909C;
+  font-size: 11px;
+}
+
+.header-search-result-time {
+  flex-shrink: 0;
+}
+
+.header-search-empty {
+  padding: 22px 12px;
+  color: #90A4AE;
+  font-size: 12px;
+  text-align: center;
 }
 
 /* === QuickActionFab === */
@@ -2850,7 +2916,7 @@ onMounted(async () => {
 .bento-container {
   display: grid;
   grid-template-columns: 1.4fr 0.7fr 1fr 1fr;
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(180px, 0.72fr);
   gap: var(--space-medium);
   flex: 1;
   min-height: 0;
@@ -3534,49 +3600,6 @@ onMounted(async () => {
   color: var(--text-primary);
 }
 
-.hero-empty-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.hero-empty-btn {
-  display: inline-flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 32px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-large);
-  background: var(--ember);
-  color: #FFFFFF;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--elev-1);
-  transition: transform var(--motion-fast) var(--ease-out-quart), box-shadow var(--motion-fast) var(--ease-out-quart), border-color var(--motion-fast) var(--ease-out-quart);
-}
-
-.hero-empty-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--glow-ember);
-}
-
-.hero-empty-btn-secondary {
-  background: transparent;
-  color: var(--text-secondary);
-  border-color: var(--hairline);
-  box-shadow: none;
-}
-
-.hero-empty-btn-secondary:hover {
-  background: var(--bg-rice-paper);
-  border-color: var(--ember-border);
-  color: var(--text-primary);
-  box-shadow: none;
-}
-
 /* Day articles expand */
 .day-articles {
   margin-top: 12px;
@@ -4011,10 +4034,6 @@ onMounted(async () => {
   flex: 0 0 auto;
 }
 
-.card-recent .recent-create-actions {
-  flex: 0 0 auto;
-}
-
 .recent-main {
   display: flex;
   flex-direction: column;
@@ -4033,7 +4052,6 @@ onMounted(async () => {
 
 .recent-main:focus-visible,
 .recent-article-row:focus-visible,
-.recent-create-btn:focus-visible,
 .template-market-item:focus-visible,
 .quick-link-btn:focus-visible,
 .quick-action-item:focus-visible,
@@ -4053,12 +4071,12 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  font-weight: var(--type-weight-emphasis);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: #90A4AE;
-  margin-bottom: 8px;
+  margin: 0 0 14px;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
 }
 
 .recent-title {
@@ -4245,44 +4263,6 @@ onMounted(async () => {
   line-height: 1.4;
 }
 
-.recent-create-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed #ECEFF1;
-}
-
-.recent-create-btn {
-  display: inline-flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--hairline-light);
-  border-radius: var(--radius-large);
-  background: #FFFFFF;
-  color: #455A64;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color var(--motion-fast) var(--ease-out-quart), color var(--motion-fast) var(--ease-out-quart), background var(--motion-fast) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
-}
-
-.recent-create-btn:hover {
-  border-color: #D32F2F;
-  color: #B71C1C;
-  background: #FFF8F8;
-  transform: translateY(-1px);
-}
-
-.recent-create-btn-template {
-  background: #FFF8E1;
-  color: #A15C00;
-}
-
 /* === 5. CATEGORIES CARD === */
 .card-categories {
   grid-column: span 2;
@@ -4350,7 +4330,8 @@ onMounted(async () => {
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
   gap: 12px;
   flex: 1;
 }
@@ -4538,6 +4519,46 @@ onMounted(async () => {
   color: #B71C1C;
 }
 
+.inspiration-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inspiration-source-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 2px;
+  border: 1px solid rgba(211, 47, 47, 0.16);
+  border-radius: var(--radius-round);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.inspiration-source-switch button {
+  min-width: 42px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-round);
+  background: transparent;
+  color: #78909C;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.inspiration-source-switch button:hover,
+.inspiration-source-switch button:focus-visible {
+  outline: none;
+  color: #B71C1C;
+}
+
+.inspiration-source-switch button.active {
+  background: #D32F2F;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.2);
+}
+
 .inspiration-refresh {
   width: 28px;
   height: 28px;
@@ -4575,6 +4596,99 @@ onMounted(async () => {
   flex-direction: column;
   justify-content: center;
   gap: 12px;
+}
+
+.inspiration-local-editor {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inspiration-local-editor textarea,
+.inspiration-local-author input {
+  width: 100%;
+  border: 1px solid rgba(139, 90, 60, 0.18);
+  background: rgba(255, 255, 255, 0.54);
+  color: #2C1810;
+  font-family: var(--font-serif);
+  outline: none;
+}
+
+.inspiration-local-editor textarea {
+  flex: 1;
+  min-height: 104px;
+  padding: 12px;
+  border-radius: var(--radius-large);
+  font-size: 17px;
+  line-height: 1.75;
+  resize: none;
+}
+
+.inspiration-local-editor textarea:focus,
+.inspiration-local-author input:focus {
+  border-color: rgba(211, 47, 47, 0.58);
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
+.inspiration-local-author {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: #8B5A3C;
+  font-size: 11px;
+}
+
+.inspiration-local-author input {
+  min-width: 0;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-medium);
+  font-size: 12px;
+}
+
+.inspiration-ai-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  color: #8B5A3C;
+  text-align: center;
+}
+
+.inspiration-ai-empty p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.inspiration-ai-empty button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(211, 47, 47, 0.24);
+  border-radius: var(--radius-round);
+  background: #FFF5F5;
+  color: #B71C1C;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.inspiration-ai-empty button:hover,
+.inspiration-ai-empty button:focus-visible {
+  outline: none;
+  background: #D32F2F;
+  color: #FFFFFF;
+}
+
+.inspiration-error {
+  margin: 0;
+  color: #B71C1C;
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .inspiration-quote {
@@ -4847,35 +4961,6 @@ onMounted(async () => {
   gap: 8px;
 }
 
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid var(--hairline-light);
-  border-radius: var(--radius-medium);
-  color: #90A4AE;
-  transition: border-color var(--motion-fast) var(--ease-out-quart);
-}
-
-.search-box:focus-within {
-  border-color: var(--accent-primary);
-}
-
-.search-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 12px;
-  color: #263238;
-  width: 140px;
-}
-
-.search-input::placeholder {
-  color: #B0BEC5;
-}
-
 .sort-select {
   padding: 6px 10px;
   border: 1px solid var(--hairline-light);
@@ -4901,6 +4986,33 @@ onMounted(async () => {
   max-width: calc(100vw - 96px);
   width: 100%;
   margin: 0 auto;
+}
+
+.waterfall-grid.is-sparse {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  align-items: stretch;
+  min-height: calc(100dvh - 170px);
+  columns: initial;
+}
+
+.waterfall-grid.is-sparse .article-card {
+  min-height: calc(100dvh - 190px);
+  margin-bottom: 0;
+}
+
+.waterfall-grid.is-sparse .card-cover {
+  flex: 0 0 clamp(220px, 38%, 360px);
+  height: auto;
+}
+
+.waterfall-grid.is-sparse .card-body {
+  flex: 1;
+  padding: clamp(18px, 2.2vw, 30px);
+}
+
+.waterfall-grid.is-sparse .card-meta {
+  margin-top: auto;
 }
 
 .article-card {
@@ -5207,16 +5319,29 @@ onMounted(async () => {
 
 /* 800-1200px: bento 2col, waterfall 2col */
 @media (max-width: 1200px) {
+  .hub-page {
+    scroll-snap-type: y proximity;
+  }
+
+  .hub-region {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
   .bento-container {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
+    grid-auto-rows: minmax(180px, auto);
+    flex: none;
+    min-height: auto;
     height: auto;
   }
 
   .card-hero {
-    grid-column: span 2;
-    grid-row: span 1;
-    min-height: 280px;
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 360px;
   }
 
   .hero-header {
@@ -5229,11 +5354,34 @@ onMounted(async () => {
   }
 
   .card-stats {
-    grid-row: span 1;
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 280px;
   }
 
   .card-categories {
-    grid-column: span 2;
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 200px;
+  }
+
+  .card-new {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 280px;
+  }
+
+  .card-recent {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 280px;
+    max-height: 420px;
+  }
+
+  .card-inspiration {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 280px;
   }
 
   .waterfall-grid {
@@ -5242,6 +5390,8 @@ onMounted(async () => {
 
   .hub-secondary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex: none;
+    min-height: 760px;
   }
 
   .template-market-grid,
@@ -5253,8 +5403,7 @@ onMounted(async () => {
 /* <800px: all 1 column */
 @media (max-width: 800px) {
   .hub-page {
-    padding: 16px;
-    padding-bottom: 88px;
+    padding: 0;
   }
 
   .hub-header {
@@ -5307,10 +5456,6 @@ onMounted(async () => {
     min-height: 260px;
   }
 
-  .hero-empty-actions {
-    flex-direction: column;
-  }
-
   .hero-header {
     gap: 12px;
   }
@@ -5321,6 +5466,7 @@ onMounted(async () => {
   }
 
   .card-stats {
+    grid-column: auto;
     grid-row: span 1;
     padding: 20px 24px;
   }
@@ -5330,11 +5476,10 @@ onMounted(async () => {
   }
 
   .categories-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 
-  .new-actions,
-  .recent-create-actions {
+  .new-actions {
     grid-template-columns: 1fr;
     flex-direction: column;
   }
@@ -5372,17 +5517,46 @@ onMounted(async () => {
     width: 100%;
   }
 
-  .search-input {
+  .header-search-results {
     width: 100%;
-    flex: 1;
-  }
-
-  .search-box {
-    flex: 1;
   }
 
   .bento-card {
     padding: 20px;
+  }
+}
+
+@media (max-height: 820px) and (min-width: 1201px) {
+  .bento-card {
+    padding: 14px 16px;
+  }
+
+  .card-hero {
+    padding: 20px 24px;
+  }
+
+  .hero-header {
+    margin-bottom: 12px;
+  }
+
+  .card-stats {
+    gap: 10px;
+    padding: 16px 18px;
+  }
+
+  .stats-hero {
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .stats-primary-value {
+    font-size: 72px;
+  }
+
+  .card-categories,
+  .card-recent,
+  .card-inspiration {
+    min-height: 0;
   }
 }
 .productivity-signal-link {
@@ -5658,6 +5832,51 @@ html[data-theme="dark"] .inspiration-source.source-ai {
   color: #EF9A9A;
 }
 
+html.theme-dark .inspiration-source-switch,
+html[data-theme="dark"] .inspiration-source-switch {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(239, 83, 80, 0.28);
+}
+
+html.theme-dark .inspiration-source-switch button,
+html[data-theme="dark"] .inspiration-source-switch button {
+  color: #B5BFCC;
+}
+
+html.theme-dark .inspiration-source-switch button.active,
+html[data-theme="dark"] .inspiration-source-switch button.active {
+  background: #D32F2F;
+  color: #FFFFFF;
+}
+
+html.theme-dark .inspiration-local-editor textarea,
+html.theme-dark .inspiration-local-author input,
+html[data-theme="dark"] .inspiration-local-editor textarea,
+html[data-theme="dark"] .inspiration-local-author input {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ECEFF4;
+}
+
+html.theme-dark .inspiration-local-author,
+html.theme-dark .inspiration-ai-empty,
+html[data-theme="dark"] .inspiration-local-author,
+html[data-theme="dark"] .inspiration-ai-empty {
+  color: #D7C0A8;
+}
+
+html.theme-dark .inspiration-ai-empty button,
+html[data-theme="dark"] .inspiration-ai-empty button {
+  background: rgba(239, 83, 80, 0.12);
+  border-color: rgba(239, 83, 80, 0.34);
+  color: #EF9A9A;
+}
+
+html.theme-dark .inspiration-error,
+html[data-theme="dark"] .inspiration-error {
+  color: #EF9A9A;
+}
+
 /* 主标题文字 — 全部白系 */
 html.theme-dark .stats-primary-value,
 html.theme-dark .secondary-title,
@@ -5768,8 +5987,8 @@ html[data-theme="dark"] .header-search-bar:hover {
 html.theme-dark .header-search-bar:focus-within,
 html[data-theme="dark"] .header-search-bar:focus-within {
   background: rgba(26, 34, 45, 0.92);
-  border-color: rgba(239, 83, 80, 0.55);
-  box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.20);
+  border-color: transparent;
+  box-shadow: 0 0 0 2px rgba(239, 83, 80, 0.82);
 }
 
 html.theme-dark .header-search-icon,
@@ -5810,6 +6029,35 @@ html[data-theme="dark"] .header-search-bar kbd {
   background: rgba(255, 255, 255, 0.08);
   color: #ECEFF4;
   border-color: rgba(255, 255, 255, 0.12);
+}
+
+html.theme-dark .header-search-results,
+html[data-theme="dark"] .header-search-results {
+  background: rgba(19, 26, 35, 0.98);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-dark .header-search-results-head,
+html[data-theme="dark"] .header-search-results-head,
+html.theme-dark .header-search-result-copy span,
+html.theme-dark .header-search-result-time,
+html[data-theme="dark"] .header-search-result-copy span,
+html[data-theme="dark"] .header-search-result-time {
+  color: #8590A0;
+}
+
+html.theme-dark .header-search-result,
+html[data-theme="dark"] .header-search-result {
+  color: #ECEFF4;
+}
+
+html.theme-dark .header-search-result:hover,
+html.theme-dark .header-search-result.active,
+html.theme-dark .header-search-result:focus-visible,
+html[data-theme="dark"] .header-search-result:hover,
+html[data-theme="dark"] .header-search-result.active,
+html[data-theme="dark"] .header-search-result:focus-visible {
+  background: rgba(239, 83, 80, 0.12);
 }
 
 html.theme-dark .quick-create-btn,
@@ -6069,25 +6317,6 @@ html[data-theme="dark"] .category-option.selected {
 }
 html.theme-dark .category-option.disabled,
 html[data-theme="dark"] .category-option.disabled {
-  color: #6E7886;
-}
-
-html.theme-dark .search-box,
-html[data-theme="dark"] .search-box {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #B5BFCC;
-}
-html.theme-dark .search-box:focus-within,
-html[data-theme="dark"] .search-box:focus-within {
-  border-color: #EF5350;
-}
-html.theme-dark .search-input,
-html[data-theme="dark"] .search-input {
-  color: #ECEFF4;
-}
-html.theme-dark .search-input::placeholder,
-html[data-theme="dark"] .search-input::placeholder {
   color: #6E7886;
 }
 

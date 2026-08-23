@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { renderXhsMockHtml, type XhsMockInput } from './xiaohongshu-mock'
+import { markdownToXiaohongshuText } from '../xiaohongshu-text'
 
 function stripTags(html: string): string {
-  return html.replace(/<[^>]+>/g, '')
+  return html
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
 }
 
 function decodeBasicEntities(s: string): string {
@@ -51,19 +54,26 @@ describe('renderXhsMockHtml — basic rendering', () => {
   })
 
   it('preserves text fidelity — stripped output text matches input within tolerance', () => {
-    const articleText = [
-      '【 标题 】',
+    const sourceMarkdown = [
+      '# 【 标题 】',
       '',
       '第一段文字。',
       '第二段文字。',
       '',
       '— 感谢阅读',
+      '',
+      '#技术 #排版',
     ].join('\n')
+    const artifact = markdownToXiaohongshuText(sourceMarkdown)
 
     const input = baseInput({
-      text: articleText,
-      charCount: articleText.length,
-      overLimit: false,
+      text: artifact.text,
+      title: artifact.title,
+      body: artifact.body,
+      hashtags: artifact.hashtags,
+      suggestedTags: artifact.suggestedTags,
+      charCount: artifact.charCount,
+      overLimit: artifact.overLimit,
     })
     const html = renderXhsMockHtml(input, {
       showTitleHeader: false,
@@ -72,11 +82,31 @@ describe('renderXhsMockHtml — basic rendering', () => {
     })
 
     const stripped = decodeBasicEntities(stripTags(html)).trim()
-    // tolerance ≤5 chars accounts for watermark / counter inline copy
-    const diff = Math.abs(stripped.length - articleText.length)
+    const diff = Math.abs(stripped.length - artifact.text.length)
     expect(stripped).toContain('第一段文字。')
-    // when chrome disabled, only watermark adds chars; check tight tolerance
-    expect(diff).toBeLessThanOrEqual(WATERMARK_LEN_TOLERANCE)
+    expect(stripped).toBe(artifact.text)
+    expect(diff).toBe(0)
+  })
+
+  it('uses the observed XHS long-article editor canvas instead of an invented marketing card', () => {
+    const html = renderXhsMockHtml(
+      baseInput({ text: '正文', charCount: 2, overLimit: false }),
+      {
+        showTitleHeader: false,
+        showHashtagPills: false,
+        showCharCounter: false,
+      }
+    )
+
+    expect(html).toContain('data-platform-editor="xiaohongshu"')
+    expect(html).toContain('data-editor-canvas-width="896"')
+    expect(html).toContain('max-width:896px')
+    expect(html).toContain('font-size:16px')
+    expect(html).toContain('line-height:28px')
+    expect(html).toContain('AlibabaPuHuiTi')
+    expect(html).not.toContain('linear-gradient')
+    expect(html).not.toContain('box-shadow')
+    expect(html).not.toContain('xhs-mock-watermark')
   })
 
   it('preset switching: fresh primary color #2BBF7C appears in inline style', () => {
@@ -106,13 +136,13 @@ describe('renderXhsMockHtml — basic rendering', () => {
     }
   })
 
-  it('over-limit (charCount=1100): counter shows ⚠️ and red color', () => {
+  it('over-limit (charCount=1100): counter shows text status and red color without emoji', () => {
     const html = renderXhsMockHtml(
       baseInput({ text: 'x'.repeat(1100), charCount: 1100, overLimit: true })
     )
     expect(html).toContain('xhs-mock-counter')
-    // ⚠️ glyph is escaped via emoji - we placed it raw in code, so it should appear as-is
-    expect(html).toMatch(/⚠/)
+    expect(html).toContain('超限')
+    expect(html).not.toContain('⚠')
     // red color #E53935 inline
     expect(html).toContain('#E53935')
     expect(html).toContain('1100 / 1000 字')
@@ -160,6 +190,11 @@ describe('renderXhsMockHtml — basic rendering', () => {
     )
     expect(html).toContain('xhs-mock-title')
     expect(html).toContain('我的标题')
+    expect(html).toContain('font-size:24px')
+    expect(html).toContain('line-height:36px')
+    expect(html).toContain('text-align:left')
+    expect(html).not.toContain('xhs-mock-title-ornament')
+    expect(html).not.toMatch(/[🌿📝💕💡🌱]/u)
   })
 
   it('article preserves whitespace via white-space:pre-wrap', () => {
@@ -169,6 +204,3 @@ describe('renderXhsMockHtml — basic rendering', () => {
     expect(html).toMatch(/white-space:\s*pre-wrap/)
   })
 })
-
-// Tolerance constant: watermark "预览 · 实际发布为纯文本" (12 chars CJK) plus possible padding
-const WATERMARK_LEN_TOLERANCE = 16

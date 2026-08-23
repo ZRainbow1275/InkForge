@@ -36,6 +36,9 @@ const H = 620
  */
 const COVER_FONT_SANS = "-apple-system, 'PingFang SC', 'Source Han Sans', sans-serif"
 const COVER_FONT_SERIF = "-apple-system, 'PingFang SC', 'Source Han Sans', 'Songti SC', serif"
+const COVER_HEADLINE_FONT_SIZE = 72
+const COVER_HEADLINE_LINE_HEIGHT = 92
+const COVER_HEADLINE_MAX_CHARS = 9
 
 // ─── 文本切行（SVG <text> 不自动换行；按 CJK 字符数硬切） ────────────────
 
@@ -168,12 +171,15 @@ function renderCoverTitle(p: SvgModuleParams): string {
     opacity: 0.7,
   })
 
-  // ─ 超大标题（纸面，字重 800）─
-  // 起点 x=80，左右各留 80 → 可用宽 = W − 160 = 920；fitCharsPerLine(920,100,2)=9。
-  // 2 行容 18 字，原 17 字标题完整不截断。
-  const titleLines = splitLines(title, fitCharsPerLine(W - 160, 100, 2), 2)
+  // ─ 克制的杂志标题（纸面，字重 800）─
+  // 固定 9 字上限让长标题形成均衡的 9+8 两行，并避免宽屏微信编辑器把 SVG 字号放大过度。
+  const titleCharsPerLine = Math.min(
+    COVER_HEADLINE_MAX_CHARS,
+    fitCharsPerLine(W - 160, COVER_HEADLINE_FONT_SIZE, 2),
+  )
+  const titleLines = splitLines(title, titleCharsPerLine, 2)
   const titleStartY = 320
-  const titleLineH = 120
+  const titleLineH = COVER_HEADLINE_LINE_HEIGHT
   const titleNodes = titleLines
     .map((line, idx) =>
       textLine({
@@ -181,7 +187,7 @@ function renderCoverTitle(p: SvgModuleParams): string {
         y: titleStartY + idx * titleLineH,
         text: line,
         fill: palette.ink,
-        fontSize: 100,
+        fontSize: COVER_HEADLINE_FONT_SIZE,
         fontWeight: 800,
         fontFamily: COVER_FONT_SANS,
         letterSpacing: 2,
@@ -294,10 +300,14 @@ function renderCoverGrid(p: SvgModuleParams): string {
     opacity: 0.7,
   })
 
-  // 超大白标题（字重 800）。可用宽 = innerW = 920；fitCharsPerLine(920,100,2)=9。
-  const titleLines = splitLines(title, fitCharsPerLine(innerW, 100, 2), 2)
+  // 克制的白标题；保持 9 字上限，让满幅网格封面与暖纸封面共享可读尺度而不共享构图。
+  const titleCharsPerLine = Math.min(
+    COVER_HEADLINE_MAX_CHARS,
+    fitCharsPerLine(innerW, COVER_HEADLINE_FONT_SIZE, 2),
+  )
+  const titleLines = splitLines(title, titleCharsPerLine, 2)
   const titleStartY = 330
-  const titleLineH = 120
+  const titleLineH = COVER_HEADLINE_LINE_HEIGHT
   const titleNodes = titleLines
     .map((line, idx) =>
       textLine({
@@ -305,7 +315,7 @@ function renderCoverGrid(p: SvgModuleParams): string {
         y: titleStartY + idx * titleLineH,
         text: line,
         fill: palette.paper,
-        fontSize: 100,
+        fontSize: COVER_HEADLINE_FONT_SIZE,
         fontWeight: 800,
         fontFamily: COVER_FONT_SANS,
         letterSpacing: 2,

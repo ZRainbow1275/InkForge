@@ -6,7 +6,11 @@ import { describe, expect, it, vi } from 'vitest'
 import type { StyleProofManifest } from './index'
 import {
   convertToNativeFormat,
+  convertToPlatform,
+  convertToWechat,
+  convertToXiaohongshu,
   convertToWechatWithStats,
+  convertToZhihu,
   createXhsImageArtifactManifestFromRaster,
   createXhsImageArtifactManifestFromRasterArtifacts,
   createZhihuImageArtifactManifest,
@@ -2114,6 +2118,18 @@ describe('platform native export rendering rules', () => {
     expect(result.html.toLowerCase()).not.toContain('javascript:')
     expect(result.html.toLowerCase()).not.toContain('<script')
     expect(result.html.toLowerCase()).not.toContain('</style>')
+  })
+
+  it('removes remote CSS resource declarations before the WeChat inline pass', () => {
+    const result = convertToWechatWithStats('<p>安全正文</p>', getDefaultPreset(), {
+      customCss: '#nice p { color: #234567; background-image: url(https://attacker.invalid/beacon); letter-spacing: 1px; }',
+      enableReadingTime: false,
+    })
+
+    expect(result.html).toMatch(/color:\s*#234567/i)
+    expect(result.html).toMatch(/letter-spacing:\s*1px/i)
+    expect(result.html).not.toContain('attacker.invalid')
+    expect(result.html).not.toMatch(/background-image:\s*url/i)
   })
 
   it('exposes a gate-aware style choice catalog for all target platforms', () => {
@@ -9990,7 +10006,7 @@ describe('platform native export rendering rules', () => {
     expect(result.html).not.toMatch(/display:\s*flex|gap:\s*8px|var\(/i)
     expect(result.html).toMatch(/style="[^"]+"/i)
     expect(result.html).toContain('max-width:100%')
-    expect(result.html).toContain('border:1px solid #D8E2EC')
+    expect(result.html).toContain('border:1px solid #e8e8e8')
     expect(result.html).toContain('https://vite.dev')
   })
 
@@ -10047,6 +10063,85 @@ describe('platform native export rendering rules', () => {
     expect(commentaryText).toContain('◆')
     expect(commentaryText).not.toContain('““')
     expect(countText(commentaryText, '“')).toBe(1)
+  })
+
+  it('keeps dark report quotes and notes mastheads readable after WeChat CSS inlining', () => {
+    const typography = {
+      fontSize: 16,
+      lineHeight: 1.618,
+      letterSpacing: 0,
+      paragraphSpacing: 16,
+      paragraphIndent: false,
+      fontFamily: 'serif' as const,
+      textAlign: 'left' as const,
+      listSpacing: 8,
+      headingScale: 'balanced' as const,
+      headingStyle: 'none' as const,
+      blockquoteStyle: 'classic' as const,
+      dividerStyle: 'line' as const,
+      mediaStyle: 'plain' as const,
+    }
+    const render = (presetId: string) => convertToWechatWithStats(
+      RICH_WECHAT_PRESET_HTML,
+      getPresetById(presetId) ?? getDefaultPreset(),
+      {
+        articleTitle: '微信粘贴验收',
+        enableReadingTime: false,
+        enableCiteStatus: false,
+        enableCodeHighlight: false,
+        enableCjkSpacing: false,
+        maxContentWidth: null,
+        typography,
+      },
+    ).html
+
+    const reportDoc = new DOMParser().parseFromString(
+      `<body>${render('report')}</body>`,
+      'text/html',
+    )
+    const reportQuoteStyle = reportDoc.querySelector('blockquote')?.getAttribute('style') ?? ''
+    expect(reportQuoteStyle).toMatch(/background(?:-color)?:#252933 !important/i)
+    expect(reportQuoteStyle).toMatch(/color:#F5F0E6 !important/i)
+    expect(reportQuoteStyle).toContain('padding:12px 16px')
+    expect(reportQuoteStyle).toContain('border-left:4px solid #004080')
+
+    const notesDoc = new DOMParser().parseFromString(
+      `<body>${render('notes')}</body>`,
+      'text/html',
+    )
+    const notesTitle = notesDoc.querySelector(
+      '[data-ink-masthead-composition="weave-map"] > strong',
+    )
+    const notesIdentity = notesDoc.querySelector(
+      '[data-ink-masthead-composition="weave-map"]',
+    )
+    expect(notesIdentity?.getAttribute('style')).toMatch(/background-color:#0F5B55 !important/i)
+    expect(notesTitle?.getAttribute('style')).toMatch(/background:transparent !important/i)
+    expect(notesTitle?.getAttribute('style')).toMatch(/color:#F5F0E6 !important/i)
+
+    for (const headingStyle of ['background', 'pill'] as const) {
+      const elegantDoc = new DOMParser().parseFromString(
+        `<body>${convertToWechatWithStats(
+          RICH_WECHAT_PRESET_HTML,
+          getPresetById('elegant') ?? getDefaultPreset(),
+          {
+            articleTitle: '微信粘贴验收',
+            enableReadingTime: false,
+            enableCiteStatus: false,
+            enableCodeHighlight: false,
+            enableCjkSpacing: false,
+            maxContentWidth: null,
+            typography: { ...typography, headingStyle },
+          },
+        ).html}</body>`,
+        'text/html',
+      )
+      const elegantH2Style = elegantDoc.querySelector('h2')?.getAttribute('style') ?? ''
+      expect(elegantH2Style, headingStyle).not.toMatch(/background:transparent !important/i)
+      expect(elegantH2Style, headingStyle).toContain(
+        headingStyle === 'background' ? 'background:#F7F8FA' : 'border-radius:999px',
+      )
+    }
   })
 
   it('does not leak raw CSS unicode escape codes from any WeChat preset export', () => {
@@ -14487,6 +14582,47 @@ describe('platform native export rendering rules', () => {
     expect(result.html).not.toContain('#123456;background')
     expect(result.html).not.toContain('javascript:')
     expect(result.html).toContain(getDefaultPreset().primaryColor)
+  })
+
+  it('rejects style-breakout color overrides at every HTML export boundary', async () => {
+    const maliciousColor = 'red;</style><img src=x data-css-injection=1 onerror=alert(1)><style>'
+    const remoteBeaconColor = 'red;} #nice p { background-image:url(https://attacker.invalid/beacon); color:red; } /*'
+    const sourceHtml = '<h2>颜色边界</h2><p>正文</p>'
+    const outputs = [
+      await convertToPlatform('## 颜色边界\n\n正文', 'wechat', {
+        overrides: { primaryColor: maliciousColor },
+      }),
+      await convertToPlatform('## 颜色边界\n\n正文', 'xiaohongshu', {
+        overrides: { primaryColor: maliciousColor },
+      }),
+      await convertToPlatform('## 颜色边界\n\n正文', 'zhihu', {
+        overrides: { primaryColor: maliciousColor },
+      }),
+      convertToXiaohongshu(sourceHtml, 'xhs-fresh', {
+        colorOverrides: { primaryColor: maliciousColor },
+      }),
+      convertToZhihu(sourceHtml, 'zhihu-academic', {
+        colorOverrides: { primaryColor: maliciousColor },
+      }),
+      convertToWechat(sourceHtml, {
+        ...getDefaultPreset(),
+        primaryColor: maliciousColor,
+      }, {
+        enableReadingTime: false,
+      }),
+      convertToWechat(sourceHtml, {
+        ...getDefaultPreset(),
+        primaryColor: remoteBeaconColor,
+      }, {
+        enableReadingTime: false,
+      }),
+    ]
+
+    for (const output of outputs) {
+      expect(output).not.toContain('data-css-injection')
+      expect(output).not.toMatch(/<script\b|onerror\s*=|javascript:|<\/style>/i)
+      expect(output).not.toContain('attacker.invalid')
+    }
   })
 
   // ─── P2-T6 WeChat platform-rules 接入 ─────────────────────────────

@@ -1,18 +1,22 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { DEFAULT_PRESET_ID, FONT_STACKS } from '@/constants'
+import { DEFAULT_PRESET_ID } from '@/constants'
 import { logger } from '@/services/error'
+import { generateThemeCSS, themePresets } from '@/services/export/themes'
+import { typographyToWechatCss } from '@/services/export/shared-typography'
+import type { ExportPreset } from '@/types'
+import { useSettingsStore } from './settings'
 
 /**
  * 文章类型预设配置
- * 基于 PRD 定义的 10 种文章类型
+ * 旧组件读取的规范预设投影
  */
 export interface ThemePreset {
     id: string
     name: string
     baseTheme: 'default' | 'grace' | 'simple'
     primaryColor: string
-    fontFamily: 'sans' | 'serif' | 'mono'
+    fontFamily: 'sans' | 'serif' | 'kai' | 'mono'
     fontSize: number
     lineHeight: number
     firstLineIndent: boolean
@@ -22,225 +26,144 @@ export interface ThemePreset {
     footnotes: boolean
 }
 
-/**
- * 编辑器预览预设（10 种文章类型）
- *
- * 注意：此预设用于编辑器内的实时预览配置
- * 导出时使用 services/export/themes.ts 中的 themePresets
- * 两者 ID 保持一致以确保预览与导出效果匹配
- *
- * @see services/export/themes.ts - 导出专用预设
- */
-export const ARTICLE_PRESETS: ThemePreset[] = [
-    {
-        id: 'thesis',
-        name: '论文翻译',
-        baseTheme: 'grace',
-        primaryColor: '#8B0000', // 苏联红
-        fontFamily: 'serif',
-        fontSize: 14,
-        lineHeight: 1.8,
-        firstLineIndent: true,
-        textAlign: 'justify',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: true
-    },
-    {
-        id: 'legal',
-        name: '法学研讨',
-        baseTheme: 'grace',
-        primaryColor: '#1A3A5C', // 藏青
-        fontFamily: 'serif',
-        fontSize: 14,
-        lineHeight: 1.8,
-        firstLineIndent: true,
-        textAlign: 'justify',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: true
-    },
-    {
-        id: 'report',
-        name: '行业研报',
-        baseTheme: 'default',
-        primaryColor: '#004080', // 商务蓝
-        fontFamily: 'sans',
-        fontSize: 14,
-        lineHeight: 1.6,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: true
-    },
-    {
-        id: 'commentary',
-        name: '时事点评',
-        baseTheme: 'simple',
-        primaryColor: '#C00000', // 新闻红
-        fontFamily: 'sans',
-        fontSize: 14,
-        lineHeight: 1.6,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: true
-    },
-    {
-        id: 'aigc',
-        name: 'AIGC创意',
-        baseTheme: 'default',
-        primaryColor: '#7B2D8E', // 赛博紫
-        fontFamily: 'sans',
-        fontSize: 14,
-        lineHeight: 1.6,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: true,
-        codeLineNumbers: true,
-        footnotes: false
-    },
-    {
-        id: 'code',
-        name: '编程创造',
-        baseTheme: 'default',
-        primaryColor: '#00FF41', // 终端绿
-        fontFamily: 'mono',
-        fontSize: 14,
-        lineHeight: 1.5,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: true,
-        codeLineNumbers: true,
-        footnotes: false
-    },
-    {
-        id: 'notes',
-        name: '学习笔记',
-        baseTheme: 'grace',
-        primaryColor: '#E07020', // 温暖橙
-        fontFamily: 'sans',
-        fontSize: 14,
-        lineHeight: 1.7,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: false
-    },
-    {
-        id: 'news',
-        name: '新闻',
-        baseTheme: 'simple',
-        primaryColor: '#000000', // 纯黑
-        fontFamily: 'sans',
-        fontSize: 14,
-        lineHeight: 1.6,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: false
-    },
-    {
-        id: 'meme',
-        name: '整活',
-        baseTheme: 'default',
-        primaryColor: '#FF6B9D', // 活力粉
-        fontFamily: 'sans',
-        fontSize: 14,
-        lineHeight: 1.6,
-        firstLineIndent: false,
-        textAlign: 'left',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: false
-    },
-    {
-        id: 'life',
-        name: '人生感悟',
-        baseTheme: 'simple',
-        primaryColor: '#666666', // 淡雅灰
-        fontFamily: 'serif',
-        fontSize: 14,
-        lineHeight: 1.8,
-        firstLineIndent: true,
-        textAlign: 'left',
-        macCodeBlock: false,
-        codeLineNumbers: false,
-        footnotes: false
+function toLegacyBaseTheme(theme: string): ThemePreset['baseTheme'] {
+    return theme === 'grace' || theme === 'simple' ? theme : 'default'
+}
+
+function toLegacyFontFamily(fontFamily: string): ThemePreset['fontFamily'] {
+    if (fontFamily.includes('mono')) return 'mono'
+    if (fontFamily.includes('serif')) return 'serif'
+    return 'sans'
+}
+
+function getLegacyLineHeight(preset: ExportPreset): number {
+    const matched = preset.previewCSS?.match(/#nice p\s*\{[^}]*line-height:\s*([\d.]+)/)
+    const value = Number(matched?.[1])
+    return Number.isFinite(value) ? value : 1.6
+}
+
+function toLegacyThemePreset(preset: ExportPreset): ThemePreset {
+    const fontSize = Number.parseFloat(preset.fontSize)
+    const codeOrTech = preset.id === 'aigc' || preset.id === 'code' || preset.id === 'tech'
+
+    return {
+        id: preset.id,
+        name: preset.name,
+        baseTheme: toLegacyBaseTheme(preset.theme),
+        primaryColor: preset.primaryColor,
+        fontFamily: toLegacyFontFamily(preset.fontFamily),
+        fontSize: Number.isFinite(fontSize) ? fontSize : 14,
+        lineHeight: getLegacyLineHeight(preset),
+        firstLineIndent: preset.isUseIndent,
+        textAlign: preset.isUseJustify ? 'justify' : 'left',
+        macCodeBlock: codeOrTech,
+        codeLineNumbers: codeOrTech,
+        footnotes: preset.persona === 'academic' || preset.id === 'commentary',
     }
-]
+}
+
+/**
+ * 旧编辑器组件的只读兼容投影。
+ * 预设内容和 CSS 均以 services/export/themes.ts 为唯一事实源。
+ */
+export const ARTICLE_PRESETS: ThemePreset[] = themePresets.map(toLegacyThemePreset)
+
+const LEGACY_STORAGE_KEY = 'inkforge_theme_preset'
+const SETTINGS_STORAGE_KEY = 'inkforge-settings'
+
+function isWechatPresetId(value: unknown): value is string {
+    return typeof value === 'string' && ARTICLE_PRESETS.some(preset => preset.id === value)
+}
+
+function hasStoredCanonicalPreset(): boolean {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY)
+    if (!raw) return false
+
+    const candidate: unknown = JSON.parse(raw)
+    if (typeof candidate !== 'object' || candidate === null) return false
+    const exportSettings = (candidate as { export?: unknown }).export
+    if (typeof exportSettings !== 'object' || exportSettings === null) return false
+    const record = exportSettings as Record<string, unknown>
+    return typeof record.defaultPlatform === 'string'
+        && typeof record.defaultPresetId === 'string'
+}
 
 /**
  * 主题 Store
  * 管理编辑器主题和导出样式
  */
 export const useThemeStore = defineStore('theme', () => {
-    // 当前预设 ID
-    const currentPresetId = ref<string>(DEFAULT_PRESET_ID)
-
-    // 自定义 CSS
-    const customCSS = ref<string>('')
-
-    // 存储警告信息
+    const settingsStore = useSettingsStore()
+    const legacyPresetId = ref<string>(DEFAULT_PRESET_ID)
     const storageWarning = ref<string | null>(null)
 
-    // 基础主题
-    const baseTheme = ref<'default' | 'grace' | 'simple'>('default')
+    const currentPresetId = computed({
+        get: () => {
+            const { defaultPlatform, defaultPresetId } = settingsStore.settings.export
+            return defaultPlatform === 'wechat' && isWechatPresetId(defaultPresetId)
+                ? defaultPresetId
+                : legacyPresetId.value
+        },
+        set: (presetId: string) => {
+            if (!isWechatPresetId(presetId)) return
+            legacyPresetId.value = presetId
+            settingsStore.settings.export.defaultPlatform = 'wechat'
+            settingsStore.settings.export.defaultPresetId = presetId
+        },
+    })
 
-    // 主题色
-    const primaryColor = ref<string>('#0066cc')
-
-    // 字体设置
-    const fontFamily = ref<'sans' | 'serif' | 'mono'>('sans')
-    const fontSize = ref<number>(14)
-    const lineHeight = ref<number>(1.6)
-
-    // 排版设置
-    const firstLineIndent = ref<boolean>(false)
-    const textAlign = ref<'left' | 'justify'>('left')
-
-    // 代码块设置
-    const macCodeBlock = ref<boolean>(true)
-    const codeLineNumbers = ref<boolean>(false)
-
-    // 其他
-    const footnotes = ref<boolean>(true)
-
-    // 当前预设
     const currentPreset = computed(() => {
         return ARTICLE_PRESETS.find(p => p.id === currentPresetId.value) || null
     })
 
-    // localStorage key for theme preset persistence
-    const STORAGE_KEY = 'inkforge_theme_preset'
+    const customCSS = computed({
+        get: () => settingsStore.settings.export.customCss,
+        set: (value: string) => { settingsStore.settings.export.customCss = value },
+    })
+    const baseTheme = computed(() => currentPreset.value?.baseTheme ?? 'default')
+    const primaryColor = computed({
+        get: () => settingsStore.settings.appearance.accentColor,
+        set: (value: string) => { settingsStore.settings.appearance.accentColor = value },
+    })
+    const fontFamily = computed({
+        get: () => settingsStore.settings.appearance.fontFamily,
+        set: (value: ThemePreset['fontFamily']) => { settingsStore.settings.appearance.fontFamily = value },
+    })
+    const fontSize = computed({
+        get: () => settingsStore.settings.appearance.typography.fontSize,
+        set: (value: number) => { settingsStore.settings.appearance.typography.fontSize = value },
+    })
+    const lineHeight = computed({
+        get: () => settingsStore.settings.appearance.typography.lineHeight,
+        set: (value: number) => { settingsStore.settings.appearance.typography.lineHeight = value },
+    })
+    const firstLineIndent = computed({
+        get: () => settingsStore.settings.appearance.typography.paragraphIndent,
+        set: (value: boolean) => { settingsStore.settings.appearance.typography.paragraphIndent = value },
+    })
+    const textAlign = computed<ThemePreset['textAlign']>(() => (
+        currentPreset.value?.textAlign ?? 'left'
+    ))
+    const macCodeBlock = computed({
+        get: () => settingsStore.settings.export.macCodeBlock,
+        set: (value: boolean) => { settingsStore.settings.export.macCodeBlock = value },
+    })
+    const codeLineNumbers = computed({
+        get: () => settingsStore.settings.export.lineNumbers,
+        set: (value: boolean) => { settingsStore.settings.export.lineNumbers = value },
+    })
+    const footnotes = computed({
+        get: () => settingsStore.settings.export.convertFootnotes,
+        set: (value: boolean) => { settingsStore.settings.export.convertFootnotes = value },
+    })
 
-    // 应用预设
-    function applyPreset(presetId: string) {
-        const preset = ARTICLE_PRESETS.find(p => p.id === presetId)
-        if (!preset) return
-
+    function applyPreset(presetId: string): void {
+        if (!isWechatPresetId(presetId)) return
         currentPresetId.value = presetId
-        baseTheme.value = preset.baseTheme
-        primaryColor.value = preset.primaryColor
-        fontFamily.value = preset.fontFamily
-        fontSize.value = preset.fontSize
-        lineHeight.value = preset.lineHeight
-        firstLineIndent.value = preset.firstLineIndent
-        textAlign.value = preset.textAlign
-        macCodeBlock.value = preset.macCodeBlock
-        codeLineNumbers.value = preset.codeLineNumbers
-        footnotes.value = preset.footnotes
-
-        // 持久化到 localStorage
         try {
-            localStorage.setItem(STORAGE_KEY, presetId)
-            storageWarning.value = null // 清除之前的警告
+            localStorage.setItem(LEGACY_STORAGE_KEY, presetId)
+            storageWarning.value = null
         } catch (e) {
-            // 检测 QuotaExceededError
             if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22)) {
                 storageWarning.value = '存储空间已满，主题偏好无法保存。请清理浏览器存储后重试。'
                 logger.error('localStorage 配额已满，无法保存主题预设', e)
@@ -251,65 +174,32 @@ export const useThemeStore = defineStore('theme', () => {
         }
     }
 
-    // 初始化：从 localStorage 读取并应用保存的预设
-    function initFromStorage() {
+    function initFromStorage(): void {
         try {
-            const savedPresetId = localStorage.getItem(STORAGE_KEY)
-            const presetIdToApply = savedPresetId && ARTICLE_PRESETS.some(p => p.id === savedPresetId)
-                ? savedPresetId
-                : DEFAULT_PRESET_ID
-            applyPreset(presetIdToApply)
+            const savedPresetId = localStorage.getItem(LEGACY_STORAGE_KEY)
+            if (!isWechatPresetId(savedPresetId)) return
+            legacyPresetId.value = savedPresetId
+            if (!hasStoredCanonicalPreset()) currentPresetId.value = savedPresetId
         } catch (e) {
             logger.error('从 localStorage 读取主题预设失败', e)
-            applyPreset(DEFAULT_PRESET_ID)
         }
     }
 
-    // 立即执行初始化
     initFromStorage()
 
-    // 生成 CSS
     const generatedCSS = computed(() => {
-        return `
-/* InkForge Generated Theme CSS */
-.preview-content {
-  font-family: ${FONT_STACKS[fontFamily.value]};
-  font-size: ${fontSize.value}px;
-  line-height: ${lineHeight.value};
-  color: #333;
-  text-align: ${textAlign.value};
-}
+        const canonicalPreset = themePresets.find(preset => preset.id === currentPresetId.value)
+        if (!canonicalPreset) return customCSS.value.trim()
+        const typographyCSS = typographyToWechatCss({
+            ...settingsStore.settings.appearance.typography,
+            fontFamily: settingsStore.settings.appearance.fontFamily,
+        }, settingsStore.settings.appearance.accentColor)
 
-.preview-content p {
-  margin-bottom: 1.5em;
-  ${firstLineIndent.value ? 'text-indent: 2em;' : ''}
-}
-
-.preview-content h2 {
-  color: ${primaryColor.value};
-  border-bottom: 2px solid ${primaryColor.value};
-  padding-bottom: 8px;
-}
-
-.preview-content h3 {
-  color: ${primaryColor.value};
-}
-
-.preview-content blockquote {
-  border-left: 4px solid ${primaryColor.value};
-  background: ${primaryColor.value}10;
-}
-
-.preview-content a {
-  color: ${primaryColor.value};
-}
-
-.preview-content code {
-  background: ${primaryColor.value}15;
-}
-
-${customCSS.value}
-`.trim()
+        return [generateThemeCSS(canonicalPreset, 'preview'), typographyCSS, customCSS.value]
+            .filter(Boolean)
+            .join('\n')
+            .replace(/#nice/g, '.preview-content')
+            .trim()
     })
 
     return {

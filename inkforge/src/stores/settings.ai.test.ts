@@ -30,7 +30,7 @@ describe('AI settings and writing-task prompts', () => {
     vi.useRealTimers()
   })
 
-  it('persists provider and system prompt, then resets the complete AI tab', async () => {
+  it('persists provider and system prompt, then resets only AI-owned settings', async () => {
     const store = useSettingsStore()
     const defaultAISettings = structuredClone(toRaw(store.settings.ai))
     const defaultFeatureFlags = structuredClone(toRaw(store.settings.featureFlags))
@@ -60,14 +60,26 @@ describe('AI settings and writing-task prompts', () => {
 
     reloaded.resetTab('ai')
     expect(reloaded.settings.ai).toEqual(defaultAISettings)
-    expect(reloaded.settings.featureFlags).toEqual(defaultFeatureFlags)
+    expect(reloaded.settings.featureFlags['performance-metrics']).toBe(true)
     expect(reloaded.settings.proxy).toEqual(defaultProxySettings)
 
     setActivePinia(createPinia())
     const resetReloaded = useSettingsStore()
     expect(resetReloaded.settings.ai).toEqual(defaultAISettings)
-    expect(resetReloaded.settings.featureFlags).toEqual(defaultFeatureFlags)
+    expect(resetReloaded.settings.featureFlags['performance-metrics']).toBe(true)
     expect(resetReloaded.settings.proxy).toEqual(defaultProxySettings)
+
+    resetReloaded.settings.advanced.developerMode = true
+    resetReloaded.settings.advanced.updater.autoCheckDisabled = true
+    resetReloaded.resetTab('advanced')
+    expect(resetReloaded.settings.featureFlags).toEqual(defaultFeatureFlags)
+    expect(resetReloaded.settings.advanced.developerMode).toBe(false)
+    expect(resetReloaded.settings.advanced.updater.autoCheckDisabled).toBe(true)
+
+    resetReloaded.settings.advanced.developerMode = true
+    resetReloaded.resetTab('about')
+    expect(resetReloaded.settings.advanced.updater.autoCheckDisabled).toBe(false)
+    expect(resetReloaded.settings.advanced.developerMode).toBe(true)
   })
 
   it('returns honest disabled and missing-key states without recording success', async () => {
@@ -88,6 +100,41 @@ describe('AI settings and writing-task prompts', () => {
       message: '请先配置 API Key',
     })
     expect(settingsStore.settings.ai.lastConnectionAt).toBeNull()
+  })
+
+  it('keeps a legacy key session-only when the native credential store is unavailable', async () => {
+    const settingsStore = useSettingsStore()
+    settingsStore.settings.ai.provider = 'deepseek'
+    settingsStore.settings.ai.apiKey = 'legacy-session-secret'
+
+    const aiStore = useAIStore()
+    await aiStore.initialize()
+
+    expect(aiStore.credentialState).toBe('legacy-session')
+    expect(aiStore.hasStoredCredential).toBe(true)
+    expect(aiStore.isCredentialSecurelyStored).toBe(false)
+    expect(aiStore.isAvailable).toBe(true)
+    expect(settingsStore.settings.ai.apiKey).toBe('legacy-session-secret')
+    expect(aiStore.credentialMessage).toContain('仅在当前会话使用')
+  })
+
+  it('does not report a system-keychain write or deletion as successful outside Tauri', async () => {
+    const settingsStore = useSettingsStore()
+    settingsStore.settings.ai.provider = 'openai'
+    const aiStore = useAIStore()
+
+    await expect(aiStore.saveApiCredential('openai', 'real-input-not-persisted')).resolves.toEqual({
+      success: false,
+      message: '系统凭据库仅在 InkForge 桌面应用中可用',
+    })
+    expect(aiStore.isCredentialSecurelyStored).toBe(false)
+    expect(settingsStore.settings.ai.apiKey).toBe('')
+
+    await expect(aiStore.clearApiCredential('openai')).resolves.toEqual({
+      success: false,
+      message: '系统凭据库仅在 InkForge 桌面应用中可用',
+    })
+    expect(aiStore.credentialState).toBe('error')
   })
 
   it('forwards constraints through real failed Ollama writing, chat, and regeneration requests', async () => {

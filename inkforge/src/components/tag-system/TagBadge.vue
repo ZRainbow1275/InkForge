@@ -63,10 +63,10 @@ const emit = defineEmits<{
   align-items: center;
   gap: 6px;
   max-width: 100%;
-  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, #d7dee4);
+  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, var(--hairline));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--tag-color) 9%, #ffffff);
-  color: #24323b;
+  background: color-mix(in srgb, var(--tag-color) 9%, var(--bg-surface));
+  color: var(--text-primary);
   padding: 0;
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
@@ -74,8 +74,8 @@ const emit = defineEmits<{
 .tag-badge:hover,
 .tag-badge.selected {
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--tag-color) 58%, #d7dee4);
-  background: color-mix(in srgb, var(--tag-color) 16%, #ffffff);
+  border-color: color-mix(in srgb, var(--tag-color) 58%, var(--hairline));
+  background: color-mix(in srgb, var(--tag-color) 16%, var(--bg-surface));
 }
 
 .tag-badge.muted {
@@ -117,7 +117,7 @@ const emit = defineEmits<{
 }
 
 .tag-count {
-  color: color-mix(in srgb, var(--tag-color) 65%, #2d3b45);
+  color: color-mix(in srgb, var(--tag-color) 65%, var(--text-secondary));
   font-size: 11px;
 }
 
@@ -132,12 +132,18 @@ const emit = defineEmits<{
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #607d8b;
+  color: var(--text-muted);
   cursor: pointer;
 }
 
 .tag-remove:hover {
-  background: rgba(38, 50, 56, 0.09);
-  color: #263238;
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
+}
+
+.tag-select:focus-visible,
+.tag-remove:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 </style>

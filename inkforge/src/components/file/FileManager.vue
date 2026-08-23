@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useArticleStore, type FileImportResult } from '@/stores/article'
+import { useEditorStore } from '@/stores/editor'
 import { useCategoryStore } from '@/stores/category'
 import { useAssetStore } from '@/stores/asset'
 import type { Article, Category } from '@/types'
@@ -18,6 +19,7 @@ const props = defineProps<{
 // ═══════════════════════════════════════════════════════════════════
 
 const articleStore = useArticleStore()
+const editorStore = useEditorStore()
 const categoryStore = useCategoryStore()
 const assetStore = useAssetStore()
 
@@ -33,12 +35,9 @@ type FileManagerViewMode = 'tree' | 'flat' | 'recent'
 type FileManagerSortField = 'updatedAt' | 'createdAt' | 'title' | 'status'
 type FileManagerSortDirection = 'asc' | 'desc'
 type FileManagerStatusFilter = 'all' | 'drafts' | 'review' | 'ready' | 'done'
-type QuickAccessDropPosition = 'before' | 'after'
 
 const FILE_MANAGER_PREF_KEY = 'inkforge:file-manager:prefs:v1'
-const QUICK_ACCESS_ORDER_KEY = 'inkforge:file-manager:quick-access-order:v1'
-const QUICK_ACCESS_LIMIT = 8
-const FILE_MANAGER_VIEW_MODES: FileManagerViewMode[] = ['tree', 'flat', 'recent']
+const FILE_MANAGER_VIEW_MODES: FileManagerViewMode[] = ['tree']
 const FILE_MANAGER_SORT_FIELDS: FileManagerSortField[] = ['updatedAt', 'createdAt', 'title', 'status']
 const FILE_MANAGER_SORT_DIRECTIONS: FileManagerSortDirection[] = ['asc', 'desc']
 const FILE_MANAGER_STATUS_FILTERS: FileManagerStatusFilter[] = ['all', 'drafts', 'review', 'ready', 'done']
@@ -49,12 +48,6 @@ interface FileManagerPrefs {
     sortDirection: FileManagerSortDirection
     statusFilter: FileManagerStatusFilter
     expandedMap: Record<string, boolean>
-}
-
-interface QuickAccessGroup {
-    id: 'active' | 'done'
-    label: string
-    articles: Article[]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -70,11 +63,6 @@ function pickExpandedMap(value: unknown): Record<string, boolean> {
     return Object.fromEntries(
         Object.entries(value).filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')
     )
-}
-
-function pickStringArray(value: unknown): string[] {
-    if (!Array.isArray(value)) return []
-    return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
 }
 
 function readFileManagerPrefs(): FileManagerPrefs {
@@ -102,23 +90,12 @@ function readFileManagerPrefs(): FileManagerPrefs {
     }
 }
 
-function readQuickAccessOrder(): string[] {
-    if (typeof window === 'undefined') return []
-    try {
-        return pickStringArray(JSON.parse(window.localStorage.getItem(QUICK_ACCESS_ORDER_KEY) ?? '[]') as unknown)
-    } catch {
-        return []
-    }
-}
-
 const initialPrefs = readFileManagerPrefs()
 const searchQuery = ref('')
 const viewMode = ref<FileManagerViewMode>(initialPrefs.viewMode)
 const sortField = ref<FileManagerSortField>(initialPrefs.sortField)
 const sortDirection = ref<FileManagerSortDirection>(initialPrefs.sortDirection)
 const statusFilter = ref<FileManagerStatusFilter>(initialPrefs.statusFilter)
-const quickAccessOrder = ref<string[]>(readQuickAccessOrder())
-const draggingQuickAccessId = ref<string | null>(null)
 
 function matchesStatusFilter(article: Article): boolean {
     switch (statusFilter.value) {
@@ -162,45 +139,6 @@ const filteredArticlesMap = computed(() => {
     const effectiveSortDirection: FileManagerSortDirection = viewMode.value === 'recent' ? 'desc' : sortDirection.value
     const sorted = [...filtered].sort((a, b) => compareArticles(a, b, effectiveSortField))
     return effectiveSortDirection === 'asc' ? sorted : sorted.reverse()
-})
-
-function getArticleTimestamp(article: Article): number {
-    const timestamp = new Date(article.updatedAt || article.createdAt).getTime()
-    return Number.isFinite(timestamp) ? timestamp : 0
-}
-
-function isCompletedQuickAccessArticle(article: Article): boolean {
-    return article.status === ARTICLE_STATUS.PROCESSED
-        || article.status === ARTICLE_STATUS.PUBLISHED
-        || article.status === ARTICLE_STATUS.ARCHIVED
-}
-
-const quickAccessArticles = computed<Article[]>(() => {
-    const articleById = new Map(articles.value.map(article => [article.id, article]))
-    const ordered = quickAccessOrder.value
-        .map(id => articleById.get(id))
-        .filter((article): article is Article => Boolean(article))
-    const orderedIds = new Set(ordered.map(article => article.id))
-    const recent = [...articles.value]
-        .sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a))
-        .filter(article => !orderedIds.has(article.id))
-
-    return [...ordered, ...recent].slice(0, QUICK_ACCESS_LIMIT)
-})
-
-const quickAccessGroups = computed<QuickAccessGroup[]>(() => {
-    const active = quickAccessArticles.value.filter(article => !isCompletedQuickAccessArticle(article))
-    const done = quickAccessArticles.value.filter(isCompletedQuickAccessArticle)
-    const groups: QuickAccessGroup[] = []
-
-    if (active.length > 0) {
-        groups.push({ id: 'active', label: '进行中', articles: active })
-    }
-    if (done.length > 0) {
-        groups.push({ id: 'done', label: '已完成', articles: done })
-    }
-
-    return groups
 })
 
 // ═══════════════════════════════════════════════════════════════════
@@ -365,15 +303,6 @@ function persistFileManagerPrefs(prefs: FileManagerPrefs): void {
     }
 }
 
-function persistQuickAccessOrder(ids: string[]): void {
-    if (typeof window === 'undefined') return
-    try {
-        window.localStorage.setItem(QUICK_ACCESS_ORDER_KEY, JSON.stringify(ids))
-    } catch {
-        // Quick access ordering is a convenience preference; document operations continue.
-    }
-}
-
 watch([viewMode, sortField, sortDirection, statusFilter, expandedMap], () => {
     persistFileManagerPrefs({
         viewMode: viewMode.value,
@@ -383,75 +312,6 @@ watch([viewMode, sortField, sortDirection, statusFilter, expandedMap], () => {
         expandedMap: expandedMap.value,
     })
 }, { deep: true })
-
-watch(articles, () => {
-    const knownIds = new Set(articles.value.map(article => article.id))
-    const nextOrder = quickAccessOrder.value.filter(id => knownIds.has(id))
-    if (nextOrder.length !== quickAccessOrder.value.length) {
-        quickAccessOrder.value = nextOrder
-        persistQuickAccessOrder(nextOrder)
-    }
-})
-
-function getQuickAccessDropPosition(event: DragEvent): QuickAccessDropPosition {
-    if (!(event.currentTarget instanceof HTMLElement)) return 'after'
-    const rect = event.currentTarget.getBoundingClientRect()
-    return event.clientY > rect.top + rect.height / 2 ? 'after' : 'before'
-}
-
-function reorderQuickAccessIds(
-    ids: string[],
-    draggedId: string,
-    targetId: string,
-    position: QuickAccessDropPosition
-): string[] {
-    const withoutDragged = ids.filter(id => id !== draggedId)
-    const targetIndex = withoutDragged.indexOf(targetId)
-    if (targetIndex === -1) return ids
-    const insertIndex = position === 'after' ? targetIndex + 1 : targetIndex
-    return [
-        ...withoutDragged.slice(0, insertIndex),
-        draggedId,
-        ...withoutDragged.slice(insertIndex),
-    ]
-}
-
-function handleQuickAccessDragStart(event: DragEvent, articleId: string): void {
-    draggingQuickAccessId.value = articleId
-    event.dataTransfer?.setData('text/plain', articleId)
-    if (event.dataTransfer) {
-        event.dataTransfer.effectAllowed = 'move'
-    }
-}
-
-function handleQuickAccessDragOver(event: DragEvent): void {
-    event.preventDefault()
-    if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'move'
-    }
-}
-
-function handleQuickAccessDrop(event: DragEvent, targetArticleId: string): void {
-    event.preventDefault()
-    const draggedId = event.dataTransfer?.getData('text/plain') || draggingQuickAccessId.value
-    if (!draggedId || draggedId === targetArticleId) return
-
-    const visibleIds = quickAccessArticles.value.map(article => article.id)
-    if (!visibleIds.includes(draggedId) || !visibleIds.includes(targetArticleId)) return
-
-    const nextOrder = reorderQuickAccessIds(
-        visibleIds,
-        draggedId,
-        targetArticleId,
-        getQuickAccessDropPosition(event)
-    )
-    quickAccessOrder.value = nextOrder
-    persistQuickAccessOrder(nextOrder)
-}
-
-function handleQuickAccessDragEnd(): void {
-    draggingQuickAccessId.value = null
-}
 
 function getAssetThumbnail(assetId: string): string | null {
     return assetStore.getThumbnailUrl(assetId)
@@ -752,7 +612,7 @@ async function confirmRenameArticle(): Promise<void> {
     const newTitle = renameValue.value.trim()
     if (newTitle) {
         try {
-            await articleStore.updateArticle(id, { title: newTitle })
+            await editorStore.renameArticleTitle(id, newTitle)
         } catch {
             // 静默
         }
@@ -1136,50 +996,10 @@ const deleteConfirmText = computed(() => {
         class="fm-toolbar-row fm-toolbar-row--actions fm-view-controls"
         aria-label="文件管理器视图控制"
       >
-        <div
-          class="fm-segmented"
-          role="tablist"
-          aria-label="视图模式"
-        >
-          <button
-            type="button"
-            class="fm-seg-tab"
-            :class="{ active: viewMode === 'tree' }"
-            role="tab"
-            :aria-selected="viewMode === 'tree'"
-            title="树形视图"
-            @click="viewMode = 'tree'"
-          >
-            树形
-          </button>
-          <button
-            type="button"
-            class="fm-seg-tab"
-            :class="{ active: viewMode === 'flat' }"
-            role="tab"
-            :aria-selected="viewMode === 'flat'"
-            title="平铺视图"
-            @click="viewMode = 'flat'"
-          >
-            平铺
-          </button>
-          <button
-            type="button"
-            class="fm-seg-tab"
-            :class="{ active: viewMode === 'recent' }"
-            role="tab"
-            :aria-selected="viewMode === 'recent'"
-            title="最近视图"
-            @click="viewMode = 'recent'"
-          >
-            最近
-          </button>
-        </div>
         <select
           v-model="sortField"
           class="fm-toolbar-select"
           title="排序字段"
-          :disabled="viewMode === 'recent'"
         >
           <option value="updatedAt">
             更新
@@ -1197,9 +1017,8 @@ const deleteConfirmText = computed(() => {
         <button
           type="button"
           class="fm-sort-toggle"
-          :class="{ 'is-active': sortDirection !== 'asc' && viewMode !== 'recent', 'is-asc': sortDirection === 'asc' && viewMode !== 'recent' }"
-          :disabled="viewMode === 'recent'"
-          :title="viewMode === 'recent' ? '最近视图固定按更新时间降序' : sortDirection === 'asc' ? '升序，点击切换为降序' : '降序，点击切换为升序'"
+          :class="{ 'is-active': sortDirection !== 'asc', 'is-asc': sortDirection === 'asc' }"
+          :title="sortDirection === 'asc' ? '升序，点击切换为降序' : '降序，点击切换为升序'"
           :aria-label="sortDirection === 'asc' ? '升序排列' : '降序排列'"
           @click="sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'"
         >
@@ -1221,7 +1040,7 @@ const deleteConfirmText = computed(() => {
             <path d="M21 6v14" />
             <path d="M17 16l4 4 4-4" />
           </svg>
-          <span class="fm-sort-label">{{ viewMode === 'recent' ? '降序' : sortDirection === 'asc' ? '升序' : '降序' }}</span>
+          <span class="fm-sort-label">{{ sortDirection === 'asc' ? '升序' : '降序' }}</span>
         </button>
       </div>
       <div
@@ -1569,54 +1388,6 @@ const deleteConfirmText = computed(() => {
     </div>
 
     <!-- 文件树 -->
-    <section
-      v-if="quickAccessGroups.length > 0"
-      class="fm-quick-access"
-      aria-label="快速访问"
-    >
-      <header class="fm-quick-access-head">
-        <span>快速访问</span>
-        <strong>{{ quickAccessArticles.length }}</strong>
-      </header>
-      <div class="fm-quick-access-list">
-        <details
-          v-for="group in quickAccessGroups"
-          :key="group.id"
-          class="fm-quick-access-group"
-          open
-        >
-          <summary class="fm-quick-access-summary">
-            <span>{{ group.label }}</span>
-            <strong>{{ group.articles.length }}</strong>
-          </summary>
-          <button
-            v-for="article in group.articles"
-            :key="article.id"
-            type="button"
-            class="fm-quick-access-item"
-            :class="{ 'fm-quick-access-item--active': selectedArticleId === article.id }"
-            :data-file-article-id="article.id"
-            draggable="true"
-            @click="handleSelectArticle(article.id)"
-            @dragstart="handleQuickAccessDragStart($event, article.id)"
-            @dragover="handleQuickAccessDragOver"
-            @drop="handleQuickAccessDrop($event, article.id)"
-            @dragend="handleQuickAccessDragEnd"
-          >
-            <span class="fm-quick-access-dot" />
-            <span class="fm-quick-access-title">{{ article.title }}</span>
-            <span
-              class="fm-status"
-              :class="getStatusClass(article.status)"
-            >
-              {{ getStatusLabel(article.status) }}
-            </span>
-            <time class="fm-quick-access-time">{{ formatRelativeTime(article.updatedAt) }}</time>
-          </button>
-        </details>
-      </div>
-    </section>
-
     <div class="fm-tree">
       <template v-if="fileTree.length === 0 && (searchQuery.trim() || statusFilter !== 'all')">
         <div class="fm-empty-search">
@@ -2791,128 +2562,6 @@ const deleteConfirmText = computed(() => {
     overflow-x: hidden;
     overflow-y: auto;
     padding: 4px 0;
-}
-
-.fm-quick-access {
-    flex: 0 0 auto;
-    margin: 6px 8px 8px;
-    padding: 8px;
-    border: 1px solid var(--hairline);
-    border-radius: 10px;
-    background: var(--bg-rice-paper);
-    overflow: hidden;
-}
-
-.fm-quick-access-head,
-.fm-quick-access-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.fm-quick-access-head {
-    height: 22px;
-    color: var(--text-primary);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.fm-quick-access-head strong,
-.fm-quick-access-summary strong {
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.fm-quick-access-list {
-    display: grid;
-    gap: 6px;
-    margin-top: 6px;
-    overflow: hidden;
-}
-
-.fm-quick-access-group {
-    display: grid;
-    gap: 4px;
-}
-
-.fm-quick-access-summary {
-    height: 24px;
-    padding: 0 4px;
-    border-radius: 6px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 700;
-    list-style: none;
-}
-
-.fm-quick-access-summary::-webkit-details-marker {
-    display: none;
-}
-
-.fm-quick-access-item {
-    display: grid;
-    grid-template-columns: 8px minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    height: 36px;
-    padding: 0 8px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--text-secondary);
-    cursor: grab;
-    font: inherit;
-    text-align: left;
-    transition: background var(--motion-base) var(--ease-out-quart), border-color var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart);
-}
-
-.fm-quick-access-item:hover {
-    border-color: var(--ember-border);
-    background: var(--ember-soft);
-    transform: translateX(2px);
-}
-
-.fm-quick-access-item:active {
-    cursor: grabbing;
-}
-
-.fm-quick-access-item--active {
-    border-color: var(--ember-border);
-    background: var(--ember-soft);
-}
-
-.fm-quick-access-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--ember);
-}
-
-.fm-quick-access-title {
-    overflow: hidden;
-    color: var(--text-primary);
-    font-size: 12px;
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.fm-quick-access-time {
-    color: var(--text-muted);
-    font-size: 10px;
-    white-space: nowrap;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .fm-quick-access-item,
-    .fm-quick-access-item:hover {
-        transform: none;
-        transition: background var(--motion-base) var(--ease-out-quart), border-color var(--motion-base) var(--ease-out-quart);
-    }
 }
 
 /* ─── 分类节点 ─── */

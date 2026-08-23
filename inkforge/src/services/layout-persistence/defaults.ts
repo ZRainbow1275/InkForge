@@ -1,4 +1,5 @@
 import { generateId } from '@/utils/uuid'
+import { createDefaultInspectorWidgetLayouts } from '@/services/inspector-widgets'
 import {
   LAYOUT_PANEL_WIDTH_LIMITS,
   LAYOUT_STATE_VERSION,
@@ -52,6 +53,7 @@ export function createDefaultLayoutState(profileId: string, windowId: string, no
     managerCollapsed: false,
     stageCollapsed: true,
     inspectorCollapsed: false,
+    inspectorPinned: false,
     rightPanelMode: 'inspector',
     managerTab: 'files',
     editorMode: 'typora',
@@ -70,18 +72,21 @@ export function createDefaultLayoutState(profileId: string, windowId: string, no
     splitViewSyncScroll: true,
     splitViewLeftFontScale: SPLIT_VIEW_FONT_SCALE_LIMIT.default,
     splitViewRightFontScale: SPLIT_VIEW_FONT_SCALE_LIMIT.default,
+    inspectorWidgets: createDefaultInspectorWidgetLayouts(),
     savedAt: now,
     createdAt: now,
     updatedAt: now,
   }
 }
 
-export function getLayoutWindowId(storage: Storage | null = typeof sessionStorage === 'undefined' ? null : sessionStorage): string {
+export function getLayoutWindowId(
+  storage: Storage | null = typeof localStorage === 'undefined' ? null : localStorage,
+  legacySessionStorage: Storage | null = typeof sessionStorage === 'undefined' ? null : sessionStorage,
+): string {
   const key = 'inkforge.layout.windowId'
-  if (!storage) return generateId()
-  const existing = storage.getItem(key)
+  const existing = storage?.getItem(key)
   if (existing) return existing
-  const next = generateId()
-  storage.setItem(key, next)
+  const next = legacySessionStorage?.getItem(key) || generateId()
+  ;(storage ?? legacySessionStorage)?.setItem(key, next)
   return next
 }

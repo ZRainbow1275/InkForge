@@ -92,4 +92,28 @@ describe('settings export history', () => {
     ])
     expect(reloaded.settings.export.exportHistory[0].title).toHaveLength(160)
   })
+
+  it('persists local delivery history without mislabelling it as a social platform', () => {
+    const store = useSettingsStore()
+    store.load()
+    store.recordExportHistory({
+      id: 'local-delivery',
+      exportedAt: '2026-07-22T00:00:00.000Z',
+      platform: 'local',
+      title: '文章 · 个人博客 Markdown',
+      bytes: 128,
+      action: 'write-local',
+    })
+
+    expect(store.settings.export.exportHistory[0]).toMatchObject({
+      id: 'local-delivery',
+      platform: 'local',
+      action: 'write-local',
+    })
+
+    setActivePinia(createPinia())
+    const reloaded = useSettingsStore()
+    reloaded.load()
+    expect(reloaded.settings.export.exportHistory[0]?.platform).toBe('local')
+  })
 })

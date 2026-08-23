@@ -169,6 +169,23 @@ describe('frozen-prototype regression (config guard: tauri.conf.json)', () => {
     }
     expect(cfg.tauri?.security?.freezePrototype).toBe(false)
   })
+
+  it('keeps Tauri script CSP hardening while allowing sanitized runtime preview styles', () => {
+    const cfg = JSON.parse(tauriConfRaw) as {
+      tauri?: {
+        security?: {
+          csp?: string
+          dangerousDisableAssetCspModification?: boolean | string[]
+        }
+      }
+    }
+    const security = cfg.tauri?.security
+
+    expect(security?.dangerousDisableAssetCspModification).toEqual(['style-src'])
+    expect(security?.csp).toMatch(/\bscript-src\s+'self'\s*;/)
+    expect(security?.csp).not.toMatch(/\bscript-src\b[^;]*'unsafe-(?:inline|eval)'/)
+    expect(security?.csp).toMatch(/\bstyle-src\b[^;]*'unsafe-inline'/)
+  })
 })
 
 // ─── PRIMARY: Object.prototype frozen at runtime (real Tauri shape) ──

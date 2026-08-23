@@ -1,4 +1,5 @@
 import { createDefaultLayoutState } from './defaults'
+import { normalizeInspectorWidgetLayouts } from '@/services/inspector-widgets'
 import {
   EDITOR_MODE_VALUES,
   EDITOR_WIDTH_VALUES,
@@ -109,6 +110,7 @@ export function normalizeLayoutStatePatch(input: LayoutStatePatch, base: LayoutS
     managerCollapsed: asBoolean(input.managerCollapsed, base.managerCollapsed),
     stageCollapsed: asBoolean(input.stageCollapsed, base.stageCollapsed),
     inspectorCollapsed: asBoolean(input.inspectorCollapsed, base.inspectorCollapsed),
+    inspectorPinned: asBoolean(input.inspectorPinned, base.inspectorPinned),
     rightPanelMode: isOneOf(input.rightPanelMode, RIGHT_PANEL_MODE_VALUES) ? input.rightPanelMode : base.rightPanelMode,
     managerTab: isOneOf(input.managerTab, MANAGER_TAB_VALUES) ? input.managerTab : base.managerTab,
     editorMode: isOneOf(input.editorMode, EDITOR_MODE_VALUES) ? input.editorMode : base.editorMode,
@@ -127,6 +129,7 @@ export function normalizeLayoutStatePatch(input: LayoutStatePatch, base: LayoutS
     splitViewSyncScroll: asBoolean(input.splitViewSyncScroll, base.splitViewSyncScroll),
     splitViewLeftFontScale: clampNumber(input.splitViewLeftFontScale, base.splitViewLeftFontScale, SPLIT_VIEW_FONT_SCALE_LIMIT.min, SPLIT_VIEW_FONT_SCALE_LIMIT.max),
     splitViewRightFontScale: clampNumber(input.splitViewRightFontScale, base.splitViewRightFontScale, SPLIT_VIEW_FONT_SCALE_LIMIT.min, SPLIT_VIEW_FONT_SCALE_LIMIT.max),
+    inspectorWidgets: normalizeInspectorWidgetLayouts(input.inspectorWidgets ?? base.inspectorWidgets),
   }
 }
 

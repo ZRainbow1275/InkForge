@@ -2,10 +2,16 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { createProvider } from '@/services/ai/factory'
 import type {
+    AIModel,
     AIProvider,
     ProviderName,
     ChatMessage,
 } from '@/services/ai/types'
+import {
+    deleteSecureCredential,
+    readSecureCredential,
+    writeSecureCredential,
+} from '@/services/credentials/keychain'
 import { useSettingsStore } from '@/stores/settings'
 import { useArticleStore } from '@/stores/article'
 import { useEditorStore } from '@/stores/editor'
@@ -67,6 +73,24 @@ const SYSTEM_PROMPTS = {
 - 直接续写，不要添加任何说明`,
 } as const
 
+const AI_CREDENTIAL_OWNER = 'local-settings'
+
+export type AICredentialState =
+    | 'idle'
+    | 'loading'
+    | 'stored'
+    | 'missing'
+    | 'not-required'
+    | 'legacy-session'
+    | 'error'
+
+export type AIModelDiscoveryState = 'idle' | 'loading' | 'ready' | 'error'
+
+export interface AIOperationResult {
+    success: boolean
+    message: string
+}
+
 /**
  * 将多个系统约束合并为单条消息，兼容仅消费首条 system 消息的 Provider。
  */
@@ -94,6 +118,14 @@ export const useAIStore = defineStore('ai', () => {
     const currentTask = ref<string | null>(null)
     const streamingContent = ref('')
     const isStreaming = ref(false)
+    const secureApiKey = ref('')
+    const credentialState = ref<AICredentialState>('idle')
+    const credentialMessage = ref('')
+    const discoveredModels = ref<AIModel[]>([])
+    const modelDiscoveryState = ref<AIModelDiscoveryState>('idle')
+    const modelDiscoveryMessage = ref('')
+    let credentialRequestId = 0
+    let modelDiscoveryRequestId = 0
 
     // ─── 请求控制 ───
     /** 活跃请求控制器池：跟踪所有进行中的请求，支持全量取消 */
@@ -109,12 +141,12 @@ export const useAIStore = defineStore('ai', () => {
     const provider = computed<AIProvider | null>(() => {
         const config = settingsStore.settings.ai
         if (config.provider === 'none') return null
-        if (config.provider !== 'ollama' && !config.apiKey) return null
+        if (config.provider !== 'ollama' && !secureApiKey.value) return null
 
         try {
             return createProvider({
                 provider: config.provider as ProviderName,
-                apiKey: config.apiKey,
+                apiKey: secureApiKey.value,
                 baseUrl: config.baseUrl,
                 model: config.model,
                 maxTokens: config.maxTokens,
@@ -133,10 +165,32 @@ export const useAIStore = defineStore('ai', () => {
     /** AI 是否可用 */
     const isAvailable = computed(() => provider.value !== null)
 
+    /** 当前 Provider 的静态模型与真实发现结果，按模型 ID 去重。 */
+    const availableModels = computed<AIModel[]>(() => {
+        const models = [
+            ...(provider.value?.models ?? []),
+            ...discoveredModels.value,
+        ]
+        return Array.from(new Map(models.map(model => [model.id, model])).values())
+    })
+
+    /** 当前凭据是否已经可供会话使用。 */
+    const hasStoredCredential = computed(() => {
+        const providerName = settingsStore.settings.ai.provider
+        if (providerName === 'ollama') return true
+        return credentialState.value === 'stored'
+            || credentialState.value === 'legacy-session'
+    })
+
+    /** 只有系统凭据库写入成功时才为 true。 */
+    const isCredentialSecurelyStored = computed(
+        () => credentialState.value === 'stored'
+    )
+
     /** 当前模型显示名称 */
     const currentModelName = computed(() => {
         if (!provider.value) return '未配置'
-        const model = provider.value.models.find(
+        const model = availableModels.value.find(
             m => m.id === settingsStore.settings.ai.model
         )
         return model?.name || settingsStore.settings.ai.model
@@ -163,7 +217,11 @@ export const useAIStore = defineStore('ai', () => {
     function getUnavailableReason(): string {
         const config = settingsStore.settings.ai
         if (config.provider === 'none') return 'AI 功能已禁用'
-        if (config.provider !== 'ollama' && !config.apiKey) {
+        if (config.provider !== 'ollama' && !secureApiKey.value) {
+            if (credentialState.value === 'loading') return '正在读取系统凭据库'
+            if (credentialState.value === 'error' && credentialMessage.value) {
+                return credentialMessage.value
+            }
             return '请先配置 API Key'
         }
         return 'AI 服务配置异常'
@@ -589,6 +647,169 @@ export const useAIStore = defineStore('ai', () => {
 
     // ─── 连接测试 ───
 
+    function isCredentialRequired(providerName: ProviderName | 'none'): providerName is Exclude<ProviderName, 'ollama'> {
+        return providerName !== 'none' && providerName !== 'ollama'
+    }
+
+    /**
+     * 从系统凭据库读取指定 Provider 的 API Key。
+     * 浏览器或测试环境会显式失败，不使用 localStorage 伪装安全存储。
+     */
+    async function loadApiCredential(
+        providerName: ProviderName | 'none' = settingsStore.settings.ai.provider
+    ): Promise<AIOperationResult> {
+        const requestId = ++credentialRequestId
+        discoveredModels.value = []
+        modelDiscoveryState.value = 'idle'
+        modelDiscoveryMessage.value = ''
+
+        if (!isCredentialRequired(providerName)) {
+            secureApiKey.value = ''
+            credentialState.value = providerName === 'ollama' ? 'not-required' : 'idle'
+            credentialMessage.value = providerName === 'ollama'
+                ? 'Ollama 本地服务不需要 API Key'
+                : 'AI 功能已禁用'
+            return { success: true, message: credentialMessage.value }
+        }
+
+        credentialState.value = 'loading'
+        credentialMessage.value = '正在读取系统凭据库'
+        const result = await readSecureCredential(
+            'ai',
+            AI_CREDENTIAL_OWNER,
+            providerName
+        )
+
+        if (requestId !== credentialRequestId) {
+            return { success: false, message: 'Provider 已切换，已忽略过期的凭据读取结果' }
+        }
+
+        if (!result.ok) {
+            secureApiKey.value = ''
+            credentialState.value = 'error'
+            credentialMessage.value = result.message
+            return { success: false, message: result.message }
+        }
+
+        secureApiKey.value = result.value ?? ''
+        credentialState.value = result.value ? 'stored' : 'missing'
+        credentialMessage.value = result.value
+            ? 'API Key 已由系统凭据库托管'
+            : '尚未保存 API Key'
+        return { success: true, message: credentialMessage.value }
+    }
+
+    /** 将 API Key 写入系统凭据库；成功后才清除旧版明文设置。 */
+    async function saveApiCredential(
+        providerName: ProviderName,
+        secret: string
+    ): Promise<AIOperationResult> {
+        if (!isCredentialRequired(providerName)) {
+            return { success: false, message: '当前 Provider 不需要 API Key' }
+        }
+
+        const requestId = ++credentialRequestId
+        credentialState.value = 'loading'
+        credentialMessage.value = '正在写入系统凭据库'
+        const result = await writeSecureCredential(
+            'ai',
+            AI_CREDENTIAL_OWNER,
+            providerName,
+            secret
+        )
+
+        if (!result.ok) {
+            if (requestId === credentialRequestId) {
+                credentialState.value = 'error'
+                credentialMessage.value = result.message
+            }
+            return { success: false, message: result.message }
+        }
+
+        if (settingsStore.settings.ai.provider === providerName) {
+            secureApiKey.value = secret.trim()
+            credentialState.value = 'stored'
+            credentialMessage.value = 'API Key 已安全保存到系统凭据库'
+            if (settingsStore.settings.ai.apiKey) {
+                settingsStore.settings.ai.apiKey = ''
+                settingsStore.save()
+            }
+        }
+        return { success: true, message: 'API Key 已安全保存到系统凭据库' }
+    }
+
+    /** 删除指定 Provider 的系统凭据；不会把删除结果伪装为远端成功。 */
+    async function clearApiCredential(
+        providerName: ProviderName
+    ): Promise<AIOperationResult> {
+        if (!isCredentialRequired(providerName)) {
+            return { success: false, message: '当前 Provider 没有 API Key' }
+        }
+
+        const requestId = ++credentialRequestId
+        credentialState.value = 'loading'
+        credentialMessage.value = '正在删除系统凭据'
+        const result = await deleteSecureCredential(
+            'ai',
+            AI_CREDENTIAL_OWNER,
+            providerName
+        )
+
+        if (!result.ok) {
+            if (requestId === credentialRequestId) {
+                credentialState.value = 'error'
+                credentialMessage.value = result.message
+            }
+            return { success: false, message: result.message }
+        }
+
+        if (settingsStore.settings.ai.provider === providerName) {
+            secureApiKey.value = ''
+            credentialState.value = 'missing'
+            credentialMessage.value = 'API Key 已从系统凭据库删除'
+            if (settingsStore.settings.ai.apiKey) {
+                settingsStore.settings.ai.apiKey = ''
+                settingsStore.save()
+            }
+        }
+        return { success: true, message: 'API Key 已从系统凭据库删除' }
+    }
+
+    /** 从真实 Provider 端点刷新模型，并保留 Pi 适配器提供的静态目录。 */
+    async function refreshModels(): Promise<AIOperationResult> {
+        const p = provider.value
+        if (!p) {
+            const message = getUnavailableReason()
+            modelDiscoveryState.value = 'error'
+            modelDiscoveryMessage.value = message
+            return { success: false, message }
+        }
+
+        const requestId = ++modelDiscoveryRequestId
+        modelDiscoveryState.value = 'loading'
+        modelDiscoveryMessage.value = '正在从 Provider 获取模型'
+
+        try {
+            const models = p.listModels
+                ? await p.listModels()
+                : [...p.models]
+            if (requestId !== modelDiscoveryRequestId) {
+                return { success: false, message: 'Provider 已切换，已忽略过期的模型结果' }
+            }
+            discoveredModels.value = models
+            modelDiscoveryState.value = 'ready'
+            modelDiscoveryMessage.value = `已读取 ${models.length} 个可用模型`
+            return { success: true, message: modelDiscoveryMessage.value }
+        } catch (e) {
+            const message = e instanceof Error ? e.message : '读取模型失败'
+            if (requestId === modelDiscoveryRequestId) {
+                modelDiscoveryState.value = 'error'
+                modelDiscoveryMessage.value = message
+            }
+            return { success: false, message }
+        }
+    }
+
     /**
      * 测试 AI 服务连接
      */
@@ -645,18 +866,39 @@ export const useAIStore = defineStore('ai', () => {
         }
     }
 
-    /** 初始化（兼容旧 API，新实现中为空操作因为 provider 是响应式的） */
+    /**
+     * 初始化 AI 凭据。
+     * 旧版明文 key 仅作为本次迁移输入；系统凭据库写入成功后立即从设置中清除。
+     */
     async function initialize(): Promise<void> {
-        // Provider 是 computed 属性，随 settings 变化自动重建
-        // 仅在 Ollama 模式下尝试预热连接
-        if (settingsStore.settings.ai.provider === 'ollama' && provider.value) {
-            try {
-                await provider.value.testConnection()
-            } catch {
-                // 静默处理，不影响初始化
-                logger.warn('AI 服务预热连接失败（非阻塞）')
-            }
+        const config = settingsStore.settings.ai
+        const providerName = config.provider
+
+        if (!isCredentialRequired(providerName)) {
+            await loadApiCredential(providerName)
+            return
         }
+
+        const legacySecret = config.apiKey.trim()
+        if (legacySecret) {
+            secureApiKey.value = legacySecret
+            credentialState.value = 'legacy-session'
+            credentialMessage.value = '检测到旧版明文 API Key，正在迁移到系统凭据库'
+
+            const migration = await saveApiCredential(providerName, legacySecret)
+            if (!migration.success) {
+                secureApiKey.value = legacySecret
+                credentialState.value = 'legacy-session'
+                credentialMessage.value = `旧版 API Key 仅在当前会话使用；${migration.message}`
+                logger.warn('AI API Key 未能迁移到系统凭据库', {
+                    provider: providerName,
+                    reason: migration.message,
+                })
+            }
+            return
+        }
+
+        await loadApiCredential(providerName)
     }
 
     /** 重置状态 */
@@ -668,6 +910,14 @@ export const useAIStore = defineStore('ai', () => {
         streamingContent.value = ''
         isStreaming.value = false
         lastRequestTime = 0
+        secureApiKey.value = ''
+        credentialState.value = 'idle'
+        credentialMessage.value = ''
+        discoveredModels.value = []
+        modelDiscoveryState.value = 'idle'
+        modelDiscoveryMessage.value = ''
+        credentialRequestId += 1
+        modelDiscoveryRequestId += 1
     }
 
     /** 清除警告（兼容旧 API） */
@@ -692,6 +942,13 @@ export const useAIStore = defineStore('ai', () => {
         currentModel,
         currentModelName,
         provider,
+        availableModels,
+        hasStoredCredential,
+        isCredentialSecurelyStored,
+        credentialState,
+        credentialMessage,
+        modelDiscoveryState,
+        modelDiscoveryMessage,
 
         // ─── 纯函数 AI 方法（新 API） ───
         generateOutline,
@@ -703,6 +960,10 @@ export const useAIStore = defineStore('ai', () => {
         streamGenerate,
         streamChat,
         testConnection,
+        loadApiCredential,
+        saveApiCredential,
+        clearApiCredential,
+        refreshModels,
 
         // ─── 通用生成 ───
         generate,

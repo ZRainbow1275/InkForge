@@ -301,6 +301,16 @@ describe('decorateFlagshipFooterCard', () => {
     // 卡片只出现一次
     expect(once.match(/data-ink-block="flagship-footer"/g)?.length).toBe(1)
   })
+
+  it('uses a static, asymmetric HTML close for the paste-safe flagship', () => {
+    const out = decorateFlagshipFooterCard(kiln, { ...opts, layout: 'paste-safe' })('<p>正文。</p>', 'wechat')
+
+    expect(out).toContain('INKFORGE · PASTE SAFE')
+    expect(out).toContain('border-top:4px solid')
+    expect(out).toContain('border-bottom:3px double')
+    expect(out).not.toContain('<svg')
+    expectNoForbidden(out)
+  })
 })
 
 // ════════════════════════════════════════════════════════════════════════
@@ -312,17 +322,30 @@ const READING_HEADER = `<div style="margin:0 0 24px;padding:0 0 14px;border-bott
 </div>`
 
 describe('decorateFlagshipReadingBar — E1 品牌阅读条', () => {
-  it('replaces the bare reading-time header with a branded reading bar (字数 + 分钟 + persona栏目 + sep + 第 01 期)', () => {
+  it('preserves the seven-variant masthead and adds the flagship readbar sentinel', () => {
+    const dec = decorateFlagshipReadingBar(tempera, { variant: 'tempera' })
+    const masthead = '<section class="ink-article-masthead" data-ink-masthead-variant="knowledge-weave"><p>文章值得您享受</p><strong>真实标题</strong><p>阅读约 5 分钟 · 全文 1200 字</p></section>'
+    const out = dec(`${masthead}<p>正文段落。</p>`, 'wechat')
+
+    expect(out).toContain('data-ink-block="flagship-readbar"')
+    expect(out).toContain('data-ink-masthead-variant="knowledge-weave"')
+    expect(out).toContain('真实标题')
+    expect(out).toContain('文章值得您享受')
+    expect(out.match(/真实标题/g)).toHaveLength(1)
+    expect(dec(out, 'wechat')).toBe(out)
+  })
+
+  it('replaces the bare reading-time header with a branded reading bar using real stats only', () => {
     const dec = decorateFlagshipReadingBar(tempera, { variant: 'tempera' })
     const out = dec(`${READING_HEADER}<p>正文段落。</p>`, 'wechat')
     expect(out).toContain('data-ink-block="flagship-readbar"')
     // 提取的字数 / 分钟
     expect(out).toContain('全文 1200 字')
-    expect(out).toContain('约 5 分钟')
+    expect(out).toContain('阅读约 5 分钟')
     // persona 栏目 (tempera → 深读)
     expect(out).toContain('墨铸 · 深读')
-    // 第 01 期占位
-    expect(out).toContain('第 01 期')
+    expect(out).toContain('文章值得您享受')
+    expect(out).not.toContain('第 01 期')
     // 上下细线（accentBorder）
     expect(out).toContain(`border-top:1px solid ${tempera.accentBorder}`)
     expect(out).toContain(`border-bottom:1px solid ${tempera.accentBorder}`)
@@ -332,6 +355,17 @@ describe('decorateFlagshipReadingBar — E1 品牌阅读条', () => {
     // 原裸阅读头 <div> 已被替换
     expect(out).not.toContain('color:#8E959D')
     expectNoForbidden(out)
+  })
+
+  it('keeps a real optional category without inventing one', () => {
+    const withCategory = READING_HEADER.replace(
+      '</div>',
+      '<span>类别 行业观察</span></div>',
+    )
+    const out = decorateFlagshipReadingBar(amber, { variant: 'amber' })(withCategory, 'wechat')
+
+    expect(out).toContain('类别 行业观察')
+    expect(out).not.toContain('未分类')
   })
 
   it('kiln variant uses 专栏 kicker, amber uses 洞察', () => {

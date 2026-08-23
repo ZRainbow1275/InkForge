@@ -10,7 +10,7 @@
  * - 预设配置：针对不同场景优化
  */
 
-import DOMPurify, { type Config } from 'dompurify'
+import DOMPurify, { type Config, type DOMPurify as DOMPurifyInstance } from 'dompurify'
 import { HTML_SECURITY } from '@/config/security'
 import { logger } from '@/services/error'
 import { TimeoutMutex } from '@/utils/async-manager'
@@ -277,6 +277,13 @@ const domPurifyMutex = new TimeoutMutex({
     maxQueueSize: 50
 })
 
+function getDOMPurifyInstance(): DOMPurifyInstance {
+  if (typeof DOMPurify.sanitize === 'function') return DOMPurify
+  if (typeof window !== 'undefined') return DOMPurify(window)
+
+  throw new HTMLSecurityError('HTML 净化需要可用的 DOM 运行时', 'DOM_RUNTIME_UNAVAILABLE')
+}
+
 /**
  * 净化 HTML 内容（并发安全版本）
  *
@@ -322,13 +329,14 @@ export function sanitizeHTML(
   // 同步版本：不使用 hooks，通过比较结果计算移除数量
   // 这是最安全的方式，完全避免全局状态
   try {
+    const purify = getDOMPurifyInstance()
     const hookConfig = {
       ...config,
       RETURN_DOM: false,
       RETURN_DOM_FRAGMENT: false
     }
 
-    const sanitized = DOMPurify.sanitize(html, hookConfig)
+    const sanitized = purify.sanitize(html, hookConfig)
 
     // [安全加固] markdown-render 模式: 限制 <input> 仅允许 type="checkbox"
     // DOMPurify 无法按标签限制属性值，需要后处理
@@ -413,6 +421,7 @@ export async function sanitizeHTMLAsync(
   }
 
   const config = createDOMPurifyConfig(options)
+  const purify = getDOMPurifyInstance()
   let removedElements = 0
   let removedAttributes = 0
 
@@ -427,22 +436,22 @@ export async function sanitizeHTMLAsync(
     }
 
     // 在锁保护下安全地使用 hooks
-    DOMPurify.addHook('uponSanitizeElement', (_node, data) => {
+    purify.addHook('uponSanitizeElement', (_node, data) => {
       if (data.tagName && !config.ALLOWED_TAGS?.includes(data.tagName.toLowerCase())) {
         removedElements++
       }
     })
 
-    DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
+    purify.addHook('uponSanitizeAttribute', (_node, data) => {
       if (data.attrName && config.FORBID_ATTR?.includes(data.attrName.toLowerCase())) {
         removedAttributes++
       }
     })
 
-    const sanitized = DOMPurify.sanitize(html, hookConfig)
+    const sanitized = purify.sanitize(html, hookConfig)
 
     // 清理 hooks
-    DOMPurify.removeAllHooks()
+    purify.removeAllHooks()
 
     const modified = sanitized !== html
 
@@ -464,7 +473,7 @@ export async function sanitizeHTMLAsync(
     }
   } catch (error) {
     // 确保在错误时也清理 hooks
-    DOMPurify.removeAllHooks()
+    purify.removeAllHooks()
     logger.error('HTML 净化失败', { error, mode: options.mode || 'standard' })
     throw new HTMLSecurityError(
       `HTML 净化失败: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -506,7 +515,7 @@ export function isHTMLSafe(
   }
 
   const config = createDOMPurifyConfig(options)
-  const sanitized = DOMPurify.sanitize(html, config)
+  const sanitized = getDOMPurifyInstance().sanitize(html, config)
 
   return sanitized === html
 }

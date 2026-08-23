@@ -31,13 +31,15 @@ import {
   enhanceTableStyles,
   convertTaskListCheckboxes,
   cleanEmptyParagraphs,
-  limitConsecutiveBreaks
+  limitConsecutiveBreaks,
+  normalizeExportHexColor,
 } from './utils'
 import { enforcePlatformCSS } from './css-validator'
 import { REDOS_PROTECTION } from '@/config/security'
 import { logger } from '@/services/error'
 import { PERSONA_FONTS } from './preset-fonts'
 import { composeRecipes } from './preset-decorations'
+import { getVisualVariantCSS } from './visual-variants'
 
 // ─── PR4: per-zhihu-preset recipe composers ─────────────────────────────
 const zhihuAcademicRecipesPreview = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'preview' })
@@ -60,6 +62,14 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
     name: '学术论文',
     icon: 'zhihu-academic',
     description: '学术论文，严谨蓝调',
+    visualSignature: {
+      rhythm: '1.82 两端对齐 · 论证留白',
+      heading: '学术蓝章节底线',
+      quote: '蓝色文献引文',
+      divider: '细线论证分节',
+      media: '原比例论文图片',
+      modules: ['中文章节编号', '学术拉引', 'GitHub 暗色代码'],
+    },
     primaryColor: '#0066ff',
     accentColor: '#003d99',
     fontSize: '16px',
@@ -70,12 +80,14 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
 #zhihu-answer h2 { color: #0066ff; font-weight: 700; border-bottom: 1px solid #0066ff; padding-bottom: 0.3em; margin-bottom: 0.9em; }
 #zhihu-answer h3 { color: #003d99; font-weight: 600; }
 #zhihu-answer strong { color: #0066ff; }
-${zhihuAcademicRecipesPreview.css}`,
+${zhihuAcademicRecipesPreview.css}
+${getVisualVariantCSS('zhihu', 'zhihu-academic', 'preview')}`,
     exportCSS: `
 #zhihu-answer h2 { color: #0066ff; font-weight: 700; border-bottom: 1px solid #0066ff; padding-bottom: 0.3em; margin-bottom: 0.9em; }
 #zhihu-answer h3 { color: #003d99; font-weight: 600; }
 #zhihu-answer strong { color: #0066ff; }
-${zhihuAcademicRecipesExport.css}`,
+${zhihuAcademicRecipesExport.css}
+${getVisualVariantCSS('zhihu', 'zhihu-academic', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => zhihuAcademicRecipesExport.decorate(html, target),
   },
   // ZHIHU-TECH: 技术博客, 思源黑体 + Inter (business), h2 极细底线 + h3 竖条; 板岩黑
@@ -84,6 +96,14 @@ ${zhihuAcademicRecipesExport.css}`,
     name: '技术博客',
     icon: 'zhihu-tech',
     description: '技术博客，板岩黑稳重',
+    visualSignature: {
+      rhythm: '1.72 左对齐 · 代码密排',
+      heading: '板岩底线 · 竖条小节',
+      quote: '技术注释块',
+      divider: '代码章节线',
+      media: '原比例技术截图',
+      modules: ['竖条小节', '技术代码块', 'Atom 暗色代码'],
+    },
     primaryColor: '#1a1a2e',
     accentColor: '#16213e',
     fontSize: '15px',
@@ -95,13 +115,15 @@ ${zhihuAcademicRecipesExport.css}`,
 #zhihu-answer h3 { color: #1a1a2e; border-left: 2px solid #1a1a2e; padding-left: 0.6em; font-weight: 600; }
 #zhihu-answer strong { color: #1a1a2e; }
 #zhihu-answer code { background: rgba(26,26,46,0.08); color: #16213e; padding: 0.1em 0.35em; border-radius: 3px; }
-${zhihuTechRecipesPreview.css}`,
+${zhihuTechRecipesPreview.css}
+${getVisualVariantCSS('zhihu', 'zhihu-tech', 'preview')}`,
     exportCSS: `
 #zhihu-answer h2 { color: #1a1a2e; font-weight: 700; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; margin-bottom: 0.9em; }
 #zhihu-answer h3 { color: #1a1a2e; border-left: 2px solid #1a1a2e; padding-left: 0.6em; font-weight: 600; }
 #zhihu-answer strong { color: #1a1a2e; }
 #zhihu-answer code { background: rgba(26,26,46,0.08); color: #16213e; padding: 0.1em 0.35em; border-radius: 3px; }
-${zhihuTechRecipesExport.css}`,
+${zhihuTechRecipesExport.css}
+${getVisualVariantCSS('zhihu', 'zhihu-tech', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => zhihuTechRecipesExport.decorate(html, target),
   },
   // ZHIHU-INSIGHT: 深度评论, 思源宋体 + EB Garamond, 大引号 + h2 极细底线 + 双线 pull-quote; 炭灰深沉
@@ -110,6 +132,14 @@ ${zhihuTechRecipesExport.css}`,
     name: '深度评论',
     icon: 'zhihu-insight',
     description: '深度评论，炭灰深沉',
+    visualSignature: {
+      rhythm: '1.92 两端对齐 · 2em 缩进',
+      heading: '炭灰极细底线',
+      quote: '大引号双线评论',
+      divider: '观点留白细线',
+      media: '原比例长文插图',
+      modules: ['大引号', '双线拉引', 'GitHub 浅色代码'],
+    },
     primaryColor: '#2d3436',
     accentColor: '#636e72',
     fontSize: '16px',
@@ -121,13 +151,15 @@ ${zhihuTechRecipesExport.css}`,
 #zhihu-answer h3 { color: #2d3436; font-weight: 600; }
 #zhihu-answer strong { color: #2d3436; }
 #zhihu-answer blockquote { border-left-color: #2d3436; background: #f7f7f7; font-style: italic; }
-${zhihuInsightRecipesPreview.css}`,
+${zhihuInsightRecipesPreview.css}
+${getVisualVariantCSS('zhihu', 'zhihu-insight', 'preview')}`,
     exportCSS: `
 #zhihu-answer h2 { color: #2d3436; font-weight: 700; border-bottom: 1px solid #2d3436; padding-bottom: 0.3em; margin-bottom: 0.9em; }
 #zhihu-answer h3 { color: #2d3436; font-weight: 600; }
 #zhihu-answer strong { color: #2d3436; }
 #zhihu-answer blockquote { border-left-color: #2d3436; background: #f7f7f7; font-style: italic; }
-${zhihuInsightRecipesExport.css}`,
+${zhihuInsightRecipesExport.css}
+${getVisualVariantCSS('zhihu', 'zhihu-insight', 'export')}`,
     decorate: (html: string, target: ExportTarget): string => zhihuInsightRecipesExport.decorate(html, target),
   },
 ]
@@ -141,22 +173,31 @@ ${zhihuInsightRecipesExport.css}`,
  */
 function generateZhihuCSS(preset: ZhihuPreset): string {
   const { primaryColor, fontSize } = preset
+  const bodyRhythm = preset.id === 'zhihu-tech'
+    ? { lineHeight: '1.72', paragraphGap: '0.9em', letterSpacing: '0.15px', textIndent: '0', textAlign: 'left' }
+    : preset.id === 'zhihu-insight'
+      ? { lineHeight: '1.92', paragraphGap: '1.2em', letterSpacing: '0.55px', textIndent: '2em', textAlign: 'justify' }
+      : { lineHeight: '1.82', paragraphGap: '1.05em', letterSpacing: '0.4px', textIndent: '0', textAlign: 'justify' }
+  const fontFamily = preset.fonts
+    ? `${preset.fonts.cjk}, ${preset.fonts.latin}`
+    : '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif'
 
   return `
 /* 知乎基础样式 - 预设: ${preset.name} */
 #zhihu-answer {
   font-size: ${fontSize || '16px'};
-  line-height: 1.8;
+  line-height: ${bodyRhythm.lineHeight};
   color: #333;
   padding: 20px 0;
   word-break: break-word;
-  text-align: justify;
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  text-align: ${bodyRhythm.textAlign};
+  font-family: ${fontFamily};
 }
 
 #zhihu-answer p {
-  margin: 0 0 1em 0;
-  letter-spacing: 0.5px;
+  margin: 0 0 ${bodyRhythm.paragraphGap} 0;
+  letter-spacing: ${bodyRhythm.letterSpacing};
+  text-indent: ${bodyRhythm.textIndent};
 }
 
 #zhihu-answer h1 {
@@ -457,9 +498,10 @@ export function convertToZhihu(
 
   // 查找预设，默认使用学术论文预设
   let preset = ZHIHU_PRESETS.find(p => p.id === presetId) || ZHIHU_PRESETS[0]
+  const primaryColorOverride = normalizeExportHexColor(options?.colorOverrides?.primaryColor)
   // 应用颜色覆盖（克隆预设，不修改原始对象）
-  if (options?.colorOverrides?.primaryColor) {
-    preset = { ...preset, primaryColor: options.colorOverrides.primaryColor, accentColor: options.colorOverrides.primaryColor }
+  if (primaryColorOverride) {
+    preset = { ...preset, primaryColor: primaryColorOverride, accentColor: primaryColorOverride }
   }
 
   // 解构选项，设置默认值

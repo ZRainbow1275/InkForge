@@ -126,6 +126,12 @@ export const FONT_STACKS = {
     serif: '"Source Han Serif SC", "Noto Serif SC", "Source Han Serif CN", STSong, Georgia, "Times New Roman", Times, serif',
     /** 楷体 */
     kai: 'KaiTi, STKaiti, "AR PL UKai CN", "KaiTi_GB2312", serif',
+    /** 仿宋 — Windows/macOS/Linux 均保留可读衬线回退 */
+    fangsong: 'FangSong, STFangsong, "FangSong_GB2312", "Source Han Serif SC", "Noto Serif SC", serif',
+    /** 文楷 — 优先使用开源霞鹜文楷，缺失时回退到系统楷体 */
+    wenkai: '"LXGW WenKai Screen", "LXGW WenKai", "Klee One", KaiTi, STKaiti, serif',
+    /** 现代人文无衬线 — 品牌字体不可用时安全回退到系统 UI 字体 */
+    humanist: '"HarmonyOS Sans SC", MiSans, "OPPO Sans", "Alibaba PuHuiTi 3.0", "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei UI", sans-serif',
     /** 等宽字体 */
     mono: '"Fira Code", "JetBrains Mono", Menlo, Monaco, Consolas, "Courier New", monospace'
 } as const

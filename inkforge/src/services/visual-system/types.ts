@@ -2,7 +2,7 @@ import type { FontFamily } from '@/constants'
 import type { AppearanceSettings, TypographySettings } from '@/stores/settings'
 
 export type ResolvedTheme = 'light' | 'dark'
-export type TypographyPresetId = 'compact' | 'standard' | 'relaxed'
+export type TypographyPresetId = 'compact' | 'standard' | 'relaxed' | 'editorial' | 'academic' | 'social'
 export type TypographyPresetMatch = TypographyPresetId | 'custom'
 
 export interface TypographyPreset {

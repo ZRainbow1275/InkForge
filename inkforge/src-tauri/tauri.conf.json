@@ -103,7 +103,7 @@
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:11434; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
       "freezePrototype": false,
-      "dangerousDisableAssetCspModification": false
+      "dangerousDisableAssetCspModification": ["style-src"]
     },
     "updater": {
       "active": false

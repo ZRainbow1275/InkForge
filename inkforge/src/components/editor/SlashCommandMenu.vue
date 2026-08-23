@@ -9,7 +9,7 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import type { Editor } from '@tiptap/core'
 import {
   AlignCenter, AlignRight, ChevronDown,
-  Heading1, Heading2, Heading3, Heading4,
+  Blocks, Heading1, Heading2, Heading3, Heading4, Heading5, Heading6,
   Highlighter, ImagePlus, Link,
   List, ListOrdered, CheckSquare,
   MessageSquare, Minus, Palette, Pilcrow,
@@ -23,8 +23,8 @@ const props = defineProps<{
 
 /** Lucide 图标名 → 组件映射 */
 const iconMap: Record<string, ReturnType<typeof Heading1>> = {
-  AlignCenter, AlignRight, ChevronDown,
-  Heading1, Heading2, Heading3, Heading4,
+  AlignCenter, AlignRight, Blocks, ChevronDown,
+  Heading1, Heading2, Heading3, Heading4, Heading5, Heading6,
   Highlighter, ImagePlus, Link,
   List, ListOrdered, CheckSquare,
   MessageSquare, Minus, Palette, Pilcrow,

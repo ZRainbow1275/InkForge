@@ -1128,7 +1128,7 @@ html[data-reduced-motion="true"] *::after {
    - block-active：当前段落左侧主题色侧栏
    - data-typewriter-idle：闲置 >1.2s 时光标呼吸
    ───────────────────────────────────────────────────────────── */
-/* Continuous gradient: opacity set inline by extension (0.35→0.88 by distance).
+/* Continuous gradient: opacity set inline by extension (0.36→0.95 by distance).
    No !important — let inline style drive value; only inherit transition. */
 .typewriter-dim-near,
 .typewriter-dim-far {
@@ -1136,7 +1136,7 @@ html[data-reduced-motion="true"] *::after {
 }
 
 .typewriter-sentence-dim {
-  opacity: 0.75 !important;
+  opacity: 0.82 !important;
   transition: opacity 0.25s ease;
 }
 
@@ -1174,9 +1174,12 @@ html[data-reduced-motion="true"] *::after {
   width: 3px;
   min-height: 1.4em;
   background: var(--color-primary, #D32F2F);
-  opacity: 0.9;
+  opacity: 0.96;
   border-radius: 2px;
-  transition: opacity 0.25s ease, background 0.25s ease;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-primary, #D32F2F) 10%, transparent),
+    0 0 14px color-mix(in srgb, var(--color-primary, #D32F2F) 24%, transparent);
+  transition: opacity 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
   pointer-events: none;
   display: block !important;
 }
@@ -1206,21 +1209,28 @@ html[data-reduced-motion="true"] *::after {
  * its scrollTop max (`scrollHeight - clientHeight`) before the final paragraphs
  * can be lifted to the middle, leaving the cursor stuck at ~95% of the viewport.
  *
- * Industry standard fix (Typora / Bear / iA Writer): pad the editor end with
- * roughly (1 - cursorPosition) × viewport so scrollHeight gains enough room
- * for any line — including the very last — to reach the centre.
+ * Industry standard fix (Typora / Bear / iA Writer): pad both ends of the
+ * editor so the first and last lines can both reach the configured anchor.
  *
- * 50vh covers cursorPosition ∈ [0.3, 0.7] without leaving meaningful blank
- * space when the user reads back from the top (the spacer is below the last
- * paragraph, not between paragraphs).
+ * The extension first writes zero-pixel provisional values, then resolves both
+ * variables from the real scroll owner plus the paper's natural content insets
+ * on the next animation frame. This avoids double-counting editor/paper padding.
  *
  * The attribute is toggled by TypewriterMode plugin 1 (`setActiveModeAttr`).
  * Disabling typewriter mode removes the attribute and the spacer disappears
  * immediately, so non-typewriter editing never gets phantom whitespace.
  */
+.ProseMirror[data-typewriter-active-mode="true"]::before,
 .ProseMirror[data-typewriter-active-mode="true"]::after {
   content: '';
   display: block;
-  height: 50vh;
   pointer-events: none;
+}
+
+.ProseMirror[data-typewriter-active-mode="true"]::before {
+  height: var(--typewriter-head-space, 0px);
+}
+
+.ProseMirror[data-typewriter-active-mode="true"]::after {
+  height: var(--typewriter-tail-space, 0px);
 }

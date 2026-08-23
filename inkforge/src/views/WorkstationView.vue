@@ -11,9 +11,37 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import type { Editor as TiptapEditor } from '@tiptap/core'
+import {
+  AppWindow,
+  ArrowLeft,
+  Blocks,
+  ChartNoAxesColumn,
+  Check,
+  ChevronDown,
+  Columns2,
+  Copy,
+  Eye,
+  Folder,
+  GitBranch,
+  GripHorizontal,
+  Link2,
+  ListTree,
+  Maximize2,
+  MessageSquare,
+  Minimize2,
+  MoveDiagonal2,
+  PanelLeftClose,
+  Send,
+  Tags,
+  Type,
+  Unlink,
+  Upload,
+  X,
+} from 'lucide-vue-next'
 import { useEditorStore } from '@/stores/editor'
 import { useArticleStore } from '@/stores/article'
-import { useSettingsStore } from '@/stores/settings'
+import { useCategoryStore } from '@/stores/category'
+import { useSettingsStore, type TypographySettings } from '@/stores/settings'
 import { useCrashRecoveryStore } from '@/stores/crashRecovery'
 import { useWritingAssistStore } from '@/stores/writingAssist'
 import { useCommandPaletteStore } from '@/stores/command-palette'
@@ -24,10 +52,17 @@ import { useWorkstationTabsStore } from '@/stores/workstationTabs'
 import type { WorkstationTab, WorkstationTabDocType, WorkstationTabSaveState } from '@/stores/workstationTabs'
 import type { WorkstationCommandBridge } from '@/types/command-palette'
 import {
-  copyToClipboard,
+  convertToNativeFormat,
+  copyTextToClipboard,
   copyWechatHtmlToClipboard,
   getPlatformPresets,
+  getWechatRenderingRuleCatalog,
+  parseDeliveryAdornmentConfig,
+  type CodeTheme,
+  type DeliveryAdornmentConfig,
+  type NativeExportOptions,
   type Platform,
+  type PresetVisualSignature,
 } from '@/services/export'
 import { usePreviewRenderer } from '@/composables/usePreviewRenderer'
 import { useVersionManager } from '@/composables/useVersionManager'
@@ -42,12 +77,33 @@ import type { AssetRecord } from '@/utils/db'
 import { DEFAULT_PROFILE_ID } from '@/services/profile/types'
 import { layoutPersistenceService, type LayoutStatePatch, type LayoutStateRecord, type SerializedTab } from '@/services/layout-persistence'
 import type { Article } from '@/schemas/article'
-import { FONT_STACKS } from '@/constants'
+import { FONT_STACKS, type FontFamily } from '@/constants'
 import { isDraftBoxStatus } from '@/core/lifecycle'
 import { useTypography } from '@/composables/useTypography'
 import { useSyncScroll } from '@/composables/useSyncScroll'
 import { useEdgeMagnetism } from '@/composables/useEdgeMagnetism'
 import { resolveExportIcon } from '@/utils/iconography'
+import { isTauriEnv } from '@/utils/platform'
+import { closeNativeWindow, createInspectorWidgetWindow, focusNativeWindow } from '@/services/desktop'
+import {
+  buildDocumentStatistics,
+  clampInspectorWidgetLayout,
+  createDefaultInspectorWidgetLayouts,
+  extractExternalLinks,
+  INSPECTOR_WIDGET_CHANNEL,
+  INSPECTOR_WIDGET_EVENTS,
+  INSPECTOR_WIDGET_IDS,
+  INSPECTOR_WIDGET_META,
+  InspectorWidgetChannelMessageSchema,
+  InspectorWidgetHandshakeSchema,
+  normalizeInspectorWidgetLayouts,
+  type InspectorWidgetId,
+  type InspectorWidgetHandshake,
+  type InspectorWidgetLayout,
+  type InspectorWidgetLayouts,
+  type InspectorWidgetPayload,
+  type InspectorWidgetPlacement,
+} from '@/services/inspector-widgets'
 import {
   type EditorMode,
   type EditorWidth,
@@ -57,20 +113,21 @@ import {
 } from '@/extensions/TyporaMode'
 
 // 鈹€鈹€鈹€ 瀛愮粍浠?鈹€鈹€鈹€
-import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import FileManager from '@/components/file/FileManager.vue'
 import VersionPanel from '@/components/version/VersionPanel.vue'
 import OutlinePanel from '@/components/outline/OutlinePanel.vue'
 import EditorPanel from '@/components/editor/EditorPanel.vue'
 import EditorStatusBar from '@/components/editor/EditorStatusBar.vue'
-import MarkdownPreview from '@/components/editor/MarkdownPreview.vue'
 import WritingAssistPanel from '@/components/editor/WritingAssistPanel.vue'
 import FocusSessionSummaryModal from '@/components/editor/FocusSessionSummaryModal.vue'
 import AssetManager from '@/components/asset/AssetManager.vue'
+import DeliverySettingsModal from '@/components/export/DeliverySettingsModal.vue'
 import ExportModal from '@/components/export/ExportModal.vue'
 import TagBrowser from '@/components/tag-system/TagBrowser.vue'
 import AIChatPanel from '@/components/ai/AIChatPanel.vue'
 import WorkstationTabBar, { type WorkstationTabBarItem } from '@/components/workstation/WorkstationTabBar.vue'
+import InspectorWidgetActions from '@/components/workstation/InspectorWidgetActions.vue'
+import InspectorWidgetContent from '@/components/workstation/InspectorWidgetContent.vue'
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 // Router & Stores
@@ -80,6 +137,7 @@ const router = useRouter()
 const route = useRoute()
 const editorStore = useEditorStore()
 const articleStore = useArticleStore()
+const categoryStore = useCategoryStore()
 const settingsStore = useSettingsStore()
 const crashRecoveryStore = useCrashRecoveryStore()
 const writingAssistStore = useWritingAssistStore()
@@ -122,6 +180,13 @@ const {
 } = storeToRefs(editorStore)
 
 const { articles, selectedArticle, selectedArticleId } = storeToRefs(articleStore)
+const { categories } = storeToRefs(categoryStore)
+const articleCategory = computed(() => {
+  const categoryId = selectedArticle.value?.categoryId
+  return categoryId
+    ? categories.value.find(category => category.id === categoryId)?.name
+    : undefined
+})
 const {
   primaryPendingPayload,
   pendingRecoveryCount,
@@ -143,6 +208,7 @@ interface EditorPanelExpose {
   getBodyEditor?: () => TiptapEditor | undefined
   getEditorScrollElement?: () => HTMLElement | null
   insertAssetImage?: (asset: AssetRecord) => boolean
+  openComponentLibrary?: () => boolean
   flushPendingChanges?: () => Promise<void>
 }
 
@@ -157,6 +223,11 @@ function handleAssetInsert(asset: AssetRecord): void {
     ? '当前预览模式不可插入素材，请切换到 Typora 或源码模式'
     : '仅支持将图片或 SVG 素材插入编辑器'
   showTransientToast(message)
+}
+
+function openWritingComponentLibrary(): void {
+  if (editorPanelRef.value?.openComponentLibrary?.()) return
+  showTransientToast('请切换到 Typora 或源码模式后插入组件')
 }
 
 async function flushPendingEditorChangesBeforeRoute(): Promise<boolean> {
@@ -189,7 +260,7 @@ const MODE_LAYOUTS_STORAGE_KEY = 'inkforge.workstation.modeLayouts'
 const WORKSTATION_PANEL_WIDTHS_STORAGE_KEY = 'inkforge.workstation.panelWidths'
 const EDITOR_MODE_VALUES = ['typora', 'source', 'preview'] as const
 const NON_PREVIEW_EDITOR_MODE_VALUES = ['typora', 'source'] as const
-const EDITOR_MODE_CYCLE = ['typora', 'source', 'preview'] as const
+const EDITOR_MODE_CYCLE: readonly EditorMode[] = ['typora', 'source']
 const EDITOR_WIDTH_CYCLE = ['narrow', 'medium', 'wide', 'full'] as const
 const editorSettingsCompat = computed(() => settingsStore.settings.editor as CompatibleEditorSettings)
 type NonPreviewEditorMode = typeof NON_PREVIEW_EDITOR_MODE_VALUES[number]
@@ -207,7 +278,7 @@ const SPLIT_VIEW_MIN_RATIO = 0.2
 const SPLIT_VIEW_MAX_RATIO = 0.8
 const SPLIT_VIEW_DEFAULT_RATIO = 0.5
 const SPLIT_VIEW_RATIO_STEP = 0.02
-const SPLIT_VIEW_RESPONSIVE_BREAKPOINT = 900
+const SPLIT_VIEW_MIN_CONTAINER_WIDTH = 720
 const SPLIT_VIEW_FONT_MIN = 12
 const SPLIT_VIEW_FONT_MAX = 24
 
@@ -279,16 +350,16 @@ const WORKSTATION_LAYOUT_PRESETS: WorkstationLayoutPreset[] = [
   {
     id: 'default',
     label: '默认',
-    description: '展开完整四栏工作台，并使用舒展的默认面板宽度',
-    layout: { managerCollapsed: false, stageCollapsed: false, inspectorCollapsed: false },
+    description: '保留文件管理与平台预览，检查器从右缘按需展开',
+    layout: { managerCollapsed: false, stageCollapsed: false, inspectorCollapsed: true },
     widths: createDefaultPanelWidths(),
     focusMode: false,
   },
   {
     id: 'writing',
     label: '写作',
-    description: '保留文件管理与检查器，收起预览栏并扩大正文区域',
-    layout: { managerCollapsed: false, stageCollapsed: true, inspectorCollapsed: false },
+    description: '保留文件管理，收起预览与检查器并扩大正文区域',
+    layout: { managerCollapsed: false, stageCollapsed: true, inspectorCollapsed: true },
     widths: { manager: 280, stage: 360, inspector: 260 },
     focusMode: false,
   },
@@ -457,7 +528,7 @@ async function toggleEditorModeReverse(): Promise<void> {
 const isPreviewMode = computed(() => editorMode.value === 'preview')
 const canUseSplitView = computed(() => !isPreviewMode.value && splitViewWideEnough.value)
 const isSplitViewActive = computed(() => splitViewEnabled.value && canUseSplitView.value)
-const showStagePanel = computed(() => editorMode.value !== 'source' && editorMode.value !== 'preview' && !isSplitViewActive.value)
+const showStagePanel = computed(() => editorMode.value !== 'source' && editorMode.value !== 'preview' && !splitViewEnabled.value)
 
 async function enterPreviewMode(): Promise<void> {
   await switchEditorMode('preview')
@@ -506,6 +577,7 @@ const editorWidthOptions: { value: EditorWidth; label: string; title: string }[]
 
 /** 宸︽爮鎶樺彔 */
 const managerCollapsed = ref(true)
+const managerPanelRef = ref<HTMLElement | null>(null)
 /** 棰勮鏍忔姌鍙?*/
 const stageCollapsed = ref(false)
 /** 鍙虫爮鎶樺彔 */
@@ -531,13 +603,34 @@ const splitViewRightPaneRef = ref<HTMLElement | null>(null)
 const splitViewRightScrollRef = ref<HTMLElement | null>(null)
 const isDraggingSplitDivider = ref(false)
 const inspectorPanelEl = ref<HTMLElement | null>(null)
+const workstationRootEl = ref<HTMLElement | null>(null)
+const osPrefersReducedMotion = ref(false)
+const effectiveReducedMotion = computed(
+  () => settingsStore.settings.appearance.reducedMotion || osPrefersReducedMotion.value,
+)
+let reducedMotionMediaQuery: InstanceType<typeof globalThis.MediaQueryList> | null = null
+const inspectorWidgetLayouts = ref<InspectorWidgetLayouts>(createDefaultInspectorWidgetLayouts())
+const inspectorWidgetMenuOpen = ref(false)
+const activeFloatingWidgetId = ref<InspectorWidgetId | null>(null)
+let inspectorWidgetDrag: {
+  surfaceId: InspectorWidgetId
+  mode: 'move' | 'resize'
+  startX: number
+  startY: number
+  origin: InspectorWidgetLayout
+} | null = null
+let nativeInspectorWidgetSyncTimer: ReturnType<typeof setTimeout> | undefined
+let nativeInspectorWidgetsRestorePending = false
+let inspectorWidgetChannel: InstanceType<typeof window.BroadcastChannel> | null = null
+const inspectorWidgetCloseRequests = new Map<string, Promise<boolean>>()
+const inspectorWidgetUnlisteners: Array<() => void> = []
+let splitViewResizeObserver: ResizeObserver | null = null
 
-const isReviewLayout = computed(() => activeLayoutPresetId.value === 'review')
-const inspectorMagnetismForceCollapsed = computed(() => isFocusMode.value || isReviewLayout.value || isPreviewMode.value)
+const inspectorMagnetismForceCollapsed = computed(() => isFocusMode.value || isPreviewMode.value)
 const inspectorMagnetismPaused = computed(() => isFocusMode.value)
 
 const edgeMagnetism = useEdgeMagnetism(inspectorPanelEl, {
-  triggerWidth: 48,
+  triggerWidth: 12,
   triggerHoldMs: 200,
   collapseDistance: 480,
   collapseDelayMs: 600,
@@ -558,6 +651,381 @@ watch(inspectorCollapsed, (next) => {
     edgeMagnetism.setCollapsed(next)
   }
 })
+
+const floatingInspectorWidgetIds = computed(() => (
+  INSPECTOR_WIDGET_IDS.filter(id => inspectorWidgetLayouts.value[id].placement === 'floating')
+))
+
+function inspectorWidgetPlacementText(placement: InspectorWidgetPlacement): string {
+  return {
+    docked: '已停靠',
+    floating: '应用内悬浮',
+    native: '桌面小组件',
+    closed: '已关闭',
+  }[placement]
+}
+
+function getInspectorWidgetBounds(): { width: number; height: number } {
+  const rect = workstationRootEl.value?.getBoundingClientRect()
+  return {
+    width: rect?.width ?? window.innerWidth,
+    height: rect?.height ?? window.innerHeight,
+  }
+}
+
+function updateInspectorWidgetLayout(
+  surfaceId: InspectorWidgetId,
+  patch: Partial<InspectorWidgetLayout>,
+  persist = true,
+): void {
+  inspectorWidgetLayouts.value = {
+    ...inspectorWidgetLayouts.value,
+    [surfaceId]: {
+      ...inspectorWidgetLayouts.value[surfaceId],
+      ...patch,
+    },
+  }
+  if (persist) scheduleLayoutPersistenceSave()
+}
+
+function clampFloatingInspectorWidgets(persist = false): void {
+  const bounds = getInspectorWidgetBounds()
+  let nextLayouts = inspectorWidgetLayouts.value
+  let changed = false
+
+  for (const surfaceId of INSPECTOR_WIDGET_IDS) {
+    const layout = nextLayouts[surfaceId]
+    if (layout.placement !== 'floating') continue
+    const clamped = clampInspectorWidgetLayout(layout, bounds)
+    if (
+      clamped.x !== layout.x
+      || clamped.y !== layout.y
+      || clamped.width !== layout.width
+      || clamped.height !== layout.height
+    ) {
+      nextLayouts = { ...nextLayouts, [surfaceId]: clamped }
+      changed = true
+    }
+  }
+
+  if (changed) {
+    inspectorWidgetLayouts.value = nextLayouts
+    if (persist) scheduleLayoutPersistenceSave()
+  }
+}
+
+async function closeDetachedInspectorWidget(layout: InspectorWidgetLayout): Promise<boolean> {
+  const windowLabel = layout.nativeWindowLabel
+  if (!windowLabel) return true
+  const pending = inspectorWidgetCloseRequests.get(windowLabel)
+  if (pending) return pending
+
+  const request = closeNativeWindow(windowLabel)
+    .then(result => {
+      if (!result.ok) {
+        logger.warn('workstation.inspectorWidget.close.failed', {
+          windowLabel,
+          reason: result.message,
+        })
+        showTransientToast(`桌面小组件关闭失败：${result.message}`)
+      }
+      return result.ok
+    })
+    .finally(() => inspectorWidgetCloseRequests.delete(windowLabel))
+  inspectorWidgetCloseRequests.set(windowLabel, request)
+  return request
+}
+
+async function focusWorkstationTarget(selector: string): Promise<boolean> {
+  await nextTick()
+  const target = workstationRootEl.value?.querySelector<HTMLElement>(selector)
+  target?.focus()
+  return Boolean(target)
+}
+
+async function restoreInspectorWidgetSourceFocus(focusMainWindow = false): Promise<void> {
+  if (focusMainWindow && isTauriEnv()) {
+    const result = await focusNativeWindow('main')
+    if (!result.ok) {
+      logger.warn('workstation.inspectorWidget.focusMain.failed', { reason: result.message })
+    }
+  }
+
+  if (await focusWorkstationTarget('.inspector-widget-menu-trigger')) return
+  editorPanelRef.value?.getBodyEditor?.()?.commands.focus()
+}
+
+function setInspectorWidgetMenuOpen(
+  open: boolean,
+  options: { restoreFocus?: boolean } = {},
+): void {
+  inspectorWidgetMenuOpen.value = open
+  if (open) {
+    void focusWorkstationTarget('#inspector-widget-menu-popover button')
+  } else if (options.restoreFocus) {
+    void restoreInspectorWidgetSourceFocus()
+  }
+}
+
+function toggleInspectorWidgetMenu(): void {
+  setInspectorWidgetMenuOpen(!inspectorWidgetMenuOpen.value, {
+    restoreFocus: inspectorWidgetMenuOpen.value,
+  })
+}
+
+async function floatInspectorWidget(surfaceId: InspectorWidgetId): Promise<void> {
+  const previous = inspectorWidgetLayouts.value[surfaceId]
+  if (previous.placement === 'native' && !await closeDetachedInspectorWidget(previous)) return
+  const next = clampInspectorWidgetLayout({
+    ...previous,
+    placement: 'floating',
+    nativeWindowLabel: null,
+  }, getInspectorWidgetBounds())
+  updateInspectorWidgetLayout(surfaceId, next)
+  activeFloatingWidgetId.value = surfaceId
+  setInspectorWidgetMenuOpen(false)
+  void focusWorkstationTarget(
+    `[data-inspector-widget-id="${surfaceId}"] .floating-inspector-widget__grip`,
+  )
+}
+
+async function dockInspectorWidget(surfaceId: InspectorWidgetId): Promise<void> {
+  const previous = inspectorWidgetLayouts.value[surfaceId]
+  if (previous.placement === 'native' && !await closeDetachedInspectorWidget(previous)) return
+  updateInspectorWidgetLayout(surfaceId, {
+    placement: 'docked',
+    nativeWindowLabel: null,
+  })
+  setInspectorWidgetMenuOpen(false)
+  void restoreInspectorWidgetSourceFocus()
+}
+
+async function closeInspectorWidget(surfaceId: InspectorWidgetId): Promise<void> {
+  const previous = inspectorWidgetLayouts.value[surfaceId]
+  if (previous.placement === 'native' && !await closeDetachedInspectorWidget(previous)) return
+  updateInspectorWidgetLayout(surfaceId, {
+    placement: 'closed',
+    nativeWindowLabel: null,
+  })
+  setInspectorWidgetMenuOpen(false)
+  void restoreInspectorWidgetSourceFocus()
+}
+
+async function emitInspectorWidgetState(surfaceId: InspectorWidgetId): Promise<void> {
+  if (!isTauriEnv()) return
+  const layout = inspectorWidgetLayouts.value[surfaceId]
+  if (layout.placement !== 'native' || !layout.nativeWindowLabel) return
+  const state = {
+    type: 'state' as const,
+    data: {
+      windowLabel: layout.nativeWindowLabel,
+      payload: inspectorWidgetPayload.value,
+    },
+  }
+  inspectorWidgetChannel?.postMessage(state)
+  const { emit } = await import('@tauri-apps/api/event')
+  await emit(INSPECTOR_WIDGET_EVENTS.state, state.data)
+}
+
+function scheduleNativeInspectorWidgetSync(): void {
+  clearTimeout(nativeInspectorWidgetSyncTimer)
+  nativeInspectorWidgetSyncTimer = setTimeout(() => {
+    for (const surfaceId of INSPECTOR_WIDGET_IDS) {
+      void emitInspectorWidgetState(surfaceId).catch(error => {
+        const message = error instanceof Error ? error.message : String(error)
+        logger.warn('workstation.inspectorWidget.sync.failed', { surfaceId, error: message })
+        showTransientToast(`小组件同步失败：${message}`)
+      })
+    }
+  }, 80)
+}
+
+async function detachInspectorWidgetToDesktop(surfaceId: InspectorWidgetId): Promise<void> {
+  const articleId = selectedArticleId.value ?? routeArticleId.value
+  if (!articleId) {
+    showTransientToast('请先选择一篇文稿，再将检查器摘到桌面')
+    return
+  }
+
+  const result = await createInspectorWidgetWindow(
+    surfaceId,
+    getLayoutPersistenceProfileId(),
+    articleId,
+  )
+  if (!result.ok) {
+    showTransientToast(`桌面小组件启动失败：${result.message}`)
+    return
+  }
+
+  updateInspectorWidgetLayout(surfaceId, {
+    placement: 'native',
+    nativeWindowLabel: result.value,
+  })
+  setInspectorWidgetMenuOpen(false)
+  scheduleNativeInspectorWidgetSync()
+}
+
+async function restoreNativeInspectorWidgets(): Promise<void> {
+  const nativeSurfaceIds = INSPECTOR_WIDGET_IDS.filter(
+    surfaceId => inspectorWidgetLayouts.value[surfaceId].placement === 'native',
+  )
+  if (nativeSurfaceIds.length === 0) {
+    nativeInspectorWidgetsRestorePending = false
+    return
+  }
+  const articleId = selectedArticleId.value ?? routeArticleId.value
+  if (!articleId) {
+    nativeInspectorWidgetsRestorePending = true
+    return
+  }
+  nativeInspectorWidgetsRestorePending = false
+
+  for (const surfaceId of nativeSurfaceIds) {
+    const layout = inspectorWidgetLayouts.value[surfaceId]
+    if (layout.placement !== 'native') continue
+    const result = await createInspectorWidgetWindow(
+      surfaceId,
+      getLayoutPersistenceProfileId(),
+      articleId,
+    )
+    if (!result.ok) {
+      updateInspectorWidgetLayout(surfaceId, {
+        placement: 'docked',
+        nativeWindowLabel: null,
+      })
+      logger.warn('workstation.inspectorWidget.restore.failed', {
+        surfaceId,
+        reason: result.message,
+      })
+      continue
+    }
+    updateInspectorWidgetLayout(surfaceId, {
+      placement: 'native',
+      nativeWindowLabel: result.value,
+    }, false)
+  }
+  scheduleLayoutPersistenceSave()
+  scheduleNativeInspectorWidgetSync()
+}
+
+async function handleInspectorWidgetHandshake(
+  action: 'ready' | 'redock' | 'close',
+  handshake: InspectorWidgetHandshake,
+): Promise<void> {
+  const layout = inspectorWidgetLayouts.value[handshake.surfaceId]
+  if (layout.placement !== 'native' || layout.nativeWindowLabel !== handshake.windowLabel) return
+  if (action === 'ready') {
+    await emitInspectorWidgetState(handshake.surfaceId)
+    return
+  }
+  if (!await closeDetachedInspectorWidget(layout)) return
+  const current = inspectorWidgetLayouts.value[handshake.surfaceId]
+  if (current.placement !== 'native' || current.nativeWindowLabel !== handshake.windowLabel) return
+  updateInspectorWidgetLayout(handshake.surfaceId, {
+    placement: action === 'redock' ? 'docked' : 'closed',
+    nativeWindowLabel: null,
+  })
+  void restoreInspectorWidgetSourceFocus(true)
+}
+
+function initializeInspectorWidgetChannel(): void {
+  if (typeof window.BroadcastChannel === 'undefined') return
+  inspectorWidgetChannel?.close()
+  inspectorWidgetChannel = new window.BroadcastChannel(INSPECTOR_WIDGET_CHANNEL)
+  inspectorWidgetChannel.onmessage = event => {
+    const parsed = InspectorWidgetChannelMessageSchema.safeParse(event.data)
+    if (!parsed.success || parsed.data.type === 'state') return
+    void handleInspectorWidgetHandshake(parsed.data.type, parsed.data.data)
+  }
+}
+
+async function initializeInspectorWidgetEvents(): Promise<void> {
+  if (!isTauriEnv()) return
+  const { listen } = await import('@tauri-apps/api/event')
+
+  const bind = async (
+    eventName: string,
+    action: 'ready' | 'redock' | 'close',
+  ): Promise<void> => {
+    inspectorWidgetUnlisteners.push(await listen<unknown>(eventName, event => {
+      const parsed = InspectorWidgetHandshakeSchema.safeParse(event.payload)
+      if (parsed.success) void handleInspectorWidgetHandshake(action, parsed.data)
+    }))
+  }
+
+  await bind(INSPECTOR_WIDGET_EVENTS.ready, 'ready')
+  await bind(INSPECTOR_WIDGET_EVENTS.redock, 'redock')
+  await bind(INSPECTOR_WIDGET_EVENTS.close, 'close')
+}
+
+function handleInspectorWidgetPointerMove(event: PointerEvent): void {
+  if (!inspectorWidgetDrag) return
+  const { surfaceId, mode, startX, startY, origin } = inspectorWidgetDrag
+  const deltaX = event.clientX - startX
+  const deltaY = event.clientY - startY
+  const next = mode === 'move'
+    ? { ...origin, x: origin.x + deltaX, y: origin.y + deltaY }
+    : { ...origin, width: origin.width + deltaX, height: origin.height + deltaY }
+  updateInspectorWidgetLayout(
+    surfaceId,
+    clampInspectorWidgetLayout(next, getInspectorWidgetBounds()),
+    false,
+  )
+}
+
+function stopInspectorWidgetDrag(): void {
+  if (!inspectorWidgetDrag) return
+  inspectorWidgetDrag = null
+  window.removeEventListener('pointermove', handleInspectorWidgetPointerMove)
+  window.removeEventListener('pointerup', stopInspectorWidgetDrag)
+  scheduleLayoutPersistenceSave()
+}
+
+function startInspectorWidgetDrag(
+  event: PointerEvent,
+  surfaceId: InspectorWidgetId,
+  mode: 'move' | 'resize',
+): void {
+  if (event.button !== 0) return
+  if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus()
+  event.preventDefault()
+  stopInspectorWidgetDrag()
+  activeFloatingWidgetId.value = surfaceId
+  inspectorWidgetDrag = {
+    surfaceId,
+    mode,
+    startX: event.clientX,
+    startY: event.clientY,
+    origin: { ...inspectorWidgetLayouts.value[surfaceId] },
+  }
+  window.addEventListener('pointermove', handleInspectorWidgetPointerMove)
+  window.addEventListener('pointerup', stopInspectorWidgetDrag, { once: true })
+}
+
+function handleInspectorWidgetKeydown(
+  event: KeyboardEvent,
+  surfaceId: InspectorWidgetId,
+  mode: 'move' | 'resize',
+): void {
+  const directions: Record<string, [number, number]> = {
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
+    ArrowUp: [0, -1],
+    ArrowDown: [0, 1],
+  }
+  const direction = directions[event.key]
+  if (!direction) return
+  event.preventDefault()
+  const step = event.shiftKey ? 24 : 8
+  const current = inspectorWidgetLayouts.value[surfaceId]
+  const next = mode === 'move'
+    ? { ...current, x: current.x + direction[0] * step, y: current.y + direction[1] * step }
+    : { ...current, width: current.width + direction[0] * step, height: current.height + direction[1] * step }
+  updateInspectorWidgetLayout(
+    surfaceId,
+    clampInspectorWidgetLayout(next, getInspectorWidgetBounds()),
+  )
+}
 
 function withSuspendedLayoutPersistence(callback: () => void): void {
   isApplyingModeLayout.value = true
@@ -656,6 +1124,7 @@ function captureLayoutPersistencePatch(): LayoutStatePatch {
     managerCollapsed: managerCollapsed.value,
     stageCollapsed: stageCollapsed.value,
     inspectorCollapsed: inspectorCollapsed.value,
+    inspectorPinned: inspectorPinned.value,
     rightPanelMode: 'inspector',
     managerTab: managerTab.value,
     editorMode: editorMode.value,
@@ -672,6 +1141,7 @@ function captureLayoutPersistencePatch(): LayoutStatePatch {
     splitViewSyncScroll: splitViewSyncScroll.value,
     splitViewLeftFontScale: splitViewLeftFontScale.value,
     splitViewRightFontScale: splitViewRightFontScale.value,
+    inspectorWidgets: normalizeInspectorWidgetLayouts(inspectorWidgetLayouts.value),
   }
 }
 
@@ -718,7 +1188,7 @@ function getSplitRightScrollElement(): HTMLElement | null {
 }
 
 function getSplitPreviewRootElement(): HTMLElement | null {
-  return splitViewRightScrollRef.value?.querySelector('.markdown-preview') ?? splitViewRightScrollRef.value
+  return splitViewRightScrollRef.value?.querySelector('.preview-content') ?? splitViewRightScrollRef.value
 }
 
 const splitSyncScroll = useSyncScroll({
@@ -727,7 +1197,7 @@ const splitSyncScroll = useSyncScroll({
   leftScrollElement: getSplitLeftScrollElement,
   rightScrollElement: getSplitRightScrollElement,
   previewRootElement: getSplitPreviewRootElement,
-  editor: () => outlineEditor.value,
+  editor: () => editorMode.value === 'typora' ? outlineEditor.value : undefined,
   headings: () => tocStore.flatHeadings,
   onBeforeRebuild(editor) {
     tocStore.updateFromEditor(editor)
@@ -811,13 +1281,18 @@ async function applyPersistedLayoutRecord(record: LayoutStateRecord): Promise<bo
     managerCollapsed.value = record.managerCollapsed
     stageCollapsed.value = record.stageCollapsed
     inspectorCollapsed.value = record.inspectorCollapsed
+    inspectorPinned.value = record.inspectorPinned
     splitViewEnabled.value = record.splitViewEnabled
     splitViewRatio.value = clampSplitRatio(record.splitViewRatio)
     splitViewSyncScroll.value = record.splitViewSyncScroll
     splitViewLeftFontScale.value = clampSplitFontScale(record.splitViewLeftFontScale)
     splitViewRightFontScale.value = clampSplitFontScale(record.splitViewRightFontScale)
+    inspectorWidgetLayouts.value = normalizeInspectorWidgetLayouts(record.inspectorWidgets)
     applyPersistedLayoutTabs(resolvedTabs)
   })
+
+  await nextTick()
+  clampFloatingInspectorWidgets()
 
   if (nextActiveArticle) {
     workstationTabsStore.openOrRefreshTab({
@@ -837,6 +1312,7 @@ async function initializeLayoutPersistence(): Promise<void> {
     if (result.record) {
       await applyPersistedLayoutRecord(result.record)
     }
+    await restoreNativeInspectorWidgets()
     await layoutPersistenceStore.cleanupStaleLayouts(profileId)
   } catch (error) {
     logger.warn('workstation.layoutPersistence.restore.failed', {
@@ -853,14 +1329,21 @@ function setSplitViewRatio(nextRatio: number): void {
 }
 
 function toggleSplitView(): void {
-  if (isPreviewMode.value || !splitViewWideEnough.value) {
-    splitViewEnabled.value = false
-    scheduleLayoutPersistenceSave()
+  if (isPreviewMode.value) {
+    showTransientToast('预览模式已占用整个编辑区，请返回编辑后启用分栏')
     return
   }
 
   splitViewEnabled.value = !splitViewEnabled.value
   scheduleLayoutPersistenceSave()
+  if (splitViewEnabled.value) {
+    void nextTick(() => {
+      updateSplitViewAvailability()
+      if (!splitViewWideEnough.value) {
+        showTransientToast('分栏已保留；请收起侧栏或扩大窗口')
+      }
+    })
+  }
 }
 
 function toggleSplitViewSyncScroll(): void {
@@ -879,12 +1362,33 @@ function resetSplitViewRatio(): void {
 }
 
 function updateSplitViewAvailability(): void {
-  if (typeof window === 'undefined') return
-  splitViewWideEnough.value = window.innerWidth >= SPLIT_VIEW_RESPONSIVE_BREAKPOINT
-  if (!splitViewWideEnough.value && splitViewEnabled.value) {
-    splitViewEnabled.value = false
-    scheduleLayoutPersistenceSave()
+  const containerWidth = splitViewContainerRef.value?.clientWidth
+  const availableWidth = containerWidth && containerWidth > 0
+    ? containerWidth
+    : typeof window === 'undefined' ? 0 : window.innerWidth
+  splitViewWideEnough.value = availableWidth >= SPLIT_VIEW_MIN_CONTAINER_WIDTH
+}
+
+function handleWorkstationResize(): void {
+  updateSplitViewAvailability()
+  clampFloatingInspectorWidgets(true)
+}
+
+watch(splitViewContainerRef, (element) => {
+  splitViewResizeObserver?.disconnect()
+  splitViewResizeObserver = null
+  if (!element || typeof ResizeObserver === 'undefined') {
+    updateSplitViewAvailability()
+    return
   }
+  splitViewResizeObserver = new ResizeObserver(updateSplitViewAvailability)
+  splitViewResizeObserver.observe(element)
+  updateSplitViewAvailability()
+}, { flush: 'post' })
+
+function toggleInspectorPinned(): void {
+  inspectorPinned.value = !inspectorPinned.value
+  scheduleLayoutPersistenceSave()
 }
 
 function updateSplitViewRatioFromPointer(clientX: number): void {
@@ -955,9 +1459,8 @@ const isDraggingInspector = ref(false)
 function handleInspectorResizeMove(event: PointerEvent): void {
   if (!isDraggingInspector.value) return
   event.preventDefault()
-  const container = document.querySelector('.main-content') as HTMLElement | null
-  if (!container) return
-  const rect = container.getBoundingClientRect()
+  const rect = inspectorPanelEl.value?.getBoundingClientRect()
+  if (!rect) return
   const newWidth = rect.right - event.clientX
   panelWidths.value = {
     ...panelWidths.value,
@@ -1028,9 +1531,6 @@ async function switchEditorMode(nextMode: EditorMode): Promise<void> {
   }
 
   editorMode.value = nextMode
-  if (nextMode === 'preview' && splitViewEnabled.value) {
-    splitViewEnabled.value = false
-  }
 
   showModeSwitchToast(nextMode)
 
@@ -1162,7 +1662,34 @@ function selectAccentColor(color: string): void {
 // - xiaohongshu: 5 个（xhs-*）
 // - zhihu: 3 个（zhihu-*）
 // Inspector 排版策略条消费此数据（双行 chip：name + persona 微标签）。
-const topPresets = computed<Array<{ id: string; name: string; icon?: string; description?: string; persona?: string }>>(() => {
+const selectedPlatform = ref<Platform>(settingsStore.settings.export.defaultPlatform)
+const platformOptions: { value: Platform; label: string }[] = [
+  { value: 'wechat', label: '微信' },
+  { value: 'xiaohongshu', label: '小红书' },
+  { value: 'zhihu', label: '知乎' },
+]
+const platformPresetIds = ref<Record<Platform, string>>({
+  wechat: 'thesis',
+  xiaohongshu: 'xhs-fresh',
+  zhihu: 'zhihu-academic',
+})
+const storedPreviewPresetId = settingsStore.settings.export.defaultPresetId
+if (getPlatformPresets(selectedPlatform.value).some(preset => preset.id === storedPreviewPresetId)) {
+  platformPresetIds.value[selectedPlatform.value] = storedPreviewPresetId
+}
+const selectedPreviewPresetId = computed(() => platformPresetIds.value[selectedPlatform.value])
+
+interface WorkstationPresetOption {
+  id: string
+  name: string
+  icon?: string
+  description?: string
+  persona?: string
+  primaryColor: string
+  visualSignature?: PresetVisualSignature
+}
+
+const topPresets = computed<WorkstationPresetOption[]>(() => {
   const presets = getPlatformPresets(selectedPlatform.value)
   return presets.map(p => ({
     id: p.id,
@@ -1170,10 +1697,50 @@ const topPresets = computed<Array<{ id: string; name: string; icon?: string; des
     icon: p.icon,
     description: p.description,
     persona: p.persona,
+    primaryColor: p.primaryColor,
+    visualSignature: p.visualSignature,
   }))
 })
 
+const selectedPresetOption = computed(() => (
+  topPresets.value.find(preset => preset.id === selectedPreviewPresetId.value)
+    ?? topPresets.value[0]
+))
+
+const wechatRenderingRuleByPreset = new Map(
+  getWechatRenderingRuleCatalog().map(rule => [rule.presetId, rule]),
+)
+const selectedWechatRenderingRule = computed(() => (
+  selectedPlatform.value === 'wechat'
+    ? wechatRenderingRuleByPreset.get(selectedPreviewPresetId.value)
+    : undefined
+))
+
+const selectedPresetSignatureHighlights = computed(() => {
+  const rule = selectedWechatRenderingRule.value
+  if (rule) {
+    return [
+      { label: '报头', value: rule.zones.masthead },
+      { label: '标题', value: rule.zones.headingRhythm },
+      { label: '正文', value: rule.zones.bodyFlow },
+      { label: '语义', value: rule.zones.semanticBlocks.join(' · ') },
+      { label: '投递', value: rule.zones.componentsAndDelivery.join(' · ') },
+      { label: '文末', value: rule.zones.ending },
+    ]
+  }
+
+  const signature = selectedPresetOption.value?.visualSignature
+  if (!signature) return []
+  return [
+    { label: '节奏', value: signature.rhythm },
+    { label: '标题', value: signature.heading },
+    { label: '引用', value: signature.quote },
+  ]
+})
+
 function applyPreset(presetId: string): void {
+  platformPresetIds.value[selectedPlatform.value] = presetId
+  settingsStore.settings.export.defaultPlatform = selectedPlatform.value
   settingsStore.settings.export.defaultPresetId = presetId
 }
 
@@ -1184,41 +1751,75 @@ const {
   updateTypography,
 } = useTypography()
 
-const headingStyles: { value: 'underline' | 'background' | 'border-left' | 'none'; label: string }[] = [
+interface TypographyChoice<T extends string> {
+  value: T
+  label: string
+}
+
+const textAlignStyles: TypographyChoice<TypographySettings['textAlign']>[] = [
+  { value: 'left', label: '左对齐' },
+  { value: 'justify', label: '两端对齐' },
+]
+
+const headingScales: TypographyChoice<TypographySettings['headingScale']>[] = [
+  { value: 'compact', label: '克制' },
+  { value: 'balanced', label: '均衡' },
+  { value: 'display', label: '醒目' },
+]
+
+const headingStyles: TypographyChoice<TypographySettings['headingStyle']>[] = [
   { value: 'none', label: '无' },
   { value: 'underline', label: '下划线' },
   { value: 'background', label: '背景' },
   { value: 'border-left', label: '左侧边线' },
+  { value: 'pill', label: '胶囊' },
+  { value: 'marker', label: '马克笔' },
 ]
 
 // 鈹€鈹€鈹€ 寮曠敤鍧楅鏍?鈹€鈹€鈹€
-const blockquoteStyles: { value: 'classic' | 'modern' | 'minimal'; label: string }[] = [
+const blockquoteStyles: TypographyChoice<TypographySettings['blockquoteStyle']>[] = [
   { value: 'classic', label: '经典' },
   { value: 'modern', label: '现代' },
   { value: 'minimal', label: '极简' },
+  { value: 'card', label: '卡片' },
+  { value: 'double-line', label: '双线' },
 ]
 
-// 鈹€鈹€鈹€ 字体鎺у埗 鈹€鈹€鈹€
-const fontFamilyMap: Record<string, string> = {
-  serif: FONT_STACKS.serif,
-  sans: FONT_STACKS.sans,
-  kai: 'KaiTi, STKaiti, "AR PL UKai CN", serif',
-  mono: FONT_STACKS.mono,
-}
+const dividerStyles: TypographyChoice<TypographySettings['dividerStyle']>[] = [
+  { value: 'line', label: '细线' },
+  { value: 'dots', label: '点阵' },
+  { value: 'ornament', label: '双线章' },
+]
+
+const mediaStyles: TypographyChoice<TypographySettings['mediaStyle']>[] = [
+  { value: 'plain', label: '原图' },
+  { value: 'rounded', label: '柔角' },
+  { value: 'framed', label: '装裱' },
+]
+
+const fontFamilyOptions: Array<{ value: FontFamily; label: string; sample: string }> = [
+  { value: 'serif', label: '宋体', sample: '文' },
+  { value: 'sans', label: '黑体', sample: '文' },
+  { value: 'kai', label: '楷体', sample: '文' },
+  { value: 'fangsong', label: '仿宋', sample: '文' },
+  { value: 'wenkai', label: '文楷', sample: '文' },
+  { value: 'humanist', label: '人文', sample: '文' },
+  { value: 'mono', label: '等宽', sample: 'Aa' },
+]
+
+const fontFamilyMap = FONT_STACKS
 
 const currentFontStack = computed(() => {
   const key = settingsStore.settings.appearance.fontFamily
-  return fontFamilyMap[key] ?? FONT_STACKS.sans
+  return fontFamilyMap[key] ?? FONT_STACKS.serif
 })
 
-// 鈹€鈹€鈹€ 骞冲彴閫夋嫨 鈹€鈹€鈹€
-const selectedPlatform = ref<Platform>(settingsStore.settings.export.defaultPlatform)
-
-const platformOptions: { value: Platform; label: string }[] = [
-  { value: 'wechat', label: '微信' },
-  { value: 'xiaohongshu', label: '小红书' },
-  { value: 'zhihu', label: '知乎' },
-]
+function selectPreviewPlatform(platform: Platform): void {
+  selectedPlatform.value = platform
+  settingsStore.settings.export.defaultPlatform = platform
+  settingsStore.settings.export.defaultPresetId = selectedPreviewPresetId.value
+  scheduleNativeInspectorWidgetSync()
+}
 
 // 鈹€鈹€鈹€ 鏍囬缂栬緫 鈹€鈹€鈹€
 const isEditingTitle = ref(false)
@@ -1243,12 +1844,32 @@ function cancelEditTitle() {
 
 // 鈹€鈹€鈹€ 导出妯℃€?鈹€鈹€鈹€
 const showExportModal = ref(false)
+const showDeliverySettings = ref(false)
+const deliverySettingsSection = ref<'overview' | 'song' | 'profile' | 'license'>('overview')
+
+async function openExportModal(): Promise<void> {
+  if (!await flushPendingEditorChangesBeforeRoute()) {
+    showTransientToast('当前文稿保存失败，暂时无法打开导出')
+    return
+  }
+  showExportModal.value = true
+}
+
+function openDeliverySettings(section: 'overview' | 'song' | 'profile' | 'license' = 'overview'): void {
+  deliverySettingsSection.value = section
+  showDeliverySettings.value = true
+}
+
+function updateDeliveryAdornment(value: DeliveryAdornmentConfig): void {
+  settingsStore.settings.export.deliveryAdornment = value
+}
 
 function openPublishCenter(): void {
-  const articleId = selectedArticleId.value
-  void router.push(articleId
-    ? { name: 'Publish', query: { id: articleId } }
-    : { name: 'Publish' })
+  const articleId = currentContent.value?.articleId
+  void router.push({
+    path: '/publish',
+    query: articleId ? { id: articleId } : {},
+  })
 }
 
 // 鈹€鈹€鈹€ 澶嶅埗鍙嶉 鈹€鈹€鈹€
@@ -1316,7 +1937,7 @@ const normalizedBody = computed(() => {
 })
 
 watch(
-  () => [normalizedBody.value, isSplitViewActive.value, splitViewRatio.value, editorMode.value] as const,
+  () => [normalizedBody.value, isSplitViewActive.value, splitViewRatio.value] as const,
   () => {
     if (isSplitViewActive.value && splitViewSyncScroll.value) {
       splitSyncScroll.scheduleRebuild()
@@ -1324,6 +1945,12 @@ watch(
   },
   { flush: 'post' },
 )
+
+watch(editorMode, () => {
+  if (isSplitViewActive.value && splitViewSyncScroll.value) {
+    splitSyncScroll.rebind()
+  }
+}, { flush: 'post' })
 
 watch(outlineEditor, () => {
   if (isSplitViewActive.value && splitViewSyncScroll.value) {
@@ -1775,82 +2402,91 @@ async function openDocumentStatusTarget(): Promise<void> {
 // 棰勮娓叉煋锛堟櫤鑳介槻鎶?composable锛?
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 
+const platformArtifactOptions = computed<NativeExportOptions>(() => {
+  const appearance = settingsStore.settings.appearance
+  const exportSettings = settingsStore.settings.export
+  const typography = {
+    ...appearance.typography,
+    fontFamily: appearance.fontFamily,
+  }
+
+  return {
+    presetId: selectedPreviewPresetId.value,
+    exportOptions: {
+      articleTitle: currentContent.value?.title || selectedArticle.value?.title || undefined,
+      articleCategory: articleCategory.value,
+      enableCiteStatus: exportSettings.convertFootnotes,
+      enableLineNumbers: exportSettings.lineNumbers,
+      enableReadingTime: exportSettings.deliveryAdornment.readingTime.enabled,
+      readingSpeed: exportSettings.deliveryAdornment.readingTime.wordsPerMinute,
+      enableMacCodeBlock: exportSettings.macCodeBlock,
+      enableTextIndent: appearance.typography.paragraphIndent,
+      codeTheme: exportSettings.codeTheme as CodeTheme,
+      customCss: exportSettings.customCss || undefined,
+      deliveryAdornment: parseDeliveryAdornmentConfig(exportSettings.deliveryAdornment),
+      typography,
+    },
+    overrides: {
+      primaryColor: appearance.accentColor,
+      fontFamily: appearance.fontFamily,
+      typography,
+    },
+    includeQualityReport: false,
+  }
+})
+
 const { previewHtml, previewLoading, lastRenderTime, previewMeta } = usePreviewRenderer({
   body: computed(() => normalizedBody.value),
   platform: selectedPlatform,
-  getExportSettings: () => ({ ...settingsStore.settings.export }),
+  getExportSettings: () => ({
+    ...settingsStore.settings.export,
+    defaultPresetId: selectedPreviewPresetId.value,
+    articleTitle: currentContent.value?.title || selectedArticle.value?.title || undefined,
+    articleCategory: articleCategory.value,
+  }),
   getAppearance: () => ({
     accentColor: settingsStore.settings.appearance.accentColor,
     fontFamily: settingsStore.settings.appearance.fontFamily,
+    typography: {
+      ...settingsStore.settings.appearance.typography,
+      fontFamily: settingsStore.settings.appearance.fontFamily,
+    },
   }),
+  getNativeExportOptions: () => platformArtifactOptions.value,
 })
+const editorWechatStats = computed(() => (
+  selectedPlatform.value === 'wechat' ? previewMeta.value?.stats : undefined
+))
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 // 引用链接鎻愬彇
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 
-interface ExtractedLink {
-  text: string
-  href: string
-}
-
-const extractedLinks = computed<ExtractedLink[]>(() => {
-  const body = normalizedBody.value
-  if (!body) return []
-
-  const links: ExtractedLink[] = []
-  const seen = new Set<string>()
-  let match: RegExpExecArray | null
-
-  // Pattern 1: [text](url) 鈥?鏍囧噯 Markdown 閾炬帴
-  const mdLinkRegex = /\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g
-  while ((match = mdLinkRegex.exec(body)) !== null) {
-    const href = match[2]
-    if (!seen.has(href)) {
-      seen.add(href)
-      links.push({ text: match[1] || href, href })
-    }
-  }
-
-  // Pattern 2: <url> 鈥?鑷姩閾炬帴
-  const autoLinkRegex = /<(https?:\/\/[^>]+)>/g
-  while ((match = autoLinkRegex.exec(body)) !== null) {
-    const href = match[1]
-    if (!seen.has(href)) {
-      seen.add(href)
-      links.push({ text: href, href })
-    }
-  }
-
-  // Pattern 3: [ref]: url 鈥?寮曠敤寮忛摼鎺ュ畾涔?
-  const refDefRegex = /^\[([^\]]+)\]:\s*(https?:\/\/\S+)/gm
-  while ((match = refDefRegex.exec(body)) !== null) {
-    const href = match[2]
-    if (!seen.has(href)) {
-      seen.add(href)
-      links.push({ text: match[1], href })
-    }
-  }
-
-  return links
-})
-
-// 鈹€鈹€鈹€ 閾炬帴澶嶅埗鍙嶉 鈹€鈹€鈹€
-const copiedLinkIndex = ref<number | null>(null)
-let linkCopyTimer: ReturnType<typeof setTimeout> | undefined
-
-async function copyLinkToClipboard(href: string, index: number): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(href)
-    copiedLinkIndex.value = index
-    clearTimeout(linkCopyTimer)
-    linkCopyTimer = setTimeout(() => {
-      copiedLinkIndex.value = null
-    }, 1500)
-  } catch {
-    // 闈欓粯澶勭悊
-  }
-}
+const extractedLinks = computed(() => extractExternalLinks(normalizedBody.value))
+const selectedPlatformLabel = computed(() => (
+  platformOptions.find(option => option.value === selectedPlatform.value)?.label ?? selectedPlatform.value
+))
+const platformCopyLabel = computed(() => ({
+  wechat: '复制微信富文本',
+  xiaohongshu: '复制小红书文本',
+  zhihu: '复制知乎 Markdown',
+})[selectedPlatform.value])
+const inspectorWidgetPayload = computed<InspectorWidgetPayload>(() => ({
+  articleId: selectedArticleId.value ?? routeArticleId.value,
+  articleTitle: currentContent.value?.title || selectedArticle.value?.title || '未命名文稿',
+  platform: selectedPlatform.value,
+  platformLabel: selectedPlatformLabel.value,
+  previewHtml: previewHtml.value,
+  previewLoading: previewLoading.value,
+  previewIsSample: Boolean(previewMeta.value?.isSample),
+  links: extractedLinks.value,
+  statistics: buildDocumentStatistics(
+    normalizedBody.value,
+    writingGoalProgress.value.currentDocumentWords,
+    extractedLinks.value.length,
+  ),
+  updatedAt: Date.now(),
+}))
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 // 鎿嶄綔
@@ -1866,17 +2502,38 @@ async function handleSave() {
 }
 
 async function handleCopyToClipboard() {
-  if (!previewHtml.value) return
-  const content = previewHtml.value
-  const ok = selectedPlatform.value === 'wechat'
-    ? await copyWechatHtmlToClipboard(content)
-    : await copyToClipboard(content)
-  if (ok) {
+  if (!await flushPendingEditorChangesBeforeRoute()) {
+    showTransientToast('当前文稿保存失败，暂时无法复制')
+    return
+  }
+  const markdown = normalizedBody.value
+  if (!markdown.trim()) {
+    showTransientToast('当前文章没有可复制的正文')
+    return
+  }
+
+  const platform = selectedPlatform.value
+
+  try {
+    const result = await convertToNativeFormat(markdown, platform, platformArtifactOptions.value)
+    if (!result.content.trim()) {
+      showTransientToast('平台输出为空，请检查正文')
+      return
+    }
+
+    const ok = result.format === 'html'
+      ? await copyWechatHtmlToClipboard(result.content)
+      : await copyTextToClipboard(result.content)
+    if (!ok) {
+      showTransientToast('复制失败，请检查剪贴板权限')
+      return
+    }
+
     const title = (currentContent.value?.title?.trim() || '未命名文章').slice(0, 120)
     settingsStore.recordExportHistory({
-      platform: selectedPlatform.value,
-      title: `${title} · 快速预览`,
-      bytes: new Blob([content]).size,
+      platform: result.platform,
+      title: `${title} · 快速平台输出`,
+      bytes: new Blob([result.content]).size,
       action: 'copy',
     })
     copySuccess.value = true
@@ -1884,6 +2541,9 @@ async function handleCopyToClipboard() {
     copyFeedbackTimer = setTimeout(() => {
       copySuccess.value = false
     }, 2000)
+  } catch (error) {
+    logger.error('workstation.platformOutput.copyFailed', error, { platform })
+    showTransientToast('复制平台输出失败，请重试')
   }
 }
 
@@ -1896,8 +2556,137 @@ function toggleFocusMode() {
   enterFocusMode()
 }
 
-function toggleManagerPanel() {
-  managerCollapsed.value = !managerCollapsed.value
+interface ManagerPanelEditorAnchor {
+  scrollElement: HTMLElement
+  scrollTop: number
+  selectionViewportTop: number | null
+}
+
+function getEditorSelectionViewportTop(): number | null {
+  const editor = editorPanelRef.value?.getBodyEditor?.()
+  if (!editor) return null
+
+  try {
+    return editor.view.coordsAtPos(editor.state.selection.head).top
+  } catch (error) {
+    logger.debug('[Workstation] unable to capture editor selection geometry', {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return null
+  }
+}
+
+function captureManagerPanelEditorAnchor(): ManagerPanelEditorAnchor | null {
+  const scrollElement = editorPanelRef.value?.getEditorScrollElement?.()
+  if (!scrollElement) return null
+
+  const anchor = {
+    scrollElement,
+    scrollTop: scrollElement.scrollTop,
+    selectionViewportTop: getEditorSelectionViewportTop(),
+  }
+  return anchor
+}
+
+function waitForManagerLayoutFrame(): Promise<void> {
+  return new Promise(resolve => {
+    window.requestAnimationFrame(() => resolve())
+  })
+}
+
+function waitForManagerPanelTransition(): Promise<void> {
+  const panel = managerPanelRef.value
+  if (!panel || effectiveReducedMotion.value) {
+    return waitForManagerLayoutFrame()
+  }
+
+  const transitionStyle = window.getComputedStyle(panel)
+  const parseCssTime = (value: string): number => {
+    const parsed = Number.parseFloat(value)
+    if (!Number.isFinite(parsed)) return 0
+    return value.trim().endsWith('ms') ? parsed : parsed * 1000
+  }
+  const durations = transitionStyle.transitionDuration.split(',').map(parseCssTime)
+  const delays = transitionStyle.transitionDelay.split(',').map(parseCssTime)
+  const transitionTotalMs = durations.reduce((longest, duration, index) => (
+    Math.max(longest, duration + (delays[index % delays.length] ?? 0))
+  ), 0)
+  if (transitionTotalMs <= 0) {
+    return waitForManagerLayoutFrame()
+  }
+
+  return new Promise(resolve => {
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      window.clearTimeout(timeoutId)
+      panel.removeEventListener('transitionend', handleTransitionEnd)
+      panel.removeEventListener('transitioncancel', handleTransitionEnd)
+      resolve()
+    }
+    const handleTransitionEnd = (event: InstanceType<typeof globalThis.TransitionEvent>) => {
+      if (event.target !== panel || (event.propertyName !== 'width' && event.propertyName !== 'min-width')) {
+        return
+      }
+      finish()
+    }
+    const timeoutId = window.setTimeout(finish, Math.ceil(transitionTotalMs) + 50)
+    panel.addEventListener('transitionend', handleTransitionEnd)
+    panel.addEventListener('transitioncancel', handleTransitionEnd)
+  })
+}
+
+async function restoreManagerPanelEditorAnchor(anchor: ManagerPanelEditorAnchor): Promise<void> {
+  await nextTick()
+  await waitForManagerLayoutFrame()
+  const initialScrollElement = editorPanelRef.value?.getEditorScrollElement?.() ?? anchor.scrollElement
+  initialScrollElement.scrollTop = anchor.scrollTop
+
+  await waitForManagerPanelTransition()
+  await waitForManagerLayoutFrame()
+
+  const scrollElement = editorPanelRef.value?.getEditorScrollElement?.() ?? anchor.scrollElement
+  const selectionViewportTop = getEditorSelectionViewportTop()
+  if (anchor.selectionViewportTop !== null && selectionViewportTop !== null) {
+    scrollElement.scrollTop += selectionViewportTop - anchor.selectionViewportTop
+    return
+  }
+
+  scrollElement.scrollTop = anchor.scrollTop
+}
+
+function toggleManagerPanel(nextCollapsed = !managerCollapsed.value): void {
+  if (managerCollapsed.value === nextCollapsed) return
+
+  const restorePanelFocus = Boolean(managerPanelRef.value?.contains(document.activeElement))
+  const editorAnchor = captureManagerPanelEditorAnchor()
+  managerCollapsed.value = nextCollapsed
+  if (restorePanelFocus) {
+    void focusWorkstationTarget(
+      nextCollapsed ? '.manager-collapsed-bar' : `[data-manager-tab="${managerTab.value}"]`,
+    )
+  }
+  if (editorAnchor) {
+    void restoreManagerPanelEditorAnchor(editorAnchor)
+  }
+}
+
+function setStageCollapsed(nextCollapsed: boolean): void {
+  if (stageCollapsed.value === nextCollapsed) return
+  stageCollapsed.value = nextCollapsed
+  void focusWorkstationTarget(
+    nextCollapsed ? '.stage-collapsed-bar' : '.panel-stage .collapse-trigger',
+  )
+}
+
+function setInspectorCollapsed(nextCollapsed: boolean): void {
+  if (inspectorCollapsed.value === nextCollapsed) return
+  inspectorCollapsed.value = nextCollapsed
+  if (nextCollapsed) setInspectorWidgetMenuOpen(false)
+  void focusWorkstationTarget(
+    nextCollapsed ? '.inspector-collapsed-bar' : '.panel-inspector .collapse-trigger',
+  )
 }
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
@@ -1971,7 +2760,7 @@ function getShortcutBinding(shortcutId: string, fallback: string): string {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  if (e.isComposing) {
+  if (e.defaultPrevented || e.isComposing) {
     return
   }
 
@@ -1979,6 +2768,24 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault()
     closeFocusSummary()
     return
+  }
+
+  if (e.key === 'Escape' && inspectorWidgetMenuOpen.value) {
+    e.preventDefault()
+    setInspectorWidgetMenuOpen(false, { restoreFocus: true })
+    return
+  }
+
+  if (e.key === 'Escape' && e.target instanceof Element) {
+    const floatingWidget = e.target.closest<HTMLElement>('[data-inspector-widget-id]')
+    const surfaceId = INSPECTOR_WIDGET_IDS.find(
+      id => id === floatingWidget?.dataset.inspectorWidgetId,
+    )
+    if (surfaceId) {
+      e.preventDefault()
+      closeInspectorWidget(surfaceId)
+      return
+    }
   }
 
   if (handleWorkstationTabShortcut(e)) {
@@ -2208,8 +3015,18 @@ watch(
 
 watch(
   selectedArticleId,
-  () => scheduleLayoutPersistenceSave(),
+  () => {
+    scheduleLayoutPersistenceSave()
+    scheduleNativeInspectorWidgetSync()
+    if (nativeInspectorWidgetsRestorePending) void restoreNativeInspectorWidgets()
+  },
   { flush: 'post' },
+)
+
+watch(
+  inspectorWidgetPayload,
+  scheduleNativeInspectorWidgetSync,
+  { deep: true, flush: 'post' },
 )
 
 watch(
@@ -2233,24 +3050,48 @@ watch(
   },
 )
 
+function handleReducedMotionPreferenceChange(
+  event: InstanceType<typeof globalThis.MediaQueryListEvent>,
+): void {
+  osPrefersReducedMotion.value = event.matches
+}
+
 onMounted(() => {
+  reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  osPrefersReducedMotion.value = reducedMotionMediaQuery.matches
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionPreferenceChange)
   restoreLayoutForMode(editorMode.value)
   updateSplitViewAvailability()
+  initializeInspectorWidgetChannel()
   void initializeLayoutPersistence()
-  window.addEventListener('resize', updateSplitViewAvailability)
+  void initializeInspectorWidgetEvents()
+    .catch(error => {
+      logger.warn('workstation.inspectorWidget.initialize.failed', {
+        error: error instanceof Error ? error.message : String(error),
+      })
+    })
+  window.addEventListener('resize', handleWorkstationResize)
   window.addEventListener('pagehide', handlePageHide)
   document.addEventListener('visibilitychange', handleVisibilityChange)
   document.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
+  reducedMotionMediaQuery?.removeEventListener('change', handleReducedMotionPreferenceChange)
+  reducedMotionMediaQuery = null
+  splitViewResizeObserver?.disconnect()
+  splitViewResizeObserver = null
   document.removeEventListener('keydown', handleKeydown)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
   window.removeEventListener('pagehide', handlePageHide)
-  window.removeEventListener('resize', updateSplitViewAvailability)
+  window.removeEventListener('resize', handleWorkstationResize)
   stopSplitDividerDrag()
+  stopInspectorWidgetDrag()
   clearTimeout(copyFeedbackTimer)
-  clearTimeout(linkCopyTimer)
+  clearTimeout(nativeInspectorWidgetSyncTimer)
+  inspectorWidgetChannel?.close()
+  inspectorWidgetChannel = null
+  inspectorWidgetUnlisteners.splice(0).forEach(unlisten => unlisten())
   commandPaletteStore.clearWorkstationBridge()
   flushSessionRestoreSnapshot('unmount')
   void writingAssistStore.cleanup()
@@ -2277,9 +3118,7 @@ const commandWorkstationBridge = computed<WorkstationCommandBridge>(() => ({
     toggleFocusMode,
     toggleTypewriterMode,
     switchEditorMode,
-    openExportModal: () => {
-      showExportModal.value = true
-    },
+    openExportModal,
     toggleManagerPanel,
     togglePreviewMode,
     toggleSplitView,
@@ -2297,6 +3136,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   '--workstation-stage-width': `${panelWidths.value.stage}px`,
   '--workstation-inspector-width': `${panelWidths.value.inspector}px`,
   '--focus-vignette-height': `${writingAssistStore.vignette.height}px`,
+  '--focus-cursor-position': `${writingAssistStore.cursorPosition * 100}%`,
+  '--focus-vignette-intensity': `${Number.isFinite(writingAssistStore.vignette.intensity)
+    ? writingAssistStore.vignette.intensity
+    : 0.18}`,
   '--split-left-ratio': `${splitViewRatio.value}`,
   '--split-right-ratio': `${1 - splitViewRatio.value}`,
   '--split-left-font-size': `${splitViewLeftFontScale.value}px`,
@@ -2306,43 +3149,26 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 <template>
   <div
+    ref="workstationRootEl"
     class="workstation"
-    :class="{ 'focus-mode': isFocusMode, 'focus-vignette': writingAssistStore.vignette.isEnabled, 'split-view-active': isSplitViewActive, [`mode-${editorMode}`]: true }"
+    :class="{ 'focus-mode': isFocusMode, 'focus-vignette': writingAssistStore.vignette.isEnabled, 'split-view-active': isSplitViewActive, 'reduce-motion': effectiveReducedMotion, [`mode-${editorMode}`]: true }"
+    :data-reduced-motion="effectiveReducedMotion ? 'true' : 'false'"
     :style="workstationLayoutStyle"
   >
     <!-- Focus Overlay (涓撴敞妯″紡鏆楄) -->
     <div class="focus-overlay" />
 
-    <button
-      v-if="isFocusMode"
-      class="focus-exit-btn"
-      title="退出专注模式 (Esc)"
-      @click="toggleFocusMode"
-    >
-      <span>退出专注</span>
-      <span class="focus-exit-shortcut">Esc</span>
-    </button>
-
     <!-- 鈺愨晲鈺?Header (52px, 瀵归綈鍘熷瀷) 鈺愨晲鈺?-->
     <header class="workstation-header">
-      <!-- 鍝佺墝鍖?-->
-      <div
-        class="header-brand"
+      <button
+        type="button"
+        class="icon-btn header-back-btn"
+        aria-label="返回首页"
         title="返回首页"
         @click="handleBack"
       >
-        <div
-          class="header-logo"
-          role="img"
-          aria-label="InkForge"
-        >
-          <ForgeNibMark
-            :size="28"
-            :tier="64"
-            interactive
-          />
-        </div>
-      </div>
+        <ArrowLeft :size="17" />
+      </button>
 
       <!-- 鏍囬鍖?-->
       <div class="header-title">
@@ -2387,40 +3213,17 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           class="icon-btn"
           :class="{ success: copySuccess }"
           :disabled="!hasContent"
-          :title="copySuccess ? 'Copied' : 'Copy to clipboard'"
+          :title="copySuccess ? '已复制' : platformCopyLabel"
           @click="handleCopyToClipboard"
         >
-          <svg
+          <Check
             v-if="copySuccess"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
-          <svg
+            :size="16"
+          />
+          <Copy
             v-else
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect
-              x="9"
-              y="9"
-              width="13"
-              height="13"
-              rx="2"
-              ry="2"
-            /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+            :size="16"
+          />
         </button>
 
         <!-- 导出 -->
@@ -2428,25 +3231,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           class="icon-btn"
           :disabled="!hasContent"
           title="导出"
-          @click="showExportModal = true"
+          @click="openExportModal"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line
-              x1="12"
-              y1="3"
-              x2="12"
-              y2="15"
-            />
-          </svg>
+          <Upload :size="16" />
         </button>
 
         <!-- 涓撴敞妯″紡 -->
@@ -2456,32 +3243,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           :title="isFocusMode ? '退出专注模式 (F11)' : '进入专注模式 (F11)'"
           @click="toggleFocusMode"
         >
-          <svg
+          <Maximize2
             v-if="!isFocusMode"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-          </svg>
-          <svg
+            :size="16"
+          />
+          <Minimize2
             v-else
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M8 3v3a2 2 0 0 1-2 2H3" /><path d="M21 8h-3a2 2 0 0 1-2-2V3" /><path d="M3 16h3a2 2 0 0 1 2 2v3" /><path d="M16 21v-3a2 2 0 0 1 2-2h3" />
-          </svg>
+            :size="16"
+          />
         </button>
 
         <!-- 布局预设 -->
@@ -2490,11 +3259,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           aria-label="布局预设"
         >
           <button
-            v-for="preset in WORKSTATION_LAYOUT_PRESETS"
+            v-for="preset in WORKSTATION_LAYOUT_PRESETS.filter(item => item.id === 'default' || item.id === 'writing')"
             :key="preset.id"
             type="button"
             class="layout-preset-btn"
-            :class="{ active: activeLayoutPresetId === preset.id || (preset.id === 'focus' && isFocusMode) }"
+            :class="{ active: activeLayoutPresetId === preset.id }"
             :title="preset.description"
             @click="applyLayoutPreset(preset.id)"
           >
@@ -2502,57 +3271,46 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           </button>
         </div>
 
-        <button
-          type="button"
-          class="icon-btn"
-          :class="{ active: isSplitViewActive }"
-          title="Toggle split view (Ctrl+Shift+E)"
-          @click="toggleSplitView"
+        <div
+          class="workstation-mode-group"
+          aria-label="工作模式"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+          <button
+            type="button"
+            class="mode-action-btn"
+            data-testid="workstation-review-mode"
+            :class="{ active: activeLayoutPresetId === 'review' }"
+            :aria-pressed="activeLayoutPresetId === 'review'"
+            title="展开审阅布局"
+            @click="applyLayoutPreset('review')"
           >
-            <rect
-              x="3"
-              y="4"
-              width="18"
-              height="16"
-              rx="2"
-            />
-            <path d="M12 4v16" />
-          </svg>
-        </button>
+            审阅
+          </button>
+          <button
+            type="button"
+            class="mode-action-btn"
+            :class="{ active: splitViewEnabled, unavailable: splitViewEnabled && !splitViewWideEnough }"
+            :aria-pressed="splitViewEnabled"
+            :aria-expanded="isSplitViewActive"
+            aria-controls="split-view-preview-pane"
+            :title="splitViewEnabled && !splitViewWideEnough ? '分栏已保留；请收起侧栏或扩大窗口' : '切换分栏视图 (Ctrl+Shift+E)'"
+            @click="toggleSplitView"
+          >
+            <Columns2 :size="15" />
+            <span>分栏</span>
+          </button>
+        </div>
 
         <!-- 发布鎸夐挳 CTA -->
         <button
           class="publish-btn"
+          :disabled="!hasContent"
           @click="openPublishCenter"
         >
-          <svg
+          <Send
             class="publish-nib-arrow"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <line
-              x1="7"
-              y1="17"
-              x2="17"
-              y2="7"
-            /><polyline points="7 7 17 7 17 17" />
-          </svg>
+            :size="14"
+          />
           发布
         </button>
       </div>
@@ -2635,16 +3393,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     </section>
 
     <!-- 鈺愨晲鈺?涓诲唴瀹瑰尯 鈺愨晲鈺?-->
-    <div class="main-content">
-      <!-- Edge Trigger 宸?-->
-      <div
-        v-if="managerCollapsed"
-        class="edge-trigger left"
-        @mouseenter="managerCollapsed = false"
-      />
-
+    <div
+      class="main-content"
+      :class="{ 'stage-is-collapsed': stageCollapsed }"
+    >
       <!-- 鈹€鈹€鈹€ 宸︽爮 (Manager) 鈹€鈹€鈹€ -->
       <aside
+        ref="managerPanelRef"
         class="panel panel-manager"
         :class="{ collapsed: managerCollapsed }"
       >
@@ -2654,8 +3409,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           type="button"
           class="manager-collapsed-bar"
           aria-label="展开文件管理面板"
-          @mouseenter="managerCollapsed = false"
-          @click="managerCollapsed = false"
+          @click="toggleManagerPanel(false)"
         >
           <span class="manager-collapsed-indicator" />
         </button>
@@ -2666,169 +3420,94 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           <div class="panel-tabs">
             <div class="panel-tab-strip">
               <button
+                type="button"
                 class="panel-tab"
                 :class="{ active: managerTab === 'files' }"
                 data-manager-tab="files"
+                :aria-pressed="managerTab === 'files'"
+                title="文件"
                 @click="managerTab = 'files'"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                </svg>
+                <Folder
+                  :size="15"
+                  aria-hidden="true"
+                />
                 <span>文件</span>
               </button>
               <button
+                type="button"
                 class="panel-tab"
                 :class="{ active: managerTab === 'versions' }"
+                data-manager-tab="versions"
+                :aria-pressed="managerTab === 'versions'"
+                title="版本"
                 @click="managerTab = 'versions'"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <line
-                    x1="6"
-                    y1="3"
-                    x2="6"
-                    y2="15"
-                  /><circle
-                    cx="18"
-                    cy="6"
-                    r="3"
-                  /><circle
-                    cx="6"
-                    cy="18"
-                    r="3"
-                  /><path d="M18 9a9 9 0 0 1-9 9" />
-                </svg>
+                <GitBranch
+                  :size="15"
+                  aria-hidden="true"
+                />
                 <span>版本</span>
               </button>
               <button
+                type="button"
                 class="panel-tab"
                 :class="{ active: managerTab === 'outline' }"
+                data-manager-tab="outline"
+                :aria-pressed="managerTab === 'outline'"
+                title="大纲"
                 @click="managerTab = 'outline'"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <line
-                    x1="8"
-                    y1="6"
-                    x2="21"
-                    y2="6"
-                  /><line
-                    x1="8"
-                    y1="12"
-                    x2="21"
-                    y2="12"
-                  /><line
-                    x1="8"
-                    y1="18"
-                    x2="21"
-                    y2="18"
-                  /><line
-                    x1="3"
-                    y1="6"
-                    x2="3.01"
-                    y2="6"
-                  /><line
-                    x1="3"
-                    y1="12"
-                    x2="3.01"
-                    y2="12"
-                  /><line
-                    x1="3"
-                    y1="18"
-                    x2="3.01"
-                    y2="18"
-                  />
-                </svg>
+                <ListTree
+                  :size="15"
+                  aria-hidden="true"
+                />
                 <span>大纲</span>
               </button>
               <button
+                type="button"
                 class="panel-tab"
                 :class="{ active: managerTab === 'tags' }"
                 data-manager-tab="tags"
+                :aria-pressed="managerTab === 'tags'"
+                title="标签"
                 @click="managerTab = 'tags'"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-                  <circle
-                    cx="7.5"
-                    cy="7.5"
-                    r=".5"
-                    fill="currentColor"
-                  />
-                </svg>
+                <Tags
+                  :size="15"
+                  aria-hidden="true"
+                />
                 <span>标签</span>
               </button>
               <button
+                type="button"
                 class="panel-tab"
                 :class="{ active: managerTab === 'ai' }"
+                data-manager-tab="ai"
+                :aria-pressed="managerTab === 'ai'"
+                title="对话"
                 @click="managerTab = 'ai'"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
+                <MessageSquare
+                  :size="15"
+                  aria-hidden="true"
+                />
                 <span>对话</span>
               </button>
             </div>
 
             <!-- 鎶樺彔鎸夐挳 -->
             <button
+              type="button"
               class="collapse-trigger"
               title="收起面板"
-              @click="managerCollapsed = true"
+              aria-label="收起文件管理面板"
+              @click="toggleManagerPanel(true)"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
+              <PanelLeftClose
+                :size="14"
+                aria-hidden="true"
+              />
             </button>
           </div>
 
@@ -2884,6 +3563,17 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           aria-hidden="true"
         />
 
+        <button
+          v-if="isFocusMode"
+          type="button"
+          class="focus-exit-btn"
+          title="退出专注模式 (Esc)"
+          @click="toggleFocusMode"
+        >
+          <span>退出专注</span>
+          <span class="focus-exit-shortcut">Esc</span>
+        </button>
+
         <div
           v-if="!isPreviewMode"
           ref="splitViewContainerRef"
@@ -2902,11 +3592,32 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 :editor-width="editorWidth"
                 :is-focus-mode="isFocusMode"
                 :external-preview-active="isSplitViewActive"
+                :article-category="articleCategory"
+                :wechat-stats="editorWechatStats"
                 @sync-state-change="handleEditorSyncStateChange"
                 @toggle-editor-mode="toggleEditorMode"
+                @open-delivery-settings="openDeliverySettings"
               />
             </div>
           </section>
+
+          <div
+            v-if="splitViewEnabled && !splitViewWideEnough"
+            class="split-view-unavailable"
+            role="status"
+          >
+            <Columns2 :size="20" />
+            <div>
+              <strong>分栏空间不足</strong>
+              <span>收起左侧、预览或已停靠检查器，或扩大窗口后会自动恢复。</span>
+            </div>
+            <button
+              type="button"
+              @click="toggleSplitView"
+            >
+              取消分栏
+            </button>
+          </div>
 
           <div
             v-if="isSplitViewActive"
@@ -2949,55 +3660,28 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   :aria-label="splitViewSyncScroll ? '暂停同步滚动' : '启用同步滚动'"
                   @click="toggleSplitViewSyncScroll"
                 >
-                  <svg
+                  <Link2
                     v-if="splitViewSyncScroll"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                  </svg>
-                  <svg
+                    :size="14"
+                    aria-hidden="true"
+                  />
+                  <Unlink
                     v-else
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M9 17H7A5 5 0 0 1 7 7h2" />
-                    <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
-                    <path d="M8 12h8" />
-                    <path d="m2 2 20 20" />
-                  </svg>
+                    :size="14"
+                    aria-hidden="true"
+                  />
                 </button>
                 <button
                   type="button"
                   class="split-toolbar-btn"
                   title="关闭分栏视图"
+                  aria-label="关闭分栏视图"
                   @click="toggleSplitView"
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                  </svg>
+                  <X
+                    :size="14"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
             </div>
@@ -3005,8 +3689,27 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               ref="splitViewRightScrollRef"
               class="split-preview-content"
             >
-              <div class="preview-device-frame">
-                <MarkdownPreview :markdown="normalizedBody" />
+              <div
+                class="preview-device-frame"
+                :data-platform="selectedPlatform"
+              >
+                <div
+                  v-if="previewLoading"
+                  class="preview-loading"
+                >
+                  正在生成平台预览...
+                </div>
+                <div
+                  v-else-if="!previewHtml"
+                  class="preview-empty"
+                >
+                  暂无可预览内容
+                </div>
+                <div
+                  v-else
+                  class="preview-content"
+                  v-html="previewHtml"
+                />
               </div>
             </div>
           </aside>
@@ -3034,8 +3737,27 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
             </button>
           </div>
           <div class="preview-mode-body">
-            <div class="preview-device-frame">
-              <MarkdownPreview :markdown="normalizedBody" />
+            <div
+              class="preview-device-frame"
+              :data-platform="selectedPlatform"
+            >
+              <div
+                v-if="previewLoading"
+                class="preview-loading"
+              >
+                正在生成平台预览...
+              </div>
+              <div
+                v-else-if="!previewHtml"
+                class="preview-empty"
+              >
+                暂无可预览内容
+              </div>
+              <div
+                v-else
+                class="preview-content"
+                v-html="previewHtml"
+              />
             </div>
           </div>
         </div>
@@ -3062,13 +3784,15 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         :class="{ collapsed: stageCollapsed }"
       >
         <!-- 鎶樺彔鎬侊細12px 瑙﹀彂鏉?+ hover 绾㈣壊鎸囩ず鍣?-->
-        <div
+        <button
           v-if="stageCollapsed"
+          type="button"
           class="stage-collapsed-bar"
-          @click="stageCollapsed = false"
+          aria-label="展开预览面板"
+          @click="setStageCollapsed(false)"
         >
-          <div class="stage-collapsed-indicator" />
-        </div>
+          <span class="stage-collapsed-indicator" />
+        </button>
 
         <!-- 灞曞紑鎬佸唴瀹?-->
         <template v-else>
@@ -3080,108 +3804,90 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 :key="opt.value"
                 class="stage-tab"
                 :class="{ active: selectedPlatform === opt.value }"
-                @click="selectedPlatform = opt.value"
+                @click="selectPreviewPlatform(opt.value)"
               >
                 {{ opt.label }}
               </button>
             </div>
-            <button
-              class="collapse-trigger"
-              title="收起面板"
-              @click="stageCollapsed = true"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+            <div class="stage-header-actions">
+              <InspectorWidgetActions
+                surface-id="platform-preview"
+                :placement="inspectorWidgetLayouts['platform-preview'].placement"
+                @float="floatInspectorWidget('platform-preview')"
+                @native="void detachInspectorWidgetToDesktop('platform-preview')"
+                @dock="dockInspectorWidget('platform-preview')"
+                @close="closeInspectorWidget('platform-preview')"
+              />
+              <button
+                type="button"
+                class="collapse-trigger"
+                title="收起面板"
+                aria-label="收起预览面板"
+                @click="setStageCollapsed(true)"
               >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="stage-body">
             <!-- iPhone 璁惧妗?-->
-            <div class="device-frame">
+            <div
+              v-if="inspectorWidgetLayouts['platform-preview'].placement === 'docked'"
+              class="device-frame"
+              :data-platform="selectedPlatform"
+            >
               <!-- 鍒樻捣锛堥粦鑹插渾瑙掔煩褰級 -->
               <div class="device-notch" />
               <!-- 灞忓箷鍐呭鍖哄煙 -->
               <div class="device-screen">
-                <!-- 鍔犺浇涓?-->
-                <div
-                  v-if="previewLoading"
-                  class="preview-loading"
-                >
-                  <svg
-                    class="spinner"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                  </svg>
-                  <span>渲染中...</span>
-                </div>
-
-                <!-- 鏃犲唴瀹?-->
-                <div
-                  v-else-if="!previewHtml"
-                  class="preview-empty"
-                >
-                  <svg
-                    class="preview-empty-icon"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                    />
-                  </svg>
-                  <span class="preview-empty-title">请选择文章以预览</span>
-                  <span class="preview-empty-hint">选择左侧任意草稿即可即时查看预览效果</span>
-                </div>
-
-                <!-- 娓叉煋棰勮 -->
-                <template v-else>
-                  <div
-                    v-if="previewMeta?.isSample"
-                    class="preview-sample-hint"
-                  >
-                    示例内容
-                  </div>
-                  <transition
-                    name="preset-fade"
-                    mode="out-in"
-                  >
-                    <div
-                      :key="settingsStore.settings.export.defaultPresetId"
-                      class="preview-content"
-                      v-html="previewHtml"
-                    />
-                  </transition>
-                </template>
+                <InspectorWidgetContent
+                  surface-id="platform-preview"
+                  :payload="inspectorWidgetPayload"
+                  variant="stage"
+                />
               </div>
               <!-- Home Indicator锛堢伆鑹插渾瑙掓潯锛?-->
               <div class="device-home-indicator" />
             </div>
 
+            <div
+              v-else
+              class="stage-widget-placeholder"
+            >
+              <Eye :size="24" />
+              <strong>平台预览{{ inspectorWidgetPlacementText(inspectorWidgetLayouts['platform-preview'].placement) }}</strong>
+              <span>复制和导出仍使用同一份真实渲染结果；需要在此查看时可立即重新停靠。</span>
+              <button
+                type="button"
+                @click="dockInspectorWidget('platform-preview')"
+              >
+                重新停靠预览
+              </button>
+            </div>
+
             <!-- 棰勮蹇€熼€夋嫨锛堝綋鍓嶅钩鍙板墠 5 涓級 -->
             <!-- 鎿嶄綔鎸夐挳缁?-->
             <div class="stage-actions">
+              <button
+                type="button"
+                class="stage-btn-secondary"
+                :disabled="!hasContent"
+                aria-label="打开组件库"
+                @click="openWritingComponentLibrary"
+              >
+                <Blocks :size="14" />
+                组件
+              </button>
               <button
                 class="stage-btn-primary"
                 :class="{ success: copySuccess }"
@@ -3219,12 +3925,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                     ry="2"
                   /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
-                {{ copySuccess ? '已复制' : '复制平台输出' }}
+                {{ copySuccess ? '已复制' : platformCopyLabel }}
               </button>
               <button
                 class="stage-btn-secondary"
                 :disabled="!hasContent"
-                @click="showExportModal = true"
+                @click="openExportModal"
               >
                 <svg
                   width="14"
@@ -3252,13 +3958,15 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         :class="{ collapsed: inspectorCollapsed, pinned: inspectorPinned }"
       >
         <!-- 鎶樺彔鎬侊細12px 瑙﹀彂鏉?+ hover 绾㈣壊鎸囩ず鍣?-->
-        <div
+        <button
           v-if="inspectorCollapsed"
+          type="button"
           class="inspector-collapsed-bar"
-          @click="inspectorCollapsed = false"
+          aria-label="展开检查器面板"
+          @click="setInspectorCollapsed(false)"
         >
-          <div class="inspector-collapsed-indicator" />
-        </div>
+          <span class="inspector-collapsed-indicator" />
+        </button>
 
         <!-- 展开态：左侧 drag handle，拖拽改变宽度 -->
         <div
@@ -3274,13 +3982,91 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         <template v-if="!inspectorCollapsed">
           <div class="inspector-header">
             <span class="inspector-title">检查器</span>
+            <div class="inspector-widget-menu">
+              <button
+                type="button"
+                class="inspector-widget-menu-trigger"
+                :class="{ active: inspectorWidgetMenuOpen }"
+                aria-label="管理检查器小组件"
+                :aria-expanded="inspectorWidgetMenuOpen"
+                aria-controls="inspector-widget-menu-popover"
+                title="管理检查器小组件"
+                @click.stop="toggleInspectorWidgetMenu"
+              >
+                <AppWindow :size="13" />
+              </button>
+              <Transition name="inspector-window">
+                <section
+                  v-if="inspectorWidgetMenuOpen"
+                  id="inspector-widget-menu-popover"
+                  class="inspector-widget-menu-popover"
+                  role="dialog"
+                  aria-label="检查器窗口"
+                  :data-capability-count="INSPECTOR_WIDGET_IDS.length"
+                  @click.stop
+                >
+                  <header class="inspector-widget-menu-popover__header">
+                    <span>
+                      <strong>检查器窗口</strong>
+                      <small>停靠、应用内悬浮或侧载到桌面</small>
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="关闭检查器窗口管理"
+                      title="关闭"
+                      @click="setInspectorWidgetMenuOpen(false, { restoreFocus: true })"
+                    >
+                      <X :size="14" />
+                    </button>
+                  </header>
+                  <div class="inspector-widget-menu-popover__list">
+                    <article
+                      v-for="surfaceId in INSPECTOR_WIDGET_IDS"
+                      :key="surfaceId"
+                      class="inspector-widget-menu-item"
+                      :data-capability-id="surfaceId"
+                      :data-placement="inspectorWidgetLayouts[surfaceId].placement"
+                    >
+                      <div class="inspector-widget-menu-item__identity">
+                        <span class="inspector-widget-menu-item__icon">
+                          <Eye
+                            v-if="surfaceId === 'platform-preview'"
+                            :size="14"
+                          />
+                          <Link2
+                            v-else-if="surfaceId === 'references'"
+                            :size="14"
+                          />
+                          <ChartNoAxesColumn
+                            v-else
+                            :size="14"
+                          />
+                        </span>
+                        <span>
+                          <strong>{{ INSPECTOR_WIDGET_META[surfaceId].title }}</strong>
+                          <small>{{ inspectorWidgetPlacementText(inspectorWidgetLayouts[surfaceId].placement) }}</small>
+                        </span>
+                      </div>
+                      <InspectorWidgetActions
+                        :surface-id="surfaceId"
+                        :placement="inspectorWidgetLayouts[surfaceId].placement"
+                        @float="floatInspectorWidget(surfaceId)"
+                        @native="void detachInspectorWidgetToDesktop(surfaceId)"
+                        @dock="dockInspectorWidget(surfaceId)"
+                        @close="closeInspectorWidget(surfaceId)"
+                      />
+                    </article>
+                  </div>
+                </section>
+              </Transition>
+            </div>
             <button
               type="button"
               class="inspector-pin-btn"
               :class="{ active: inspectorPinned }"
               :title="inspectorPinned ? '已钉住，再次点击恢复磁吸' : '钉住右栏（禁用磁吸自动收起）'"
               :aria-pressed="inspectorPinned"
-              @click="inspectorPinned = !inspectorPinned"
+              @click="toggleInspectorPinned"
             >
               <svg
                 width="13"
@@ -3302,9 +4088,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               </svg>
             </button>
             <button
+              type="button"
               class="collapse-trigger"
               title="收起右栏"
-              @click="inspectorCollapsed = true"
+              aria-label="收起检查器面板"
+              @click="setInspectorCollapsed(true)"
             >
               <svg
                 width="14"
@@ -3346,23 +4134,22 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 <button
                   v-for="color in accentColors"
                   :key="color.value"
+                  type="button"
                   class="accent-dot"
                   :class="{ active: settingsStore.settings.appearance.accentColor === color.value }"
                   :style="{ background: color.value }"
                   :title="color.label"
+                  :aria-label="color.label"
+                  :aria-pressed="settingsStore.settings.appearance.accentColor === color.value"
                   @click="selectAccentColor(color.value)"
                 >
-                  <svg
+                  <Check
                     v-if="settingsStore.settings.appearance.accentColor === color.value"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    stroke-width="3"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                    :size="12"
+                    :stroke-width="3"
+                    color="#fff"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
 
@@ -3373,8 +4160,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   :key="preset.id"
                   type="button"
                   class="preset-chip"
-                  :class="{ active: settingsStore.settings.export.defaultPresetId === preset.id }"
+                  :class="{ active: selectedPreviewPresetId === preset.id }"
                   :title="preset.description"
+                  :aria-pressed="selectedPreviewPresetId === preset.id"
                   @click="applyPreset(preset.id)"
                 >
                   <div class="preset-chip-row-top">
@@ -3393,6 +4181,58 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 </button>
               </div>
 
+              <div
+                v-if="selectedPresetOption?.visualSignature"
+                :key="selectedPresetOption.id"
+                class="preset-signature-card"
+                :style="{ '--preset-accent': selectedPresetOption.primaryColor }"
+                :data-rendering-rule-preset="selectedWechatRenderingRule?.presetId"
+                aria-live="polite"
+              >
+                <div class="preset-signature-card__header">
+                  <strong>{{ selectedPresetOption.name }}</strong>
+                  <span>{{ selectedWechatRenderingRule ? '构图规则 v1' : '视觉签名' }}</span>
+                </div>
+                <dl class="preset-signature-card__details">
+                  <div
+                    v-for="item in selectedPresetSignatureHighlights"
+                    :key="item.label"
+                  >
+                    <dt>{{ item.label }}</dt>
+                    <dd>{{ item.value }}</dd>
+                  </div>
+                </dl>
+                <div class="preset-signature-card__modules">
+                  <span
+                    v-for="moduleName in selectedPresetOption.visualSignature.modules"
+                    :key="moduleName"
+                  >{{ moduleName }}</span>
+                </div>
+              </div>
+
+              <router-link
+                to="/themes"
+                class="inspector-link"
+              >
+                查看全部预设
+              </router-link>
+
+              <details
+                v-if="selectedPlatform === 'wechat'"
+                class="inspector-advanced-settings"
+              >
+                <summary class="inspector-advanced-settings__summary">
+                  <span class="inspector-advanced-settings__copy">
+                    <strong>高级排版参数</strong>
+                    <small>微信安全字体、节奏与模块装饰</small>
+                  </span>
+                  <ChevronDown
+                    class="inspector-advanced-settings__chevron"
+                    :size="14"
+                  />
+                </summary>
+                <div class="inspector-advanced-settings__body">
+
               <!-- 版心宽度（从底部状态栏迁移） -->
               <div class="control-group">
                 <label>版心宽度</label>
@@ -3400,9 +4240,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   <button
                     v-for="opt in editorWidthOptions"
                     :key="opt.value"
+                    type="button"
                     class="style-option"
                     :class="{ active: editorWidth === opt.value }"
                     :title="opt.title"
+                    :aria-pressed="editorWidth === opt.value"
                     @click="editorWidth = opt.value"
                   >
                     {{ opt.label }}
@@ -3427,21 +4269,58 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   :max="ctrl.max"
                   :step="ctrl.step"
                   :value="ctrl.value"
-                  @input="updateTypography(key as string, Number(($event.target as HTMLInputElement).value))"
+                  :aria-label="ctrl.label"
+                  @input="updateTypography(key, Number(($event.target as HTMLInputElement).value))"
                 >
               </div>
 
               <!-- 首行缩进寮€鍏?-->
-              <label class="control-toggle">
+              <div class="control-toggle">
                 <span>首行缩进</span>
                 <button
+                  type="button"
                   class="indent-toggle"
                   :class="{ active: typography.paragraphIndent }"
+                  :aria-pressed="typography.paragraphIndent"
                   @click="updateTypography('paragraphIndent', !typography.paragraphIndent)"
                 >
                   {{ typography.paragraphIndent ? '2em' : '无' }}
                 </button>
-              </label>
+              </div>
+
+              <div class="control-group">
+                <label>正文对齐</label>
+                <div class="style-options">
+                  <button
+                    v-for="style in textAlignStyles"
+                    :key="style.value"
+                    type="button"
+                    class="style-option"
+                    :class="{ active: typography.textAlign === style.value }"
+                    :aria-pressed="typography.textAlign === style.value"
+                    @click="typography.textAlign = style.value"
+                  >
+                    {{ style.label }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label>标题层级</label>
+                <div class="style-options">
+                  <button
+                    v-for="style in headingScales"
+                    :key="style.value"
+                    type="button"
+                    class="style-option"
+                    :class="{ active: typography.headingScale === style.value }"
+                    :aria-pressed="typography.headingScale === style.value"
+                    @click="typography.headingScale = style.value"
+                  >
+                    {{ style.label }}
+                  </button>
+                </div>
+              </div>
 
               <!-- 鏍囬瑁呴グ椋庢牸 -->
               <div class="control-group">
@@ -3450,8 +4329,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   <button
                     v-for="style in headingStyles"
                     :key="style.value"
+                    type="button"
                     class="style-option"
                     :class="{ active: typography.headingStyle === style.value }"
+                    :aria-pressed="typography.headingStyle === style.value"
                     @click="typography.headingStyle = style.value"
                   >
                     {{ style.label }}
@@ -3466,8 +4347,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   <button
                     v-for="style in blockquoteStyles"
                     :key="style.value"
+                    type="button"
                     class="style-option"
                     :class="{ active: typography.blockquoteStyle === style.value }"
+                    :aria-pressed="typography.blockquoteStyle === style.value"
                     @click="typography.blockquoteStyle = style.value"
                   >
                     {{ style.label }}
@@ -3475,121 +4358,65 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 </div>
               </div>
 
-              <router-link
-                to="/themes"
-                class="inspector-link"
-              >
-                查看全部预设
-              </router-link>
-            </div>
+              <div class="control-group">
+                <label>分隔线</label>
+                <div class="style-options">
+                  <button
+                    v-for="style in dividerStyles"
+                    :key="style.value"
+                    type="button"
+                    class="style-option"
+                    :class="{ active: typography.dividerStyle === style.value }"
+                    :aria-pressed="typography.dividerStyle === style.value"
+                    @click="typography.dividerStyle = style.value"
+                  >
+                    {{ style.label }}
+                  </button>
+                </div>
+              </div>
 
-            <!-- Section 2: 字体鎺у埗 -->
-            <div class="inspector-section">
+              <div class="control-group">
+                <label>图片</label>
+                <div class="style-options">
+                  <button
+                    v-for="style in mediaStyles"
+                    :key="style.value"
+                    type="button"
+                    class="style-option"
+                    :class="{ active: typography.mediaStyle === style.value }"
+                    :aria-pressed="typography.mediaStyle === style.value"
+                    @click="typography.mediaStyle = style.value"
+                  >
+                    {{ style.label }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="inspector-advanced-settings__font">
               <div class="inspector-label">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <polyline points="4 7 4 4 20 4 20 7" /><line
-                    x1="9"
-                    y1="20"
-                    x2="15"
-                    y2="20"
-                  /><line
-                    x1="12"
-                    y1="4"
-                    x2="12"
-                    y2="20"
-                  />
-                </svg>
+                <Type
+                  :size="14"
+                  aria-hidden="true"
+                />
                 <span>字体</span>
               </div>
               <!-- 字体鏃忛€夋嫨鎸夐挳缁?-->
               <div class="font-family-group">
                 <button
+                  v-for="font in fontFamilyOptions"
+                  :key="font.value"
+                  type="button"
                   class="font-family-btn"
-                  :class="{ active: settingsStore.settings.appearance.fontFamily === 'serif' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'serif'"
+                  :class="{ active: settingsStore.settings.appearance.fontFamily === font.value }"
+                  :aria-pressed="settingsStore.settings.appearance.fontFamily === font.value"
+                  @click="settingsStore.settings.appearance.fontFamily = font.value"
                 >
                   <span
                     class="font-family-preview"
-                    :style="{ fontFamily: fontFamilyMap.serif }"
-                  >Aa</span>
-                  <span class="font-family-name">衬线</span>
+                    :style="{ fontFamily: fontFamilyMap[font.value] }"
+                  >{{ font.sample }}</span>
+                  <span class="font-family-name">{{ font.label }}</span>
                 </button>
-                <button
-                  class="font-family-btn"
-                  :class="{ active: settingsStore.settings.appearance.fontFamily === 'sans' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'sans'"
-                >
-                  <span
-                    class="font-family-preview"
-                    :style="{ fontFamily: fontFamilyMap.sans }"
-                  >Aa</span>
-                  <span class="font-family-name">无衬线</span>
-                </button>
-                <button
-                  class="font-family-btn"
-                  :class="{ active: settingsStore.settings.appearance.fontFamily === 'kai' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'kai'"
-                >
-                  <span
-                    class="font-family-preview"
-                    :style="{ fontFamily: fontFamilyMap.kai }"
-                  >Aa</span>
-                  <span class="font-family-name">楷体</span>
-                </button>
-                <button
-                  class="font-family-btn"
-                  :class="{ active: settingsStore.settings.appearance.fontFamily === 'mono' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'mono'"
-                >
-                  <span
-                    class="font-family-preview"
-                    :style="{ fontFamily: fontFamilyMap.mono }"
-                  >Aa</span>
-                  <span class="font-family-name">等宽</span>
-                </button>
-              </div>
-
-              <!-- 瀛楀彿婊戝潡 (12-24px, 姝ヨ繘 1px) -->
-              <div class="inspector-control">
-                <label class="control-label">
-                  <span>正文字号</span>
-                  <span class="control-value">{{ settingsStore.settings.appearance.fontSize }}px</span>
-                </label>
-                <input
-                  type="range"
-                  class="control-slider"
-                  min="12"
-                  max="24"
-                  step="1"
-                  :value="settingsStore.settings.appearance.fontSize"
-                  @input="settingsStore.settings.appearance.fontSize = Number(($event.target as HTMLInputElement).value)"
-                >
-              </div>
-
-              <!-- 行高婊戝潡 (1.4-2.4, 姝ヨ繘 0.1) -->
-              <div class="inspector-control">
-                <label class="control-label">
-                  <span>行高</span>
-                  <span class="control-value">{{ settingsStore.settings.appearance.lineHeight.toFixed(1) }}</span>
-                </label>
-                <input
-                  type="range"
-                  class="control-slider"
-                  min="1.4"
-                  max="2.4"
-                  step="0.1"
-                  :value="settingsStore.settings.appearance.lineHeight"
-                  @input="settingsStore.settings.appearance.lineHeight = Number(($event.target as HTMLInputElement).value)"
-                >
               </div>
 
               <!-- 字体棰勮 -->
@@ -3597,18 +4424,79 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 class="font-preview"
                 :style="{
                   fontFamily: currentFontStack,
-                  fontSize: settingsStore.settings.appearance.fontSize + 'px',
-                  lineHeight: settingsStore.settings.appearance.lineHeight,
+                  fontSize: typography.fontSize + 'px',
+                  lineHeight: typography.lineHeight,
+                  letterSpacing: typography.letterSpacing + 'em',
                 }"
               >
                 永远相信美好的事情即将发生。
                 <br>山河入墨，字里行间自有光。
               </div>
+              </div>
+                </div>
+              </details>
+              <div
+                v-else
+                class="inspector-native-typography-note"
+              >
+                <strong>当前平台采用原生文本交付</strong>
+                <span>小红书使用纯文本、知乎使用语义 Markdown；视觉差异由平台预设负责，不显示无法进入原生产物的微信 CSS 参数。</span>
+              </div>
             </div>
+
+            <Transition
+              name="inspector-widget-dock"
+              mode="out-in"
+            >
+              <div
+                v-if="inspectorWidgetLayouts['document-statistics'].placement === 'docked'"
+                key="document-statistics-docked"
+                class="inspector-section inspector-widget-section"
+              >
+                <div class="inspector-widget-section-header">
+                  <div class="inspector-label">
+                    <ChartNoAxesColumn :size="14" />
+                    <span>文稿统计</span>
+                  </div>
+                  <InspectorWidgetActions
+                    surface-id="document-statistics"
+                    :placement="inspectorWidgetLayouts['document-statistics'].placement"
+                    @float="floatInspectorWidget('document-statistics')"
+                    @native="void detachInspectorWidgetToDesktop('document-statistics')"
+                    @dock="dockInspectorWidget('document-statistics')"
+                    @close="closeInspectorWidget('document-statistics')"
+                  />
+                </div>
+                <InspectorWidgetContent
+                  surface-id="document-statistics"
+                  :payload="inspectorWidgetPayload"
+                />
+              </div>
+              <div
+                v-else
+                key="document-statistics-placeholder"
+                class="inspector-section inspector-widget-placeholder"
+              >
+                <div class="inspector-widget-placeholder__identity">
+                  <ChartNoAxesColumn :size="14" />
+                  <span>
+                    <strong>文稿统计</strong>
+                    <small>{{ inspectorWidgetPlacementText(inspectorWidgetLayouts['document-statistics'].placement) }}</small>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  @click="dockInspectorWidget('document-statistics')"
+                >
+                  在检查器中恢复
+                </button>
+              </div>
+            </Transition>
 
             <!-- Section 3: Writing Assist -->
             <div class="inspector-section">
               <WritingAssistPanel
+                :show-overview="false"
                 :current-document-words="writingGoalProgress.currentDocumentWords"
                 :today-words="writingGoalProgress.todayWords"
                 :weekly-words="writingGoalProgress.weeklyWords"
@@ -3661,119 +4549,122 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               </div>
             </div>
 
-            <!-- Section 4: 引用链接 -->
-            <div class="inspector-section">
-              <div class="inspector-label">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                </svg>
-                <span>引用链接</span>
-                <span
-                  v-if="extractedLinks.length > 0"
-                  class="inspector-count"
-                >{{ extractedLinks.length }}</span>
-              </div>
+            <!-- Section 5: 引用链接 -->
+            <Transition
+              name="inspector-widget-dock"
+              mode="out-in"
+            >
               <div
-                v-if="extractedLinks.length === 0"
-                class="inspector-empty-hint"
+                v-if="inspectorWidgetLayouts.references.placement === 'docked'"
+                key="references-docked"
+                class="inspector-section inspector-widget-section inspector-widget-section--references"
               >
-                <p>暂无外部链接引用</p>
-                <p class="inspector-empty-sub">
-                  在 Markdown 中使用 [文字](URL) 添加链接
-                </p>
+                <div class="inspector-widget-section-header">
+                  <div class="inspector-label">
+                    <Link2 :size="14" />
+                    <span>引用链接</span>
+                    <span
+                      v-if="extractedLinks.length > 0"
+                      class="inspector-count"
+                    >{{ extractedLinks.length }}</span>
+                  </div>
+                  <InspectorWidgetActions
+                    surface-id="references"
+                    :placement="inspectorWidgetLayouts.references.placement"
+                    @float="floatInspectorWidget('references')"
+                    @native="void detachInspectorWidgetToDesktop('references')"
+                    @dock="dockInspectorWidget('references')"
+                    @close="closeInspectorWidget('references')"
+                  />
+                </div>
+                <InspectorWidgetContent
+                  surface-id="references"
+                  :payload="inspectorWidgetPayload"
+                />
               </div>
               <div
                 v-else
-                class="inspector-links-list"
+                key="references-placeholder"
+                class="inspector-section inspector-widget-placeholder"
               >
-                <div
-                  v-for="(link, idx) in extractedLinks"
-                  :key="idx"
-                  class="link-item"
-                >
-                  <a
-                    :href="link.href"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="link-item-main"
-                    :title="link.href"
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line
-                        x1="10"
-                        y1="14"
-                        x2="21"
-                        y2="3"
-                      />
-                    </svg>
-                    <div class="link-item-content">
-                      <span class="link-text">{{ link.text }}</span>
-                      <span class="link-href">{{ link.href }}</span>
-                    </div>
-                  </a>
-                  <button
-                    class="link-copy-btn"
-                    :class="{ copied: copiedLinkIndex === idx }"
-                    :title="copiedLinkIndex === idx ? 'Copied' : 'Copy link'"
-                    @click="copyLinkToClipboard(link.href, idx)"
-                  >
-                    <svg
-                      v-if="copiedLinkIndex === idx"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                    <svg
-                      v-else
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <rect
-                        x="9"
-                        y="9"
-                        width="13"
-                        height="13"
-                        rx="2"
-                        ry="2"
-                      /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                  </button>
+                <div class="inspector-widget-placeholder__identity">
+                  <Link2 :size="14" />
+                  <span>
+                    <strong>引用链接</strong>
+                    <small>{{ inspectorWidgetPlacementText(inspectorWidgetLayouts.references.placement) }}</small>
+                  </span>
                 </div>
+                <button
+                  type="button"
+                  @click="dockInspectorWidget('references')"
+                >
+                  在检查器中恢复
+                </button>
               </div>
-            </div>
+            </Transition>
           </div>
         </template>
       </aside>
     </div>
+
+    <TransitionGroup
+      name="inspector-widget-float"
+      tag="div"
+      class="inspector-widget-layer"
+      aria-label="应用内悬浮检查器小组件"
+    >
+      <article
+        v-for="surfaceId in floatingInspectorWidgetIds"
+        :key="surfaceId"
+        class="floating-inspector-widget"
+        :data-inspector-widget-id="surfaceId"
+        :class="{ active: activeFloatingWidgetId === surfaceId }"
+        :style="{
+          width: inspectorWidgetLayouts[surfaceId].width + 'px',
+          height: inspectorWidgetLayouts[surfaceId].height + 'px',
+          transform: `translate3d(${inspectorWidgetLayouts[surfaceId].x}px, ${inspectorWidgetLayouts[surfaceId].y}px, 0)`,
+        }"
+        @pointerdown="activeFloatingWidgetId = surfaceId"
+      >
+        <header class="floating-inspector-widget__header">
+          <button
+            type="button"
+            class="floating-inspector-widget__grip"
+            :aria-label="`移动${INSPECTOR_WIDGET_META[surfaceId].title}；方向键微调，Shift 加速`"
+            :title="`拖动${INSPECTOR_WIDGET_META[surfaceId].title}`"
+            @pointerdown="startInspectorWidgetDrag($event, surfaceId, 'move')"
+            @keydown="handleInspectorWidgetKeydown($event, surfaceId, 'move')"
+          >
+            <GripHorizontal :size="15" />
+            <span>{{ INSPECTOR_WIDGET_META[surfaceId].title }}</span>
+          </button>
+          <InspectorWidgetActions
+            :surface-id="surfaceId"
+            :placement="inspectorWidgetLayouts[surfaceId].placement"
+            @float="floatInspectorWidget(surfaceId)"
+            @native="void detachInspectorWidgetToDesktop(surfaceId)"
+            @dock="dockInspectorWidget(surfaceId)"
+            @close="closeInspectorWidget(surfaceId)"
+          />
+        </header>
+        <div class="floating-inspector-widget__body">
+          <InspectorWidgetContent
+            :surface-id="surfaceId"
+            :payload="inspectorWidgetPayload"
+          />
+        </div>
+        <button
+          type="button"
+          class="floating-inspector-widget__resize"
+          :aria-label="`调整${INSPECTOR_WIDGET_META[surfaceId].title}大小；方向键微调，Shift 加速`"
+          title="拖动或使用方向键调整大小"
+          @pointerdown="startInspectorWidgetDrag($event, surfaceId, 'resize')"
+          @keydown="handleInspectorWidgetKeydown($event, surfaceId, 'resize')"
+        >
+          <MoveDiagonal2 :size="13" />
+        </button>
+      </article>
+    </TransitionGroup>
 
     <!-- 鈺愨晲鈺?导出妯℃€佹 鈺愨晲鈺?-->
     <transition name="mode-toast">
@@ -3787,10 +4678,19 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
       </div>
     </transition>
 
+    <DeliverySettingsModal
+      :visible="showDeliverySettings"
+      :model-value="settingsStore.settings.export.deliveryAdornment"
+      platform="wechat"
+      :initial-section="deliverySettingsSection"
+      @update:model-value="updateDeliveryAdornment"
+      @close="showDeliverySettings = false"
+    />
     <ExportModal
       :visible="showExportModal"
       :content="normalizedBody"
       :title="currentContent?.title"
+      :article-category="articleCategory"
       :initial-platform="settingsStore.settings.export.defaultPlatform"
       :export-custom-css="settingsStore.settings.export.customCss"
       @close="showExportModal = false"
@@ -3814,8 +4714,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 /* 鈹€鈹€鈹€ 鏍瑰鍣?鈹€鈹€鈹€ */
 .workstation {
+  position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: var(--bg-rice-paper);
@@ -3925,36 +4826,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   box-shadow: var(--elev-1);
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  gap: 16px;
+  padding: 0 14px;
+  gap: 12px;
   backdrop-filter: blur(12px);
   z-index: 10;
-}
-
-/* 鈹€鈹€鈹€ 鍝佺墝鍖?鈹€鈹€鈹€ */
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-right: 16px;
-  border-right: 1px solid var(--hairline);
-  cursor: pointer;
-  transition: opacity var(--motion-fast) var(--ease-out-quart);
-  flex-shrink: 0;
-}
-
-.header-brand:hover {
-  opacity: 0.78;
-}
-
-.header-logo {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
 
 /* 鈹€鈹€鈹€ 鏍囬鍖?鈹€鈹€鈹€ */
@@ -3975,7 +4850,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   outline: none;
   padding: 6px 10px;
   border-radius: var(--radius-medium);
-  min-width: 280px;
+  min-width: 120px;
+  width: 100%;
   max-width: 400px;
   transition: background-color var(--motion-fast) var(--ease-out-quart);
 }
@@ -4033,8 +4909,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .icon-btn {
@@ -4052,6 +4929,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               color var(--motion-fast) var(--ease-out-quart),
               transform var(--motion-fast) var(--ease-out-quart),
               box-shadow var(--motion-fast) var(--ease-out-quart);
+}
+
+.header-back-btn {
+  flex-shrink: 0;
 }
 
 .icon-btn:hover {
@@ -4091,6 +4972,16 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   background: var(--bg-rice-paper);
 }
 
+.workstation-mode-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-large);
+  background: var(--bg-surface);
+}
+
 .layout-preset-btn {
   height: 28px;
   padding: 0 9px;
@@ -4112,6 +5003,41 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .layout-preset-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.mode-action-btn {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: none;
+  border-radius: var(--radius-medium);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
+}
+
+.mode-action-btn:hover,
+.mode-action-btn.active {
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
+}
+
+.mode-action-btn.unavailable {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.mode-action-btn:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }
@@ -4169,49 +5095,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
    Edge Triggers (杈圭紭瑙﹀彂鍣?
    鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?*/
-
-.edge-trigger {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 12px;
-  z-index: 100;
-  cursor: pointer;
-}
-
-.edge-trigger.left {
-  left: 0;
-}
-
-.edge-trigger.right {
-  right: 0;
-}
-
-.edge-trigger::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 48px;
-  background: var(--text-muted);
-  border-radius: 2px;
-  opacity: 0;
-  transition: opacity var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart);
-}
-
-.edge-trigger.left::before {
-  left: 4px;
-}
-
-.edge-trigger.right::before {
-  right: 4px;
-}
-
-.edge-trigger:hover::before {
-  opacity: 0.6;
-  transform: translateY(-50%) scaleY(1.2);
-}
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
    閫氱敤闈㈡澘
@@ -4287,13 +5170,22 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 .focus-vignette .vignette-overlay {
   opacity: 1;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.18) 0,
-    transparent var(--focus-vignette-height),
-    transparent calc(100% - var(--focus-vignette-height)),
-    rgba(0, 0, 0, 0.18) 100%
-  );
+  background:
+    radial-gradient(
+      ellipse 92% calc(var(--focus-vignette-height) + var(--focus-vignette-height))
+      at 50% var(--focus-cursor-position),
+      transparent 0%,
+      transparent 46%,
+      rgb(23 29 32 / 0.035) 72%,
+      rgb(23 29 32 / var(--focus-vignette-intensity)) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgb(23 29 32 / var(--focus-vignette-intensity)) 0,
+      transparent max(0%, calc(var(--focus-cursor-position) - var(--focus-vignette-height))),
+      transparent min(100%, calc(var(--focus-cursor-position) + var(--focus-vignette-height))),
+      rgb(23 29 32 / var(--focus-vignette-intensity)) 100%
+    );
 }
 
 .panel-editor--preview {
@@ -4307,6 +5199,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .editor-split-shell {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -4324,6 +5217,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex: var(--split-left-ratio, 0.5) 1 0;
   min-width: 280px;
   font-size: var(--split-left-font-size, 16px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .editor-split-shell:not(.active) .split-pane-left {
@@ -4438,12 +5334,65 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   background: var(--paper-warm);
 }
 
-.split-preview-content :deep(.markdown-preview) {
+.split-preview-content .preview-content {
   min-height: 100%;
   height: auto;
   overflow: visible;
-  padding: 20px;
+  padding: 0;
   background: transparent;
+}
+
+.split-view-unavailable {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 8;
+  width: min(360px, calc(100% - 28px));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-large);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  box-shadow: var(--elev-2);
+}
+
+.split-view-unavailable > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.split-view-unavailable strong {
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.split-view-unavailable span {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.split-view-unavailable button {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.split-view-unavailable button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 :global(body.split-view-resizing) {
@@ -4455,16 +5404,16 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   transition: none;
 }
 
-@container (max-width: 720px) {
+@container (max-width: 719px) {
   .editor-split-shell,
   .editor-split-shell.active {
-    display: block;
+    display: flex;
   }
 
   .split-pane-left {
     width: 100%;
     min-width: 0;
-    flex: none;
+    flex: 1 1 auto;
   }
 
   .split-divider,
@@ -4484,39 +5433,60 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     min-width: min(var(--workstation-stage-width, 400px), 400px);
   }
 
-  .panel-inspector:not(.collapsed) {
+  .panel-inspector.pinned:not(.collapsed) {
     width: min(var(--workstation-inspector-width, 260px), 260px);
     min-width: min(var(--workstation-inspector-width, 260px), 260px);
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .workstation-header {
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .layout-preset-btn,
+  .mode-action-btn {
+    padding-inline: 7px;
+  }
+
+  .publish-btn {
+    padding-inline: 12px;
   }
 }
 
 @media (max-width: 900px) {
   .workstation {
     width: 100%;
-    min-height: 100vh;
+    min-height: 100%;
     height: auto;
     overflow-x: hidden;
     overflow-y: auto;
   }
 
   .workstation-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
     height: auto;
     min-height: 0;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
     padding: 10px 12px;
   }
 
-  .header-brand {
-    border-right: none;
-    padding-right: 8px;
+  .header-back-btn {
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .header-title {
-    order: 2;
-    flex-basis: 100%;
-    width: 100%;
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
   }
 
   .header-title-input {
@@ -4527,7 +5497,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   }
 
   .header-actions {
-    order: 3;
+    grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
     flex-wrap: wrap;
     overflow: visible;
@@ -4542,7 +5513,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
   .layout-presets {
     flex-wrap: wrap;
-    max-width: calc(100% - 78px);
+  }
+
+  .workstation-mode-group {
+    flex-wrap: wrap;
   }
 
   .layout-preset-btn {
@@ -4560,10 +5534,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     flex-direction: column;
     min-height: 0;
     overflow: visible;
-  }
-
-  .edge-trigger {
-    display: none;
   }
 
   .panel {
@@ -4591,18 +5561,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
   .editor-split-shell,
   .editor-split-shell.active {
-    display: block;
+    display: flex;
   }
 
   .split-pane-left {
     width: 100%;
     min-width: 0;
-    flex: none;
-  }
-
-  .split-divider,
-  .split-pane-right {
-    display: none;
+    flex: 1 1 auto;
   }
 
   .panel-stage,
@@ -4689,22 +5654,22 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: flex-start;
 }
 
-.preview-mode-body :deep(.markdown-preview) {
+.preview-mode-body .preview-content {
   min-height: 100%;
   margin: 0;
-  padding: 24px 20px;
+  padding: 0;
   background: transparent;
 }
 
-/* 真机预览容器：模拟 375px 移动视口，确保中文每行 18-22 字 */
+/* 平台编辑画布承载层：宽度由平台 fidelity wrapper 自己声明。 */
 .preview-device-frame {
   flex-shrink: 0;
-  width: 375px;
+  width: min(100%, 896px);
   max-width: 100%;
-  background: var(--paper-warm);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
-  border-radius: var(--radius-xlarge);
-  box-shadow: var(--elev-3);
+  border-radius: var(--radius-large);
+  box-shadow: var(--elev-2);
   overflow: hidden;
 }
 
@@ -4735,6 +5700,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .stage-collapsed-bar {
   width: 100%;
   height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -4759,10 +5728,33 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   position: relative;
   width: var(--workstation-inspector-width, 260px);
   min-width: var(--workstation-inspector-width, 260px);
-  flex-shrink: 0;
+  margin-left: 0;
+  flex: 0 0 auto;
   border-right: none;
   border-left: 1px solid var(--hairline);
-  transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
+  transition:
+    width var(--motion-slow) var(--ease-out-quart),
+    min-width var(--motion-slow) var(--ease-out-quart),
+    margin-left var(--motion-slow) var(--ease-out-quart),
+    transform var(--motion-slow) var(--ease-out-quart),
+    box-shadow var(--motion-base) var(--ease-out-quart);
+}
+
+.panel-inspector:not(.collapsed) {
+  overflow: visible;
+}
+
+@media (min-width: 901px) {
+  .panel-inspector:not(.pinned):not(.collapsed) {
+    margin-left: calc(12px - var(--workstation-inspector-width, 260px));
+    transform: translateX(calc(0px - var(--workstation-stage-width, 400px)));
+    z-index: 20;
+    box-shadow: var(--elev-2);
+  }
+
+  .main-content.stage-is-collapsed .panel-inspector:not(.pinned):not(.collapsed) {
+    transform: translateX(-12px);
+  }
 }
 
 .inspector-resize-handle {
@@ -4800,6 +5792,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .manager-collapsed-bar {
   width: 100%;
   height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -4815,7 +5811,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   color: inherit;
 }
 
-.manager-collapsed-bar:focus-visible {
+.manager-collapsed-bar:focus-visible,
+.stage-collapsed-bar:focus-visible,
+.inspector-collapsed-bar:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 1px var(--ember);
 }
@@ -4928,13 +5926,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 0 8px 0 0;
-  gap: 4px;
-  overflow: hidden;
+  padding: 0 6px 0 0;
+  gap: 2px;
+  overflow: visible;
 }
 
 .panel-tab-strip {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 2px;
   padding: 4px;
   background: var(--bg-rice-paper);
@@ -4942,18 +5941,19 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: stretch;
   flex: 1 1 auto;
   min-width: 0;
-  margin: 12px 8px;
+  margin: 10px 4px 10px 8px;
 }
 
 .panel-tab {
-  flex: 1 1 0;
   min-width: 0;
+  min-height: 42px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 9px 4px;
-  font-size: 13px;
+  gap: 2px;
+  padding: 5px 2px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
   text-align: center;
@@ -4961,17 +5961,15 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   border: none;
   background: transparent;
   cursor: pointer;
-  line-height: 1.3;
+  line-height: 1.15;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   transition: background var(--motion-base) var(--ease-out-quart), color var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 .panel-tab :deep(svg) {
   flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   stroke-width: 2;
 }
 
@@ -4985,6 +5983,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   color: var(--ember);
   font-weight: 600;
   box-shadow: var(--elev-1);
+}
+
+.panel-tab:focus-visible,
+.collapse-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5155,6 +6159,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   color: var(--text-primary);
 }
 
+.stage-header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 /* ─── 预览面板「示例内容」徽章 ─── */
 .preview-sample-hint {
   position: absolute;
@@ -5194,90 +6204,85 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   overflow: hidden;
 }
 
-/* 鈹€鈹€鈹€ iPhone 璁惧妗?鈹€鈹€鈹€ */
+/* 平台编辑画布：窄栏中按容器缩放，不伪造 iPhone chrome。 */
 .device-frame {
   width: 100%;
   max-width: 375px;
   flex: 1 1 0;
   min-height: 320px;
-  background: var(--paper-warm);
-  border-radius: 28px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-large);
   border: 1px solid var(--hairline);
-  padding: 46px 4px 22px;
+  padding: 4px;
   position: relative;
-  box-shadow: var(--elev-3);
+  box-shadow: var(--elev-2);
   display: flex;
   flex-direction: column;
 }
 
-/* 真机预览：strip section inline padding/max-width/字号，强制移动 18-22 字/行 */
-.panel-stage .preview-content :deep(section) {
-  padding: 0 !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  font-size: 16px !important;
-  line-height: 1.7 !important;
-}
-
-.panel-stage .preview-content :deep(section h1) {
-  font-size: 22px !important;
-  line-height: 1.4 !important;
-}
-
-.panel-stage .preview-content :deep(section h2) {
-  font-size: 18px !important;
-  line-height: 1.4 !important;
-}
-
-.panel-stage .preview-content :deep(section h3) {
-  font-size: 16px !important;
-  line-height: 1.4 !important;
-}
-
-.panel-stage .preview-content :deep(section p),
-.panel-stage .preview-content :deep(section li),
-.panel-stage .preview-content :deep(section blockquote) {
-  font-size: 16px !important;
-  line-height: 1.7 !important;
-}
-
-/* 鍒樻捣 */
+/* 旧设备装饰保留 DOM 兼容，但平台编辑器预览不显示伪造刘海与 Home Indicator。 */
 .device-notch {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 88px;
-  height: 24px;
-  background: #0F0F0F;
-  border-radius: 999px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
+  display: none;
 }
 
-/* 灞忓箷鍐呭鍖?*/
+/* 编辑画布滚动区 */
 .device-screen {
   background: var(--bg-surface);
-  border-radius: 18px;
+  border-radius: calc(var(--radius-large) - 2px);
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 12px 8px;
+  padding: 0;
   position: relative;
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  box-shadow: none;
+}
+
+.device-screen > :deep(.widget-content) {
+  height: 100%;
+}
+
+.stage-widget-placeholder {
+  flex: 1;
+  min-height: 260px;
+  width: calc(100% - 20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 24px;
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius-large);
+  background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+  color: var(--text-muted);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.stage-widget-placeholder strong {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.stage-widget-placeholder span {
+  max-width: 260px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.stage-widget-placeholder button {
+  margin-top: 4px;
+  padding: 7px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 /* Home Indicator */
 .device-home-indicator {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 34px;
-  height: 3px;
-  background: var(--text-muted);
-  border-radius: 999px;
-  flex-shrink: 0;
+  display: none;
 }
 
 /* 璁惧灞忓箷鍐呮粴鍔ㄦ潯 */
@@ -5342,8 +6347,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .preview-content {
-  font-size: 14px;
-  line-height: 1.6;
   color: var(--text-primary);
   overflow-wrap: break-word;
   word-break: break-word;
@@ -5365,7 +6368,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: flex;
   gap: 8px;
   width: 100%;
-  max-width: 320px;
+  max-width: 360px;
   margin-top: 4px;
 }
 
@@ -5497,6 +6500,195 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex: 1;
 }
 
+.inspector-widget-menu {
+  position: relative;
+}
+
+.inspector-widget-menu-trigger {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.inspector-widget-menu-trigger:hover,
+.inspector-widget-menu-trigger.active {
+  border-color: var(--hairline);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
+}
+
+.inspector-widget-menu-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -4px;
+  z-index: 120;
+  width: min(340px, calc(100vw - 24px));
+  max-height: min(520px, calc(100vh - 150px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-large);
+  background: color-mix(in srgb, var(--bg-surface) 97%, var(--bg-rice-paper));
+  box-shadow: var(--elev-3);
+}
+
+.inspector-widget-menu-popover__header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px 10px 12px;
+  border-bottom: 1px solid var(--hairline);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-primary) 7%, transparent), transparent 55%),
+    var(--bg-surface);
+}
+
+.inspector-widget-menu-popover__header > span {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inspector-widget-menu-popover__header strong {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.inspector-widget-menu-popover__header small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-widget-menu-popover__header button {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.inspector-widget-menu-popover__header button:hover,
+.inspector-widget-menu-popover__header button:focus-visible {
+  border-color: var(--hairline);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
+}
+
+.inspector-widget-menu-popover__list {
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.inspector-widget-menu-item {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  background: color-mix(in srgb, var(--bg-rice-paper) 58%, transparent);
+  color: var(--text-secondary);
+}
+
+.inspector-widget-menu-item:hover,
+.inspector-widget-menu-item:focus-within {
+  border-color: var(--hairline);
+  background: var(--bg-rice-paper);
+}
+
+.inspector-widget-menu-item[data-placement='floating'],
+.inspector-widget-menu-item[data-placement='native'] {
+  border-color: color-mix(in srgb, var(--accent-primary) 22%, var(--hairline));
+  background: color-mix(in srgb, var(--accent-primary) 6%, var(--bg-surface));
+}
+
+.inspector-widget-menu-item__identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.inspector-widget-menu-item__identity > span:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.inspector-widget-menu-item__icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+}
+
+.inspector-widget-menu-item strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-widget-menu-item small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-window-enter-active,
+.inspector-window-leave-active {
+  transform-origin: top right;
+  transition:
+    opacity var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-base) var(--ease-out-quart);
+}
+
+.inspector-window-enter-from,
+.inspector-window-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+
 .inspector-pin-btn {
   width: 24px;
   height: 24px;
@@ -5537,6 +6729,111 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 .inspector-section:last-child {
   border-bottom: none;
+}
+
+.inspector-widget-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.inspector-widget-section-header .inspector-label {
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.inspector-widget-placeholder {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent-primary) 5%, transparent), transparent 48%),
+    color-mix(in srgb, var(--bg-rice-paper) 58%, transparent);
+}
+
+.inspector-widget-placeholder__identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-muted);
+}
+
+.inspector-widget-placeholder__identity > span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.inspector-widget-placeholder__identity strong {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-widget-placeholder__identity small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-widget-placeholder > button {
+  flex: 0 0 auto;
+  padding: 6px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 10px;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--ease-out-quart),
+    background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart);
+}
+
+.inspector-widget-placeholder > button:hover,
+.inspector-widget-placeholder > button:focus-visible {
+  border-color: color-mix(in srgb, var(--accent-primary) 32%, var(--hairline));
+  background: color-mix(in srgb, var(--accent-primary) 7%, var(--bg-surface));
+  color: var(--text-primary);
+}
+
+.inspector-widget-dock-enter-active,
+.inspector-widget-dock-leave-active {
+  overflow: hidden;
+  transition:
+    opacity var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-base) var(--ease-out-quart),
+    max-height var(--motion-base) var(--ease-out-quart),
+    padding-block var(--motion-base) var(--ease-out-quart);
+}
+
+.inspector-widget-dock-enter-active {
+  max-height: 640px;
+}
+
+.inspector-widget-dock-enter-from,
+.inspector-widget-dock-leave-to {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.inspector-widget-section--references {
+  min-height: 260px;
 }
 
 .inspector-label {
@@ -5583,7 +6880,86 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px currentColor;
 }
 
+.inspector-advanced-settings {
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
+}
+
+.inspector-advanced-settings__summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  list-style: none;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
+}
+
+.inspector-advanced-settings__summary::-webkit-details-marker {
+  display: none;
+}
+
+.inspector-advanced-settings__summary:hover,
+.inspector-advanced-settings__summary:focus-visible {
+  color: var(--text-primary);
+  background: var(--bg-rice-paper);
+  outline: none;
+}
+
+.inspector-advanced-settings__summary:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent-primary);
+}
+
+.inspector-advanced-settings__copy {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inspector-advanced-settings__copy strong {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.inspector-advanced-settings__copy small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-advanced-settings__chevron {
+  flex-shrink: 0;
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.inspector-advanced-settings[open] .inspector-advanced-settings__chevron {
+  transform: rotate(180deg);
+}
+
+.inspector-advanced-settings__body {
+  padding: 8px 10px 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.inspector-advanced-settings__font {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
 .inspector-link {
+  margin-top: 10px;
   font-size: 12px;
   color: var(--accent-primary, #D32F2F);
   text-decoration: none;
@@ -5598,9 +6974,27 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 /* 鈹€鈹€鈹€ 字体鏃忔寜閽粍 鈹€鈹€鈹€ */
 .font-family-group {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   margin-bottom: 12px;
+}
+
+.inspector-native-typography-note {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-rice-paper);
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.inspector-native-typography-note strong {
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .font-family-btn {
@@ -5902,6 +7296,104 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   white-space: nowrap;
 }
 
+.preset-signature-card {
+  --preset-accent: var(--accent-primary, #D32F2F);
+  position: relative;
+  margin: 0 0 10px;
+  padding: 10px 11px 11px;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--preset-accent);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
+  box-shadow: var(--elev-1);
+  animation: presetSignatureIn 180ms var(--ease-out-quart) both;
+}
+
+.preset-signature-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--preset-accent), transparent 70%);
+  opacity: 0.45;
+}
+
+.preset-signature-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.preset-signature-card__header strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-signature-card__header span {
+  flex: none;
+  color: var(--preset-accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.preset-signature-card__details {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.preset-signature-card__details > div {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 7px;
+  align-items: baseline;
+}
+
+.preset-signature-card__details dt {
+  color: var(--text-muted);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.preset-signature-card__details dd {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.preset-signature-card__modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.preset-signature-card__modules span {
+  padding: 2px 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+@keyframes presetSignatureIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
 /* 鈹€鈹€鈹€ 鎺у埗缁?鈹€鈹€鈹€ */
 .control-group {
   display: flex;
@@ -6108,26 +7600,20 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .focus-mode.focus-vignette .focus-overlay {
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(38, 50, 56, 0.14) 0,
-      transparent var(--focus-vignette-height),
-      transparent calc(100% - var(--focus-vignette-height)),
-      rgba(38, 50, 56, 0.14) 100%
-    ),
-    radial-gradient(
-      ellipse 80% 60% at 50% 50%,
-      transparent 0%,
-      rgba(0, 0, 0, 0.03) 60%,
-      rgba(0, 0, 0, 0.08) 100%
-    );
+  background: radial-gradient(
+    ellipse 84% calc(var(--focus-vignette-height) + var(--focus-vignette-height))
+    at 50% var(--focus-cursor-position),
+    transparent 0%,
+    transparent 54%,
+    rgb(23 29 32 / 0.035) 76%,
+    rgb(23 29 32 / 0.1) 100%
+  );
 }
 
 .focus-exit-btn {
-  position: fixed;
-  top: 18px;
-  right: 20px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
   z-index: 120;
   display: inline-flex;
   align-items: center;
@@ -6188,11 +7674,127 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   opacity: 1;
 }
 
-/* focus mode 涓嬮殣钘忛《鏍忔搷浣滃尯锛岄伩鍏嶄笌 .focus-exit-btn (top:18/right:20) 閲嶅彔 */
+/* 专注模式只保留编辑区内的退出入口，应用标题栏安全区仍由全局 TitleBar 管理。 */
 .focus-mode .workstation-header .header-actions,
 .focus-mode .workstation-header .layout-presets,
 .focus-mode .workstation-header .publish-btn {
   display: none;
+}
+
+.inspector-widget-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+}
+
+.floating-inspector-widget {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 280px;
+  min-height: 220px;
+  display: grid;
+  grid-template-rows: 38px minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--hairline) 82%, var(--text-muted));
+  border-radius: var(--radius-large);
+  background: var(--bg-surface);
+  box-shadow: var(--elev-3);
+  pointer-events: auto;
+  transition:
+    border-color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-base) var(--ease-out-quart);
+}
+
+.floating-inspector-widget.active {
+  z-index: 2;
+  border-color: color-mix(in srgb, var(--accent-primary) 36%, var(--hairline));
+  box-shadow:
+    0 18px 48px color-mix(in srgb, var(--text-primary) 15%, transparent),
+    var(--elev-3);
+}
+
+.inspector-widget-float-enter-active,
+.inspector-widget-float-leave-active {
+  transition:
+    opacity var(--motion-base) var(--ease-out-quart),
+    scale var(--motion-base) var(--ease-out-quart),
+    filter var(--motion-base) var(--ease-out-quart);
+}
+
+.inspector-widget-float-enter-from,
+.inspector-widget-float-leave-to {
+  opacity: 0;
+  scale: 0.96;
+  filter: blur(3px);
+}
+
+.floating-inspector-widget__header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 7px;
+  border-bottom: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--bg-surface) 92%, var(--bg-rice-paper));
+}
+
+.floating-inspector-widget__grip {
+  min-width: 0;
+  flex: 1;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 5px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: grab;
+  text-align: left;
+}
+
+.floating-inspector-widget__grip:active {
+  cursor: grabbing;
+}
+
+.floating-inspector-widget__grip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.floating-inspector-widget__body {
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+
+.floating-inspector-widget__resize {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-medium);
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  color: var(--text-muted);
+  cursor: nwse-resize;
+}
+
+.floating-inspector-widget__resize:hover,
+.floating-inspector-widget__resize:focus-visible {
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
 }
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?

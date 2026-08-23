@@ -2,8 +2,13 @@ import { Extension } from '@tiptap/core'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { Plugin, PluginKey, type EditorState, type Selection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import { marked } from 'marked'
 import { isValidFootnoteId, serializeCitationElementFromHtml } from '@/services/citation'
-import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
+import {
+  CJK_EMPHASIS_BOUNDARY,
+  normalizeCjkAdjacentEmphasis,
+  renderInkforgeMarkdownExtensions,
+} from '@/services/markdown-ext/render'
 import { createInkforgeAssetUrl, extractInkforgeAssetId } from '@/utils/asset-url'
 
 export type EditorMode = 'typora' | 'source' | 'preview'
@@ -284,7 +289,10 @@ function footnoteListToMarkdown(list: HTMLElement): string {
 }
 
 function isFootnoteTitleElement(node: Node | undefined): node is HTMLElement {
-  return node instanceof HTMLElement && node.classList.contains('ink-footnotes__title')
+  return node instanceof HTMLElement && (
+    node.classList.contains('ink-footnotes__title') ||
+    (node.tagName.toLowerCase() === 'h2' && node.textContent?.trim().toLowerCase() === 'footnotes')
+  )
 }
 
 function isOrderedFootnoteList(node: Node | undefined): node is HTMLElement {
@@ -376,7 +384,7 @@ function listItemToMarkdown(element: HTMLElement, depth: number, context: ListCo
     return contentLine
   }
 
-  return `${contentLine}\n${nestedLists.join('\n').trim()}`
+  return `${contentLine}\n${nestedLists.join('\n').trimEnd()}`
 }
 
 function blockquoteToMarkdown(element: HTMLElement): string {
@@ -459,6 +467,10 @@ function nodeToMarkdown(node: Node, depth: number, inlineContext: boolean): stri
   if (tag === 'section' && node.classList.contains('ink-bibliography')) {
     return ''
   }
+  const componentSource = node.getAttribute('data-ink-component-source')
+  if (componentSource) {
+    return `${componentSource}\n\n`
+  }
 
   const inlineContent = inlineChildrenToMarkdown(node)
 
@@ -506,6 +518,11 @@ function nodeToMarkdown(node: Node, depth: number, inlineContext: boolean): stri
     case 'summary':
       return ''
     case 'a': {
+      const footnoteRef = node.querySelector<HTMLElement>('.ink-footnote-ref')
+      if (footnoteRef && footnoteRef.textContent?.trim() === node.textContent?.trim()) {
+        return nodeToMarkdown(footnoteRef, depth, true)
+      }
+
       const href = node.getAttribute('href') ?? ''
       return href ? `[${inlineContent || href}](${href})` : inlineContent
     }
@@ -523,10 +540,12 @@ function nodeToMarkdown(node: Node, depth: number, inlineContext: boolean): stri
       return inlineContext ? `\`${node.textContent ?? ''}\`` : `\`${node.textContent ?? ''}\`\n\n`
     case 'mark':
       return `==${inlineContent}==`
+    case 'u':
+      return `<u>${inlineContent}</u>`
     case 'sup':
-      return `^${inlineContent}^`
+      return `<sup>${inlineContent}</sup>`
     case 'sub':
-      return `~${inlineContent}~`
+      return `<sub>${inlineContent}</sub>`
     case 'br':
       return inlineContext ? '  \n' : '\n'
     case 'section':
@@ -545,11 +564,79 @@ function nodeToMarkdown(node: Node, depth: number, inlineContext: boolean): stri
 }
 
 export function isLikelyHtmlContent(value: string | null | undefined): boolean {
-  if (!value) {
+  const normalized = value?.trim()
+  if (
+    !normalized ||
+    !/<([a-z][\w-]*)(?:\s[^>]*)?>/i.test(normalized) ||
+    !/<\/([a-z][\w-]*)>/i.test(normalized)
+  ) {
     return false
   }
 
-  return /<([a-z][\w-]*)(?:\s[^>]*)?>/i.test(value) && /<\/([a-z][\w-]*)>/i.test(value)
+  if (/^[ \t]*<[A-Z][A-Za-z0-9]{1,63}(?:\s+.*?)?\s*\/>[ \t]*$/m.test(normalized)) {
+    return false
+  }
+
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(normalized, 'text/html')
+  let hasElement = false
+
+  for (const node of doc.body.childNodes) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      hasElement = true
+      continue
+    }
+
+    if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+      return false
+    }
+  }
+
+  return hasElement
+}
+
+function normalizeEditorTaskLists(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const lists = Array.from(doc.body.querySelectorAll<HTMLUListElement>('ul')).reverse()
+
+  for (const list of lists) {
+    const items = Array.from(list.children).filter(
+      (child): child is HTMLLIElement => child instanceof HTMLLIElement,
+    )
+    const groups: Array<{ task: boolean; items: HTMLLIElement[] }> = []
+
+    for (const item of items) {
+      const checkbox = Array.from(item.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'))
+        .find(input => input.closest('li') === item)
+      const checkedAttribute = item.getAttribute('data-checked')
+      const task = Boolean(checkbox) || checkedAttribute === 'true' || checkedAttribute === 'false'
+      if (checkbox) {
+        item.dataset.checked = checkbox.checked || checkbox.hasAttribute('checked') ? 'true' : 'false'
+        checkbox.remove()
+      }
+      if (task) item.dataset.type = 'taskItem'
+
+      const last = groups.at(-1)
+      if (!last || last.task !== task) {
+        groups.push({ task, items: [item] })
+      } else {
+        last.items.push(item)
+      }
+    }
+
+    if (!groups.some(group => group.task)) continue
+
+    const replacements = groups.map((group) => {
+      const replacement = list.cloneNode(false) as HTMLUListElement
+      replacement.removeAttribute('data-type')
+      if (group.task) replacement.dataset.type = 'taskList'
+      replacement.append(...group.items)
+      return replacement
+    })
+    list.replaceWith(...replacements)
+  }
+
+  return doc.body.innerHTML
 }
 
 export async function renderMarkdownToHtml(markdown: string): Promise<string> {
@@ -558,7 +645,14 @@ export async function renderMarkdownToHtml(markdown: string): Promise<string> {
     return ''
   }
 
-  return renderMarkdownWithLazyOptionalEnhancements(normalized)
+  // Keep formula and Mermaid source editable here. The optional preview renderer emits
+  // KaTeX/SVG DOM that StarterKit cannot round-trip without duplicating formula text or
+  // dropping Mermaid; platform preview/export remains the enhanced rendering surface.
+  const staged = await renderInkforgeMarkdownExtensions(normalizeCjkAdjacentEmphasis(normalized))
+  const html = await marked.parse(staged, { breaks: true, gfm: true })
+  return normalizeEditorTaskLists(typeof html === 'string' ? html : String(html))
+    .split(CJK_EMPHASIS_BOUNDARY)
+    .join('')
 }
 
 export function serializeHtmlToMarkdown(value: string): string {

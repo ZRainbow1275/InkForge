@@ -10,7 +10,13 @@
  */
 
 import { ref, watch, onUnmounted, type Ref } from 'vue'
-import type { Platform } from '@/services/export'
+import type {
+  DeliveryAdornmentReport,
+  ExportStats,
+  NativeExportOptions,
+  Platform,
+  TypographyConfig,
+} from '@/services/export'
 
 // ─── P3-T11 — preview metadata ──────────────────────────────────────
 /**
@@ -44,6 +50,10 @@ export interface PreviewMeta {
   tablesConverted?: number
   /** 是否使用空内容 sample 兜底（用于 UI 标示「示例内容」徽章） */
   isSample?: boolean
+  /** 与微信复制产物同源的真实统计 */
+  stats?: ExportStats
+  /** 与微信复制产物同源的交付组件报告 */
+  deliveryAdornment?: DeliveryAdornmentReport
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -58,7 +68,9 @@ export interface PreviewRendererOptions {
   /** 获取当前导出设置（惰性求值，避免不必要的深度 watch） */
   getExportSettings: () => Record<string, unknown>
   /** 获取当前外观设置 */
-  getAppearance: () => { accentColor: string; fontFamily: string }
+  getAppearance: () => { accentColor: string; fontFamily: string; typography?: TypographyConfig }
+  /** 工作台与快速复制共享的原生产物选项快照 */
+  getNativeExportOptions?: () => NativeExportOptions | undefined
 }
 
 export interface PreviewRendererReturn {
@@ -140,10 +152,16 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
       const presetId = exportSettings.defaultPresetId as string | undefined
       const primaryColor = appearance.accentColor
 
-      // 空内容兜底：用 resolveSampleContent 注入 sample markdown，让 preset 身份首次可见
-      // 仍走与 body-present 完全相同的渲染管线，保持视觉一致性
-      let body = rawBody as string
-      if (isEmptyBody) {
+      if (isEmptyBody && platform === 'wechat') {
+        if (isStale()) return
+        previewHtml.value = ''
+        previewMeta.value = { platform: 'wechat', isSample: false }
+        return
+      }
+
+      // 小红书/知乎保留空白示例；微信空文稿必须诚实保持为空，避免把示例误当真实产物。
+      let body = rawBody ?? ''
+      if (isEmptyBody && platform !== 'wechat') {
         const { resolveSampleContent, getPresetById } = await import('@/services/export')
         const activePreset = presetId ? getPresetById(presetId) : undefined
         body = resolveSampleContent({ sampleContent: activePreset?.sampleContent })
@@ -223,41 +241,34 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           isSample: isEmptyBody,
         }
       } else {
-        // wechat: mock 渲染器 — 对齐 xhs/zhihu 架构
-        // 注入 previewCSS 为 <style> 块，浏览器原生渲染伪元素/counter/字体
-        const { renderMarkdownWithLazyOptionalEnhancements } = await import(
-          '@/services/rendering/lazy-optional-renderer'
-        )
-        const { getPresetById, generateThemeCSS } = await import('@/services/export')
-        const { sanitizeCSSString } = await import('@/services/security/css-sanitizer')
+        // 微信预览只包裹最终原生产物；不再自行拼接抬头、主题 CSS 或文末组件。
+        const { convertToNativeFormat } = await import('@/services/export')
         const { renderWechatMockHtml } = await import(
           '@/services/export/preview-fidelity/wechat-mock'
         )
-
-        const renderedHtml = await renderMarkdownWithLazyOptionalEnhancements(body)
+        const nativeOptions = options.getNativeExportOptions?.() ?? {
+          presetId,
+          exportOptions: exportSettings,
+          overrides: {
+            primaryColor,
+            fontFamily: appearance.fontFamily,
+            typography: appearance.typography,
+          },
+          includeQualityReport: false,
+        }
+        const result = await convertToNativeFormat(body, 'wechat', nativeOptions)
         if (isStale()) return
 
-        const preset = presetId ? getPresetById(presetId) : undefined
-        const presetThemeCSS = preset ? generateThemeCSS(preset, 'preview') : ''
-        const exportCustomCss = typeof exportSettings.customCss === 'string'
-          ? sanitizeCSSString(exportSettings.customCss)
-            .replace(/[^{};]*\/\*\s*\[REMOVED\]\s*\*\/[^{};]*;?/gi, '')
-            .replace(/<\/?[a-z][^>]*>/gi, '')
-            .trim()
-          : ''
-        const wechatThemeCSS = [presetThemeCSS, exportCustomCss]
-          .filter(css => css.length > 0)
-          .join('\n/* inkforge-export-custom-css-preview */\n')
-
         previewHtml.value = renderWechatMockHtml(
-          { html: renderedHtml },
-          {
-            presetId,
-            primaryColor,
-            themeCSS: wechatThemeCSS,
-          }
+          { html: result.content },
+          { presetId: nativeOptions.presetId ?? presetId, primaryColor },
         )
-        previewMeta.value = { platform: 'wechat', isSample: isEmptyBody }
+        previewMeta.value = {
+          platform: 'wechat',
+          stats: result.stats,
+          deliveryAdornment: result.deliveryAdornment,
+          isSample: false,
+        }
       }
     } catch {
       if (isStale()) return
@@ -298,6 +309,8 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
   function scheduleRender(): void {
     if (debounceTimer !== null) clearTimeout(debounceTimer)
     if (rafId !== null) cancelAnimationFrame(rafId)
+    previewLoading.value = true
+    previewMeta.value = null
 
     // 任何一次 schedule 都让此前在飞的 renderPreview 失效 —— 即使 timer/rAF
     // 已经触发但 dynamic import 还没解决，token 比对会丢弃它的写回。
@@ -320,6 +333,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
       options.platform,
       () => JSON.stringify(options.getExportSettings()),
       () => JSON.stringify(options.getAppearance()),
+      () => JSON.stringify(options.getNativeExportOptions?.()),
     ],
     scheduleRender,
     { immediate: true },
