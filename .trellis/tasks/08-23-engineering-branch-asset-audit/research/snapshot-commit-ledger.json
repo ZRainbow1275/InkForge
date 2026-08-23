@@ -85,6 +85,29 @@
     "test_generated_files_restored_from_s0": 11,
     "preexisting_formatting_files_restored_from_s0": 2
   },
+  "history_integration": {
+    "locked_origin_main": "7640cae929ac48240f4877cb081d9ef4790a24fe",
+    "origin_main_merge": "ed4c2ca217a466eec7fa1e51b20b815dc177a2b7",
+    "origin_main_merge_first_parent_paths": 20,
+    "legacy_ancestry_merges": [
+      {
+        "source_tip": "e2fc8aa3388ecef3507ce1bdcf0ffcb0566b5abb",
+        "merge": "cbe6e1616515d2463d2af0ce20fba89a048e5f9d"
+      },
+      {
+        "source_tip": "dadfdedc26a9e7d0149dc6c3387f5013eb6e23db",
+        "merge": "75b2f287b1cd1bace8b1c3fd448453b21f55d7a9"
+      },
+      {
+        "source_tip": "9ac2fb48cb89d308c9ea98c4ae2edd64a36bc968",
+        "merge": "06160e0b8f23d7f24e0e2870fc89040d5567569a"
+      }
+    ],
+    "integration_tip": "06160e0b8f23d7f24e0e2870fc89040d5567569a",
+    "integration_tree": "ef215a1c7686fd2aacb0a7168bb342aef1380968",
+    "legacy_merge_trees_unchanged": true,
+    "required_ancestry_verified": true
+  },
   "validation": {
     "exact_stage_sets_verified": true,
     "gitleaks_product_staged_findings": 0,

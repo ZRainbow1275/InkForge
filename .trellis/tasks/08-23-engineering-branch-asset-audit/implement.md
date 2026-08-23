@@ -48,7 +48,7 @@
 
 状态：1,148 个规划路径已按 84/435/154/184/139/140/12 七批 exact path 提交；嵌套 WIP、两个 feature worktree 的 task/session 资产和 12 个 deletion 均有唯一目标。验证发现 full Vitest 会重写 11 个历史 fidelity evidence 文件，已从 S0 恢复原始字节；另两个为通过 whitespace check 曾被语义等价调整的既有文档，也已从 S0 精确恢复。S0 的 1,123 个 manifest entry 中 1,115 个逐字节相等，剩余 8 个仅为本审计任务自身的实施更新。
 
-## Phase 3 — Integrate all histories（执行中）
+## Phase 3 — Integrate all histories（已完成）
 
 1. 执行前重新 fetch 并读取远端 `main` hash；若它不再是审计过的 `7640cae...`，停止并重新审计，不在移动目标上继续。
 2. 正常合并锁定后的 `origin/main`，保留其 `7640cae`、Trellis 文件和 `server/data`；冲突按全量范围做最小解析。
@@ -60,6 +60,8 @@
 嵌套 WIP 约束：WIP objects 通过已验证 bundle/manifest/patch 保存，不把 5 月旧源码应用到最终工作树。
 
 退出条件：integration tip 同时包含全部确认历史与全量快照，工作树 clean，所有 tree/ancestry 断言通过。
+
+状态：锁定并重新核对 `origin/main=7640cae929ac48240f4877cb081d9ef4790a24fe` 后，以双亲 merge commit `ed4c2ca217a466eec7fa1e51b20b815dc177a2b7` 纳入其 20 个独有路径；冲突的 `start.py` 与远端 blob `42726b952a0610a197bb16772cff07246da7a715` 完全一致。随后三个 `-s ours` ancestry merge 分别生成 `cbe6e161...`、`75b2f287...`、`06160e0b...`，每次 tree 均保持 `ef215a1c7686fd2aacb0a7168bb342aef1380968` 不变。最终 integration tip 为 `06160e0b8f23d7f24e0e2870fc89040d5567569a`；全部本地、remote-tracking、feature/codex 来源 tip 的 ancestry 断言通过，工作树 clean。
 
 ## Phase 4 — Validate and fast-forward `main`
 
