@@ -45,4 +45,4 @@ Vitest 每次会重写 10 个既有 fidelity HTML/stats 文件；每次都先断
 
 ## Remaining boundary
 
-自动、构建、恢复和非交互真实运行门已通过。本地 `main` 已 fast-forward 至验证产品 tip；远端 race check 确认 `origin/main` 仍为 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后完成普通 push，push 后 `git ls-remote` 与 fetch 回读均确认远端为 `732b4791df4bdfc6b5067fd6c38b127b2629e83c`。当前仅剩用户验收门；嵌套 `.git`、旧分支、PR 和 linked worktree 在用户验收前继续保留，不提前破坏性清理。
+自动、构建、恢复和非交互真实运行门已通过。本地 `main` 已 fast-forward 至验证产品 tip；远端 race check 确认 `origin/main` 仍为 `7640cae929ac48240f4877cb081d9ef4790a24fe` 后完成普通 push，随后以 docs-only 回执提交收敛到 `fd37133abe2f5743b2e549130f4b741815ecec7b`，本地、tracking ref 与 `git ls-remote` 回读一致。用户随后明确表示人工验收以本任务已经完成的验证证据为准并要求继续，因此产品验收门通过。删除前又重新逐项核对两份 S0，并在隔离仓库恢复 repository-side nested bundle、核对两个 WIP exact ref、执行 `fsck`；Phase 5 可以开始。
